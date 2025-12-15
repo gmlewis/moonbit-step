@@ -1,0 +1,89 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "gmlewis/step/entities/presentation"
+
+import(
+  "gmlewis/step"
+)
+
+// Values
+
+// Errors
+
+// Types and methods
+pub struct ColorRgb {
+  name : String
+  red : Double
+  green : Double
+  blue : Double
+}
+pub fn ColorRgb::new(String, Double, Double, Double) -> Self
+pub impl @step.Entity for ColorRgb
+
+pub struct FillAreaStyle {
+  name : String
+  styles : Array[@step.Ref]
+}
+pub fn FillAreaStyle::new(String, Array[@step.Ref]) -> Self
+pub impl @step.Entity for FillAreaStyle
+
+pub struct FillAreaStyleColor {
+  name : String
+  color : @step.Ref
+}
+pub fn FillAreaStyleColor::new(String, @step.Ref) -> Self
+pub impl @step.Entity for FillAreaStyleColor
+
+pub struct MechanicalDesignGeometricPresentationRepresentation {
+  name : String
+  items : Array[@step.Ref]
+  context : @step.Ref
+}
+pub fn MechanicalDesignGeometricPresentationRepresentation::new(String, Array[@step.Ref], @step.Ref) -> Self
+pub impl @step.Entity for MechanicalDesignGeometricPresentationRepresentation
+
+pub struct PresentationLayerAssignment {
+  name : String
+  description : String
+  items : Array[@step.Ref]
+}
+pub fn PresentationLayerAssignment::new(String, String, Array[@step.Ref]) -> Self
+pub impl @step.Entity for PresentationLayerAssignment
+
+pub struct PresentationStyleAssignment {
+  styles : Array[@step.Ref]
+}
+pub fn PresentationStyleAssignment::new(Array[@step.Ref]) -> Self
+pub impl @step.Entity for PresentationStyleAssignment
+
+pub struct StyledItem {
+  name : String
+  styles : Array[@step.Ref]
+  item : @step.Ref
+}
+pub fn StyledItem::new(String, Array[@step.Ref], @step.Ref) -> Self
+pub impl @step.Entity for StyledItem
+
+pub struct SurfaceSideStyle {
+  name : String
+  styles : Array[@step.Ref]
+}
+pub fn SurfaceSideStyle::new(String, Array[@step.Ref]) -> Self
+pub impl @step.Entity for SurfaceSideStyle
+
+pub struct SurfaceStyleFillArea {
+  fill_area : @step.Ref
+}
+pub fn SurfaceStyleFillArea::new(@step.Ref) -> Self
+pub impl @step.Entity for SurfaceStyleFillArea
+
+pub struct SurfaceStyleUsage {
+  side : String
+  style : @step.Ref
+}
+pub fn SurfaceStyleUsage::new(String, @step.Ref) -> Self
+pub impl @step.Entity for SurfaceStyleUsage
+
+// Type aliases
+
+// Traits
+

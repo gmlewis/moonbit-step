@@ -1,0 +1,251 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "gmlewis/step/repository"
+
+import(
+  "gmlewis/step"
+  "gmlewis/step/entities/context"
+  "gmlewis/step/entities/geometry"
+  "gmlewis/step/entities/presentation"
+  "gmlewis/step/entities/product"
+  "gmlewis/step/entities/topology"
+  "gmlewis/step/entities/units"
+  "gmlewis/step/header"
+)
+
+// Values
+pub fn any_entity_advanced_brep_shape_representation(@product.AdvancedBrepShapeRepresentation) -> AnyEntity
+
+pub fn any_entity_advanced_face(@topology.AdvancedFace) -> AnyEntity
+
+pub fn any_entity_application_context(@product.ApplicationContext) -> AnyEntity
+
+pub fn any_entity_application_protocol_definition(@product.ApplicationProtocolDefinition) -> AnyEntity
+
+pub fn any_entity_axis2_placement_3d(@geometry.Axis2Placement3D) -> AnyEntity
+
+pub fn any_entity_b_spline_curve_with_knots(@geometry.BSplineCurveWithKnots) -> AnyEntity
+
+pub fn any_entity_b_spline_surface(@geometry.BSplineSurface) -> AnyEntity
+
+pub fn any_entity_b_spline_surface_with_knots(@geometry.BSplineSurfaceWithKnots) -> AnyEntity
+
+pub fn any_entity_cartesian_point(@geometry.CartesianPoint) -> AnyEntity
+
+pub fn any_entity_circle(@geometry.Circle) -> AnyEntity
+
+pub fn any_entity_closed_shell(@topology.ClosedShell) -> AnyEntity
+
+pub fn any_entity_color_rgb(@presentation.ColorRgb) -> AnyEntity
+
+pub fn any_entity_complex_instance(@context.ComplexInstance) -> AnyEntity
+
+pub fn any_entity_conical_surface(@geometry.ConicalSurface) -> AnyEntity
+
+pub fn any_entity_context_dependent_shape_representation(@product.ContextDependentShapeRepresentation) -> AnyEntity
+
+pub fn any_entity_ctx_wrap(@context.CtxWrap) -> AnyEntity
+
+pub fn any_entity_cylindrical_surface(@geometry.CylindricalSurface) -> AnyEntity
+
+pub fn any_entity_derived_unit(@units.DerivedUnit) -> AnyEntity
+
+pub fn any_entity_derived_unit_element(@units.DerivedUnitElement) -> AnyEntity
+
+pub fn any_entity_descriptive_representation_item(@product.DescriptiveRepresentationItem) -> AnyEntity
+
+pub fn any_entity_dimensional_exponents(@units.DimensionalExponents) -> AnyEntity
+
+pub fn any_entity_direction(@geometry.Direction) -> AnyEntity
+
+pub fn any_entity_edge_curve(@topology.EdgeCurve) -> AnyEntity
+
+pub fn any_entity_edge_loop(@topology.EdgeLoop) -> AnyEntity
+
+pub fn any_entity_ellipse(@geometry.Ellipse) -> AnyEntity
+
+pub fn any_entity_face_bound(@topology.FaceBound) -> AnyEntity
+
+pub fn any_entity_face_outer_bound(@topology.FaceOuterBound) -> AnyEntity
+
+pub fn any_entity_fill_area_style(@presentation.FillAreaStyle) -> AnyEntity
+
+pub fn any_entity_fill_area_style_color(@presentation.FillAreaStyleColor) -> AnyEntity
+
+pub fn any_entity_item_defined_transformation(@product.ItemDefinedTransformation) -> AnyEntity
+
+pub fn any_entity_line(@geometry.Line) -> AnyEntity
+
+pub fn any_entity_manifold_solid_brep(@topology.ManifoldSolidBrep) -> AnyEntity
+
+pub fn any_entity_measure_representation_item(@product.MeasureRepresentationItem) -> AnyEntity
+
+pub fn any_entity_mechanical_design_geometric_presentation_representation(@presentation.MechanicalDesignGeometricPresentationRepresentation) -> AnyEntity
+
+pub fn any_entity_next_assembly_usage_occurrence(@product.NextAssemblyUsageOccurrence) -> AnyEntity
+
+pub fn any_entity_oriented_edge(@topology.OrientedEdge) -> AnyEntity
+
+pub fn any_entity_plane(@geometry.Plane) -> AnyEntity
+
+pub fn any_entity_plane_angle_measure_with_unit(@units.PlaneAngleMeasureWithUnit) -> AnyEntity
+
+pub fn any_entity_presentation_layer_assignment(@presentation.PresentationLayerAssignment) -> AnyEntity
+
+pub fn any_entity_presentation_style_assignment(@presentation.PresentationStyleAssignment) -> AnyEntity
+
+pub fn any_entity_product(@product.Product) -> AnyEntity
+
+pub fn any_entity_product_context(@product.ProductContext) -> AnyEntity
+
+pub fn any_entity_product_definition(@product.ProductDefinition) -> AnyEntity
+
+pub fn any_entity_product_definition_context(@product.ProductDefinitionContext) -> AnyEntity
+
+pub fn any_entity_product_definition_formation(@product.ProductDefinitionFormation) -> AnyEntity
+
+pub fn any_entity_product_definition_formation_with_specified_source(@product.ProductDefinitionFormationWithSpecifiedSource) -> AnyEntity
+
+pub fn any_entity_product_definition_shape(@product.ProductDefinitionShape) -> AnyEntity
+
+pub fn any_entity_product_related_product_category(@product.ProductRelatedProductCategory) -> AnyEntity
+
+pub fn any_entity_property_definition(@product.PropertyDefinition) -> AnyEntity
+
+pub fn any_entity_property_definition_representation(@product.PropertyDefinitionRepresentation) -> AnyEntity
+
+pub fn any_entity_rational_b_spline_curve(@geometry.RationalBSplineCurve) -> AnyEntity
+
+pub fn any_entity_rational_b_spline_surface(@geometry.RationalBSplineSurface) -> AnyEntity
+
+pub fn any_entity_raw_entity(@step.RawEntity) -> AnyEntity
+
+pub fn any_entity_rectangular_trimmed_surface(@geometry.RectangularTrimmedSurface) -> AnyEntity
+
+pub fn any_entity_representation(@product.Representation) -> AnyEntity
+
+pub fn any_entity_representation_relationship(@product.RepresentationRelationship) -> AnyEntity
+
+pub fn any_entity_representation_relationship_with_transformation(@product.RepresentationRelationshipWithTransformation) -> AnyEntity
+
+pub fn any_entity_shape_definition_representation(@product.ShapeDefinitionRepresentation) -> AnyEntity
+
+pub fn any_entity_shape_representation(@product.ShapeRepresentation) -> AnyEntity
+
+pub fn any_entity_shape_representation_relationship(@product.ShapeRepresentationRelationship) -> AnyEntity
+
+pub fn any_entity_styled_item(@presentation.StyledItem) -> AnyEntity
+
+pub fn any_entity_surface_side_style(@presentation.SurfaceSideStyle) -> AnyEntity
+
+pub fn any_entity_surface_style_fill_area(@presentation.SurfaceStyleFillArea) -> AnyEntity
+
+pub fn any_entity_surface_style_usage(@presentation.SurfaceStyleUsage) -> AnyEntity
+
+pub fn any_entity_toroidal_surface(@geometry.ToroidalSurface) -> AnyEntity
+
+pub fn any_entity_trimmed_curve(@geometry.TrimmedCurve) -> AnyEntity
+
+pub fn any_entity_uncertainty_measure_with_unit(@units.UncertaintyMeasureWithUnit) -> AnyEntity
+
+pub fn any_entity_vector(@geometry.Vector) -> AnyEntity
+
+pub fn any_entity_vertex_point(@topology.VertexPoint) -> AnyEntity
+
+pub fn new() -> Repository
+
+// Errors
+
+// Types and methods
+pub enum AnyEntity {
+  RawEntity(@step.RawEntity)
+  CartesianPoint(@geometry.CartesianPoint)
+  Direction(@geometry.Direction)
+  Axis2Placement3D(@geometry.Axis2Placement3D)
+  Plane(@geometry.Plane)
+  Vector(@geometry.Vector)
+  Line(@geometry.Line)
+  Circle(@geometry.Circle)
+  Ellipse(@geometry.Ellipse)
+  CylindricalSurface(@geometry.CylindricalSurface)
+  ConicalSurface(@geometry.ConicalSurface)
+  ToroidalSurface(@geometry.ToroidalSurface)
+  BSplineCurveWithKnots(@geometry.BSplineCurveWithKnots)
+  BSplineSurface(@geometry.BSplineSurface)
+  BSplineSurfaceWithKnots(@geometry.BSplineSurfaceWithKnots)
+  RationalBSplineCurve(@geometry.RationalBSplineCurve)
+  RationalBSplineSurface(@geometry.RationalBSplineSurface)
+  TrimmedCurve(@geometry.TrimmedCurve)
+  RectangularTrimmedSurface(@geometry.RectangularTrimmedSurface)
+  RepresentationRelationship(@product.RepresentationRelationship)
+  RepresentationRelationshipWithTransformation(@product.RepresentationRelationshipWithTransformation)
+  ShapeRepresentationRelationship(@product.ShapeRepresentationRelationship)
+  AdvancedBrepShapeRepresentation(@product.AdvancedBrepShapeRepresentation)
+  ShapeRepresentation(@product.ShapeRepresentation)
+  Representation(@product.Representation)
+  ShapeDefinitionRepresentation(@product.ShapeDefinitionRepresentation)
+  DescriptiveRepresentationItem(@product.DescriptiveRepresentationItem)
+  MeasureRepresentationItem(@product.MeasureRepresentationItem)
+  ContextDependentShapeRepresentation(@product.ContextDependentShapeRepresentation)
+  ItemDefinedTransformation(@product.ItemDefinedTransformation)
+  NextAssemblyUsageOccurrence(@product.NextAssemblyUsageOccurrence)
+  ProductDefinitionShape(@product.ProductDefinitionShape)
+  ProductDefinition(@product.ProductDefinition)
+  ProductDefinitionContext(@product.ProductDefinitionContext)
+  ProductDefinitionFormation(@product.ProductDefinitionFormation)
+  ProductDefinitionFormationWithSpecifiedSource(@product.ProductDefinitionFormationWithSpecifiedSource)
+  PropertyDefinition(@product.PropertyDefinition)
+  PropertyDefinitionRepresentation(@product.PropertyDefinitionRepresentation)
+  ProductRelatedProductCategory(@product.ProductRelatedProductCategory)
+  Product(@product.Product)
+  ProductContext(@product.ProductContext)
+  ApplicationProtocolDefinition(@product.ApplicationProtocolDefinition)
+  ApplicationContext(@product.ApplicationContext)
+  ManifoldSolidBrep(@topology.ManifoldSolidBrep)
+  ClosedShell(@topology.ClosedShell)
+  AdvancedFace(@topology.AdvancedFace)
+  FaceOuterBound(@topology.FaceOuterBound)
+  FaceBound(@topology.FaceBound)
+  EdgeLoop(@topology.EdgeLoop)
+  OrientedEdge(@topology.OrientedEdge)
+  EdgeCurve(@topology.EdgeCurve)
+  VertexPoint(@topology.VertexPoint)
+  ColorRgb(@presentation.ColorRgb)
+  FillAreaStyleColor(@presentation.FillAreaStyleColor)
+  FillAreaStyle(@presentation.FillAreaStyle)
+  SurfaceStyleFillArea(@presentation.SurfaceStyleFillArea)
+  SurfaceSideStyle(@presentation.SurfaceSideStyle)
+  SurfaceStyleUsage(@presentation.SurfaceStyleUsage)
+  PresentationStyleAssignment(@presentation.PresentationStyleAssignment)
+  PresentationLayerAssignment(@presentation.PresentationLayerAssignment)
+  MechanicalDesignGeometricPresentationRepresentation(@presentation.MechanicalDesignGeometricPresentationRepresentation)
+  StyledItem(@presentation.StyledItem)
+  DimensionalExponents(@units.DimensionalExponents)
+  UncertaintyMeasureWithUnit(@units.UncertaintyMeasureWithUnit)
+  PlaneAngleMeasureWithUnit(@units.PlaneAngleMeasureWithUnit)
+  DerivedUnitElement(@units.DerivedUnitElement)
+  DerivedUnit(@units.DerivedUnit)
+  CtxWrap(@context.CtxWrap)
+  ComplexInstance(@context.ComplexInstance)
+}
+
+type Entry
+
+pub struct Repository {
+  entities : Array[Entry]
+  order : Array[@step.EntityId]
+  mut header : @header.HeaderSection
+  mut next_id : Int
+}
+pub fn Repository::add(Self, AnyEntity) -> (Self, @step.EntityId)
+pub fn Repository::get(Self, @step.EntityId) -> AnyEntity?
+pub fn Repository::get_header(Self) -> @header.HeaderSection
+pub fn Repository::insert_with_id(Self, @step.EntityId, AnyEntity) -> Self
+pub fn Repository::len(Self) -> Int
+pub fn Repository::set_header(Self, @header.HeaderSection) -> Self
+pub fn Repository::to_step_data_section(Self) -> String
+pub fn Repository::to_step_file(Self) -> String
+
+// Type aliases
+
+// Traits
+

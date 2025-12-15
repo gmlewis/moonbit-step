@@ -1,0 +1,89 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "gmlewis/step/entities/topology"
+
+import(
+  "gmlewis/step"
+)
+
+// Values
+
+// Errors
+
+// Types and methods
+pub struct AdvancedFace {
+  name : String
+  bounds : Array[@step.Ref]
+  surface : @step.Ref
+  same_sense : Bool
+}
+pub fn AdvancedFace::new(String, Array[@step.Ref], @step.Ref, Bool) -> Self
+pub impl @step.Entity for AdvancedFace
+
+pub struct ClosedShell {
+  name : String
+  faces : Array[@step.Ref]
+}
+pub fn ClosedShell::new(String, Array[@step.Ref]) -> Self
+pub impl @step.Entity for ClosedShell
+
+pub struct EdgeCurve {
+  name : String
+  edge_start : @step.Ref
+  edge_end : @step.Ref
+  edge_geometry : @step.Ref
+  same_sense : Bool
+}
+pub fn EdgeCurve::new(String, @step.Ref, @step.Ref, @step.Ref, Bool) -> Self
+pub impl @step.Entity for EdgeCurve
+
+pub struct EdgeLoop {
+  name : String
+  edges : Array[@step.Ref]
+}
+pub fn EdgeLoop::new(String, Array[@step.Ref]) -> Self
+pub impl @step.Entity for EdgeLoop
+
+pub struct FaceBound {
+  name : String
+  bound : @step.Ref
+  orientation : Bool
+}
+pub fn FaceBound::new(String, @step.Ref, Bool) -> Self
+pub impl @step.Entity for FaceBound
+
+pub struct FaceOuterBound {
+  name : String
+  bound : @step.Ref
+  orientation : Bool
+}
+pub fn FaceOuterBound::new(String, @step.Ref, Bool) -> Self
+pub impl @step.Entity for FaceOuterBound
+
+pub struct ManifoldSolidBrep {
+  name : String
+  outer : @step.Ref
+}
+pub fn ManifoldSolidBrep::new(String, @step.Ref) -> Self
+pub impl @step.Entity for ManifoldSolidBrep
+
+pub struct OrientedEdge {
+  name : String
+  edge_start : String
+  edge_end : String
+  edge_element : @step.Ref
+  orientation : Bool
+}
+pub fn OrientedEdge::new(String, String, String, @step.Ref, Bool) -> Self
+pub impl @step.Entity for OrientedEdge
+
+pub struct VertexPoint {
+  name : String
+  vertex_geometry : @step.Ref
+}
+pub fn VertexPoint::new(String, @step.Ref) -> Self
+pub impl @step.Entity for VertexPoint
+
+// Type aliases
+
+// Traits
+

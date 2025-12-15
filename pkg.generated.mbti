@@ -1,0 +1,38 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "gmlewis/step"
+
+// Values
+pub fn fmt_num(Double) -> String
+
+pub fn step_str(String) -> String
+
+pub let unknown_entity_witness : UnknownEntity
+
+// Errors
+
+// Types and methods
+pub(all) struct EntityId {
+  value : Int
+}
+
+pub struct RawEntity {
+  name : String
+  args : String
+}
+pub fn RawEntity::new(String, String) -> Self
+pub impl Entity for RawEntity
+
+pub(all) struct Ref {
+  id : EntityId
+}
+
+pub struct UnknownEntity {
+}
+
+// Type aliases
+
+// Traits
+pub(open) trait Entity {
+  to_step(Self) -> String
+}
+

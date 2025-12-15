@@ -1,0 +1,103 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "gmlewis/step/entities/units"
+
+import(
+  "gmlewis/step"
+)
+
+// Values
+
+// Errors
+
+// Types and methods
+pub struct ConversionBasedUnit {
+  name : String
+  conversion_factor : @step.Ref
+}
+pub fn ConversionBasedUnit::new(String, @step.Ref) -> Self
+pub impl @step.Entity for ConversionBasedUnit
+
+pub struct DerivedUnit {
+  elements : Array[@step.Ref]
+}
+pub fn DerivedUnit::new(Array[@step.Ref]) -> Self
+pub impl @step.Entity for DerivedUnit
+
+pub struct DerivedUnitElement {
+  unit : @step.Ref
+  exponent : Double
+}
+pub fn DerivedUnitElement::new(@step.Ref, Double) -> Self
+pub impl @step.Entity for DerivedUnitElement
+
+pub struct DimensionalExponents {
+  length_exponent : Double
+  mass_exponent : Double
+  time_exponent : Double
+  electric_current_exponent : Double
+  thermodynamic_temperature_exponent : Double
+  amount_of_substance_exponent : Double
+  luminous_intensity_exponent : Double
+}
+pub fn DimensionalExponents::new(Double, Double, Double, Double, Double, Double, Double) -> Self
+pub impl @step.Entity for DimensionalExponents
+
+pub struct LengthUnit {
+}
+pub fn LengthUnit::new() -> Self
+pub impl @step.Entity for LengthUnit
+
+pub struct MassUnit {
+}
+pub fn MassUnit::new() -> Self
+pub impl @step.Entity for MassUnit
+
+pub struct NamedUnit {
+  dimensions : String
+}
+pub fn NamedUnit::new(String) -> Self
+pub impl @step.Entity for NamedUnit
+
+pub struct PlaneAngleMeasureWithUnit {
+  plane_angle_measure_literal : String
+  unit : @step.Ref
+}
+pub fn PlaneAngleMeasureWithUnit::new(String, @step.Ref) -> Self
+pub impl @step.Entity for PlaneAngleMeasureWithUnit
+
+pub struct PlaneAngleUnit {
+}
+pub fn PlaneAngleUnit::new() -> Self
+pub impl @step.Entity for PlaneAngleUnit
+
+pub struct PositiveRatioMeasure {
+  value : String
+}
+pub fn PositiveRatioMeasure::new(String) -> Self
+pub impl @step.Entity for PositiveRatioMeasure
+
+pub struct SiUnit {
+  prefix : String
+  name : String
+}
+pub fn SiUnit::new(String, String) -> Self
+pub impl @step.Entity for SiUnit
+
+pub struct SolidAngleUnit {
+}
+pub fn SolidAngleUnit::new() -> Self
+pub impl @step.Entity for SolidAngleUnit
+
+pub struct UncertaintyMeasureWithUnit {
+  length_measure_literal : String
+  unit : @step.Ref
+  name : String
+  description : String
+}
+pub fn UncertaintyMeasureWithUnit::new(String, @step.Ref, String, String) -> Self
+pub impl @step.Entity for UncertaintyMeasureWithUnit
+
+// Type aliases
+
+// Traits
+

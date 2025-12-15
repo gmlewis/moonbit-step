@@ -1,0 +1,177 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "gmlewis/step/entities/geometry"
+
+import(
+  "gmlewis/step"
+)
+
+// Values
+
+// Errors
+
+// Types and methods
+pub struct Axis2Placement3D {
+  name : String
+  location : @step.Ref
+  axis : @step.Ref
+  ref_direction : @step.Ref
+}
+pub fn Axis2Placement3D::new(String, @step.Ref, @step.Ref, @step.Ref) -> Self
+pub impl @step.Entity for Axis2Placement3D
+
+pub struct BSplineCurveWithKnots {
+  name : String
+  degree : Int
+  control_points : Array[@step.Ref]
+  curve_form : String
+  closed_curve : Bool
+  self_intersect : Bool
+  knot_multiplicities : Array[Int]
+  knots : Array[String]
+  knot_spec : String
+}
+pub fn BSplineCurveWithKnots::new(String, Int, Array[@step.Ref], String, Bool, Bool, Array[Int], Array[String], String) -> Self
+pub impl @step.Entity for BSplineCurveWithKnots
+
+pub struct BSplineSurface {
+  u_degree : Int
+  v_degree : Int
+  control_points_list : Array[Array[@step.Ref]]
+  surface_form : String
+  u_closed : Bool
+  v_closed : Bool
+  self_intersect : Bool
+}
+pub fn BSplineSurface::new(Int, Int, Array[Array[@step.Ref]], String, Bool, Bool, Bool) -> Self
+pub impl @step.Entity for BSplineSurface
+
+pub struct BSplineSurfaceWithKnots {
+  u_multiplicities : Array[Int]
+  v_multiplicities : Array[Int]
+  u_knots : Array[String]
+  v_knots : Array[String]
+  knot_spec : String
+}
+pub fn BSplineSurfaceWithKnots::new(Array[Int], Array[Int], Array[String], Array[String], String) -> Self
+pub impl @step.Entity for BSplineSurfaceWithKnots
+
+pub struct CartesianPoint {
+  name : String
+  coordinates : Array[Double]
+}
+pub fn CartesianPoint::new(String, Array[Double]) -> Self
+pub impl @step.Entity for CartesianPoint
+
+pub struct Circle {
+  name : String
+  position : @step.Ref
+  radius_literal : String
+}
+pub fn Circle::new(String, @step.Ref, String) -> Self
+pub impl @step.Entity for Circle
+
+pub struct ConicalSurface {
+  name : String
+  position : @step.Ref
+  radius_literal : String
+  semi_angle_literal : String
+}
+pub fn ConicalSurface::new(String, @step.Ref, String, String) -> Self
+pub impl @step.Entity for ConicalSurface
+
+pub struct CylindricalSurface {
+  name : String
+  position : @step.Ref
+  radius_literal : String
+}
+pub fn CylindricalSurface::new(String, @step.Ref, String) -> Self
+pub impl @step.Entity for CylindricalSurface
+
+pub struct Direction {
+  name : String
+  ratios : Array[Double]
+}
+pub fn Direction::new(String, Array[Double]) -> Self
+pub impl @step.Entity for Direction
+
+pub struct Ellipse {
+  name : String
+  position : @step.Ref
+  semi_axis_1_literal : String
+  semi_axis_2_literal : String
+}
+pub fn Ellipse::new(String, @step.Ref, String, String) -> Self
+pub impl @step.Entity for Ellipse
+
+pub struct Line {
+  name : String
+  pnt : @step.Ref
+  dir : @step.Ref
+}
+pub fn Line::new(String, @step.Ref, @step.Ref) -> Self
+pub impl @step.Entity for Line
+
+pub struct Plane {
+  name : String
+  position : @step.Ref
+}
+pub fn Plane::new(String, @step.Ref) -> Self
+pub impl @step.Entity for Plane
+
+pub struct RationalBSplineCurve {
+  weights : Array[String]
+}
+pub fn RationalBSplineCurve::new(Array[String]) -> Self
+pub impl @step.Entity for RationalBSplineCurve
+
+pub struct RationalBSplineSurface {
+  weights : Array[Array[String]]
+}
+pub fn RationalBSplineSurface::new(Array[Array[String]]) -> Self
+pub impl @step.Entity for RationalBSplineSurface
+
+pub struct RectangularTrimmedSurface {
+  name : String
+  basis_surface : @step.Ref
+  u1 : String
+  u2 : String
+  v1 : String
+  v2 : String
+  usense : Bool
+  vsense : Bool
+}
+pub fn RectangularTrimmedSurface::new(String, @step.Ref, String, String, String, String, Bool, Bool) -> Self
+pub impl @step.Entity for RectangularTrimmedSurface
+
+pub struct ToroidalSurface {
+  name : String
+  position : @step.Ref
+  major_radius_literal : String
+  minor_radius_literal : String
+}
+pub fn ToroidalSurface::new(String, @step.Ref, String, String) -> Self
+pub impl @step.Entity for ToroidalSurface
+
+pub struct TrimmedCurve {
+  name : String
+  basis_curve : @step.Ref
+  trim_1 : String
+  trim_2 : String
+  sense_agreement : Bool
+  master_representation : String
+}
+pub fn TrimmedCurve::new(String, @step.Ref, String, String, Bool, String) -> Self
+pub impl @step.Entity for TrimmedCurve
+
+pub struct Vector {
+  name : String
+  orientation : @step.Ref
+  magnitude : Double
+}
+pub fn Vector::new(String, @step.Ref, Double) -> Self
+pub impl @step.Entity for Vector
+
+// Type aliases
+
+// Traits
+

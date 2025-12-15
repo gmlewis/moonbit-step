@@ -1,0 +1,8 @@
+{
+  "test-import": [
+    "gmlewis/step/cli",
+    "gmlewis/step/parse",
+    "gmlewis/step/repository",
+    "moonbitlang/async"
+  ]
+}

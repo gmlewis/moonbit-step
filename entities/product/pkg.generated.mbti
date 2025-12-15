@@ -1,0 +1,216 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "gmlewis/step/entities/product"
+
+import(
+  "gmlewis/step"
+  "gmlewis/step/entities/units"
+)
+
+// Values
+
+// Errors
+
+// Types and methods
+pub struct AdvancedBrepShapeRepresentation {
+  name : String
+  items : Array[@step.Ref]
+  context_of_items : @step.Ref
+}
+pub fn AdvancedBrepShapeRepresentation::new(String, Array[@step.Ref], @step.Ref) -> Self
+pub impl @step.Entity for AdvancedBrepShapeRepresentation
+
+pub struct ApplicationContext {
+  application : String
+}
+pub fn ApplicationContext::new(String) -> Self
+pub impl @step.Entity for ApplicationContext
+
+pub struct ApplicationProtocolDefinition {
+  status : String
+  application_interpreted_model_schema_name : String
+  application_protocol_year : Int
+  application : @step.Ref
+}
+pub fn ApplicationProtocolDefinition::new(String, String, Int, @step.Ref) -> Self
+pub impl @step.Entity for ApplicationProtocolDefinition
+
+pub struct ContextDependentShapeRepresentation {
+  representation_relation : @step.Ref
+  represented_product_relation : @step.Ref
+}
+pub fn ContextDependentShapeRepresentation::new(@step.Ref, @step.Ref) -> Self
+pub impl @step.Entity for ContextDependentShapeRepresentation
+
+pub struct DescriptiveRepresentationItem {
+  name : String
+  description : String
+}
+pub fn DescriptiveRepresentationItem::new(String, String) -> Self
+pub impl @step.Entity for DescriptiveRepresentationItem
+
+pub struct ItemDefinedTransformation {
+  name : String
+  description : String
+  transform_item_1 : @step.Ref
+  transform_item_2 : @step.Ref
+}
+pub fn ItemDefinedTransformation::new(String, String, @step.Ref, @step.Ref) -> Self
+pub impl @step.Entity for ItemDefinedTransformation
+
+pub struct MeasureRepresentationItem {
+  name : String
+  value_component : MeasureValueComponent
+  unit_component : @step.Ref
+}
+pub fn MeasureRepresentationItem::new(String, MeasureValueComponent, @step.Ref) -> Self
+pub impl @step.Entity for MeasureRepresentationItem
+
+pub(all) enum MeasureValueComponent {
+  PositiveRatioMeasure(@units.PositiveRatioMeasure)
+  Raw(String)
+}
+
+pub struct NextAssemblyUsageOccurrence {
+  id : String
+  name : String
+  description : String
+  relating_product_definition : @step.Ref
+  related_product_definition : @step.Ref
+  reference_designator : String
+}
+pub fn NextAssemblyUsageOccurrence::new(String, String, String, @step.Ref, @step.Ref, String) -> Self
+pub impl @step.Entity for NextAssemblyUsageOccurrence
+
+pub struct Product {
+  name : String
+  id : String
+  description : String
+  frame_of_reference : Array[@step.Ref]
+}
+pub fn Product::new(String, String, String, Array[@step.Ref]) -> Self
+pub impl @step.Entity for Product
+
+pub struct ProductContext {
+  name : String
+  frame_of_reference : @step.Ref
+  discipline_type : String
+}
+pub fn ProductContext::new(String, @step.Ref, String) -> Self
+pub impl @step.Entity for ProductContext
+
+pub struct ProductDefinition {
+  id : String
+  description : String
+  formation : @step.Ref
+  frame_of_reference : @step.Ref
+}
+pub fn ProductDefinition::new(String, String, @step.Ref, @step.Ref) -> Self
+pub impl @step.Entity for ProductDefinition
+
+pub struct ProductDefinitionContext {
+  name : String
+  application : @step.Ref
+  life_cycle_stage : String
+}
+pub fn ProductDefinitionContext::new(String, @step.Ref, String) -> Self
+pub impl @step.Entity for ProductDefinitionContext
+
+pub struct ProductDefinitionFormation {
+  id : String
+  description : String
+  of_product : @step.Ref
+}
+pub fn ProductDefinitionFormation::new(String, String, @step.Ref) -> Self
+pub impl @step.Entity for ProductDefinitionFormation
+
+pub struct ProductDefinitionFormationWithSpecifiedSource {
+  id : String
+  description : String
+  of_product : @step.Ref
+  make_or_buy : String
+}
+pub fn ProductDefinitionFormationWithSpecifiedSource::new(String, String, @step.Ref, String) -> Self
+pub impl @step.Entity for ProductDefinitionFormationWithSpecifiedSource
+
+pub struct ProductDefinitionShape {
+  name : String
+  description : String
+  definition : @step.Ref
+}
+pub fn ProductDefinitionShape::new(String, String, @step.Ref) -> Self
+pub impl @step.Entity for ProductDefinitionShape
+
+pub struct ProductRelatedProductCategory {
+  name : String
+  description : String
+  products : Array[@step.Ref]
+}
+pub fn ProductRelatedProductCategory::new(String, String, Array[@step.Ref]) -> Self
+pub impl @step.Entity for ProductRelatedProductCategory
+
+pub struct PropertyDefinition {
+  name : String
+  description : String
+  definition : @step.Ref
+}
+pub fn PropertyDefinition::new(String, String, @step.Ref) -> Self
+pub impl @step.Entity for PropertyDefinition
+
+pub struct PropertyDefinitionRepresentation {
+  definition : @step.Ref
+  used_representation : @step.Ref
+}
+pub fn PropertyDefinitionRepresentation::new(@step.Ref, @step.Ref) -> Self
+pub impl @step.Entity for PropertyDefinitionRepresentation
+
+pub struct Representation {
+  name : String
+  items : Array[@step.Ref]
+  context_of_items : @step.Ref
+}
+pub fn Representation::new(String, Array[@step.Ref], @step.Ref) -> Self
+pub impl @step.Entity for Representation
+
+pub struct RepresentationRelationship {
+  name : String
+  description : String
+  rep_1 : @step.Ref
+  rep_2 : @step.Ref
+}
+pub fn RepresentationRelationship::new(String, String, @step.Ref, @step.Ref) -> Self
+pub impl @step.Entity for RepresentationRelationship
+
+pub struct RepresentationRelationshipWithTransformation {
+  transformation : @step.Ref
+}
+pub fn RepresentationRelationshipWithTransformation::new(@step.Ref) -> Self
+pub impl @step.Entity for RepresentationRelationshipWithTransformation
+
+pub struct ShapeDefinitionRepresentation {
+  definition : @step.Ref
+  used_representation : @step.Ref
+}
+pub fn ShapeDefinitionRepresentation::new(@step.Ref, @step.Ref) -> Self
+pub impl @step.Entity for ShapeDefinitionRepresentation
+
+pub struct ShapeRepresentation {
+  name : String
+  items : Array[@step.Ref]
+  context_of_items : @step.Ref
+}
+pub fn ShapeRepresentation::new(String, Array[@step.Ref], @step.Ref) -> Self
+pub impl @step.Entity for ShapeRepresentation
+
+pub struct ShapeRepresentationRelationship {
+  name : String
+  description : String
+  rep_1 : @step.Ref
+  rep_2 : @step.Ref
+}
+pub fn ShapeRepresentationRelationship::new(String, String, @step.Ref, @step.Ref) -> Self
+pub impl @step.Entity for ShapeRepresentationRelationship
+
+// Type aliases
+
+// Traits
+

@@ -1,0 +1,50 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "gmlewis/step/cad"
+
+import(
+  "gmlewis/step/repository"
+)
+
+// Values
+pub async fn write_step_text(String, String?) -> Unit
+
+// Errors
+
+// Types and methods
+pub struct Design {
+  repo : @repository.Repository
+  next_solid_id : Int
+}
+pub fn Design::add(Self, Solid) -> Self
+pub fn Design::add_cube(Self, Double, name? : String, color? : Rgb) -> Self
+pub fn Design::new(name? : String, description? : String) -> Self
+pub fn Design::to_step_file(Self) -> String
+pub fn Design::to_string(Self) -> String
+pub async fn Design::write_step(Self, String?) -> Unit
+pub async fn Design::write_step_file(Self, String?) -> Unit
+
+pub struct Profile2D {
+  outer : Array[(Double, Double)]
+  holes : Array[Array[(Double, Double)]]
+}
+
+pub struct Rgb {
+  r : Double
+  g : Double
+  b : Double
+}
+
+pub enum Solid {
+  Cube(Double, String, Rgb, Double, Double, Double)
+  CalibrationChamferBlock(Double, Double, Double, Double, Double, Int, String, Rgb, Double, Double, Double)
+  ExtrudedProfile(Profile2D, Double, String, Rgb, Double, Double, Double)
+}
+pub fn Solid::calibration_chamfer_block(Double, Double, Double, chamfer_size_mm? : Double, fillet_radius_mm? : Double, fillet_segments? : Int, name? : String, color? : Rgb) -> Self
+pub fn Solid::cube(Double, name? : String, color? : Rgb) -> Self
+pub fn Solid::extruded_profile(Array[(Double, Double)], Double, holes? : Array[Array[(Double, Double)]], name? : String, color? : Rgb) -> Self
+pub fn Solid::translate(Self, x? : Double, y? : Double, z? : Double) -> Self
+
+// Type aliases
+
+// Traits
+

@@ -1,0 +1,20 @@
+{
+  "import": [
+    {
+      "path": "gmlewis/step",
+      "alias": "step"
+    },
+    {
+      "path": "gmlewis/step/entities/geometry",
+      "alias": "geometry"
+    },
+    {
+      "path": "gmlewis/step/entities/units",
+      "alias": "units"
+    },
+    {
+      "path": "gmlewis/step/entities/product",
+      "alias": "product"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "is-main": true,
+  "import": [
+    "gmlewis/fonts-b/baloo",
+    "gmlewis/fonts/draw",
+    "gmlewis/step/cad",
+    "gmlewis/step/cli",
+    "moonbitlang/async"
+  ]
+}

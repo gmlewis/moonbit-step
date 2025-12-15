@@ -1,0 +1,13 @@
+ISO-10303-21;
+HEADER;
+FILE_DESCRIPTION(('AP242 strings/comment edgecases'),'2;1');
+FILE_NAME('ap242-strings.step','2025-12-13T00:00:00',('moonbit-step'),('gmlewis/step'),'moon','moonbit','none');
+FILE_SCHEMA(('AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF'));
+ENDSEC;
+DATA;
+/* This comment contains ; and ENDSEC; and should be ignored safely. */
+#1=DESCRIPTIVE_REPRESENTATION_ITEM('note','String with /* not a comment */ and a semicolon ; inside.');
+#2=DESCRIPTIVE_REPRESENTATION_ITEM('quote','It''s fine to have doubled quotes and also the sequence */ in a string.');
+#3=FOO_BAR(1,$,'X;Y'); /* trailing comment ; */
+ENDSEC;
+END-ISO-10303-21;

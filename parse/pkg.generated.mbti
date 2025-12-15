@@ -1,0 +1,77 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "gmlewis/step/parse"
+
+import(
+  "gmlewis/step"
+  "gmlewis/step/repository"
+)
+
+// Values
+pub fn[T] fail_parse() -> T raise StepParseError
+
+pub fn[T] fail_parse_at(String, Int, Int, String) -> T raise StepParseError
+
+pub fn[T] fail_parse_msg(String) -> T raise StepParseError
+
+pub fn[T] fail_parse_stmt(String, String) -> T raise StepParseError
+
+pub fn format_step_parse_error(StepParseErrorInfo) -> String
+
+pub async fn parse_repository_from_file(StringView) -> @repository.Repository
+
+pub async fn parse_repository_from_file_result(StringView) -> ParseRepositoryFromFileResult
+
+pub fn parse_repository_from_string(String) -> @repository.Repository raise StepParseError
+
+pub fn parse_repository_from_string_result(String) -> ParseRepositoryResult
+
+pub fn split_args(String) -> Array[String]
+
+pub fn split_statements(String) -> Array[String]
+
+pub fn split_statements_with_pos(String) -> Array[StatementSpan] raise StepParseError
+
+pub fn tokenize_step_data_section(String) -> Array[RawEntityRow] raise StepParseError
+
+pub fn tokenize_step_data_section_with_base(String, Int, Int) -> Array[RawEntityRow] raise StepParseError
+
+// Errors
+pub suberror StepParseError StepParseErrorInfo
+
+// Types and methods
+pub enum ParseRepositoryFromFileResult {
+  Ok(@repository.Repository)
+  ParseErr(StepParseErrorInfo)
+  IoErr(Error)
+}
+
+pub enum ParseRepositoryResult {
+  Ok(@repository.Repository)
+  Err(StepParseErrorInfo)
+}
+
+pub struct RawEntityRow {
+  id : @step.EntityId
+  name : String
+  args : String
+  line : Int
+  col : Int
+}
+
+pub struct StatementSpan {
+  stmt : String
+  line : Int
+  col : Int
+}
+
+pub struct StepParseErrorInfo {
+  message : String
+  line : Int?
+  col : Int?
+  stmt : String?
+}
+
+// Type aliases
+
+// Traits
+

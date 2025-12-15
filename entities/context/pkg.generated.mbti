@@ -1,0 +1,82 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "gmlewis/step/entities/context"
+
+import(
+  "gmlewis/step"
+  "gmlewis/step/entities/geometry"
+  "gmlewis/step/entities/product"
+  "gmlewis/step/entities/units"
+)
+
+// Values
+
+// Errors
+
+// Types and methods
+pub struct ComplexInstance {
+  parts : Array[ComplexPart]
+}
+pub fn ComplexInstance::new(Array[ComplexPart]) -> Self
+pub impl @step.Entity for ComplexInstance
+
+pub(all) enum ComplexPart {
+  GeomRepCtx(GeometricRepresentationContext)
+  RepCtx(RepresentationContext)
+  GlobUncCtx(GlobalUncertaintyAssignedContext)
+  GlobUnitCtx(GlobalUnitAssignedContext)
+  ConversionBasedUnit(@units.ConversionBasedUnit)
+  NamedUnit(@units.NamedUnit)
+  SiUnit(@units.SiUnit)
+  LengthUnit(@units.LengthUnit)
+  MassUnit(@units.MassUnit)
+  PlaneAngleUnit(@units.PlaneAngleUnit)
+  SolidAngleUnit(@units.SolidAngleUnit)
+  RepRel(@product.RepresentationRelationship)
+  RepRelWT(@product.RepresentationRelationshipWithTransformation)
+  ShapeRepRel
+  RepresentationItem(String)
+  GeometricRepresentationItem
+  Surface
+  BoundedSurface
+  RatBSpline(@geometry.RationalBSplineCurve)
+  BSplineSurf(@geometry.BSplineSurface)
+  BSplineSurfKnots(@geometry.BSplineSurfaceWithKnots)
+  RatBSplineSurf(@geometry.RationalBSplineSurface)
+  Raw(String, String)
+}
+
+pub struct CtxWrap {
+  raw : String
+}
+pub fn CtxWrap::new(String) -> Self
+pub impl @step.Entity for CtxWrap
+
+pub struct GeometricRepresentationContext {
+  dimension : Int
+}
+pub fn GeometricRepresentationContext::new(Int) -> Self
+pub impl @step.Entity for GeometricRepresentationContext
+
+pub struct GlobalUncertaintyAssignedContext {
+  uncertainties : Array[@step.EntityId]
+}
+pub fn GlobalUncertaintyAssignedContext::new(Array[@step.EntityId]) -> Self
+pub impl @step.Entity for GlobalUncertaintyAssignedContext
+
+pub struct GlobalUnitAssignedContext {
+  units : Array[@step.EntityId]
+}
+pub fn GlobalUnitAssignedContext::new(Array[@step.EntityId]) -> Self
+pub impl @step.Entity for GlobalUnitAssignedContext
+
+pub struct RepresentationContext {
+  context_identifier : String
+  context_type : String
+}
+pub fn RepresentationContext::new(String, String) -> Self
+pub impl @step.Entity for RepresentationContext
+
+// Type aliases
+
+// Traits
+

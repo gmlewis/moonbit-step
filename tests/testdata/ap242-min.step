@@ -1,0 +1,13 @@
+ISO-10303-21;
+HEADER;
+FILE_DESCRIPTION(('AP242 minimal fixture'),'2;1');
+FILE_NAME('ap242-min.step','2025-12-13T00:00:00',('Copilot'),('tscircuit'),'moonbit-step','moonbit-step','');
+FILE_SCHEMA(('AP242_MANAGED_MODEL_BASED_3D_ENGINEERING_MIM_LF'));
+ENDSEC;
+DATA;
+#1=CARTESIAN_POINT('P',(0.,0.,0.));
+#2=DIRECTION('Z',(0.,0.,1.));
+#3=AXIS2_PLACEMENT_3D('A',#1,#2,#2);
+#10=FOO_BAR(1,$,'X');
+ENDSEC;
+END-ISO-10303-21;

@@ -1,0 +1,59 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "gmlewis/step/header"
+
+// Values
+
+// Errors
+
+// Types and methods
+pub struct FileDescription {
+  description : Array[String]
+  implementation_level : String
+}
+pub fn FileDescription::new(Array[String], String) -> Self
+
+pub struct FileName {
+  name : StringOrDollar
+  time_stamp : StringOrDollar
+  author : StringListOrDollar
+  organization : StringListOrDollar
+  preprocessor_version : StringOrDollar
+  originating_system : StringOrDollar
+  authorization : StringOrDollar
+}
+pub fn FileName::new(StringOrDollar, StringOrDollar, StringListOrDollar, StringListOrDollar, StringOrDollar, StringOrDollar, StringOrDollar) -> Self
+
+pub struct FileSchema {
+  schema_identifiers : Array[String]
+}
+pub fn FileSchema::new(Array[String]) -> Self
+
+pub(all) enum HeaderEntity {
+  FileDescription(FileDescription)
+  FileName(FileName)
+  FileSchema(FileSchema)
+  Raw(String)
+}
+
+pub struct HeaderSection {
+  entities : Array[HeaderEntity]
+}
+pub fn HeaderSection::empty() -> Self
+pub fn HeaderSection::new(Array[HeaderEntity]) -> Self
+pub fn HeaderSection::to_step_header_section(Self) -> String
+pub fn HeaderSection::to_step_statements(Self) -> String
+
+pub(all) enum StringListOrDollar {
+  Dollar
+  List(Array[String])
+}
+
+pub(all) enum StringOrDollar {
+  Dollar
+  Str(String)
+}
+
+// Type aliases
+
+// Traits
+
