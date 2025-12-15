@@ -170,8 +170,8 @@ The code has been updated to support compiler:
 
 ```bash
 $ moon version --all
-moon 0.1.20251205 (073bdea 2025-12-05) ~/.moon/bin/moon
-moonc v0.6.34+e16ca94e6 (2025-12-05) ~/.moon/bin/moonc
-moonrun 0.1.20251205 (073bdea 2025-12-05) ~/.moon/bin/moonrun
-moon-pilot 0.0.1-df92511 (2025-12-05) ~/.moon/bin/moon-pilot
+moon 0.1.20251212 (4b209a6 2025-12-12) ~/.moon/bin/moon
+moonc v0.6.35+42fc098f3 (2025-12-12) ~/.moon/bin/moonc
+moonrun 0.1.20251212 (4b209a6 2025-12-12) ~/.moon/bin/moonrun
+moon-pilot 0.0.1-df92511 (2025-12-12) ~/.moon/bin/moon-pilot
 ```
