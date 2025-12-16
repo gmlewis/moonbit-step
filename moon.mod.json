@@ -16,5 +16,6 @@
     "3d",
     "modeling"
   ],
-  "description": "Port of https://github.com/tscircuit/stepts to MoonBit"
+  "description": "Port of https://github.com/tscircuit/stepts to MoonBit",
+  "preferred-target": "native"
 }
