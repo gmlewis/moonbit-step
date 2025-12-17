@@ -1,5 +1,5 @@
 #!/bin/bash -ex
-moon update && moon install && rm -rf target
+moon update && moon install && rm -rf target .mooncakes
 moon add moonbitlang/async
 moon add moonbitlang/x
 moon add TheWaWaR/clap
