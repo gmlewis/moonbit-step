@@ -1,17 +1,11 @@
 #!/bin/bash -ex
-moon update && moon install && rm -rf target .mooncakes
+find . -depth -name target -type d -exec rm -rf {} \;
+find . -depth -name .mooncakes -type d -exec rm -rf {} \;
 moon add moonbitlang/async
 moon add moonbitlang/x
 moon add TheWaWaR/clap
 moon add gmlewis/fonts
-pushd examples/03-engraved-name-tag/ \
-    && moon update \
-    && moon install \
-    && rm -rf target .mooncakes \
-    && moon add moonbitlang/async \
-    && moon add moonbitlang/x \
-    && moon add TheWaWaR/clap \
-    && moon add gmlewis/fonts \
-    && moon add gmlewis/fonts-b \
-    && popd
+pushd examples/03-engraved-name-tag/ && ./update.sh && popd
+moon update
+moon install
 ./test-all.sh
