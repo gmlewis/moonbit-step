@@ -12,135 +12,98 @@
 //
 
 ///|
-fn dist2(a : (Double, Double), b : (Double, Double)) -> Double {
-  let (ax, ay) = a
-  let (bx, by) = b
-  @draw.Vec2::distance_squared(@draw.vec2(ax, ay), @draw.vec2(bx, by))
-}
+// The original example included several local helpers to convert paths and
+// graphics to polygon profiles. These helpers are now provided by the
+// updated `gmlewis/fonts` package as `Path::to_polygon` and
+// `Graphic::to_profiles`. Use those implementations for clarity and
+// maintainability.
 
 ///|
-fn dedupe_consecutive(
-  pts_in : Array[(Double, Double)],
-) -> Array[(Double, Double)] {
-  // NOTE: This epsilon is compared against dist2 (squared distance).
-  // Keeping the existing semantics/threshold to avoid changing behavior.
-  let eps2 : Double = 0.000000001
-  if pts_in.length() == 0 {
-    return []
-  }
+fn vec2s_to_tuples(vs : Array[@draw.Vec2]) -> Array[(Double, Double)] {
   let out : Array[(Double, Double)] = []
-  out.push(pts_in[0])
-  for i = 1; i < pts_in.length(); i = i + 1 {
-    if dist2(out[out.length() - 1], pts_in[i]) > eps2 {
-      out.push(pts_in[i])
-    }
+  for v in vs {
+    out.push((v.x, v.y))
   }
   out
 }
 
 ///|
-fn cubic_at(
-  p0 : (Double, Double),
-  p1 : (Double, Double),
-  p2 : (Double, Double),
-  p3 : (Double, Double),
-  t : Double,
-) -> (Double, Double) {
-  let (x0, y0) = p0
-  let (x1, y1) = p1
-  let (x2, y2) = p2
-  let (x3, y3) = p3
-  let s = 1.0 - t
-  let s2 = s * s
-  let t2 = t * t
-  let b0 = s2 * s
-  let b1 = 3.0 * s2 * t
-  let b2 = 3.0 * s * t2
-  let b3 = t2 * t
-  (b0 * x0 + b1 * x1 + b2 * x2 + b3 * x3, b0 * y0 + b1 * y1 + b2 * y2 + b3 * y3)
+// Lightweight polygon diagnostics for debugging OCCT import failures.
+fn signed_area(poly : Array[(Double, Double)]) -> Double {
+  let sum : Double = 0.0
+  for i = 0; i < poly.length(); i = i + 1 {
+    let j = if i + 1 < poly.length() { i + 1 } else { 0 }
+    let (x0, y0) = poly[i]
+    let (x1, y1) = poly[j]
+    sum = sum + (x0 * y1 - x1 * y0)
+  }
+  0.5 * sum
 }
 
-///|
-fn path_to_polygon(
-  path : @draw.Path,
-  curve_segments : Int,
-) -> Array[(Double, Double)] {
-  // Returns [] for non-closed paths.
-  if !path.closed {
-    return []
+fn nearly_equal(a : Double, b : Double, eps? : Double) -> Bool {
+  let e = if eps.is_some() { eps.unwrap() } else { 1e-9 }
+  (a - b).abs() <= e
+}
+
+fn has_consecutive_duplicates(poly : Array[(Double, Double)]) -> Bool {
+  if poly.length() <= 1 { return false }
+  for i = 1; i < poly.length(); i = i + 1 {
+    if nearly_equal(poly[i].0, poly[i - 1].0) && nearly_equal(poly[i].1, poly[i - 1].1) {
+      return true
+    }
   }
-  let anchors = path.anchors
-  let n = anchors.length()
-  if n < 2 {
-    return []
+  false
+}
+
+fn orient(ax : Double, ay : Double, bx : Double, by : Double, cx : Double, cy : Double) -> Double {
+  (bx - ax) * (cy - ay) - (by - ay) * (cx - ax)
+}
+
+fn on_segment(ax : Double, ay : Double, bx : Double, by : Double, cx : Double, cy : Double) -> Bool {
+  // Check if C lies on segment AB (collinear + within bounds)
+  if !nearly_equal(orient(ax, ay, bx, by, cx, cy), 0.0) { return false }
+  let minx = if ax < bx { ax } else { bx }
+  let maxx = if ax > bx { ax } else { bx }
+  let miny = if ay < by { ay } else { by }
+  let maxy = if ay > by { ay } else { by }
+  cx >= minx && cx <= maxx && cy >= miny && cy <= maxy
+}
+
+fn segments_intersect(a1 : (Double, Double), a2 : (Double, Double), b1 : (Double, Double), b2 : (Double, Double)) -> Bool {
+  let (a1x, a1y) = a1
+  let (a2x, a2y) = a2
+  let (b1x, b1y) = b1
+  let (b2x, b2y) = b2
+  let o1 = orient(a1x, a1y, a2x, a2y, b1x, b1y)
+  let o2 = orient(a1x, a1y, a2x, a2y, b2x, b2y)
+  let o3 = orient(b1x, b1y, b2x, b2y, a1x, a1y)
+  let o4 = orient(b1x, b1y, b2x, b2y, a2x, a2y)
+
+  if o1 * o2 < 0.0 && o3 * o4 < 0.0 {
+    return true
   }
-  let segs = if curve_segments <= 1 { 1 } else { curve_segments }
-  let pts : Array[(Double, Double)] = []
-  let a0 = anchors[0]
-  pts.push((a0.position.x, a0.position.y))
-  let emit_segment = fn(a : @draw.Anchor, b : @draw.Anchor) -> Unit {
-    let p0 = (a.position.x, a.position.y)
-    let p1 = (a.position.x + a.handle_out.x, a.position.y + a.handle_out.y)
-    let p2 = (b.position.x + b.handle_in.x, b.position.y + b.handle_in.y)
-    let p3 = (b.position.x, b.position.y)
-    // If both handles are zero vectors, this is a straight line.
-    let is_line = (a.handle_out.x == 0.0 && a.handle_out.y == 0.0) &&
-      b.handle_in.x == 0.0 &&
-      b.handle_in.y == 0.0
-    if is_line {
-      pts.push(p3)
-    } else {
-      for si = 1; si <= segs; si = si + 1 {
-        let t = Double::from_int(si) / Double::from_int(segs)
-        pts.push(cubic_at(p0, p1, p2, p3, t))
+  if nearly_equal(o1, 0.0) && on_segment(a1x, a1y, a2x, a2y, b1x, b1y) { return true }
+  if nearly_equal(o2, 0.0) && on_segment(a1x, a1y, a2x, a2y, b2x, b2y) { return true }
+  if nearly_equal(o3, 0.0) && on_segment(b1x, b1y, b2x, b2y, a1x, a1y) { return true }
+  if nearly_equal(o4, 0.0) && on_segment(b1x, b1y, b2x, b2y, a2x, a2y) { return true }
+  false
+}
+
+fn polygon_has_self_intersections(poly : Array[(Double, Double)]) -> Bool {
+  let n = poly.length()
+  if n < 4 { return false }
+  for i = 0; i < n; i = i + 1 {
+    let i2 = (i + 1) % n
+    for j = i + 1; j < n; j = j + 1 {
+      let j2 = (j + 1) % n
+      // Skip adjacent edges (they share a vertex)
+      if i == j || i2 == j || j2 == i { continue }
+      if segments_intersect(poly[i], poly[i2], poly[j], poly[j2]) {
+        return true
       }
     }
   }
-  for i = 1; i < n; i = i + 1 {
-    emit_segment(anchors[i - 1], anchors[i])
-  }
-  emit_segment(anchors[n - 1], anchors[0])
-  let pts = dedupe_consecutive(pts)
-  if pts.length() >= 2 && dist2(pts[0], pts[pts.length() - 1]) <= 0.000000001 {
-    ignore(pts.pop())
-  }
-  pts
-}
-
-///|
-fn graphic_to_profiles(
-  g : @draw.Graphic,
-  curve_segments : Int,
-) -> Array[(Array[(Double, Double)], Array[Array[(Double, Double)]])] {
-  match g {
-    @draw.Graphic::Path(path) => {
-      let outer = path_to_polygon(path, curve_segments)
-      if outer.length() >= 3 {
-        [(outer, [])]
-      } else {
-        []
-      }
-    }
-    @draw.Graphic::CompoundPath(cp) =>
-      if cp.paths.length() == 0 {
-        []
-      } else {
-        let outer = path_to_polygon(cp.paths[0], curve_segments)
-        if outer.length() < 3 {
-          []
-        } else {
-          let holes : Array[Array[(Double, Double)]] = []
-          for i = 1; i < cp.paths.length(); i = i + 1 {
-            let hole = path_to_polygon(cp.paths[i], curve_segments)
-            if hole.length() >= 3 {
-              holes.push(hole)
-            }
-          }
-          [(outer, holes)]
-        }
-      }
-    _ => []
-  }
+  false
 }
 
 ///|
@@ -188,6 +151,9 @@ async fn main {
       short='o',
       help="Write output to a file (default: stdout)",
     ),
+    "exportProfilesDir": @cli.opt_string(
+      help="Write each text profile as a separate STEP file to this directory",
+    ),
   }
   let args_spec = @cli.with_translate(base_args_spec)
   guard @cli.parse(
@@ -212,6 +178,10 @@ async fn main {
       v
     }
   }
+  let export_profiles_dir = args.string_opt("exportProfilesDir")
+  // If an export dir is provided, we'll attempt to write files there; callers
+  // should create the directory if needed. We rely on write_step's error
+  // handling below to report any I/O errors.
   // let fillet_radius_mm = args.double("filletRadius")
   guard args.string_opt("name") is Some(name) else {
     println("--name is required")
@@ -279,9 +249,36 @@ async fn main {
   // Text solids (raised on top).
   let mut profile_count = 0
   for g in all_paths {
-    let profiles = graphic_to_profiles(g, curve_segments)
-    for pi = 0; pi < profiles.length(); pi = pi + 1 {
-      let (outer, holes) = profiles[pi]
+    // Use the new API that returns polygons as arrays of Vec2.
+    let profiles_vec = @draw.Graphic::to_profiles(g, curve_segments)
+    for pi = 0; pi < profiles_vec.length(); pi = pi + 1 {
+      let (outer_vec, holes_vecs) = profiles_vec[pi]
+      let outer = vec2s_to_tuples(outer_vec)
+      if outer.length() < 3 {
+        continue
+      }
+      let holes : Array[Array[(Double, Double)]] = []
+      for h in holes_vecs {
+        holes.push(vec2s_to_tuples(h))
+      }
+
+      // Diagnostic checks: area (winding), consecutive duplicates, and self-intersections.
+      if export_profiles_dir is Some(_) || debug {
+        let area = signed_area(outer)
+        let winding = if area > 0.0 { "CCW" } else { "CW" }
+        let dup = has_consecutive_duplicates(outer)
+        let selfint = polygon_has_self_intersections(outer)
+        println(
+          "Profile diag: pts=\{outer.length()} area=\{area} winding=\{winding} dup=\{dup} selfint=\{selfint}",
+        )
+        for hi = 0; hi < holes.length(); hi = hi + 1 {
+          let hole = holes[hi]
+          let harea = signed_area(hole)
+          let hself = polygon_has_self_intersections(hole)
+          println("  Hole \{hi}: pts=\{hole.length()} area=\{harea} selfint=\{hself}")
+        }
+      }
+
       profile_count = profile_count + 1
       let solid = @cad.Solid::extruded_profile(
         outer,
@@ -289,6 +286,19 @@ async fn main {
         holes~,
         name="text",
       ).translate(x=tx, y=ty, z=tz + height_mm)
+
+      // If requested, also write this profile to a separate STEP file for isolated validation.
+      match export_profiles_dir {
+        Some(dir) => {
+          let profile_name = "profile-" + profile_count.to_string() + ".step"
+          let out_path = dir + "/" + profile_name
+          let one = @cad.Design::new(name=profile_name).add(solid)
+          one.write_step(Some(out_path)) catch {
+            e => println("Failed to write profile \{out_path}: \{e}")
+          }
+        }
+        None => ()
+      }
       design = design.add(solid)
     }
   }
