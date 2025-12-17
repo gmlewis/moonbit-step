@@ -12,101 +12,6 @@
 //
 
 ///|
-// The original example included several local helpers to convert paths and
-// graphics to polygon profiles. These helpers are now provided by the
-// updated `gmlewis/fonts` package as `Path::to_polygon` and
-// `Graphic::to_profiles`. Use those implementations for clarity and
-// maintainability.
-
-///|
-fn vec2s_to_tuples(vs : Array[@draw.Vec2]) -> Array[(Double, Double)] {
-  let out : Array[(Double, Double)] = []
-  for v in vs {
-    out.push((v.x, v.y))
-  }
-  out
-}
-
-///|
-// Lightweight polygon diagnostics for debugging OCCT import failures.
-fn signed_area(poly : Array[(Double, Double)]) -> Double {
-  let sum : Double = 0.0
-  for i = 0; i < poly.length(); i = i + 1 {
-    let j = if i + 1 < poly.length() { i + 1 } else { 0 }
-    let (x0, y0) = poly[i]
-    let (x1, y1) = poly[j]
-    sum = sum + (x0 * y1 - x1 * y0)
-  }
-  0.5 * sum
-}
-
-fn nearly_equal(a : Double, b : Double, eps? : Double) -> Bool {
-  let e = if eps.is_some() { eps.unwrap() } else { 1e-9 }
-  (a - b).abs() <= e
-}
-
-fn has_consecutive_duplicates(poly : Array[(Double, Double)]) -> Bool {
-  if poly.length() <= 1 { return false }
-  for i = 1; i < poly.length(); i = i + 1 {
-    if nearly_equal(poly[i].0, poly[i - 1].0) && nearly_equal(poly[i].1, poly[i - 1].1) {
-      return true
-    }
-  }
-  false
-}
-
-fn orient(ax : Double, ay : Double, bx : Double, by : Double, cx : Double, cy : Double) -> Double {
-  (bx - ax) * (cy - ay) - (by - ay) * (cx - ax)
-}
-
-fn on_segment(ax : Double, ay : Double, bx : Double, by : Double, cx : Double, cy : Double) -> Bool {
-  // Check if C lies on segment AB (collinear + within bounds)
-  if !nearly_equal(orient(ax, ay, bx, by, cx, cy), 0.0) { return false }
-  let minx = if ax < bx { ax } else { bx }
-  let maxx = if ax > bx { ax } else { bx }
-  let miny = if ay < by { ay } else { by }
-  let maxy = if ay > by { ay } else { by }
-  cx >= minx && cx <= maxx && cy >= miny && cy <= maxy
-}
-
-fn segments_intersect(a1 : (Double, Double), a2 : (Double, Double), b1 : (Double, Double), b2 : (Double, Double)) -> Bool {
-  let (a1x, a1y) = a1
-  let (a2x, a2y) = a2
-  let (b1x, b1y) = b1
-  let (b2x, b2y) = b2
-  let o1 = orient(a1x, a1y, a2x, a2y, b1x, b1y)
-  let o2 = orient(a1x, a1y, a2x, a2y, b2x, b2y)
-  let o3 = orient(b1x, b1y, b2x, b2y, a1x, a1y)
-  let o4 = orient(b1x, b1y, b2x, b2y, a2x, a2y)
-
-  if o1 * o2 < 0.0 && o3 * o4 < 0.0 {
-    return true
-  }
-  if nearly_equal(o1, 0.0) && on_segment(a1x, a1y, a2x, a2y, b1x, b1y) { return true }
-  if nearly_equal(o2, 0.0) && on_segment(a1x, a1y, a2x, a2y, b2x, b2y) { return true }
-  if nearly_equal(o3, 0.0) && on_segment(b1x, b1y, b2x, b2y, a1x, a1y) { return true }
-  if nearly_equal(o4, 0.0) && on_segment(b1x, b1y, b2x, b2y, a2x, a2y) { return true }
-  false
-}
-
-fn polygon_has_self_intersections(poly : Array[(Double, Double)]) -> Bool {
-  let n = poly.length()
-  if n < 4 { return false }
-  for i = 0; i < n; i = i + 1 {
-    let i2 = (i + 1) % n
-    for j = i + 1; j < n; j = j + 1 {
-      let j2 = (j + 1) % n
-      // Skip adjacent edges (they share a vertex)
-      if i == j || i2 == j || j2 == i { continue }
-      if segments_intersect(poly[i], poly[i2], poly[j], poly[j2]) {
-        return true
-      }
-    }
-  }
-  false
-}
-
-///|
 async fn main {
   let base_args_spec = {
     "debug": @cli.flag(short='d', help="Print debug information"),
@@ -249,36 +154,13 @@ async fn main {
   // Text solids (raised on top).
   let mut profile_count = 0
   for g in all_paths {
-    // Use the new API that returns polygons as arrays of Vec2.
-    let profiles_vec = @draw.Graphic::to_profiles(g, curve_segments)
-    for pi = 0; pi < profiles_vec.length(); pi = pi + 1 {
-      let (outer_vec, holes_vecs) = profiles_vec[pi]
-      let outer = vec2s_to_tuples(outer_vec)
+    // Use the upstream helper that returns polygons as tuples directly.
+    let profiles = @draw.Graphic::to_profiles_tuples(g, curve_segments)
+    for pi = 0; pi < profiles.length(); pi = pi + 1 {
+      let (outer, holes) = profiles[pi]
       if outer.length() < 3 {
         continue
       }
-      let holes : Array[Array[(Double, Double)]] = []
-      for h in holes_vecs {
-        holes.push(vec2s_to_tuples(h))
-      }
-
-      // Diagnostic checks: area (winding), consecutive duplicates, and self-intersections.
-      if export_profiles_dir is Some(_) || debug {
-        let area = signed_area(outer)
-        let winding = if area > 0.0 { "CCW" } else { "CW" }
-        let dup = has_consecutive_duplicates(outer)
-        let selfint = polygon_has_self_intersections(outer)
-        println(
-          "Profile diag: pts=\{outer.length()} area=\{area} winding=\{winding} dup=\{dup} selfint=\{selfint}",
-        )
-        for hi = 0; hi < holes.length(); hi = hi + 1 {
-          let hole = holes[hi]
-          let harea = signed_area(hole)
-          let hself = polygon_has_self_intersections(hole)
-          println("  Hole \{hi}: pts=\{hole.length()} area=\{harea} selfint=\{hself}")
-        }
-      }
-
       profile_count = profile_count + 1
       let solid = @cad.Solid::extruded_profile(
         outer,
