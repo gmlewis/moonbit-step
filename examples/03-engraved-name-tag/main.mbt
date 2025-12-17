@@ -12,15 +12,10 @@
 //
 
 ///|
-fn sq(x : Double) -> Double {
-  x * x
-}
-
-///|
 fn dist2(a : (Double, Double), b : (Double, Double)) -> Double {
   let (ax, ay) = a
   let (bx, by) = b
-  sq(ax - bx) + sq(ay - by)
+  @draw.Vec2::distance_squared(@draw.vec2(ax, ay), @draw.vec2(bx, by))
 }
 
 ///|
@@ -149,29 +144,6 @@ fn graphic_to_profiles(
 }
 
 ///|
-fn fit_to_centered(g : @draw.Graphic, box : @draw.BoundingBox) -> @draw.Graphic {
-  let bbox = match g.bounding_box() {
-    None => return g
-    Some(b) => b.canonicalize()
-  }
-  let box = box.canonicalize()
-  if bbox == box {
-    return g
-  }
-  if bbox.width() == 0.0 || bbox.height() == 0.0 {
-    return g
-  }
-  let wscale = box.width() / bbox.width()
-  let hscale = box.height() / bbox.height()
-  let s = @cmp.minimum(wscale, hscale)
-  let scale = @draw.vec2(s, s)
-  let position = box.center() - scale * bbox.center()
-  let transform = @draw.Transform::new(position~, scale~)
-  let affine_matrix = @draw.AffineMatrix::from_transform(transform)
-  g.affine_transform(affine_matrix)
-}
-
-///|
 async fn main {
   let base_args_spec = {
     "debug": @cli.flag(short='d', help="Print debug information"),
@@ -269,7 +241,7 @@ async fn main {
       return
     }
   }
-  let text = fit_to_centered(text_raw, bbox)
+  let text = text_raw.fit_to(bbox)
   let all_paths = text.all_paths_and_compound_paths()
   if debug {
     println(
