@@ -11,9 +11,15 @@ fi
 STEP_PATH="$1"
 SHAPE_NAME="${2:-a}"
 
-if ! command -v occt-draw >/dev/null 2>&1; then
-  echo "Error: 'occt-draw' not found on PATH." >&2
-  echo "Install Open CASCADE DRAWEXE tools (package name varies by distro)." >&2
+# On Linux (Mint/Debian), it is often 'occt-draw'.
+# On macOS (Homebrew), it is 'DRAWEXE'.
+if command -v occt-draw >/dev/null 2>&1; then
+  OCCT_BIN="occt-draw"
+elif command -v DRAWEXE >/dev/null 2>&1; then
+  OCCT_BIN="DRAWEXE"
+else
+  echo "Error: 'occt-draw' or 'DRAWEXE' not found on PATH." >&2
+  echo "Install Open CASCADE (e.g. 'brew install opencascade' on macOS)." >&2
   exit 1
 fi
 
@@ -27,7 +33,7 @@ STEP_PATH_ESCAPED="${STEP_PATH//\"/\\\"}"
 
 DRAW_CMD="pload ALL; testreadstep \"${STEP_PATH_ESCAPED}\" ${SHAPE_NAME}; nbshapes ${SHAPE_NAME}; checkshape ${SHAPE_NAME};"
 
-OUTPUT="$(occt-draw -b -c "$DRAW_CMD")"
+OUTPUT="$($OCCT_BIN -b -c "$DRAW_CMD")"
 printf '%s\n' "$OUTPUT"
 
 if grep -q "This shape seems to be valid" <<<"$OUTPUT"; then
