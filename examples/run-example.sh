@@ -31,7 +31,18 @@ ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 if [[ "$EXAMPLE_ARG_STRIPPED" == *"/"* ]]; then
   EXAMPLE_PATH_REL="$EXAMPLE_ARG_STRIPPED"
 else
-  EXAMPLE_PATH_REL="examples/$EXAMPLE_BASENAME"
+  # If it's a number, try to find the full folder name (e.g. "1" or "01" -> "01-hello-cube").
+  if [[ "$EXAMPLE_BASENAME" =~ ^[0-9]+$ ]]; then
+    SEARCH_NUM=$(printf "%02d" "$EXAMPLE_BASENAME" 2>/dev/null || echo "$EXAMPLE_BASENAME")
+    MATCHES=("$ROOT_DIR"/examples/"$SEARCH_NUM"-*)
+    if [[ -d "${MATCHES[0]}" ]]; then
+      EXAMPLE_PATH_REL="examples/$(basename "${MATCHES[0]}")"
+    else
+      EXAMPLE_PATH_REL="examples/$EXAMPLE_BASENAME"
+    fi
+  else
+    EXAMPLE_PATH_REL="examples/$EXAMPLE_BASENAME"
+  fi
 fi
 
 if [[ ! -d "$ROOT_DIR/$EXAMPLE_PATH_REL" ]]; then
