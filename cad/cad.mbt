@@ -30,13 +30,28 @@ pub struct Profile2D {
 }
 
 ///|
+// A cuboid.
+pub struct Cuboid {
+  // Size, in mm along each axis.
+  sx : Double
+  sy : Double
+  sz : Double
+  name : String
+  color : Rgb
+  // Translation from origin, in mm.
+  tx : Double
+  ty : Double
+  tz : Double
+}
+
+///|
 // High-level shape handle.
 //
 // This is intentionally *not* a STEP entity. It captures user intent (e.g. "a
 // cube of edge 20mm translated by (x,y,z)") and is later compiled into STEP
 // entities inside `Design::add`.
 pub enum Solid {
-  Cube(Double, String, Rgb, Double, Double, Double)
+  Cuboid(Cuboid)
   // A rectangular block with a swept top-edge profile used for print calibration.
   //
   // - If fillet_radius_mm > 0, we approximate a fillet by stepping multiple
@@ -70,7 +85,16 @@ pub fn Solid::cube(
   name? : String = "cube",
   color? : Rgb = Rgb::{ r: 1.0, g: 0.6, b: 0.0 },
 ) -> Solid {
-  Cube(edge_mm, name, color, 0.0, 0.0, 0.0)
+  Cuboid({
+    sx: edge_mm,
+    sy: edge_mm,
+    sz: edge_mm,
+    name,
+    color,
+    tx: 0.0,
+    ty: 0.0,
+    tz: 0.0,
+  })
 }
 
 ///|
@@ -123,8 +147,13 @@ pub fn Solid::translate(
   z? : Double = 0.0,
 ) -> Solid {
   match self {
-    Cube(edge_mm, name, color, tx, ty, tz) =>
-      Cube(edge_mm, name, color, tx + x, ty + y, tz + z)
+    Cuboid(cuboid) =>
+      Cuboid({
+        ..cuboid,
+        tx: cuboid.tx + x,
+        ty: cuboid.ty + y,
+        tz: cuboid.tz + z,
+      })
     CalibrationChamferBlock(
       length_mm,
       width_mm,
@@ -471,14 +500,16 @@ pub async fn Design::write_step(self : Design, out_path : String?) -> Unit {
 pub fn Design::add(self : Design, solid : Solid) -> Design {
   let instance_id = self.next_solid_id
   let out = match solid {
-    Cube(edge_mm, base_name, color, tx, ty, tz) =>
-      self.add_cube_at(
-        edge_mm,
-        "\{base_name}-\{instance_id}",
-        color,
-        tx,
-        ty,
-        tz,
+    Cuboid(cuboid) =>
+      self.add_cuboid_at(
+        cuboid.sx,
+        cuboid.sy,
+        cuboid.sz,
+        "\{cuboid.name}-\{instance_id}",
+        cuboid.color,
+        cuboid.tx,
+        cuboid.ty,
+        cuboid.tz,
       )
     CalibrationChamferBlock(
       length_mm,
@@ -1521,13 +1552,15 @@ pub fn Design::add_cube(
   name? : String = "cube",
   color? : Rgb = Rgb::{ r: 1.0, g: 0.6, b: 0.0 },
 ) -> Design {
-  self.add_cube_at(edge_mm, name, color, 0.0, 0.0, 0.0)
+  self.add_cuboid_at(edge_mm, edge_mm, edge_mm, name, color, 0.0, 0.0, 0.0)
 }
 
 ///|
-fn Design::add_cube_at(
+fn Design::add_cuboid_at(
   self : Design,
-  edge_mm : Double,
+  sx : Double,
+  sy : Double,
+  sz : Double,
   name : String,
   color : Rgb,
   tx : Double,
@@ -1613,16 +1646,15 @@ fn Design::add_cube_at(
   repo = r12
 
   // Corner points (mm)
-  let e = edge_mm
   let pts : Array[(Double, Double, Double)] = [
     (tx + 0.0, ty + 0.0, tz + 0.0),
-    (tx + e, ty + 0.0, tz + 0.0),
-    (tx + e, ty + e, tz + 0.0),
-    (tx + 0.0, ty + e, tz + 0.0),
-    (tx + 0.0, ty + 0.0, tz + e),
-    (tx + e, ty + 0.0, tz + e),
-    (tx + e, ty + e, tz + e),
-    (tx + 0.0, ty + e, tz + e),
+    (tx + sx, ty + 0.0, tz + 0.0),
+    (tx + sx, ty + sy, tz + 0.0),
+    (tx + 0.0, ty + sy, tz + 0.0),
+    (tx + 0.0, ty + 0.0, tz + sz),
+    (tx + sx, ty + 0.0, tz + sz),
+    (tx + sx, ty + sy, tz + sz),
+    (tx + 0.0, ty + sy, tz + sz),
   ]
   let cp_refs : Array[@step.Ref] = []
   for i = 0; i < pts.length(); i = i + 1 {
