@@ -7,6 +7,12 @@ import(
 )
 
 // Values
+pub fn compile_calibration_chamfer_block(StepContext, CalibrationChamferBlock, Double, Double, Double) -> @step.Ref
+
+pub fn compile_cuboid(StepContext, Cuboid, Double, Double, Double) -> @step.Ref
+
+pub fn compile_extruded_profile(StepContext, ExtrudedProfile, Double, Double, Double) -> @step.Ref
+
 pub async fn write_step_text(String, String?) -> Unit
 
 // Errors
@@ -36,11 +42,18 @@ pub struct Design {
   description : String
 }
 pub fn Design::add(Self, SceneNode) -> Self
+pub fn Design::compile(Self) -> @repository.Repository
 pub fn Design::new(name? : String, description? : String) -> Self
 pub fn Design::to_step_file(Self) -> String
 pub fn Design::to_string(Self) -> String
 pub async fn Design::write_step(Self, String?) -> Unit
 pub async fn Design::write_step_file(Self, String?) -> Unit
+
+pub(all) struct EdgeInfo {
+  start : Int
+  end : Int
+  edge : @step.Ref
+}
 
 pub struct ExtrudedProfile {
   profile : Profile2D

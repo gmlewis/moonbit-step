@@ -28,23 +28,23 @@ This plan outlines the steps to transform the `cad` package from an eager STEP g
     - [x] `Shape::rotate(axis, angle) -> Shape` (Future-proofing)
 
 ## Phase 4: Decentralized Compilers
-- [ ] **Create `compiler_cuboid.mbt`**: Move cuboid-to-STEP logic here. It should take a `Cuboid` intent and a `StepContext` and return the B-Rep entities.
-- [ ] **Create `compiler_extrusion.mbt`**: Move extrusion logic here.
-- [ ] **Create `compiler_chamfer_block.mbt`**: Move calibration block logic here.
+- [x] **Create `compiler_cuboid.mbt`**: Move cuboid-to-STEP logic here. It should take a `Cuboid` intent and a `StepContext` and return the B-Rep entities.
+- [x] **Create `compiler_extrusion.mbt`**: Move extrusion logic here.
+- [x] **Create `compiler_chamfer_block.mbt`**: Move calibration block logic here.
 
 ## Phase 5: The "Assembly" Engine
-- [ ] **Implement `Design::compile() -> @repository.Repository`**:
-    - [ ] This function iterates over the `SceneGraph`.
-    - [ ] It initializes the `StandardContext`.
-    - [ ] It calls the respective compilers for each shape.
-    - [ ] It links the resulting B-Rep solids into the final `ShapeDefinitionRepresentation`.
+- [x] **Implement `Design::compile() -> @repository.Repository`**:
+    - [x] This function iterates over the `SceneGraph`.
+    - [x] It initializes the `StandardContext`.
+    - [x] It calls the respective compilers for each shape.
+    - [x] It links the resulting B-Rep solids into the final `ShapeDefinitionRepresentation`.
 
 ## Phase 6: API Cleanup & Examples
-- [ ] **Update `cad.mbt`**: Remove the massive legacy functions once the compilers are stable.
-- [ ] **Update Examples**:
-    - [ ] Refactor `01-hello-cube` to use the new fluent API.
-    - [ ] Refactor `02-calibration-chamfer-block`.
-- [ ] **Verify with OCCT**: Run `./scripts/validate_with_occt.sh` on all generated samples to ensure no regression in STEP validity.
+- [x] **Update `cad.mbt`**: Remove the massive legacy functions once the compilers are stable.
+- [x] **Update Examples**:
+    - [x] Refactor `01-hello-cube` to use the new fluent API.
+    - [x] Refactor `02-calibration-chamfer-block`.
+- [x] **Verify with OCCT**: Run `./scripts/validate_with_occt.sh` on all generated samples to ensure no regression in STEP validity.
 
 ## Maintenance Notes
 - **Principle**: Never mutate the `@repository.Repository` directly in high-level CAD calls.

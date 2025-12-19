@@ -21,9 +21,112 @@ pub fn Design::new(
 }
 
 ///|
+pub fn Design::compile(self : Design) -> @repository.Repository {
+  let ctx = StepContext::new()
+  ctx.init_standard_context(self.name)
+  let product_defs : Array[@step.Ref] = []
+  let shape_reps : Array[@step.Ref] = []
+  for node in self.nodes {
+    let brep_ref = match node.shape {
+      Cuboid(c) => compile_cuboid(ctx, c, node.tx, node.ty, node.tz)
+      CalibrationChamferBlock(b) =>
+        compile_calibration_chamfer_block(ctx, b, node.tx, node.ty, node.tz)
+      ExtrudedProfile(e) =>
+        compile_extruded_profile(ctx, e, node.tx, node.ty, node.tz)
+    }
+
+    // Presentation styling
+    let rgb = @presentation.ColorRgb::new(
+      node.name,
+      node.color.r,
+      node.color.g,
+      node.color.b,
+    )
+    let rgb_ref = ctx.add(@repository.any_entity_color_rgb(rgb))
+    let fas_col = @presentation.FillAreaStyleColor::new("", rgb_ref)
+    let fas_col_ref = ctx.add(
+      @repository.any_entity_fill_area_style_color(fas_col),
+    )
+    let fas = @presentation.FillAreaStyle::new("", [fas_col_ref])
+    let fas_ref = ctx.add(@repository.any_entity_fill_area_style(fas))
+    let ssfa = @presentation.SurfaceStyleFillArea::new(fas_ref)
+    let ssfa_ref = ctx.add(@repository.any_entity_surface_style_fill_area(ssfa))
+    let sss = @presentation.SurfaceSideStyle::new("", [ssfa_ref])
+    let sss_ref = ctx.add(@repository.any_entity_surface_side_style(sss))
+    let ssu = @presentation.SurfaceStyleUsage::new(".BOTH.", sss_ref)
+    let ssu_ref = ctx.add(@repository.any_entity_surface_style_usage(ssu))
+    let psa = @presentation.PresentationStyleAssignment::new([ssu_ref])
+    let psa_ref = ctx.add(
+      @repository.any_entity_presentation_style_assignment(psa),
+    )
+    let styled = @presentation.StyledItem::new("", [psa_ref], brep_ref)
+    let styled_ref = ctx.add(@repository.any_entity_styled_item(styled))
+    let layer = @presentation.PresentationLayerAssignment::new("1", "Layer 1", [
+      brep_ref,
+    ])
+    let _ = ctx.add(@repository.any_entity_presentation_layer_assignment(layer))
+    let md = @presentation.MechanicalDesignGeometricPresentationRepresentation::new(
+      "",
+      [styled_ref],
+      { id: ctx.repo_ctx_id },
+    )
+    let _ = ctx.add(
+      @repository.any_entity_mechanical_design_geometric_presentation_representation(
+        md,
+      ),
+    )
+
+    // Product structure for this part
+    let prod_def_ref = ctx.add_product_definition(node.name)
+    product_defs.push(prod_def_ref)
+
+    // Axis placement for the part
+    let origin = ctx.cartesian_point(node.tx, node.ty, node.tz)
+    let dz = ctx.direction(0.0, 0.0, 1.0)
+    let dx = ctx.direction(1.0, 0.0, 0.0)
+    let a2p = @geometry.Axis2Placement3D::new("", origin, dz, dx)
+    let a2p_ref = ctx.add(@repository.any_entity_axis2_placement_3d(a2p))
+    let shape_rep = @product.ShapeRepresentation::new(
+      node.name + "-None",
+      [a2p_ref],
+      { id: ctx.repo_ctx_id },
+    )
+    let shape_rep_ref = ctx.add(
+      @repository.any_entity_shape_representation(shape_rep),
+    )
+    shape_reps.push(shape_rep_ref)
+    let brep_rep = @product.AdvancedBrepShapeRepresentation::new(
+      node.name + "-None",
+      [brep_ref],
+      { id: ctx.repo_ctx_id },
+    )
+    let brep_rep_ref = ctx.add(
+      @repository.any_entity_advanced_brep_shape_representation(brep_rep),
+    )
+    let rel = @product.ShapeRepresentationRelationship::new(
+      "None", "relationship", shape_rep_ref, brep_rep_ref,
+    )
+    let _ = ctx.add(
+      @repository.any_entity_shape_representation_relationship(rel),
+    )
+    let pds = @product.ProductDefinitionShape::new("", "", prod_def_ref)
+    let pds_ref = ctx.add(@repository.any_entity_product_definition_shape(pds))
+    let sdr = @product.ShapeDefinitionRepresentation::new(
+      pds_ref, shape_rep_ref,
+    )
+    let _ = ctx.add(@repository.any_entity_shape_definition_representation(sdr))
+
+  }
+
+  // Set the header
+  let file_name = self.name + ".step"
+  ctx.repo = ctx.repo.set_header(default_header(file_name, self.description))
+  ctx.repo
+}
+
+///|
 pub fn Design::to_step_file(self : Design) -> String {
-  // TODO: Implement compilation in Phase 5
-  ""
+  self.compile().to_step_file()
 }
 
 ///|
@@ -62,5 +165,45 @@ pub async fn write_step_text(step_text : String, out_path : String?) -> Unit {
       ) catch {
         err => println("failed to write output: \{err}")
       }
+  }
+}
+
+///|
+fn default_header(
+  file_name : String,
+  description : String,
+) -> @header.HeaderSection {
+  let timestamp = now_iso_timestamp()
+  @header.HeaderSection::new([
+    @header.HeaderEntity::FileDescription(
+      @header.FileDescription::new([description], "2;1"),
+    ),
+    @header.HeaderEntity::FileName(
+      @header.FileName::new(
+        @header.StringOrDollar::Str(file_name),
+        @header.StringOrDollar::Str(timestamp),
+        @header.StringListOrDollar::List(["gmlewis"]),
+        @header.StringListOrDollar::List(["gmlewis/step"]),
+        @header.StringOrDollar::Str("gmlewis/step"),
+        @header.StringOrDollar::Str("moonbit"),
+        @header.StringOrDollar::Str("none"),
+      ),
+    ),
+    @header.HeaderEntity::FileSchema(
+      @header.FileSchema::new(["AUTOMOTIVE_DESIGN { 1 0 10303 214 3 1 1 1 }"]),
+    ),
+  ])
+}
+
+///|
+fn now_iso_timestamp() -> String {
+  let ms = @async.now()
+  let seconds = ms / 1000L
+  try
+    @time.PlainDateTime::from_unix_second(seconds, 0, @time.utc_offset)
+  catch {
+    _ => "2025-01-01T00:00:00"
+  } noraise {
+    dt => dt.to_string()
   }
 }
