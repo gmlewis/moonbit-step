@@ -140,15 +140,16 @@ async fn main {
   }
 
   // Base tag.
-  let base = @cad.Solid::calibration_chamfer_block(
-    length_mm,
-    width_mm,
-    height_mm,
-    chamfer_size_mm=1.0,
-    fillet_radius_mm=0.0,
-    fillet_segments=10,
-    name="tag-base",
-  ).translate(x=tx, y=ty, z=tz)
+  let base = @cad.CalibrationChamferBlock::new(
+      length_mm,
+      width_mm,
+      height_mm,
+      chamfer_size_mm=1.0,
+      fillet_radius_mm=0.0,
+      fillet_segments=10,
+    )
+    .with_name("tag-base")
+    .translate(x=tx, y=ty, z=tz)
   let mut design = @cad.Design::new(name="keychain-tag").add(base)
 
   // Text solids (raised on top).
@@ -162,12 +163,9 @@ async fn main {
         continue
       }
       profile_count = profile_count + 1
-      let solid = @cad.Solid::extruded_profile(
-        outer,
-        emboss_depth_mm,
-        holes~,
-        name="text",
-      ).translate(x=tx, y=ty, z=tz + height_mm)
+      let solid = @cad.ExtrudedProfile::new(outer, emboss_depth_mm, holes~)
+        .with_name("text")
+        .translate(x=tx, y=ty, z=tz + height_mm)
 
       // If requested, also write this profile to a separate STEP file for isolated validation.
       match export_profiles_dir {

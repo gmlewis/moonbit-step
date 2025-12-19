@@ -3,11 +3,11 @@
 This plan outlines the steps to transform the `cad` package from an eager STEP generator into a high-level, fluent 3D modeling DSL.
 
 ## Phase 1: Foundational Types & Scene Graph
-- [ ] **Define high-level `Shape` types**: Move current `Solid` enum definitions into a more structured hierarchy.
-- [ ] **Create `SceneGraph` node**: Define a node that contains a shape, its transformation matrix (or simple T/R/S), and metadata (name, color).
-- [ ] **Refactor `Design` struct**:
-    - [ ] Change `Design` to store a `Array[SceneNode]` instead of an eager `@repository.Repository`.
-    - [ ] Keep metadata like `name` and `description` in `Design`.
+- [x] **Define high-level `Shape` types**: Move current `Solid` enum definitions into a more structured hierarchy.
+- [x] **Create `SceneGraph` node**: Define a node that contains a shape, its transformation matrix (or simple T/R/S), and metadata (name, color).
+- [x] **Refactor `Design` struct**:
+    - [x] Change `Design` to store a `Array[SceneNode]` instead of an eager `@repository.Repository`.
+    - [x] Keep metadata like `name` and `description` in `Design`.
 
 ## Phase 2: Abstracting STEP Boilerplate
 - [ ] **Create `StepContext` helper**:
@@ -17,15 +17,15 @@ This plan outlines the steps to transform the `cad` package from an eager STEP g
     - [ ] Create a robust `InternalRepoBuilder` that handles ID management and deduplication of Directions/Vectors/Points.
 
 ## Phase 3: The Fluent API (Builder Pattern)
-- [ ] **Implement Builder for `Cuboid`**:
-    - [ ] `Cuboid::new(x, y, z)`
-    - [ ] `.with_name(String)`
-    - [ ] `.with_color(Rgb)`
+- [x] **Implement Builder for `Cuboid`**:
+    - [x] `Cuboid::new(x, y, z)`
+    - [x] `.with_name(String)`
+    - [x] `.with_color(Rgb)`
 - [ ] **Implement Builder for `ExtrudedProfile`**:
     - [ ] `ExtrudedProfile::new(outer_loop, height)`
-- [ ] **Add Transformation Combinators**:
-    - [ ] `Shape::translate(x?, y?, z?) -> Shape`
-    - [ ] `Shape::rotate(axis, angle) -> Shape` (Future-proofing)
+- [x] **Add Transformation Combinators**:
+    - [x] `Shape::translate(x?, y?, z?) -> Shape`
+    - [x] `Shape::rotate(axis, angle) -> Shape` (Future-proofing)
 
 ## Phase 4: Decentralized Compilers
 - [ ] **Create `compiler_cuboid.mbt`**: Move cuboid-to-STEP logic here. It should take a `Cuboid` intent and a `StepContext` and return the B-Rep entities.

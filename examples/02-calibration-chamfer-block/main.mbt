@@ -116,18 +116,17 @@ async fn main {
     ) {
     return
   }
-  let block = @cad.Solid::calibration_chamfer_block(
-    length_mm,
-    width_mm,
-    height_mm,
-    chamfer_size_mm~,
-    fillet_radius_mm~,
-    // This is an internal quality knob; keep the CLI simple.
-    fillet_segments=10,
-    name="calibration-block",
-  )
-  let design = @cad.Design::new(name="calibration-chamfer-block").add(
-    block.translate(x=tx, y=ty, z=tz),
-  )
+  let block = @cad.CalibrationChamferBlock::new(
+      length_mm,
+      width_mm,
+      height_mm,
+      chamfer_size_mm~,
+      fillet_radius_mm~,
+      // This is an internal quality knob; keep the CLI simple.
+      fillet_segments=10,
+    )
+    .with_name("calibration-block")
+    .translate(x=tx, y=ty, z=tz)
+  let design = @cad.Design::new(name="calibration-chamfer-block").add(block)
   design.write_step(out_path)
 }

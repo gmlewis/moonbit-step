@@ -47,7 +47,9 @@ async fn main {
     None => return
   }
   let design = @cad.Design::new(name="hello-cube").add(
-    @cad.Solid::cube(edge_mm).translate(x=tx, y=ty, z=tz),
+    @cad.Cuboid::new(edge_mm, edge_mm, edge_mm)
+    .with_name("cube")
+    .translate(x=tx, y=ty, z=tz),
   )
   design.write_step(out_path)
 }
