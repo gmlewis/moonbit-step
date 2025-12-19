@@ -10,11 +10,11 @@ This plan outlines the steps to transform the `cad` package from an eager STEP g
     - [x] Keep metadata like `name` and `description` in `Design`.
 
 ## Phase 2: Abstracting STEP Boilerplate
-- [ ] **Create `StepContext` helper**:
-    - [ ] Move the 200+ lines of "Product structure", "Units", and "Representation context" boilerplate into a reusable module.
-    - [ ] Implement a `StandardContext` that can be initialized once per STEP file.
-- [ ] **Unify "Add to Repo" logic**:
-    - [ ] Create a robust `InternalRepoBuilder` that handles ID management and deduplication of Directions/Vectors/Points.
+- [x] **Create `StepContext` helper**:
+    - [x] Move the 200+ lines of "Product structure", "Units", and "Representation context" boilerplate into a reusable module.
+    - [x] Implement a `StandardContext` that can be initialized once per STEP file.
+- [x] **Unify "Add to Repo" logic**:
+    - [x] Create a robust `InternalRepoBuilder` (integrated into `StepContext`) that handles ID management and deduplication of Directions/Vectors/Points.
 
 ## Phase 3: The Fluent API (Builder Pattern)
 - [x] **Implement Builder for `Cuboid`**:

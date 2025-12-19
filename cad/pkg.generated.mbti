@@ -1,6 +1,11 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "gmlewis/step/cad"
 
+import(
+  "gmlewis/step"
+  "gmlewis/step/repository"
+)
+
 // Values
 pub async fn write_step_text(String, String?) -> Unit
 
@@ -75,6 +80,24 @@ pub enum Shape {
   ExtrudedProfile(ExtrudedProfile)
 }
 pub fn Shape::with_name(Self, String) -> SceneNode
+
+pub struct StepContext {
+  mut repo : @repository.Repository
+  mut length_unit_id : @step.EntityId
+  mut plane_angle_unit_id : @step.EntityId
+  mut solid_angle_unit_id : @step.EntityId
+  mut uncertainty_id : @step.EntityId
+  mut repo_ctx_id : @step.EntityId
+  directions : Map[String, @step.Ref]
+  vectors : Map[String, @step.Ref]
+  cartesian_points : Map[String, @step.Ref]
+}
+pub fn StepContext::add_product_definition(Self, String) -> @step.Ref
+pub fn StepContext::cartesian_point(Self, Double, Double, Double) -> @step.Ref
+pub fn StepContext::direction(Self, Double, Double, Double) -> @step.Ref
+pub fn StepContext::init_standard_context(Self, String) -> Unit
+pub fn StepContext::new() -> Self
+pub fn StepContext::vector(Self, @step.Ref, Double) -> @step.Ref
 
 // Type aliases
 
