@@ -23,7 +23,14 @@ fi
 EXAMPLE_ARG_STRIPPED="${EXAMPLE_ARG%/}"
 EXAMPLE_BASENAME="$(basename "$EXAMPLE_ARG_STRIPPED")"
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Get the absolute path of the script, resolving symlinks.
+SOURCE="${BASH_SOURCE[0]}"
+while [ -L "$SOURCE" ]; do
+  DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
+  SOURCE="$(readlink "$SOURCE")"
+  [[ $SOURCE != /* ]] && SOURCE="$DIR/$SOURCE"
+done
+SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 # Resolve the example folder relative to the project root.
