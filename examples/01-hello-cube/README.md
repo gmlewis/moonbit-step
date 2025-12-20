@@ -1,5 +1,7 @@
 # 01 — Hello Cube
 
+![Preview](preview.png)
+
 This folder contains a **working example** that generates a STEP model for: The smallest “hello world”: a parameterized cube with a few named dimensions.
 
 The intent is that you can run the code here to emit a STEP file, open it in a CAD viewer, and/or import it into your slicer to 3D print and iterate.
