@@ -21,7 +21,7 @@ pub fn compile_calibration_chamfer_block(
     let start_z = h - r
     rings.push((start_z, 0.0))
     let segs = if fillet_segments <= 0 { 8 } else { fillet_segments }
-    for i = 1; i <= segs; i = i + 1 {
+    for i in 1..=segs {
       let phi = Double::from_int(i) * (@math.PI / 2.0) / Double::from_int(segs)
       let offset = r - r * @math.cos(phi)
       let z = h - r + r * @math.sin(phi)
@@ -37,8 +37,8 @@ pub fn compile_calibration_chamfer_block(
 
   // Points (mm)
   let pts : Array[(Double, Double, Double)] = []
-  for i = 0; i < rings.length(); i = i + 1 {
-    let (rz, ro) = rings[i]
+  for ring in rings {
+    let (rz, ro) = ring
     let pz = tz + rz
     let px0 = tx + ro
     let px1 = tx + (l - ro)
@@ -52,15 +52,15 @@ pub fn compile_calibration_chamfer_block(
 
   // Cartesian points
   let cp_refs : Array[@step.Ref] = []
-  for i = 0; i < pts.length(); i = i + 1 {
-    let (px, py, pz) = pts[i]
+  for pt in pts {
+    let (px, py, pz) = pt
     cp_refs.push(ctx.cartesian_point(px, py, pz))
   }
 
   // Vertex points
   let vp_refs : Array[@step.Ref] = []
-  for i = 0; i < cp_refs.length(); i = i + 1 {
-    let vp = @topology.VertexPoint::new("", cp_refs[i])
+  for cp_ref in cp_refs {
+    let vp = @topology.VertexPoint::new("", cp_ref)
     vp_refs.push(ctx.add(@repository.any_entity_vertex_point(vp)))
   }
   let edges : Array[EdgeInfo] = []
@@ -90,7 +90,7 @@ pub fn compile_calibration_chamfer_block(
   }
 
   // Per-ring perimeter edges
-  for ri = 0; ri < rings.length(); ri = ri + 1 {
+  for ri in 0..<rings.length() {
     let base = ri * 4
     add_edge(base + 0, base + 1)
     add_edge(base + 1, base + 2)
@@ -99,7 +99,8 @@ pub fn compile_calibration_chamfer_block(
   }
 
   // Between-ring edges
-  for ri = 0; ri + 1 < rings.length(); ri = ri + 1 {
+  let rings_minus_one = rings.length() - 1
+  for ri in 0..<rings_minus_one {
     let a = ri * 4
     let b = (ri + 1) * 4
     add_edge(a + 0, b + 0)
@@ -133,7 +134,7 @@ pub fn compile_calibration_chamfer_block(
   )
 
   // Side faces
-  for ri = 0; ri + 1 < rings.length(); ri = ri + 1 {
+  for ri in 0..<rings_minus_one {
     let a = ri * 4
     let b = (ri + 1) * 4
     face_refs.push(

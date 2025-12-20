@@ -28,17 +28,16 @@ pub fn compile_extruded_profile(
   let pts : Array[(Double, Double, Double)] = []
   let loop_bottom : Array[Array[Int]] = []
   let loop_top : Array[Array[Int]] = []
-  for li = 0; li < loops.length(); li = li + 1 {
-    let poly = loops[li]
+  for poly in loops {
     let b : Array[Int] = []
     let t : Array[Int] = []
-    for pi = 0; pi < poly.length(); pi = pi + 1 {
-      let (px, py) = poly[pi]
+    for pt in poly {
+      let (px, py) = pt
       pts.push((tx + px, ty + py, z0))
       b.push(pts.length() - 1)
     }
-    for pi = 0; pi < poly.length(); pi = pi + 1 {
-      let (px, py) = poly[pi]
+    for pt in poly {
+      let (px, py) = pt
       pts.push((tx + px, ty + py, z1))
       t.push(pts.length() - 1)
     }
@@ -48,15 +47,15 @@ pub fn compile_extruded_profile(
 
   // Cartesian points
   let cp_refs : Array[@step.Ref] = []
-  for i = 0; i < pts.length(); i = i + 1 {
-    let (px, py, pz) = pts[i]
+  for pt in pts {
+    let (px, py, pz) = pt
     cp_refs.push(ctx.cartesian_point(px, py, pz))
   }
 
   // Vertex points
   let vp_refs : Array[@step.Ref] = []
-  for i = 0; i < cp_refs.length(); i = i + 1 {
-    let vp = @topology.VertexPoint::new("", cp_refs[i])
+  for cp_ref in cp_refs {
+    let vp = @topology.VertexPoint::new("", cp_ref)
     vp_refs.push(ctx.add(@repository.any_entity_vertex_point(vp)))
   }
   let edges : Array[EdgeInfo] = []
@@ -86,11 +85,11 @@ pub fn compile_extruded_profile(
   }
 
   // Per-loop perimeter + vertical edges
-  for li = 0; li < loops.length(); li = li + 1 {
+  for li in 0..<loops.length() {
     let b = loop_bottom[li]
     let t = loop_top[li]
     let n = b.length()
-    for i = 0; i < n; i = i + 1 {
+    for i in 0..<n {
       let j = (i + 1) % n
       add_edge(b[i], b[j])
       add_edge(t[i], t[j])
@@ -106,7 +105,7 @@ pub fn compile_extruded_profile(
   let outer_t = loop_top[0]
   let hole_bs : Array[Array[Int]] = []
   let hole_ts : Array[Array[Int]] = []
-  for li = 1; li < loops.length(); li = li + 1 {
+  for li in 1..<loops.length() {
     hole_bs.push(loop_bottom[li])
     hole_ts.push(loop_top[li])
   }
@@ -134,11 +133,11 @@ pub fn compile_extruded_profile(
   )
 
   // Side faces
-  for li = 0; li < loops.length(); li = li + 1 {
+  for li in 0..<loops.length() {
     let b = loop_bottom[li]
     let t = loop_top[li]
     let n = b.length()
-    for i = 0; i < n; i = i + 1 {
+    for i in 0..<n {
       let j = (i + 1) % n
       let (px0, py0, _) = pts[b[i]]
       let (px1, py1, _) = pts[b[j]]

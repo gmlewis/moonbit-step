@@ -23,6 +23,21 @@ pub fn CalibrationChamferBlock::new(
 }
 
 ///|
+pub fn Profile2D::circle(
+  diameter : Double,
+  segments? : Int = 64,
+) -> Array[(Double, Double)] {
+  let radius = diameter / 2.0
+  let out : Array[(Double, Double)] = []
+  let n = if segments < 3 { 3 } else { segments }
+  for i in 0..<n {
+    let phi = Double::from_int(i) * 2.0 * @math.PI / Double::from_int(n)
+    out.push((radius * @math.cos(phi), radius * @math.sin(phi)))
+  }
+  out
+}
+
+///|
 pub fn ExtrudedProfile::new(
   outer : Array[(Double, Double)],
   height_mm : Double,

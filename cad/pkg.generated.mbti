@@ -65,6 +65,7 @@ pub struct Profile2D {
   outer : Array[(Double, Double)]
   holes : Array[Array[(Double, Double)]]
 }
+pub fn Profile2D::circle(Double, segments? : Int) -> Array[(Double, Double)]
 
 pub struct Rgb {
   r : Double

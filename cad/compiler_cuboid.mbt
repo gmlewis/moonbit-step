@@ -22,15 +22,15 @@ pub fn compile_cuboid(
     (tx + 0.0, ty + sy, tz + sz),
   ]
   let cp_refs : Array[@step.Ref] = []
-  for i = 0; i < pts.length(); i = i + 1 {
-    let (px, py, pz) = pts[i]
+  for pt in pts {
+    let (px, py, pz) = pt
     cp_refs.push(ctx.cartesian_point(px, py, pz))
   }
 
   // Vertex points
   let vp_refs : Array[@step.Ref] = []
-  for i = 0; i < cp_refs.length(); i = i + 1 {
-    let vp = @topology.VertexPoint::new("", cp_refs[i])
+  for cp_ref in cp_refs {
+    let vp = @topology.VertexPoint::new("", cp_ref)
     vp_refs.push(ctx.add(@repository.any_entity_vertex_point(vp)))
   }
 
@@ -65,8 +65,8 @@ pub fn compile_cuboid(
     (3, 7, vz), // vertical pillars
   ]
   let edges : Array[EdgeInfo] = []
-  for i = 0; i < edge_defs.length(); i = i + 1 {
-    let (a, b, vec) = edge_defs[i]
+  for def in edge_defs {
+    let (a, b, vec) = def
     let line = @geometry.Line::new("", cp_refs[a], vec)
     let line_ref = ctx.add(@repository.any_entity_line(line))
     let ec = @topology.EdgeCurve::new(
