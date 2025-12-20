@@ -9,32 +9,52 @@ from pathlib import Path
 
 # --- Configuration ---
 
+# We now include the "base" color for the main shape to help OCCT renderer.
+# Colors are (R, G, B) in 0-1 range.
 SUITE = {
-    "01": [
-        ["--edge", "10"],
-        ["--edge", "25", "--tx", "5", "--ty", "5", "--tz", "5"]
-    ],
-    "02": [
-        ["--length", "20", "--width", "20", "--height", "5"],
-        ["--chamferSize", "2"],
-        ["--filletRadius", "1.5"]
-    ],
-    "03": [
-        ["--name", "gmlewis"],
-        ["--name", "MoonBit", "--embossDepth", "2", "--length", "60"]
-    ],
-    "04": [
-        ["--id", "5", "--od", "15", "--thickness", "2"],
-        ["--id", "10", "--od", "12", "--thickness", "0.5", "--segments", "32"]
-    ],
-    "05": [
-        ["--rows", "1", "--cols", "1", "--height", "20"],
-        ["--rows", "2", "--cols", "1", "--text", "Gemini"]
-    ],
-    "06": [
-        ["--count", "1"],
-        ["--count", "3", "--height", "10", "--clickHeight", "1"]
-    ]
+    "01": {
+        "color": (0.0, 0.8, 0.0), # Green
+        "variants": [
+            ["--edge", "10"],
+            ["--edge", "25", "--tx", "5", "--ty", "5", "--tz", "5"]
+        ]
+    },
+    "02": {
+        "color": (0.2, 0.6, 1.0), # Blue-ish
+        "variants": [
+            ["--length", "20", "--width", "20", "--height", "5"],
+            ["--chamferSize", "2"],
+            ["--filletRadius", "1.5"]
+        ]
+    },
+    "03": {
+        "color": (0.2, 0.2, 0.2), # Grey base
+        "variants": [
+            ["--name", "gmlewis"],
+            ["--name", "MoonBit", "--embossDepth", "2", "--length", "60"]
+        ]
+    },
+    "04": {
+        "color": (0.0, 0.0, 0.8), # Blue
+        "variants": [
+            ["--id", "5", "--od", "15", "--thickness", "2"],
+            ["--id", "10", "--od", "12", "--thickness", "0.5", "--segments", "32"]
+        ]
+    },
+    "05": {
+        "color": (0.2, 0.2, 0.2), # Grey base
+        "variants": [
+            ["--rows", "1", "--cols", "1", "--height", "20"],
+            ["--rows", "2", "--cols", "1", "--text", "Gemini"]
+        ]
+    },
+    "06": {
+        "color": (1.0, 0.6, 0.0), # Orange
+        "variants": [
+            ["--count", "1"],
+            ["--count", "3", "--height", "10", "--clickHeight", "1"]
+        ]
+    }
 }
 
 # --- Utils ---
@@ -75,25 +95,29 @@ def validate_step(occt_bin, step_path):
     except subprocess.CalledProcessError:
         return False
 
-def render_step(occt_bin, step_path, png_path):
-    # We use a pipe to DRAWEXE.
-    # OCCT on macOS often lacks FreeImage, so vdump produces PPM regardless of extension.
-    # We dump to a temp PPM and convert using 'sips'.
+def render_step(occt_bin, step_path, png_path, color):
     ppm_path = str(png_path).replace(".png", ".ppm")
-    # THE XShow method:
-    # 1. Read into document
-    # 2. XShow (This is the most reliable way to show XDE colors)
-    # 3. vfit, etc.
+    r, g, b = color
+    
+    # We use a very explicit rendering script that doesn't rely on XShow.
+    # 1. Read shape via ReadStep/XGetOneShape (XDE)
+    # 2. Display shape
+    # 3. Explicitly set color (since vdisplay often loses it on some platforms)
+    # 4. Use vfit and vdump
     draw_commands = f"""
 pload ALL
-# Read into document D
-ReadStep D {step_path}
 vinit View1 -width 800 -height 800
 vbackground -color WHITE
-# XShow properly initializes the viewer with document colors
-XShow D
+if {{ [catch {{ReadStep D {{step_path}}}} ] }} {{
+    testreadstep {step_path} s
+}} else {{
+    XGetOneShape s D
+}}
+vdisplay s
+vsetdispmode s 1
+# Force the color in the viewer to match our intent
+vsetcolor s {r} {g} {b}
 vfit
-# Add professional lighting
 vlight clear
 vlight add directional -dir -1 -1 -1 -head 0 -color WHITE
 vlight add positional -pos 100 100 100 -color WHITE
@@ -103,13 +127,12 @@ vclose ALL
 exit
 """
     try:
-        # Using pipe to DRAWEXE (no -b) is most reliable for Cocoa on macOS
         subprocess.run(
             [occt_bin],
             input=draw_commands,
             capture_output=True,
             text=True,
-            timeout=30
+            timeout=60
         )
         
         if os.path.exists(ppm_path):
@@ -170,7 +193,13 @@ def main():
 
         print(f"Processing Example {num} ({example_dir.name})...")
         
-        configs = SUITE.get(num, [[]])
+        config_data = SUITE.get(num)
+        if not config_data:
+            print(f"No config for {num}")
+            continue
+            
+        configs = config_data["variants"]
+        base_color = config_data["color"]
         variants_for_readme = []
 
         for i, config in enumerate(configs, 1):
@@ -194,7 +223,7 @@ def main():
 
             # 3. Render
             if args.render:
-                if render_step(occt_bin, step_file, png_path):
+                if render_step(occt_bin, step_file, png_path, base_color):
                     print(f"    Render: SUCCESS ({png_name})")
                 else:
                     print("    Render: FAILED")
