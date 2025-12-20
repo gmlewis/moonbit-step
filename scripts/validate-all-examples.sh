@@ -76,6 +76,10 @@ validate_example "04" "--id 10 --od 12 --thickness 0.5 --segments 32"
 validate_example "05" "--rows 1 --cols 1 --height 20"
 validate_example "05" "--rows 2 --cols 1 --text Gemini"
 
+# 06-stackable-spacer-tower
+validate_example "06" "--count 1"
+validate_example "06" "--count 3 --height 10 --clickHeight 1"
+
 # --- SUMMARY ---
 
 echo ""
