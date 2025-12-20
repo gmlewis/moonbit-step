@@ -1,0 +1,25 @@
+{
+  "name": "examples/05-gridfinity-compatible-bin",
+  "version": "0.1.0",
+  "deps": {
+    "gmlewis/step": {
+      "path": "../.."
+    },
+    "moonbitlang/async": "0.14.3",
+    "moonbitlang/x": "0.4.38",
+    "TheWaWaR/clap": "0.2.6",
+    "gmlewis/fonts": "0.17.1",
+    "gmlewis/fonts-b": "0.17.1"
+  },
+  "readme": "README.md",
+  "repository": "https://github.com/gmlewis/moonbit-step",
+  "license": "Apache-2.0",
+  "keywords": [
+    "cad",
+    "step",
+    "3d",
+    "modeling"
+  ],
+  "description": "Port of https://github.com/tscircuit/stepts to MoonBit",
+  "preferred-target": "native"
+}

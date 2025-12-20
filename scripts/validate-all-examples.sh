@@ -72,6 +72,10 @@ validate_example "03" "--name MoonBit --embossDepth 2 --length 60"
 validate_example "04" "--id 5 --od 15 --thickness 2"
 validate_example "04" "--id 10 --od 12 --thickness 0.5 --segments 32"
 
+# 05-gridfinity-compatible-bin
+validate_example "05" "--rows 1 --cols 1 --height 20"
+validate_example "05" "--rows 2 --cols 1 --text Gemini"
+
 # --- SUMMARY ---
 
 echo ""

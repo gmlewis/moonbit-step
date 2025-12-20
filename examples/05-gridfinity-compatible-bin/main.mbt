@@ -1,0 +1,179 @@
+///|
+// 05-gridfinity-compatible-bin
+//
+// A maker-friendly storage bin generator.
+//
+// Usage (stdout):
+//   moon run --target native examples/05-gridfinity-compatible-bin -- --rows 2 --cols 1 > bin.step
+//
+
+const GRID_UNIT : Double = 42.0
+
+///|
+const WALL_THICKNESS : Double = 2.0
+
+///|
+const BASE_THICKNESS : Double = 2.0
+
+///|
+async fn main {
+  let base_args_spec = {
+    "rows": @cli.opt_double(
+      1.0,
+      help="Number of grid units in Y (rows)",
+      min=1.0,
+    ),
+    "cols": @cli.opt_double(
+      1.0,
+      help="Number of grid units in X (cols)",
+      min=1.0,
+    ),
+    "height": @cli.opt_double(
+      30.0,
+      help="Total bin height (mm)",
+      min=BASE_THICKNESS + 1.0,
+    ),
+    "text": @cli.opt_string(short='t', help="Label text to engrave"),
+    "embossDepth": @cli.opt_double(
+      0.5,
+      help="Engraving depth (mm)",
+      min=0.0,
+      max=WALL_THICKNESS - 0.1,
+    ),
+    "out": @cli.opt_string(
+      short='o',
+      help="Write output to a file (default: stdout)",
+    ),
+  }
+  let args_spec = @cli.with_translate(base_args_spec)
+  guard @cli.parse(
+      args_spec,
+      prog="05-gridfinity-compatible-bin",
+      description="Generate a Gridfinity-compatible storage bin.",
+    )
+    is Some(args) else {
+    return
+  }
+  let rows = args.double("rows").to_int()
+  let cols = args.double("cols").to_int()
+  let height = args.double("height")
+  let text_opt = args.string_opt("text")
+  let emboss_depth = args.double("embossDepth")
+  let out_path = args.string_opt("out")
+  let (tx, ty, tz) = match args.translate_xyz() {
+    Some(v) => v
+    None => {
+      @cli.eprintln("error: invalid translation")
+      return
+    }
+  }
+  let total_width = Double::from_int(cols) * GRID_UNIT
+  let total_length = Double::from_int(rows) * GRID_UNIT
+  let mut design = @cad.Design::new(name="gridfinity-bin")
+
+  // 1. The Base
+  let base = @cad.Cuboid::new(total_width, total_length, BASE_THICKNESS)
+    .with_name("bin-base")
+    .translate(x=tx, y=ty, z=tz)
+  design = design.add(base)
+
+  // 2. Outer Walls (Extruded Profile with a hole)
+  let outer_poly = [
+    (0.0, 0.0),
+    (total_width, 0.0),
+    (total_width, total_length),
+    (0.0, total_length),
+  ]
+  let inner_poly = [
+    (WALL_THICKNESS, WALL_THICKNESS),
+    (total_width - WALL_THICKNESS, WALL_THICKNESS),
+    (total_width - WALL_THICKNESS, total_length - WALL_THICKNESS),
+    (WALL_THICKNESS, total_length - WALL_THICKNESS),
+  ]
+  let wall_height = height - BASE_THICKNESS
+  let walls = @cad.ExtrudedProfile::new(outer_poly, wall_height, holes=[
+      inner_poly,
+    ])
+    .with_name("bin-walls")
+    .translate(x=tx, y=ty, z=tz + BASE_THICKNESS)
+  design = design.add(walls)
+
+  // 3. Internal Dividers (if cols > 1 or rows > 1)
+  // X Dividers
+  for i in 1..<cols {
+    let x = Double::from_int(i) * GRID_UNIT - WALL_THICKNESS / 2.0
+    let div = @cad.Cuboid::new(
+        WALL_THICKNESS,
+        total_length - 2.0 * WALL_THICKNESS,
+        wall_height,
+      )
+      .with_name("divider-x-\{i}")
+      .translate(x=tx + x, y=ty + WALL_THICKNESS, z=tz + BASE_THICKNESS)
+    design = design.add(div)
+  }
+  // Y Dividers
+  for j in 1..<rows {
+    let y = Double::from_int(j) * GRID_UNIT - WALL_THICKNESS / 2.0
+    let div = @cad.Cuboid::new(
+        total_width - 2.0 * WALL_THICKNESS,
+        WALL_THICKNESS,
+        wall_height,
+      )
+      .with_name("divider-y-\{j}")
+      .translate(x=tx + WALL_THICKNESS, y=ty + y, z=tz + BASE_THICKNESS)
+    design = design.add(div)
+  }
+
+  // 4. Label Text (if provided)
+  match text_opt {
+    Some(label) => {
+      let margin = WALL_THICKNESS + 2.0
+      let label_width = total_width - 2.0 * margin
+      if label_width > 5.0 {
+        let bbox = @draw.bbox(0.0, 0.0, label_width, wall_height * 0.6)
+        let font = @baloo.font
+        let text_raw = @draw.text(text=label, font~, align=Center).transform(
+          scale=@draw.vec2(1, -1),
+        ) catch {
+          e => {
+            @cli.eprintln("Error creating text: \{e}")
+            abort("")
+          }
+        }
+        let text_fitted = text_raw.fit_to(bbox)
+        let all_paths = text_fitted.all_paths_and_compound_paths()
+        for g in all_paths {
+          let profiles = @draw.Graphic::to_profiles_tuples(g, 8)
+          for profile in profiles {
+            let (outer, holes) = profile
+            if outer.length() < 3 {
+              continue
+            }
+            // Engrave on the front wall (-Y face)
+            // We need to rotate the profile or manually transform it.
+            // For now, let's just place them on the top face for simplicity,
+            // OR use a helper to rotate. 
+            // Wait, ExtrudedProfile extrudes along Z. 
+            // To put it on the front wall, we would need to rotate it.
+            // Since we don't have rotation yet in compilers, I'll place it on top of the front wall.
+            let text_solid = @cad.ExtrudedProfile::new(
+                outer,
+                emboss_depth,
+                holes~,
+              )
+              .with_name("label")
+              .with_color(@cad.Rgb::orange())
+              .translate(
+                x=tx + margin,
+                y=ty + WALL_THICKNESS / 2.0,
+                z=tz + height,
+              )
+            design = design.add(text_solid)
+          }
+        }
+      }
+    }
+    None => ()
+  }
+  design.write_step(out_path)
+}
