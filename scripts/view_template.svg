@@ -1,0 +1,38 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <rect width="1024" height="1024" fill="#ffffff"/>
+  
+  <!-- Views -->
+  <image id="iso_img" x="0" y="0" width="512" height="512" xlink:href="iso.png"/>
+  <image id="top_img" x="512" y="0" width="512" height="512" xlink:href="top.png"/>
+  <image id="front_img" x="0" y="512" width="512" height="512" xlink:href="front.png"/>
+  <image id="side_img" x="512" y="512" width="512" height="512" xlink:href="side.png"/>
+
+  <!-- Grid lines -->
+  <line x1="512" y1="0" x2="512" y2="1024" stroke="#eeeeee" stroke-width="2"/>
+  <line x1="0" y1="512" x2="1024" y2="512" stroke="#eeeeee" stroke-width="2"/>
+  <rect x="0" y="0" width="1024" height="1024" fill="none" stroke="#cccccc" stroke-width="4"/>
+
+  <!-- Labels -->
+  <g transform="translate(10, 10)">
+    <rect width="130" height="30" rx="4" fill="white" fill-opacity="0.8"/>
+    <text x="65" y="21" font-family="sans-serif" font-size="16" font-weight="bold" fill="#333333" text-anchor="middle">ISOMETRIC</text>
+  </g>
+
+  <g transform="translate(522, 10)">
+    <rect width="130" height="30" rx="4" fill="white" fill-opacity="0.8"/>
+    <text x="65" y="21" font-family="sans-serif" font-size="16" font-weight="bold" fill="#333333" text-anchor="middle">TOP (XY)</text>
+  </g>
+
+  <g transform="translate(10, 522)">
+    <rect width="130" height="30" rx="4" fill="white" fill-opacity="0.8"/>
+    <text x="65" y="21" font-family="sans-serif" font-size="16" font-weight="bold" fill="#333333" text-anchor="middle">FRONT (XZ)</text>
+  </g>
+
+  <g transform="translate(522, 522)">
+    <rect width="130" height="30" rx="4" fill="white" fill-opacity="0.8"/>
+    <text x="65" y="21" font-family="sans-serif" font-size="16" font-weight="bold" fill="#333333" text-anchor="middle">SIDE (YZ)</text>
+  </g>
+  
+  <!-- Brand -->
+  <text x="1014" y="1014" font-family="sans-serif" font-size="12" fill="#bbbbbb" text-anchor="end">gmlewis/step</text>
+</svg>

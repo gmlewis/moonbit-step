@@ -55,7 +55,7 @@ def validate_step(occt_bin, step_path):
     except:
         return False
 
-def render_view(occt_bin, step_path, png_path, view_cmd, label):
+def render_view(occt_bin, step_path, png_path, view_cmd):
     # Renders a single view to a PNG
     ppm_path = str(png_path).replace(".png", ".ppm")
     
@@ -75,7 +75,6 @@ vlight clear
 vlight add directional -dir -1 -1 -1 -color WHITE
 vlight add ambient -color WHITE
 vfit
-vdrawtext L \"{label}\" -pos -240 240 0 -color BLACK -halign left -valign top
 vdump {ppm_path}
 vclose ALL
 exit
@@ -87,28 +86,72 @@ exit
             os.unlink(ppm_path)
             return True
     except Exception as e:
-        print(f"      View '{label}' FAILED: {e}")
+        print(f"      View FAILED: {e}")
     return False
 
-def render_variant(occt_bin, step_path, example_dir, idx):
-    # Generate 4 separate PNGs for the variant
+def composite_views(inkscape_bin, views_dict, output_png):
+    # Composites 4 PNGs into one using an SVG template and inkscape
+    template_path = Path(__file__).parent / "view_template.svg"
+    if not template_path.exists():
+        print(f"      SVG template not found at {template_path}")
+        return False
+        
+    template_content = template_path.read_text()
+    
+    # Replace placeholders with absolute paths to the rendered PNGs
+    # In the template, IDs are iso_img, top_img, front_img, side_img
+    # and they have xlink:href="iso.png" etc.
+    replacements = {
+        'xlink:href="iso.png"': f'xlink:href="{views_dict["iso"]}"',
+        'xlink:href="top.png"': f'xlink:href="{views_dict["top"]}"',
+        'xlink:href="front.png"': f'xlink:href="{views_dict["front"]}"',
+        'xlink:href="side.png"': f'xlink:href="{views_dict["side"]}"',
+    }
+    
+    for old, new in replacements.items():
+        template_content = template_content.replace(old, new)
+        
+    with tempfile.NamedTemporaryFile(suffix=".svg", delete=False) as tmp_svg:
+        tmp_svg.write(template_content.encode("utf-8"))
+        tmp_svg_path = tmp_svg.name
+        
+    try:
+        cmd = [inkscape_bin, "--export-filename=" + str(output_png), tmp_svg_path]
+        subprocess.run(cmd, capture_output=True, check=True)
+        return True
+    except Exception as e:
+        print(f"      Compositing FAILED: {e}")
+        return False
+    finally:
+        if os.path.exists(tmp_svg_path):
+            os.unlink(tmp_svg_path)
+
+def render_variant(occt_bin, inkscape_bin, step_path, example_dir, idx):
+    # Generate 4 separate PNGs and composite them
     views = [
-        ("iso", "vviewparams -proj 1 -1 1 -up 0 0 1", "Isometric"),
-        ("top", "vtop", "Top (XY)"),
-        ("front", "vfront", "Front (XZ)"),
-        ("side", "vleft", "Side (YZ)")
+        ("iso", "vviewparams -proj 1 -1 1 -up 0 0 1"),
+        ("top", "vtop"),
+        ("front", "vfront"),
+        ("side", "vleft")
     ]
     
-    results = {}
-    for suffix, cmd, label in views:
-        png_name = f"preview-{idx}-{suffix}.png"
-        png_path = example_dir / png_name
-        if render_view(occt_bin, step_path, png_path, cmd, label):
-            results[suffix] = png_name
-        else:
-            results[suffix] = None
+    temp_pngs = {}
+    # Use a temp directory for the 4 views
+    with tempfile.TemporaryDirectory() as tmpdir:
+        for suffix, cmd in views:
+            png_path = Path(tmpdir) / f"{suffix}.png"
+            if render_view(occt_bin, step_path, png_path, cmd):
+                temp_pngs[suffix] = str(png_path)
+            else:
+                print(f"      Failed to render view {suffix}")
+                return None
+        
+        final_png_name = f"preview-{idx}.png"
+        final_png_path = example_dir / final_png_name
+        if composite_views(inkscape_bin, temp_pngs, final_png_path):
+            return final_png_name
             
-    return results
+    return None
 
 def update_readme(example_dir, variants_data):
     readme_path = example_dir / "README.md"
@@ -120,17 +163,16 @@ def update_readme(example_dir, variants_data):
     
     for i, data in enumerate(variants_data, 1):
         config = data["config"]
-        previews = data["previews"]
+        preview = data["preview"]
         arg_str = " ".join(config)
         
         new_section += f"\n### Variant {i}\n\n"
         new_section += f"Command line: `./run-example.sh {example_dir.name[:2]} {arg_str}`\n\n"
         
-        # Create a 2x2 table for the 4 views
-        new_section += "| Isometric | Top (XY) |\n|:---:|:---:|"
-        new_section += f"\n| ![]({previews.get('iso', '')}) | ![]({previews.get('top', '')}) |\n"
-        new_section += "| **Front (XZ)** | **Side (YZ)** |\n"
-        new_section += f"| ![]({previews.get('front', '')}) | ![]({previews.get('side', '')}) |\n"
+        if preview:
+            new_section += f"![]({preview})\n"
+        else:
+            new_section += "_[Render Failed]_\n"
     
     readme_path.write_text(content + new_section + "\n")
 
@@ -143,6 +185,12 @@ def main():
     args = parser.parse_args()
 
     occt_bin = find_occt()
+    inkscape_bin = shutil.which("inkscape")
+    
+    if args.render and not inkscape_bin:
+        print("Error: 'inkscape' not found in PATH. Required for rendering.")
+        sys.exit(1)
+
     targets = SUITE.keys() if args.target == "all" else [args.target]
     
     for num in sorted(targets):
@@ -150,6 +198,13 @@ def main():
         if not example_dir: continue
         print(f"Processing Example {num}...")
         
+        # Cleanup old individual views if they exist
+        if args.render:
+            for old_img in example_dir.glob("preview-*-*.png"):
+                # don't delete the new ones (preview-1.png etc)
+                if "-" in old_img.name.split(".")[0].split("-", 1)[1]:
+                    old_img.unlink()
+
         variants_processed = []
         for i, config in enumerate(SUITE[num], 1):
             print(f"  [Set {i}] Args: {' '.join(config)}")
@@ -164,15 +219,15 @@ def main():
                     print("    Topology: FAILED")
                     continue
             
-            previews = {}
+            preview = None
             if args.render:
-                previews = render_variant(occt_bin, step_file, example_dir, i)
-                if all(previews.values()):
-                    print(f"    Render: SUCCESS (4 views)")
+                preview = render_variant(occt_bin, inkscape_bin, step_file, example_dir, i)
+                if preview:
+                    print(f"    Render: SUCCESS ({preview})")
                 else:
-                    print(f"    Render: PARTIAL FAILURE")
+                    print(f"    Render: FAILED")
 
-            variants_processed.append({"config": config, "previews": previews})
+            variants_processed.append({"config": config, "preview": preview})
             
         if args.readme:
             print(f"  Updating README.md...")
