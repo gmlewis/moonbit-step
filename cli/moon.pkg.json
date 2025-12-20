@@ -2,7 +2,6 @@
   "import": [
     "TheWaWaR/clap",
     "moonbitlang/async/io",
-    "moonbitlang/async/stdio",
-    "moonbitlang/x/sys"
+    "moonbitlang/async/stdio"
   ]
 }

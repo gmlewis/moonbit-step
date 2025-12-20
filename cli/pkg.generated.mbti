@@ -8,8 +8,6 @@ import(
 // Values
 pub async fn eprintln(String) -> Unit
 
-pub fn exit(Int) -> Unit
-
 pub fn flag(short? : Char, help? : String) -> Arg
 
 pub fn opt_double(Double, short? : Char, help? : String, min? : Double, max? : Double, min_exclusive? : Bool, max_exclusive? : Bool) -> Arg

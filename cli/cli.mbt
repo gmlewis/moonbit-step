@@ -426,7 +426,7 @@ pub async fn Args::translate_xyz(
   } catch {
     err => {
       eprintln(err.to_string())
-      @sys.exit(1)
+      abort("")
       []
     }
   }
@@ -523,11 +523,6 @@ pub fn Args::flag(self : Args, name : String) -> Bool {
 ///|
 pub async fn eprintln(s : String) -> Unit {
   @stdio.stderr.write(s + "\n")
-}
-
-///|
-pub fn exit(code : Int) -> Unit {
-  @sys.exit(code)
 }
 
 ///|
