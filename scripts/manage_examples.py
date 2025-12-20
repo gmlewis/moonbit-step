@@ -77,13 +77,11 @@ def validate_step(occt_bin, step_path):
         return False
 
 def render_step(occt_bin, step_path, png_path):
-    tcl_content = f"""
-pload MODELING
-pload VISUALIZATION
-# Use offscreen initialization if supported
-if {{ [catch {{vinit -offscreen}} ] }} {{
-  vinit
-}}
+    # We use a pipe to DRAWEXE which is the most reliable method on macOS
+    # to ensure Cocoa/OpenGL initialization.
+    draw_commands = f"""
+pload ALL
+vinit
 testreadstep {step_path} s
 vdisplay s
 vsetdispmode s 1
@@ -93,21 +91,16 @@ vdump {png_path}
 vclose ALL
 exit
 """
-    with tempfile.NamedTemporaryFile(suffix=".tcl", mode="w", delete=False) as tf:
-        tf.write(tcl_content)
-        tcl_path = tf.name
-
     try:
-        # Attempt without -b first for macOS Cocoa context
-        subprocess.run([occt_bin, "-f", tcl_path], capture_output=True, timeout=10)
-    except:
-        try:
-            # Fallback to batch
-            subprocess.run([occt_bin, "-b", "-f", tcl_path], capture_output=True, timeout=10)
-        except:
-            pass
-    finally:
-        os.unlink(tcl_path)
+        subprocess.run(
+            [occt_bin],
+            input=draw_commands,
+            capture_output=True,
+            text=True,
+            timeout=30
+        )
+    except Exception as e:
+        print(f"    FAILED: {e}")
     
     return Path(png_path).exists()
 

@@ -35,3 +35,4 @@ Command line: `./run-example.sh 02 --chamferSize 2`
 Command line: `./run-example.sh 02 --filletRadius 1.5`
 
 ![Preview](preview-3.png)
+

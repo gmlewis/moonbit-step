@@ -35,3 +35,4 @@ Command line: `./run-example.sh 06 --count 1`
 Command line: `./run-example.sh 06 --count 3 --height 10 --clickHeight 1`
 
 ![Preview](preview-2.png)
+

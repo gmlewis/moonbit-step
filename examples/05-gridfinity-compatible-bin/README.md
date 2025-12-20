@@ -35,3 +35,4 @@ Command line: `./run-example.sh 05 --rows 1 --cols 1 --height 20`
 Command line: `./run-example.sh 05 --rows 2 --cols 1 --text Gemini`
 
 ![Preview](preview-2.png)
+
