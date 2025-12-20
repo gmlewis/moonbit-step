@@ -86,15 +86,17 @@ async fn main {
   let outer_circle = @cad.Profile2D::circle(od, segments=resolution)
   let mid_circle = @cad.Profile2D::circle(mid, segments=resolution)
   let inner_circle = @cad.Profile2D::circle(id, segments=resolution)
+  let colors = [@cad.Rgb::orange(), @cad.Rgb::green(), @cad.Rgb::blue()]
   for i in 0..<count {
-    let base_z = tz + Double::from_int(i) * height
+    let base_z = tz + Double::from_int(i) * (height + click_height)
+    let color = colors[i % 3]
 
     // 1. Spacer Body (Ring from od to mid)
     let body = @cad.ExtrudedProfile::new(outer_circle, height, holes=[
         mid_circle,
       ])
       .with_name("spacer-body-\{i}")
-      .with_color(@cad.Rgb::orange())
+      .with_color(color)
       .translate(x=tx, y=ty, z=base_z)
     design = design.add(body)
 
@@ -104,7 +106,7 @@ async fn main {
         inner_circle,
       ])
       .with_name("spacer-click-\{i}")
-      .with_color(@cad.Rgb::blue())
+      .with_color(color)
       .translate(x=tx, y=ty, z=base_z + height)
     design = design.add(protrusion)
   }
