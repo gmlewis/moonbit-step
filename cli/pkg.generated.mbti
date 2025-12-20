@@ -14,7 +14,7 @@ pub fn opt_string(short? : Char, help? : String) -> Arg
 
 pub fn opt_vec3(short? : Char, help? : String) -> Arg
 
-pub fn parse(Map[String, Arg], prog? : String, description? : String, cli_args? : Array[String]) -> Args?
+pub fn parse(Map[String, Arg], prog? : String, description? : String, cli_args? : Array[String], raise_on_error? : Bool) -> Args?
 
 pub fn with_translate(Map[String, Arg], short_translate? : Char, translate_help? : String, tx_help? : String, ty_help? : String, tz_help? : String) -> Map[String, Arg]
 

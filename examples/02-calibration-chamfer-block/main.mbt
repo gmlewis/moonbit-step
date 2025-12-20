@@ -109,12 +109,12 @@ async fn main {
   let out_path = args.string_opt("out")
   let (tx, ty, tz) = match args.translate_xyz() {
     Some(v) => v
-    None => return
+    None => abort("error: invalid translation")
   }
   if !validate_dims(
       length_mm, width_mm, height_mm, chamfer_size_mm, fillet_radius_mm,
     ) {
-    return
+    abort("error: invalid dimensions")
   }
   let block = @cad.CalibrationChamferBlock::new(
       length_mm,

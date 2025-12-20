@@ -89,12 +89,11 @@ async fn main {
   // handling below to report any I/O errors.
   // let fillet_radius_mm = args.double("filletRadius")
   guard args.string_opt("name") is Some(name) else {
-    println("--name is required")
-    return
+    abort("--name is required")
   }
   let (tx, ty, tz) = match args.translate_xyz() {
     Some(v) => v
-    None => return
+    None => abort("error: invalid translation")
   }
   let font = @baloo.font
   let out_path = args.string_opt("out")
@@ -111,10 +110,7 @@ async fn main {
   let text_raw = @draw.text(text=name, font~, align=Center).transform(
     scale=@draw.vec2(1, -1),
   ) catch {
-    e => {
-      println("Error creating text: \{e}")
-      return
-    }
+    e => abort("Error creating text: \{e}")
   }
   let text = text_raw.fit_to(bbox)
   let all_paths = text.all_paths_and_compound_paths()

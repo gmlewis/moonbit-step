@@ -14,17 +14,20 @@ test "cli_opt_double_exclusive_min" {
 
   // Strictly positive: edge must be > 0.
   inspect(
-    @cli.parse(spec, prog="t", cli_args=["--edge", "0"]) is None,
+    @cli.parse(spec, prog="t", cli_args=["--edge", "0"], raise_on_error=false)
+    is None,
     content="true",
   )
   inspect(
-    @cli.parse(spec, prog="t", cli_args=["--edge", "-1"]) is None,
+    @cli.parse(spec, prog="t", cli_args=["--edge", "-1"], raise_on_error=false)
+    is None,
     content="true",
   )
 
   // Also works through the --name=value normalization.
   inspect(
-    @cli.parse(spec, prog="t", cli_args=["--edge=-1"]) is None,
+    @cli.parse(spec, prog="t", cli_args=["--edge=-1"], raise_on_error=false)
+    is None,
     content="true",
   )
 

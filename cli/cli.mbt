@@ -333,18 +333,12 @@ pub fn Args::double(self : Args, name : String) -> Double {
   try {
     let raw : String = @clap.SimpleValue::get_one(self.value, name)
     try parse_cli_double(raw) catch {
-      err => {
-        println(err.to_string())
-        0.0
-      }
+      err => abort(err.to_string())
     } noraise {
       v => v
     }
   } catch {
-    err => {
-      println(err.to_string())
-      0.0
-    }
+    err => abort(err.to_string())
   }
 }
 
@@ -359,10 +353,7 @@ pub fn Args::bool_opt(self : Args, name : String) -> Bool {
 ///|
 pub fn Args::string_opt(self : Args, name : String) -> String? {
   try @clap.SimpleValue::get_option(self.value, name) catch {
-    err => {
-      println(err.to_string())
-      None
-    }
+    err => abort(err.to_string())
   } noraise {
     v => v
   }
@@ -376,18 +367,12 @@ pub fn Args::doubles(self : Args, name : String) -> Array[Double] {
     let out : Array[Double] = []
     for s in raw {
       out.push(parse_cli_double(s)) catch {
-        err => {
-          println(err.to_string())
-          return []
-        }
+        err => abort(err.to_string())
       }
     }
     out
   } catch {
-    err => {
-      println(err.to_string())
-      []
-    }
+    err => abort(err.to_string())
   }
 }
 
@@ -419,10 +404,7 @@ pub fn Args::translate_xyz(
     )
     v
   } catch {
-    err => {
-      println(err.to_string())
-      []
-    }
+    err => abort(err.to_string())
   }
   if raw.length() == 0 {
     return Some(
@@ -439,10 +421,7 @@ pub fn Args::translate_xyz(
         parse_double_opt(raw[2]),
       ) {
       (Some(x), Some(y), Some(z)) => return Some((x, y, z))
-      _ => {
-        println("error: --translate/-t expects numeric values")
-        return None
-      }
+      _ => abort("error: --translate/-t expects numeric values")
     }
   }
 
@@ -457,10 +436,7 @@ pub fn Args::translate_xyz(
           parse_double_opt(parts[2]),
         ) {
         (Some(x), Some(y), Some(z)) => return Some((x, y, z))
-        _ => {
-          println("error: --translate/-t expects numeric values")
-          return None
-        }
+        _ => abort("error: --translate/-t expects numeric values")
       }
     }
 
@@ -474,15 +450,11 @@ pub fn Args::translate_xyz(
           parse_double_opt(ws_parts[2]),
         ) {
         (Some(x), Some(y), Some(z)) => return Some((x, y, z))
-        _ => {
-          println("error: --translate/-t expects numeric values")
-          return None
-        }
+        _ => abort("error: --translate/-t expects numeric values")
       }
     }
   }
-  println("error: --translate/-t expects exactly 3 numbers: <x> <y> <z>")
-  None
+  abort("error: --translate/-t expects exactly 3 numbers: <x> <y> <z>")
 }
 
 ///|
@@ -523,6 +495,7 @@ pub fn parse(
   prog? : String = "PROG",
   description? : String = "",
   cli_args? : Array[String] = [],
+  raise_on_error? : Bool = true,
 ) -> Args? {
   let clap_args : Map[String, @clap.Arg] = Map::new()
   args.each((name, spec) => clap_args.set(name, spec.clap))
@@ -604,9 +577,12 @@ pub fn parse(
         })
         match validation_error {
           Some(msg) => {
-            println(msg)
-            println(parser.gen_help_message([parser.prog], {}))
-            None
+            let help = parser.gen_help_message([parser.prog], {})
+            if raise_on_error {
+              abort(msg + "\n" + help)
+            } else {
+              None
+            }
           }
           None => Some(Args::{ value, })
         }
@@ -614,9 +590,12 @@ pub fn parse(
     }
   } catch {
     err => {
-      println(err.to_string())
-      println(parser.gen_help_message([parser.prog], {}))
-      None
+      let help = parser.gen_help_message([parser.prog], {})
+      if raise_on_error {
+        abort(err.to_string() + "\n" + help)
+      } else {
+        None
+      }
     }
   }
 }
