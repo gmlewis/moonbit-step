@@ -9,55 +9,46 @@ pub fn compile_extruded_profile(
   let profile = extrusion.profile
   let height_mm = extrusion.height_mm
   if height_mm == 0.0 || profile.outer.length() < 3 {
-    // Should return a null or empty ref, but for now we follow old logic
     return { id: { value: 0 } }
   }
   let z0 = tz
   let z1 = tz + height_mm
 
   // Flatten loops (outer first, then holes).
-  let loops : Array[Array[(Double, Double)]] = []
-  loops.push(profile.outer)
-  for i = 0; i < profile.holes.length(); i = i + 1 {
-    if profile.holes[i].length() >= 3 {
-      loops.push(profile.holes[i])
+  let loops : Array[Array[(Double, Double)]] = [profile.outer]
+  for hole in profile.holes {
+    if hole.length() >= 3 {
+      loops.push(hole)
     }
   }
 
   // Build 3D points (bottom then top per loop).
   let pts : Array[(Double, Double, Double)] = []
-  let loop_bottom : Array[Array[Int]] = []
-  let loop_top : Array[Array[Int]] = []
-  for poly in loops {
-    let b : Array[Int] = []
-    let t : Array[Int] = []
-    for pt in poly {
+  let loop_indices = loops.map(fn(poly) {
+    let b = poly.map(fn(pt) {
       let (px, py) = pt
       pts.push((tx + px, ty + py, z0))
-      b.push(pts.length() - 1)
-    }
-    for pt in poly {
+      pts.length() - 1
+    })
+    let t = poly.map(fn(pt) {
       let (px, py) = pt
       pts.push((tx + px, ty + py, z1))
-      t.push(pts.length() - 1)
-    }
-    loop_bottom.push(b)
-    loop_top.push(t)
-  }
+      pts.length() - 1
+    })
+    (b, t)
+  })
 
   // Cartesian points
-  let cp_refs : Array[@step.Ref] = []
-  for pt in pts {
+  let cp_refs = pts.map(fn(pt) {
     let (px, py, pz) = pt
-    cp_refs.push(ctx.cartesian_point(px, py, pz))
-  }
+    ctx.cartesian_point(px, py, pz)
+  })
 
   // Vertex points
-  let vp_refs : Array[@step.Ref] = []
-  for cp_ref in cp_refs {
+  let vp_refs = cp_refs.map(fn(cp_ref) {
     let vp = @topology.VertexPoint::new("", cp_ref)
-    vp_refs.push(ctx.add(@repository.any_entity_vertex_point(vp)))
-  }
+    ctx.add(@repository.any_entity_vertex_point(vp))
+  })
   let edges : Array[EdgeInfo] = []
   let seen : Map[String, Bool] = Map::new()
   let add_edge = fn(a : Int, b : Int) -> Unit {
@@ -81,13 +72,12 @@ pub fn compile_extruded_profile(
       true,
     )
     let ec_ref = ctx.add(@repository.any_entity_edge_curve(ec))
-    edges.push({ start, end, edge: ec_ref })
+    edges.push(EdgeInfo::{ start, end, edge: ec_ref })
   }
 
   // Per-loop perimeter + vertical edges
-  for li in 0..<loops.length() {
-    let b = loop_bottom[li]
-    let t = loop_top[li]
+  for loop_pair in loop_indices {
+    let (b, t) = loop_pair
     let n = b.length()
     for i in 0..<n {
       let j = (i + 1) % n
@@ -101,13 +91,13 @@ pub fn compile_extruded_profile(
   let face_refs : Array[@step.Ref] = []
 
   // Bottom/top (with holes)
-  let outer_b = loop_bottom[0]
-  let outer_t = loop_top[0]
+  let (outer_b, outer_t) = loop_indices[0]
   let hole_bs : Array[Array[Int]] = []
   let hole_ts : Array[Array[Int]] = []
-  for li in 1..<loops.length() {
-    hole_bs.push(loop_bottom[li])
-    hole_ts.push(loop_top[li])
+  for i in 1..<loop_indices.length() {
+    let (hb, ht) = loop_indices[i]
+    hole_bs.push(hb)
+    hole_ts.push(ht)
   }
   face_refs.push(
     add_plane_face_with_holes_oriented(
@@ -133,9 +123,8 @@ pub fn compile_extruded_profile(
   )
 
   // Side faces
-  for li in 0..<loops.length() {
-    let b = loop_bottom[li]
-    let t = loop_top[li]
+  for loop_pair in loop_indices {
+    let (b, t) = loop_pair
     let n = b.length()
     for i in 0..<n {
       let j = (i + 1) % n

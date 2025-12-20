@@ -21,18 +21,16 @@ pub fn compile_cuboid(
     (tx + sx, ty + sy, tz + sz),
     (tx + 0.0, ty + sy, tz + sz),
   ]
-  let cp_refs : Array[@step.Ref] = []
-  for pt in pts {
+  let cp_refs = pts.map(fn(pt) {
     let (px, py, pz) = pt
-    cp_refs.push(ctx.cartesian_point(px, py, pz))
-  }
+    ctx.cartesian_point(px, py, pz)
+  })
 
   // Vertex points
-  let vp_refs : Array[@step.Ref] = []
-  for cp_ref in cp_refs {
+  let vp_refs = cp_refs.map(fn(cp_ref) {
     let vp = @topology.VertexPoint::new("", cp_ref)
-    vp_refs.push(ctx.add(@repository.any_entity_vertex_point(vp)))
-  }
+    ctx.add(@repository.any_entity_vertex_point(vp))
+  })
 
   // Common directions
   let dx = ctx.direction(1.0, 0.0, 0.0)
@@ -64,8 +62,7 @@ pub fn compile_cuboid(
     (2, 6, vz),
     (3, 7, vz), // vertical pillars
   ]
-  let edges : Array[EdgeInfo] = []
-  for def in edge_defs {
+  let edges = edge_defs.map(fn(def) {
     let (a, b, vec) = def
     let line = @geometry.Line::new("", cp_refs[a], vec)
     let line_ref = ctx.add(@repository.any_entity_line(line))
@@ -77,23 +74,24 @@ pub fn compile_cuboid(
       true,
     )
     let ec_ref = ctx.add(@repository.any_entity_edge_curve(ec))
-    edges.push({ start: a, end: b, edge: ec_ref })
-  }
+    EdgeInfo::{ start: a, end: b, edge: ec_ref }
+  })
 
   // Faces
-  let face_refs : Array[@step.Ref] = []
-  // bottom (z=0), outward normal -Z
-  face_refs.push(add_plane_face(ctx, edges, [0, 3, 2, 1], cp_refs[0], ndz, dx))
-  // top (z=sz), outward normal +Z
-  face_refs.push(add_plane_face(ctx, edges, [4, 5, 6, 7], cp_refs[4], dz, dx))
-  // front (y=0), outward normal -Y
-  face_refs.push(add_plane_face(ctx, edges, [0, 1, 5, 4], cp_refs[0], ndy, dx))
-  // back (y=sy), outward normal +Y
-  face_refs.push(add_plane_face(ctx, edges, [3, 7, 6, 2], cp_refs[3], dy, dx))
-  // left (x=0), outward normal -X
-  face_refs.push(add_plane_face(ctx, edges, [0, 4, 7, 3], cp_refs[0], ndx, dy))
-  // right (x=sx), outward normal +X
-  face_refs.push(add_plane_face(ctx, edges, [1, 2, 6, 5], cp_refs[1], dx, dy))
+  let face_refs : Array[@step.Ref] = [
+    // bottom (z=0), outward normal -Z
+    add_plane_face(ctx, edges, [0, 3, 2, 1], cp_refs[0], ndz, dx),
+    // top (z=sz), outward normal +Z
+    add_plane_face(ctx, edges, [4, 5, 6, 7], cp_refs[4], dz, dx),
+    // front (y=0), outward normal -Y
+    add_plane_face(ctx, edges, [0, 1, 5, 4], cp_refs[0], ndy, dx),
+    // back (y=sy), outward normal +Y
+    add_plane_face(ctx, edges, [3, 7, 6, 2], cp_refs[3], dy, dx),
+    // left (x=0), outward normal -X
+    add_plane_face(ctx, edges, [0, 4, 7, 3], cp_refs[0], ndx, dy),
+    // right (x=sx), outward normal +X
+    add_plane_face(ctx, edges, [1, 2, 6, 5], cp_refs[1], dx, dy),
+  ]
 
   // Closed shell and Brep
   let shell = @topology.ClosedShell::new("", face_refs)

@@ -51,18 +51,16 @@ pub fn compile_calibration_chamfer_block(
   }
 
   // Cartesian points
-  let cp_refs : Array[@step.Ref] = []
-  for pt in pts {
+  let cp_refs = pts.map(fn(pt) {
     let (px, py, pz) = pt
-    cp_refs.push(ctx.cartesian_point(px, py, pz))
-  }
+    ctx.cartesian_point(px, py, pz)
+  })
 
   // Vertex points
-  let vp_refs : Array[@step.Ref] = []
-  for cp_ref in cp_refs {
+  let vp_refs = cp_refs.map(fn(cp_ref) {
     let vp = @topology.VertexPoint::new("", cp_ref)
-    vp_refs.push(ctx.add(@repository.any_entity_vertex_point(vp)))
-  }
+    ctx.add(@repository.any_entity_vertex_point(vp))
+  })
   let edges : Array[EdgeInfo] = []
   let seen : Map[String, Bool] = Map::new()
   let add_edge = fn(a : Int, b : Int) -> Unit {
@@ -99,8 +97,8 @@ pub fn compile_calibration_chamfer_block(
   }
 
   // Between-ring edges
-  let rings_minus_one = rings.length() - 1
-  for ri in 0..<rings_minus_one {
+  let between_count = rings.length() - 1
+  for ri in 0..<between_count {
     let a = ri * 4
     let b = (ri + 1) * 4
     add_edge(a + 0, b + 0)
@@ -134,7 +132,7 @@ pub fn compile_calibration_chamfer_block(
   )
 
   // Side faces
-  for ri in 0..<rings_minus_one {
+  for ri in 0..<between_count {
     let a = ri * 4
     let b = (ri + 1) * 4
     face_refs.push(
