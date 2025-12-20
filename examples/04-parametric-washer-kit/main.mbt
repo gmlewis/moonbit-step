@@ -73,7 +73,7 @@ async fn main {
   // Create the washer as an extruded profile with a hole.
   let washer = @cad.ExtrudedProfile::new(outer, thickness, holes=[hole])
     .with_name("washer")
-    .with_color(@cad.Rgb::grey())
+    .with_color(@cad.Rgb::blue())
     .translate(x=tx, y=ty, z=tz)
   let design = @cad.Design::new(name="parametric-washer").add(washer)
   design.write_step(out_path)

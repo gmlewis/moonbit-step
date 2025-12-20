@@ -139,18 +139,27 @@ async fn main {
     }
   }
 
-  // Base tag.
-  let base = @cad.CalibrationChamferBlock::new(
+    // Base tag.
+
+    let base = @cad.CalibrationChamferBlock::new(
+
       length_mm,
+
       width_mm,
+
       height_mm,
+
       chamfer_size_mm=1.0,
+
       fillet_radius_mm=0.0,
+
       fillet_segments=10,
-    )
-    .with_name("tag-base")
-    .translate(x=tx, y=ty, z=tz)
-  let mut design = @cad.Design::new(name="keychain-tag").add(base)
+
+    ).with_name("tag-base").with_color(@cad.Rgb::grey()).translate(x=tx, y=ty, z=tz)
+
+    let mut design = @cad.Design::new(name="keychain-tag").add(base)
+
+  
 
   // Text solids (raised on top).
   let mut profile_count = 0

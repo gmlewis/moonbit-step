@@ -26,6 +26,26 @@ pub fn Rgb::grey() -> Rgb {
 }
 
 ///|
+pub fn Rgb::white() -> Rgb {
+  { r: 1.0, g: 1.0, b: 1.0 }
+}
+
+///|
+pub fn Rgb::black() -> Rgb {
+  { r: 0.0, g: 0.0, b: 0.0 }
+}
+
+///|
+pub fn Rgb::green() -> Rgb {
+  { r: 0.0, g: 0.8, b: 0.0 }
+}
+
+///|
+pub fn Rgb::red() -> Rgb {
+  { r: 0.8, g: 0.0, b: 0.0 }
+}
+
+///|
 // A 2D profile for extrusion.
 //
 // - `outer` is the outer boundary loop.

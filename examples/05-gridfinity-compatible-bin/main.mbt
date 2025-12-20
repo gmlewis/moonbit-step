@@ -74,6 +74,7 @@ async fn main {
   // 1. The Base
   let base = @cad.Cuboid::new(total_width, total_length, BASE_THICKNESS)
     .with_name("bin-base")
+    .with_color(@cad.Rgb::grey())
     .translate(x=tx, y=ty, z=tz)
   design = design.add(base)
 
@@ -95,6 +96,7 @@ async fn main {
       inner_poly,
     ])
     .with_name("bin-walls")
+    .with_color(@cad.Rgb::grey())
     .translate(x=tx, y=ty, z=tz + BASE_THICKNESS)
   design = design.add(walls)
 
@@ -108,6 +110,7 @@ async fn main {
         wall_height,
       )
       .with_name("divider-x-\{i}")
+      .with_color(@cad.Rgb::grey())
       .translate(x=tx + x, y=ty + WALL_THICKNESS, z=tz + BASE_THICKNESS)
     design = design.add(div)
   }
@@ -120,6 +123,7 @@ async fn main {
         wall_height,
       )
       .with_name("divider-y-\{j}")
+      .with_color(@cad.Rgb::grey())
       .translate(x=tx + WALL_THICKNESS, y=ty + y, z=tz + BASE_THICKNESS)
     design = design.add(div)
   }

@@ -76,19 +76,27 @@ def validate_step(occt_bin, step_path):
         return False
 
 def render_step(occt_bin, step_path, png_path):
+    # We use a pipe to DRAWEXE.
+    # OCCT on macOS often lacks FreeImage, so vdump produces PPM regardless of extension.
+    # We dump to a temp PPM and convert using 'sips'.
     ppm_path = str(png_path).replace(".png", ".ppm")
-    # Improved rendering script:
-    # 1. Bigger window (800x800)
-    # 2. White background
-    # 3. Shaded mode
-    # 4. Correct fit without overriding scale
+    # THE XShow method:
+    # 1. Read into document
+    # 2. XShow (This is the most reliable way to show XDE colors)
+    # 3. vfit, etc.
     draw_commands = f"""
 pload ALL
+# Read into document D
+ReadStep D {step_path}
 vinit View1 -width 800 -height 800
 vbackground -color WHITE
-testreadstep {step_path} s
-vdisplay s
-vsetdispmode s 1
+# XShow properly initializes the viewer with document colors
+XShow D
+vfit
+# Add professional lighting
+vlight clear
+vlight add directional -dir -1 -1 -1 -head 0 -color WHITE
+vlight add positional -pos 100 100 100 -color WHITE
 vfit
 vdump {ppm_path}
 vclose ALL
