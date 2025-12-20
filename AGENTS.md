@@ -12,46 +12,51 @@ This is a [MoonBit](https://docs.moonbitlang.com) project.
 - In the toplevel directory, this is a `moon.mod.json` file listing about the
   module and some meta information.
 
+## Architectural Principles (CAD Package)
+
+The `cad` package follows an **intent-based architecture**. Do not revert to eager B-Rep generation.
+
+1. **Separation of Intent and Implementation**:
+   - `Shape` and `SceneNode` capture *what* the user wants (e.g., "a cube at (10,0,0)").
+   - `Design` stores a Scene Graph (`Array[SceneNode]`).
+   - Compilation to STEP entities is deferred until `Design::compile()` is called.
+
+2. **Decentralized Compilers**:
+   - Each shape has its own compiler (e.g., `compiler_cuboid.mbt`).
+   - Compilers take a `StepContext` and return a `@step.Ref` to the generated B-Rep solid.
+
+3. **StepContext & Deduplication**:
+   - Use `StepContext` for all repository operations.
+   - Always use `ctx.direction()`, `ctx.vector()`, and `ctx.cartesian_point()` to ensure geometric primitives are deduplicated, keeping the STEP file efficient.
+
+4. **Fluent API**:
+   - Maintain the builder pattern (`Shape::new().with_name().translate()`).
+   - All transformations should return a new `SceneNode` or `Shape` intent, never mutate the repository directly.
+
 ## Coding convention
 
 - MoonBit code is organized in block style, each block is separated by `///|`,
   the order of each block is irrelevant. In some refactorings, you can process
   block by block independently.
 
+- Prefer **functional-style programming**:
+  - Use `map`, `filter`, `fold`, etc., over manual `for i = 0...` loops.
+  - For simple iteration, use the idiomatic `for x in array { ... }` or `for i in 0..<n { ... }`.
+  - Use `0..<(n - 1)` for exclusive ranges.
+
 - Try to keep deprecated blocks in file called `deprecated.mbt` in each
   directory.
 
 - Try to keep filenames relatively short and consistent; 30+
   characters in a filename is starting to feel pretty long.
-  For example, `b_spline_curve_...mbt` could be `bspline_...mbt` since a
-  "B Spline" is obviously a curve.
 
-## Tooling
+## Tooling & Verification
 
 - `moon fmt` is used to format your code properly.
+- `./test-all.sh`: Blazing fast unit tests and format checks. Run this frequently.
+- `./scripts/validate-all-examples.sh`: Heavy-duty geometric validation using OCCT. Run this before final delivery of any new shape or compiler logic.
 
-- `moon info --target native` is used to update the generated interface of the package, each
-  package has a generated interface file `.mbti`, it is a brief formal
-  description of the package. If nothing in `.mbti` changes, this means your
-  change does not bring the visible changes to the external package users, it is
-  typically a safe refactoring.
+## Error Handling
 
-- In the last step, run `moon info --target native && moon fmt` to update the interface and
-  format the code. Check the diffs of `.mbti` file to see if the changes are
-  expected.
-
-- Run `moon test --target native` to check the test is passed. MoonBit supports snapshot
-  testing, so when your changes indeed change the behavior of the code, you
-  should run `moon test --target native --update` to update the snapshot.
-
-- You can run `moon check --target native` to check the code is linted correctly.
-  For convenience, `./test-all.sh` runs all these commands and can be called as often as you want.
-
-- When writing tests, you are encouraged to use `inspect` and run
-  `moon test --target native --update` to update the snapshots, only use assertions like
-  `assert_eq` when you are in some loops where each snapshot may vary. You can
-  use `moon coverage analyze > uncovered.log` to see which parts of your code
-  are not covered by tests.
-
-- agent-todo.md has some small tasks that are easy for AI to pick up, agent is
-  welcome to finish the tasks and check the box when you are done
+- **CLI/Main**: Never use `println` for errors. Use `@cli.eprintln("msg")` followed by `abort("")` to ensure non-zero exit codes and proper short-circuiting in shell chains (`&&`).
+- **Library**: Use `Result` or `raise` for internal logic errors.
