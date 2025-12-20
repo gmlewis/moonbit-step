@@ -57,9 +57,9 @@ fn parse_example(step_text : String) -> Unit {
 Run the blazing fast unit tests and formatters:
 - `./test-all.sh`
 
-### Geometric Validation
-We use Open CASCADE (`occt-draw` or `DRAWEXE`) to ensure every example produces valid topology:
-- `./scripts/validate-all-examples.sh`
+### Geometric Validation & Rendering
+We use Open CASCADE (`occt-draw` or `DRAWEXE`) to ensure topological validity and generate previews:
+- `./scripts/manage_examples.py all --validate --render --readme`
 
 ## Goals
 

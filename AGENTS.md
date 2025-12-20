@@ -42,7 +42,7 @@ The `cad` package follows an **intent-based architecture**. Do not revert to eag
 - Prefer **functional-style programming**:
   - Use `map`, `filter`, `fold`, etc., over manual `for i = 0...` loops.
   - For simple iteration, use the idiomatic `for x in array { ... }` or `for i in 0..<n { ... }`.
-  - Use `0..<(n - 1)` for exclusive ranges.
+  - **Precedence Note**: If using math in a range, use parentheses to guide `moon fmt`: `0..<(n - 1)`.
 
 - Try to keep deprecated blocks in file called `deprecated.mbt` in each
   directory.
@@ -54,7 +54,10 @@ The `cad` package follows an **intent-based architecture**. Do not revert to eag
 
 - `moon fmt` is used to format your code properly.
 - `./test-all.sh`: Blazing fast unit tests and format checks. Run this frequently.
-- `./scripts/validate-all-examples.sh`: Heavy-duty geometric validation using OCCT. Run this before final delivery of any new shape or compiler logic.
+- `scripts/manage_examples.py`: Comprehensive suite for validation, rendering, and README generation.
+  - **Validation**: Uses OCCT to check topological integrity.
+  - **Rendering**: Uses OCCT's `DRAWEXE`. On macOS, this requires a Cocoa/OpenGL context.
+  - **macOS Rendering Quirk**: `DRAWEXE` must be called via a STDIN pipe (not script file or `-c`) to properly initialize the Cocoa event loop. It often falls back to `.ppm` files; the script uses `sips` to convert to `.png`.
 
 ## Error Handling
 

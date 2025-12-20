@@ -84,7 +84,7 @@ pub fn compile_calibration_chamfer_block(
       true,
     )
     let ec_ref = ctx.add(@repository.any_entity_edge_curve(ec))
-    edges.push({ start, end, edge: ec_ref })
+    edges.push(EdgeInfo::{ start, end, edge: ec_ref })
   }
 
   // Per-ring perimeter edges
@@ -97,8 +97,7 @@ pub fn compile_calibration_chamfer_block(
   }
 
   // Between-ring edges
-  let between_count = rings.length() - 1
-  for ri in 0..<between_count {
+  for ri in 0..<(rings.length() - 1) {
     let a = ri * 4
     let b = (ri + 1) * 4
     add_edge(a + 0, b + 0)
@@ -132,7 +131,7 @@ pub fn compile_calibration_chamfer_block(
   )
 
   // Side faces
-  for ri in 0..<between_count {
+  for ri in 0..<(rings.length() - 1) {
     let a = ri * 4
     let b = (ri + 1) * 4
     face_refs.push(

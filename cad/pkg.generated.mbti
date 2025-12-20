@@ -72,10 +72,14 @@ pub struct Rgb {
   g : Double
   b : Double
 }
+pub fn Rgb::black() -> Self
 pub fn Rgb::blue() -> Self
+pub fn Rgb::green() -> Self
 pub fn Rgb::grey() -> Self
 pub fn Rgb::new(Double, Double, Double) -> Self
 pub fn Rgb::orange() -> Self
+pub fn Rgb::red() -> Self
+pub fn Rgb::white() -> Self
 
 pub struct SceneNode {
   shape : Shape

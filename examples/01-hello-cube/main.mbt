@@ -51,9 +51,9 @@ async fn main {
   }
   let design = @cad.Design::new(name="hello-cube").add(
     @cad.Cuboid::new(edge_mm, edge_mm, edge_mm)
-      .with_name("cube")
-      .with_color(@cad.Rgb::green())
-      .translate(x=tx, y=ty, z=tz),
+    .with_name("cube")
+    .with_color(@cad.Rgb::green())
+    .translate(x=tx, y=ty, z=tz),
   )
   design.write_step(out_path)
 }
