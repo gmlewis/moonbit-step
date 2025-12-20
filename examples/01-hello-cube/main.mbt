@@ -44,7 +44,10 @@ async fn main {
   let out_path = args.string_opt("out")
   let (tx, ty, tz) = match args.translate_xyz() {
     Some(v) => v
-    None => abort("error: invalid translation")
+    None => {
+      @cli.eprintln("error: invalid translation")
+      abort("")
+    }
   }
   let design = @cad.Design::new(name="hello-cube").add(
     @cad.Cuboid::new(edge_mm, edge_mm, edge_mm)

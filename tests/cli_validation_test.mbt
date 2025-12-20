@@ -2,7 +2,7 @@
 // Focused tests for gmlewis/step/cli parsing + validation.
 
 ///|
-test "cli_opt_double_exclusive_min" {
+async test "cli_opt_double_exclusive_min" {
   let spec = {
     "edge": @cli.opt_double(
       20.0,
@@ -39,7 +39,7 @@ test "cli_opt_double_exclusive_min" {
 }
 
 ///|
-test "cli_negative_numbers_work" {
+async test "cli_negative_numbers_work" {
   let spec = @cli.with_translate({})
 
   // Negative numeric values should be accepted for named args.

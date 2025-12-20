@@ -84,16 +84,17 @@ async fn main {
     }
   }
   let export_profiles_dir = args.string_opt("exportProfilesDir")
-  // If an export dir is provided, we'll attempt to write files there; callers
-  // should create the directory if needed. We rely on write_step's error
-  // handling below to report any I/O errors.
   // let fillet_radius_mm = args.double("filletRadius")
   guard args.string_opt("name") is Some(name) else {
-    abort("--name is required")
+    @cli.eprintln("--name is required")
+    abort("")
   }
   let (tx, ty, tz) = match args.translate_xyz() {
     Some(v) => v
-    None => abort("error: invalid translation")
+    None => {
+      @cli.eprintln("error: invalid translation")
+      abort("")
+    }
   }
   let font = @baloo.font
   let out_path = args.string_opt("out")
@@ -110,7 +111,10 @@ async fn main {
   let text_raw = @draw.text(text=name, font~, align=Center).transform(
     scale=@draw.vec2(1, -1),
   ) catch {
-    e => abort("Error creating text: \{e}")
+    e => {
+      @cli.eprintln("Error creating text: \{e}")
+      abort("")
+    }
   }
   let text = text_raw.fit_to(bbox)
   let all_paths = text.all_paths_and_compound_paths()

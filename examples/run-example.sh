@@ -62,4 +62,4 @@ cd "$ROOT_DIR"
 
 # Runs the example module by folder name. Any extra args are forwarded to the example's main.
 cd "$EXAMPLE_PATH_REL"
-moon run --target native . -- "$@"
+moon run --target native . -- "$@" || exit 1

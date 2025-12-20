@@ -24,7 +24,7 @@
 //   moon run --target native examples/02-calibration-chamfer-block -- -t 10,0,0 -o block.step
 
 ///|
-fn validate_dims(
+async fn validate_dims(
   length_mm : Double,
   width_mm : Double,
   height_mm : Double,
@@ -34,23 +34,23 @@ fn validate_dims(
   let min_xy = if length_mm < width_mm { length_mm } else { width_mm }
   let min_xy_half = min_xy / 2.0
   if chamfer_size_mm < 0.0 {
-    println("error: --chamferSize must be >= 0")
+    @cli.eprintln("error: --chamferSize must be >= 0")
     return false
   }
   if fillet_radius_mm < 0.0 {
-    println("error: --filletRadius must be >= 0")
+    @cli.eprintln("error: --filletRadius must be >= 0")
     return false
   }
   if chamfer_size_mm > min_xy_half {
-    println("error: --chamferSize is too large for the block footprint")
+    @cli.eprintln("error: --chamferSize is too large for the block footprint")
     return false
   }
   if fillet_radius_mm > min_xy_half {
-    println("error: --filletRadius is too large for the block footprint")
+    @cli.eprintln("error: --filletRadius is too large for the block footprint")
     return false
   }
   if fillet_radius_mm > 0.0 && fillet_radius_mm > height_mm {
-    println("error: --filletRadius must be <= --height")
+    @cli.eprintln("error: --filletRadius must be <= --height")
     return false
   }
   true
@@ -109,12 +109,16 @@ async fn main {
   let out_path = args.string_opt("out")
   let (tx, ty, tz) = match args.translate_xyz() {
     Some(v) => v
-    None => abort("error: invalid translation")
+    None => {
+      @cli.eprintln("error: invalid translation")
+      abort("")
+    }
   }
   if !validate_dims(
       length_mm, width_mm, height_mm, chamfer_size_mm, fillet_radius_mm,
     ) {
-    abort("error: invalid dimensions")
+    @cli.eprintln("error: invalid dimensions")
+    abort("")
   }
   let block = @cad.CalibrationChamferBlock::new(
       length_mm,

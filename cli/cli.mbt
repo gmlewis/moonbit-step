@@ -329,16 +329,24 @@ fn normalize_negative_number_values(
 }
 
 ///|
-pub fn Args::double(self : Args, name : String) -> Double {
+pub async fn Args::double(self : Args, name : String) -> Double {
   try {
     let raw : String = @clap.SimpleValue::get_one(self.value, name)
     try parse_cli_double(raw) catch {
-      err => abort(err.to_string())
+      err => {
+        eprintln(err.to_string())
+        abort("")
+        0.0
+      }
     } noraise {
       v => v
     }
   } catch {
-    err => abort(err.to_string())
+    err => {
+      eprintln(err.to_string())
+      abort("")
+      0.0
+    }
   }
 }
 
@@ -351,9 +359,13 @@ pub fn Args::bool_opt(self : Args, name : String) -> Bool {
 }
 
 ///|
-pub fn Args::string_opt(self : Args, name : String) -> String? {
+pub async fn Args::string_opt(self : Args, name : String) -> String? {
   try @clap.SimpleValue::get_option(self.value, name) catch {
-    err => abort(err.to_string())
+    err => {
+      eprintln(err.to_string())
+      abort("")
+      None
+    }
   } noraise {
     v => v
   }
@@ -361,18 +373,26 @@ pub fn Args::string_opt(self : Args, name : String) -> String? {
 
 ///|
 // Returns [] if the option wasn't provided.
-pub fn Args::doubles(self : Args, name : String) -> Array[Double] {
+pub async fn Args::doubles(self : Args, name : String) -> Array[Double] {
   try {
     let raw : Array[String] = @clap.SimpleValue::get_array(self.value, name)
     let out : Array[Double] = []
     for s in raw {
       out.push(parse_cli_double(s)) catch {
-        err => abort(err.to_string())
+        err => {
+          eprintln(err.to_string())
+          abort("")
+          return []
+        }
       }
     }
     out
   } catch {
-    err => abort(err.to_string())
+    err => {
+      eprintln(err.to_string())
+      abort("")
+      []
+    }
   }
 }
 
@@ -387,7 +407,7 @@ pub fn Args::doubles(self : Args, name : String) -> Array[Double] {
 //
 // Returns None (and prints a friendly error) if --translate is present with
 // the wrong number of values.
-pub fn Args::translate_xyz(
+pub async fn Args::translate_xyz(
   self : Args,
   translate_name? : String = "translate",
   tx_name? : String = "tx",
@@ -404,7 +424,11 @@ pub fn Args::translate_xyz(
     )
     v
   } catch {
-    err => abort(err.to_string())
+    err => {
+      eprintln(err.to_string())
+      @sys.exit(1)
+      []
+    }
   }
   if raw.length() == 0 {
     return Some(
@@ -421,7 +445,10 @@ pub fn Args::translate_xyz(
         parse_double_opt(raw[2]),
       ) {
       (Some(x), Some(y), Some(z)) => return Some((x, y, z))
-      _ => abort("error: --translate/-t expects numeric values")
+      _ => {
+        eprintln("error: --translate/-t expects numeric values")
+        abort("")
+      }
     }
   }
 
@@ -436,7 +463,10 @@ pub fn Args::translate_xyz(
           parse_double_opt(parts[2]),
         ) {
         (Some(x), Some(y), Some(z)) => return Some((x, y, z))
-        _ => abort("error: --translate/-t expects numeric values")
+        _ => {
+          eprintln("error: --translate/-t expects numeric values")
+          abort("")
+        }
       }
     }
 
@@ -450,11 +480,16 @@ pub fn Args::translate_xyz(
           parse_double_opt(ws_parts[2]),
         ) {
         (Some(x), Some(y), Some(z)) => return Some((x, y, z))
-        _ => abort("error: --translate/-t expects numeric values")
+        _ => {
+          eprintln("error: --translate/-t expects numeric values")
+          abort("")
+        }
       }
     }
   }
-  abort("error: --translate/-t expects exactly 3 numbers: <x> <y> <z>")
+  eprintln("error: --translate/-t expects exactly 3 numbers: <x> <y> <z>")
+  abort("")
+  None
 }
 
 ///|
@@ -486,11 +521,21 @@ pub fn Args::flag(self : Args, name : String) -> Bool {
 }
 
 ///|
+pub async fn eprintln(s : String) -> Unit {
+  @stdio.stderr.write(s + "\n")
+}
+
+///|
+pub fn exit(code : Int) -> Unit {
+  @sys.exit(code)
+}
+
+///|
 // Parse CLI args using clap.
 //
 // - By default, reads @env.args() and strips argv[0].
 // - Returns None if help was printed or parse failed.
-pub fn parse(
+pub async fn parse(
   args : Map[String, Arg],
   prog? : String = "PROG",
   description? : String = "",
@@ -579,7 +624,9 @@ pub fn parse(
           Some(msg) => {
             let help = parser.gen_help_message([parser.prog], {})
             if raise_on_error {
-              abort(msg + "\n" + help)
+              eprintln(msg + "\n" + help)
+              abort("")
+              None
             } else {
               None
             }
@@ -592,7 +639,9 @@ pub fn parse(
     err => {
       let help = parser.gen_help_message([parser.prog], {})
       if raise_on_error {
-        abort(err.to_string() + "\n" + help)
+        eprintln(err.to_string() + "\n" + help)
+        abort("")
+        None
       } else {
         None
       }
