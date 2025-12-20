@@ -58,9 +58,8 @@ def generate_step(num, args, output_path):
     run_script = root / "run-example.sh"
     cmd = [str(run_script), num] + args
     try:
-        # Use subprocess.run to capture stdout directly to file
         with open(output_path, "w") as f:
-            result = subprocess.run(cmd, stdout=f, stderr=subprocess.PIPE, text=True, check=True)
+            subprocess.run(cmd, stdout=f, stderr=subprocess.PIPE, text=True, check=True)
         return True
     except subprocess.CalledProcessError as e:
         print(f"    FAILED: {e.stderr.strip()}")
@@ -77,21 +76,26 @@ def validate_step(occt_bin, step_path):
         return False
 
 def render_step(occt_bin, step_path, png_path):
-    # We use a pipe to DRAWEXE which is the most reliable method on macOS
-    # to ensure Cocoa/OpenGL initialization.
+    ppm_path = str(png_path).replace(".png", ".ppm")
+    # Improved rendering script:
+    # 1. Bigger window (800x800)
+    # 2. White background
+    # 3. Shaded mode
+    # 4. Correct fit without overriding scale
     draw_commands = f"""
 pload ALL
-vinit
+vinit View1 -width 800 -height 800
+vbackground -color WHITE
 testreadstep {step_path} s
 vdisplay s
 vsetdispmode s 1
 vfit
-vviewparams -scale 0.9
-vdump {png_path}
+vdump {ppm_path}
 vclose ALL
 exit
 """
     try:
+        # Using pipe to DRAWEXE (no -b) is most reliable for Cocoa on macOS
         subprocess.run(
             [occt_bin],
             input=draw_commands,
@@ -99,6 +103,13 @@ exit
             text=True,
             timeout=30
         )
+        
+        if os.path.exists(ppm_path):
+            # Convert PPM to real PNG using macOS built-in sips
+            subprocess.run(["sips", "-s", "format", "png", ppm_path, "--out", str(png_path)], 
+                           capture_output=True, check=True)
+            os.unlink(ppm_path)
+            return True
     except Exception as e:
         print(f"    FAILED: {e}")
     
@@ -109,11 +120,14 @@ def update_readme(example_dir, variants):
     if not readme_path.exists():
         return
 
-    content = readme_path.read_text()
-    # Keep only content before the first '---'
-    if "---" in content:
-        content = content.split("---")[0].rstrip()
-
+    lines = readme_path.read_text().splitlines()
+    clean_lines = []
+    for line in lines:
+        if line.strip() == "---":
+            break
+        clean_lines.append(line)
+    
+    content = "\n".join(clean_lines).rstrip()
     new_section = "\n\n---\n"
     for i, (args, png_name) in enumerate(variants, 1):
         arg_str = " ".join(args)
