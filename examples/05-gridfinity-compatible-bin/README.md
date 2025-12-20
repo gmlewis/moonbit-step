@@ -21,3 +21,17 @@ The intent is that you can run the code here to emit a STEP file, open it in a C
 - add a second font/style variant
 - add alignment marks or registration features
 - generate multiple sizes in one run
+
+---
+
+### Variant 1
+
+Command line: `./run-example.sh 05 --rows 1 --cols 1 --height 20`
+
+![Preview](preview-1.png)
+
+### Variant 2
+
+Command line: `./run-example.sh 05 --rows 2 --cols 1 --text Gemini`
+
+![Preview](preview-2.png)

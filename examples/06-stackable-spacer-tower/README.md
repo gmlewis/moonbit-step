@@ -21,3 +21,17 @@ The intent is that you can run the code here to emit a STEP file, open it in a C
 - add a batch runner that emits many variants
 - add reference geometry for measurement
 - add a variant generator (small/medium/large)
+
+---
+
+### Variant 1
+
+Command line: `./run-example.sh 06 --count 1`
+
+![Preview](preview-1.png)
+
+### Variant 2
+
+Command line: `./run-example.sh 06 --count 3 --height 10 --clickHeight 1`
+
+![Preview](preview-2.png)

@@ -1,7 +1,5 @@
 # 01 — Hello Cube
 
-![Preview](preview.png)
-
 This folder contains a **working example** that generates a STEP model for: The smallest “hello world”: a parameterized cube with a few named dimensions.
 
 The intent is that you can run the code here to emit a STEP file, open it in a CAD viewer, and/or import it into your slicer to 3D print and iterate.
@@ -22,3 +20,17 @@ The intent is that you can run the code here to emit a STEP file, open it in a C
 ## Suggested extensions
 - add a variant generator (small/medium/large)
 - add a quick-print calibration mode
+
+---
+
+### Variant 1
+
+Command line: `./run-example.sh 01 --edge 10`
+
+![Preview](preview-1.png)
+
+### Variant 2
+
+Command line: `./run-example.sh 01 --edge 25 --tx 5 --ty 5 --tz 5`
+
+![Preview](preview-2.png)

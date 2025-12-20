@@ -22,3 +22,17 @@ The intent is that you can run the code here to emit a STEP file, open it in a C
 - add a second font/style variant
 - add alignment marks or registration features
 - add bearing pockets and shafts
+
+---
+
+### Variant 1
+
+Command line: `./run-example.sh 03 --name gmlewis`
+
+![Preview](preview-1.png)
+
+### Variant 2
+
+Command line: `./run-example.sh 03 --name MoonBit --embossDepth 2 --length 60`
+
+![Preview](preview-2.png)
