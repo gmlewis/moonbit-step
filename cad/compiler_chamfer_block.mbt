@@ -1,10 +1,8 @@
 ///|
 pub fn compile_calibration_chamfer_block(
   ctx : StepContext,
+  node : SceneNode,
   block : CalibrationChamferBlock,
-  tx : Double,
-  ty : Double,
-  tz : Double,
 ) -> @step.Ref {
   let l = block.length_mm
   let w = block.width_mm
@@ -36,19 +34,24 @@ pub fn compile_calibration_chamfer_block(
   }
 
   // Points (mm)
-  let pts : Array[(Double, Double, Double)] = []
+  let pts_raw : Array[(Double, Double, Double)] = []
   for ring in rings {
     let (rz, ro) = ring
-    let pz = tz + rz
-    let px0 = tx + ro
-    let px1 = tx + (l - ro)
-    let py0 = ty + ro
-    let py1 = ty + (w - ro)
-    pts.push((px0, py0, pz))
-    pts.push((px1, py0, pz))
-    pts.push((px1, py1, pz))
-    pts.push((px0, py1, pz))
+    let px0 = ro
+    let px1 = l - ro
+    let py0 = ro
+    let py1 = w - ro
+    pts_raw.push((px0, py0, rz))
+    pts_raw.push((px1, py0, rz))
+    pts_raw.push((px1, py1, rz))
+    pts_raw.push((px0, py1, rz))
   }
+
+  // Transform all points: Rotate then Translate
+  let pts = pts_raw.map(fn(pt) {
+    let (rx, ry, rz) = rotate_point(pt, node.rx, node.ry, node.rz)
+    (rx + node.tx, ry + node.ty, rz + node.tz)
+  })
 
   // Cartesian points
   let cp_refs = pts.map(fn(pt) {
@@ -71,8 +74,8 @@ pub fn compile_calibration_chamfer_block(
     seen.set(key, true)
     let start = if a < b { a } else { b }
     let end = if a < b { b } else { a }
-    let dir_vec = v_norm(v_sub(pts[end], pts[start]))
-    let dir_ref = ctx.direction(dir_vec.0, dir_vec.1, dir_vec.2)
+    let dir_raw = v_norm(v_sub(pts[end], pts[start]))
+    let dir_ref = ctx.direction(dir_raw.0, dir_raw.1, dir_raw.2)
     let vec_ref = ctx.vector(dir_ref, 1.0)
     let line = @geometry.Line::new("", cp_refs[start], vec_ref)
     let line_ref = ctx.add(@repository.any_entity_line(line))
@@ -97,7 +100,8 @@ pub fn compile_calibration_chamfer_block(
   }
 
   // Between-ring edges
-  for ri in 0..<(rings.length() - 1) {
+  let between_count = rings.length() - 1
+  for ri in 0..<between_count {
     let a = ri * 4
     let b = (ri + 1) * 4
     add_edge(a + 0, b + 0)
@@ -108,15 +112,10 @@ pub fn compile_calibration_chamfer_block(
 
   // Faces
   let face_refs : Array[@step.Ref] = []
+  let down_raw = rotate_point((0.0, 0.0, -1.0), node.rx, node.ry, node.rz)
+  let up_raw = rotate_point((0.0, 0.0, 1.0), node.rx, node.ry, node.rz)
   face_refs.push(
-    add_plane_face_oriented(
-      ctx,
-      edges,
-      pts,
-      cp_refs,
-      [0, 3, 2, 1],
-      (0.0, 0.0, -1.0),
-    ),
+    add_plane_face_oriented(ctx, edges, pts, cp_refs, [0, 3, 2, 1], down_raw),
   )
   let top_base = (rings.length() - 1) * 4
   face_refs.push(
@@ -126,14 +125,29 @@ pub fn compile_calibration_chamfer_block(
       pts,
       cp_refs,
       [top_base + 0, top_base + 1, top_base + 2, top_base + 3],
-      (0.0, 0.0, 1.0),
+      up_raw,
     ),
   )
 
   // Side faces
-  for ri in 0..<(rings.length() - 1) {
+  for ri in 0..<between_count {
     let a = ri * 4
     let b = (ri + 1) * 4
+    // Use cross product of transformed edges to get correct normal for each side
+    let side_normals = [
+      v_norm(
+        v_cross(v_sub(pts[a + 1], pts[a + 0]), v_sub(pts[b + 0], pts[a + 0])),
+      ), // front
+      v_norm(
+        v_cross(v_sub(pts[a + 2], pts[a + 1]), v_sub(pts[b + 1], pts[a + 1])),
+      ), // right
+      v_norm(
+        v_cross(v_sub(pts[a + 3], pts[a + 2]), v_sub(pts[b + 2], pts[a + 2])),
+      ), // back
+      v_norm(
+        v_cross(v_sub(pts[a + 0], pts[a + 3]), v_sub(pts[b + 3], pts[a + 3])),
+      ), // left
+    ]
     face_refs.push(
       add_plane_face_oriented(
         ctx,
@@ -141,7 +155,7 @@ pub fn compile_calibration_chamfer_block(
         pts,
         cp_refs,
         [a + 0, a + 1, b + 1, b + 0],
-        (0.0, -1.0, 0.0),
+        side_normals[0],
       ),
     )
     face_refs.push(
@@ -151,7 +165,7 @@ pub fn compile_calibration_chamfer_block(
         pts,
         cp_refs,
         [a + 1, a + 2, b + 2, b + 1],
-        (1.0, 0.0, 0.0),
+        side_normals[1],
       ),
     )
     face_refs.push(
@@ -161,7 +175,7 @@ pub fn compile_calibration_chamfer_block(
         pts,
         cp_refs,
         [a + 2, a + 3, b + 3, b + 2],
-        (0.0, 1.0, 0.0),
+        side_normals[2],
       ),
     )
     face_refs.push(
@@ -171,7 +185,7 @@ pub fn compile_calibration_chamfer_block(
         pts,
         cp_refs,
         [a + 3, a + 0, b + 0, b + 3],
-        (-1.0, 0.0, 0.0),
+        side_normals[3],
       ),
     )
   }

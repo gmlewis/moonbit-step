@@ -46,13 +46,6 @@ pub fn Rgb::red() -> Rgb {
 }
 
 ///|
-// A 2D profile for extrusion.
-//
-// - `outer` is the outer boundary loop.
-// - `holes` are inner loops (voids).
-//
-// Loops are expected to be simple, closed polygons without repeating the first
-// point at the end.
 pub struct Profile2D {
   outer : Array[(Double, Double)]
   holes : Array[Array[(Double, Double)]]
@@ -96,4 +89,7 @@ pub struct SceneNode {
   tx : Double
   ty : Double
   tz : Double
+  rx : Double // rotation X in degrees
+  ry : Double // rotation Y in degrees
+  rz : Double // rotation Z in degrees
 }

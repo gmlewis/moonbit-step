@@ -28,11 +28,10 @@ pub fn Design::compile(self : Design) -> @repository.Repository {
   let shape_reps : Array[@step.Ref] = []
   for node in self.nodes {
     let brep_ref = match node.shape {
-      Cuboid(c) => compile_cuboid(ctx, c, node.tx, node.ty, node.tz)
+      Cuboid(c) => compile_cuboid(ctx, node, c)
       CalibrationChamferBlock(b) =>
-        compile_calibration_chamfer_block(ctx, b, node.tx, node.ty, node.tz)
-      ExtrudedProfile(e) =>
-        compile_extruded_profile(ctx, e, node.tx, node.ty, node.tz)
+        compile_calibration_chamfer_block(ctx, node, b)
+      ExtrudedProfile(e) => compile_extruded_profile(ctx, node, e)
     }
 
     // Presentation styling

@@ -28,11 +28,19 @@ The intent is that you can run the code here to emit a STEP file, open it in a C
 
 Command line: `./run-example.sh 07 --diameter 5 --text USB`
 
-![Preview](preview-1.png)
+| Isometric | Top (XY) |
+|:---:|:---:|
+| ![](preview-1-iso.png) | ![](preview-1-top.png) |
+| **Front (XZ)** | **Side (YZ)** |
+| ![](preview-1-front.png) | ![](preview-1-side.png) |
 
 ### Variant 2
 
 Command line: `./run-example.sh 07 --diameter 10 --text POWER --length 30`
 
-![Preview](preview-2.png)
+| Isometric | Top (XY) |
+|:---:|:---:|
+| ![](preview-2-iso.png) | ![](preview-2-top.png) |
+| **Front (XZ)** | **Side (YZ)** |
+| ![](preview-2-front.png) | ![](preview-2-side.png) |
 

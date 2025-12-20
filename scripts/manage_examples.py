@@ -10,56 +10,13 @@ from pathlib import Path
 # --- Configuration ---
 
 SUITE = {
-    "01": {
-        "color": (0.0, 0.8, 0.0), # Green
-        "variants": [
-            ["--edge", "10"],
-            ["--edge", "25", "--tx", "5", "--ty", "5", "--tz", "5"]
-        ]
-    },
-    "02": {
-        "color": (0.2, 0.2, 0.2), # Grey
-        "variants": [
-            ["--length", "20", "--width", "20", "--height", "5"],
-            ["--chamferSize", "2"],
-            ["--filletRadius", "1.5"]
-        ]
-    },
-    "03": {
-        "color": (0.2, 0.2, 0.2), # Grey
-        "variants": [
-            ["--name", "gmlewis"],
-            ["--name", "MoonBit", "--embossDepth", "2", "--length", "60"]
-        ]
-    },
-    "04": {
-        "color": (0.0, 0.0, 0.8), # Blue
-        "variants": [
-            ["--id", "5", "--od", "15", "--thickness", "2"],
-            ["--id", "10", "--od", "12", "--thickness", "0.5", "--segments", "32"]
-        ]
-    },
-    "05": {
-        "color": (0.2, 0.2, 0.2), # Grey
-        "variants": [
-            ["--rows", "1", "--cols", "1", "--height", "20"],
-            ["--rows", "2", "--cols", "1", "--text", "Gemini"]
-        ]
-    },
-    "06": {
-        "color": (1.0, 0.6, 0.0), # Orange
-        "variants": [
-            ["--count", "1"],
-            ["--count", "3", "--height", "10", "--clickHeight", "1"]
-        ]
-    },
-    "07": {
-        "color": (0.2, 0.2, 0.2), # Grey
-        "variants": [
-            ["--diameter", "5", "--text", "USB"],
-            ["--diameter", "10", "--text", "POWER", "--length", "30"]
-        ]
-    }
+    "01": [["--edge", "10"], ["--edge", "25", "--tx", "5", "--ty", "5", "--tz", "5"]],
+    "02": [["--length", "20", "--width", "20", "--height", "5"], ["--chamferSize", "2"], ["--filletRadius", "1.5"]],
+    "03": [["--name", "gmlewis"], ["--name", "MoonBit", "--embossDepth", "2", "--length", "60"]],
+    "04": [["--id", "5", "--od", "15", "--thickness", "2"], ["--id", "10", "--od", "12", "--thickness", "0.5", "--segments", "32"]],
+    "05": [["--rows", "1", "--cols", "1", "--height", "20"], ["--rows", "2", "--cols", "1", "--text", "Gemini"]],
+    "06": [["--count", "1"], ["--count", "3", "--height", "10", "--clickHeight", "1"]],
+    "07": [["--diameter", "5", "--text", "USB"], ["--diameter", "10", "--text", "POWER", "--length", "30"]]
 }
 
 # --- Utils ---
@@ -91,139 +48,132 @@ def generate_step(num, config, output_path):
         return False
 
 def validate_step(occt_bin, step_path):
-    # Using ReadStep/checkshape is more robust than testreadstep
     draw_cmd = f"pload ALL; ReadStep D {step_path}; XGetOneShape s D; checkshape s;"
     try:
         result = subprocess.run([occt_bin, "-b", "-c", draw_cmd], capture_output=True, text=True, check=True)
-        if "This shape seems to be valid" in result.stdout:
-            return True
-        return False
-    except subprocess.CalledProcessError:
+        return "This shape seems to be valid" in result.stdout
+    except:
         return False
 
-def render_step(occt_bin, step_path, png_path):
+def render_view(occt_bin, step_path, png_path, view_cmd, label):
+    # Renders a single view to a PNG
     ppm_path = str(png_path).replace(".png", ".ppm")
     
-    # We use ReadStep + XDisplay. 
+    # We use ReadStep + XDisplay for colors.
+    # vinit MUST come before XDisplay.
     draw_commands = f"""
 pload ALL
-vinit View1 -width 800 -height 800
+vinit V -width 512 -height 512
 vbackground -color WHITE
 ReadStep D {step_path}
 XDisplay D
 vsetdispmode 1
+{view_cmd}
 vfit
+# Shading and lighting
 vlight clear
 vlight add directional -dir -1 -1 -1 -color WHITE
 vlight add ambient -color WHITE
 vfit
+vdrawtext L \"{label}\" -pos -240 240 0 -color BLACK -halign left -valign top
 vdump {ppm_path}
 vclose ALL
 exit
 """
     try:
-        subprocess.run(
-            [occt_bin],
-            input=draw_commands,
-            capture_output=True,
-            text=True,
-            timeout=60
-        )
-        
+        subprocess.run([occt_bin], input=draw_commands, capture_output=True, text=True, timeout=30)
         if os.path.exists(ppm_path):
-            subprocess.run(["sips", "-s", "format", "png", ppm_path, "--out", str(png_path)], 
-                           capture_output=True, check=True)
+            subprocess.run(["sips", "-s", "format", "png", ppm_path, "--out", str(png_path)], capture_output=True, check=True)
             os.unlink(ppm_path)
             return True
     except Exception as e:
-        print(f"    FAILED: {e}")
-    
-    return Path(png_path).exists()
+        print(f"      View '{label}' FAILED: {e}")
+    return False
 
-def update_readme(example_dir, variants):
+def render_variant(occt_bin, step_path, example_dir, idx):
+    # Generate 4 separate PNGs for the variant
+    views = [
+        ("iso", "vviewparams -proj 1 -1 1 -up 0 0 1", "Isometric"),
+        ("top", "vtop", "Top (XY)"),
+        ("front", "vfront", "Front (XZ)"),
+        ("side", "vleft", "Side (YZ)")
+    ]
+    
+    results = {}
+    for suffix, cmd, label in views:
+        png_name = f"preview-{idx}-{suffix}.png"
+        png_path = example_dir / png_name
+        if render_view(occt_bin, step_path, png_path, cmd, label):
+            results[suffix] = png_name
+        else:
+            results[suffix] = None
+            
+    return results
+
+def update_readme(example_dir, variants_data):
     readme_path = example_dir / "README.md"
-    if not readme_path.exists():
-        return
-
-    lines = readme_path.read_text().splitlines()
-    clean_lines = []
-    for line in lines:
-        if line.strip() == "---":
-            break
-        clean_lines.append(line)
+    if not readme_path.exists(): return
     
-    content = "\n".join(clean_lines).rstrip()
+    # Keep original content before the marker
+    content = readme_path.read_text().split("---")[0].rstrip()
     new_section = "\n\n---\n"
-    for i, (config, png_name) in enumerate(variants, 1):
+    
+    for i, data in enumerate(variants_data, 1):
+        config = data["config"]
+        previews = data["previews"]
         arg_str = " ".join(config)
+        
         new_section += f"\n### Variant {i}\n\n"
         new_section += f"Command line: `./run-example.sh {example_dir.name[:2]} {arg_str}`\n\n"
-        new_section += f"![Preview]({png_name})\n"
+        
+        # Create a 2x2 table for the 4 views
+        new_section += "| Isometric | Top (XY) |\n|:---:|:---:|"
+        new_section += f"\n| ![]({previews.get('iso', '')}) | ![]({previews.get('top', '')}) |\n"
+        new_section += "| **Front (XZ)** | **Side (YZ)** |\n"
+        new_section += f"| ![]({previews.get('front', '')}) | ![]({previews.get('side', '')}) |\n"
     
     readme_path.write_text(content + new_section + "\n")
 
-# --- Main ---
-
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("target", help="Example number (e.g. 01) or 'all'")
-    parser.add_argument("--validate", action="store_true", help="Run topology validation")
-    parser.add_argument("--render", action="store_true", help="Generate PNG previews")
-    parser.add_argument("--readme", action="store_true", help="Update README.md files")
+    parser.add_argument("target", help="Example number or 'all'")
+    parser.add_argument("--validate", action="store_true")
+    parser.add_argument("--render", action="store_true")
+    parser.add_argument("--readme", action="store_true")
     args = parser.parse_args()
 
     occt_bin = find_occt()
-    if (args.validate or args.render) and not occt_bin:
-        print("Error: OCCT (occt-draw or DRAWEXE) not found.")
-        sys.exit(1)
-
     targets = SUITE.keys() if args.target == "all" else [args.target]
     
     for num in sorted(targets):
         example_dir = find_example_dir(num)
-        if not example_dir:
-            print(f"Skipping {num}: Directory not found")
-            continue
-
-        print(f"Processing Example {num} ({example_dir.name})...")
+        if not example_dir: continue
+        print(f"Processing Example {num}...")
         
-        config_data = SUITE.get(num)
-        if not config_data:
-            print(f"No config for {num}")
-            continue
-            
-        variants = config_data["variants"]
         variants_processed = []
-
-        for i, config in enumerate(variants, 1):
+        for i, config in enumerate(SUITE[num], 1):
             print(f"  [Set {i}] Args: {' '.join(config)}")
-            
             step_file = Path(f"/tmp/example-{num}-{i}.step")
-            png_name = f"preview-{i}.png"
-            png_path = example_dir / png_name
-
-            # 1. Generate
-            if not generate_step(num, config, step_file):
-                continue
-
-            # 2. Validate
+            
+            if not generate_step(num, config, step_file): continue
+            
             if args.validate:
                 if validate_step(occt_bin, step_file):
                     print("    Topology: OK")
                 else:
-                    print("    FAILED: Invalid topology")
+                    print("    Topology: FAILED")
                     continue
-
-            # 3. Render
+            
+            previews = {}
             if args.render:
-                if render_step(occt_bin, step_file, png_path):
-                    print(f"    Render: SUCCESS ({png_name})")
+                previews = render_variant(occt_bin, step_file, example_dir, i)
+                if all(previews.values()):
+                    print(f"    Render: SUCCESS (4 views)")
                 else:
-                    print("    Render: FAILED")
+                    print(f"    Render: PARTIAL FAILURE")
 
-            variants_processed.append((config, png_name))
-
-        # 4. Readme
+            variants_processed.append({"config": config, "previews": previews})
+            
         if args.readme:
             print(f"  Updating README.md...")
             update_readme(example_dir, variants_processed)

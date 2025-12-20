@@ -27,7 +27,15 @@ pub fn Profile2D::circle(
   diameter : Double,
   segments? : Int = 64,
 ) -> Array[(Double, Double)] {
-  Profile2D::arc(diameter, 0.0, 2.0 * @math.PI, segments~)
+  let radius = diameter / 2.0
+  let out : Array[(Double, Double)] = []
+  let n = if segments < 3 { 3 } else { segments }
+  let angle_step = 2.0 * @math.PI / Double::from_int(n)
+  for i in 0..<n {
+    let phi = Double::from_int(i) * angle_step
+    out.push((radius * @math.cos(phi), radius * @math.sin(phi)))
+  }
+  out
 }
 
 ///|
@@ -41,7 +49,7 @@ pub fn Profile2D::arc(
   let out : Array[(Double, Double)] = []
   let n = if segments < 2 { 2 } else { segments }
   let angle_step = (end_angle - start_angle) / Double::from_int(n)
-  for i in 0..<n {
+  for i in 0..=n {
     let phi = start_angle + Double::from_int(i) * angle_step
     out.push((radius * @math.cos(phi), radius * @math.sin(phi)))
   }
@@ -66,6 +74,9 @@ pub fn Shape::with_name(self : Shape, name : String) -> SceneNode {
     tx: 0.0,
     ty: 0.0,
     tz: 0.0,
+    rx: 0.0,
+    ry: 0.0,
+    rz: 0.0,
   }
 }
 
@@ -82,4 +93,19 @@ pub fn SceneNode::translate(
   z? : Double = 0.0,
 ) -> SceneNode {
   { ..self, tx: self.tx + x, ty: self.ty + y, tz: self.tz + z }
+}
+
+///|
+pub fn SceneNode::rotate_x(self : SceneNode, angle : Double) -> SceneNode {
+  { ..self, rx: self.rx + angle }
+}
+
+///|
+pub fn SceneNode::rotate_y(self : SceneNode, angle : Double) -> SceneNode {
+  { ..self, ry: self.ry + angle }
+}
+
+///|
+pub fn SceneNode::rotate_z(self : SceneNode, angle : Double) -> SceneNode {
+  { ..self, rz: self.rz + angle }
 }

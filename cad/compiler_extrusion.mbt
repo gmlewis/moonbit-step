@@ -1,18 +1,14 @@
 ///|
 pub fn compile_extruded_profile(
   ctx : StepContext,
+  node : SceneNode,
   extrusion : ExtrudedProfile,
-  tx : Double,
-  ty : Double,
-  tz : Double,
 ) -> @step.Ref {
   let profile = extrusion.profile
   let height_mm = extrusion.height_mm
   if height_mm == 0.0 || profile.outer.length() < 3 {
     return { id: { value: 0 } }
   }
-  let z0 = tz
-  let z1 = tz + height_mm
 
   // Flatten loops (outer first, then holes).
   let loops : Array[Array[(Double, Double)]] = [profile.outer]
@@ -23,19 +19,25 @@ pub fn compile_extruded_profile(
   }
 
   // Build 3D points (bottom then top per loop).
-  let pts : Array[(Double, Double, Double)] = []
+  let pts_raw : Array[(Double, Double, Double)] = []
   let loop_indices = loops.map(fn(poly) {
     let b = poly.map(fn(pt) {
       let (px, py) = pt
-      pts.push((tx + px, ty + py, z0))
-      pts.length() - 1
+      pts_raw.push((px, py, 0.0))
+      pts_raw.length() - 1
     })
     let t = poly.map(fn(pt) {
       let (px, py) = pt
-      pts.push((tx + px, ty + py, z1))
-      pts.length() - 1
+      pts_raw.push((px, py, height_mm))
+      pts_raw.length() - 1
     })
     (b, t)
+  })
+
+  // Transform all points: Rotate then Translate
+  let pts = pts_raw.map(fn(pt) {
+    let (rx, ry, rz) = rotate_point(pt, node.rx, node.ry, node.rz)
+    (rx + node.tx, ry + node.ty, rz + node.tz)
   })
 
   // Cartesian points
@@ -59,8 +61,8 @@ pub fn compile_extruded_profile(
     seen.set(key, true)
     let start = if a < b { a } else { b }
     let end = if a < b { b } else { a }
-    let dir_vec = v_norm(v_sub(pts[end], pts[start]))
-    let dir_ref = ctx.direction(dir_vec.0, dir_vec.1, dir_vec.2)
+    let dir_raw = v_norm(v_sub(pts[end], pts[start]))
+    let dir_ref = ctx.direction(dir_raw.0, dir_raw.1, dir_raw.2)
     let vec_ref = ctx.vector(dir_ref, 1.0)
     let line = @geometry.Line::new("", cp_refs[start], vec_ref)
     let line_ref = ctx.add(@repository.any_entity_line(line))
@@ -99,26 +101,16 @@ pub fn compile_extruded_profile(
     hole_bs.push(hb)
     hole_ts.push(ht)
   }
+  let down_raw = rotate_point((0.0, 0.0, -1.0), node.rx, node.ry, node.rz)
+  let up_raw = rotate_point((0.0, 0.0, 1.0), node.rx, node.ry, node.rz)
   face_refs.push(
     add_plane_face_with_holes_oriented(
-      ctx,
-      edges,
-      pts,
-      cp_refs,
-      outer_b,
-      hole_bs,
-      (0.0, 0.0, -1.0),
+      ctx, edges, pts, cp_refs, outer_b, hole_bs, down_raw,
     ),
   )
   face_refs.push(
     add_plane_face_with_holes_oriented(
-      ctx,
-      edges,
-      pts,
-      cp_refs,
-      outer_t,
-      hole_ts,
-      (0.0, 0.0, 1.0),
+      ctx, edges, pts, cp_refs, outer_t, hole_ts, up_raw,
     ),
   )
 
@@ -128,11 +120,12 @@ pub fn compile_extruded_profile(
     let n = b.length()
     for i in 0..<n {
       let j = (i + 1) % n
-      let (px0, py0, _) = pts[b[i]]
-      let (px1, py1, _) = pts[b[j]]
-      let dx = px1 - px0
-      let dy = py1 - py0
-      let expected = v_norm((dy, -dx, 0.0))
+      let p0 = pts[b[i]]
+      let p1 = pts[b[j]]
+      let p2 = pts[t[i]]
+      let v1 = v_sub(p1, p0)
+      let v2 = v_sub(p2, p0)
+      let expected = v_norm(v_cross(v1, v2))
       face_refs.push(
         add_plane_face_oriented(
           ctx,
