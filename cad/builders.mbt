@@ -27,11 +27,22 @@ pub fn Profile2D::circle(
   diameter : Double,
   segments? : Int = 64,
 ) -> Array[(Double, Double)] {
+  Profile2D::arc(diameter, 0.0, 2.0 * @math.PI, segments~)
+}
+
+///|
+pub fn Profile2D::arc(
+  diameter : Double,
+  start_angle : Double,
+  end_angle : Double,
+  segments? : Int = 32,
+) -> Array[(Double, Double)] {
   let radius = diameter / 2.0
   let out : Array[(Double, Double)] = []
-  let n = if segments < 3 { 3 } else { segments }
+  let n = if segments < 2 { 2 } else { segments }
+  let angle_step = (end_angle - start_angle) / Double::from_int(n)
   for i in 0..<n {
-    let phi = Double::from_int(i) * 2.0 * @math.PI / Double::from_int(n)
+    let phi = start_angle + Double::from_int(i) * angle_step
     out.push((radius * @math.cos(phi), radius * @math.sin(phi)))
   }
   out

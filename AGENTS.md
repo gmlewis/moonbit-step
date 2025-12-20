@@ -12,6 +12,12 @@ This is a [MoonBit](https://docs.moonbitlang.com) project.
 - In the toplevel directory, this is a `moon.mod.json` file listing about the
   module and some meta information.
 
+- **Workspace Preference**: Avoid creating separate `moon.mod.json` files for
+  new examples unless absolutely necessary (e.g., when requiring a large
+  dependency like a specific font data package that shouldn't be in the root).
+  If an example can run using only root dependencies, keep it as part of the
+  main workspace.
+
 ## Architectural Principles (CAD Package)
 
 The `cad` package follows an **intent-based architecture**. Do not revert to eager B-Rep generation.
@@ -42,7 +48,7 @@ The `cad` package follows an **intent-based architecture**. Do not revert to eag
 - Prefer **functional-style programming**:
   - Use `map`, `filter`, `fold`, etc., over manual `for i = 0...` loops.
   - For simple iteration, use the idiomatic `for x in array { ... }` or `for i in 0..<n { ... }`.
-  - **Precedence Note**: If using math in a range, use parentheses to guide `moon fmt`: `0..<(n - 1)`.
+  - **Range Precedence**: To ensure `moon fmt` doesn't break range logic, use explicit parentheses: `0..<(n - 1)`.
 
 - Try to keep deprecated blocks in file called `deprecated.mbt` in each
   directory.

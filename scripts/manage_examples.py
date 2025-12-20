@@ -10,31 +10,56 @@ from pathlib import Path
 # --- Configuration ---
 
 SUITE = {
-    "01": [
-        ["--edge", "10"],
-        ["--edge", "25", "--tx", "5", "--ty", "5", "--tz", "5"]
-    ],
-    "02": [
-        ["--length", "20", "--width", "20", "--height", "5"],
-        ["--chamferSize", "2"],
-        ["--filletRadius", "1.5"]
-    ],
-    "03": [
-        ["--name", "gmlewis"],
-        ["--name", "MoonBit", "--embossDepth", "2", "--length", "60"]
-    ],
-    "04": [
-        ["--id", "5", "--od", "15", "--thickness", "2"],
-        ["--id", "10", "--od", "12", "--thickness", "0.5", "--segments", "32"]
-    ],
-    "05": [
-        ["--rows", "1", "--cols", "1", "--height", "20"],
-        ["--rows", "2", "--cols", "1", "--text", "Gemini"]
-    ],
-    "06": [
-        ["--count", "1"],
-        ["--count", "3", "--height", "10", "--clickHeight", "1"]
-    ]
+    "01": {
+        "color": (0.0, 0.8, 0.0), # Green
+        "variants": [
+            ["--edge", "10"],
+            ["--edge", "25", "--tx", "5", "--ty", "5", "--tz", "5"]
+        ]
+    },
+    "02": {
+        "color": (0.2, 0.2, 0.2), # Grey
+        "variants": [
+            ["--length", "20", "--width", "20", "--height", "5"],
+            ["--chamferSize", "2"],
+            ["--filletRadius", "1.5"]
+        ]
+    },
+    "03": {
+        "color": (0.2, 0.2, 0.2), # Grey
+        "variants": [
+            ["--name", "gmlewis"],
+            ["--name", "MoonBit", "--embossDepth", "2", "--length", "60"]
+        ]
+    },
+    "04": {
+        "color": (0.0, 0.0, 0.8), # Blue
+        "variants": [
+            ["--id", "5", "--od", "15", "--thickness", "2"],
+            ["--id", "10", "--od", "12", "--thickness", "0.5", "--segments", "32"]
+        ]
+    },
+    "05": {
+        "color": (0.2, 0.2, 0.2), # Grey
+        "variants": [
+            ["--rows", "1", "--cols", "1", "--height", "20"],
+            ["--rows", "2", "--cols", "1", "--text", "Gemini"]
+        ]
+    },
+    "06": {
+        "color": (1.0, 0.6, 0.0), # Orange
+        "variants": [
+            ["--count", "1"],
+            ["--count", "3", "--height", "10", "--clickHeight", "1"]
+        ]
+    },
+    "07": {
+        "color": (0.2, 0.2, 0.2), # Grey
+        "variants": [
+            ["--diameter", "5", "--text", "USB"],
+            ["--diameter", "10", "--text", "POWER", "--length", "30"]
+        ]
+    }
 }
 
 # --- Utils ---
@@ -66,7 +91,8 @@ def generate_step(num, config, output_path):
         return False
 
 def validate_step(occt_bin, step_path):
-    draw_cmd = f"pload MODELING; pload XDE; testreadstep {step_path} s; checkshape s;"
+    # Using ReadStep/checkshape is more robust than testreadstep
+    draw_cmd = f"pload ALL; ReadStep D {step_path}; XGetOneShape s D; checkshape s;"
     try:
         result = subprocess.run([occt_bin, "-b", "-c", draw_cmd], capture_output=True, text=True, check=True)
         if "This shape seems to be valid" in result.stdout:
@@ -79,7 +105,6 @@ def render_step(occt_bin, step_path, png_path):
     ppm_path = str(png_path).replace(".png", ".ppm")
     
     # We use ReadStep + XDisplay. 
-    # vinit MUST come before XDisplay.
     draw_commands = f"""
 pload ALL
 vinit View1 -width 800 -height 800
@@ -88,7 +113,6 @@ ReadStep D {step_path}
 XDisplay D
 vsetdispmode 1
 vfit
-# Add clear but simple lighting
 vlight clear
 vlight add directional -dir -1 -1 -1 -color WHITE
 vlight add ambient -color WHITE
@@ -130,8 +154,8 @@ def update_readme(example_dir, variants):
     
     content = "\n".join(clean_lines).rstrip()
     new_section = "\n\n---\n"
-    for i, (args, png_name) in enumerate(variants, 1):
-        arg_str = " ".join(args)
+    for i, (config, png_name) in enumerate(variants, 1):
+        arg_str = " ".join(config)
         new_section += f"\n### Variant {i}\n\n"
         new_section += f"Command line: `./run-example.sh {example_dir.name[:2]} {arg_str}`\n\n"
         new_section += f"![Preview]({png_name})\n"
@@ -163,10 +187,15 @@ def main():
 
         print(f"Processing Example {num} ({example_dir.name})...")
         
-        configs = SUITE.get(num, [[]])
-        variants_for_readme = []
+        config_data = SUITE.get(num)
+        if not config_data:
+            print(f"No config for {num}")
+            continue
+            
+        variants = config_data["variants"]
+        variants_processed = []
 
-        for i, config in enumerate(configs, 1):
+        for i, config in enumerate(variants, 1):
             print(f"  [Set {i}] Args: {' '.join(config)}")
             
             step_file = Path(f"/tmp/example-{num}-{i}.step")
@@ -192,12 +221,12 @@ def main():
                 else:
                     print("    Render: FAILED")
 
-            variants_for_readme.append((config, png_name))
+            variants_processed.append((config, png_name))
 
         # 4. Readme
         if args.readme:
             print(f"  Updating README.md...")
-            update_readme(example_dir, variants_for_readme)
+            update_readme(example_dir, variants_processed)
 
 if __name__ == "__main__":
     main()
