@@ -144,7 +144,18 @@ async fn main {
             abort("")
           }
         }
-        let text_fitted = text_raw.fit_to(bbox)
+        let fitted = text_raw.fit_to(bbox)
+        let text_fitted = match fitted.bounding_box() {
+          Some(fbbox) => {
+            let tbbox = bbox.canonicalize()
+            let offset = @draw.vec2(
+              (tbbox.width() - fbbox.width()) / 2.0,
+              (tbbox.height() - fbbox.height()) / 2.0,
+            )
+            fitted.transform(position=offset)
+          }
+          _ => fitted
+        }
         let all_paths = text_fitted.all_paths_and_compound_paths()
         for g in all_paths {
           let profiles = @draw.Graphic::to_profiles_tuples(g, 8)
