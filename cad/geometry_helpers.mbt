@@ -1,7 +1,7 @@
 ///|
 fn v_sub(
   a : (Double, Double, Double),
-  b : (Double, Double, Double)
+  b : (Double, Double, Double),
 ) -> (Double, Double, Double) {
   let (ax, ay, az) = a
   let (bx, by, bz) = b
@@ -11,7 +11,7 @@ fn v_sub(
 ///|
 fn v_cross(
   a : (Double, Double, Double),
-  b : (Double, Double, Double)
+  b : (Double, Double, Double),
 ) -> (Double, Double, Double) {
   let (ax, ay, az) = a
   let (bx, by, bz) = b
@@ -59,7 +59,7 @@ fn reverse_cycle(verts : Array[Int]) -> Array[Int] {
 ///|
 fn cycle_area_xy(
   pts : Array[(Double, Double, Double)],
-  cycle : Array[Int]
+  cycle : Array[Int],
 ) -> Double {
   let n = cycle.length()
   if n < 3 {
@@ -80,12 +80,13 @@ fn rotate_point(
   p : (Double, Double, Double),
   rx : Double,
   ry : Double,
-  rz : Double
+  rz : Double,
 ) -> (Double, Double, Double) {
   let rad_x = rx * @math.PI / 180.0
   let rad_y = ry * @math.PI / 180.0
   let rad_z = rz * @math.PI / 180.0
 
+  //
   let (x0, y0, z0) = p
   let mut x = x0
   let mut y = y0
@@ -115,6 +116,7 @@ fn rotate_point(
     y = old_x * @math.sin(rad_z) + old_y * @math.cos(rad_z)
   }
 
+  //
   (x, y, z)
 }
 
@@ -142,7 +144,7 @@ fn find_edge(edges : Array[EdgeInfo], a : Int, b : Int) -> (@step.Ref, Bool) {
 fn face_loop(
   ctx : StepContext,
   edges : Array[EdgeInfo],
-  verts : Array[Int]
+  verts : Array[Int],
 ) -> @step.Ref {
   let oe_refs : Array[@step.Ref] = []
   let n = verts.length()
@@ -164,7 +166,7 @@ fn add_plane_face(
   verts_cycle : Array[Int],
   location_pt : @step.Ref,
   axis_dir : @step.Ref,
-  ref_dir : @step.Ref
+  ref_dir : @step.Ref,
 ) -> @step.Ref {
   let a2p = @geometry.Axis2Placement3D::new("", location_pt, axis_dir, ref_dir)
   let a2p_ref = ctx.add(@repository.any_entity_axis2_placement_3d(a2p))
@@ -184,7 +186,7 @@ fn add_plane_face_oriented(
   pts : Array[(Double, Double, Double)],
   cp_refs : Array[@step.Ref],
   verts_cycle : Array[Int],
-  expected_out : (Double, Double, Double)
+  expected_out : (Double, Double, Double),
 ) -> @step.Ref {
   let a0 = verts_cycle[0]
   let a1 = verts_cycle[1]
@@ -214,7 +216,7 @@ fn add_plane_face_with_holes_oriented(
   cp_refs : Array[@step.Ref],
   outer_cycle_in : Array[Int],
   hole_cycles_in : Array[Array[Int]],
-  expected_out : (Double, Double, Double)
+  expected_out : (Double, Double, Double),
 ) -> @step.Ref {
   let a0 = outer_cycle_in[0]
   let a1 = outer_cycle_in[1]
@@ -229,6 +231,7 @@ fn add_plane_face_with_holes_oriented(
     outer_cycle_in
   }
 
+  //
   let hole_cycles = hole_cycles_in.map(fn(hc) {
     let ha = cycle_area_xy(pts, hc)
     let outer_area = cycle_area_xy(pts, outer_cycle)
@@ -239,21 +242,25 @@ fn add_plane_face_with_holes_oriented(
     }
   })
 
+  //
   let b0 = outer_cycle[0]
   let axis_raw = v_norm(expected_out)
   let refd_raw = v_norm(v_sub(pts[outer_cycle[1]], pts[outer_cycle[0]]))
   let axis_ref = ctx.direction(axis_raw.0, axis_raw.1, axis_raw.2)
   let ref_ref = ctx.direction(refd_raw.0, refd_raw.1, refd_raw.2)
-  
+
+  //
   let a2p = @geometry.Axis2Placement3D::new("", cp_refs[b0], axis_ref, ref_ref)
   let a2p_ref = ctx.add(@repository.any_entity_axis2_placement_3d(a2p))
   let plane = @geometry.Plane::new("", a2p_ref)
   let plane_ref = ctx.add(@repository.any_entity_plane(plane))
 
+  //
   let outer_loop_ref = face_loop(ctx, edges, outer_cycle)
   let fob = @topology.FaceOuterBound::new("", outer_loop_ref, true)
   let fob_ref = ctx.add(@repository.any_entity_face_outer_bound(fob))
-  
+
+  //
   let bounds : Array[@step.Ref] = [fob_ref]
   for loop_pts in hole_cycles {
     let loop_ref = face_loop(ctx, edges, loop_pts)

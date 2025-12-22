@@ -136,25 +136,14 @@ async fn main {
       if label_width > 5.0 {
         let bbox = @draw.bbox(0.0, 0.0, label_width, wall_height * 0.6)
         let font = @baloo.font
-        let text_raw = @draw.text(text=label, font~, align=Center).transform(
-          scale=@draw.vec2(1, -1),
+        let text_fitted = @draw.to_graphic(font, label, alignment=Center).scale_to_fit(
+          bbox,
+          anchor=Center,
         ) catch {
           e => {
             @cli.eprintln("Error creating text: \{e}")
             abort("")
           }
-        }
-        let fitted = text_raw.fit_to(bbox)
-        let text_fitted = match fitted.bounding_box() {
-          Some(fbbox) => {
-            let tbbox = bbox.canonicalize()
-            let offset = @draw.vec2(
-              (tbbox.width() - fbbox.width()) / 2.0,
-              (tbbox.height() - fbbox.height()) / 2.0,
-            )
-            fitted.transform(position=offset)
-          }
-          _ => fitted
         }
         let all_paths = text_fitted.all_paths_and_compound_paths()
         for g in all_paths {
@@ -167,8 +156,8 @@ async fn main {
             // Engrave on the front wall (-Y face)
             // We need to rotate the profile or manually transform it.
             // For now, let's just place them on the top face for simplicity,
-            // OR use a helper to rotate. 
-            // Wait, ExtrudedProfile extrudes along Z. 
+            // OR use a helper to rotate.
+            // Wait, ExtrudedProfile extrudes along Z.
             // To put it on the front wall, we would need to rotate it.
             // Since we don't have rotation yet in compilers, I'll place it on top of the front wall.
             let text_solid = @cad.ExtrudedProfile::new(

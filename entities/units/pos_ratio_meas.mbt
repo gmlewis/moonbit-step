@@ -11,7 +11,7 @@ pub struct PositiveRatioMeasure {
 
 ///|
 pub fn PositiveRatioMeasure::new(value : String) -> PositiveRatioMeasure {
-  let trimmed = String::from_array(String::trim_space(value).to_array())
+  let trimmed = value.trim().to_string()
   PositiveRatioMeasure::{ value: trimmed }
 }
 

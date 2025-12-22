@@ -108,25 +108,14 @@ async fn main {
   )
 
   // Handle the error-throwing function call
-  let text_raw = @draw.text(text=name, font~, align=Center).transform(
-    scale=@draw.vec2(1, -1),
+  let text = @draw.to_graphic(font, name, alignment=Center).scale_to_fit(
+    bbox,
+    anchor=Center,
   ) catch {
     e => {
       @cli.eprintln("Error creating text: \{e}")
       abort("")
     }
-  }
-  let fitted = text_raw.fit_to(bbox)
-  let text = match fitted.bounding_box() {
-    Some(fbbox) => {
-      let tbbox = bbox.canonicalize()
-      let offset = @draw.vec2(
-        (tbbox.width() - fbbox.width()) / 2.0,
-        (tbbox.height() - fbbox.height()) / 2.0,
-      )
-      fitted.transform(position=offset)
-    }
-    _ => fitted
   }
   let all_paths = text.all_paths_and_compound_paths()
   if debug {
@@ -138,10 +127,6 @@ async fn main {
     match out_path {
       Some(path) => println("Writing output to: \{path}")
       None => println("Writing output to stdout")
-    }
-    match text_raw.bounding_box() {
-      Some(b) => println("Raw text bbox: \{b.canonicalize()}")
-      None => println("Raw text bbox: None")
     }
     println("Target bbox: \{bbox.canonicalize()}")
     match text.bounding_box() {

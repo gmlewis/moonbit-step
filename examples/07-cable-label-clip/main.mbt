@@ -52,11 +52,11 @@ async fn main {
   }
   let mut design = @cad.Design::new(name="cable-label")
 
+  //
   let open_rad = opening_deg * @math.PI / 180.0
   // Opening faces -Y (front)
-  let start_angle = -(@math.PI / 2.0) + (open_rad / 2.0)
-  let end_angle = (3.0 * @math.PI / 2.0) - (open_rad / 2.0)
-  
+  let start_angle = -(@math.PI / 2.0) + open_rad / 2.0
+  let end_angle = 3.0 * @math.PI / 2.0 - open_rad / 2.0
   let outer_arc = @cad.Profile2D::arc(
     diameter + 2.0 * wall,
     start_angle,
@@ -70,8 +70,11 @@ async fn main {
     segments=32,
   )
 
+  //
   let c_profile : Array[(Double, Double)] = []
-  for pt in outer_arc { c_profile.push(pt) }
+  for pt in outer_arc {
+    c_profile.push(pt)
+  }
   for i in 0..<inner_arc.length() {
     c_profile.push(inner_arc[inner_arc.length() - 1 - i])
   }
@@ -90,46 +93,38 @@ async fn main {
   let plaque = @cad.Cuboid::new(plaque_width, plaque_thickness, clip_length)
     .with_name("label-plaque")
     .with_color(@cad.Rgb::grey())
-    .translate(
-      x=tx - plaque_width / 2.0,
-      y=ty + (diameter / 2.0),
-      z=tz,
-    )
+    .translate(x=tx - plaque_width / 2.0, y=ty + diameter / 2.0, z=tz)
   design = design.add(plaque)
 
   // 3. Text
   let text_font = @baloo.font
   let margin = 2.0
-  let text_bbox = @draw.bbox(margin, margin, plaque_width - margin, clip_length - margin)
-  
-  let text_raw = @draw.text(text=label_text, font=text_font, align=Center).transform(
-    scale=@draw.vec2(1, -1),
+  let text_bbox = @draw.bbox(
+    margin,
+    margin,
+    plaque_width - margin,
+    clip_length - margin,
+  )
+  let text_fitted = @draw.to_graphic(text_font, label_text, alignment=Center).scale_to_fit(
+    text_bbox,
+    anchor=Center,
   ) catch {
     e => {
       @cli.eprintln("Error creating text: \{e}")
       abort("")
     }
   }
-  let fitted = text_raw.fit_to(text_bbox)
-  let text_fitted = match fitted.bounding_box() {
-    Some(fbbox) => {
-      let tbbox = text_bbox.canonicalize()
-      let offset = @draw.vec2(
-        (tbbox.width() - fbbox.width()) / 2.0,
-        (tbbox.height() - fbbox.height()) / 2.0,
-      )
-      fitted.transform(position=offset)
-    }
-    _ => fitted
-  }
   let all_paths = text_fitted.all_paths_and_compound_paths()
-  
+
+  //
   for g in all_paths {
     let profiles = @draw.Graphic::to_profiles_tuples(g, 8)
     for profile in profiles {
       let (outer, holes) = profile
-      if outer.length() < 3 { continue }
-      
+      if outer.length() < 3 {
+        continue
+      }
+
       // ExtrudedProfile is XY plane, extruding along Z.
       // We rotate it 90 deg around X so its "Z" (height) becomes "Y" (facing out).
       let text_solid = @cad.ExtrudedProfile::new(outer, emboss_depth, holes~)
@@ -138,12 +133,13 @@ async fn main {
         .rotate_x(90.0)
         .translate(
           x=tx - plaque_width / 2.0,
-          y=ty + (diameter / 2.0) + plaque_thickness,
+          y=ty + diameter / 2.0 + plaque_thickness,
           z=tz,
         )
       design = design.add(text_solid)
     }
   }
 
+  //
   design.write_step(out_path)
 }

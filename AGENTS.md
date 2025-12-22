@@ -56,6 +56,12 @@ The `cad` package follows an **intent-based architecture**. Do not revert to eag
 - Try to keep filenames relatively short and consistent; 30+
   characters in a filename is starting to feel pretty long.
 
+- Please keep `using` statement contents lexicographically sorted for fast
+  visual recognition.
+
+- Please keep imports within `moon.pkg.json` and dependencies within `moon.mod.json`
+  lexicographically sorted.
+
 ## Tooling & Verification
 
 - `moon fmt` is used to format your code properly.

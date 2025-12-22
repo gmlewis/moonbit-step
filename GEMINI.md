@@ -1,5 +1,8 @@
 # Gemini CLI Configuration & Instructions
 
+- Please read `AGENTS.md` and `README.md` in the root of this repo to get an
+  overview of this repo and general rules.
+
 ## Model Enforcement
 
 - **Primary Model**: `gemini-3-flash-preview`
@@ -12,6 +15,19 @@
 - **No modification of `.mooncakes`**: The Gemini CLI MUST NOT modify any files within the `.mooncakes` directory. These files are external dependencies and should be treated as read-only.
 - **Reporting Dependency Issues**: If a bug is found in a dependency or an improvement is needed, the Gemini CLI should create a new Markdown file (e.g., `DEPENDENCY_FIXES.md`) detailing the specific changes required. The user will then apply these changes in the external repository, publish the update, and re-import the dependency.
 
+## Git Commands
+
+- **NEVER RUN GIT COMMANDS**: The Gemini CLI MUST NOT execute any `git` commands
+  with the following exceptions:
+  - `git status`
+  - `git diff`
+  - `git show`
+- All version control operations are handled by the user.
+
+## MoonBit Spacing
+
+- **Preserve Spacing**: `moon fmt` removes blank lines unless they are followed by a blank comment line (`//`). When adding spacing for readability, always add a blank line followed immediately by a line containing only `//`.
+
 ## Running and Testing
 
 - Always use `./run-example.sh` to run specific examples and use `-o /tmp/filename.step`
@@ -22,9 +38,10 @@
 ## Agent Behavior
 
 - Adhere strictly to the principles defined in `AGENTS.md`.
-- Prioritize correctness and idiomatic MoonBit over speed.
+- Prioritize correctness and idiomatic MoonBit over speed using a functional-programming
+  style when possible, which the author feels is much more readable and easier to understand.
 - If context appears to be lost or if the model's performance degrades, notify the user immediately.
-- When asked to implement the next example, please put on your "Experienced Senior Architect Hat"
+- When asked to implement the next example, please put on your "Expert Senior Architect Hat"
   with the goal of creating the example "main.mbt" file to be representative of a
   "beautiful developer experience" for using this MoonBit package. Any helper functions
   that are needed to create the "main.mbt" file should most likely go into the "@cad"

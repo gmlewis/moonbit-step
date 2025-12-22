@@ -7,11 +7,11 @@ import(
 )
 
 // Values
-pub fn compile_calibration_chamfer_block(StepContext, CalibrationChamferBlock, Double, Double, Double) -> @step.Ref
+pub fn compile_calibration_chamfer_block(StepContext, SceneNode, CalibrationChamferBlock) -> @step.Ref
 
-pub fn compile_cuboid(StepContext, Cuboid, Double, Double, Double) -> @step.Ref
+pub fn compile_cuboid(StepContext, SceneNode, Cuboid) -> @step.Ref
 
-pub fn compile_extruded_profile(StepContext, ExtrudedProfile, Double, Double, Double) -> @step.Ref
+pub fn compile_extruded_profile(StepContext, SceneNode, ExtrudedProfile) -> @step.Ref
 
 pub async fn write_step_text(String, String?) -> Unit
 
@@ -89,7 +89,13 @@ pub struct SceneNode {
   tx : Double
   ty : Double
   tz : Double
+  rx : Double
+  ry : Double
+  rz : Double
 }
+pub fn SceneNode::rotate_x(Self, Double) -> Self
+pub fn SceneNode::rotate_y(Self, Double) -> Self
+pub fn SceneNode::rotate_z(Self, Double) -> Self
 pub fn SceneNode::translate(Self, x? : Double, y? : Double, z? : Double) -> Self
 pub fn SceneNode::with_color(Self, Rgb) -> Self
 
