@@ -81,8 +81,18 @@ pub fn Design::compile(self : Design) -> @repository.Repository {
 
     // Axis placement for the part
     let origin = ctx.cartesian_point(node.tx, node.ty, node.tz)
-    let (dzx, dzy, dzz) = rotate_point((0.0, 0.0, 1.0), node.rx, node.ry, node.rz)
-    let (dxx, dxy, dxz) = rotate_point((1.0, 0.0, 0.0), node.rx, node.ry, node.rz)
+    let (dzx, dzy, dzz) = rotate_point(
+      (0.0, 0.0, 1.0),
+      node.rx,
+      node.ry,
+      node.rz,
+    )
+    let (dxx, dxy, dxz) = rotate_point(
+      (1.0, 0.0, 0.0),
+      node.rx,
+      node.ry,
+      node.rz,
+    )
     let dz = ctx.direction(dzx, dzy, dzz)
     let dx = ctx.direction(dxx, dxy, dxz)
     let a2p = @geometry.Axis2Placement3D::new("", origin, dz, dx)
