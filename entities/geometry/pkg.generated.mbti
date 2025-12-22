@@ -152,6 +152,13 @@ pub struct Plane {
 pub fn Plane::new(String, @step.Ref) -> Self
 pub impl @step.Entity for Plane
 
+pub struct Polyline {
+  name : String
+  points : Array[@step.Ref]
+}
+pub fn Polyline::new(String, Array[@step.Ref]) -> Self
+pub impl @step.Entity for Polyline
+
 pub struct RationalBSplineCurve {
   weights : Array[String]
 }

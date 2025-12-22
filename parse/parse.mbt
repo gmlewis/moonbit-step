@@ -469,6 +469,21 @@ fn parse_rectangular_trimmed_surface(
 }
 
 ///|
+fn parse_polyline(args : String) -> @geometry.Polyline raise StepParseError {
+  let parts = split_args(args)
+  if parts.length() != 2 {
+    fail_parse()
+  }
+  let name = strip_quotes(parts[0])
+  let ids = parse_ref_ids(parts[1])
+  let points : Array[@step.Ref] = []
+  for i = 0; i < ids.length(); i = i + 1 {
+    points.push(@step.Ref::{ id: ids[i] })
+  }
+  @geometry.Polyline::new(name, points)
+}
+
+///|
 fn parse_boolean_result(
   args : String,
 ) -> @geometry.BooleanResult raise StepParseError {
@@ -2263,6 +2278,12 @@ pub fn parse_repository_from_string(
       repo = repo.insert_with_id(
         row.id,
         @repository.any_entity_rectangular_trimmed_surface(entity),
+      )
+    } else if name == "POLYLINE" {
+      let entity = parse_polyline(row.args)
+      repo = repo.insert_with_id(
+        row.id,
+        @repository.any_entity_polyline(entity),
       )
     } else if name == "BOOLEAN_RESULT" {
       let entity = parse_boolean_result(row.args)

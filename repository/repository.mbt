@@ -19,6 +19,7 @@ pub enum AnyEntity {
   RationalBSplineSurface(@geometry.RationalBSplineSurface)
   TrimmedCurve(@geometry.TrimmedCurve)
   RectangularTrimmedSurface(@geometry.RectangularTrimmedSurface)
+  Polyline(@geometry.Polyline)
   BooleanResult(@geometry.BooleanResult)
   CsgSolid(@geometry.CsgSolid)
   Block(@geometry.Block)
@@ -193,6 +194,11 @@ pub fn any_entity_rectangular_trimmed_surface(
   s : @geometry.RectangularTrimmedSurface,
 ) -> AnyEntity {
   AnyEntity::RectangularTrimmedSurface(s)
+}
+
+///|
+pub fn any_entity_polyline(p : @geometry.Polyline) -> AnyEntity {
+  AnyEntity::Polyline(p)
 }
 
 ///|
@@ -655,6 +661,7 @@ fn entity_to_step(entity : AnyEntity) -> String {
     RationalBSplineSurface(s) => @step.Entity::to_step(s)
     TrimmedCurve(c) => @step.Entity::to_step(c)
     RectangularTrimmedSurface(s) => @step.Entity::to_step(s)
+    Polyline(p) => @step.Entity::to_step(p)
     BooleanResult(b) => @step.Entity::to_step(b)
     CsgSolid(c) => @step.Entity::to_step(c)
     Block(b) => @step.Entity::to_step(b)

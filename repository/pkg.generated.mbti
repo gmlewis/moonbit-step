@@ -95,6 +95,8 @@ pub fn any_entity_plane(@geometry.Plane) -> AnyEntity
 
 pub fn any_entity_plane_angle_measure_with_unit(@units.PlaneAngleMeasureWithUnit) -> AnyEntity
 
+pub fn any_entity_polyline(@geometry.Polyline) -> AnyEntity
+
 pub fn any_entity_presentation_layer_assignment(@presentation.PresentationLayerAssignment) -> AnyEntity
 
 pub fn any_entity_presentation_style_assignment(@presentation.PresentationStyleAssignment) -> AnyEntity
@@ -190,6 +192,7 @@ pub enum AnyEntity {
   RationalBSplineSurface(@geometry.RationalBSplineSurface)
   TrimmedCurve(@geometry.TrimmedCurve)
   RectangularTrimmedSurface(@geometry.RectangularTrimmedSurface)
+  Polyline(@geometry.Polyline)
   BooleanResult(@geometry.BooleanResult)
   CsgSolid(@geometry.CsgSolid)
   Block(@geometry.Block)
