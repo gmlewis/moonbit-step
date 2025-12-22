@@ -282,6 +282,43 @@ fn parse_toroidal_surface(
 }
 
 ///|
+fn parse_b_spline_curve(
+  args : String,
+) -> @geometry.BSplineCurve raise StepParseError {
+  let parts = split_args(args)
+  if parts.length() != 6 {
+    fail_parse()
+  }
+  let name = strip_quotes(parts[0])
+  let degree = parse_int_dec(parts[1])
+  let cp_ids = parse_ref_ids(parts[2])
+  let control_points : Array[@step.Ref] = []
+  for i = 0; i < cp_ids.length(); i = i + 1 {
+    control_points.push(@step.Ref::{ id: cp_ids[i] })
+  }
+  let curve_form = parts[3].trim().to_string()
+  let closed_str = parts[4].trim().to_string()
+  let self_i_str = parts[5].trim().to_string()
+  let closed_curve = if closed_str == ".T." {
+    true
+  } else if closed_str == ".F." {
+    false
+  } else {
+    fail_parse()
+  }
+  let self_intersect = if self_i_str == ".T." {
+    true
+  } else if self_i_str == ".F." {
+    false
+  } else {
+    fail_parse()
+  }
+  @geometry.BSplineCurve::new(
+    name, degree, control_points, curve_form, closed_curve, self_intersect,
+  )
+}
+
+///|
 fn parse_int_list(arg : String) -> Array[Int] {
   let parts = split_args(arg)
   let out : Array[Int] = []
@@ -2456,6 +2493,12 @@ pub fn parse_repository_from_string(
       repo = repo.insert_with_id(
         row.id,
         @repository.any_entity_toroidal_surface(entity),
+      )
+    } else if name == "B_SPLINE_CURVE" {
+      let entity = parse_b_spline_curve(row.args)
+      repo = repo.insert_with_id(
+        row.id,
+        @repository.any_entity_b_spline_curve(entity),
       )
     } else if name == "B_SPLINE_CURVE_WITH_KNOTS" {
       let entity = parse_b_spline_curve_with_knots(row.args)

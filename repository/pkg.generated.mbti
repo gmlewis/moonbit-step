@@ -25,6 +25,8 @@ pub fn any_entity_axis1_placement(@geometry.Axis1Placement) -> AnyEntity
 
 pub fn any_entity_axis2_placement_3d(@geometry.Axis2Placement3D) -> AnyEntity
 
+pub fn any_entity_b_spline_curve(@geometry.BSplineCurve) -> AnyEntity
+
 pub fn any_entity_b_spline_curve_with_knots(@geometry.BSplineCurveWithKnots) -> AnyEntity
 
 pub fn any_entity_b_spline_surface(@geometry.BSplineSurface) -> AnyEntity
@@ -210,6 +212,7 @@ pub enum AnyEntity {
   CylindricalSurface(@geometry.CylindricalSurface)
   ConicalSurface(@geometry.ConicalSurface)
   ToroidalSurface(@geometry.ToroidalSurface)
+  BSplineCurve(@geometry.BSplineCurve)
   BSplineCurveWithKnots(@geometry.BSplineCurveWithKnots)
   BSplineSurface(@geometry.BSplineSurface)
   BSplineSurfaceWithKnots(@geometry.BSplineSurfaceWithKnots)

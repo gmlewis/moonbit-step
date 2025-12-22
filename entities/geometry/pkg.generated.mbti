@@ -27,6 +27,17 @@ pub struct Axis2Placement3D {
 pub fn Axis2Placement3D::new(String, @step.Ref, @step.Ref, @step.Ref) -> Self
 pub impl @step.Entity for Axis2Placement3D
 
+pub struct BSplineCurve {
+  name : String
+  degree : Int
+  control_points : Array[@step.Ref]
+  curve_form : String
+  closed_curve : Bool
+  self_intersect : Bool
+}
+pub fn BSplineCurve::new(String, Int, Array[@step.Ref], String, Bool, Bool) -> Self
+pub impl @step.Entity for BSplineCurve
+
 pub struct BSplineCurveWithKnots {
   name : String
   degree : Int

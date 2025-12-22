@@ -411,6 +411,19 @@ test "parse_repository_from_string_toroidal_surface" {
 }
 
 ///|
+test "parse_repository_from_string_bspline_curve" {
+  let content = "ISO-10303-21;\nDATA;\n#10=B_SPLINE_CURVE('curve',3,(#1,#2,#3,#4),.UNSPECIFIED.,.F.,.F.);\nENDSEC;\nEND-ISO-10303-21;\n"
+  let repo = parse_repository_from_string(content)
+  inspect(repo.len(), content="1")
+  let out = repo.to_step_data_section()
+  assert_true(
+    out.contains(
+      "#10=B_SPLINE_CURVE('curve',3,(#1,#2,#3,#4),.UNSPECIFIED.,.F.,.F.);",
+    ),
+  )
+}
+
+///|
 test "parse_repository_from_string_b_spline_curve_with_knots" {
   let content = "ISO-10303-21;\nDATA;\n#39=B_SPLINE_CURVE_WITH_KNOTS('',3,(#10,#11,#12,#13),.UNSPECIFIED.,.F.,.F.,(4,4),(0.,1.),.UNSPECIFIED.);\nENDSEC;\nEND-ISO-10303-21;\n"
   let repo = parse_repository_from_string(content)

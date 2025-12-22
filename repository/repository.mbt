@@ -15,6 +15,7 @@ pub enum AnyEntity {
   CylindricalSurface(@geometry.CylindricalSurface)
   ConicalSurface(@geometry.ConicalSurface)
   ToroidalSurface(@geometry.ToroidalSurface)
+  BSplineCurve(@geometry.BSplineCurve)
   BSplineCurveWithKnots(@geometry.BSplineCurveWithKnots)
   BSplineSurface(@geometry.BSplineSurface)
   BSplineSurfaceWithKnots(@geometry.BSplineSurfaceWithKnots)
@@ -175,6 +176,11 @@ pub fn any_entity_conical_surface(s : @geometry.ConicalSurface) -> AnyEntity {
 ///|
 pub fn any_entity_toroidal_surface(s : @geometry.ToroidalSurface) -> AnyEntity {
   AnyEntity::ToroidalSurface(s)
+}
+
+///|
+pub fn any_entity_b_spline_curve(c : @geometry.BSplineCurve) -> AnyEntity {
+  AnyEntity::BSplineCurve(c)
 }
 
 ///|
@@ -731,6 +737,7 @@ fn entity_to_step(entity : AnyEntity) -> String {
     CylindricalSurface(s) => @step.Entity::to_step(s)
     ConicalSurface(s) => @step.Entity::to_step(s)
     ToroidalSurface(s) => @step.Entity::to_step(s)
+    BSplineCurve(c) => @step.Entity::to_step(c)
     BSplineCurveWithKnots(c) => @step.Entity::to_step(c)
     BSplineSurface(s) => @step.Entity::to_step(s)
     BSplineSurfaceWithKnots(s) => @step.Entity::to_step(s)
