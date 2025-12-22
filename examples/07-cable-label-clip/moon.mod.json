@@ -5,7 +5,7 @@
     "gmlewis/step": {
       "path": "../.."
     },
-    "moonbitlang/async": "0.14.3",
+    "moonbitlang/async": "0.15.0",
     "moonbitlang/x": "0.4.38",
     "TheWaWaR/clap": "0.2.6",
     "gmlewis/fonts": "0.18.2",
