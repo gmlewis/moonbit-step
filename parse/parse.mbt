@@ -126,6 +126,25 @@ fn parse_axis2_placement_3d(
 }
 
 ///|
+fn parse_axis1_placement(
+  args : String,
+) -> @geometry.Axis1Placement raise StepParseError {
+  let parts = split_args(args)
+  if parts.length() != 3 {
+    fail_parse()
+  }
+  let name = strip_quotes(parts[0])
+  let location_id = parse_ref_int(parts[1])
+  let axis_id_str = parts[2].trim().to_string()
+  let axis = if axis_id_str == "$" {
+    None
+  } else {
+    Some(@step.Ref::{ id: parse_ref_int(axis_id_str) })
+  }
+  @geometry.Axis1Placement::new(name, @step.Ref::{ id: location_id }, axis~)
+}
+
+///|
 fn parse_vector(args : String) -> @geometry.Vector raise StepParseError {
   let parts = split_args(args)
   if parts.length() != 3 {
@@ -507,6 +526,22 @@ fn parse_surface_of_linear_extrusion(
   let curve_id = parse_ref_int(parts[1])
   let axis_id = parse_ref_int(parts[2])
   @geometry.SurfaceOfLinearExtrusion::new(name, @step.Ref::{ id: curve_id }, @step.Ref::{
+    id: axis_id,
+  })
+}
+
+///|
+fn parse_surface_of_revolution(
+  args : String,
+) -> @geometry.SurfaceOfRevolution raise StepParseError {
+  let parts = split_args(args)
+  if parts.length() != 3 {
+    fail_parse()
+  }
+  let name = strip_quotes(parts[0])
+  let curve_id = parse_ref_int(parts[1])
+  let axis_id = parse_ref_int(parts[2])
+  @geometry.SurfaceOfRevolution::new(name, @step.Ref::{ id: curve_id }, @step.Ref::{
     id: axis_id,
   })
 }
@@ -2356,6 +2391,12 @@ pub fn parse_repository_from_string(
         row.id,
         @repository.any_entity_direction(entity),
       )
+    } else if name == "AXIS1_PLACEMENT" {
+      let entity = parse_axis1_placement(row.args)
+      repo = repo.insert_with_id(
+        row.id,
+        @repository.any_entity_axis1_placement(entity),
+      )
     } else if name == "AXIS_2_PLACEMENT_3D" || name == "AXIS2_PLACEMENT_3D" {
       let entity = parse_axis2_placement_3d(row.args)
       repo = repo.insert_with_id(
@@ -2454,6 +2495,12 @@ pub fn parse_repository_from_string(
       repo = repo.insert_with_id(
         row.id,
         @repository.any_entity_surface_of_linear_extrusion(entity),
+      )
+    } else if name == "SURFACE_OF_REVOLUTION" {
+      let entity = parse_surface_of_revolution(row.args)
+      repo = repo.insert_with_id(
+        row.id,
+        @repository.any_entity_surface_of_revolution(entity),
       )
     } else if name == "RECTANGULAR_TRIMMED_SURFACE" {
       let entity = parse_rectangular_trimmed_surface(row.args)

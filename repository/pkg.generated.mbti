@@ -21,6 +21,8 @@ pub fn any_entity_application_context(@product.ApplicationContext) -> AnyEntity
 
 pub fn any_entity_application_protocol_definition(@product.ApplicationProtocolDefinition) -> AnyEntity
 
+pub fn any_entity_axis1_placement(@geometry.Axis1Placement) -> AnyEntity
+
 pub fn any_entity_axis2_placement_3d(@geometry.Axis2Placement3D) -> AnyEntity
 
 pub fn any_entity_b_spline_curve_with_knots(@geometry.BSplineCurveWithKnots) -> AnyEntity
@@ -165,6 +167,8 @@ pub fn any_entity_styled_item(@presentation.StyledItem) -> AnyEntity
 
 pub fn any_entity_surface_of_linear_extrusion(@geometry.SurfaceOfLinearExtrusion) -> AnyEntity
 
+pub fn any_entity_surface_of_revolution(@geometry.SurfaceOfRevolution) -> AnyEntity
+
 pub fn any_entity_surface_side_style(@presentation.SurfaceSideStyle) -> AnyEntity
 
 pub fn any_entity_surface_style_fill_area(@presentation.SurfaceStyleFillArea) -> AnyEntity
@@ -192,6 +196,7 @@ pub enum AnyEntity {
   RawEntity(@step.RawEntity)
   CartesianPoint(@geometry.CartesianPoint)
   Direction(@geometry.Direction)
+  Axis1Placement(@geometry.Axis1Placement)
   Axis2Placement3D(@geometry.Axis2Placement3D)
   Plane(@geometry.Plane)
   Vector(@geometry.Vector)
@@ -212,6 +217,7 @@ pub enum AnyEntity {
   OffsetCurve3D(@geometry.OffsetCurve3D)
   OffsetSurface(@geometry.OffsetSurface)
   SurfaceOfLinearExtrusion(@geometry.SurfaceOfLinearExtrusion)
+  SurfaceOfRevolution(@geometry.SurfaceOfRevolution)
   RectangularTrimmedSurface(@geometry.RectangularTrimmedSurface)
   Polyline(@geometry.Polyline)
   BooleanResult(@geometry.BooleanResult)

@@ -10,6 +10,14 @@ import(
 // Errors
 
 // Types and methods
+pub struct Axis1Placement {
+  name : String
+  location : @step.Ref
+  axis : @step.Ref?
+}
+pub fn Axis1Placement::new(String, @step.Ref, axis? : @step.Ref?) -> Self
+pub impl @step.Entity for Axis1Placement
+
 pub struct Axis2Placement3D {
   name : String
   location : @step.Ref
@@ -282,6 +290,14 @@ pub struct SurfaceOfLinearExtrusion {
 }
 pub fn SurfaceOfLinearExtrusion::new(String, @step.Ref, @step.Ref) -> Self
 pub impl @step.Entity for SurfaceOfLinearExtrusion
+
+pub struct SurfaceOfRevolution {
+  name : String
+  swept_curve : @step.Ref
+  axis_position : @step.Ref
+}
+pub fn SurfaceOfRevolution::new(String, @step.Ref, @step.Ref) -> Self
+pub impl @step.Entity for SurfaceOfRevolution
 
 pub struct ToroidalSurface {
   name : String

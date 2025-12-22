@@ -3,6 +3,7 @@ pub enum AnyEntity {
   RawEntity(@step.RawEntity)
   CartesianPoint(@geometry.CartesianPoint)
   Direction(@geometry.Direction)
+  Axis1Placement(@geometry.Axis1Placement)
   Axis2Placement3D(@geometry.Axis2Placement3D)
   Plane(@geometry.Plane)
   Vector(@geometry.Vector)
@@ -23,6 +24,7 @@ pub enum AnyEntity {
   OffsetCurve3D(@geometry.OffsetCurve3D)
   OffsetSurface(@geometry.OffsetSurface)
   SurfaceOfLinearExtrusion(@geometry.SurfaceOfLinearExtrusion)
+  SurfaceOfRevolution(@geometry.SurfaceOfRevolution)
   RectangularTrimmedSurface(@geometry.RectangularTrimmedSurface)
   Polyline(@geometry.Polyline)
   BooleanResult(@geometry.BooleanResult)
@@ -108,6 +110,11 @@ pub fn any_entity_cartesian_point(p : @geometry.CartesianPoint) -> AnyEntity {
 ///|
 pub fn any_entity_direction(d : @geometry.Direction) -> AnyEntity {
   AnyEntity::Direction(d)
+}
+
+///|
+pub fn any_entity_axis1_placement(a : @geometry.Axis1Placement) -> AnyEntity {
+  AnyEntity::Axis1Placement(a)
 }
 
 ///|
@@ -222,6 +229,13 @@ pub fn any_entity_surface_of_linear_extrusion(
   s : @geometry.SurfaceOfLinearExtrusion,
 ) -> AnyEntity {
   AnyEntity::SurfaceOfLinearExtrusion(s)
+}
+
+///|
+pub fn any_entity_surface_of_revolution(
+  s : @geometry.SurfaceOfRevolution,
+) -> AnyEntity {
+  AnyEntity::SurfaceOfRevolution(s)
 }
 
 ///|
@@ -699,6 +713,7 @@ fn entity_to_step(entity : AnyEntity) -> String {
     RawEntity(e) => @step.Entity::to_step(e)
     CartesianPoint(p) => @step.Entity::to_step(p)
     Direction(d) => @step.Entity::to_step(d)
+    Axis1Placement(a) => @step.Entity::to_step(a)
     Axis2Placement3D(a) => @step.Entity::to_step(a)
     Plane(p) => @step.Entity::to_step(p)
     Vector(v) => @step.Entity::to_step(v)
@@ -719,6 +734,7 @@ fn entity_to_step(entity : AnyEntity) -> String {
     OffsetCurve3D(c) => @step.Entity::to_step(c)
     OffsetSurface(s) => @step.Entity::to_step(s)
     SurfaceOfLinearExtrusion(s) => @step.Entity::to_step(s)
+    SurfaceOfRevolution(s) => @step.Entity::to_step(s)
     RectangularTrimmedSurface(s) => @step.Entity::to_step(s)
     Polyline(p) => @step.Entity::to_step(p)
     BooleanResult(b) => @step.Entity::to_step(b)
