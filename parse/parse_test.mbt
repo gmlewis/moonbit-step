@@ -241,15 +241,28 @@ test "parse_repository_from_string_csg_solid" {
 
 ///|
 test "parse_repository_from_string_csg_primitives" {
-  let content = "ISO-10303-21;\nDATA;\n#1=BLOCK('b',#10,1.,2.,3.);\n#2=SPHERE('s',#10,5.);\n#3=RIGHT_CIRCULAR_CYLINDER('cyl',#10,50.,10.);\n#4=RIGHT_CIRCULAR_CONE('cone',#10,50.,10.,0.5);\n#5=TORUS('t',#10,20.,5.);\nENDSEC;\nEND-ISO-10303-21;\n"
+  let content = "ISO-10303-21;\nDATA;\n#1=BLOCK('b',#10,1.,2.,3.);\n#2=SPHERE('s',#10,5.);\n#3=RIGHT_CIRCULAR_CYLINDER('cyl',#10,50.,10.);\n#4=RIGHT_CIRCULAR_CONE('cone',#10,50.,10.,0.5);\n#5=TORUS('t',#10,20.,5.);\n#6=RECTANGULAR_PYRAMID('p',#10,10.0,20.0,30.0);\n#7=RIGHT_ANGULAR_WEDGE('w',#10,10.0,20.0,30.0,5.0);\nENDSEC;\nEND-ISO-10303-21;\n"
   let repo = parse_repository_from_string(content)
-  inspect(repo.len(), content="5")
+  inspect(repo.len(), content="7")
   let out = repo.to_step_data_section()
   assert_true(out.contains("#1=BLOCK('b',#10,1.0,2.0,3.0);"))
   assert_true(out.contains("#2=SPHERE('s',#10,5.0);"))
   assert_true(out.contains("#3=RIGHT_CIRCULAR_CYLINDER('cyl',#10,50.0,10.0);"))
   assert_true(out.contains("#4=RIGHT_CIRCULAR_CONE('cone',#10,50.0,10.0,0.5);"))
   assert_true(out.contains("#5=TORUS('t',#10,20.0,5.0);"))
+  assert_true(out.contains("#6=RECTANGULAR_PYRAMID('p',#10,10.0,20.0,30.0);"))
+  assert_true(
+    out.contains("#7=RIGHT_ANGULAR_WEDGE('w',#10,10.0,20.0,30.0,5.0);"),
+  )
+}
+
+///|
+test "parse_repository_from_string_half_space_solid" {
+  let content = "ISO-10303-21;\nDATA;\n#1=HALF_SPACE_SOLID('hs',#10,.T.);\nENDSEC;\nEND-ISO-10303-21;\n"
+  let repo = parse_repository_from_string(content)
+  inspect(repo.len(), content="1")
+  let out = repo.to_step_data_section()
+  assert_true(out.contains("#1=HALF_SPACE_SOLID('hs',#10,.T.);"))
 }
 
 ///|

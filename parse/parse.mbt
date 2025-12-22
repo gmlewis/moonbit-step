@@ -597,6 +597,73 @@ fn parse_torus(args : String) -> @geometry.Torus raise StepParseError {
 }
 
 ///|
+fn parse_rectangular_pyramid(
+  args : String,
+) -> @geometry.RectangularPyramid raise StepParseError {
+  let parts = split_args(args)
+  if parts.length() != 5 {
+    fail_parse()
+  }
+  let name = strip_quotes(parts[0])
+  let pos_id = parse_ref_int(parts[1])
+  let x = parse_double(parts[2])
+  let y = parse_double(parts[3])
+  let height = parse_double(parts[4])
+  @geometry.RectangularPyramid::new(
+    name,
+    @step.Ref::{ id: pos_id },
+    x,
+    y,
+    height,
+  )
+}
+
+///|
+fn parse_right_angular_wedge(
+  args : String,
+) -> @geometry.RightAngularWedge raise StepParseError {
+  let parts = split_args(args)
+  if parts.length() != 6 {
+    fail_parse()
+  }
+  let name = strip_quotes(parts[0])
+  let pos_id = parse_ref_int(parts[1])
+  let x = parse_double(parts[2])
+  let y = parse_double(parts[3])
+  let z = parse_double(parts[4])
+  let ltx = parse_double(parts[5])
+  @geometry.RightAngularWedge::new(
+    name,
+    @step.Ref::{ id: pos_id },
+    x,
+    y,
+    z,
+    ltx,
+  )
+}
+
+///|
+fn parse_half_space_solid(
+  args : String,
+) -> @geometry.HalfSpaceSolid raise StepParseError {
+  let parts = split_args(args)
+  if parts.length() != 3 {
+    fail_parse()
+  }
+  let name = strip_quotes(parts[0])
+  let surf_id = parse_ref_int(parts[1])
+  let flag_str = parts[2].trim().to_string()
+  let flag = if flag_str == ".T." {
+    true
+  } else if flag_str == ".F." {
+    false
+  } else {
+    fail_parse()
+  }
+  @geometry.HalfSpaceSolid::new(name, @step.Ref::{ id: surf_id }, flag)
+}
+
+///|
 fn parse_plane(args : String) -> @geometry.Plane raise StepParseError {
   let parts = split_args(args)
   if parts.length() != 2 {
@@ -2318,6 +2385,24 @@ pub fn parse_repository_from_string(
     } else if name == "TORUS" {
       let entity = parse_torus(row.args)
       repo = repo.insert_with_id(row.id, @repository.any_entity_torus(entity))
+    } else if name == "RECTANGULAR_PYRAMID" {
+      let entity = parse_rectangular_pyramid(row.args)
+      repo = repo.insert_with_id(
+        row.id,
+        @repository.any_entity_rectangular_pyramid(entity),
+      )
+    } else if name == "RIGHT_ANGULAR_WEDGE" {
+      let entity = parse_right_angular_wedge(row.args)
+      repo = repo.insert_with_id(
+        row.id,
+        @repository.any_entity_right_angular_wedge(entity),
+      )
+    } else if name == "HALF_SPACE_SOLID" {
+      let entity = parse_half_space_solid(row.args)
+      repo = repo.insert_with_id(
+        row.id,
+        @repository.any_entity_half_space_solid(entity),
+      )
     } else if name == "VECTOR" {
       let entity = parse_vector(row.args)
       repo = repo.insert_with_id(row.id, @repository.any_entity_vector(entity))

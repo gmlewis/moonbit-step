@@ -27,6 +27,9 @@ pub enum AnyEntity {
   RightCircularCylinder(@geometry.RightCircularCylinder)
   RightCircularCone(@geometry.RightCircularCone)
   Torus(@geometry.Torus)
+  RectangularPyramid(@geometry.RectangularPyramid)
+  RightAngularWedge(@geometry.RightAngularWedge)
+  HalfSpaceSolid(@geometry.HalfSpaceSolid)
   RepresentationRelationship(@product.RepresentationRelationship)
   RepresentationRelationshipWithTransformation(
     @product.RepresentationRelationshipWithTransformation
@@ -238,6 +241,25 @@ pub fn any_entity_right_circular_cone(
 ///|
 pub fn any_entity_torus(t : @geometry.Torus) -> AnyEntity {
   AnyEntity::Torus(t)
+}
+
+///|
+pub fn any_entity_rectangular_pyramid(
+  p : @geometry.RectangularPyramid,
+) -> AnyEntity {
+  AnyEntity::RectangularPyramid(p)
+}
+
+///|
+pub fn any_entity_right_angular_wedge(
+  w : @geometry.RightAngularWedge,
+) -> AnyEntity {
+  AnyEntity::RightAngularWedge(w)
+}
+
+///|
+pub fn any_entity_half_space_solid(h : @geometry.HalfSpaceSolid) -> AnyEntity {
+  AnyEntity::HalfSpaceSolid(h)
 }
 
 ///|
@@ -669,6 +691,9 @@ fn entity_to_step(entity : AnyEntity) -> String {
     RightCircularCylinder(c) => @step.Entity::to_step(c)
     RightCircularCone(c) => @step.Entity::to_step(c)
     Torus(t) => @step.Entity::to_step(t)
+    RectangularPyramid(p) => @step.Entity::to_step(p)
+    RightAngularWedge(w) => @step.Entity::to_step(w)
+    HalfSpaceSolid(h) => @step.Entity::to_step(h)
     RepresentationRelationship(r) => @step.Entity::to_step(r)
     RepresentationRelationshipWithTransformation(r) => @step.Entity::to_step(r)
     ShapeRepresentationRelationship(r) => @step.Entity::to_step(r)

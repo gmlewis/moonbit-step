@@ -77,6 +77,8 @@ pub fn any_entity_fill_area_style(@presentation.FillAreaStyle) -> AnyEntity
 
 pub fn any_entity_fill_area_style_color(@presentation.FillAreaStyleColor) -> AnyEntity
 
+pub fn any_entity_half_space_solid(@geometry.HalfSpaceSolid) -> AnyEntity
+
 pub fn any_entity_item_defined_transformation(@product.ItemDefinedTransformation) -> AnyEntity
 
 pub fn any_entity_line(@geometry.Line) -> AnyEntity
@@ -127,6 +129,8 @@ pub fn any_entity_rational_b_spline_surface(@geometry.RationalBSplineSurface) ->
 
 pub fn any_entity_raw_entity(@step.RawEntity) -> AnyEntity
 
+pub fn any_entity_rectangular_pyramid(@geometry.RectangularPyramid) -> AnyEntity
+
 pub fn any_entity_rectangular_trimmed_surface(@geometry.RectangularTrimmedSurface) -> AnyEntity
 
 pub fn any_entity_representation(@product.Representation) -> AnyEntity
@@ -134,6 +138,8 @@ pub fn any_entity_representation(@product.Representation) -> AnyEntity
 pub fn any_entity_representation_relationship(@product.RepresentationRelationship) -> AnyEntity
 
 pub fn any_entity_representation_relationship_with_transformation(@product.RepresentationRelationshipWithTransformation) -> AnyEntity
+
+pub fn any_entity_right_angular_wedge(@geometry.RightAngularWedge) -> AnyEntity
 
 pub fn any_entity_right_circular_cone(@geometry.RightCircularCone) -> AnyEntity
 
@@ -200,6 +206,9 @@ pub enum AnyEntity {
   RightCircularCylinder(@geometry.RightCircularCylinder)
   RightCircularCone(@geometry.RightCircularCone)
   Torus(@geometry.Torus)
+  RectangularPyramid(@geometry.RectangularPyramid)
+  RightAngularWedge(@geometry.RightAngularWedge)
+  HalfSpaceSolid(@geometry.HalfSpaceSolid)
   RepresentationRelationship(@product.RepresentationRelationship)
   RepresentationRelationshipWithTransformation(@product.RepresentationRelationshipWithTransformation)
   ShapeRepresentationRelationship(@product.ShapeRepresentationRelationship)

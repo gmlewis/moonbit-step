@@ -17,4 +17,14 @@ test "CSG primitives to_step" {
   )
   let torus = Torus::new("t", pos, 20.0, 5.0)
   inspect(@step.Entity::to_step(torus), content="TORUS('t',#10,20.0,5.0)")
+  let pyramid = RectangularPyramid::new("p", pos, 10.0, 20.0, 30.0)
+  inspect(
+    @step.Entity::to_step(pyramid),
+    content="RECTANGULAR_PYRAMID('p',#10,10.0,20.0,30.0)",
+  )
+  let wedge = RightAngularWedge::new("w", pos, 10.0, 20.0, 30.0, 5.0)
+  inspect(
+    @step.Entity::to_step(wedge),
+    content="RIGHT_ANGULAR_WEDGE('w',#10,10.0,20.0,30.0,5.0)",
+  )
 }
