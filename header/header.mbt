@@ -8,15 +8,6 @@
 //
 // Any other header statements can be preserved as raw strings.
 
-fn sv_to_string(v : StringView) -> String {
-  String::from_array(v.to_array())
-}
-
-///|
-fn trim_space(s : String) -> String {
-  sv_to_string(String::trim_space(s))
-}
-
 ///|
 pub(all) enum StringOrDollar {
   Dollar
@@ -165,7 +156,7 @@ fn header_entity_to_step(e : HeaderEntity) -> String {
     FileDescription(fd) => file_description_to_step(fd)
     FileName(fn_) => file_name_to_step(fn_)
     FileSchema(fs) => file_schema_to_step(fs)
-    Raw(s) => trim_space(s)
+    Raw(s) => s.trim().to_string()
   }
 }
 

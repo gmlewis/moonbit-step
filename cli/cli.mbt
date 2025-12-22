@@ -33,7 +33,7 @@ fn decode_cli_minus(s : String) -> String {
 
 ///|
 fn parse_cli_double(s : String) -> Double raise @strconv.StrConvError {
-  @strconv.parse_double(decode_cli_minus(trim_space(s)))
+  @strconv.parse_double(decode_cli_minus(s.trim().to_string()))
 }
 
 ///|
@@ -121,16 +121,6 @@ pub struct Args {
 }
 
 ///|
-fn sv_to_string(v : StringView) -> String {
-  String::from_array(v.to_array())
-}
-
-///|
-fn trim_space(s : String) -> String {
-  sv_to_string(String::trim_space(s))
-}
-
-///|
 fn substr(s : String, start : Int, end : Int) -> String {
   String::unsafe_substring(s, start~, end~)
 }
@@ -176,7 +166,7 @@ fn is_space_cu(ci : Int) -> Bool {
 
 ///|
 fn split_whitespace(s : String) -> Array[String] {
-  let t = trim_space(s)
+  let t = s.trim().to_string()
   let out : Array[String] = []
   let n = t.length()
   let mut i = 0

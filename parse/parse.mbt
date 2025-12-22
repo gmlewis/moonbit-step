@@ -1,6 +1,6 @@
 ///|
 fn parse_double(s : String) -> Double raise StepParseError {
-  let t = trim_space(s)
+  let t = s.trim().to_string()
   // Use core string->double parsing for correct rounding and stable roundtrips.
   @strconv.parse_double(t) catch {
     _ => fail_parse()
@@ -9,7 +9,7 @@ fn parse_double(s : String) -> Double raise StepParseError {
 
 ///|
 fn strip_quotes(s : String) -> String {
-  let t = trim_space(s)
+  let t = s.trim().to_string()
   if t.length() >= 2 &&
     cu_at(t, 0) == Char::to_int('\'') &&
     cu_at(t, t.length() - 1) == Char::to_int('\'') {
@@ -24,7 +24,7 @@ fn strip_quotes(s : String) -> String {
 //
 // Returns None if the input isn't a valid STEP string literal.
 fn parse_step_string_literal_unescaped(s : String) -> String? {
-  let t = trim_space(s)
+  let t = s.trim().to_string()
   if t.length() >= 2 &&
     cu_at(t, 0) == Char::to_int('\'') &&
     cu_at(t, t.length() - 1) == Char::to_int('\'') {
@@ -65,7 +65,7 @@ fn parse_step_string_or_strip(s : String) -> String {
 
 ///|
 fn parse_ref_int(s : String) -> @step.EntityId raise StepParseError {
-  let t = trim_space(s)
+  let t = s.trim().to_string()
   if t.length() < 2 || cu_at(t, 0) != Char::to_int('#') {
     fail_parse()
   }
@@ -157,7 +157,7 @@ fn parse_circle(args : String) -> @geometry.Circle raise StepParseError {
   }
   let name = strip_quotes(parts[0])
   let pos_id = parse_ref_int(parts[1])
-  let radius_literal = trim_space(parts[2])
+  let radius_literal = parts[2].trim().to_string()
   @geometry.Circle::new(name, @step.Ref::{ id: pos_id }, radius_literal)
 }
 
@@ -169,8 +169,8 @@ fn parse_ellipse(args : String) -> @geometry.Ellipse raise StepParseError {
   }
   let name = strip_quotes(parts[0])
   let pos_id = parse_ref_int(parts[1])
-  let semi_axis_1_literal = trim_space(parts[2])
-  let semi_axis_2_literal = trim_space(parts[3])
+  let semi_axis_1_literal = parts[2].trim().to_string()
+  let semi_axis_2_literal = parts[3].trim().to_string()
   @geometry.Ellipse::new(
     name,
     @step.Ref::{ id: pos_id },
@@ -189,7 +189,7 @@ fn parse_cylindrical_surface(
   }
   let name = strip_quotes(parts[0])
   let pos_id = parse_ref_int(parts[1])
-  let radius_literal = trim_space(parts[2])
+  let radius_literal = parts[2].trim().to_string()
   @geometry.CylindricalSurface::new(
     name,
     @step.Ref::{ id: pos_id },
@@ -207,8 +207,8 @@ fn parse_conical_surface(
   }
   let name = strip_quotes(parts[0])
   let pos_id = parse_ref_int(parts[1])
-  let radius_literal = trim_space(parts[2])
-  let semi_angle_literal = trim_space(parts[3])
+  let radius_literal = parts[2].trim().to_string()
+  let semi_angle_literal = parts[3].trim().to_string()
   @geometry.ConicalSurface::new(
     name,
     @step.Ref::{ id: pos_id },
@@ -227,8 +227,8 @@ fn parse_toroidal_surface(
   }
   let name = strip_quotes(parts[0])
   let pos_id = parse_ref_int(parts[1])
-  let major_radius_literal = trim_space(parts[2])
-  let minor_radius_literal = trim_space(parts[3])
+  let major_radius_literal = parts[2].trim().to_string()
+  let minor_radius_literal = parts[3].trim().to_string()
   @geometry.ToroidalSurface::new(
     name,
     @step.Ref::{ id: pos_id },
@@ -252,7 +252,7 @@ fn parse_literal_list(arg : String) -> Array[String] {
   let parts = split_args(arg)
   let out : Array[String] = []
   for i = 0; i < parts.length(); i = i + 1 {
-    out.push(trim_space(parts[i]))
+    out.push(parts[i].trim().to_string())
   }
   out
 }
@@ -272,9 +272,9 @@ fn parse_b_spline_curve_with_knots(
   for i = 0; i < cp_ids.length(); i = i + 1 {
     control_points.push(@step.Ref::{ id: cp_ids[i] })
   }
-  let curve_form = trim_space(parts[3])
-  let closed_str = trim_space(parts[4])
-  let self_i_str = trim_space(parts[5])
+  let curve_form = parts[3].trim().to_string()
+  let closed_str = parts[4].trim().to_string()
+  let self_i_str = parts[5].trim().to_string()
   let closed_curve = if closed_str == ".T." {
     true
   } else if closed_str == ".F." {
@@ -291,7 +291,7 @@ fn parse_b_spline_curve_with_knots(
   }
   let knot_multiplicities = parse_int_list(parts[6])
   let knots = parse_literal_list(parts[7])
-  let knot_spec = trim_space(parts[8])
+  let knot_spec = parts[8].trim().to_string()
   @geometry.BSplineCurveWithKnots::new(
     name, degree, control_points, curve_form, closed_curve, self_intersect, knot_multiplicities,
     knots, knot_spec,
@@ -330,10 +330,10 @@ fn parse_b_spline_surface(
     }
     control_points_list.push(row)
   }
-  let surface_form = trim_space(parts[3])
-  let u_closed_str = trim_space(parts[4])
-  let v_closed_str = trim_space(parts[5])
-  let self_i_str = trim_space(parts[6])
+  let surface_form = parts[3].trim().to_string()
+  let u_closed_str = parts[4].trim().to_string()
+  let v_closed_str = parts[5].trim().to_string()
+  let self_i_str = parts[6].trim().to_string()
   let u_closed = if u_closed_str == ".T." {
     true
   } else if u_closed_str == ".F." {
@@ -372,7 +372,7 @@ fn parse_b_spline_surface_with_knots(
   let v_mults = parse_int_list(parts[1])
   let u_knots = parse_literal_list(parts[2])
   let v_knots = parse_literal_list(parts[3])
-  let knot_spec = trim_space(parts[4])
+  let knot_spec = parts[4].trim().to_string()
   @geometry.BSplineSurfaceWithKnots::new(
     u_mults, v_mults, u_knots, v_knots, knot_spec,
   )
@@ -405,9 +405,9 @@ fn parse_trimmed_curve(
   }
   let name = strip_quotes(parts[0])
   let basis_id = parse_ref_int(parts[1])
-  let trim_1 = trim_space(parts[2])
-  let trim_2 = trim_space(parts[3])
-  let sense_str = trim_space(parts[4])
+  let trim_1 = parts[2].trim().to_string()
+  let trim_2 = parts[3].trim().to_string()
+  let sense_str = parts[4].trim().to_string()
   let sense = if sense_str == ".T." {
     true
   } else if sense_str == ".F." {
@@ -415,7 +415,7 @@ fn parse_trimmed_curve(
   } else {
     fail_parse()
   }
-  let master_rep = trim_space(parts[5])
+  let master_rep = parts[5].trim().to_string()
   @geometry.TrimmedCurve::new(
     name,
     @step.Ref::{ id: basis_id },
@@ -436,11 +436,11 @@ fn parse_rectangular_trimmed_surface(
   }
   let name = strip_quotes(parts[0])
   let basis_id = parse_ref_int(parts[1])
-  let u1 = trim_space(parts[2])
-  let u2 = trim_space(parts[3])
-  let v1 = trim_space(parts[4])
-  let v2 = trim_space(parts[5])
-  let usense_str = trim_space(parts[6])
+  let u1 = parts[2].trim().to_string()
+  let u2 = parts[3].trim().to_string()
+  let v1 = parts[4].trim().to_string()
+  let v2 = parts[5].trim().to_string()
+  let usense_str = parts[6].trim().to_string()
   let usense = if usense_str == ".T." {
     true
   } else if usense_str == ".F." {
@@ -448,7 +448,7 @@ fn parse_rectangular_trimmed_surface(
   } else {
     fail_parse()
   }
-  let vsense_str = trim_space(parts[7])
+  let vsense_str = parts[7].trim().to_string()
   let vsense = if vsense_str == ".T." {
     true
   } else if vsense_str == ".F." {
@@ -633,7 +633,7 @@ fn parse_measure_representation_item(
     fail_parse()
   }
   let name = strip_quotes(parts[0])
-  let value_component_str = trim_space(parts[1])
+  let value_component_str = parts[1].trim().to_string()
   let value_component = if String::has_prefix(
       value_component_str, "POSITIVE_RATIO_MEASURE",
     ) {
@@ -644,7 +644,7 @@ fn parse_measure_representation_item(
       "POSITIVE_RATIO_MEASURE".length(),
       value_component_str.length(),
     )
-    let inner = trim_space(strip_outer_parens(args_part))
+    let inner = strip_outer_parens(args_part).trim().to_string()
     @product.MeasureValueComponent::PositiveRatioMeasure(
       @units.PositiveRatioMeasure::new(inner),
     )
@@ -826,7 +826,7 @@ fn parse_product_definition_formation_with_specified_source(
   let id = strip_quotes(parts[0])
   let description = strip_quotes(parts[1])
   let product_id = parse_ref_int(parts[2])
-  let make_or_buy = trim_space(parts[3])
+  let make_or_buy = parts[3].trim().to_string()
   // Enumeration like .NOT_KNOWN.
   if make_or_buy != ".NOT_KNOWN." &&
     make_or_buy != ".MAKE." &&
@@ -968,7 +968,7 @@ fn parse_advanced_face(
     bounds.push(@step.Ref::{ id: bound_ids[i] })
   }
   let surface_id = parse_ref_int(parts[2])
-  let ss = trim_space(parts[3])
+  let ss = parts[3].trim().to_string()
   let same_sense = if ss == ".T." {
     true
   } else if ss == ".F." {
@@ -994,7 +994,7 @@ fn parse_face_outer_bound(
   }
   let name = strip_quotes(parts[0])
   let bound_id = parse_ref_int(parts[1])
-  let ori_str = trim_space(parts[2])
+  let ori_str = parts[2].trim().to_string()
   let orientation = if ori_str == ".T." {
     true
   } else if ori_str == ".F." {
@@ -1013,7 +1013,7 @@ fn parse_face_bound(args : String) -> @topology.FaceBound raise StepParseError {
   }
   let name = strip_quotes(parts[0])
   let bound_id = parse_ref_int(parts[1])
-  let ori_str = trim_space(parts[2])
+  let ori_str = parts[2].trim().to_string()
   let orientation = if ori_str == ".T." {
     true
   } else if ori_str == ".F." {
@@ -1048,10 +1048,10 @@ fn parse_oriented_edge(
     fail_parse()
   }
   let name = strip_quotes(parts[0])
-  let edge_start = trim_space(parts[1])
-  let edge_end = trim_space(parts[2])
+  let edge_start = parts[1].trim().to_string()
+  let edge_end = parts[2].trim().to_string()
   let edge_element_id = parse_ref_int(parts[3])
-  let ori_str = trim_space(parts[4])
+  let ori_str = parts[4].trim().to_string()
   let orientation = if ori_str == ".T." {
     true
   } else if ori_str == ".F." {
@@ -1078,7 +1078,7 @@ fn parse_edge_curve(args : String) -> @topology.EdgeCurve raise StepParseError {
   let start_id = parse_ref_int(parts[1])
   let end_id = parse_ref_int(parts[2])
   let geom_id = parse_ref_int(parts[3])
-  let ss_str = trim_space(parts[4])
+  let ss_str = parts[4].trim().to_string()
   let same_sense = if ss_str == ".T." {
     true
   } else if ss_str == ".F." {
@@ -1135,7 +1135,7 @@ fn parse_ref_ids(arg : String) -> Array[@step.EntityId] raise StepParseError {
 
 ///|
 fn parse_surface_side(s : String) -> String raise StepParseError {
-  let t = trim_space(s)
+  let t = s.trim().to_string()
   if t == ".BOTH." {
     t
   } else if t == ".POSITIVE." {
@@ -1314,7 +1314,7 @@ fn parse_dimensional_exponents(
 
 ///|
 fn parse_length_measure_literal(arg : String) -> String raise StepParseError {
-  let t = trim_space(arg)
+  let t = arg.trim().to_string()
   if !t.has_prefix("LENGTH_MEASURE(") {
     fail_parse()
   }
@@ -1323,7 +1323,7 @@ fn parse_length_measure_literal(arg : String) -> String raise StepParseError {
   }
   // Inner literal (preserve scientific notation like `2.E-005`).
   // "LENGTH_MEASURE(" is 15 chars; the opening paren is index 14.
-  trim_space(substr(t, 15, t.length() - 1))
+  substr(t, 15, t.length() - 1).trim().to_string()
 }
 
 ///|
@@ -1350,7 +1350,7 @@ fn parse_uncertainty_measure_with_unit(
 fn parse_plane_angle_measure_literal(
   arg : String,
 ) -> String raise StepParseError {
-  let t = trim_space(arg)
+  let t = arg.trim().to_string()
   if !t.has_prefix("PLANE_ANGLE_MEASURE(") {
     fail_parse()
   }
@@ -1359,7 +1359,7 @@ fn parse_plane_angle_measure_literal(
   }
   // Inner literal (preserve formatting).
   // "PLANE_ANGLE_MEASURE(" is 20 chars.
-  trim_space(substr(t, 20, t.length() - 1))
+  substr(t, 20, t.length() - 1).trim().to_string()
 }
 
 ///|
@@ -1454,7 +1454,7 @@ fn split_complex_parts(body : String) -> Array[String] {
         let next_is_lparen = j < body.length() &&
           cu_at(body, j) == Char::to_int('(')
         if !next_is_lparen {
-          let part = trim_space(substr(body, start, i))
+          let part = substr(body, start, i).trim().to_string()
           if part.length() > 0 {
             out.push(part)
           }
@@ -1464,7 +1464,7 @@ fn split_complex_parts(body : String) -> Array[String] {
     }
   }
   if start <= body.length() {
-    let part = trim_space(substr(body, start, body.length()))
+    let part = substr(body, start, body.length()).trim().to_string()
     if part.length() > 0 {
       out.push(part)
     }
@@ -1474,7 +1474,7 @@ fn split_complex_parts(body : String) -> Array[String] {
 
 ///|
 fn strip_outer_parens(arg : String) -> String raise StepParseError {
-  let t = trim_space(arg)
+  let t = arg.trim().to_string()
   if t.length() < 2 ||
     cu_at(t, 0) != Char::to_int('(') ||
     cu_at(t, t.length() - 1) != Char::to_int(')') {
@@ -1485,7 +1485,7 @@ fn strip_outer_parens(arg : String) -> String raise StepParseError {
 
 ///|
 fn expect_empty_parens(arg : String) -> Unit raise StepParseError {
-  let inner = trim_space(strip_outer_parens(arg))
+  let inner = strip_outer_parens(arg).trim().to_string()
   if inner.length() != 0 {
     fail_parse()
   }
@@ -1497,7 +1497,7 @@ fn parse_complex_instance(
 ) -> @context.ComplexInstance raise StepParseError {
   // args is the raw parenthesized complex instance body, like:
   //   (\nNAME(...)\nNAME(...)\n)
-  let t = trim_space(args)
+  let t = args.trim().to_string()
   if t.length() < 2 ||
     cu_at(t, 0) != Char::to_int('(') ||
     cu_at(t, t.length() - 1) != Char::to_int(')') {
@@ -1512,11 +1512,11 @@ fn parse_complex_instance(
       Some(j) => j
       None => fail_parse()
     }
-    let name = trim_space(substr(s, 0, lp_idx))
-    let a = trim_space(substr(s, lp_idx, s.length()))
+    let name = substr(s, 0, lp_idx).trim().to_string()
+    let a = substr(s, lp_idx, s.length()).trim().to_string()
     if name == "GEOMETRIC_REPRESENTATION_CONTEXT" {
       let inner_args = strip_outer_parens(a)
-      let dim = parse_int_dec(trim_space(inner_args))
+      let dim = parse_int_dec(inner_args.trim().to_string())
       parts.push(
         @context.ComplexPart::GeomRepCtx(
           @context.GeometricRepresentationContext::new(dim),
@@ -1536,7 +1536,7 @@ fn parse_complex_instance(
         ),
       )
     } else if name == "NAMED_UNIT" {
-      let inner_args = trim_space(strip_outer_parens(a))
+      let inner_args = strip_outer_parens(a).trim().to_string()
       parts.push(
         @context.ComplexPart::NamedUnit(@units.NamedUnit::new(inner_args)),
       )
@@ -1546,8 +1546,8 @@ fn parse_complex_instance(
       if args_parts.length() != 2 {
         fail_parse()
       }
-      let prefix = trim_space(args_parts[0])
-      let si_name = trim_space(args_parts[1])
+      let prefix = args_parts[0].trim().to_string()
+      let si_name = args_parts[1].trim().to_string()
       parts.push(
         @context.ComplexPart::SiUnit(@units.SiUnit::new(prefix, si_name)),
       )
@@ -1640,7 +1640,7 @@ fn parse_complex_instance(
     } else if name == "REPRESENTATION_ITEM" {
       let inner_args = strip_outer_parens(a)
       parts.push(
-        @context.ComplexPart::RepresentationItem(trim_space(inner_args)),
+        @context.ComplexPart::RepresentationItem(inner_args.trim().to_string()),
       )
     } else if name == "GEOMETRIC_REPRESENTATION_ITEM" {
       expect_empty_parens(a)
@@ -1830,12 +1830,12 @@ fn extract_header_section(content : String) -> String? raise StepParseError {
       raise_unterminated_string_in_source(content, after_header + q0)
     (None, None) => return None
   }
-  Some(trim_space(substr(tail, 0, end_idx_local)))
+  Some(substr(tail, 0, end_idx_local).trim().to_string())
 }
 
 ///|
 fn parse_step_string_literal(s : String) -> String? {
-  let t = trim_space(s)
+  let t = s.trim().to_string()
   if t.length() >= 2 &&
     cu_at(t, 0) == Char::to_int('\'') &&
     cu_at(t, t.length() - 1) == Char::to_int('\'') {
@@ -1866,7 +1866,7 @@ fn parse_step_string_literal(s : String) -> String? {
 
 ///|
 fn parse_string_or_dollar(arg : String) -> @header.StringOrDollar? {
-  let t = trim_space(arg)
+  let t = arg.trim().to_string()
   if t == "$" {
     return Some(@header.StringOrDollar::Dollar)
   }
@@ -1878,7 +1878,7 @@ fn parse_string_or_dollar(arg : String) -> @header.StringOrDollar? {
 
 ///|
 fn parse_string_list_or_dollar(arg : String) -> @header.StringListOrDollar? {
-  let t = trim_space(arg)
+  let t = arg.trim().to_string()
   if t == "$" {
     return Some(@header.StringListOrDollar::Dollar)
   }
@@ -1965,8 +1965,8 @@ fn parse_header_section(header_section : String) -> @header.HeaderSection {
     match lp_idx {
       None => entities.push(@header.HeaderEntity::Raw(stmt))
       Some(j) => {
-        let name = trim_space(substr(stmt, 0, j))
-        let args = trim_space(substr(stmt, j, stmt.length()))
+        let name = substr(stmt, 0, j).trim().to_string()
+        let args = substr(stmt, j, stmt.length()).trim().to_string()
         if name == "FILE_DESCRIPTION" {
           entities.push(parse_file_description(stmt, args))
         } else if name == "FILE_NAME" {
