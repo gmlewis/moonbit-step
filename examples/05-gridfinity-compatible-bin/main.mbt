@@ -34,6 +34,11 @@ async fn main {
       min=BASE_THICKNESS + 1.0,
     ),
     "text": @cli.opt_string(short='t', help="Label text to engrave"),
+    "fontSize": @cli.opt_double(
+      0.0,
+      help="Font size (mm), default is 60% of wall height",
+      min=0.0,
+    ),
     "embossDepth": @cli.opt_double(
       0.5,
       help="Engraving depth (mm)",
@@ -58,6 +63,7 @@ async fn main {
   let cols = args.double("cols").to_int()
   let height = args.double("height")
   let text_opt = args.string_opt("text")
+  let font_size = args.double("fontSize")
   let emboss_depth = args.double("embossDepth")
   let out_path = args.string_opt("out")
   let (tx, ty, tz) = match args.translate_xyz() {
@@ -134,7 +140,12 @@ async fn main {
       let margin = WALL_THICKNESS + 2.0
       let label_width = total_width - 2.0 * margin
       if label_width > 5.0 {
-        let bbox = @draw.bbox(0.0, 0.0, label_width, wall_height * 0.6)
+        let label_height = if font_size > 0.0 {
+          font_size
+        } else {
+          wall_height * 0.6
+        }
+        let bbox = @draw.bbox(0.0, 0.0, label_width, label_height)
         let font = @baloo.font
         let text_fitted = @draw.to_graphic(
           font,
@@ -156,23 +167,20 @@ async fn main {
               continue
             }
             // Engrave on the front wall (-Y face)
-            // We need to rotate the profile or manually transform it.
-            // For now, let's just place them on the top face for simplicity,
-            // OR use a helper to rotate.
-            // Wait, ExtrudedProfile extrudes along Z.
-            // To put it on the front wall, we would need to rotate it.
-            // Since we don't have rotation yet in compilers, I'll place it on top of the front wall.
+            // We extend the extrusion slightly (0.1mm) outside the face
+            // to avoid Z-fighting and ensure clean boolean operations.
             let text_solid = @cad.ExtrudedProfile::new(
                 outer,
-                emboss_depth,
+                emboss_depth + 0.1,
                 holes~,
               )
               .with_name("label")
               .with_color(@cad.Rgb::orange())
+              .rotate_x(90.0)
               .translate(
                 x=tx + margin,
-                y=ty + WALL_THICKNESS / 2.0,
-                z=tz + height,
+                y=ty + emboss_depth,
+                z=tz + BASE_THICKNESS + (wall_height - label_height) / 2.0,
               )
             design = design.add(text_solid)
           }
