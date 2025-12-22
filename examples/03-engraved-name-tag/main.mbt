@@ -108,7 +108,7 @@ async fn main {
   )
 
   // Handle the error-throwing function call
-  let text_raw = @draw.text(text=name, font~, align=Center).transform(
+  let text_raw = @draw.text(font, name, align=Center).transform(
     scale=@draw.vec2(1, -1),
   ) catch {
     e => {
@@ -119,10 +119,10 @@ async fn main {
   let fitted = text_raw.fit_to(bbox)
   let text = match fitted.bounding_box() {
     Some(fbbox) => {
-      let tbbox = bbox.canonicalize()
+      bbox.canonicalize()
       let offset = @draw.vec2(
-        (tbbox.width() - fbbox.width()) / 2.0,
-        (tbbox.height() - fbbox.height()) / 2.0,
+        (bbox.width() - fbbox.width()) / 2.0,
+        (bbox.height() - fbbox.height()) / 2.0,
       )
       fitted.transform(position=offset)
     }

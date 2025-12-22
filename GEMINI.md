@@ -24,6 +24,10 @@
   - `git show`
 - All version control operations are handled by the user.
 
+## MoonBit Spacing
+
+- **Preserve Spacing**: `moon fmt` removes blank lines unless they are followed by a blank comment line (`//`). When adding spacing for readability, always add a blank line followed immediately by a line containing only `//`.
+
 ## Running and Testing
 
 - Always use `./run-example.sh` to run specific examples and use `-o /tmp/filename.step`
