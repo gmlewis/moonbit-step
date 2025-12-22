@@ -162,6 +162,15 @@ pub struct Line {
 pub fn Line::new(String, @step.Ref, @step.Ref) -> Self
 pub impl @step.Entity for Line
 
+pub struct OffsetCurve3D {
+  name : String
+  basis_curve : @step.Ref
+  distance : Double
+  ref_direction : @step.Ref
+}
+pub fn OffsetCurve3D::new(String, @step.Ref, Double, @step.Ref) -> Self
+pub impl @step.Entity for OffsetCurve3D
+
 pub struct Parabola {
   name : String
   position : @step.Ref
