@@ -105,25 +105,14 @@ async fn main {
     plaque_width - margin,
     clip_length - margin,
   )
-  let text_raw = @draw.text(text_font, label_text, align=Center).transform(
-    scale=@draw.vec2(1, -1),
+  let text_fitted = @draw.to_graphic(text_font, label_text, alignment=Center).scale_to_fit(
+    text_bbox,
+    anchor=Center,
   ) catch {
     e => {
       @cli.eprintln("Error creating text: \{e}")
       abort("")
     }
-  }
-  let fitted = text_raw.fit_to(text_bbox)
-  let text_fitted = match fitted.bounding_box() {
-    Some(fbbox) => {
-      text_bbox.canonicalize()
-      let offset = @draw.vec2(
-        (text_bbox.width() - fbbox.width()) / 2.0,
-        (text_bbox.height() - fbbox.height()) / 2.0,
-      )
-      fitted.transform(position=offset)
-    }
-    _ => fitted
   }
   let all_paths = text_fitted.all_paths_and_compound_paths()
 

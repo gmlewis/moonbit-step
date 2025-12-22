@@ -136,25 +136,14 @@ async fn main {
       if label_width > 5.0 {
         let bbox = @draw.bbox(0.0, 0.0, label_width, wall_height * 0.6)
         let font = @baloo.font
-        let text_raw = @draw.text(font, label, align=Center).transform(
-          scale=@draw.vec2(1, -1),
+        let text_fitted = @draw.to_graphic(font, label, alignment=Center).scale_to_fit(
+          bbox,
+          anchor=Center,
         ) catch {
           e => {
             @cli.eprintln("Error creating text: \{e}")
             abort("")
           }
-        }
-        let fitted = text_raw.fit_to(bbox)
-        let text_fitted = match fitted.bounding_box() {
-          Some(fbbox) => {
-            bbox.canonicalize()
-            let offset = @draw.vec2(
-              (bbox.width() - fbbox.width()) / 2.0,
-              (bbox.height() - fbbox.height()) / 2.0,
-            )
-            fitted.transform(position=offset)
-          }
-          _ => fitted
         }
         let all_paths = text_fitted.all_paths_and_compound_paths()
         for g in all_paths {
