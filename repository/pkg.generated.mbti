@@ -93,6 +93,8 @@ pub fn any_entity_next_assembly_usage_occurrence(@product.NextAssemblyUsageOccur
 
 pub fn any_entity_oriented_edge(@topology.OrientedEdge) -> AnyEntity
 
+pub fn any_entity_parabola(@geometry.Parabola) -> AnyEntity
+
 pub fn any_entity_plane(@geometry.Plane) -> AnyEntity
 
 pub fn any_entity_plane_angle_measure_with_unit(@units.PlaneAngleMeasureWithUnit) -> AnyEntity
@@ -188,6 +190,7 @@ pub enum AnyEntity {
   Line(@geometry.Line)
   Circle(@geometry.Circle)
   Ellipse(@geometry.Ellipse)
+  Parabola(@geometry.Parabola)
   CylindricalSurface(@geometry.CylindricalSurface)
   ConicalSurface(@geometry.ConicalSurface)
   ToroidalSurface(@geometry.ToroidalSurface)

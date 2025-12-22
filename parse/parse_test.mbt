@@ -353,6 +353,15 @@ test "parse_repository_from_string_ellipse" {
 }
 
 ///|
+test "parse_repository_from_string_parabola" {
+  let content = "ISO-10303-21;\nDATA;\n#10=PARABOLA('par',#1,5.0);\nENDSEC;\nEND-ISO-10303-21;\n"
+  let repo = parse_repository_from_string(content)
+  inspect(repo.len(), content="1")
+  let out = repo.to_step_data_section()
+  assert_true(out.contains("#10=PARABOLA('par',#1,5.0);"))
+}
+
+///|
 test "parse_repository_from_string_cylindrical_surface" {
   let content = "ISO-10303-21;\nDATA;\n#123=CYLINDRICAL_SURFACE('',#602,0.435);\nENDSEC;\nEND-ISO-10303-21;\n"
   let repo = parse_repository_from_string(content)

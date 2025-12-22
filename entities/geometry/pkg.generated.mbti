@@ -153,6 +153,14 @@ pub struct Line {
 pub fn Line::new(String, @step.Ref, @step.Ref) -> Self
 pub impl @step.Entity for Line
 
+pub struct Parabola {
+  name : String
+  position : @step.Ref
+  focal_dist : Double
+}
+pub fn Parabola::new(String, @step.Ref, Double) -> Self
+pub impl @step.Entity for Parabola
+
 pub struct Plane {
   name : String
   position : @step.Ref

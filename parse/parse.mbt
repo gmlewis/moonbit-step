@@ -180,6 +180,18 @@ fn parse_ellipse(args : String) -> @geometry.Ellipse raise StepParseError {
 }
 
 ///|
+fn parse_parabola(args : String) -> @geometry.Parabola raise StepParseError {
+  let parts = split_args(args)
+  if parts.length() != 3 {
+    fail_parse()
+  }
+  let name = strip_quotes(parts[0])
+  let pos_id = parse_ref_int(parts[1])
+  let focal_dist = parse_double(parts[2])
+  @geometry.Parabola::new(name, @step.Ref::{ id: pos_id }, focal_dist)
+}
+
+///|
 fn parse_cylindrical_surface(
   args : String,
 ) -> @geometry.CylindricalSurface raise StepParseError {
@@ -2286,7 +2298,13 @@ pub fn parse_repository_from_string(
     } else if name == "ELLIPSE" {
       let entity = parse_ellipse(row.args)
       repo = repo.insert_with_id(row.id, @repository.any_entity_ellipse(entity))
-    } else if name == "CYLINDRICAL_SURFACE" {
+    } else if name == "PARABOLA" {
+      let entity = parse_parabola(row.args)
+      repo = repo.insert_with_id(
+        row.id,
+        @repository.any_entity_parabola(entity),
+      )
+    } else if name == "CYL_SURF" || name == "CYLINDRICAL_SURFACE" {
       let entity = parse_cylindrical_surface(row.args)
       repo = repo.insert_with_id(
         row.id,

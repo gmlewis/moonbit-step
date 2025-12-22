@@ -9,6 +9,7 @@ pub enum AnyEntity {
   Line(@geometry.Line)
   Circle(@geometry.Circle)
   Ellipse(@geometry.Ellipse)
+  Parabola(@geometry.Parabola)
   CylindricalSurface(@geometry.CylindricalSurface)
   ConicalSurface(@geometry.ConicalSurface)
   ToroidalSurface(@geometry.ToroidalSurface)
@@ -135,6 +136,11 @@ pub fn any_entity_circle(c : @geometry.Circle) -> AnyEntity {
 ///|
 pub fn any_entity_ellipse(e : @geometry.Ellipse) -> AnyEntity {
   AnyEntity::Ellipse(e)
+}
+
+///|
+pub fn any_entity_parabola(p : @geometry.Parabola) -> AnyEntity {
+  AnyEntity::Parabola(p)
 }
 
 ///|
@@ -673,6 +679,7 @@ fn entity_to_step(entity : AnyEntity) -> String {
     Line(l) => @step.Entity::to_step(l)
     Circle(c) => @step.Entity::to_step(c)
     Ellipse(e) => @step.Entity::to_step(e)
+    Parabola(p) => @step.Entity::to_step(p)
     CylindricalSurface(s) => @step.Entity::to_step(s)
     ConicalSurface(s) => @step.Entity::to_step(s)
     ToroidalSurface(s) => @step.Entity::to_step(s)
