@@ -79,6 +79,8 @@ pub fn any_entity_fill_area_style_color(@presentation.FillAreaStyleColor) -> Any
 
 pub fn any_entity_half_space_solid(@geometry.HalfSpaceSolid) -> AnyEntity
 
+pub fn any_entity_hyperbola(@geometry.Hyperbola) -> AnyEntity
+
 pub fn any_entity_item_defined_transformation(@product.ItemDefinedTransformation) -> AnyEntity
 
 pub fn any_entity_line(@geometry.Line) -> AnyEntity
@@ -191,6 +193,7 @@ pub enum AnyEntity {
   Circle(@geometry.Circle)
   Ellipse(@geometry.Ellipse)
   Parabola(@geometry.Parabola)
+  Hyperbola(@geometry.Hyperbola)
   CylindricalSurface(@geometry.CylindricalSurface)
   ConicalSurface(@geometry.ConicalSurface)
   ToroidalSurface(@geometry.ToroidalSurface)

@@ -192,6 +192,19 @@ fn parse_parabola(args : String) -> @geometry.Parabola raise StepParseError {
 }
 
 ///|
+fn parse_hyperbola(args : String) -> @geometry.Hyperbola raise StepParseError {
+  let parts = split_args(args)
+  if parts.length() != 4 {
+    fail_parse()
+  }
+  let name = strip_quotes(parts[0])
+  let pos_id = parse_ref_int(parts[1])
+  let semi = parse_double(parts[2])
+  let semi_imag = parse_double(parts[3])
+  @geometry.Hyperbola::new(name, @step.Ref::{ id: pos_id }, semi, semi_imag)
+}
+
+///|
 fn parse_cylindrical_surface(
   args : String,
 ) -> @geometry.CylindricalSurface raise StepParseError {
@@ -2303,6 +2316,12 @@ pub fn parse_repository_from_string(
       repo = repo.insert_with_id(
         row.id,
         @repository.any_entity_parabola(entity),
+      )
+    } else if name == "HYPERBOLA" {
+      let entity = parse_hyperbola(row.args)
+      repo = repo.insert_with_id(
+        row.id,
+        @repository.any_entity_hyperbola(entity),
       )
     } else if name == "CYL_SURF" || name == "CYLINDRICAL_SURFACE" {
       let entity = parse_cylindrical_surface(row.args)

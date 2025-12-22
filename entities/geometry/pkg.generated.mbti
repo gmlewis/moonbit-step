@@ -145,6 +145,15 @@ pub struct HalfSpaceSolid {
 pub fn HalfSpaceSolid::new(String, @step.Ref, Bool) -> Self
 pub impl @step.Entity for HalfSpaceSolid
 
+pub struct Hyperbola {
+  name : String
+  position : @step.Ref
+  semi_axis : Double
+  semi_imag_axis : Double
+}
+pub fn Hyperbola::new(String, @step.Ref, Double, Double) -> Self
+pub impl @step.Entity for Hyperbola
+
 pub struct Line {
   name : String
   pnt : @step.Ref
