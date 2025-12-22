@@ -11,7 +11,7 @@ from pathlib import Path
 
 SUITE = {
     "01": [["--edge", "10"], ["--edge", "25", "--tx", "5", "--ty", "5", "--tz", "5"]],
-    "02": [["--length", "20", "--width", "20", "--height", "5"], ["--chamferSize", "2"], ["--filletRadius", "1.5"]],
+    "02": [["--length", "20", "--width", "20", "--height", "5"], ["--chamferSize", "4"], ["--filletRadius", "1.5"]],
     "03": [["--name", "gmlewis"], ["--name", "MoonBit", "--embossDepth", "2", "--length", "60"]],
     "04": [["--id", "5", "--od", "15", "--thickness", "2"], ["--id", "10", "--od", "12", "--thickness", "0.5", "--segments", "32"]],
     "05": [["--rows", "1", "--cols", "1", "--height", "20"], ["--rows", "2", "--cols", "1", "--text", "Gemini"]],
@@ -58,7 +58,7 @@ def validate_step(occt_bin, step_path):
 def render_view(occt_bin, step_path, png_path, view_cmd):
     # Renders a single view to a PNG
     ppm_path = str(png_path).replace(".png", ".ppm")
-    
+
     # We use ReadStep + XDisplay for colors.
     # vinit MUST come before XDisplay.
     draw_commands = f"""
@@ -95,9 +95,9 @@ def composite_views(inkscape_bin, views_dict, output_png):
     if not template_path.exists():
         print(f"      SVG template not found at {template_path}")
         return False
-        
+
     template_content = template_path.read_text()
-    
+
     # Replace placeholders with absolute paths to the rendered PNGs
     # In the template, IDs are iso_img, top_img, front_img, side_img
     # and they have xlink:href="iso.png" etc.
@@ -107,14 +107,14 @@ def composite_views(inkscape_bin, views_dict, output_png):
         'xlink:href="front.png"': f'xlink:href="{views_dict["front"]}"',
         'xlink:href="side.png"': f'xlink:href="{views_dict["side"]}"',
     }
-    
+
     for old, new in replacements.items():
         template_content = template_content.replace(old, new)
-        
+
     with tempfile.NamedTemporaryFile(suffix=".svg", delete=False) as tmp_svg:
         tmp_svg.write(template_content.encode("utf-8"))
         tmp_svg_path = tmp_svg.name
-        
+
     try:
         cmd = [inkscape_bin, "--export-filename=" + str(output_png), tmp_svg_path]
         subprocess.run(cmd, capture_output=True, check=True)
@@ -134,7 +134,7 @@ def render_variant(occt_bin, inkscape_bin, step_path, example_dir, idx):
         ("front", "vfront"),
         ("side", "vleft")
     ]
-    
+
     temp_pngs = {}
     # Use a temp directory for the 4 views
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -145,35 +145,35 @@ def render_variant(occt_bin, inkscape_bin, step_path, example_dir, idx):
             else:
                 print(f"      Failed to render view {suffix}")
                 return None
-        
+
         final_png_name = f"preview-{idx}.png"
         final_png_path = example_dir / final_png_name
         if composite_views(inkscape_bin, temp_pngs, final_png_path):
             return final_png_name
-            
+
     return None
 
 def update_readme(example_dir, variants_data):
     readme_path = example_dir / "README.md"
     if not readme_path.exists(): return
-    
+
     # Keep original content before the marker
     content = readme_path.read_text().split("---")[0].rstrip()
     new_section = "\n\n---\n"
-    
+
     for i, data in enumerate(variants_data, 1):
         config = data["config"]
         preview = data["preview"]
         arg_str = " ".join(config)
-        
+
         new_section += f"\n### Variant {i}\n\n"
         new_section += f"Command line: `./run-example.sh {example_dir.name[:2]} {arg_str}`\n\n"
-        
+
         if preview:
             new_section += f"![]({preview})\n"
         else:
             new_section += "_[Render Failed]_\n"
-    
+
     readme_path.write_text(content + new_section + "\n")
 
 def main():
@@ -186,18 +186,27 @@ def main():
 
     occt_bin = find_occt()
     inkscape_bin = shutil.which("inkscape")
-    
+
     if args.render and not inkscape_bin:
         print("Error: 'inkscape' not found in PATH. Required for rendering.")
         sys.exit(1)
 
-    targets = SUITE.keys() if args.target == "all" else [args.target]
-    
-    for num in sorted(targets):
-        example_dir = find_example_dir(num)
-        if not example_dir: continue
-        print(f"Processing Example {num}...")
-        
+    targets = sorted(SUITE.keys()) if args.target == "all" else [args.target]
+
+    for num in targets:
+        # Handle non-padded input (e.g., "3" -> "03")
+        padded_num = num.zfill(2)
+        if padded_num not in SUITE:
+            print(f"Example {num} (padded: {padded_num}) not found in SUITE.")
+            continue
+
+        example_dir = find_example_dir(padded_num)
+        if not example_dir:
+            print(f"Example directory for {padded_num} not found.")
+            continue
+
+        print(f"Processing Example {padded_num}...")
+
         # Cleanup old individual views if they exist
         if args.render:
             for old_img in example_dir.glob("preview-*-*.png"):
@@ -206,19 +215,19 @@ def main():
                     old_img.unlink()
 
         variants_processed = []
-        for i, config in enumerate(SUITE[num], 1):
+        for i, config in enumerate(SUITE[padded_num], 1):
             print(f"  [Set {i}] Args: {' '.join(config)}")
-            step_file = Path(f"/tmp/example-{num}-{i}.step")
-            
-            if not generate_step(num, config, step_file): continue
-            
+            step_file = Path(f"/tmp/example-{padded_num}-{i}.step")
+
+            if not generate_step(padded_num, config, step_file): continue
+
             if args.validate:
                 if validate_step(occt_bin, step_file):
                     print("    Topology: OK")
                 else:
                     print("    Topology: FAILED")
                     continue
-            
+
             preview = None
             if args.render:
                 preview = render_variant(occt_bin, inkscape_bin, step_file, example_dir, i)
@@ -228,7 +237,7 @@ def main():
                     print(f"    Render: FAILED")
 
             variants_processed.append({"config": config, "preview": preview})
-            
+
         if args.readme:
             print(f"  Updating README.md...")
             update_readme(example_dir, variants_processed)

@@ -8,8 +8,8 @@
     "moonbitlang/async": "0.15.0",
     "moonbitlang/x": "0.4.38",
     "TheWaWaR/clap": "0.2.6",
-    "gmlewis/fonts": "0.18.2",
-    "gmlewis/fonts-b": "0.18.2"
+    "gmlewis/fonts": "0.18.3",
+    "gmlewis/fonts-b": "0.18.3"
   },
   "readme": "README.md",
   "repository": "https://github.com/gmlewis/moonbit-step",

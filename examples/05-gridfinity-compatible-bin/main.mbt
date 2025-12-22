@@ -74,7 +74,7 @@ async fn main {
   // 1. The Base
   let base = @cad.Cuboid::new(total_width, total_length, BASE_THICKNESS)
     .with_name("bin-base")
-    .with_color(@cad.Rgb::grey())
+    .with_color(@cad.Rgb::red())
     .translate(x=tx, y=ty, z=tz)
   design = design.add(base)
 
@@ -96,7 +96,7 @@ async fn main {
       inner_poly,
     ])
     .with_name("bin-walls")
-    .with_color(@cad.Rgb::grey())
+    .with_color(@cad.Rgb::new(0.0, 1.0, 1.0)) // cyan
     .translate(x=tx, y=ty, z=tz + BASE_THICKNESS)
   design = design.add(walls)
 
@@ -110,7 +110,7 @@ async fn main {
         wall_height,
       )
       .with_name("divider-x-\{i}")
-      .with_color(@cad.Rgb::grey())
+      .with_color(@cad.Rgb::new(1.0, 0.0, 1.0)) // magenta
       .translate(x=tx + x, y=ty + WALL_THICKNESS, z=tz + BASE_THICKNESS)
     design = design.add(div)
   }
@@ -123,7 +123,7 @@ async fn main {
         wall_height,
       )
       .with_name("divider-y-\{j}")
-      .with_color(@cad.Rgb::grey())
+      .with_color(@cad.Rgb::green())
       .translate(x=tx + WALL_THICKNESS, y=ty + y, z=tz + BASE_THICKNESS)
     design = design.add(div)
   }
@@ -136,10 +136,12 @@ async fn main {
       if label_width > 5.0 {
         let bbox = @draw.bbox(0.0, 0.0, label_width, wall_height * 0.6)
         let font = @baloo.font
-        let text_fitted = @draw.to_graphic(font, label, alignment=Center).scale_to_fit(
-          bbox,
-          anchor=Center,
-        ) catch {
+        let text_fitted = @draw.to_graphic(
+          font,
+          label,
+          alignment=Center,
+          y_up=true,
+        ).scale_to_fit(bbox, anchor=Center) catch {
           e => {
             @cli.eprintln("Error creating text: \{e}")
             abort("")

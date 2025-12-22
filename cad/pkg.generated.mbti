@@ -44,6 +44,9 @@ pub struct Design {
 pub fn Design::add(Self, SceneNode) -> Self
 pub fn Design::compile(Self) -> @repository.Repository
 pub fn Design::new(name? : String, description? : String) -> Self
+pub fn Design::rotate_x(Self, Double) -> Self
+pub fn Design::rotate_y(Self, Double) -> Self
+pub fn Design::rotate_z(Self, Double) -> Self
 pub fn Design::to_step_file(Self) -> String
 pub fn Design::to_string(Self) -> String
 pub async fn Design::write_step(Self, String?) -> Unit

@@ -152,6 +152,51 @@ pub fn Design::add(self : Design, node : SceneNode) -> Design {
 }
 
 ///|
+pub fn Design::rotate_x(self : Design, angle : Double) -> Design {
+  let nodes = self.nodes.map(fn(node) {
+    let (tx, ty, tz) = rotate_point(
+      (node.tx, node.ty, node.tz),
+      angle,
+      0.0,
+      0.0,
+    )
+    let new_node = node.rotate_x(angle)
+    { ..new_node, tx, ty, tz }
+  })
+  { ..self, nodes, }
+}
+
+///|
+pub fn Design::rotate_y(self : Design, angle : Double) -> Design {
+  let nodes = self.nodes.map(fn(node) {
+    let (tx, ty, tz) = rotate_point(
+      (node.tx, node.ty, node.tz),
+      0.0,
+      angle,
+      0.0,
+    )
+    let new_node = node.rotate_y(angle)
+    { ..new_node, tx, ty, tz }
+  })
+  { ..self, nodes, }
+}
+
+///|
+pub fn Design::rotate_z(self : Design, angle : Double) -> Design {
+  let nodes = self.nodes.map(fn(node) {
+    let (tx, ty, tz) = rotate_point(
+      (node.tx, node.ty, node.tz),
+      0.0,
+      0.0,
+      angle,
+    )
+    let new_node = node.rotate_z(angle)
+    { ..new_node, tx, ty, tz }
+  })
+  { ..self, nodes, }
+}
+
+///|
 pub async fn write_step_text(step_text : String, out_path : String?) -> Unit {
   match out_path {
     None => println(step_text)

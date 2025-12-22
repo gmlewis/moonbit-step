@@ -82,7 +82,7 @@ async fn main {
   // 1. The C-clip body (extruded along Z)
   let clip_body = @cad.ExtrudedProfile::new(c_profile, clip_length)
     .with_name("clip-body")
-    .with_color(@cad.Rgb::grey())
+    .with_color(@cad.Rgb::blue())
     .translate(x=tx, y=ty, z=tz)
   design = design.add(clip_body)
 
@@ -92,7 +92,7 @@ async fn main {
   let plaque_thickness = wall
   let plaque = @cad.Cuboid::new(plaque_width, plaque_thickness, clip_length)
     .with_name("label-plaque")
-    .with_color(@cad.Rgb::grey())
+    .with_color(@cad.Rgb::green())
     .translate(x=tx - plaque_width / 2.0, y=ty + diameter / 2.0, z=tz)
   design = design.add(plaque)
 
@@ -105,10 +105,12 @@ async fn main {
     plaque_width - margin,
     clip_length - margin,
   )
-  let text_fitted = @draw.to_graphic(text_font, label_text, alignment=Center).scale_to_fit(
-    text_bbox,
-    anchor=Center,
-  ) catch {
+  let text_fitted = @draw.to_graphic(
+    text_font,
+    label_text,
+    alignment=Center,
+    y_up=true,
+  ).scale_to_fit(text_bbox, anchor=Center) catch {
     e => {
       @cli.eprintln("Error creating text: \{e}")
       abort("")
@@ -126,14 +128,17 @@ async fn main {
       }
 
       // ExtrudedProfile is XY plane, extruding along Z.
-      // We rotate it 90 deg around X so its "Z" (height) becomes "Y" (facing out).
+      // We rotate it -90 deg around X so its "Z" (height) becomes "Y" (facing out),
+      // and its "Y" becomes "Z" (along the clip).
+      // We translate by z=tz + clip_length because Local Y maps to Global -Z.
       let text_solid = @cad.ExtrudedProfile::new(outer, emboss_depth, holes~)
         .with_name("label-text")
         .with_color(@cad.Rgb::orange())
-        .rotate_x(90.0)
+        .rotate_x(-90)
+        .rotate_y(180) // make the text upright
         .translate(
-          x=tx - plaque_width / 2.0,
-          y=ty + diameter / 2.0 + plaque_thickness,
+          x=tx + plaque_width / 2.0,
+          y=ty + diameter / 2.0 + plaque_thickness - 0.01,
           z=tz,
         )
       design = design.add(text_solid)
@@ -141,5 +146,6 @@ async fn main {
   }
 
   //
+  let design = design.rotate_z(180) // better viewing angle
   design.write_step(out_path)
 }

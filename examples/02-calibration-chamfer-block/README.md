@@ -26,7 +26,7 @@ Command line: `./run-example.sh 02 --length 20 --width 20 --height 5`
 
 ### Variant 2
 
-Command line: `./run-example.sh 02 --chamferSize 2`
+Command line: `./run-example.sh 02 --chamferSize 4`
 
 ![](preview-2.png)
 
