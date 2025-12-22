@@ -171,6 +171,15 @@ pub struct OffsetCurve3D {
 pub fn OffsetCurve3D::new(String, @step.Ref, Double, @step.Ref) -> Self
 pub impl @step.Entity for OffsetCurve3D
 
+pub struct OffsetSurface {
+  name : String
+  basis_surface : @step.Ref
+  distance : Double
+  self_intersect : Bool
+}
+pub fn OffsetSurface::new(String, @step.Ref, Double, Bool) -> Self
+pub impl @step.Entity for OffsetSurface
+
 pub struct Parabola {
   name : String
   position : @step.Ref

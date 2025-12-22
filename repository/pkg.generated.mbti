@@ -95,6 +95,8 @@ pub fn any_entity_next_assembly_usage_occurrence(@product.NextAssemblyUsageOccur
 
 pub fn any_entity_offset_curve_3d(@geometry.OffsetCurve3D) -> AnyEntity
 
+pub fn any_entity_offset_surface(@geometry.OffsetSurface) -> AnyEntity
+
 pub fn any_entity_oriented_edge(@topology.OrientedEdge) -> AnyEntity
 
 pub fn any_entity_parabola(@geometry.Parabola) -> AnyEntity
@@ -206,6 +208,7 @@ pub enum AnyEntity {
   RationalBSplineSurface(@geometry.RationalBSplineSurface)
   TrimmedCurve(@geometry.TrimmedCurve)
   OffsetCurve3D(@geometry.OffsetCurve3D)
+  OffsetSurface(@geometry.OffsetSurface)
   RectangularTrimmedSurface(@geometry.RectangularTrimmedSurface)
   Polyline(@geometry.Polyline)
   BooleanResult(@geometry.BooleanResult)

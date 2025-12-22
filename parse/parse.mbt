@@ -469,6 +469,33 @@ fn parse_offset_curve_3d(
 }
 
 ///|
+fn parse_offset_surface(
+  args : String,
+) -> @geometry.OffsetSurface raise StepParseError {
+  let parts = split_args(args)
+  if parts.length() != 4 {
+    fail_parse()
+  }
+  let name = strip_quotes(parts[0])
+  let basis_id = parse_ref_int(parts[1])
+  let distance = parse_double(parts[2])
+  let si_str = parts[3].trim().to_string()
+  let self_intersect = if si_str == ".T." {
+    true
+  } else if si_str == ".F." {
+    false
+  } else {
+    fail_parse()
+  }
+  @geometry.OffsetSurface::new(
+    name,
+    @step.Ref::{ id: basis_id },
+    distance,
+    self_intersect,
+  )
+}
+
+///|
 fn parse_rectangular_trimmed_surface(
   args : String,
 ) -> @geometry.RectangularTrimmedSurface raise StepParseError {
@@ -2399,6 +2426,12 @@ pub fn parse_repository_from_string(
       repo = repo.insert_with_id(
         row.id,
         @repository.any_entity_offset_curve_3d(entity),
+      )
+    } else if name == "OFFSET_SURFACE" {
+      let entity = parse_offset_surface(row.args)
+      repo = repo.insert_with_id(
+        row.id,
+        @repository.any_entity_offset_surface(entity),
       )
     } else if name == "RECTANGULAR_TRIMMED_SURFACE" {
       let entity = parse_rectangular_trimmed_surface(row.args)
