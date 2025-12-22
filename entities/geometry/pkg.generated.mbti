@@ -55,6 +55,16 @@ pub struct BSplineSurfaceWithKnots {
 pub fn BSplineSurfaceWithKnots::new(Array[Int], Array[Int], Array[String], Array[String], String) -> Self
 pub impl @step.Entity for BSplineSurfaceWithKnots
 
+pub struct Block {
+  name : String
+  position : @step.Ref
+  x : Double
+  y : Double
+  z : Double
+}
+pub fn Block::new(String, @step.Ref, Double, Double, Double) -> Self
+pub impl @step.Entity for Block
+
 pub(all) enum BooleanOperator {
   Union
   Intersection
@@ -167,6 +177,33 @@ pub struct RectangularTrimmedSurface {
 pub fn RectangularTrimmedSurface::new(String, @step.Ref, String, String, String, String, Bool, Bool) -> Self
 pub impl @step.Entity for RectangularTrimmedSurface
 
+pub struct RightCircularCone {
+  name : String
+  position : @step.Ref
+  height : Double
+  radius : Double
+  semi_angle : Double
+}
+pub fn RightCircularCone::new(String, @step.Ref, Double, Double, Double) -> Self
+pub impl @step.Entity for RightCircularCone
+
+pub struct RightCircularCylinder {
+  name : String
+  position : @step.Ref
+  height : Double
+  radius : Double
+}
+pub fn RightCircularCylinder::new(String, @step.Ref, Double, Double) -> Self
+pub impl @step.Entity for RightCircularCylinder
+
+pub struct Sphere {
+  name : String
+  position : @step.Ref
+  radius : Double
+}
+pub fn Sphere::new(String, @step.Ref, Double) -> Self
+pub impl @step.Entity for Sphere
+
 pub struct ToroidalSurface {
   name : String
   position : @step.Ref
@@ -175,6 +212,15 @@ pub struct ToroidalSurface {
 }
 pub fn ToroidalSurface::new(String, @step.Ref, String, String) -> Self
 pub impl @step.Entity for ToroidalSurface
+
+pub struct Torus {
+  name : String
+  position : @step.Ref
+  major_radius : Double
+  minor_radius : Double
+}
+pub fn Torus::new(String, @step.Ref, Double, Double) -> Self
+pub impl @step.Entity for Torus
 
 pub struct TrimmedCurve {
   name : String

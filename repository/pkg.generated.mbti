@@ -29,6 +29,8 @@ pub fn any_entity_b_spline_surface(@geometry.BSplineSurface) -> AnyEntity
 
 pub fn any_entity_b_spline_surface_with_knots(@geometry.BSplineSurfaceWithKnots) -> AnyEntity
 
+pub fn any_entity_block(@geometry.Block) -> AnyEntity
+
 pub fn any_entity_boolean_result(@geometry.BooleanResult) -> AnyEntity
 
 pub fn any_entity_cartesian_point(@geometry.CartesianPoint) -> AnyEntity
@@ -131,11 +133,17 @@ pub fn any_entity_representation_relationship(@product.RepresentationRelationshi
 
 pub fn any_entity_representation_relationship_with_transformation(@product.RepresentationRelationshipWithTransformation) -> AnyEntity
 
+pub fn any_entity_right_circular_cone(@geometry.RightCircularCone) -> AnyEntity
+
+pub fn any_entity_right_circular_cylinder(@geometry.RightCircularCylinder) -> AnyEntity
+
 pub fn any_entity_shape_definition_representation(@product.ShapeDefinitionRepresentation) -> AnyEntity
 
 pub fn any_entity_shape_representation(@product.ShapeRepresentation) -> AnyEntity
 
 pub fn any_entity_shape_representation_relationship(@product.ShapeRepresentationRelationship) -> AnyEntity
+
+pub fn any_entity_sphere(@geometry.Sphere) -> AnyEntity
 
 pub fn any_entity_styled_item(@presentation.StyledItem) -> AnyEntity
 
@@ -146,6 +154,8 @@ pub fn any_entity_surface_style_fill_area(@presentation.SurfaceStyleFillArea) ->
 pub fn any_entity_surface_style_usage(@presentation.SurfaceStyleUsage) -> AnyEntity
 
 pub fn any_entity_toroidal_surface(@geometry.ToroidalSurface) -> AnyEntity
+
+pub fn any_entity_torus(@geometry.Torus) -> AnyEntity
 
 pub fn any_entity_trimmed_curve(@geometry.TrimmedCurve) -> AnyEntity
 
@@ -182,6 +192,11 @@ pub enum AnyEntity {
   RectangularTrimmedSurface(@geometry.RectangularTrimmedSurface)
   BooleanResult(@geometry.BooleanResult)
   CsgSolid(@geometry.CsgSolid)
+  Block(@geometry.Block)
+  Sphere(@geometry.Sphere)
+  RightCircularCylinder(@geometry.RightCircularCylinder)
+  RightCircularCone(@geometry.RightCircularCone)
+  Torus(@geometry.Torus)
   RepresentationRelationship(@product.RepresentationRelationship)
   RepresentationRelationshipWithTransformation(@product.RepresentationRelationshipWithTransformation)
   ShapeRepresentationRelationship(@product.ShapeRepresentationRelationship)

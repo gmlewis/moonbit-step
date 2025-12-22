@@ -21,6 +21,11 @@ pub enum AnyEntity {
   RectangularTrimmedSurface(@geometry.RectangularTrimmedSurface)
   BooleanResult(@geometry.BooleanResult)
   CsgSolid(@geometry.CsgSolid)
+  Block(@geometry.Block)
+  Sphere(@geometry.Sphere)
+  RightCircularCylinder(@geometry.RightCircularCylinder)
+  RightCircularCone(@geometry.RightCircularCone)
+  Torus(@geometry.Torus)
   RepresentationRelationship(@product.RepresentationRelationship)
   RepresentationRelationshipWithTransformation(
     @product.RepresentationRelationshipWithTransformation
@@ -198,6 +203,35 @@ pub fn any_entity_boolean_result(b : @geometry.BooleanResult) -> AnyEntity {
 ///|
 pub fn any_entity_csg_solid(c : @geometry.CsgSolid) -> AnyEntity {
   AnyEntity::CsgSolid(c)
+}
+
+///|
+pub fn any_entity_block(b : @geometry.Block) -> AnyEntity {
+  AnyEntity::Block(b)
+}
+
+///|
+pub fn any_entity_sphere(s : @geometry.Sphere) -> AnyEntity {
+  AnyEntity::Sphere(s)
+}
+
+///|
+pub fn any_entity_right_circular_cylinder(
+  c : @geometry.RightCircularCylinder,
+) -> AnyEntity {
+  AnyEntity::RightCircularCylinder(c)
+}
+
+///|
+pub fn any_entity_right_circular_cone(
+  c : @geometry.RightCircularCone,
+) -> AnyEntity {
+  AnyEntity::RightCircularCone(c)
+}
+
+///|
+pub fn any_entity_torus(t : @geometry.Torus) -> AnyEntity {
+  AnyEntity::Torus(t)
 }
 
 ///|
@@ -623,6 +657,11 @@ fn entity_to_step(entity : AnyEntity) -> String {
     RectangularTrimmedSurface(s) => @step.Entity::to_step(s)
     BooleanResult(b) => @step.Entity::to_step(b)
     CsgSolid(c) => @step.Entity::to_step(c)
+    Block(b) => @step.Entity::to_step(b)
+    Sphere(s) => @step.Entity::to_step(s)
+    RightCircularCylinder(c) => @step.Entity::to_step(c)
+    RightCircularCone(c) => @step.Entity::to_step(c)
+    Torus(t) => @step.Entity::to_step(t)
     RepresentationRelationship(r) => @step.Entity::to_step(r)
     RepresentationRelationshipWithTransformation(r) => @step.Entity::to_step(r)
     ShapeRepresentationRelationship(r) => @step.Entity::to_step(r)

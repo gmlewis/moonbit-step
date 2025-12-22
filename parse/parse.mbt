@@ -501,6 +501,87 @@ fn parse_csg_solid(args : String) -> @geometry.CsgSolid raise StepParseError {
 }
 
 ///|
+fn parse_block(args : String) -> @geometry.Block raise StepParseError {
+  let parts = split_args(args)
+  if parts.length() != 5 {
+    fail_parse()
+  }
+  let name = strip_quotes(parts[0])
+  let pos_id = parse_ref_int(parts[1])
+  let x = parse_double(parts[2])
+  let y = parse_double(parts[3])
+  let z = parse_double(parts[4])
+  @geometry.Block::new(name, @step.Ref::{ id: pos_id }, x, y, z)
+}
+
+///|
+fn parse_sphere(args : String) -> @geometry.Sphere raise StepParseError {
+  let parts = split_args(args)
+  if parts.length() != 3 {
+    fail_parse()
+  }
+  let name = strip_quotes(parts[0])
+  let pos_id = parse_ref_int(parts[1])
+  let radius = parse_double(parts[2])
+  @geometry.Sphere::new(name, @step.Ref::{ id: pos_id }, radius)
+}
+
+///|
+fn parse_right_circular_cylinder(
+  args : String,
+) -> @geometry.RightCircularCylinder raise StepParseError {
+  let parts = split_args(args)
+  if parts.length() != 4 {
+    fail_parse()
+  }
+  let name = strip_quotes(parts[0])
+  let pos_id = parse_ref_int(parts[1])
+  let height = parse_double(parts[2])
+  let radius = parse_double(parts[3])
+  @geometry.RightCircularCylinder::new(
+    name,
+    @step.Ref::{ id: pos_id },
+    height,
+    radius,
+  )
+}
+
+///|
+fn parse_right_circular_cone(
+  args : String,
+) -> @geometry.RightCircularCone raise StepParseError {
+  let parts = split_args(args)
+  if parts.length() != 5 {
+    fail_parse()
+  }
+  let name = strip_quotes(parts[0])
+  let pos_id = parse_ref_int(parts[1])
+  let height = parse_double(parts[2])
+  let radius = parse_double(parts[3])
+  let semi_angle = parse_double(parts[4])
+  @geometry.RightCircularCone::new(
+    name,
+    @step.Ref::{ id: pos_id },
+    height,
+    radius,
+    semi_angle,
+  )
+}
+
+///|
+fn parse_torus(args : String) -> @geometry.Torus raise StepParseError {
+  let parts = split_args(args)
+  if parts.length() != 4 {
+    fail_parse()
+  }
+  let name = strip_quotes(parts[0])
+  let pos_id = parse_ref_int(parts[1])
+  let major = parse_double(parts[2])
+  let minor = parse_double(parts[3])
+  @geometry.Torus::new(name, @step.Ref::{ id: pos_id }, major, minor)
+}
+
+///|
 fn parse_plane(args : String) -> @geometry.Plane raise StepParseError {
   let parts = split_args(args)
   if parts.length() != 2 {
@@ -2195,6 +2276,27 @@ pub fn parse_repository_from_string(
         row.id,
         @repository.any_entity_csg_solid(entity),
       )
+    } else if name == "BLOCK" {
+      let entity = parse_block(row.args)
+      repo = repo.insert_with_id(row.id, @repository.any_entity_block(entity))
+    } else if name == "SPHERE" {
+      let entity = parse_sphere(row.args)
+      repo = repo.insert_with_id(row.id, @repository.any_entity_sphere(entity))
+    } else if name == "RIGHT_CIRCULAR_CYLINDER" {
+      let entity = parse_right_circular_cylinder(row.args)
+      repo = repo.insert_with_id(
+        row.id,
+        @repository.any_entity_right_circular_cylinder(entity),
+      )
+    } else if name == "RIGHT_CIRCULAR_CONE" {
+      let entity = parse_right_circular_cone(row.args)
+      repo = repo.insert_with_id(
+        row.id,
+        @repository.any_entity_right_circular_cone(entity),
+      )
+    } else if name == "TORUS" {
+      let entity = parse_torus(row.args)
+      repo = repo.insert_with_id(row.id, @repository.any_entity_torus(entity))
     } else if name == "VECTOR" {
       let entity = parse_vector(row.args)
       repo = repo.insert_with_id(row.id, @repository.any_entity_vector(entity))
