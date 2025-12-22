@@ -496,6 +496,22 @@ fn parse_offset_surface(
 }
 
 ///|
+fn parse_surface_of_linear_extrusion(
+  args : String,
+) -> @geometry.SurfaceOfLinearExtrusion raise StepParseError {
+  let parts = split_args(args)
+  if parts.length() != 3 {
+    fail_parse()
+  }
+  let name = strip_quotes(parts[0])
+  let curve_id = parse_ref_int(parts[1])
+  let axis_id = parse_ref_int(parts[2])
+  @geometry.SurfaceOfLinearExtrusion::new(name, @step.Ref::{ id: curve_id }, @step.Ref::{
+    id: axis_id,
+  })
+}
+
+///|
 fn parse_rectangular_trimmed_surface(
   args : String,
 ) -> @geometry.RectangularTrimmedSurface raise StepParseError {
@@ -2432,6 +2448,12 @@ pub fn parse_repository_from_string(
       repo = repo.insert_with_id(
         row.id,
         @repository.any_entity_offset_surface(entity),
+      )
+    } else if name == "SURFACE_OF_LINEAR_EXTRUSION" {
+      let entity = parse_surface_of_linear_extrusion(row.args)
+      repo = repo.insert_with_id(
+        row.id,
+        @repository.any_entity_surface_of_linear_extrusion(entity),
       )
     } else if name == "RECTANGULAR_TRIMMED_SURFACE" {
       let entity = parse_rectangular_trimmed_surface(row.args)

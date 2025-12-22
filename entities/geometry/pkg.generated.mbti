@@ -275,6 +275,14 @@ pub struct Sphere {
 pub fn Sphere::new(String, @step.Ref, Double) -> Self
 pub impl @step.Entity for Sphere
 
+pub struct SurfaceOfLinearExtrusion {
+  name : String
+  swept_curve : @step.Ref
+  extrusion_axis : @step.Ref
+}
+pub fn SurfaceOfLinearExtrusion::new(String, @step.Ref, @step.Ref) -> Self
+pub impl @step.Entity for SurfaceOfLinearExtrusion
+
 pub struct ToroidalSurface {
   name : String
   position : @step.Ref

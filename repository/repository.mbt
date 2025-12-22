@@ -22,6 +22,7 @@ pub enum AnyEntity {
   TrimmedCurve(@geometry.TrimmedCurve)
   OffsetCurve3D(@geometry.OffsetCurve3D)
   OffsetSurface(@geometry.OffsetSurface)
+  SurfaceOfLinearExtrusion(@geometry.SurfaceOfLinearExtrusion)
   RectangularTrimmedSurface(@geometry.RectangularTrimmedSurface)
   Polyline(@geometry.Polyline)
   BooleanResult(@geometry.BooleanResult)
@@ -214,6 +215,13 @@ pub fn any_entity_offset_curve_3d(c : @geometry.OffsetCurve3D) -> AnyEntity {
 ///|
 pub fn any_entity_offset_surface(s : @geometry.OffsetSurface) -> AnyEntity {
   AnyEntity::OffsetSurface(s)
+}
+
+///|
+pub fn any_entity_surface_of_linear_extrusion(
+  s : @geometry.SurfaceOfLinearExtrusion,
+) -> AnyEntity {
+  AnyEntity::SurfaceOfLinearExtrusion(s)
 }
 
 ///|
@@ -710,6 +718,7 @@ fn entity_to_step(entity : AnyEntity) -> String {
     TrimmedCurve(c) => @step.Entity::to_step(c)
     OffsetCurve3D(c) => @step.Entity::to_step(c)
     OffsetSurface(s) => @step.Entity::to_step(s)
+    SurfaceOfLinearExtrusion(s) => @step.Entity::to_step(s)
     RectangularTrimmedSurface(s) => @step.Entity::to_step(s)
     Polyline(p) => @step.Entity::to_step(p)
     BooleanResult(b) => @step.Entity::to_step(b)

@@ -594,6 +594,15 @@ test "parse_repository_from_string_offset_surface" {
 }
 
 ///|
+test "parse_repository_from_string_surface_of_linear_extrusion" {
+  let content = "ISO-10303-21;\nDATA;\n#10=SURFACE_OF_LINEAR_EXTRUSION('swept',#1,#2);\nENDSEC;\nEND-ISO-10303-21;\n"
+  let repo = parse_repository_from_string(content)
+  inspect(repo.len(), content="1")
+  let out = repo.to_step_data_section()
+  assert_true(out.contains("#10=SURFACE_OF_LINEAR_EXTRUSION('swept',#1,#2);"))
+}
+
+///|
 test "parse_repository_from_string_rectangular_trimmed_surface" {
   let content = "ISO-10303-21;\nDATA;\n#200=RECTANGULAR_TRIMMED_SURFACE('',#12,0.0,1.0,-0.5,0.5,.T.,.T.);\nENDSEC;\nEND-ISO-10303-21;\n"
   let repo = parse_repository_from_string(content)
