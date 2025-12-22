@@ -20,6 +20,6 @@
     "3d",
     "modeling"
   ],
-  "description": "Port of https://github.com/tscircuit/stepts to MoonBit",
+  "description": "A snap-on cable label that embeds text and fits multiple cable diameters.",
   "preferred-target": "native"
 }

@@ -20,6 +20,6 @@
     "3d",
     "modeling"
   ],
-  "description": "Port of https://github.com/tscircuit/stepts to MoonBit",
+  "description": "A keychain tag with programmable text placement and border styles.",
   "preferred-target": "native"
 }

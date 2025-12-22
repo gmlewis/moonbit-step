@@ -20,6 +20,6 @@
     "3d",
     "modeling"
   ],
-  "description": "Port of https://github.com/tscircuit/stepts to MoonBit",
+  "description": "A maker-friendly storage bin generator with configurable compartments and labels.",
   "preferred-target": "native"
 }
