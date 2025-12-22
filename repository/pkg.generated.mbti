@@ -99,6 +99,8 @@ pub fn any_entity_offset_curve_3d(@geometry.OffsetCurve3D) -> AnyEntity
 
 pub fn any_entity_offset_surface(@geometry.OffsetSurface) -> AnyEntity
 
+pub fn any_entity_open_shell(@topology.OpenShell) -> AnyEntity
+
 pub fn any_entity_oriented_edge(@topology.OrientedEdge) -> AnyEntity
 
 pub fn any_entity_parabola(@geometry.Parabola) -> AnyEntity
@@ -256,6 +258,7 @@ pub enum AnyEntity {
   ApplicationContext(@product.ApplicationContext)
   ManifoldSolidBrep(@topology.ManifoldSolidBrep)
   ClosedShell(@topology.ClosedShell)
+  OpenShell(@topology.OpenShell)
   AdvancedFace(@topology.AdvancedFace)
   FaceOuterBound(@topology.FaceOuterBound)
   FaceBound(@topology.FaceBound)

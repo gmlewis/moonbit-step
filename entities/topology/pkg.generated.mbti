@@ -66,6 +66,13 @@ pub struct ManifoldSolidBrep {
 pub fn ManifoldSolidBrep::new(String, @step.Ref) -> Self
 pub impl @step.Entity for ManifoldSolidBrep
 
+pub struct OpenShell {
+  name : String
+  faces : Array[@step.Ref]
+}
+pub fn OpenShell::new(String, Array[@step.Ref]) -> Self
+pub impl @step.Entity for OpenShell
+
 pub struct OrientedEdge {
   name : String
   edge_start : String

@@ -1269,6 +1269,21 @@ fn parse_closed_shell(
 }
 
 ///|
+fn parse_open_shell(args : String) -> @topology.OpenShell raise StepParseError {
+  let parts = split_args(args)
+  if parts.length() != 2 {
+    fail_parse()
+  }
+  let name = strip_quotes(parts[0])
+  let face_ids = parse_ref_ids(parts[1])
+  let faces : Array[@step.Ref] = []
+  for i = 0; i < face_ids.length(); i = i + 1 {
+    faces.push(@step.Ref::{ id: face_ids[i] })
+  }
+  @topology.OpenShell::new(name, faces)
+}
+
+///|
 fn parse_advanced_face(
   args : String,
 ) -> @topology.AdvancedFace raise StepParseError {
@@ -2731,6 +2746,12 @@ pub fn parse_repository_from_string(
       repo = repo.insert_with_id(
         row.id,
         @repository.any_entity_closed_shell(entity),
+      )
+    } else if name == "OPEN_SHELL" {
+      let entity = parse_open_shell(row.args)
+      repo = repo.insert_with_id(
+        row.id,
+        @repository.any_entity_open_shell(entity),
       )
     } else if name == "ADVANCED_FACE" {
       let entity = parse_advanced_face(row.args)

@@ -279,6 +279,15 @@ test "parse_repository_from_string_advanced_brep_shape_representation" {
 }
 
 ///|
+test "parse_repository_from_string_open_shell" {
+  let content = "ISO-10303-21;\nDATA;\n#10=OPEN_SHELL('open',(#1,#2));\nENDSEC;\nEND-ISO-10303-21;\n"
+  let repo = parse_repository_from_string(content)
+  inspect(repo.len(), content="1")
+  let out = repo.to_step_data_section()
+  assert_true(out.contains("#10=OPEN_SHELL('open',(#1,#2));"))
+}
+
+///|
 test "parse_repository_from_string_shape_definition_representation" {
   let content = "ISO-10303-21;\nDATA;\n#12=SHAPE_DEFINITION_REPRESENTATION(#13,#22);\nENDSEC;\nEND-ISO-10303-21;\n"
   let repo = parse_repository_from_string(content)
