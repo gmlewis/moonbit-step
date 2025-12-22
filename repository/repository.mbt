@@ -19,6 +19,8 @@ pub enum AnyEntity {
   RationalBSplineSurface(@geometry.RationalBSplineSurface)
   TrimmedCurve(@geometry.TrimmedCurve)
   RectangularTrimmedSurface(@geometry.RectangularTrimmedSurface)
+  BooleanResult(@geometry.BooleanResult)
+  CsgSolid(@geometry.CsgSolid)
   RepresentationRelationship(@product.RepresentationRelationship)
   RepresentationRelationshipWithTransformation(
     @product.RepresentationRelationshipWithTransformation
@@ -186,6 +188,16 @@ pub fn any_entity_rectangular_trimmed_surface(
   s : @geometry.RectangularTrimmedSurface,
 ) -> AnyEntity {
   AnyEntity::RectangularTrimmedSurface(s)
+}
+
+///|
+pub fn any_entity_boolean_result(b : @geometry.BooleanResult) -> AnyEntity {
+  AnyEntity::BooleanResult(b)
+}
+
+///|
+pub fn any_entity_csg_solid(c : @geometry.CsgSolid) -> AnyEntity {
+  AnyEntity::CsgSolid(c)
 }
 
 ///|
@@ -609,6 +621,8 @@ fn entity_to_step(entity : AnyEntity) -> String {
     RationalBSplineSurface(s) => @step.Entity::to_step(s)
     TrimmedCurve(c) => @step.Entity::to_step(c)
     RectangularTrimmedSurface(s) => @step.Entity::to_step(s)
+    BooleanResult(b) => @step.Entity::to_step(b)
+    CsgSolid(c) => @step.Entity::to_step(c)
     RepresentationRelationship(r) => @step.Entity::to_step(r)
     RepresentationRelationshipWithTransformation(r) => @step.Entity::to_step(r)
     ShapeRepresentationRelationship(r) => @step.Entity::to_step(r)

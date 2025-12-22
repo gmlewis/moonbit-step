@@ -469,6 +469,38 @@ fn parse_rectangular_trimmed_surface(
 }
 
 ///|
+fn parse_boolean_result(
+  args : String,
+) -> @geometry.BooleanResult raise StepParseError {
+  let parts = split_args(args)
+  if parts.length() != 4 {
+    fail_parse()
+  }
+  let name = strip_quotes(parts[0])
+  let op_str = parts[1].trim().to_string()
+  let operator = match @geometry.BooleanOperator::from_string(op_str) {
+    Some(op) => op
+    None => fail_parse()
+  }
+  let op1_id = parse_ref_int(parts[2])
+  let op2_id = parse_ref_int(parts[3])
+  @geometry.BooleanResult::new(name, operator, @step.Ref::{ id: op1_id }, @step.Ref::{
+    id: op2_id,
+  })
+}
+
+///|
+fn parse_csg_solid(args : String) -> @geometry.CsgSolid raise StepParseError {
+  let parts = split_args(args)
+  if parts.length() != 2 {
+    fail_parse()
+  }
+  let name = strip_quotes(parts[0])
+  let root_id = parse_ref_int(parts[1])
+  @geometry.CsgSolid::new(name, @step.Ref::{ id: root_id })
+}
+
+///|
 fn parse_plane(args : String) -> @geometry.Plane raise StepParseError {
   let parts = split_args(args)
   if parts.length() != 2 {
@@ -2150,6 +2182,18 @@ pub fn parse_repository_from_string(
       repo = repo.insert_with_id(
         row.id,
         @repository.any_entity_rectangular_trimmed_surface(entity),
+      )
+    } else if name == "BOOLEAN_RESULT" {
+      let entity = parse_boolean_result(row.args)
+      repo = repo.insert_with_id(
+        row.id,
+        @repository.any_entity_boolean_result(entity),
+      )
+    } else if name == "CSG_SOLID" {
+      let entity = parse_csg_solid(row.args)
+      repo = repo.insert_with_id(
+        row.id,
+        @repository.any_entity_csg_solid(entity),
       )
     } else if name == "VECTOR" {
       let entity = parse_vector(row.args)

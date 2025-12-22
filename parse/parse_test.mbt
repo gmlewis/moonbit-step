@@ -213,6 +213,24 @@ test "parse_repository_from_string_representation_relationship_with_transformati
 }
 
 ///|
+test "parse_repository_from_string_boolean_result" {
+  let content = "ISO-10303-21;\nDATA;\n#10=BOOLEAN_RESULT('result',.UNION.,#20,#30);\nENDSEC;\nEND-ISO-10303-21;\n"
+  let repo = parse_repository_from_string(content)
+  inspect(repo.len(), content="1")
+  let out = repo.to_step_data_section()
+  assert_true(out.contains("#10=BOOLEAN_RESULT('result',.UNION.,#20,#30);"))
+}
+
+///|
+test "parse_repository_from_string_csg_solid" {
+  let content = "ISO-10303-21;\nDATA;\n#10=CSG_SOLID('solid',#20);\nENDSEC;\nEND-ISO-10303-21;\n"
+  let repo = parse_repository_from_string(content)
+  inspect(repo.len(), content="1")
+  let out = repo.to_step_data_section()
+  assert_true(out.contains("#10=CSG_SOLID('solid',#20);"))
+}
+
+///|
 test "parse_repository_from_string_advanced_brep_shape_representation" {
   let content = "ISO-10303-21;\nDATA;\n#11=ADVANCED_BREP_SHAPE_REPRESENTATION('cube-None',(#32),#187);\nENDSEC;\nEND-ISO-10303-21;\n"
   let repo = parse_repository_from_string(content)

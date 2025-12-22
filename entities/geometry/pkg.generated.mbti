@@ -55,6 +55,23 @@ pub struct BSplineSurfaceWithKnots {
 pub fn BSplineSurfaceWithKnots::new(Array[Int], Array[Int], Array[String], Array[String], String) -> Self
 pub impl @step.Entity for BSplineSurfaceWithKnots
 
+pub(all) enum BooleanOperator {
+  Union
+  Intersection
+  Difference
+}
+pub fn BooleanOperator::from_string(String) -> Self?
+pub impl @step.Entity for BooleanOperator
+
+pub struct BooleanResult {
+  name : String
+  operator : BooleanOperator
+  first_operand : @step.Ref
+  second_operand : @step.Ref
+}
+pub fn BooleanResult::new(String, BooleanOperator, @step.Ref, @step.Ref) -> Self
+pub impl @step.Entity for BooleanResult
+
 pub struct CartesianPoint {
   name : String
   coordinates : Array[Double]
@@ -78,6 +95,13 @@ pub struct ConicalSurface {
 }
 pub fn ConicalSurface::new(String, @step.Ref, String, String) -> Self
 pub impl @step.Entity for ConicalSurface
+
+pub struct CsgSolid {
+  name : String
+  tree_root_expression : @step.Ref
+}
+pub fn CsgSolid::new(String, @step.Ref) -> Self
+pub impl @step.Entity for CsgSolid
 
 pub struct CylindricalSurface {
   name : String

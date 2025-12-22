@@ -29,6 +29,8 @@ pub fn any_entity_b_spline_surface(@geometry.BSplineSurface) -> AnyEntity
 
 pub fn any_entity_b_spline_surface_with_knots(@geometry.BSplineSurfaceWithKnots) -> AnyEntity
 
+pub fn any_entity_boolean_result(@geometry.BooleanResult) -> AnyEntity
+
 pub fn any_entity_cartesian_point(@geometry.CartesianPoint) -> AnyEntity
 
 pub fn any_entity_circle(@geometry.Circle) -> AnyEntity
@@ -42,6 +44,8 @@ pub fn any_entity_complex_instance(@context.ComplexInstance) -> AnyEntity
 pub fn any_entity_conical_surface(@geometry.ConicalSurface) -> AnyEntity
 
 pub fn any_entity_context_dependent_shape_representation(@product.ContextDependentShapeRepresentation) -> AnyEntity
+
+pub fn any_entity_csg_solid(@geometry.CsgSolid) -> AnyEntity
 
 pub fn any_entity_ctx_wrap(@context.CtxWrap) -> AnyEntity
 
@@ -176,6 +180,8 @@ pub enum AnyEntity {
   RationalBSplineSurface(@geometry.RationalBSplineSurface)
   TrimmedCurve(@geometry.TrimmedCurve)
   RectangularTrimmedSurface(@geometry.RectangularTrimmedSurface)
+  BooleanResult(@geometry.BooleanResult)
+  CsgSolid(@geometry.CsgSolid)
   RepresentationRelationship(@product.RepresentationRelationship)
   RepresentationRelationshipWithTransformation(@product.RepresentationRelationshipWithTransformation)
   ShapeRepresentationRelationship(@product.ShapeRepresentationRelationship)
