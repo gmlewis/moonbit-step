@@ -1,16 +1,14 @@
 ///|
-// 09-dovetail-slider-jig
-//
-// A parametric dovetail slider jig, demonstrating how to create
-// matching parts with clearances using extruded profiles.
-//
-// Usage (stdout):
-//   moon run --target native examples/09-dovetail-slider-jig -- > jig.step
-//
-// Usage (write file):
-//   moon run --target native examples/09-dovetail-slider-jig -- -o jig.step
-
-///|
+/// 09-dovetail-slider-jig
+///
+/// A parametric dovetail slider jig, demonstrating how to create
+/// matching parts with clearances using extruded profiles.
+///
+/// Usage (stdout):
+///   moon run --target native examples/09-dovetail-slider-jig -- > jig.step
+///
+/// Usage (write file):
+///   moon run --target native examples/09-dovetail-slider-jig -- -o jig.step
 async fn main {
   let base_args_spec = {
     "baseWidth": @cli.opt_double(

@@ -1,13 +1,10 @@
 ///|
-// 06-stackable-spacer-tower
-//
-// A set of stackable spacers with interlocking features.
-//
-// Usage (stdout):
-//   moon run --target native examples/06-stackable-spacer-tower -- --count 3 > tower.step
-//
-
-///|
+/// 06-stackable-spacer-tower
+///
+/// A set of stackable spacers with interlocking features.
+///
+/// Usage (stdout):
+///   moon run --target native examples/06-stackable-spacer-tower -- --count 3 > tower.step
 async fn main {
   let base_args_spec = {
     "count": @cli.opt_double(

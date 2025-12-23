@@ -1,15 +1,12 @@
 ///|
-// 08-snap-fit-test-strip
-//
-// A working example that generates a STEP model for a snap-fit test strip.
-// It creates a series of cantilever snap arms and matching receiver slots
-// with varying interference levels to test print tolerances.
-//
-// Usage (stdout):
-//   moon run --target native examples/08-snap-fit-test-strip -- --interference 0.5 > test-strip.step
-//
-
-///|
+/// 08-snap-fit-test-strip
+///
+/// A working example that generates a STEP model for a snap-fit test strip.
+/// It creates a series of cantilever snap arms and matching receiver slots
+/// with varying interference levels to test print tolerances.
+///
+/// Usage (stdout):
+///   moon run --target native examples/08-snap-fit-test-strip -- --interference 0.5 > test-strip.step
 async fn main {
   let base_args_spec = {
     "clearance": @cli.opt_double(

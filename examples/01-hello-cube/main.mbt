@@ -1,22 +1,20 @@
 ///|
-// 01-hello-cube
-//
-// A small example that generates a cube STEP model.
-//
-// Usage (stdout):
-//   moon run --target native examples/01-hello-cube -- --edge 20 > cube.step
-//
-// Usage (write file):
-//   moon run --target native examples/01-hello-cube -- -o cube.step --edge 30
-//   # also supported: --out=cube.step
-//
-// Translate examples:
-//   moon run --target native examples/01-hello-cube -- -t 1 2 3
-//   moon run --target native examples/01-hello-cube -- -t 1,2,3
-//   moon run --target native examples/01-hello-cube -- --translate="1 2 3"
-//   moon run --target native examples/01-hello-cube -- --tx 1 --ty 2 --tz 3
-
-///|
+/// 01-hello-cube
+///
+/// A small example that generates a cube STEP model.
+///
+/// Usage (stdout):
+///   moon run --target native examples/01-hello-cube -- --edge 20 > cube.step
+///
+/// Usage (write file):
+///   moon run --target native examples/01-hello-cube -- -o cube.step --edge 30
+///   # also supported: --out=cube.step
+///
+/// Translate examples:
+///   moon run --target native examples/01-hello-cube -- -t 1 2 3
+///   moon run --target native examples/01-hello-cube -- -t 1,2,3
+///   moon run --target native examples/01-hello-cube -- --translate="1 2 3"
+///   moon run --target native examples/01-hello-cube -- --tx 1 --ty 2 --tz 3
 async fn main {
   let base_args_spec = {
     "edge": @cli.opt_double(

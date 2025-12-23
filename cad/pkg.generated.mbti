@@ -17,6 +17,8 @@ pub fn dovetail_base(Double, Double, Double, Double, Double, Double) -> Shape
 
 pub fn dovetail_slider(Double, Double, Double, Double, clearance? : Double) -> Shape
 
+pub fn polygon_knob(Int, Double, Double, Int, Double, hole_rotation? : Double) -> Shape
+
 pub async fn write_step_text(String, String?) -> Unit
 
 // Errors
@@ -77,6 +79,7 @@ pub fn Profile2D::arc(Double, Double, Double, segments? : Int) -> Array[(Double,
 pub fn Profile2D::centered_rect(Double, Double) -> Array[(Double, Double)]
 pub fn Profile2D::circle(Double, segments? : Int) -> Array[(Double, Double)]
 pub fn Profile2D::dovetail(Double, Double, Double) -> Array[(Double, Double)]
+pub fn Profile2D::polygon(Int, Double, rotation? : Double) -> Array[(Double, Double)]
 pub fn Profile2D::rect(Double, Double) -> Array[(Double, Double)]
 
 pub struct Rgb {

@@ -1,29 +1,27 @@
 ///|
-// 02-calibration-chamfer-block
-//
-// A working example that generates a STEP model for a print-tuning block that
-// sweeps chamfers/fillets around the top edge.
-//
-// Usage (stdout):
-//   moon run --target native examples/02-calibration-chamfer-block -- > block.step
-//
-// Usage (write file):
-//   moon run --target native examples/02-calibration-chamfer-block -- -o block.step
-//
-// Chamfer vs fillet:
-// - If --filletRadius > 0, it takes precedence and we generate a stepped (faceted)
-//   fillet-like top profile.
-// - Otherwise, we generate a simple chamfer using --chamferSize.
-//
-// Try:
-//   moon run --target native examples/02-calibration-chamfer-block -- -o block.step --chamferSize 0.8
-//   moon run --target native examples/02-calibration-chamfer-block -- -o block.step --filletRadius 1.2
-//   moon run --target native examples/02-calibration-chamfer-block -- -o block.step --length 40 --width 20 --height 10
-//
-// Translate examples:
-//   moon run --target native examples/02-calibration-chamfer-block -- -t 10,0,0 -o block.step
-
-///|
+/// 02-calibration-chamfer-block
+///
+/// A working example that generates a STEP model for a print-tuning block that
+/// sweeps chamfers/fillets around the top edge.
+///
+/// Usage (stdout):
+///   moon run --target native examples/02-calibration-chamfer-block -- > block.step
+///
+/// Usage (write file):
+///   moon run --target native examples/02-calibration-chamfer-block -- -o block.step
+///
+/// Chamfer vs fillet:
+/// - If --filletRadius > 0, it takes precedence and we generate a stepped (faceted)
+///   fillet-like top profile.
+/// - Otherwise, we generate a simple chamfer using --chamferSize.
+///
+/// Try:
+///   moon run --target native examples/02-calibration-chamfer-block -- -o block.step --chamferSize 0.8
+///   moon run --target native examples/02-calibration-chamfer-block -- -o block.step --filletRadius 1.2
+///   moon run --target native examples/02-calibration-chamfer-block -- -o block.step --length 40 --width 20 --height 10
+///
+/// Translate examples:
+///   moon run --target native examples/02-calibration-chamfer-block -- -t 10,0,0 -o block.step
 async fn validate_dims(
   length_mm : Double,
   width_mm : Double,
