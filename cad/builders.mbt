@@ -41,6 +41,53 @@ pub fn Profile2D::centered_rect(
 }
 
 ///|
+pub fn Profile2D::rounded_rect(
+  width : Double,
+  height : Double,
+  radius : Double,
+  segments? : Int = 32,
+) -> Array[(Double, Double)] {
+  if radius <= 0.0 {
+    return Profile2D::rect(width, height)
+  }
+  let r = if radius > width / 2.0 {
+    width / 2.0
+  } else if radius > height / 2.0 {
+    height / 2.0
+  } else {
+    radius
+  }
+  let n = if segments < 4 { 4 } else { segments }
+  let qn = n / 4
+  let pts = []
+  // Bottom-right arc: 270 to 360 degrees
+  pts.push_iter(
+    Profile2D::arc(2.0 * r, 1.5 * @math.PI, 2.0 * @math.PI, segments=qn)
+    .iter()
+    .map(fn(p : (Double, Double)) { (p.0 + width - r, p.1 + r) }),
+  )
+  // Top-right arc: 0 to 90 degrees
+  pts.push_iter(
+    Profile2D::arc(2.0 * r, 0.0, 0.5 * @math.PI, segments=qn)
+    .iter()
+    .map(fn(p : (Double, Double)) { (p.0 + width - r, p.1 + height - r) }),
+  )
+  // Top-left arc: 90 to 180 degrees
+  pts.push_iter(
+    Profile2D::arc(2.0 * r, 0.5 * @math.PI, @math.PI, segments=qn)
+    .iter()
+    .map(fn(p : (Double, Double)) { (p.0 + r, p.1 + height - r) }),
+  )
+  // Bottom-left arc: 180 to 270 degrees
+  pts.push_iter(
+    Profile2D::arc(2.0 * r, @math.PI, 1.5 * @math.PI, segments=qn)
+    .iter()
+    .map(fn(p : (Double, Double)) { (p.0 + r, p.1 + r) }),
+  )
+  pts
+}
+
+///|
 pub fn Profile2D::dovetail(
   width : Double,
   height : Double,
@@ -301,6 +348,104 @@ pub fn pin_gauge(
       .translate(x~, y~, z=0.0)
     nodes.push(pin)
   }
+  nodes
+}
+
+///|
+/// vented_enclosure returns an array of SceneNodes representing a box body
+/// and a matching lid with vent slots and screw bosses.
+pub fn vented_enclosure(
+  width : Double,
+  length : Double,
+  height : Double,
+  wall_thickness : Double,
+  fillet_radius : Double,
+  boss_diameter : Double,
+  boss_hole_diameter : Double,
+  lid_thickness : Double,
+  vent_slot_width? : Double = 2.0,
+  vent_slot_spacing? : Double = 4.0,
+) -> Array[SceneNode] {
+  let outer = Profile2D::rounded_rect(width, length, fillet_radius)
+  let inner_r = if fillet_radius > wall_thickness {
+    fillet_radius - wall_thickness
+  } else {
+    0.0
+  }
+  let inner = Profile2D::rounded_rect(
+      width - 2.0 * wall_thickness,
+      length - 2.0 * wall_thickness,
+      inner_r,
+    )
+    .map(fn(p) { (p.0 + wall_thickness, p.1 + wall_thickness) })
+    .rev()
+
+  // 1. Body Bottom
+  let bottom = ExtrudedProfile::new(outer, wall_thickness)
+    .with_name("body-bottom")
+    .with_color(Rgb::blue())
+
+  // 2. Body Walls
+  let walls = ExtrudedProfile::new(outer, height - wall_thickness, holes=[inner])
+    .with_name("body-walls")
+    .with_color(Rgb::blue())
+    .translate(z=wall_thickness)
+  let nodes = [bottom, walls]
+
+  // 3. Screw Bosses
+  let boss_h = height - wall_thickness
+  let boss_offset = wall_thickness + boss_diameter / 2.0
+  let boss_locs = [
+    (boss_offset, boss_offset),
+    (width - boss_offset, boss_offset),
+    (width - boss_offset, length - boss_offset),
+    (boss_offset, length - boss_offset),
+  ]
+  for i, loc in boss_locs {
+    let (bx, by) = loc
+    let boss = tube(boss_diameter, boss_hole_diameter, boss_h)
+      .with_name("boss-\{i}")
+      .with_color(Rgb::cyan())
+      .translate(x=bx, y=by, z=wall_thickness)
+    nodes.push(boss)
+  }
+
+  // 4. Lid with Vents
+  let vent_w = vent_slot_width
+  let vent_s = vent_slot_spacing
+  let lid_holes = []
+
+  // Add some vent slots in the middle
+  let safe_margin = wall_thickness + boss_diameter + 2.0
+  let vent_area_w = width - 2.0 * safe_margin
+  let vent_area_l = length - 2.0 * safe_margin
+  if vent_area_w > vent_w && vent_area_l > vent_w {
+    let num_vents = (vent_area_w / vent_s).to_int()
+    for i in 0..<num_vents {
+      let vx = safe_margin + Double::from_int(i) * vent_s
+      let hole = [
+        (vx - vent_w / 2.0, safe_margin),
+        (vx + vent_w / 2.0, safe_margin),
+        (vx + vent_w / 2.0, safe_margin + vent_area_l),
+        (vx - vent_w / 2.0, safe_margin + vent_area_l),
+      ].rev()
+      lid_holes.push(hole)
+    }
+  }
+
+  // Add screw holes to lid
+  for loc in boss_locs {
+    let (bx, by) = loc
+    let hole = Profile2D::circle(boss_hole_diameter)
+      .map(fn(p) { (p.0 + bx, p.1 + by) })
+      .rev()
+    lid_holes.push(hole)
+  }
+  let lid = ExtrudedProfile::new(outer, lid_thickness, holes=lid_holes)
+    .with_name("lid")
+    .with_color(Rgb::orange())
+    .translate(z=height + 10.0) // Exploded view
+  nodes.push(lid)
   nodes
 }
 

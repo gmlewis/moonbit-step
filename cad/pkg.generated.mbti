@@ -50,6 +50,8 @@ pub fn text_at(String, Double, Double, Double, font~ : @fonts.Font, font_size? :
 
 pub fn tube(Double, Double, Double, segments? : Int) -> Shape
 
+pub fn vented_enclosure(Double, Double, Double, Double, Double, Double, Double, Double, vent_slot_width? : Double, vent_slot_spacing? : Double) -> Array[SceneNode]
+
 pub async fn write_step_text(String, String?) -> Unit
 
 // Errors
@@ -113,6 +115,7 @@ pub fn Profile2D::dovetail(Double, Double, Double) -> Array[(Double, Double)]
 pub fn Profile2D::polygon(Int, Double, rotation? : Double) -> Array[(Double, Double)]
 pub fn Profile2D::rect(Double, Double) -> Array[(Double, Double)]
 pub fn Profile2D::rect_with_notches(Double, Double, Array[(Double, Double, Double)]) -> Array[(Double, Double)]
+pub fn Profile2D::rounded_rect(Double, Double, Double, segments? : Int) -> Array[(Double, Double)]
 
 pub struct Rgb {
   r : Double

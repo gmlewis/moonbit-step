@@ -21,3 +21,18 @@ The intent is that you can run the code here to emit a STEP file, open it in a C
 - add gasket grooves or light pipes
 - add vent patterns tied to thermal needs
 - add a variant generator (small/medium/large)
+
+---
+
+### Variant 1
+
+Command line: `./run-example.sh 18 --width 60 --length 80 --height 30`
+
+![](preview-1.png)
+
+### Variant 2
+
+Command line: `./run-example.sh 18 --wallThickness 3 --filletRadius 10 --bossOD 10`
+
+![](preview-2.png)
+
