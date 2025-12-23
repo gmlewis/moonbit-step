@@ -1,13 +1,10 @@
 ///|
-// 04-parametric-washer-kit
-//
-// A working example that generates a family of washers from inner/outer diameters.
-//
-// Usage (stdout):
-//   moon run --target native examples/04-parametric-washer-kit -- --id 5 --od 10 --thickness 1 > washer.step
-//
-
-///|
+/// 04-parametric-washer-kit
+///
+/// A working example that generates a family of washers from inner/outer diameters.
+///
+/// Usage (stdout):
+///   moon run --target native examples/04-parametric-washer-kit -- --id 5 --od 10 --thickness 1 > washer.step
 async fn main {
   let base_args_spec = {
     "id": @cli.opt_double(

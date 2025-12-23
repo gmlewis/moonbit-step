@@ -1,17 +1,14 @@
 ///|
-// 03-engraved-name-tag
-//
-// A working example that generates a STEP model for a keychain tag with
-// programmable text placement and border styles.
-//
-// Usage (stdout):
-//   moon run --target native examples/03-engraved-name-tag -- --name Susan > name-tag.step
-//
-// Usage (write file):
-//   moon run --target native examples/03-engraved-name-tag -- --name Susan -o name-tag.step
-//
-
-///|
+/// 03-engraved-name-tag
+///
+/// A working example that generates a STEP model for a keychain tag with
+/// programmable text placement and border styles.
+///
+/// Usage (stdout):
+///   moon run --target native examples/03-engraved-name-tag -- --name Susan > name-tag.step
+///
+/// Usage (write file):
+///   moon run --target native examples/03-engraved-name-tag -- --name Susan -o name-tag.step
 async fn main {
   let base_args_spec = {
     "debug": @cli.flag(short='d', help="Print debug information"),

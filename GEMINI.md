@@ -26,7 +26,12 @@
 
 ## MoonBit Spacing
 
-- **Preserve Spacing**: `moon fmt` removes blank lines unless they are followed by a blank comment line (`//`). When adding spacing for readability, always add a blank line followed immediately by a line containing only `//`.
+- **Preserve Spacing**: Within the body of a function, `moon fmt` removes blank
+  lines unless they are followed by a blank comment line (`//`).
+  When adding spacing for readability, always add a blank line followed
+  immediately by a line starting with `//` (and optionally adding text if desired).
+  This is not true outside of function bodies, and `moon fmt` insists on having
+  a blank line between functions followed by `///|` followed by `/// Docgen-style comment`.
 
 ## Running and Testing
 

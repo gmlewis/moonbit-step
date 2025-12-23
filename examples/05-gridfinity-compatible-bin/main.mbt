@@ -1,12 +1,10 @@
 ///|
-// 05-gridfinity-compatible-bin
-//
-// A maker-friendly storage bin generator.
-//
-// Usage (stdout):
-//   moon run --target native examples/05-gridfinity-compatible-bin -- --rows 2 --cols 1 > bin.step
-//
-
+/// 05-gridfinity-compatible-bin
+///
+/// A maker-friendly storage bin generator.
+///
+/// Usage (stdout):
+///   moon run --target native examples/05-gridfinity-compatible-bin -- --rows 2 --cols 1 > bin.step
 const GRID_UNIT : Double = 42.0
 
 ///|
@@ -102,7 +100,7 @@ async fn main {
       inner_poly,
     ])
     .with_name("bin-walls")
-    .with_color(@cad.Rgb::new(0.0, 1.0, 1.0)) // cyan
+    .with_color(@cad.Rgb::cyan())
     .translate(x=tx, y=ty, z=tz + BASE_THICKNESS)
   design = design.add(walls)
 
@@ -116,7 +114,7 @@ async fn main {
         wall_height,
       )
       .with_name("divider-x-\{i}")
-      .with_color(@cad.Rgb::new(1.0, 0.0, 1.0)) // magenta
+      .with_color(@cad.Rgb::magenta())
       .translate(x=tx + x, y=ty + WALL_THICKNESS, z=tz + BASE_THICKNESS)
     design = design.add(div)
   }

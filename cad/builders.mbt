@@ -112,6 +112,48 @@ pub fn dovetail_slider(
 }
 
 ///|
+/// Profile2D::polygon returns a regular polygon with the given number of sides,
+/// diameter, and optional rotation in degrees.
+pub fn Profile2D::polygon(
+  sides : Int,
+  diameter : Double,
+  rotation? : Double = 0.0,
+) -> Array[(Double, Double)] {
+  let n = if sides < 3 { 3 } else { sides }
+  let radius = diameter / 2.0
+  let angle_step = 2.0 * @math.PI / Double::from_int(n)
+  let rotation_rad = rotation * @math.PI / 180.0
+  let out = []
+  for i in 0..<n {
+    let phi = Double::from_int(i) * angle_step + rotation_rad
+    out.push((radius * @math.cos(phi), radius * @math.sin(phi)))
+  }
+  out
+}
+
+///|
+/// polygon_knob returns a Shape representing a polygonal knob with a polygonal
+/// shaft hole.
+pub fn polygon_knob(
+  sides : Int,
+  diameter : Double,
+  height : Double,
+  hole_sides : Int,
+  hole_diameter : Double,
+  hole_rotation? : Double = 0.0,
+) -> Shape {
+  let outer = Profile2D::polygon(sides, diameter)
+  let hole = Profile2D::polygon(
+    hole_sides,
+    hole_diameter,
+    rotation=hole_rotation,
+  )
+  // Hole must be reversed (CW) for standard STEP orientation if outer is CCW.
+  let hole_reversed = hole.rev()
+  ExtrudedProfile::new(outer, height, holes=[hole_reversed])
+}
+
+///|
 pub fn Profile2D::circle(
   diameter : Double,
   segments? : Int = 64,

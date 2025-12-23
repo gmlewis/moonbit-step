@@ -21,3 +21,24 @@ The intent is that you can run the code here to emit a STEP file, open it in a C
 - add mounting flanges and bolt patterns
 - add flow-straightening vanes or ribs
 - add a variant generator (small/medium/large)
+
+---
+
+### Variant 1
+
+Command line: `./run-example.sh 10 --sides 6 --holeSides 6`
+
+![](preview-1.png)
+
+### Variant 2
+
+Command line: `./run-example.sh 10 --sides 5 --holeSides 3 --diameter 25`
+
+![](preview-2.png)
+
+### Variant 3
+
+Command line: `./run-example.sh 10 --sides 8 --holeSides 4 --holeRotation 45 --diameter 40`
+
+![](preview-3.png)
+
