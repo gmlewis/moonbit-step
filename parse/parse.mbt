@@ -1450,6 +1450,31 @@ fn parse_certification_type(
 }
 
 ///|
+fn parse_document(args : String) -> @product.Document raise StepParseError {
+  let parts = split_args(args)
+  if parts.length() != 4 {
+    fail_parse()
+  }
+  let id = strip_quotes(parts[0])
+  let name = strip_quotes(parts[1])
+  let description = strip_quotes(parts[2])
+  let kind_id = parse_ref_int(parts[3])
+  @product.Document::new(id, name, description, @step.Ref::{ id: kind_id })
+}
+
+///|
+fn parse_document_type(
+  args : String,
+) -> @product.DocumentType raise StepParseError {
+  let parts = split_args(args)
+  if parts.length() != 1 {
+    fail_parse()
+  }
+  let desc = strip_quotes(parts[0])
+  @product.DocumentType::new(desc)
+}
+
+///|
 fn parse_manifold_solid_brep(
   args : String,
 ) -> @topology.ManifoldSolidBrep raise StepParseError {
@@ -3075,6 +3100,18 @@ pub fn parse_repository_from_string(
       repo = repo.insert_with_id(
         row.id,
         @repository.any_entity_certification_type(entity),
+      )
+    } else if name == "DOCUMENT" {
+      let entity = parse_document(row.args)
+      repo = repo.insert_with_id(
+        row.id,
+        @repository.any_entity_document(entity),
+      )
+    } else if name == "DOCUMENT_TYPE" {
+      let entity = parse_document_type(row.args)
+      repo = repo.insert_with_id(
+        row.id,
+        @repository.any_entity_document_type(entity),
       )
     } else if name == "MANIFOLD_SOLID_BREP" {
       let entity = parse_manifold_solid_brep(row.args)

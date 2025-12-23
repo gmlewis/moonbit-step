@@ -87,6 +87,10 @@ pub fn any_entity_dimensional_exponents(@units.DimensionalExponents) -> AnyEntit
 
 pub fn any_entity_direction(@geometry.Direction) -> AnyEntity
 
+pub fn any_entity_document(@product.Document) -> AnyEntity
+
+pub fn any_entity_document_type(@product.DocumentType) -> AnyEntity
+
 pub fn any_entity_edge_curve(@topology.EdgeCurve) -> AnyEntity
 
 pub fn any_entity_edge_loop(@topology.EdgeLoop) -> AnyEntity
@@ -315,6 +319,8 @@ pub enum AnyEntity {
   SecurityClassificationLevel(@product.SecurityClassificationLevel)
   Certification(@product.Certification)
   CertificationType(@product.CertificationType)
+  Document(@product.Document)
+  DocumentType(@product.DocumentType)
   ManifoldSolidBrep(@topology.ManifoldSolidBrep)
   ClosedShell(@topology.ClosedShell)
   OpenShell(@topology.OpenShell)

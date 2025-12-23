@@ -112,6 +112,21 @@ pub struct DescriptiveRepresentationItem {
 pub fn DescriptiveRepresentationItem::new(String, String) -> Self
 pub impl @step.Entity for DescriptiveRepresentationItem
 
+pub struct Document {
+  id : String
+  name : String
+  description : String
+  kind : @step.Ref
+}
+pub fn Document::new(String, String, String, @step.Ref) -> Self
+pub impl @step.Entity for Document
+
+pub struct DocumentType {
+  product_data_type : String
+}
+pub fn DocumentType::new(String) -> Self
+pub impl @step.Entity for DocumentType
+
 pub struct ItemDefinedTransformation {
   name : String
   description : String
