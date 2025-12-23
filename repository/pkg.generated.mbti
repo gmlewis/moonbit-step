@@ -66,6 +66,10 @@ pub fn any_entity_color_rgb(@presentation.ColorRgb) -> AnyEntity
 
 pub fn any_entity_complex_instance(@context.ComplexInstance) -> AnyEntity
 
+pub fn any_entity_composite_curve(@geometry.CompositeCurve) -> AnyEntity
+
+pub fn any_entity_composite_curve_segment(@geometry.CompositeCurveSegment) -> AnyEntity
+
 pub fn any_entity_conical_surface(@geometry.ConicalSurface) -> AnyEntity
 
 pub fn any_entity_connected_face_set(@topology.ConnectedFaceSet) -> AnyEntity
@@ -280,6 +284,8 @@ pub enum AnyEntity {
   ToroidalSurface(@geometry.ToroidalSurface)
   BSplineCurve(@geometry.BSplineCurve)
   BSplineCurveWithKnots(@geometry.BSplineCurveWithKnots)
+  CompositeCurve(@geometry.CompositeCurve)
+  CompositeCurveSegment(@geometry.CompositeCurveSegment)
   BSplineSurface(@geometry.BSplineSurface)
   BSplineSurfaceWithKnots(@geometry.BSplineSurfaceWithKnots)
   RationalBSplineCurve(@geometry.RationalBSplineCurve)

@@ -620,6 +620,16 @@ test "parse_repository_from_string_b_spline_curve_with_knots" {
 }
 
 ///|
+test "parse_repository_from_string_composite_curve" {
+  let content = "ISO-10303-21;\nDATA;\n#1=COMPOSITE_CURVE_SEGMENT(.CONTINUOUS.,.T.,#10);\n#2=COMPOSITE_CURVE('curve',(#1),.F.);\nENDSEC;\nEND-ISO-10303-21;\n"
+  let repo = parse_repository_from_string(content)
+  inspect(repo.len(), content="2")
+  let out = repo.to_step_data_section()
+  assert_true(out.contains("#1=COMPOSITE_CURVE_SEGMENT(.CONTINUOUS.,.T.,#10);"))
+  assert_true(out.contains("#2=COMPOSITE_CURVE('curve',(#1),.F.);"))
+}
+
+///|
 test "parse_repository_from_string_b_spline_surface_with_knots" {
   let content = "ISO-10303-21;\nDATA;\n#51=B_SPLINE_SURFACE_WITH_KNOTS((3,3),(3,2,3),(-0.1,0.2),(-3.14159,0.0,3.14159),.UNSPECIFIED.);\nENDSEC;\nEND-ISO-10303-21;\n"
   let repo = parse_repository_from_string(content)

@@ -124,6 +124,22 @@ pub struct Circle {
 pub fn Circle::new(String, @step.Ref, String) -> Self
 pub impl @step.Entity for Circle
 
+pub struct CompositeCurve {
+  name : String
+  segments : Array[@step.Ref]
+  self_intersect : Bool
+}
+pub fn CompositeCurve::new(String, Array[@step.Ref], Bool) -> Self
+pub impl @step.Entity for CompositeCurve
+
+pub struct CompositeCurveSegment {
+  transition : TransitionCode
+  same_sense : Bool
+  parent_curve : @step.Ref
+}
+pub fn CompositeCurveSegment::new(TransitionCode, Bool, @step.Ref) -> Self
+pub impl @step.Entity for CompositeCurveSegment
+
 pub struct ConicalSurface {
   name : String
   position : @step.Ref
@@ -342,6 +358,15 @@ pub struct Torus {
 }
 pub fn Torus::new(String, @step.Ref, Double, Double) -> Self
 pub impl @step.Entity for Torus
+
+pub(all) enum TransitionCode {
+  Discontinuous
+  Continuous
+  ContSameGradient
+  ContSameGradientSameCurvature
+}
+pub fn TransitionCode::from_string(String) -> Self?
+pub impl @step.Entity for TransitionCode
 
 pub struct TrimmedCurve {
   name : String

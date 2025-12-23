@@ -18,6 +18,8 @@ pub enum AnyEntity {
   ToroidalSurface(@geometry.ToroidalSurface)
   BSplineCurve(@geometry.BSplineCurve)
   BSplineCurveWithKnots(@geometry.BSplineCurveWithKnots)
+  CompositeCurve(@geometry.CompositeCurve)
+  CompositeCurveSegment(@geometry.CompositeCurveSegment)
   BSplineSurface(@geometry.BSplineSurface)
   BSplineSurfaceWithKnots(@geometry.BSplineSurfaceWithKnots)
   RationalBSplineCurve(@geometry.RationalBSplineCurve)
@@ -229,6 +231,18 @@ pub fn any_entity_b_spline_curve_with_knots(
   c : @geometry.BSplineCurveWithKnots,
 ) -> AnyEntity {
   AnyEntity::BSplineCurveWithKnots(c)
+}
+
+///|
+pub fn any_entity_composite_curve(c : @geometry.CompositeCurve) -> AnyEntity {
+  AnyEntity::CompositeCurve(c)
+}
+
+///|
+pub fn any_entity_composite_curve_segment(
+  c : @geometry.CompositeCurveSegment,
+) -> AnyEntity {
+  AnyEntity::CompositeCurveSegment(c)
 }
 
 ///|
@@ -961,6 +975,8 @@ fn entity_to_step(entity : AnyEntity) -> String {
     ToroidalSurface(s) => @step.Entity::to_step(s)
     BSplineCurve(c) => @step.Entity::to_step(c)
     BSplineCurveWithKnots(c) => @step.Entity::to_step(c)
+    CompositeCurve(c) => @step.Entity::to_step(c)
+    CompositeCurveSegment(c) => @step.Entity::to_step(c)
     BSplineSurface(s) => @step.Entity::to_step(s)
     BSplineSurfaceWithKnots(s) => @step.Entity::to_step(s)
     RationalBSplineCurve(c) => @step.Entity::to_step(c)

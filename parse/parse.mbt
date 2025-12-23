@@ -56,6 +56,14 @@ fn init {
       parse_b_spline_curve_with_knots(args),
     )
   })
+  parsers.set("COMPOSITE_CURVE", fn(args) raise StepParseError {
+    @repository.any_entity_composite_curve(parse_composite_curve(args))
+  })
+  parsers.set("COMPOSITE_CURVE_SEGMENT", fn(args) raise StepParseError {
+    @repository.any_entity_composite_curve_segment(
+      parse_composite_curve_segment(args),
+    )
+  })
   parsers.set("B_SPLINE_SURFACE", fn(args) raise StepParseError {
     @repository.any_entity_b_spline_surface(parse_b_spline_surface(args))
   })
@@ -855,6 +863,55 @@ fn parse_b_spline_curve_with_knots(
     name, degree, control_points, curve_form, closed_curve, self_intersect, knot_multiplicities,
     knots, knot_spec,
   )
+}
+
+///|
+fn parse_composite_curve(
+  args : String,
+) -> @geometry.CompositeCurve raise StepParseError {
+  let parts = split_args(args)
+  if parts.length() != 3 {
+    fail_parse()
+  }
+  let name = strip_quotes(parts[0])
+  let seg_ids = parse_ref_ids(parts[1])
+  let segments = seg_ids.map(fn(id) { @step.Ref::{ id, } })
+  let si_str = parts[2].trim().to_string()
+  let self_intersect = if si_str == ".T." {
+    true
+  } else if si_str == ".F." {
+    false
+  } else {
+    fail_parse()
+  }
+  @geometry.CompositeCurve::new(name, segments, self_intersect)
+}
+
+///|
+fn parse_composite_curve_segment(
+  args : String,
+) -> @geometry.CompositeCurveSegment raise StepParseError {
+  let parts = split_args(args)
+  if parts.length() != 3 {
+    fail_parse()
+  }
+  let trans_str = parts[0].trim().to_string()
+  let transition = match @geometry.TransitionCode::from_string(trans_str) {
+    Some(t) => t
+    None => fail_parse()
+  }
+  let ss_str = parts[1].trim().to_string()
+  let same_sense = if ss_str == ".T." {
+    true
+  } else if ss_str == ".F." {
+    false
+  } else {
+    fail_parse()
+  }
+  let curve_id = parse_ref_int(parts[2])
+  @geometry.CompositeCurveSegment::new(transition, same_sense, @step.Ref::{
+    id: curve_id,
+  })
 }
 
 ///|
