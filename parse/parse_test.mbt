@@ -424,6 +424,19 @@ test "parse_repository_from_string_over_riding_styled_item" {
 }
 
 ///|
+test "parse_repository_from_string_hidden_item" {
+  let content = "ISO-10303-21;\nDATA;\n#1=HIDDEN_ELEMENT_OVER_RIDING_STYLED_ITEM('name',(#10),#20,#30);\nENDSEC;\nEND-ISO-10303-21;\n"
+  let repo = parse_repository_from_string(content)
+  inspect(repo.len(), content="1")
+  let out = repo.to_step_data_section()
+  assert_true(
+    out.contains(
+      "#1=HIDDEN_ELEMENT_OVER_RIDING_STYLED_ITEM('name',(#10),#20,#30);",
+    ),
+  )
+}
+
+///|
 test "parse_repository_from_string_shape_definition_representation" {
   let content = "ISO-10303-21;\nDATA;\n#12=SHAPE_DEFINITION_REPRESENTATION(#13,#22);\nENDSEC;\nEND-ISO-10303-21;\n"
   let repo = parse_repository_from_string(content)

@@ -394,6 +394,13 @@ fn init {
       parse_over_riding_styled_item(args),
     )
   })
+  parsers.set("HIDDEN_ELEMENT_OVER_RIDING_STYLED_ITEM", fn(
+    args,
+  ) raise StepParseError {
+    @repository.any_entity_hidden_element_over_riding_styled_item(
+      parse_hidden_element_over_riding_styled_item(args),
+    )
+  })
   parsers.set("DIMENSIONAL_EXPONENTS", fn(args) raise StepParseError {
     @repository.any_entity_dimensional_exponents(
       parse_dimensional_exponents(args),
@@ -2386,6 +2393,27 @@ fn parse_over_riding_styled_item(
   let item_id = parse_ref_int(parts[2])
   let over_id = parse_ref_int(parts[3])
   @presentation.OverRidingStyledItem::new(
+    name,
+    styles,
+    @step.Ref::{ id: item_id },
+    @step.Ref::{ id: over_id },
+  )
+}
+
+///|
+fn parse_hidden_element_over_riding_styled_item(
+  args : String,
+) -> @presentation.HiddenElementOverRidingStyledItem raise StepParseError {
+  let parts = split_args(args)
+  if parts.length() != 4 {
+    fail_parse()
+  }
+  let name = strip_quotes(parts[0])
+  let style_ids = parse_ref_ids(parts[1])
+  let styles = style_ids.map(fn(id) { @step.Ref::{ id, } })
+  let item_id = parse_ref_int(parts[2])
+  let over_id = parse_ref_int(parts[3])
+  @presentation.HiddenElementOverRidingStyledItem::new(
     name,
     styles,
     @step.Ref::{ id: item_id },

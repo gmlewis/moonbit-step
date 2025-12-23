@@ -39,6 +39,15 @@ pub struct FillAreaStyleColor {
 pub fn FillAreaStyleColor::new(String, @step.Ref) -> Self
 pub impl @step.Entity for FillAreaStyleColor
 
+pub struct HiddenElementOverRidingStyledItem {
+  name : String
+  styles : Array[@step.Ref]
+  item : @step.Ref
+  over_ridden_styled_item : @step.Ref
+}
+pub fn HiddenElementOverRidingStyledItem::new(String, Array[@step.Ref], @step.Ref, @step.Ref) -> Self
+pub impl @step.Entity for HiddenElementOverRidingStyledItem
+
 pub struct MechanicalDesignGeometricPresentationRepresentation {
   name : String
   items : Array[@step.Ref]

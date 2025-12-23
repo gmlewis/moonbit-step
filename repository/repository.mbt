@@ -115,6 +115,9 @@ pub enum AnyEntity {
   )
   StyledItem(@presentation.StyledItem)
   OverRidingStyledItem(@presentation.OverRidingStyledItem)
+  HiddenElementOverRidingStyledItem(
+    @presentation.HiddenElementOverRidingStyledItem
+  )
   DimensionalExponents(@units.DimensionalExponents)
   UncertaintyMeasureWithUnit(@units.UncertaintyMeasureWithUnit)
   PlaneAngleMeasureWithUnit(@units.PlaneAngleMeasureWithUnit)
@@ -766,6 +769,13 @@ pub fn any_entity_over_riding_styled_item(
 }
 
 ///|
+pub fn any_entity_hidden_element_over_riding_styled_item(
+  s : @presentation.HiddenElementOverRidingStyledItem,
+) -> AnyEntity {
+  AnyEntity::HiddenElementOverRidingStyledItem(s)
+}
+
+///|
 pub fn any_entity_dimensional_exponents(
   d : @units.DimensionalExponents,
 ) -> AnyEntity {
@@ -1001,6 +1011,7 @@ fn entity_to_step(entity : AnyEntity) -> String {
       @step.Entity::to_step(r)
     StyledItem(s) => @step.Entity::to_step(s)
     OverRidingStyledItem(s) => @step.Entity::to_step(s)
+    HiddenElementOverRidingStyledItem(s) => @step.Entity::to_step(s)
     DimensionalExponents(d) => @step.Entity::to_step(d)
     UncertaintyMeasureWithUnit(u) => @step.Entity::to_step(u)
     PlaneAngleMeasureWithUnit(p) => @step.Entity::to_step(p)

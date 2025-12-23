@@ -113,6 +113,8 @@ pub fn any_entity_fill_area_style_color(@presentation.FillAreaStyleColor) -> Any
 
 pub fn any_entity_half_space_solid(@geometry.HalfSpaceSolid) -> AnyEntity
 
+pub fn any_entity_hidden_element_over_riding_styled_item(@presentation.HiddenElementOverRidingStyledItem) -> AnyEntity
+
 pub fn any_entity_hyperbola(@geometry.Hyperbola) -> AnyEntity
 
 pub fn any_entity_item_defined_transformation(@product.ItemDefinedTransformation) -> AnyEntity
@@ -354,6 +356,7 @@ pub enum AnyEntity {
   MechanicalDesignGeometricPresentationRepresentation(@presentation.MechanicalDesignGeometricPresentationRepresentation)
   StyledItem(@presentation.StyledItem)
   OverRidingStyledItem(@presentation.OverRidingStyledItem)
+  HiddenElementOverRidingStyledItem(@presentation.HiddenElementOverRidingStyledItem)
   DimensionalExponents(@units.DimensionalExponents)
   UncertaintyMeasureWithUnit(@units.UncertaintyMeasureWithUnit)
   PlaneAngleMeasureWithUnit(@units.PlaneAngleMeasureWithUnit)
