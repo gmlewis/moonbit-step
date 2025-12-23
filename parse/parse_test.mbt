@@ -418,6 +418,17 @@ test "parse_repository_from_string_kinematics" {
 }
 
 ///|
+test "parse_repository_from_string_geometric_tolerance" {
+  let content = "ISO-10303-21;\nDATA;\n#1=MEASURE_WITH_UNIT(LENGTH_MEASURE(0.1),#10);\n#2=SHAPE_ASPECT('sa','desc',#20,.T.);\n#3=GEOMETRIC_TOLERANCE('gt','desc',#1,#2);\nENDSEC;\nEND-ISO-10303-21;\n"
+  let repo = parse_repository_from_string(content)
+  inspect(repo.len(), content="3")
+  let out = repo.to_step_data_section()
+  assert_true(out.contains("#1=MEASURE_WITH_UNIT(LENGTH_MEASURE(0.1),#10);"))
+  assert_true(out.contains("#2=SHAPE_ASPECT('sa','desc',#20,.T.);"))
+  assert_true(out.contains("#3=GEOMETRIC_TOLERANCE('gt','desc',#1,#2);"))
+}
+
+///|
 test "parse_repository_from_string_draughting_pre_defined_colour" {
   let content = "ISO-10303-21;\nDATA;\n#1=DRAUGHTING_PRE_DEFINED_COLOUR('red');\nENDSEC;\nEND-ISO-10303-21;\n"
   let repo = parse_repository_from_string(content)

@@ -323,6 +323,15 @@ pub struct SecurityClassificationLevel {
 pub fn SecurityClassificationLevel::new(String) -> Self
 pub impl @step.Entity for SecurityClassificationLevel
 
+pub struct ShapeAspect {
+  name : String
+  description : String
+  of_shape : @step.Ref
+  product_definitional : String
+}
+pub fn ShapeAspect::new(String, String, @step.Ref, String) -> Self
+pub impl @step.Entity for ShapeAspect
+
 pub struct ShapeDefinitionRepresentation {
   definition : @step.Ref
   used_representation : @step.Ref

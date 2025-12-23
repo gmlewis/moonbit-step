@@ -315,6 +315,9 @@ fn init {
   parsers.set("KINEMATIC_PAIR", fn(args) raise StepParseError {
     @repository.any_entity_kinematic_pair(parse_kinematic_pair(args))
   })
+  parsers.set("GEOMETRIC_TOLERANCE", fn(args) raise StepParseError {
+    @repository.any_entity_geometric_tolerance(parse_geometric_tolerance(args))
+  })
   parsers.set("MANIFOLD_SOLID_BREP", fn(args) raise StepParseError {
     @repository.any_entity_manifold_solid_brep(parse_manifold_solid_brep(args))
   })
@@ -340,6 +343,9 @@ fn init {
   })
   parsers.set("SUBFACE", fn(args) raise StepParseError {
     @repository.any_entity_subface(parse_subface(args))
+  })
+  parsers.set("SHAPE_ASPECT", fn(args) raise StepParseError {
+    @repository.any_entity_shape_aspect(parse_shape_aspect(args))
   })
   parsers.set("FACE_OUTER_BOUND", fn(args) raise StepParseError {
     @repository.any_entity_face_outer_bound(parse_face_outer_bound(args))
@@ -440,6 +446,9 @@ fn init {
     @repository.any_entity_plane_angle_measure_with_unit(
       parse_plane_angle_measure_with_unit(args),
     )
+  })
+  parsers.set("MEASURE_WITH_UNIT", fn(args) raise StepParseError {
+    @repository.any_entity_measure_with_unit(parse_measure_with_unit(args))
   })
   parsers.set("DERIVED_UNIT_ELEMENT", fn(args) raise StepParseError {
     @repository.any_entity_derived_unit_element(
@@ -2088,6 +2097,23 @@ fn parse_kinematic_pair(
 }
 
 ///|
+fn parse_geometric_tolerance(
+  args : String,
+) -> @tolerancing.GeometricTolerance raise StepParseError {
+  let parts = split_args(args)
+  if parts.length() != 4 {
+    fail_parse()
+  }
+  let name = strip_quotes(parts[0])
+  let desc = strip_quotes(parts[1])
+  let mag_id = parse_ref_int(parts[2])
+  let shape_id = parse_ref_int(parts[3])
+  @tolerancing.GeometricTolerance::new(name, desc, @step.Ref::{ id: mag_id }, @step.Ref::{
+    id: shape_id,
+  })
+}
+
+///|
 fn parse_manifold_solid_brep(
   args : String,
 ) -> @topology.ManifoldSolidBrep raise StepParseError {
@@ -2179,6 +2205,26 @@ fn parse_subface(args : String) -> @topology.Subface raise StepParseError {
   let bounds = bound_ids.map(fn(id) { @step.Ref::{ id, } })
   let parent_id = parse_ref_int(parts[2])
   @topology.Subface::new(name, bounds, @step.Ref::{ id: parent_id })
+}
+
+///|
+fn parse_shape_aspect(
+  args : String,
+) -> @product.ShapeAspect raise StepParseError {
+  let parts = split_args(args)
+  if parts.length() != 4 {
+    fail_parse()
+  }
+  let name = strip_quotes(parts[0])
+  let desc = strip_quotes(parts[1])
+  let shape_id = parse_ref_int(parts[2])
+  let definitional = parts[3].trim().to_string()
+  @product.ShapeAspect::new(
+    name,
+    desc,
+    @step.Ref::{ id: shape_id },
+    definitional,
+  )
 }
 
 ///|
@@ -2711,6 +2757,19 @@ fn parse_derived_unit(args : String) -> @units.DerivedUnit raise StepParseError 
   let elem_ids = parse_ref_ids(parts[0])
   let elems = elem_ids.map(fn(id) { @step.Ref::{ id, } })
   @units.DerivedUnit::new(elems)
+}
+
+///|
+fn parse_measure_with_unit(
+  args : String,
+) -> @units.MeasureWithUnit raise StepParseError {
+  let parts = split_args(args)
+  if parts.length() != 2 {
+    fail_parse()
+  }
+  let val = parts[0].trim().to_string()
+  let unit_id = parse_ref_int(parts[1])
+  @units.MeasureWithUnit::new(val, @step.Ref::{ id: unit_id })
 }
 
 ///|

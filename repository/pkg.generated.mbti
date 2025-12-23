@@ -8,6 +8,7 @@ import(
   "gmlewis/step/entities/kinematics"
   "gmlewis/step/entities/presentation"
   "gmlewis/step/entities/product"
+  "gmlewis/step/entities/tolerancing"
   "gmlewis/step/entities/topology"
   "gmlewis/step/entities/units"
   "gmlewis/step/header"
@@ -120,6 +121,8 @@ pub fn any_entity_fill_area_style(@presentation.FillAreaStyle) -> AnyEntity
 
 pub fn any_entity_fill_area_style_color(@presentation.FillAreaStyleColor) -> AnyEntity
 
+pub fn any_entity_geometric_tolerance(@tolerancing.GeometricTolerance) -> AnyEntity
+
 pub fn any_entity_half_space_solid(@geometry.HalfSpaceSolid) -> AnyEntity
 
 pub fn any_entity_hidden_element_over_riding_styled_item(@presentation.HiddenElementOverRidingStyledItem) -> AnyEntity
@@ -141,6 +144,8 @@ pub fn any_entity_local_time(@product.LocalTime) -> AnyEntity
 pub fn any_entity_manifold_solid_brep(@topology.ManifoldSolidBrep) -> AnyEntity
 
 pub fn any_entity_measure_representation_item(@product.MeasureRepresentationItem) -> AnyEntity
+
+pub fn any_entity_measure_with_unit(@units.MeasureWithUnit) -> AnyEntity
 
 pub fn any_entity_mechanical_design_geometric_presentation_representation(@presentation.MechanicalDesignGeometricPresentationRepresentation) -> AnyEntity
 
@@ -219,6 +224,8 @@ pub fn any_entity_right_circular_cylinder(@geometry.RightCircularCylinder) -> An
 pub fn any_entity_security_classification(@product.SecurityClassification) -> AnyEntity
 
 pub fn any_entity_security_classification_level(@product.SecurityClassificationLevel) -> AnyEntity
+
+pub fn any_entity_shape_aspect(@product.ShapeAspect) -> AnyEntity
 
 pub fn any_entity_shape_definition_representation(@product.ShapeDefinitionRepresentation) -> AnyEntity
 
@@ -353,6 +360,7 @@ pub enum AnyEntity {
   KinematicLink(@kinematics.KinematicLink)
   KinematicJoint(@kinematics.KinematicJoint)
   KinematicPair(@kinematics.KinematicPair)
+  GeometricTolerance(@tolerancing.GeometricTolerance)
   ManifoldSolidBrep(@topology.ManifoldSolidBrep)
   ClosedShell(@topology.ClosedShell)
   OpenShell(@topology.OpenShell)
@@ -361,6 +369,7 @@ pub enum AnyEntity {
   AdvancedFace(@topology.AdvancedFace)
   FaceSurface(@topology.FaceSurface)
   Subface(@topology.Subface)
+  ShapeAspect(@product.ShapeAspect)
   FaceOuterBound(@topology.FaceOuterBound)
   FaceBound(@topology.FaceBound)
   EdgeLoop(@topology.EdgeLoop)
@@ -385,6 +394,7 @@ pub enum AnyEntity {
   DimensionalExponents(@units.DimensionalExponents)
   UncertaintyMeasureWithUnit(@units.UncertaintyMeasureWithUnit)
   PlaneAngleMeasureWithUnit(@units.PlaneAngleMeasureWithUnit)
+  MeasureWithUnit(@units.MeasureWithUnit)
   DerivedUnitElement(@units.DerivedUnitElement)
   DerivedUnit(@units.DerivedUnit)
   CtxWrap(@context.CtxWrap)

@@ -93,6 +93,7 @@ pub enum AnyEntity {
   KinematicLink(@kinematics.KinematicLink)
   KinematicJoint(@kinematics.KinematicJoint)
   KinematicPair(@kinematics.KinematicPair)
+  GeometricTolerance(@tolerancing.GeometricTolerance)
   ManifoldSolidBrep(@topology.ManifoldSolidBrep)
   ClosedShell(@topology.ClosedShell)
   OpenShell(@topology.OpenShell)
@@ -101,6 +102,7 @@ pub enum AnyEntity {
   AdvancedFace(@topology.AdvancedFace)
   FaceSurface(@topology.FaceSurface)
   Subface(@topology.Subface)
+  ShapeAspect(@product.ShapeAspect)
   FaceOuterBound(@topology.FaceOuterBound)
   FaceBound(@topology.FaceBound)
   EdgeLoop(@topology.EdgeLoop)
@@ -129,6 +131,7 @@ pub enum AnyEntity {
   DimensionalExponents(@units.DimensionalExponents)
   UncertaintyMeasureWithUnit(@units.UncertaintyMeasureWithUnit)
   PlaneAngleMeasureWithUnit(@units.PlaneAngleMeasureWithUnit)
+  MeasureWithUnit(@units.MeasureWithUnit)
   DerivedUnitElement(@units.DerivedUnitElement)
   DerivedUnit(@units.DerivedUnit)
   CtxWrap(@context.CtxWrap)
@@ -657,6 +660,13 @@ pub fn any_entity_kinematic_pair(k : @kinematics.KinematicPair) -> AnyEntity {
 }
 
 ///|
+pub fn any_entity_geometric_tolerance(
+  g : @tolerancing.GeometricTolerance,
+) -> AnyEntity {
+  AnyEntity::GeometricTolerance(g)
+}
+
+///|
 pub fn any_entity_manifold_solid_brep(
   m : @topology.ManifoldSolidBrep,
 ) -> AnyEntity {
@@ -700,6 +710,11 @@ pub fn any_entity_face_surface(f : @topology.FaceSurface) -> AnyEntity {
 ///|
 pub fn any_entity_subface(f : @topology.Subface) -> AnyEntity {
   AnyEntity::Subface(f)
+}
+
+///|
+pub fn any_entity_shape_aspect(s : @product.ShapeAspect) -> AnyEntity {
+  AnyEntity::ShapeAspect(s)
 }
 
 ///|
@@ -848,6 +863,11 @@ pub fn any_entity_plane_angle_measure_with_unit(
   p : @units.PlaneAngleMeasureWithUnit,
 ) -> AnyEntity {
   AnyEntity::PlaneAngleMeasureWithUnit(p)
+}
+
+///|
+pub fn any_entity_measure_with_unit(m : @units.MeasureWithUnit) -> AnyEntity {
+  AnyEntity::MeasureWithUnit(m)
 }
 
 ///|
@@ -1044,6 +1064,7 @@ fn entity_to_step(entity : AnyEntity) -> String {
     KinematicLink(k) => @step.Entity::to_step(k)
     KinematicJoint(k) => @step.Entity::to_step(k)
     KinematicPair(k) => @step.Entity::to_step(k)
+    GeometricTolerance(g) => @step.Entity::to_step(g)
     ManifoldSolidBrep(m) => @step.Entity::to_step(m)
     ClosedShell(c) => @step.Entity::to_step(c)
     OpenShell(o) => @step.Entity::to_step(o)
@@ -1052,6 +1073,7 @@ fn entity_to_step(entity : AnyEntity) -> String {
     AdvancedFace(a) => @step.Entity::to_step(a)
     FaceSurface(f) => @step.Entity::to_step(f)
     Subface(f) => @step.Entity::to_step(f)
+    ShapeAspect(s) => @step.Entity::to_step(s)
     FaceOuterBound(b) => @step.Entity::to_step(b)
     FaceBound(b) => @step.Entity::to_step(b)
     EdgeLoop(e) => @step.Entity::to_step(e)
@@ -1077,6 +1099,7 @@ fn entity_to_step(entity : AnyEntity) -> String {
     DimensionalExponents(d) => @step.Entity::to_step(d)
     UncertaintyMeasureWithUnit(u) => @step.Entity::to_step(u)
     PlaneAngleMeasureWithUnit(p) => @step.Entity::to_step(p)
+    MeasureWithUnit(m) => @step.Entity::to_step(m)
     DerivedUnitElement(d) => @step.Entity::to_step(d)
     DerivedUnit(d) => @step.Entity::to_step(d)
     CtxWrap(c) => @step.Entity::to_step(c)

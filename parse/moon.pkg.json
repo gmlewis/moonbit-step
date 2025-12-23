@@ -8,6 +8,7 @@
     "gmlewis/step/entities/topology",
     "gmlewis/step/entities/units",
     "gmlewis/step/entities/kinematics",
+    "gmlewis/step/entities/tolerancing",
     "gmlewis/step/header",
     "gmlewis/step/repository",
     "moonbitlang/async/fs"
