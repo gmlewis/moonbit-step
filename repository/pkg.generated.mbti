@@ -173,6 +173,8 @@ pub fn any_entity_sphere(@geometry.Sphere) -> AnyEntity
 
 pub fn any_entity_styled_item(@presentation.StyledItem) -> AnyEntity
 
+pub fn any_entity_subface(@topology.Subface) -> AnyEntity
+
 pub fn any_entity_surface_of_linear_extrusion(@geometry.SurfaceOfLinearExtrusion) -> AnyEntity
 
 pub fn any_entity_surface_of_revolution(@geometry.SurfaceOfRevolution) -> AnyEntity
@@ -272,6 +274,7 @@ pub enum AnyEntity {
   ShellBasedSurfaceModel(@topology.ShellBasedSurfaceModel)
   AdvancedFace(@topology.AdvancedFace)
   FaceSurface(@topology.FaceSurface)
+  Subface(@topology.Subface)
   FaceOuterBound(@topology.FaceOuterBound)
   FaceBound(@topology.FaceBound)
   EdgeLoop(@topology.EdgeLoop)

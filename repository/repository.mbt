@@ -75,6 +75,7 @@ pub enum AnyEntity {
   ShellBasedSurfaceModel(@topology.ShellBasedSurfaceModel)
   AdvancedFace(@topology.AdvancedFace)
   FaceSurface(@topology.FaceSurface)
+  Subface(@topology.Subface)
   FaceOuterBound(@topology.FaceOuterBound)
   FaceBound(@topology.FaceBound)
   EdgeLoop(@topology.EdgeLoop)
@@ -520,6 +521,11 @@ pub fn any_entity_face_surface(f : @topology.FaceSurface) -> AnyEntity {
 }
 
 ///|
+pub fn any_entity_subface(f : @topology.Subface) -> AnyEntity {
+  AnyEntity::Subface(f)
+}
+
+///|
 pub fn any_entity_face_outer_bound(b : @topology.FaceOuterBound) -> AnyEntity {
   AnyEntity::FaceOuterBound(b)
 }
@@ -810,6 +816,7 @@ fn entity_to_step(entity : AnyEntity) -> String {
     ShellBasedSurfaceModel(s) => @step.Entity::to_step(s)
     AdvancedFace(a) => @step.Entity::to_step(a)
     FaceSurface(f) => @step.Entity::to_step(f)
+    Subface(f) => @step.Entity::to_step(f)
     FaceOuterBound(b) => @step.Entity::to_step(b)
     FaceBound(b) => @step.Entity::to_step(b)
     EdgeLoop(e) => @step.Entity::to_step(e)

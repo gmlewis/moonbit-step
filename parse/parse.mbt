@@ -1310,6 +1310,19 @@ fn parse_face_surface(
 }
 
 ///|
+fn parse_subface(args : String) -> @topology.Subface raise StepParseError {
+  let parts = split_args(args)
+  if parts.length() != 3 {
+    fail_parse()
+  }
+  let name = strip_quotes(parts[0])
+  let bound_ids = parse_ref_ids(parts[1])
+  let bounds = bound_ids.map(fn(id) { @step.Ref::{ id, } })
+  let parent_id = parse_ref_int(parts[2])
+  @topology.Subface::new(name, bounds, @step.Ref::{ id: parent_id })
+}
+
+///|
 fn parse_shell_based_surface_model(
   args : String,
 ) -> @topology.ShellBasedSurfaceModel raise StepParseError {
@@ -2791,6 +2804,9 @@ pub fn parse_repository_from_string(
         row.id,
         @repository.any_entity_face_surface(entity),
       )
+    } else if name == "SUBFACE" {
+      let entity = parse_subface(row.args)
+      repo = repo.insert_with_id(row.id, @repository.any_entity_subface(entity))
     } else if name == "FACE_OUTER_BOUND" {
       let entity = parse_face_outer_bound(row.args)
       repo = repo.insert_with_id(

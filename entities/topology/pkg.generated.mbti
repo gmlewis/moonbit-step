@@ -99,6 +99,14 @@ pub struct ShellBasedSurfaceModel {
 pub fn ShellBasedSurfaceModel::new(String, Array[@step.Ref]) -> Self
 pub impl @step.Entity for ShellBasedSurfaceModel
 
+pub struct Subface {
+  name : String
+  bounds : Array[@step.Ref]
+  parent_face : @step.Ref
+}
+pub fn Subface::new(String, Array[@step.Ref], @step.Ref) -> Self
+pub impl @step.Entity for Subface
+
 pub struct VertexPoint {
   name : String
   vertex_geometry : @step.Ref
