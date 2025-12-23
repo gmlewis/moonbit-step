@@ -59,6 +59,15 @@ pub struct FaceOuterBound {
 pub fn FaceOuterBound::new(String, @step.Ref, Bool) -> Self
 pub impl @step.Entity for FaceOuterBound
 
+pub struct FaceSurface {
+  name : String
+  bounds : Array[@step.Ref]
+  face_geometry : @step.Ref
+  same_sense : Bool
+}
+pub fn FaceSurface::new(String, Array[@step.Ref], @step.Ref, Bool) -> Self
+pub impl @step.Entity for FaceSurface
+
 pub struct ManifoldSolidBrep {
   name : String
   outer : @step.Ref

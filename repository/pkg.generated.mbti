@@ -77,6 +77,8 @@ pub fn any_entity_face_bound(@topology.FaceBound) -> AnyEntity
 
 pub fn any_entity_face_outer_bound(@topology.FaceOuterBound) -> AnyEntity
 
+pub fn any_entity_face_surface(@topology.FaceSurface) -> AnyEntity
+
 pub fn any_entity_fill_area_style(@presentation.FillAreaStyle) -> AnyEntity
 
 pub fn any_entity_fill_area_style_color(@presentation.FillAreaStyleColor) -> AnyEntity
@@ -269,6 +271,7 @@ pub enum AnyEntity {
   OpenShell(@topology.OpenShell)
   ShellBasedSurfaceModel(@topology.ShellBasedSurfaceModel)
   AdvancedFace(@topology.AdvancedFace)
+  FaceSurface(@topology.FaceSurface)
   FaceOuterBound(@topology.FaceOuterBound)
   FaceBound(@topology.FaceBound)
   EdgeLoop(@topology.EdgeLoop)

@@ -1334,6 +1334,37 @@ fn parse_open_shell(args : String) -> @topology.OpenShell raise StepParseError {
 }
 
 ///|
+fn parse_face_surface(
+  args : String,
+) -> @topology.FaceSurface raise StepParseError {
+  let parts = split_args(args)
+  if parts.length() != 4 {
+    fail_parse()
+  }
+  let name = strip_quotes(parts[0])
+  let bound_ids = parse_ref_ids(parts[1])
+  let bounds : Array[@step.Ref] = []
+  for i = 0; i < bound_ids.length(); i = i + 1 {
+    bounds.push(@step.Ref::{ id: bound_ids[i] })
+  }
+  let geom_id = parse_ref_int(parts[2])
+  let ss_str = parts[3].trim().to_string()
+  let same_sense = if ss_str == ".T." {
+    true
+  } else if ss_str == ".F." {
+    false
+  } else {
+    fail_parse()
+  }
+  @topology.FaceSurface::new(
+    name,
+    bounds,
+    @step.Ref::{ id: geom_id },
+    same_sense,
+  )
+}
+
+///|
 fn parse_shell_based_surface_model(
   args : String,
 ) -> @topology.ShellBasedSurfaceModel raise StepParseError {
@@ -2843,6 +2874,12 @@ pub fn parse_repository_from_string(
       repo = repo.insert_with_id(
         row.id,
         @repository.any_entity_advanced_face(entity),
+      )
+    } else if name == "FACE_SURFACE" {
+      let entity = parse_face_surface(row.args)
+      repo = repo.insert_with_id(
+        row.id,
+        @repository.any_entity_face_surface(entity),
       )
     } else if name == "FACE_OUTER_BOUND" {
       let entity = parse_face_outer_bound(row.args)
