@@ -31,10 +31,7 @@ pub fn compile_cuboid(
   })
 
   // Vertex points
-  let vp_refs = cp_refs.map(fn(cp_ref) {
-    let vp = @topology.VertexPoint::new("", cp_ref)
-    ctx.add(@repository.any_entity_vertex_point(vp))
-  })
+  let vp_refs = cp_refs.map(fn(cp_ref) { ctx.vertex_point(cp_ref) })
 
   // Common directions
   let dx_v = rotate_point((1.0, 0.0, 0.0), node.rx, node.ry, node.rz)
@@ -74,16 +71,8 @@ pub fn compile_cuboid(
   ]
   let edges = edge_defs.map(fn(def) {
     let (a, b, vec) = def
-    let line = @geometry.Line::new("", cp_refs[a], vec)
-    let line_ref = ctx.add(@repository.any_entity_line(line))
-    let ec = @topology.EdgeCurve::new(
-      "",
-      vp_refs[a],
-      vp_refs[b],
-      line_ref,
-      true,
-    )
-    let ec_ref = ctx.add(@repository.any_entity_edge_curve(ec))
+    let line_ref = ctx.line(cp_refs[a], vec)
+    let ec_ref = ctx.edge_curve(vp_refs[a], vp_refs[b], line_ref, true)
     EdgeInfo::{ start: a, end: b, edge: ec_ref }
   })
 

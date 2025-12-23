@@ -227,15 +227,142 @@ pub fn Profile2D::rect_with_notches(
 
 ///|
 /// notched_block returns a Shape representing a block of (width x length x height)
-/// with notches cut out from one of its faces.
+/// with notches cut out from one of its faces. The block is centered in X.
 pub fn notched_block(
   width : Double,
   length : Double,
   height : Double,
   notches : Array[(Double, Double, Double)],
 ) -> Shape {
+  let hw = width / 2.0
   let profile = Profile2D::rect_with_notches(width, height, notches)
-  ExtrudedProfile::new(profile, length)
+  let centered_profile = profile.map(fn(p) { (p.0 - hw, p.1) })
+  ExtrudedProfile::new(centered_profile, length)
+}
+
+///|
+/// text_at returns an array of SceneNodes representing the given text
+/// rendered at the specified position and orientation.
+///
+/// Note that the 'draw' package represents all glyphs as type `CompoundPath`
+/// where it explicitly labels each included `Path` as either `clear=true`
+/// (meaning that this represents a cut-out or hole like the two holes in
+/// the "8") or `clear=false` which would represent the outer path, for
+/// example. Some glyphs (like "%") have multiple `clear=true` AND
+/// `clear=false` `Path`s due to detached geometry. Note that WINDING
+/// ORDER IS NOT GUARANTEED in the 'draw' package! So the 'cad' package
+/// in THIS repo should understand this critical information, and build
+/// proper STEP representations of these extruded `CompoundPath`s.
+pub fn text_at(
+  text : String,
+  x : Double,
+  y : Double,
+  z : Double,
+  font~ : @draw.Font,
+  font_size? : Double = 5.0,
+  emboss_depth? : Double = 0.5,
+  rx? : Double = 0.0,
+  ry? : Double = 0.0,
+  rz? : Double = 0.0,
+) -> Array[SceneNode] {
+  let bbox = @draw.bbox(-500.0, -font_size / 2.0, 500.0, font_size / 2.0)
+  let text_graphic = @draw.to_graphic(font, text, alignment=Center, y_up=true).scale_to_fit(
+    bbox,
+    anchor=Center,
+  ) catch {
+    _ => return []
+  }
+  let all_paths = text_graphic.all_paths_and_compound_paths()
+  let nodes = []
+  for g in all_paths {
+    let profiles = collect_profiles(g, 8)
+    for profile in profiles {
+      let (outer, holes) = profile
+      if outer.length() < 3 {
+        continue
+      }
+      let solid = ExtrudedProfile::new(outer, emboss_depth, holes~)
+        .with_name("text")
+        .with_color(Rgb::orange())
+        .rotate_x(rx)
+        .rotate_y(ry)
+        .rotate_z(rz)
+        .translate(x~, y~, z~)
+      nodes.push(solid)
+    }
+  }
+  nodes
+}
+
+///|
+fn collect_profiles(
+  g : @draw.Graphic,
+  segments : Int,
+) -> Array[(Array[(Double, Double)], Array[Array[(Double, Double)]])] {
+  match g {
+    CompoundPath(cp) => {
+      let outers = []
+      let holes = []
+      for p in cp.paths {
+        let pts_tuples = @draw.Graphic::Path(p).to_profiles_tuples(segments)
+        for pt_tuple in pts_tuples {
+          let (poly, _) = pt_tuple
+          if p.clear {
+            holes.push(poly)
+          } else {
+            outers.push(poly)
+          }
+        }
+      }
+      let results = []
+      for outer in outers {
+        let ccw_outer = force_ccw(outer)
+        let my_holes = []
+        for hole in holes {
+          if hole.length() > 0 && is_point_in_polygon(hole[0], ccw_outer) {
+            my_holes.push(force_cw(hole))
+          }
+        }
+        results.push((ccw_outer, my_holes))
+      }
+      results
+    }
+    Group(group) => {
+      let results = []
+      for item in group.items {
+        results.push_iter(collect_profiles(item, segments).iter())
+      }
+      results
+    }
+    Path(p) => {
+      let pts_tuples = @draw.Graphic::Path(p).to_profiles_tuples(segments)
+      pts_tuples.map(fn(pt_tuple) {
+        let (poly, _) = pt_tuple
+        (force_ccw(poly), [])
+      })
+    }
+  }
+}
+
+///|
+/// bolt_length_gauge_base returns a Shape representing the base block
+/// of a bolt length gauge, with a central ruler slot and bolt holes.
+pub fn bolt_length_gauge_base(
+  width : Double,
+  length : Double,
+  height : Double,
+  slot_width : Double,
+  slot_depth : Double,
+  _bolt_diameters : Array[Double],
+) -> Shape {
+  let hw = width / 2.0
+  let slot_x = hw - slot_width / 2.0
+  let profile = Profile2D::rect_with_notches(width, height, [
+    (slot_x, slot_width, slot_depth),
+  ])
+  // Translate profile so it's centered in X
+  let centered_profile = profile.map(fn(p) { (p.0 - hw, p.1) })
+  ExtrudedProfile::new(centered_profile, length)
 }
 
 ///|
@@ -322,6 +449,8 @@ pub fn SceneNode::rotate_y(self : SceneNode, angle : Double) -> SceneNode {
 }
 
 ///|
+/// rotate_z adds the given angle in degrees to the SceneNode's rotation around
+/// the Z-axis.
 pub fn SceneNode::rotate_z(self : SceneNode, angle : Double) -> SceneNode {
   { ..self, rz: self.rz + angle }
 }

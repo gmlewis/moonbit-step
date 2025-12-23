@@ -1,4 +1,83 @@
 ///|
+pub fn polygon_area_2d(pts : Array[(Double, Double)]) -> Double {
+  let n = pts.length()
+  if n < 3 {
+    return 0.0
+  }
+  let mut area = 0.0
+  for i in 0..<n {
+    let j = (i + 1) % n
+    area = area + (pts[i].0 * pts[j].1 - pts[j].0 * pts[i].1)
+  }
+  area / 2.0
+}
+
+///|
+pub fn force_ccw(pts : Array[(Double, Double)]) -> Array[(Double, Double)] {
+  if polygon_area_2d(pts) < 0.0 {
+    pts.rev()
+  } else {
+    pts
+  }
+}
+
+///|
+pub fn force_cw(pts : Array[(Double, Double)]) -> Array[(Double, Double)] {
+  if polygon_area_2d(pts) > 0.0 {
+    pts.rev()
+  } else {
+    pts
+  }
+}
+
+///|
+pub fn is_point_in_polygon(
+  p : (Double, Double),
+  poly : Array[(Double, Double)],
+) -> Bool {
+  let n = poly.length()
+  if n < 3 {
+    return false
+  }
+  let mut inside = false
+  let (px, py) = p
+  for i in 0..<n {
+    let j = (i + 1) % n
+    let (xi, yi) = poly[i]
+    let (xj, yj) = poly[j]
+    let intersect = ((yi > py) != yj) > py &&
+      px < (xj - xi) * (py - yi) / (yj - yi) + xi
+    if intersect {
+      inside = !inside
+    }
+  }
+  inside
+}
+
+///|
+pub fn cycle_area_3d(
+  pts : Array[(Double, Double, Double)],
+  cycle : Array[Int],
+) -> (Double, Double, Double) {
+  let n = cycle.length()
+  if n < 3 {
+    return (0.0, 0.0, 0.0)
+  }
+  let mut ax = 0.0
+  let mut ay = 0.0
+  let mut az = 0.0
+  for i in 0..<n {
+    let j = (i + 1) % n
+    let (x1, y1, z1) = pts[cycle[i]]
+    let (x2, y2, z2) = pts[cycle[j]]
+    ax = ax + (y1 * z2 - z1 * y2)
+    ay = ay + (z1 * x2 - x1 * z2)
+    az = az + (x1 * y2 - y1 * x2)
+  }
+  (ax / 2.0, ay / 2.0, az / 2.0)
+}
+
+///|
 fn v_sub(
   a : (Double, Double, Double),
   b : (Double, Double, Double),
@@ -209,24 +288,19 @@ fn add_plane_face_with_holes_oriented(
   hole_cycles_in : Array[Array[Int]],
   expected_out : (Double, Double, Double),
 ) -> @step.Ref {
-  let a0 = outer_cycle_in[0]
-  let a1 = outer_cycle_in[1]
-  let a2 = outer_cycle_in[2]
-  let p0 = pts[a0]
-  let p1 = pts[a1]
-  let p2 = pts[a2]
-  let n = v_cross(v_sub(p1, p0), v_sub(p2, p0))
-  let outer_cycle = if v_dot(n, expected_out) < 0.0 {
+  let area_vec = cycle_area_3d(pts, outer_cycle_in)
+  let outer_cycle = if v_dot(area_vec, expected_out) < 0.0 {
     reverse_cycle(outer_cycle_in)
   } else {
     outer_cycle_in
   }
 
-  //
+  // Holes must be oriented opposite to the outer boundary for STEP faces.
+  // We use the 3D area vector to ensure robustness regardless of orientation.
   let hole_cycles = hole_cycles_in.map(fn(hc) {
-    let ha = cycle_area_xy(pts, hc)
-    let outer_area = cycle_area_xy(pts, outer_cycle)
-    if (outer_area >= 0.0 && ha >= 0.0) || (outer_area < 0.0 && ha < 0.0) {
+    let ha_vec = cycle_area_3d(pts, hc)
+    // If hole has same orientation as outer (relative to expected_out), reverse it.
+    if v_dot(ha_vec, expected_out) * v_dot(area_vec, expected_out) > 0.0 {
       reverse_cycle(hc)
     } else {
       hc

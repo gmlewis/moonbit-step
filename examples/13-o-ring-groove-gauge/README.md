@@ -38,7 +38,7 @@ Command line: `./run-example.sh 13 --length 100 --width 80 --height 15`
 
 ### Variant 3
 
-Command line: `./run-example.sh 13 --width 50 --baseHeight 5`
+Command line: `./run-example.sh 13 --width 50 --height 12`
 
 ![](preview-3.png)
 

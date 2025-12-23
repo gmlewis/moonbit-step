@@ -13,6 +13,9 @@ pub struct StepContext {
   directions : Map[String, @step.Ref]
   vectors : Map[String, @step.Ref]
   cartesian_points : Map[String, @step.Ref]
+  vertex_points : Map[Int, @step.Ref]
+  lines : Map[String, @step.Ref]
+  edge_curves : Map[String, @step.Ref]
 }
 
 ///|
@@ -27,6 +30,9 @@ pub fn StepContext::new() -> StepContext {
     directions: Map::new(),
     vectors: Map::new(),
     cartesian_points: Map::new(),
+    vertex_points: Map::new(),
+    lines: Map::new(),
+    edge_curves: Map::new(),
   }
 }
 
@@ -98,6 +104,60 @@ pub fn StepContext::cartesian_point(
         ),
       )
       self.cartesian_points.set(key, r)
+      r
+    }
+  }
+}
+
+///|
+pub fn StepContext::vertex_point(
+  self : StepContext,
+  cp_ref : @step.Ref,
+) -> @step.Ref {
+  match self.vertex_points.get(cp_ref.id.value) {
+    Some(r) => r
+    None => {
+      let vp = @topology.VertexPoint::new("", cp_ref)
+      let r = self.add(@repository.any_entity_vertex_point(vp))
+      self.vertex_points.set(cp_ref.id.value, r)
+      r
+    }
+  }
+}
+
+///|
+pub fn StepContext::line(
+  self : StepContext,
+  pnt : @step.Ref,
+  dir : @step.Ref,
+) -> @step.Ref {
+  let key = "\{pnt.id.value},\{dir.id.value}"
+  match self.lines.get(key) {
+    Some(r) => r
+    None => {
+      let line = @geometry.Line::new("", pnt, dir)
+      let r = self.add(@repository.any_entity_line(line))
+      self.lines.set(key, r)
+      r
+    }
+  }
+}
+
+///|
+pub fn StepContext::edge_curve(
+  self : StepContext,
+  start : @step.Ref,
+  end : @step.Ref,
+  curve : @step.Ref,
+  same_sense : Bool,
+) -> @step.Ref {
+  let key = "\{start.id.value},\{end.id.value},\{curve.id.value},\{same_sense}"
+  match self.edge_curves.get(key) {
+    Some(r) => r
+    None => {
+      let ec = @topology.EdgeCurve::new("", start, end, curve, same_sense)
+      let r = self.add(@repository.any_entity_edge_curve(ec))
+      self.edge_curves.set(key, r)
       r
     }
   }
