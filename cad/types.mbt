@@ -46,6 +46,11 @@ pub fn Rgb::red() -> Rgb {
 }
 
 ///|
+pub fn Rgb::cyan() -> Rgb {
+  { r: 0.0, g: 0.8, b: 0.8 }
+}
+
+///|
 pub struct Profile2D {
   outer : Array[(Double, Double)]
   holes : Array[Array[(Double, Double)]]
