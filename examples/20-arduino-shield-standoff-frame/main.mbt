@@ -54,7 +54,7 @@ async fn main {
       return
     }
   }
-  let nodes = @cad.arduino_uno_standoff_frame(
+  let nodes = arduino_uno_standoff_frame(
     frame_thickness, standoff_height, standoff_od, standoff_id,
   )
   let mut design = @cad.Design::new(name="arduino-standoff-frame")
@@ -65,4 +65,53 @@ async fn main {
     )
   }
   design.write_step(out_path)
+}
+
+///|
+fn arduino_uno_standoff_frame(
+  frame_thickness : Double,
+  standoff_height : Double,
+  standoff_diameter : Double,
+  standoff_hole_diameter : Double,
+) -> Array[@cad.SceneNode] {
+  let uno_w = 68.6
+  let uno_l = 53.3
+
+  // Increase frame size slightly to support standoffs centered 2.5mm from edge
+  let margin = standoff_diameter / 2.0 - 1.5 // Ensure at least 1mm outer support
+  let m = if margin < 2.0 { 2.0 } else { margin }
+  let width = uno_w + 2.0 * m
+  let length = uno_l + 2.0 * m
+
+  // Rail width should be enough to cover the standoff
+  let rail_w = standoff_diameter + 2.0
+  let outer = @cad.Profile2D::rounded_rect(width, length, 3.0)
+  let inner = @cad.Profile2D::rounded_rect(
+      width - 2.0 * rail_w,
+      length - 2.0 * rail_w,
+      2.0,
+    )
+    .map(fn(p) { (p.0 + rail_w, p.1 + rail_w) })
+    .rev()
+  let base_frame = @cad.ExtrudedProfile::new(outer, frame_thickness, holes=[
+      inner,
+    ])
+    .with_name("frame")
+    .with_color(@cad.Rgb::blue())
+    .translate(x=-m, y=-m, z=0.0)
+  let nodes = [base_frame]
+
+  // Arduino Uno standard hole pattern (approximate mm from bottom-left corner of board)
+  let hole_locs = [(14.0, 2.5), (15.3, 50.8), (66.1, 7.6), (66.1, 35.6)]
+  for _, loc in hole_locs {
+    let (hx, hy) = loc
+    let standoff = @cad.tube(
+        standoff_diameter, standoff_hole_diameter, standoff_height,
+      )
+      .with_name("standoff-{i}")
+      .with_color(@cad.Rgb::cyan())
+      .translate(x=hx, y=hy, z=frame_thickness)
+    nodes.push(standoff)
+  }
+  nodes
 }

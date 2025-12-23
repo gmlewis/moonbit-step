@@ -70,17 +70,61 @@ async fn main {
       return
     }
   }
-  let nodes = @cad.zip_tie_anchor_panel(
-    rows, cols, spacing, base_thickness, anchor_width, anchor_height, slot_width,
-    slot_height,
-  )
-  let mut design = @cad.Design::new(name="zip-tie-anchor-panel")
+
+  // 1. Create the base plate
   let panel_w = Double::from_int(cols) * spacing
   let panel_l = Double::from_int(rows) * spacing
-  for node in nodes {
-    design = design.add(
-      node.translate(x=tx - panel_w / 2.0, y=ty - panel_l / 2.0, z=tz),
+  let base = @cad.Cuboid::new(panel_w, panel_l, base_thickness)
+    .with_name("base")
+    .with_color(@cad.Rgb::cyan())
+
+  // 2. Create a single anchor assembly (3 parts)
+  let wall_w = (anchor_width - slot_width) / 2.0
+  let bridge_h = anchor_height - slot_height
+  let left_wall = @cad.Cuboid::new(wall_w, anchor_width, anchor_height)
+    .with_name("lw")
+    .with_color(@cad.Rgb::blue())
+    .translate(x=-anchor_width / 2.0, y=-anchor_width / 2.0, z=base_thickness)
+  let right_wall = @cad.Cuboid::new(wall_w, anchor_width, anchor_height)
+    .with_name("rw")
+    .with_color(@cad.Rgb::blue())
+    .translate(x=slot_width / 2.0, y=-anchor_width / 2.0, z=base_thickness)
+  let bridge = @cad.Cuboid::new(anchor_width, anchor_width, bridge_h)
+    .with_name("bridge")
+    .with_color(@cad.Rgb::blue())
+    .translate(
+      x=-anchor_width / 2.0,
+      y=-anchor_width / 2.0,
+      z=base_thickness + slot_height,
     )
+
+  // 3. Define the grid locations
+  let locs = []
+  for r in 0..<rows {
+    for c in 0..<cols {
+      let lx = Double::from_int(c) * spacing + spacing / 2.0 - panel_w / 2.0
+      let ly = Double::from_int(r) * spacing + spacing / 2.0 - panel_l / 2.0
+      locs.push((lx, ly, 0.0))
+    }
   }
+
+  // 4. Assemble the design
+  let design = @cad.Design::new(name="zip-tie-anchor-panel")
+    .add(base.translate(x=tx - panel_w / 2.0, y=ty - panel_l / 2.0, z=tz))
+    .add_iter(
+      left_wall
+      .repeat_at(locs)
+      .iter()
+      .map(fn(n) { n.translate(x=tx, y=ty, z=tz) }),
+    )
+    .add_iter(
+      right_wall
+      .repeat_at(locs)
+      .iter()
+      .map(fn(n) { n.translate(x=tx, y=ty, z=tz) }),
+    )
+    .add_iter(
+      bridge.repeat_at(locs).iter().map(fn(n) { n.translate(x=tx, y=ty, z=tz) }),
+    )
   design.write_step(out_path)
 }

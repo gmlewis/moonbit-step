@@ -8,12 +8,6 @@ import(
 )
 
 // Values
-pub fn arduino_uno_standoff_frame(Double, Double, Double, Double) -> Array[SceneNode]
-
-pub fn bolt_length_gauge_base(Double, Double, Double, Double, Double, Array[Double]) -> Shape
-
-pub fn breadboard_rail_clip(Double, Double, Double, Double, Double, Double, Double) -> Array[SceneNode]
-
 pub fn compile_calibration_chamfer_block(StepContext, SceneNode, CalibrationChamferBlock) -> @step.Ref
 
 pub fn compile_cuboid(StepContext, SceneNode, Cuboid) -> @step.Ref
@@ -22,45 +16,21 @@ pub fn compile_extruded_profile(StepContext, SceneNode, ExtrudedProfile) -> @ste
 
 pub fn cycle_area_3d(Array[(Double, Double, Double)], Array[Int]) -> (Double, Double, Double)
 
-pub fn dovetail_base(Double, Double, Double, Double, Double, Double) -> Shape
-
-pub fn dovetail_slider(Double, Double, Double, Double, clearance? : Double) -> Shape
-
 pub fn force_ccw(Array[(Double, Double)]) -> Array[(Double, Double)]
 
 pub fn force_cw(Array[(Double, Double)]) -> Array[(Double, Double)]
 
-pub fn hex_bit_holder(Int, Int, Double, Double, Double) -> Shape
-
 pub fn is_point_in_polygon((Double, Double), Array[(Double, Double)]) -> Bool
-
-pub fn living_hinge(Double, Double, Double, Double, Double, Double, Int) -> Shape
-
-pub fn metric_nut(Double, Double, height? : Double) -> Shape
-
-pub fn metric_nut_dimensions(Double) -> (Double, Double)
-
-pub fn metric_nut_test_strip(Double, Double, Double, Int, Double, Double, Double, nut_height? : Double) -> Array[SceneNode]
-
-pub fn notched_block(Double, Double, Double, Array[(Double, Double, Double)]) -> Shape
-
-pub fn pin_gauge(Double, Double, Double, Int, Double, Double, Double, Double) -> Array[SceneNode]
 
 pub fn polygon_area_2d(Array[(Double, Double)]) -> Double
 
-pub fn polygon_knob(Int, Double, Double, Int, Double, hole_rotation? : Double) -> Shape
-
-pub fn raspberry_pi_mount_plate(Double, Double, Double, Double, Double, Double) -> Shape
-
 pub fn text_at(String, Double, Double, Double, font~ : @fonts.Font, font_size? : Double, emboss_depth? : Double, rx? : Double, ry? : Double, rz? : Double) -> Array[SceneNode]
+
+pub fn translate_pts(Array[(Double, Double)], Double, Double) -> Array[(Double, Double)]
 
 pub fn tube(Double, Double, Double, segments? : Int) -> Shape
 
-pub fn vented_enclosure(Double, Double, Double, Double, Double, Double, Double, Double, vent_slot_width? : Double, vent_slot_spacing? : Double) -> Array[SceneNode]
-
 pub async fn write_step_text(String, String?) -> Unit
-
-pub fn zip_tie_anchor_panel(Int, Int, Double, Double, Double, Double, Double, Double) -> Array[SceneNode]
 
 // Errors
 
@@ -116,13 +86,14 @@ pub struct Profile2D {
   outer : Array[(Double, Double)]
   holes : Array[Array[(Double, Double)]]
 }
+pub fn Profile2D::add_hole(Self, Array[(Double, Double)]) -> Self
+pub fn Profile2D::add_holes_at(Self, Array[(Double, Double)], Array[(Double, Double)]) -> Self
 pub fn Profile2D::arc(Double, Double, Double, segments? : Int) -> Array[(Double, Double)]
 pub fn Profile2D::centered_rect(Double, Double) -> Array[(Double, Double)]
 pub fn Profile2D::circle(Double, segments? : Int) -> Array[(Double, Double)]
-pub fn Profile2D::dovetail(Double, Double, Double) -> Array[(Double, Double)]
+pub fn Profile2D::new(Array[(Double, Double)]) -> Self
 pub fn Profile2D::polygon(Int, Double, rotation? : Double) -> Array[(Double, Double)]
 pub fn Profile2D::rect(Double, Double) -> Array[(Double, Double)]
-pub fn Profile2D::rect_with_notches(Double, Double, Array[(Double, Double, Double)]) -> Array[(Double, Double)]
 pub fn Profile2D::rounded_rect(Double, Double, Double, segments? : Int) -> Array[(Double, Double)]
 
 pub struct Rgb {
@@ -153,6 +124,7 @@ pub struct SceneNode {
   ry : Double
   rz : Double
 }
+pub fn SceneNode::repeat_at(Self, Array[(Double, Double, Double)]) -> Array[Self]
 pub fn SceneNode::rotate_x(Self, Double) -> Self
 pub fn SceneNode::rotate_y(Self, Double) -> Self
 pub fn SceneNode::rotate_z(Self, Double) -> Self

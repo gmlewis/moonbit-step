@@ -50,7 +50,6 @@ async fn main {
   let slot_width = 10.0
   let font = @baloo.font
 
-  //
   // 1. Build the profile with holes (2D CSG)
   let holes = []
 
@@ -75,7 +74,6 @@ async fn main {
     holes.push(h)
   }
 
-  //
   // 2. Create the main base block
   let outer = @cad.Profile2D::rect(width, length).map(fn(p) {
     (p.0 - width / 2.0, p.1)
@@ -86,14 +84,12 @@ async fn main {
     .translate(x=tx, y=ty, z=tz)
   let mut design = @cad.Design::new(name="bolt-length-gauge").add(base)
 
-  //
   // 3. Add labels
   for i in 0..<bolt_sizes.length() {
     let (name, _) = bolt_sizes[i]
     let hole_y = hole_spacing * Double::from_int(i + 1)
     let hole_x = -width * 0.38
 
-    //
     // Place labels between the hole and the center slot
     let labels = @cad.text_at(
       name,
@@ -106,7 +102,6 @@ async fn main {
     design = design.add_iter(labels.iter())
   }
 
-  //
   // 4. Add ruler markings
   for i in 1..=(length.to_int() / 10 - 1) {
     let pos_y = Double::from_int(i * 10)

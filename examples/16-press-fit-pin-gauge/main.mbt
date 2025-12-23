@@ -61,7 +61,7 @@ async fn main {
       return
     }
   }
-  let nodes = @cad.pin_gauge(
+  let nodes = pin_gauge(
     pin_diameter, clearance, interference, step_count, clearance_step, spacing, base_height,
     pin_height,
   )
@@ -70,4 +70,49 @@ async fn main {
     design = design.add(node.translate(x=tx, y=ty, z=tz))
   }
   design.write_step(out_path)
+}
+
+///|
+fn pin_gauge(
+  pin_diameter : Double,
+  base_clearance : Double,
+  base_interference : Double,
+  step_count : Int,
+  clearance_step : Double,
+  spacing : Double,
+  base_height : Double,
+  pin_height : Double,
+) -> Array[@cad.SceneNode] {
+  let total_length = Double::from_int(step_count) * spacing
+  let base_width = pin_diameter * 3.0
+
+  // Base with holes
+  let outer = @cad.Profile2D::rect(total_length, base_width)
+  let holes = []
+  for i in 0..<step_count {
+    let current_clearance = -base_interference +
+      Double::from_int(i) * clearance_step +
+      base_clearance
+    let x = Double::from_int(i) * spacing + spacing / 2.0
+    let y = base_width / 2.0
+    let hole = @cad.Profile2D::circle(pin_diameter + current_clearance).rev()
+    holes.push(hole.map(fn(p) { (p.0 + x, p.1 + y) }))
+  }
+  let base = @cad.ExtrudedProfile::new(outer, base_height, holes~)
+    .with_name("base")
+    .with_color(@cad.Rgb::blue())
+    .translate(x=0.0, y=-base_width / 2.0, z=0.0)
+  let nodes = [base]
+
+  // Pins
+  for i in 0..<step_count {
+    let x = Double::from_int(i) * spacing + spacing / 2.0
+    let y = -base_width
+    let pin = @cad.tube(pin_diameter, 0.0, pin_height)
+      .with_name("pin-\{i}")
+      .with_color(@cad.Rgb::magenta())
+      .translate(x~, y~, z=0.0)
+    nodes.push(pin)
+  }
+  nodes
 }

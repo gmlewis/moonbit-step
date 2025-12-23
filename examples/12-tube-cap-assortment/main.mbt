@@ -73,7 +73,6 @@ async fn main {
     }
   }
 
-  //
   // Calculate dimensions based on type
   let (fitting_od, fitting_id, top_dia) = if is_plug {
     // Plug: fits INSIDE tube
@@ -91,14 +90,12 @@ async fn main {
     (f_od, f_id, f_od)
   }
 
-  //
   // 1. The Top Plate (solid disk)
   let top = @cad.tube(top_dia, 0.0, top_thickness)
     .with_name("cap-top")
     .with_color(@cad.Rgb::orange())
     .translate(x=tx, y=ty, z=tz + fitting_height)
 
-  //
   // 2. The Fitting Wall (hollow cylinder)
   let wall_part = @cad.tube(fitting_od, fitting_id, fitting_height)
     .with_name("cap-wall")

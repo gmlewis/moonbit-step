@@ -70,7 +70,7 @@ async fn main {
   } else {
     None
   }
-  let nodes = @cad.metric_nut_test_strip(
+  let nodes = metric_nut_test_strip(
     bolt_diameter,
     clearance,
     interference,
@@ -85,4 +85,74 @@ async fn main {
     design = design.add(node.translate(x=tx, y=ty, z=tz))
   }
   design.write_step(out_path)
+}
+
+///|
+fn metric_nut_test_strip(
+  bolt_diameter : Double,
+  base_clearance : Double,
+  base_interference : Double,
+  step_count : Int,
+  clearance_step : Double,
+  hole_spacing : Double,
+  mount_thickness : Double,
+  nut_height? : Double,
+) -> Array[@cad.SceneNode] {
+  let (s, h) = metric_nut_dimensions(bolt_diameter)
+  let nut_h = nut_height.unwrap_or(h)
+  let total_length = Double::from_int(step_count) * hole_spacing
+  let base_width = s + 10.0
+  let base = @cad.Cuboid::new(total_length, base_width, mount_thickness)
+    .with_name("base")
+    .with_color(@cad.Rgb::cyan())
+    .translate(x=0.0, y=-base_width / 2.0, z=0.0)
+  let nodes = [base]
+  for i in 0..<step_count {
+    let current_clearance = -base_interference +
+      Double::from_int(i) * clearance_step +
+      base_clearance
+    let x = Double::from_int(i) * hole_spacing + hole_spacing / 2.0
+    let nut = metric_nut(bolt_diameter, current_clearance, height=nut_h)
+      .with_name("nut-\{i}")
+      .with_color(@cad.Rgb::orange())
+      .translate(x~, y=0.0, z=mount_thickness)
+    nodes.push(nut)
+  }
+  nodes
+}
+
+///|
+fn metric_nut_dimensions(bolt_diameter : Double) -> (Double, Double) {
+  if bolt_diameter <= 3.0 {
+    (5.5, 2.4)
+  } else if bolt_diameter <= 4.0 {
+    (7.0, 3.2)
+  } else if bolt_diameter <= 5.0 {
+    (8.0, 4.0)
+  } else if bolt_diameter <= 6.0 {
+    (10.0, 5.0)
+  } else if bolt_diameter <= 8.0 {
+    (13.0, 6.5)
+  } else if bolt_diameter <= 10.0 {
+    (17.0, 8.0)
+  } else if bolt_diameter <= 12.0 {
+    (19.0, 10.0)
+  } else {
+    // Heuristic for larger bolts: S approx 1.7 * D, H approx 0.8 * D
+    (bolt_diameter * 1.7, bolt_diameter * 0.8)
+  }
+}
+
+///|
+fn metric_nut(
+  bolt_diameter : Double,
+  clearance : Double,
+  height? : Double,
+) -> @cad.Shape {
+  let (s, h) = metric_nut_dimensions(bolt_diameter)
+  let height = height.unwrap_or(h)
+  let d = s / @math.cos(30.0 * @math.PI / 180.0)
+  let outer = @cad.Profile2D::polygon(6, d, rotation=30.0)
+  let hole = @cad.Profile2D::circle(bolt_diameter + clearance).rev()
+  @cad.ExtrudedProfile::new(outer, height, holes=[hole])
 }

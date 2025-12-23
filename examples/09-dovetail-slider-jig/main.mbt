@@ -103,18 +103,18 @@ async fn main {
     @cli.eprintln("error: dovetailHeight must be less than baseHeight")
     abort("")
   }
-  let base = @cad.dovetail_base(
+  let base = dovetail_base(
       base_width, base_height, base_length, dovetail_width, dovetail_height, dovetail_angle,
     )
     .with_name("dovetail-base")
     .with_color(@cad.Rgb::purple())
     .translate(x=tx, y=ty, z=tz)
 
-  // Slider position: 
+  // Slider position:
   // - Centered in X (same as base)
   // - Neck of slider is at Y = base_height / 2 (top of base)
   // - Slider points downwards into the groove.
-  let slider = @cad.dovetail_slider(
+  let slider = dovetail_slider(
       dovetail_width,
       dovetail_height,
       slider_length,
@@ -128,4 +128,65 @@ async fn main {
     .add(base)
     .add(slider)
   design.write_step(out_path)
+}
+
+///|
+fn dovetail_base(
+  width : Double,
+  height : Double,
+  length : Double,
+  dovetail_width : Double,
+  dovetail_height : Double,
+  dovetail_angle : Double,
+) -> @cad.Shape {
+  let hw = width / 2.0
+  let hh = height / 2.0
+  let dhw = dovetail_width / 2.0
+  let angle_rad = dovetail_angle * @math.PI / 180.0
+  let dx = dovetail_height * @math.tan(angle_rad)
+
+  // Construct a single CCW loop including the dovetail cutout at the top.
+  let outer = [
+    (-hw, hh),
+    (-hw, -hh),
+    (hw, -hh),
+    (hw, hh),
+    (dhw, hh),
+    (dhw + dx, hh - dovetail_height),
+    (-dhw - dx, hh - dovetail_height),
+    (-dhw, hh),
+  ]
+  @cad.ExtrudedProfile::new(outer, length)
+}
+
+///|
+fn dovetail_slider(
+  width : Double,
+  height : Double,
+  length : Double,
+  angle : Double,
+  clearance? : Double = 0.0,
+) -> @cad.Shape {
+  // Apply clearance: narrow the width and shorten the height.
+  let c = clearance
+  let w = width - 2.0 * c
+  let h = height - c
+  let angle_rad = angle * @math.PI / 180.0
+  let dx = h * @math.tan(angle_rad)
+  let half_width = w / 2.0
+  let dt = [
+    (-half_width, 0.0),
+    (half_width, 0.0),
+    (half_width + dx, h),
+    (-half_width - dx, h),
+  ]
+  // Flip Y to match the groove orientation (neck at the top, pointing down).
+  // We also reverse the order to maintain CCW orientation.
+  let n = dt.length()
+  let flipped = []
+  for i in 0..<n {
+    let p = dt[n - 1 - i]
+    flipped.push((p.0, -p.1))
+  }
+  @cad.ExtrudedProfile::new(flipped, length)
 }

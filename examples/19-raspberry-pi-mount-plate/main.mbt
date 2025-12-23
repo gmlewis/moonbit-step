@@ -58,7 +58,7 @@ async fn main {
       return
     }
   }
-  let plate = @cad.raspberry_pi_mount_plate(
+  let plate = raspberry_pi_mount_plate(
       width, length, thickness, hole_diameter, slot_length, slot_width,
     )
     .with_name("rpi-mount-plate")
@@ -66,4 +66,66 @@ async fn main {
     .translate(x=tx - width / 2.0, y=ty - length / 2.0, z=tz)
   let design = @cad.Design::new(name="raspberry-pi-mount-plate").add(plate)
   design.write_step(out_path)
+}
+
+///|
+fn raspberry_pi_mount_plate(
+  width : Double,
+  length : Double,
+  thickness : Double,
+  hole_diameter : Double,
+  slot_length : Double,
+  slot_width : Double,
+) -> @cad.Shape {
+  let outer = @cad.Profile2D::rounded_rect(width, length, 3.0)
+
+  // Raspberry Pi standard hole pattern: 58mm x 49mm
+  let rpi_w = 58.0
+  let rpi_h = 49.0
+  let off_x = (width - rpi_w) / 2.0
+  let off_y = (length - rpi_h) / 2.0
+  let holes = []
+
+  // Mounting holes
+  let hole_locs = [
+    (off_x, off_y),
+    (off_x + rpi_w, off_y),
+    (off_x + rpi_w, off_y + rpi_h),
+    (off_x, off_y + rpi_h),
+  ]
+  for loc in hole_locs {
+    let (hx, hy) = loc
+    holes.push(
+      @cad.Profile2D::circle(hole_diameter)
+      .map(fn(p) { (p.0 + hx, p.1 + hy) })
+      .rev(),
+    )
+  }
+
+  // Strain relief slots
+  // Left slots
+  for i in 0..<2 {
+    let sy = off_y + 10.0 + Double::from_int(i) * 20.0
+    let sx = off_x / 2.0
+    let hole = [
+      (sx - slot_width / 2.0, sy - slot_length / 2.0),
+      (sx + slot_width / 2.0, sy - slot_length / 2.0),
+      (sx + slot_width / 2.0, sy + slot_length / 2.0),
+      (sx - slot_width / 2.0, sy + slot_length / 2.0),
+    ].rev()
+    holes.push(hole)
+  }
+  // Right slots
+  for i in 0..<2 {
+    let sy = off_y + 10.0 + Double::from_int(i) * 20.0
+    let sx = width - off_x / 2.0
+    let hole = [
+      (sx - slot_width / 2.0, sy - slot_length / 2.0),
+      (sx + slot_width / 2.0, sy - slot_length / 2.0),
+      (sx + slot_width / 2.0, sy + slot_length / 2.0),
+      (sx - slot_width / 2.0, sy + slot_length / 2.0),
+    ].rev()
+    holes.push(hole)
+  }
+  @cad.ExtrudedProfile::new(outer, thickness, holes~)
 }

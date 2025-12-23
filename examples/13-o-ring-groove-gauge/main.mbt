@@ -52,7 +52,6 @@ async fn main {
     }
   }
 
-  //
   // Standard AS568 O-ring cross-sections and typical groove dimensions
   // (cross_section, groove_width, groove_depth)
   let standards = [
@@ -63,7 +62,6 @@ async fn main {
     (6.99, 9.5, 6.25),
   ]
 
-  //
   // Calculate notch positions by distributing remaining space as equal walls.
   let mut total_groove_width = 0.0
   for s in standards {
@@ -86,16 +84,13 @@ async fn main {
     current_x += w + wall_size
   }
 
-  //
   // 1. The notched block.
   // We rotate it 90 around X and 180 around Z so it lies flat on the XY plane
   // with the notches facing UP (+Z).
   // Local X (Width) -> World -X (centered)
   // Local Y (Height) -> World Z
   // Local Z (Length) -> World Y
-  let gauge = @cad.notched_block(
-      block_width, block_length, notched_height, notches,
-    )
+  let gauge = notched_block(block_width, block_length, notched_height, notches)
     .with_name("gauge-notches")
     .with_color(@cad.Rgb::orange())
     .rotate_x(90.0)
@@ -105,4 +100,32 @@ async fn main {
   //
   let design = @cad.Design::new(name="o-ring-groove-gauge").add(gauge)
   design.write_step(out_path)
+}
+
+///|
+fn notched_block(
+  width : Double,
+  length : Double,
+  height : Double,
+  notches : Array[(Double, Double, Double)],
+) -> @cad.Shape {
+  let hw = width / 2.0
+  let pts = [(0.0, 0.0), (width, 0.0), (width, height)]
+  // Sort notches by X offset descending to process from right to left (maintaining CCW)
+  let sorted_notches = notches.copy()
+  sorted_notches.sort_by(fn(a, b) { b.0.compare(a.0) })
+  for notch in sorted_notches {
+    let (x, w, d) = notch
+    if x + w < width {
+      pts.push((x + w, height))
+    }
+    pts.push((x + w, height - d))
+    pts.push((x, height - d))
+    pts.push((x, height))
+  }
+  if pts[pts.length() - 1].0 > 0.0 {
+    pts.push((0.0, height))
+  }
+  let centered_profile = pts.map(fn(p) { (p.0 - hw, p.1) })
+  @cad.ExtrudedProfile::new(centered_profile, length)
 }

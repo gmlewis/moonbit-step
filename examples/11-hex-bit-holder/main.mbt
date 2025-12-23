@@ -80,7 +80,7 @@ async fn main {
     .translate(x=tx, y=ty, z=tz)
 
   // 2. The holder block with hex holes
-  let holder = @cad.hex_bit_holder(
+  let holder = hex_bit_holder(
       rows,
       cols,
       bit_diameter + tolerance,
@@ -94,4 +94,28 @@ async fn main {
   //
   let design = @cad.Design::new(name="hex-bit-holder").add(base).add(holder)
   design.write_step(out_path)
+}
+
+///|
+fn hex_bit_holder(
+  rows : Int,
+  cols : Int,
+  bit_diameter_across_flats : Double,
+  spacing : Double,
+  height : Double,
+) -> @cad.Shape {
+  let d = bit_diameter_across_flats / @math.cos(30.0 * @math.PI / 180.0)
+  let hex = @cad.Profile2D::polygon(6, d, rotation=30.0)
+  let total_width = Double::from_int(cols) * spacing
+  let total_length = Double::from_int(rows) * spacing
+  let outer = @cad.Profile2D::rect(total_width, total_length)
+  let holes = []
+  for r in 0..<rows {
+    for c in 0..<cols {
+      let tx = Double::from_int(c) * spacing + spacing / 2.0
+      let ty = Double::from_int(r) * spacing + spacing / 2.0
+      holes.push(hex.map(fn(p) { (p.0 + tx, p.1 + ty) }).rev())
+    }
+  }
+  @cad.ExtrudedProfile::new(outer, height, holes~)
 }

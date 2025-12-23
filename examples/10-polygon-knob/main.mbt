@@ -75,7 +75,7 @@ async fn main {
   }
 
   //
-  let knob = @cad.polygon_knob(
+  let knob = polygon_knob(
       sides,
       diameter,
       height,
@@ -90,4 +90,24 @@ async fn main {
   //
   let design = @cad.Design::new(name="polygon-knob").add(knob)
   design.write_step(out_path)
+}
+
+///|
+fn polygon_knob(
+  sides : Int,
+  diameter : Double,
+  height : Double,
+  hole_sides : Int,
+  hole_diameter : Double,
+  hole_rotation? : Double = 0.0,
+) -> @cad.Shape {
+  let outer = @cad.Profile2D::polygon(sides, diameter)
+  let hole = @cad.Profile2D::polygon(
+    hole_sides,
+    hole_diameter,
+    rotation=hole_rotation,
+  )
+  // Hole must be reversed (CW) for standard STEP orientation if outer is CCW.
+  let hole_reversed = hole.rev()
+  @cad.ExtrudedProfile::new(outer, height, holes=[hole_reversed])
 }

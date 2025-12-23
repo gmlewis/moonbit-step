@@ -63,12 +63,64 @@ async fn main {
       return
     }
   }
-  let nodes = @cad.breadboard_rail_clip(
+  let nodes = breadboard_rail_clip(
     width, height, arm_thickness, snap_clearance, hook_depth, seat_diameter, seat_depth,
   )
   let mut design = @cad.Design::new(name="breadboard-rail-clip")
   for node in nodes {
     design = design.add(node.translate(x=tx, y=ty, z=tz))
   }
-  design.rotate_x(-90.0).write_step(out_path)
+  design.rotate_x(90.0).write_step(out_path)
+}
+
+///|
+fn breadboard_rail_clip(
+  breadboard_width : Double,
+  clip_height : Double,
+  arm_thickness : Double,
+  snap_clearance : Double,
+  hook_depth : Double,
+  rail_seat_diameter : Double,
+  rail_seat_depth : Double,
+) -> Array[@cad.SceneNode] {
+  let hw = breadboard_width / 2.0
+
+  // Profile in XY plane (will be rotated to XZ)
+  // Inside is at Y in [0, clip_height]
+  // Bottom plate is at Y in [-arm_thickness, 0]
+  let profile = [
+    (-hw - arm_thickness, clip_height + arm_thickness),
+    (-hw - arm_thickness, -arm_thickness),
+    (hw + arm_thickness, -arm_thickness),
+    (hw + arm_thickness, clip_height + arm_thickness),
+    (hw + arm_thickness - hook_depth, clip_height + arm_thickness),
+    (hw + arm_thickness - hook_depth, clip_height),
+    (hw + snap_clearance, clip_height),
+    (hw + snap_clearance, 0.0),
+    (-hw - snap_clearance, 0.0),
+    (-hw - snap_clearance, clip_height),
+    (-hw - arm_thickness + hook_depth, clip_height),
+    (-hw - arm_thickness + hook_depth, clip_height + arm_thickness),
+  ]
+  let clip_length = 15.0
+  let main_clip = @cad.ExtrudedProfile::new(profile, clip_length)
+    .with_name("main-clip")
+    .with_color(@cad.Rgb::cyan())
+    .rotate_x(90.0)
+    .translate(y=clip_length / 2.0)
+  let nodes = [main_clip]
+  if rail_seat_diameter > 0.0 && rail_seat_depth > 0.0 {
+    // Two mounting pegs for stability
+    let seat_dist = clip_length / 2.0 - rail_seat_diameter
+    let seat_locs = [(-seat_dist, 0.0), (seat_dist, 0.0)]
+    for i, loc in seat_locs {
+      let (sy, _) = loc // Centered along World Y (clip length)
+      let seat = @cad.tube(rail_seat_diameter, 0.0, rail_seat_depth)
+        .with_name("rail-seat-\{i}")
+        .with_color(@cad.Rgb::blue())
+        .translate(x=0.0, y=sy, z=-arm_thickness - rail_seat_depth)
+      nodes.push(seat)
+    }
+  }
+  nodes
 }
