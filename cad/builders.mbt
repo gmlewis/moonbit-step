@@ -154,6 +154,32 @@ pub fn polygon_knob(
 }
 
 ///|
+/// hex_bit_holder returns a Shape representing a block with a grid of
+/// hexagonal holes suitable for standard hex bits.
+pub fn hex_bit_holder(
+  rows : Int,
+  cols : Int,
+  bit_diameter_across_flats : Double,
+  spacing : Double,
+  height : Double,
+) -> Shape {
+  let d = bit_diameter_across_flats / @math.cos(30.0 * @math.PI / 180.0)
+  let hex = Profile2D::polygon(6, d, rotation=30.0)
+  let total_width = Double::from_int(cols) * spacing
+  let total_length = Double::from_int(rows) * spacing
+  let outer = Profile2D::rect(total_width, total_length)
+  let holes = []
+  for r in 0..<rows {
+    for c in 0..<cols {
+      let tx = Double::from_int(c) * spacing + spacing / 2.0
+      let ty = Double::from_int(r) * spacing + spacing / 2.0
+      holes.push(hex.map(fn(p) { (p.0 + tx, p.1 + ty) }).rev())
+    }
+  }
+  ExtrudedProfile::new(outer, height, holes~)
+}
+
+///|
 pub fn Profile2D::circle(
   diameter : Double,
   segments? : Int = 64,
