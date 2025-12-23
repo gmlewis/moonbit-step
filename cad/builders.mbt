@@ -257,6 +257,54 @@ pub fn metric_nut_test_strip(
 }
 
 ///|
+/// pin_gauge returns an array of SceneNodes representing a base plate with
+/// holes and a corresponding set of pins, each stepping through clearance/interference
+/// values to calibrate press fits.
+pub fn pin_gauge(
+  pin_diameter : Double,
+  base_clearance : Double,
+  base_interference : Double,
+  step_count : Int,
+  clearance_step : Double,
+  spacing : Double,
+  base_height : Double,
+  pin_height : Double,
+) -> Array[SceneNode] {
+  let total_length = Double::from_int(step_count) * spacing
+  let base_width = pin_diameter * 3.0
+
+  // Base with holes
+  let outer = Profile2D::rect(total_length, base_width)
+  let holes = []
+  for i in 0..<step_count {
+    let current_clearance = -base_interference +
+      Double::from_int(i) * clearance_step +
+      base_clearance
+    let x = Double::from_int(i) * spacing + spacing / 2.0
+    let y = base_width / 2.0
+    let hole = Profile2D::circle(pin_diameter + current_clearance).rev()
+    holes.push(hole.map(fn(p) { (p.0 + x, p.1 + y) }))
+  }
+  let base = ExtrudedProfile::new(outer, base_height, holes~)
+    .with_name("base")
+    .with_color(Rgb::blue())
+    .translate(x=0.0, y=-base_width / 2.0, z=0.0)
+  let nodes = [base]
+
+  // Pins
+  for i in 0..<step_count {
+    let x = Double::from_int(i) * spacing + spacing / 2.0
+    let y = -base_width
+    let pin = tube(pin_diameter, 0.0, pin_height)
+      .with_name("pin-\{i}")
+      .with_color(Rgb::magenta())
+      .translate(x~, y~, z=0.0)
+    nodes.push(pin)
+  }
+  nodes
+}
+
+///|
 /// tube returns a Shape representing a hollow (or solid) cylinder.
 /// If inner_diameter <= 0, it returns a solid cylinder.
 pub fn tube(

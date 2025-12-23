@@ -38,6 +38,8 @@ pub fn metric_nut_test_strip(Double, Double, Double, Int, Double, Double, Double
 
 pub fn notched_block(Double, Double, Double, Array[(Double, Double, Double)]) -> Shape
 
+pub fn pin_gauge(Double, Double, Double, Int, Double, Double, Double, Double) -> Array[SceneNode]
+
 pub fn polygon_area_2d(Array[(Double, Double)]) -> Double
 
 pub fn polygon_knob(Int, Double, Double, Int, Double, hole_rotation? : Double) -> Shape

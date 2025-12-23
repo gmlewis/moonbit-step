@@ -21,3 +21,18 @@ The intent is that you can run the code here to emit a STEP file, open it in a C
 - emit a small “label plaque” with the chosen settings
 - add a quick-fit calibration part alongside the main part
 - add a variant generator (small/medium/large)
+
+---
+
+### Variant 1
+
+Command line: `./run-example.sh 16 --pinDiameter 5 --clearance 0.05`
+
+![](preview-1.png)
+
+### Variant 2
+
+Command line: `./run-example.sh 16 --pinDiameter 10 --interference 0.1 --clearanceStep 0.05 --stepCount 4`
+
+![](preview-2.png)
+
