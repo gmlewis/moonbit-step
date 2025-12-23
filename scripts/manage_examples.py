@@ -28,7 +28,8 @@ SUITE = {
     "16": [["--pinDiameter", "5", "--clearance", "0.05"], ["--pinDiameter", "10", "--interference", "0.1", "--clearanceStep", "0.05", "--stepCount", "4"]],
     "17": [["--thickness", "2", "--hingeWidth", "15"], ["--width", "30", "--slotLength", "5", "--numRows", "10"]],
     "18": [["--width", "60", "--length", "80", "--height", "30"], ["--wallThickness", "3", "--filletRadius", "10", "--bossOD", "10"]],
-    "19": [["--width", "85", "--length", "75"], ["--width", "100", "--length", "60", "--slotLength", "20"]]
+    "19": [["--width", "85", "--length", "75"], ["--width", "100", "--length", "60", "--slotLength", "20"]],
+    "20": [["--standoffHeight", "6"], ["--standoffHeight", "12", "--standoffOD", "8", "--frameThickness", "5"]]
 }
 
 # --- Utils ---

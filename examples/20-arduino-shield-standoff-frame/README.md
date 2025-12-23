@@ -21,3 +21,18 @@ The intent is that you can run the code here to emit a STEP file, open it in a C
 - emit a small “label plaque” with the chosen settings
 - add a quick-fit calibration part alongside the main part
 - add a variant generator (small/medium/large)
+
+---
+
+### Variant 1
+
+Command line: `./run-example.sh 20 --standoffHeight 6`
+
+![](preview-1.png)
+
+### Variant 2
+
+Command line: `./run-example.sh 20 --standoffHeight 12 --standoffOD 8 --frameThickness 5`
+
+![](preview-2.png)
+

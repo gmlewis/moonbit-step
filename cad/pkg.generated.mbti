@@ -8,6 +8,8 @@ import(
 )
 
 // Values
+pub fn arduino_uno_standoff_frame(Double, Double, Double, Double) -> Array[SceneNode]
+
 pub fn bolt_length_gauge_base(Double, Double, Double, Double, Double, Array[Double]) -> Shape
 
 pub fn compile_calibration_chamfer_block(StepContext, SceneNode, CalibrationChamferBlock) -> @step.Ref
