@@ -39,8 +39,6 @@ pub fn tokenize_step_data_section_with_base(String, Int, Int) -> Array[RawEntity
 pub suberror StepParseError StepParseErrorInfo
 
 // Types and methods
-type EntityParser
-
 pub enum ParseRepositoryFromFileResult {
   Ok(@repository.Repository)
   ParseErr(StepParseErrorInfo)

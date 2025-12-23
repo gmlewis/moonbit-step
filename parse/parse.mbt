@@ -2913,13 +2913,12 @@ fn parse_string_list_or_dollar(arg : String) -> @header.StringListOrDollar? {
     return None
   }
   let parts = split_args(t)
-  let values = parts.map(fn(p) {
+  let values : Array[String] = []
+  for p in parts {
     match parse_step_string_literal(p) {
-      Some(v) => v
-      None => abort("")
+      Some(v) => values.push(v)
+      None => return None
     }
-  }) catch {
-    _ => return None
   }
   Some(@header.StringListOrDollar::List(values))
 }
