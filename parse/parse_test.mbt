@@ -429,6 +429,16 @@ test "parse_repository_from_string_geometric_tolerance" {
 }
 
 ///|
+test "parse_repository_from_string_datum" {
+  let content = "ISO-10303-21;\nDATA;\n#1=DATUM('d1','desc1',#10,.T.,'A');\n#2=DATUM_FEATURE('df1','desc2',#20,.T.);\nENDSEC;\nEND-ISO-10303-21;\n"
+  let repo = parse_repository_from_string(content)
+  inspect(repo.len(), content="2")
+  let out = repo.to_step_data_section()
+  assert_true(out.contains("#1=DATUM('d1','desc1',#10,.T.,'A');"))
+  assert_true(out.contains("#2=DATUM_FEATURE('df1','desc2',#20,.T.);"))
+}
+
+///|
 test "parse_repository_from_string_draughting_pre_defined_colour" {
   let content = "ISO-10303-21;\nDATA;\n#1=DRAUGHTING_PRE_DEFINED_COLOUR('red');\nENDSEC;\nEND-ISO-10303-21;\n"
   let repo = parse_repository_from_string(content)

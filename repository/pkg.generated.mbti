@@ -87,6 +87,10 @@ pub fn any_entity_cylindrical_surface(@geometry.CylindricalSurface) -> AnyEntity
 
 pub fn any_entity_date_and_time(@product.DateAndTime) -> AnyEntity
 
+pub fn any_entity_datum(@tolerancing.Datum) -> AnyEntity
+
+pub fn any_entity_datum_feature(@tolerancing.DatumFeature) -> AnyEntity
+
 pub fn any_entity_derived_unit(@units.DerivedUnit) -> AnyEntity
 
 pub fn any_entity_derived_unit_element(@units.DerivedUnitElement) -> AnyEntity
@@ -361,6 +365,8 @@ pub enum AnyEntity {
   KinematicJoint(@kinematics.KinematicJoint)
   KinematicPair(@kinematics.KinematicPair)
   GeometricTolerance(@tolerancing.GeometricTolerance)
+  Datum(@tolerancing.Datum)
+  DatumFeature(@tolerancing.DatumFeature)
   ManifoldSolidBrep(@topology.ManifoldSolidBrep)
   ClosedShell(@topology.ClosedShell)
   OpenShell(@topology.OpenShell)

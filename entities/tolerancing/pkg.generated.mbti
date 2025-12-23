@@ -10,6 +10,25 @@ import(
 // Errors
 
 // Types and methods
+pub struct Datum {
+  name : String
+  description : String
+  of_shape : @step.Ref
+  product_definitional : String
+  identification : String
+}
+pub fn Datum::new(String, String, @step.Ref, String, String) -> Self
+pub impl @step.Entity for Datum
+
+pub struct DatumFeature {
+  name : String
+  description : String
+  of_shape : @step.Ref
+  product_definitional : String
+}
+pub fn DatumFeature::new(String, String, @step.Ref, String) -> Self
+pub impl @step.Entity for DatumFeature
+
 pub struct GeometricTolerance {
   name : String
   description : String

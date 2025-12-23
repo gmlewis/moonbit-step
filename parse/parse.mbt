@@ -318,6 +318,12 @@ fn init {
   parsers.set("GEOMETRIC_TOLERANCE", fn(args) raise StepParseError {
     @repository.any_entity_geometric_tolerance(parse_geometric_tolerance(args))
   })
+  parsers.set("DATUM", fn(args) raise StepParseError {
+    @repository.any_entity_datum(parse_datum(args))
+  })
+  parsers.set("DATUM_FEATURE", fn(args) raise StepParseError {
+    @repository.any_entity_datum_feature(parse_datum_feature(args))
+  })
   parsers.set("MANIFOLD_SOLID_BREP", fn(args) raise StepParseError {
     @repository.any_entity_manifold_solid_brep(parse_manifold_solid_brep(args))
   })
@@ -2111,6 +2117,46 @@ fn parse_geometric_tolerance(
   @tolerancing.GeometricTolerance::new(name, desc, @step.Ref::{ id: mag_id }, @step.Ref::{
     id: shape_id,
   })
+}
+
+///|
+fn parse_datum(args : String) -> @tolerancing.Datum raise StepParseError {
+  let parts = split_args(args)
+  if parts.length() != 5 {
+    fail_parse()
+  }
+  let name = strip_quotes(parts[0])
+  let desc = strip_quotes(parts[1])
+  let shape_id = parse_ref_int(parts[2])
+  let definitional = parts[3].trim().to_string()
+  let identification = strip_quotes(parts[4])
+  @tolerancing.Datum::new(
+    name,
+    desc,
+    @step.Ref::{ id: shape_id },
+    definitional,
+    identification,
+  )
+}
+
+///|
+fn parse_datum_feature(
+  args : String,
+) -> @tolerancing.DatumFeature raise StepParseError {
+  let parts = split_args(args)
+  if parts.length() != 4 {
+    fail_parse()
+  }
+  let name = strip_quotes(parts[0])
+  let desc = strip_quotes(parts[1])
+  let shape_id = parse_ref_int(parts[2])
+  let definitional = parts[3].trim().to_string()
+  @tolerancing.DatumFeature::new(
+    name,
+    desc,
+    @step.Ref::{ id: shape_id },
+    definitional,
+  )
 }
 
 ///|

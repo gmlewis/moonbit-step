@@ -94,6 +94,8 @@ pub enum AnyEntity {
   KinematicJoint(@kinematics.KinematicJoint)
   KinematicPair(@kinematics.KinematicPair)
   GeometricTolerance(@tolerancing.GeometricTolerance)
+  Datum(@tolerancing.Datum)
+  DatumFeature(@tolerancing.DatumFeature)
   ManifoldSolidBrep(@topology.ManifoldSolidBrep)
   ClosedShell(@topology.ClosedShell)
   OpenShell(@topology.OpenShell)
@@ -667,6 +669,16 @@ pub fn any_entity_geometric_tolerance(
 }
 
 ///|
+pub fn any_entity_datum(d : @tolerancing.Datum) -> AnyEntity {
+  AnyEntity::Datum(d)
+}
+
+///|
+pub fn any_entity_datum_feature(d : @tolerancing.DatumFeature) -> AnyEntity {
+  AnyEntity::DatumFeature(d)
+}
+
+///|
 pub fn any_entity_manifold_solid_brep(
   m : @topology.ManifoldSolidBrep,
 ) -> AnyEntity {
@@ -1065,6 +1077,8 @@ fn entity_to_step(entity : AnyEntity) -> String {
     KinematicJoint(k) => @step.Entity::to_step(k)
     KinematicPair(k) => @step.Entity::to_step(k)
     GeometricTolerance(g) => @step.Entity::to_step(g)
+    Datum(d) => @step.Entity::to_step(d)
+    DatumFeature(d) => @step.Entity::to_step(d)
     ManifoldSolidBrep(m) => @step.Entity::to_step(m)
     ClosedShell(c) => @step.Entity::to_step(c)
     OpenShell(o) => @step.Entity::to_step(o)
