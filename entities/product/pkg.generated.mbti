@@ -69,6 +69,20 @@ pub struct CalendarDate {
 pub fn CalendarDate::new(Int, Int, Int) -> Self
 pub impl @step.Entity for CalendarDate
 
+pub struct Certification {
+  name : String
+  purpose : String
+  kind : @step.Ref
+}
+pub fn Certification::new(String, String, @step.Ref) -> Self
+pub impl @step.Entity for Certification
+
+pub struct CertificationType {
+  description : String
+}
+pub fn CertificationType::new(String) -> Self
+pub impl @step.Entity for CertificationType
+
 pub struct ContextDependentShapeRepresentation {
   representation_relation : @step.Ref
   represented_product_relation : @step.Ref

@@ -1424,6 +1424,32 @@ fn parse_security_classification_level(
 }
 
 ///|
+fn parse_certification(
+  args : String,
+) -> @product.Certification raise StepParseError {
+  let parts = split_args(args)
+  if parts.length() != 3 {
+    fail_parse()
+  }
+  let name = strip_quotes(parts[0])
+  let purpose = strip_quotes(parts[1])
+  let kind_id = parse_ref_int(parts[2])
+  @product.Certification::new(name, purpose, @step.Ref::{ id: kind_id })
+}
+
+///|
+fn parse_certification_type(
+  args : String,
+) -> @product.CertificationType raise StepParseError {
+  let parts = split_args(args)
+  if parts.length() != 1 {
+    fail_parse()
+  }
+  let desc = strip_quotes(parts[0])
+  @product.CertificationType::new(desc)
+}
+
+///|
 fn parse_manifold_solid_brep(
   args : String,
 ) -> @topology.ManifoldSolidBrep raise StepParseError {
@@ -3037,6 +3063,18 @@ pub fn parse_repository_from_string(
       repo = repo.insert_with_id(
         row.id,
         @repository.any_entity_security_classification_level(entity),
+      )
+    } else if name == "CERTIFICATION" {
+      let entity = parse_certification(row.args)
+      repo = repo.insert_with_id(
+        row.id,
+        @repository.any_entity_certification(entity),
+      )
+    } else if name == "CERTIFICATION_TYPE" {
+      let entity = parse_certification_type(row.args)
+      repo = repo.insert_with_id(
+        row.id,
+        @repository.any_entity_certification_type(entity),
       )
     } else if name == "MANIFOLD_SOLID_BREP" {
       let entity = parse_manifold_solid_brep(row.args)

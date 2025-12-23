@@ -49,6 +49,10 @@ pub fn any_entity_calendar_date(@product.CalendarDate) -> AnyEntity
 
 pub fn any_entity_cartesian_point(@geometry.CartesianPoint) -> AnyEntity
 
+pub fn any_entity_certification(@product.Certification) -> AnyEntity
+
+pub fn any_entity_certification_type(@product.CertificationType) -> AnyEntity
+
 pub fn any_entity_circle(@geometry.Circle) -> AnyEntity
 
 pub fn any_entity_closed_shell(@topology.ClosedShell) -> AnyEntity
@@ -309,6 +313,8 @@ pub enum AnyEntity {
   CoordinatedUniversalTimeOffset(@product.CoordinatedUniversalTimeOffset)
   SecurityClassification(@product.SecurityClassification)
   SecurityClassificationLevel(@product.SecurityClassificationLevel)
+  Certification(@product.Certification)
+  CertificationType(@product.CertificationType)
   ManifoldSolidBrep(@topology.ManifoldSolidBrep)
   ClosedShell(@topology.ClosedShell)
   OpenShell(@topology.OpenShell)

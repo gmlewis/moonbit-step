@@ -82,6 +82,8 @@ pub enum AnyEntity {
   CoordinatedUniversalTimeOffset(@product.CoordinatedUniversalTimeOffset)
   SecurityClassification(@product.SecurityClassification)
   SecurityClassificationLevel(@product.SecurityClassificationLevel)
+  Certification(@product.Certification)
+  CertificationType(@product.CertificationType)
   ManifoldSolidBrep(@topology.ManifoldSolidBrep)
   ClosedShell(@topology.ClosedShell)
   OpenShell(@topology.OpenShell)
@@ -576,6 +578,18 @@ pub fn any_entity_security_classification_level(
 }
 
 ///|
+pub fn any_entity_certification(c : @product.Certification) -> AnyEntity {
+  AnyEntity::Certification(c)
+}
+
+///|
+pub fn any_entity_certification_type(
+  c : @product.CertificationType,
+) -> AnyEntity {
+  AnyEntity::CertificationType(c)
+}
+
+///|
 pub fn any_entity_manifold_solid_brep(
   m : @topology.ManifoldSolidBrep,
 ) -> AnyEntity {
@@ -919,6 +933,8 @@ fn entity_to_step(entity : AnyEntity) -> String {
     CoordinatedUniversalTimeOffset(c) => @step.Entity::to_step(c)
     SecurityClassification(s) => @step.Entity::to_step(s)
     SecurityClassificationLevel(s) => @step.Entity::to_step(s)
+    Certification(c) => @step.Entity::to_step(c)
+    CertificationType(c) => @step.Entity::to_step(c)
     ManifoldSolidBrep(m) => @step.Entity::to_step(m)
     ClosedShell(c) => @step.Entity::to_step(c)
     OpenShell(o) => @step.Entity::to_step(o)
