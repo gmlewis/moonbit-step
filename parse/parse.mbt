@@ -1282,6 +1282,20 @@ fn parse_open_shell(args : String) -> @topology.OpenShell raise StepParseError {
 }
 
 ///|
+fn parse_connected_face_set(
+  args : String,
+) -> @topology.ConnectedFaceSet raise StepParseError {
+  let parts = split_args(args)
+  if parts.length() != 2 {
+    fail_parse()
+  }
+  let name = strip_quotes(parts[0])
+  let face_ids = parse_ref_ids(parts[1])
+  let faces = face_ids.map(fn(id) { @step.Ref::{ id, } })
+  @topology.ConnectedFaceSet::new(name, faces)
+}
+
+///|
 fn parse_face_surface(
   args : String,
 ) -> @topology.FaceSurface raise StepParseError {
@@ -2785,6 +2799,12 @@ pub fn parse_repository_from_string(
       repo = repo.insert_with_id(
         row.id,
         @repository.any_entity_open_shell(entity),
+      )
+    } else if name == "CONNECTED_FACE_SET" {
+      let entity = parse_connected_face_set(row.args)
+      repo = repo.insert_with_id(
+        row.id,
+        @repository.any_entity_connected_face_set(entity),
       )
     } else if name == "SHELL_BASED_SURFACE_MODEL" {
       let entity = parse_shell_based_surface_model(row.args)

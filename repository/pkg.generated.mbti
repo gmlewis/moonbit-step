@@ -49,6 +49,8 @@ pub fn any_entity_complex_instance(@context.ComplexInstance) -> AnyEntity
 
 pub fn any_entity_conical_surface(@geometry.ConicalSurface) -> AnyEntity
 
+pub fn any_entity_connected_face_set(@topology.ConnectedFaceSet) -> AnyEntity
+
 pub fn any_entity_context_dependent_shape_representation(@product.ContextDependentShapeRepresentation) -> AnyEntity
 
 pub fn any_entity_csg_solid(@geometry.CsgSolid) -> AnyEntity
@@ -271,6 +273,7 @@ pub enum AnyEntity {
   ManifoldSolidBrep(@topology.ManifoldSolidBrep)
   ClosedShell(@topology.ClosedShell)
   OpenShell(@topology.OpenShell)
+  ConnectedFaceSet(@topology.ConnectedFaceSet)
   ShellBasedSurfaceModel(@topology.ShellBasedSurfaceModel)
   AdvancedFace(@topology.AdvancedFace)
   FaceSurface(@topology.FaceSurface)

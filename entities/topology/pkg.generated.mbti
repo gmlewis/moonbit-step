@@ -26,6 +26,13 @@ pub struct ClosedShell {
 pub fn ClosedShell::new(String, Array[@step.Ref]) -> Self
 pub impl @step.Entity for ClosedShell
 
+pub struct ConnectedFaceSet {
+  name : String
+  cfs_faces : Array[@step.Ref]
+}
+pub fn ConnectedFaceSet::new(String, Array[@step.Ref]) -> Self
+pub impl @step.Entity for ConnectedFaceSet
+
 pub struct EdgeCurve {
   name : String
   edge_start : @step.Ref
