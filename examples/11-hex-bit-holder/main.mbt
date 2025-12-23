@@ -11,16 +11,8 @@
 ///   moon run --target native examples/11-hex-bit-holder -- -o holder.step
 async fn main {
   let base_args_spec = {
-    "rows": @cli.opt_double(
-      2.0,
-      help="Number of rows in the grid",
-      min=1.0,
-    ),
-    "cols": @cli.opt_double(
-      4.0,
-      help="Number of columns in the grid",
-      min=1.0,
-    ),
+    "rows": @cli.opt_double(2.0, help="Number of rows in the grid", min=1.0),
+    "cols": @cli.opt_double(4.0, help="Number of columns in the grid", min=1.0),
     "bitDiameter": @cli.opt_double(
       6.35,
       help="Hex bit diameter across flats (mm). Standard is 6.35 (1/4\").",

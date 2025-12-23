@@ -180,6 +180,24 @@ pub fn hex_bit_holder(
 }
 
 ///|
+/// tube returns a Shape representing a hollow (or solid) cylinder.
+/// If inner_diameter <= 0, it returns a solid cylinder.
+pub fn tube(
+  outer_diameter : Double,
+  inner_diameter : Double,
+  height : Double,
+  segments? : Int = 64,
+) -> Shape {
+  let outer = Profile2D::circle(outer_diameter, segments~)
+  if inner_diameter <= 0.0 {
+    ExtrudedProfile::new(outer, height)
+  } else {
+    let hole = Profile2D::circle(inner_diameter, segments~).rev()
+    ExtrudedProfile::new(outer, height, holes=[hole])
+  }
+}
+
+///|
 pub fn Profile2D::circle(
   diameter : Double,
   segments? : Int = 64,

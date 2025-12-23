@@ -17,7 +17,11 @@ pub fn dovetail_base(Double, Double, Double, Double, Double, Double) -> Shape
 
 pub fn dovetail_slider(Double, Double, Double, Double, clearance? : Double) -> Shape
 
+pub fn hex_bit_holder(Int, Int, Double, Double, Double) -> Shape
+
 pub fn polygon_knob(Int, Double, Double, Int, Double, hole_rotation? : Double) -> Shape
+
+pub fn tube(Double, Double, Double, segments? : Int) -> Shape
 
 pub async fn write_step_text(String, String?) -> Unit
 
