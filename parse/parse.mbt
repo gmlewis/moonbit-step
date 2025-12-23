@@ -406,6 +406,9 @@ fn init {
       parse_annotation_occurrence(args),
     )
   })
+  parsers.set("TEXT_LITERAL", fn(args) raise StepParseError {
+    @repository.any_entity_text_literal(parse_text_literal(args))
+  })
   parsers.set("DIMENSIONAL_EXPONENTS", fn(args) raise StepParseError {
     @repository.any_entity_dimensional_exponents(
       parse_dimensional_exponents(args),
@@ -2371,6 +2374,34 @@ fn parse_presentation_layer_assignment(
   let item_ids = parse_ref_ids(parts[2])
   let items = item_ids.map(fn(id) { @step.Ref::{ id, } })
   @presentation.PresentationLayerAssignment::new(name, description, items)
+}
+
+///|
+fn parse_text_literal(
+  args : String,
+) -> @presentation.TextLiteral raise StepParseError {
+  let parts = split_args(args)
+  if parts.length() != 6 {
+    fail_parse()
+  }
+  let name = strip_quotes(parts[0])
+  let literal = strip_quotes(parts[1])
+  let placement_id = parse_ref_int(parts[2])
+  let alignment = strip_quotes(parts[3])
+  let path_str = parts[4].trim().to_string()
+  let path = match @presentation.TextPath::from_string(path_str) {
+    Some(p) => p
+    None => fail_parse()
+  }
+  let font_id = parse_ref_int(parts[5])
+  @presentation.TextLiteral::new(
+    name,
+    literal,
+    @step.Ref::{ id: placement_id },
+    alignment,
+    path,
+    @step.Ref::{ id: font_id },
+  )
 }
 
 ///|

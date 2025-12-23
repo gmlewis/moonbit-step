@@ -446,6 +446,19 @@ test "parse_repository_from_string_annotation_occurrence" {
 }
 
 ///|
+test "parse_repository_from_string_text_literal" {
+  let content = "ISO-10303-21;\nDATA;\n#1=TEXT_LITERAL('name','literal',#10,'alignment',.RIGHT.,#20);\nENDSEC;\nEND-ISO-10303-21;\n"
+  let repo = parse_repository_from_string(content)
+  inspect(repo.len(), content="1")
+  let out = repo.to_step_data_section()
+  assert_true(
+    out.contains(
+      "#1=TEXT_LITERAL('name','literal',#10,'alignment',.RIGHT.,#20);",
+    ),
+  )
+}
+
+///|
 test "parse_repository_from_string_shape_definition_representation" {
   let content = "ISO-10303-21;\nDATA;\n#12=SHAPE_DEFINITION_REPRESENTATION(#13,#22);\nENDSEC;\nEND-ISO-10303-21;\n"
   let repo = parse_repository_from_string(content)
@@ -790,6 +803,16 @@ test "parse_repository_from_string_axis1_placement" {
   let out = repo.to_step_data_section()
   assert_true(out.contains("#1=AXIS1_PLACEMENT('a1',#10,$);"))
   assert_true(out.contains("#2=AXIS1_PLACEMENT('a2',#10,#20);"))
+}
+
+///|
+test "parse_repository_from_string_axis2_placement_2d" {
+  let content = "ISO-10303-21;\nDATA;\n#1=AXIS2_PLACEMENT_2D('a1',#10,$);\n#2=AXIS2_PLACEMENT_2D('a2',#10,#20);\nENDSEC;\nEND-ISO-10303-21;\n"
+  let repo = parse_repository_from_string(content)
+  inspect(repo.len(), content="2")
+  let out = repo.to_step_data_section()
+  assert_true(out.contains("#1=AXIS2_PLACEMENT_2D('a1',#10,$);"))
+  assert_true(out.contains("#2=AXIS2_PLACEMENT_2D('a2',#10,#20);"))
 }
 
 ///|
