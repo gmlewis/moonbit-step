@@ -23,7 +23,8 @@ SUITE = {
     "11": [["--rows", "2", "--cols", "4"], ["--rows", "1", "--cols", "5", "--spacing", "8.5", "--tolerance", "0.05"], ["--rows", "3", "--cols", "3", "--spacing", "15", "--height", "25"]],
     "12": [["--diameter", "25.4", "--type", "cap"], ["--diameter", "25.4", "--type", "plug", "--topThickness", "5"], ["--diameter", "50", "--wall", "1.2", "--height", "20"]],
     "13": [["--length", "60", "--width", "70"], ["--length", "100", "--width", "80", "--height", "15"], ["--width", "50", "--height", "12"]],
-    "14": [["--length", "100"], ["--length", "150", "--width", "50"], ["--length", "80", "--height", "12"]]
+    "14": [["--length", "100"], ["--length", "150", "--width", "50"], ["--length", "80", "--height", "12"]],
+    "15": [["--boltDiameter", "8", "--clearance", "0.1"], ["--boltDiameter", "10", "--interference", "0.1", "--clearanceStep", "0.1", "--stepCount", "3"]]
 }
 
 # --- Utils ---
