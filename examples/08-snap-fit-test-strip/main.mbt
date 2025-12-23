@@ -87,20 +87,19 @@ async fn main {
 
   // 1. Generate the test strip (Arms)
   let strip_length = Double::from_int(step_count) * step_spacing
-  let arm_base_strip = @cad.Cuboid::new(strip_length, 10.0, base_height)
+  let arm_base_strip = @cad.Cuboid::new(strip_length, 15.0, base_height)
     .with_name("arm-base")
     .with_color(@cad.Rgb::grey())
     .translate(x=tx, y=ty, z=tz)
   design = design.add(arm_base_strip)
 
   for i in 0..<step_count {
-    let x_offset = Double::from_int(i) * step_spacing + 5.0
+    let x_offset = Double::from_int(i) * step_spacing + step_spacing / 2.0
     let current_interference = base_interference +
       Double::from_int(i) * interference_step
 
-    // The Arm Profile (side view in XZ plane, but ExtrudedProfile extrudes along Z)
-    // So we define it in XY and then rotate.
-    // X = thickness, Y = height
+    // The Arm Profile (side view in XZ plane)
+    // X = thickness, Y = height (will become Z)
     let arm_poly = [
       (0.0, 0.0),
       (arm_thickness, 0.0),
@@ -113,15 +112,18 @@ async fn main {
     let arm = @cad.ExtrudedProfile::new(arm_poly, arm_width)
       .with_name("arm-\{i}")
       .with_color(@cad.Rgb::orange())
-      .rotate_x(-90.0) // Lay it flat so extrusion width is across the strip
-      .rotate_z(90.0) // Orient so thickness is along the strip
-      .translate(x=tx + x_offset, y=ty + 5.0 - arm_width / 2.0, z=tz + base_height)
+      // ExtrudedProfile is in XY, extruding along Z.
+      // We want Y-axis of poly to be Z-axis of world.
+      // We want X-axis of poly to be Y-axis of world.
+      // And we want the extrusion width to be along the X-axis of the world.
+      .rotate_y(-90.0) // Poly XZ -> Width along X
+      .rotate_z(90.0)  // Align thickness
+      .translate(x=tx + x_offset - arm_width / 2.0, y=ty + 7.5 - arm_thickness / 2.0, z=tz + base_height)
     design = design.add(arm)
   }
 
   // 2. Generate the Receiver Strip
-  // We'll place it parallel to the arm strip
-  let receiver_y_offset = 25.0
+  let receiver_y_offset = 30.0
   let receiver_base_strip = @cad.Cuboid::new(strip_length, receiver_length, base_height)
     .with_name("receiver-base")
     .with_color(@cad.Rgb::blue())
@@ -129,30 +131,28 @@ async fn main {
   design = design.add(receiver_base_strip)
 
   for i in 0..<step_count {
-    let x_offset = Double::from_int(i) * step_spacing + 5.0
+    let x_offset = Double::from_int(i) * step_spacing + step_spacing / 2.0
     
-    // Each receiver is a block with a slot.
-    // Since we don't have boolean subtraction for solids yet,
-    // we build the receiver out of smaller cuboids to form a "slot".
+    // Build the receiver "cage" growing UP from the base
     
-    // Front wall of the slot
-    let front_wall = @cad.Cuboid::new(arm_width + 4.0, 2.0, arm_height + base_height)
-      .with_name("recv-front-\{i}")
+    // Back wall
+    let back_wall = @cad.Cuboid::new(arm_width + 4.0, 2.0, arm_height)
+      .with_name("recv-back-\{i}")
       .with_color(@cad.Rgb::blue())
-      .translate(x=tx + x_offset - 2.0, y=ty + receiver_y_offset, z=tz)
-    design = design.add(front_wall)
+      .translate(x=tx + x_offset - (arm_width + 4.0) / 2.0, y=ty + receiver_y_offset, z=tz + base_height)
+    design = design.add(back_wall)
     
     // Side walls
-    let side_wall_l = @cad.Cuboid::new(2.0, 6.0, arm_height + base_height)
+    let side_wall_l = @cad.Cuboid::new(2.0, 8.0, arm_height)
       .with_name("recv-side-l-\{i}")
       .with_color(@cad.Rgb::blue())
-      .translate(x=tx + x_offset - 2.0, y=ty + receiver_y_offset + 2.0, z=tz)
+      .translate(x=tx + x_offset - (arm_width + 4.0) / 2.0, y=ty + receiver_y_offset + 2.0, z=tz + base_height)
     design = design.add(side_wall_l)
     
-    let side_wall_r = @cad.Cuboid::new(2.0, 6.0, arm_height + base_height)
+    let side_wall_r = @cad.Cuboid::new(2.0, 8.0, arm_height)
       .with_name("recv-side-r-\{i}")
       .with_color(@cad.Rgb::blue())
-      .translate(x=tx + x_offset + arm_width, y=ty + receiver_y_offset + 2.0, z=tz)
+      .translate(x=tx + x_offset + arm_width / 2.0, y=ty + receiver_y_offset + 2.0, z=tz + base_height)
     design = design.add(side_wall_r)
     
     // The "ledge" the snap hooks onto
@@ -161,9 +161,9 @@ async fn main {
       .with_name("recv-ledge-\{i}")
       .with_color(@cad.Rgb::red())
       .translate(
-        x=tx + x_offset,
+        x=tx + x_offset - arm_width / 2.0,
         y=ty + receiver_y_offset + 2.0 + arm_thickness + clearance,
-        z=tz + arm_height + base_height - ledge_height - snap_clearance
+        z=tz + base_height + arm_height - ledge_height - snap_clearance
       )
     design = design.add(ledge)
   }

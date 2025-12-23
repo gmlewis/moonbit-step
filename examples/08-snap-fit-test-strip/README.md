@@ -28,11 +28,11 @@ The intent is that you can run the code here to emit a STEP file, open it in a C
 
 Command line: `./run-example.sh 08 --stepCount 3`
 
-_[Render Failed]_
+![](preview-1.png)
 
 ### Variant 2
 
 Command line: `./run-example.sh 08 --stepCount 5 --interference 0.2 --interferenceStep 0.2`
 
-_[Render Failed]_
+![](preview-2.png)
 
