@@ -89,6 +89,8 @@ pub fn any_entity_direction(@geometry.Direction) -> AnyEntity
 
 pub fn any_entity_document(@product.Document) -> AnyEntity
 
+pub fn any_entity_document_reference(@product.DocumentReference) -> AnyEntity
+
 pub fn any_entity_document_type(@product.DocumentType) -> AnyEntity
 
 pub fn any_entity_edge_curve(@topology.EdgeCurve) -> AnyEntity
@@ -321,6 +323,7 @@ pub enum AnyEntity {
   CertificationType(@product.CertificationType)
   Document(@product.Document)
   DocumentType(@product.DocumentType)
+  DocumentReference(@product.DocumentReference)
   ManifoldSolidBrep(@topology.ManifoldSolidBrep)
   ClosedShell(@topology.ClosedShell)
   OpenShell(@topology.OpenShell)

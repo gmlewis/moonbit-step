@@ -395,6 +395,17 @@ test "parse_repository_from_string_document" {
 }
 
 ///|
+test "parse_repository_from_string_doc_ref" {
+  let content = "ISO-10303-21;\nDATA;\n#1=DOCUMENT_TYPE('kind');\n#2=DOCUMENT('d1','name','desc',#1);\n#3=DOCUMENT_REFERENCE('dr1','ref','ref_desc',#2);\nENDSEC;\nEND-ISO-10303-21;\n"
+  let repo = parse_repository_from_string(content)
+  inspect(repo.len(), content="3")
+  let out = repo.to_step_data_section()
+  assert_true(out.contains("#1=DOCUMENT_TYPE('kind');"))
+  assert_true(out.contains("#2=DOCUMENT('d1','name','desc',#1);"))
+  assert_true(out.contains("#3=DOCUMENT_REFERENCE('dr1','ref','ref_desc',#2);"))
+}
+
+///|
 test "parse_repository_from_string_shape_definition_representation" {
   let content = "ISO-10303-21;\nDATA;\n#12=SHAPE_DEFINITION_REPRESENTATION(#13,#22);\nENDSEC;\nEND-ISO-10303-21;\n"
   let repo = parse_repository_from_string(content)

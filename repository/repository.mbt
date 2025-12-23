@@ -86,6 +86,7 @@ pub enum AnyEntity {
   CertificationType(@product.CertificationType)
   Document(@product.Document)
   DocumentType(@product.DocumentType)
+  DocumentReference(@product.DocumentReference)
   ManifoldSolidBrep(@topology.ManifoldSolidBrep)
   ClosedShell(@topology.ClosedShell)
   OpenShell(@topology.OpenShell)
@@ -602,6 +603,13 @@ pub fn any_entity_document_type(d : @product.DocumentType) -> AnyEntity {
 }
 
 ///|
+pub fn any_entity_document_reference(
+  d : @product.DocumentReference,
+) -> AnyEntity {
+  AnyEntity::DocumentReference(d)
+}
+
+///|
 pub fn any_entity_manifold_solid_brep(
   m : @topology.ManifoldSolidBrep,
 ) -> AnyEntity {
@@ -949,6 +957,7 @@ fn entity_to_step(entity : AnyEntity) -> String {
     CertificationType(c) => @step.Entity::to_step(c)
     Document(d) => @step.Entity::to_step(d)
     DocumentType(d) => @step.Entity::to_step(d)
+    DocumentReference(d) => @step.Entity::to_step(d)
     ManifoldSolidBrep(m) => @step.Entity::to_step(m)
     ClosedShell(c) => @step.Entity::to_step(c)
     OpenShell(o) => @step.Entity::to_step(o)

@@ -1,4 +1,447 @@
 ///|
+priv struct EntityParser((String) -> @repository.AnyEntity raise StepParseError)
+
+///|
+let parsers : Map[String, EntityParser] = Map::new()
+
+///|
+fn init {
+  parsers.set("CARTESIAN_POINT", fn(args) raise StepParseError {
+    @repository.any_entity_cartesian_point(parse_cartesian_point(args))
+  })
+  parsers.set("DIRECTION", fn(args) raise StepParseError {
+    @repository.any_entity_direction(parse_direction(args))
+  })
+  parsers.set("AXIS1_PLACEMENT", fn(args) raise StepParseError {
+    @repository.any_entity_axis1_placement(parse_axis1_placement(args))
+  })
+  parsers.set("AXIS2_PLACEMENT_3D", fn(args) raise StepParseError {
+    @repository.any_entity_axis2_placement_3d(parse_axis2_placement_3d(args))
+  })
+  parsers.set("AXIS_2_PLACEMENT_3D", fn(args) raise StepParseError {
+    @repository.any_entity_axis2_placement_3d(parse_axis2_placement_3d(args))
+  })
+  parsers.set("PLANE", fn(args) raise StepParseError {
+    @repository.any_entity_plane(parse_plane(args))
+  })
+  parsers.set("CIRCLE", fn(args) raise StepParseError {
+    @repository.any_entity_circle(parse_circle(args))
+  })
+  parsers.set("ELLIPSE", fn(args) raise StepParseError {
+    @repository.any_entity_ellipse(parse_ellipse(args))
+  })
+  parsers.set("PARABOLA", fn(args) raise StepParseError {
+    @repository.any_entity_parabola(parse_parabola(args))
+  })
+  parsers.set("HYPERBOLA", fn(args) raise StepParseError {
+    @repository.any_entity_hyperbola(parse_hyperbola(args))
+  })
+  parsers.set("CYL_SURF", fn(args) raise StepParseError {
+    @repository.any_entity_cylindrical_surface(parse_cylindrical_surface(args))
+  })
+  parsers.set("CYLINDRICAL_SURFACE", fn(args) raise StepParseError {
+    @repository.any_entity_cylindrical_surface(parse_cylindrical_surface(args))
+  })
+  parsers.set("CONICAL_SURFACE", fn(args) raise StepParseError {
+    @repository.any_entity_conical_surface(parse_conical_surface(args))
+  })
+  parsers.set("TOROIDAL_SURFACE", fn(args) raise StepParseError {
+    @repository.any_entity_toroidal_surface(parse_toroidal_surface(args))
+  })
+  parsers.set("B_SPLINE_CURVE", fn(args) raise StepParseError {
+    @repository.any_entity_b_spline_curve(parse_b_spline_curve(args))
+  })
+  parsers.set("B_SPLINE_CURVE_WITH_KNOTS", fn(args) raise StepParseError {
+    @repository.any_entity_b_spline_curve_with_knots(
+      parse_b_spline_curve_with_knots(args),
+    )
+  })
+  parsers.set("B_SPLINE_SURFACE", fn(args) raise StepParseError {
+    @repository.any_entity_b_spline_surface(parse_b_spline_surface(args))
+  })
+  parsers.set("B_SPLINE_SURFACE_WITH_KNOTS", fn(args) raise StepParseError {
+    @repository.any_entity_b_spline_surface_with_knots(
+      parse_b_spline_surface_with_knots(args),
+    )
+  })
+  parsers.set("RATIONAL_B_SPLINE_CURVE", fn(args) raise StepParseError {
+    @repository.any_entity_rational_b_spline_curve(
+      parse_rational_b_spline_curve(args),
+    )
+  })
+  parsers.set("RATIONAL_B_SPLINE_SURFACE", fn(args) raise StepParseError {
+    @repository.any_entity_rational_b_spline_surface(
+      parse_rational_b_spline_surface(args),
+    )
+  })
+  parsers.set("TRIMMED_CURVE", fn(args) raise StepParseError {
+    @repository.any_entity_trimmed_curve(parse_trimmed_curve(args))
+  })
+  parsers.set("OFFSET_CURVE_3D", fn(args) raise StepParseError {
+    @repository.any_entity_offset_curve_3d(parse_offset_curve_3d(args))
+  })
+  parsers.set("OFFSET_SURFACE", fn(args) raise StepParseError {
+    @repository.any_entity_offset_surface(parse_offset_surface(args))
+  })
+  parsers.set("SURFACE_OF_LINEAR_EXTRUSION", fn(args) raise StepParseError {
+    @repository.any_entity_surface_of_linear_extrusion(
+      parse_surface_of_linear_extrusion(args),
+    )
+  })
+  parsers.set("SURFACE_OF_REVOLUTION", fn(args) raise StepParseError {
+    @repository.any_entity_surface_of_revolution(
+      parse_surface_of_revolution(args),
+    )
+  })
+  parsers.set("SWEPT_SURFACE", fn(args) raise StepParseError {
+    @repository.any_entity_swept_surface(parse_swept_surface(args))
+  })
+  parsers.set("RECTANGULAR_TRIMMED_SURFACE", fn(args) raise StepParseError {
+    @repository.any_entity_rectangular_trimmed_surface(
+      parse_rectangular_trimmed_surface(args),
+    )
+  })
+  parsers.set("POLYLINE", fn(args) raise StepParseError {
+    @repository.any_entity_polyline(parse_polyline(args))
+  })
+  parsers.set("VECTOR", fn(args) raise StepParseError {
+    @repository.any_entity_vector(parse_vector(args))
+  })
+  parsers.set("LINE", fn(args) raise StepParseError {
+    @repository.any_entity_line(parse_line(args))
+  })
+  parsers.set("REPRESENTATION_RELATIONSHIP", fn(args) raise StepParseError {
+    @repository.any_entity_representation_relationship(
+      parse_representation_relationship(args),
+    )
+  })
+  parsers.set("REPRESENTATION_RELATIONSHIP_WITH_TRANSFORMATION", fn(
+    args,
+  ) raise StepParseError {
+    @repository.any_entity_representation_relationship_with_transformation(
+      parse_representation_relationship_with_transformation(args),
+    )
+  })
+  parsers.set("SHAPE_REPRESENTATION_RELATIONSHIP", fn(
+    args,
+  ) raise StepParseError {
+    @repository.any_entity_shape_representation_relationship(
+      parse_shape_representation_relationship(args),
+    )
+  })
+  parsers.set("ADVANCED_BREP_SHAPE_REPRESENTATION", fn(
+    args,
+  ) raise StepParseError {
+    @repository.any_entity_advanced_brep_shape_representation(
+      parse_advanced_brep_shape_representation(args),
+    )
+  })
+  parsers.set("SHAPE_DEFINITION_REPRESENTATION", fn(args) raise StepParseError {
+    @repository.any_entity_shape_definition_representation(
+      parse_shape_definition_representation(args),
+    )
+  })
+  parsers.set("SHAPE_REPRESENTATION", fn(args) raise StepParseError {
+    @repository.any_entity_shape_representation(
+      parse_shape_representation(args),
+    )
+  })
+  parsers.set("REPRESENTATION", fn(args) raise StepParseError {
+    @repository.any_entity_representation(parse_representation(args))
+  })
+  parsers.set("DESCRIPTIVE_REPRESENTATION_ITEM", fn(args) raise StepParseError {
+    @repository.any_entity_descriptive_representation_item(
+      parse_descriptive_representation_item(args),
+    )
+  })
+  parsers.set("MEASURE_REPRESENTATION_ITEM", fn(args) raise StepParseError {
+    @repository.any_entity_measure_representation_item(
+      parse_measure_representation_item(args),
+    )
+  })
+  parsers.set("CONTEXT_DEPENDENT_SHAPE_REPRESENTATION", fn(
+    args,
+  ) raise StepParseError {
+    @repository.any_entity_context_dependent_shape_representation(
+      parse_context_dependent_shape_representation(args),
+    )
+  })
+  parsers.set("ITEM_DEFINED_TRANSFORMATION", fn(args) raise StepParseError {
+    @repository.any_entity_item_defined_transformation(
+      parse_item_defined_transformation(args),
+    )
+  })
+  parsers.set("NEXT_ASSEMBLY_USAGE_OCCURRENCE", fn(args) raise StepParseError {
+    @repository.any_entity_next_assembly_usage_occurrence(
+      parse_next_assembly_usage_occurrence(args),
+    )
+  })
+  parsers.set("PRODUCT_DEFINITION_SHAPE", fn(args) raise StepParseError {
+    @repository.any_entity_product_definition_shape(
+      parse_product_definition_shape(args),
+    )
+  })
+  parsers.set("PRODUCT_DEFINITION", fn(args) raise StepParseError {
+    @repository.any_entity_product_definition(parse_product_definition(args))
+  })
+  parsers.set("PRODUCT_DEFINITION_CONTEXT", fn(args) raise StepParseError {
+    @repository.any_entity_product_definition_context(
+      parse_product_definition_context(args),
+    )
+  })
+  parsers.set("PRODUCT_DEFINITION_FORMATION", fn(args) raise StepParseError {
+    @repository.any_entity_product_definition_formation(
+      parse_product_definition_formation(args),
+    )
+  })
+  parsers.set("PRODUCT_DEFINITION_FORMATION_WITH_SPECIFIED_SOURCE", fn(
+    args,
+  ) raise StepParseError {
+    @repository.any_entity_product_definition_formation_with_specified_source(
+      parse_product_definition_formation_with_specified_source(args),
+    )
+  })
+  parsers.set("PROPERTY_DEFINITION", fn(args) raise StepParseError {
+    @repository.any_entity_property_definition(parse_property_definition(args))
+  })
+  parsers.set("PROPERTY_DEFINITION_REPRESENTATION", fn(
+    args,
+  ) raise StepParseError {
+    @repository.any_entity_property_definition_representation(
+      parse_property_definition_representation(args),
+    )
+  })
+  parsers.set("PRODUCT_RELATED_PRODUCT_CATEGORY", fn(
+    args,
+  ) raise StepParseError {
+    @repository.any_entity_product_related_product_category(
+      parse_product_related_product_category(args),
+    )
+  })
+  parsers.set("PRODUCT", fn(args) raise StepParseError {
+    @repository.any_entity_product(parse_product(args))
+  })
+  parsers.set("PRODUCT_CONTEXT", fn(args) raise StepParseError {
+    @repository.any_entity_product_context(parse_product_context(args))
+  })
+  parsers.set("APPLICATION_PROTOCOL_DEFINITION", fn(args) raise StepParseError {
+    @repository.any_entity_application_protocol_definition(
+      parse_application_protocol_definition(args),
+    )
+  })
+  parsers.set("APPLICATION_CONTEXT", fn(args) raise StepParseError {
+    @repository.any_entity_application_context(parse_application_context(args))
+  })
+  parsers.set("APPROVAL", fn(args) raise StepParseError {
+    @repository.any_entity_approval(parse_approval(args))
+  })
+  parsers.set("APPROVAL_STATUS", fn(args) raise StepParseError {
+    @repository.any_entity_approval_status(parse_approval_status(args))
+  })
+  parsers.set("APPROVAL_ROLE", fn(args) raise StepParseError {
+    @repository.any_entity_approval_role(parse_approval_role(args))
+  })
+  parsers.set("APPROVAL_PERSON_ORGANIZATION", fn(args) raise StepParseError {
+    @repository.any_entity_approval_person_organization(
+      parse_approval_person_organization(args),
+    )
+  })
+  parsers.set("PERSON", fn(args) raise StepParseError {
+    @repository.any_entity_person(parse_person(args))
+  })
+  parsers.set("ORGANIZATION", fn(args) raise StepParseError {
+    @repository.any_entity_organization(parse_organization(args))
+  })
+  parsers.set("PERSON_AND_ORGANIZATION", fn(args) raise StepParseError {
+    @repository.any_entity_person_and_organization(
+      parse_person_and_organization(args),
+    )
+  })
+  parsers.set("DATE_AND_TIME", fn(args) raise StepParseError {
+    @repository.any_entity_date_and_time(parse_date_and_time(args))
+  })
+  parsers.set("LOCAL_TIME", fn(args) raise StepParseError {
+    @repository.any_entity_local_time(parse_local_time(args))
+  })
+  parsers.set("CALENDAR_DATE", fn(args) raise StepParseError {
+    @repository.any_entity_calendar_date(parse_calendar_date(args))
+  })
+  parsers.set("COORDINATED_UNIVERSAL_TIME_OFFSET", fn(
+    args,
+  ) raise StepParseError {
+    @repository.any_entity_coordinated_universal_time_offset(
+      parse_coordinated_universal_time_offset(args),
+    )
+  })
+  parsers.set("SECURITY_CLASSIFICATION", fn(args) raise StepParseError {
+    @repository.any_entity_security_classification(
+      parse_security_classification(args),
+    )
+  })
+  parsers.set("SECURITY_CLASSIFICATION_LEVEL", fn(args) raise StepParseError {
+    @repository.any_entity_security_classification_level(
+      parse_security_classification_level(args),
+    )
+  })
+  parsers.set("CERTIFICATION", fn(args) raise StepParseError {
+    @repository.any_entity_certification(parse_certification(args))
+  })
+  parsers.set("CERTIFICATION_TYPE", fn(args) raise StepParseError {
+    @repository.any_entity_certification_type(parse_certification_type(args))
+  })
+  parsers.set("DOCUMENT", fn(args) raise StepParseError {
+    @repository.any_entity_document(parse_document(args))
+  })
+  parsers.set("DOCUMENT_REFERENCE", fn(args) raise StepParseError {
+    @repository.any_entity_document_reference(parse_document_reference(args))
+  })
+  parsers.set("DOCUMENT_TYPE", fn(args) raise StepParseError {
+    @repository.any_entity_document_type(parse_document_type(args))
+  })
+  parsers.set("MANIFOLD_SOLID_BREP", fn(args) raise StepParseError {
+    @repository.any_entity_manifold_solid_brep(parse_manifold_solid_brep(args))
+  })
+  parsers.set("CLOSED_SHELL", fn(args) raise StepParseError {
+    @repository.any_entity_closed_shell(parse_closed_shell(args))
+  })
+  parsers.set("OPEN_SHELL", fn(args) raise StepParseError {
+    @repository.any_entity_open_shell(parse_open_shell(args))
+  })
+  parsers.set("CONNECTED_FACE_SET", fn(args) raise StepParseError {
+    @repository.any_entity_connected_face_set(parse_connected_face_set(args))
+  })
+  parsers.set("SHELL_BASED_SURFACE_MODEL", fn(args) raise StepParseError {
+    @repository.any_entity_shell_based_surface_model(
+      parse_shell_based_surface_model(args),
+    )
+  })
+  parsers.set("ADVANCED_FACE", fn(args) raise StepParseError {
+    @repository.any_entity_advanced_face(parse_advanced_face(args))
+  })
+  parsers.set("FACE_SURFACE", fn(args) raise StepParseError {
+    @repository.any_entity_face_surface(parse_face_surface(args))
+  })
+  parsers.set("SUBFACE", fn(args) raise StepParseError {
+    @repository.any_entity_subface(parse_subface(args))
+  })
+  parsers.set("FACE_OUTER_BOUND", fn(args) raise StepParseError {
+    @repository.any_entity_face_outer_bound(parse_face_outer_bound(args))
+  })
+  parsers.set("FACE_BOUND", fn(args) raise StepParseError {
+    @repository.any_entity_face_bound(parse_face_bound(args))
+  })
+  parsers.set("EDGE_LOOP", fn(args) raise StepParseError {
+    @repository.any_entity_edge_loop(parse_edge_loop(args))
+  })
+  parsers.set("ORIENTED_EDGE", fn(args) raise StepParseError {
+    @repository.any_entity_oriented_edge(parse_oriented_edge(args))
+  })
+  parsers.set("EDGE_CURVE", fn(args) raise StepParseError {
+    @repository.any_entity_edge_curve(parse_edge_curve(args))
+  })
+  parsers.set("VERTEX_POINT", fn(args) raise StepParseError {
+    @repository.any_entity_vertex_point(parse_vertex_point(args))
+  })
+  parsers.set("COLOUR_RGB", fn(args) raise StepParseError {
+    @repository.any_entity_color_rgb(parse_color_rgb(args))
+  })
+  parsers.set("FILL_AREA_STYLE_COLOUR", fn(args) raise StepParseError {
+    @repository.any_entity_fill_area_style_color(
+      parse_fill_area_style_color(args),
+    )
+  })
+  parsers.set("FILL_AREA_STYLE", fn(args) raise StepParseError {
+    @repository.any_entity_fill_area_style(parse_fill_area_style(args))
+  })
+  parsers.set("SURFACE_STYLE_FILL_AREA", fn(args) raise StepParseError {
+    @repository.any_entity_surface_style_fill_area(
+      parse_surface_style_fill_area(args),
+    )
+  })
+  parsers.set("SURFACE_SIDE_STYLE", fn(args) raise StepParseError {
+    @repository.any_entity_surface_side_style(parse_surface_side_style(args))
+  })
+  parsers.set("SURFACE_STYLE_USAGE", fn(args) raise StepParseError {
+    @repository.any_entity_surface_style_usage(parse_surface_style_usage(args))
+  })
+  parsers.set("PRESENTATION_LAYER_ASSIGNMENT", fn(args) raise StepParseError {
+    @repository.any_entity_presentation_layer_assignment(
+      parse_presentation_layer_assignment(args),
+    )
+  })
+  parsers.set("MECHANICAL_DESIGN_GEOMETRIC_PRESENTATION_REPRESENTATION", fn(
+    args,
+  ) raise StepParseError {
+    @repository.any_entity_mechanical_design_geometric_presentation_representation(
+      parse_mechanical_design_geometric_presentation_representation(args),
+    )
+  })
+  parsers.set("PRESENTATION_STYLE_ASSIGNMENT", fn(args) raise StepParseError {
+    @repository.any_entity_presentation_style_assignment(
+      parse_presentation_style_assignment(args),
+    )
+  })
+  parsers.set("STYLED_ITEM", fn(args) raise StepParseError {
+    @repository.any_entity_styled_item(parse_styled_item(args))
+  })
+  parsers.set("DIMENSIONAL_EXPONENTS", fn(args) raise StepParseError {
+    @repository.any_entity_dimensional_exponents(
+      parse_dimensional_exponents(args),
+    )
+  })
+  parsers.set("UNCERTAINTY_MEASURE_WITH_UNIT", fn(args) raise StepParseError {
+    @repository.any_entity_uncertainty_measure_with_unit(
+      parse_uncertainty_measure_with_unit(args),
+    )
+  })
+  parsers.set("PLANE_ANGLE_MEASURE_WITH_UNIT", fn(args) raise StepParseError {
+    @repository.any_entity_plane_angle_measure_with_unit(
+      parse_plane_angle_measure_with_unit(args),
+    )
+  })
+  parsers.set("DERIVED_UNIT_ELEMENT", fn(args) raise StepParseError {
+    @repository.any_entity_derived_unit_element(
+      parse_derived_unit_element(args),
+    )
+  })
+  parsers.set("DERIVED_UNIT", fn(args) raise StepParseError {
+    @repository.any_entity_derived_unit(parse_derived_unit(args))
+  })
+  parsers.set("BOOLEAN_RESULT", fn(args) raise StepParseError {
+    @repository.any_entity_boolean_result(parse_boolean_result(args))
+  })
+  parsers.set("CSG_SOLID", fn(args) raise StepParseError {
+    @repository.any_entity_csg_solid(parse_csg_solid(args))
+  })
+  parsers.set("BLOCK", fn(args) raise StepParseError {
+    @repository.any_entity_block(parse_block(args))
+  })
+  parsers.set("SPHERE", fn(args) raise StepParseError {
+    @repository.any_entity_sphere(parse_sphere(args))
+  })
+  parsers.set("RIGHT_CIRCULAR_CYLINDER", fn(args) raise StepParseError {
+    @repository.any_entity_right_circular_cylinder(
+      parse_right_circular_cylinder(args),
+    )
+  })
+  parsers.set("RIGHT_CIRCULAR_CONE", fn(args) raise StepParseError {
+    @repository.any_entity_right_circular_cone(parse_right_circular_cone(args))
+  })
+  parsers.set("TORUS", fn(args) raise StepParseError {
+    @repository.any_entity_torus(parse_torus(args))
+  })
+  parsers.set("RECTANGULAR_PYRAMID", fn(args) raise StepParseError {
+    @repository.any_entity_rectangular_pyramid(parse_rectangular_pyramid(args))
+  })
+  parsers.set("RIGHT_ANGULAR_WEDGE", fn(args) raise StepParseError {
+    @repository.any_entity_right_angular_wedge(parse_right_angular_wedge(args))
+  })
+  parsers.set("HALF_SPACE_SOLID", fn(args) raise StepParseError {
+    @repository.any_entity_half_space_solid(parse_half_space_solid(args))
+  })
+}
+
+///|
 fn parse_double(s : String) -> Double raise StepParseError {
   let t = s.trim().to_string()
   // Use core string->double parsing for correct rounding and stable roundtrips.
@@ -1174,10 +1617,7 @@ fn parse_product_related_product_category(
   let name = strip_quotes(parts[0])
   let description = strip_quotes(parts[1])
   let product_ids = parse_ref_ids(parts[2])
-  let products : Array[@step.Ref] = []
-  for id in product_ids {
-    products.push(@step.Ref::{ id, })
-  }
+  let products = product_ids.map(fn(id) { @step.Ref::{ id, } })
   @product.ProductRelatedProductCategory::new(name, description, products)
 }
 
@@ -1460,6 +1900,23 @@ fn parse_document(args : String) -> @product.Document raise StepParseError {
   let description = strip_quotes(parts[2])
   let kind_id = parse_ref_int(parts[3])
   @product.Document::new(id, name, description, @step.Ref::{ id: kind_id })
+}
+
+///|
+fn parse_document_reference(
+  args : String,
+) -> @product.DocumentReference raise StepParseError {
+  let parts = split_args(args)
+  if parts.length() != 4 {
+    fail_parse()
+  }
+  let id = strip_quotes(parts[0])
+  let name = strip_quotes(parts[1])
+  let description = strip_quotes(parts[2])
+  let doc_id = parse_ref_int(parts[3])
+  @product.DocumentReference::new(id, name, description, @step.Ref::{
+    id: doc_id,
+  })
 }
 
 ///|
@@ -1997,10 +2454,7 @@ fn parse_derived_unit(args : String) -> @units.DerivedUnit raise StepParseError 
     fail_parse()
   }
   let elem_ids = parse_ref_ids(parts[0])
-  let elems : Array[@step.Ref] = []
-  for id in elem_ids {
-    elems.push(@step.Ref::{ id, })
-  }
+  let elems = elem_ids.map(fn(id) { @step.Ref::{ id, } })
   @units.DerivedUnit::new(elems)
 }
 
@@ -2105,8 +2559,7 @@ fn parse_complex_instance(
   }
   let inner = substr(t, 1, t.length() - 1)
   let part_strs = split_complex_parts(inner)
-  let parts : Array[@context.ComplexPart] = []
-  for s in part_strs {
+  let parts = part_strs.map(fn(s) raise StepParseError {
     let lp_idx = match String::find(s, "(") {
       Some(j) => j
       None => fail_parse()
@@ -2116,10 +2569,8 @@ fn parse_complex_instance(
     if name == "GEOMETRIC_REPRESENTATION_CONTEXT" {
       let inner_args = strip_outer_parens(a)
       let dim = parse_int_dec(inner_args.trim().to_string())
-      parts.push(
-        @context.ComplexPart::GeomRepCtx(
-          @context.GeometricRepresentationContext::new(dim),
-        ),
+      @context.ComplexPart::GeomRepCtx(
+        @context.GeometricRepresentationContext::new(dim),
       )
     } else if name == "REPRESENTATION_CONTEXT" {
       let inner_args = strip_outer_parens(a)
@@ -2129,16 +2580,12 @@ fn parse_complex_instance(
       }
       let ident = strip_quotes(args_parts[0])
       let ctx_type = strip_quotes(args_parts[1])
-      parts.push(
-        @context.ComplexPart::RepCtx(
-          @context.RepresentationContext::new(ident, ctx_type),
-        ),
+      @context.ComplexPart::RepCtx(
+        @context.RepresentationContext::new(ident, ctx_type),
       )
     } else if name == "NAMED_UNIT" {
       let inner_args = strip_outer_parens(a).trim().to_string()
-      parts.push(
-        @context.ComplexPart::NamedUnit(@units.NamedUnit::new(inner_args)),
-      )
+      @context.ComplexPart::NamedUnit(@units.NamedUnit::new(inner_args))
     } else if name == "SI_UNIT" {
       let inner_args = strip_outer_parens(a)
       let args_parts = split_args(inner_args)
@@ -2147,14 +2594,10 @@ fn parse_complex_instance(
       }
       let prefix = args_parts[0].trim().to_string()
       let si_name = args_parts[1].trim().to_string()
-      parts.push(
-        @context.ComplexPart::SiUnit(@units.SiUnit::new(prefix, si_name)),
-      )
+      @context.ComplexPart::SiUnit(@units.SiUnit::new(prefix, si_name))
     } else if name == "SOLID_ANGLE_UNIT" {
       expect_empty_parens(a)
-      parts.push(
-        @context.ComplexPart::SolidAngleUnit(@units.SolidAngleUnit::new()),
-      )
+      @context.ComplexPart::SolidAngleUnit(@units.SolidAngleUnit::new())
     } else if name == "CONVERSION_BASED_UNIT" {
       let inner_args = strip_outer_parens(a)
       let args_parts = split_args(inner_args)
@@ -2163,41 +2606,31 @@ fn parse_complex_instance(
       }
       let unit_name = strip_quotes(args_parts[0])
       let factor_id = parse_ref_int(args_parts[1])
-      parts.push(
-        @context.ComplexPart::ConversionBasedUnit(
-          @units.ConversionBasedUnit::new(unit_name, @step.Ref::{
-            id: factor_id,
-          }),
-        ),
+      @context.ComplexPart::ConversionBasedUnit(
+        @units.ConversionBasedUnit::new(unit_name, @step.Ref::{ id: factor_id }),
       )
     } else if name == "LENGTH_UNIT" {
       expect_empty_parens(a)
-      parts.push(@context.ComplexPart::LengthUnit(@units.LengthUnit::new()))
+      @context.ComplexPart::LengthUnit(@units.LengthUnit::new())
     } else if name == "MASS_UNIT" {
       expect_empty_parens(a)
-      parts.push(@context.ComplexPart::MassUnit(@units.MassUnit::new()))
+      @context.ComplexPart::MassUnit(@units.MassUnit::new())
     } else if name == "PLANE_ANGLE_UNIT" {
       expect_empty_parens(a)
-      parts.push(
-        @context.ComplexPart::PlaneAngleUnit(@units.PlaneAngleUnit::new()),
-      )
+      @context.ComplexPart::PlaneAngleUnit(@units.PlaneAngleUnit::new())
     } else if name == "GLOBAL_UNCERTAINTY_ASSIGNED_CONTEXT" {
       // args look like: ((#188))
       let inner_args = strip_outer_parens(a) // -> (#188)
       let ids = parse_ref_ids(inner_args)
-      parts.push(
-        @context.ComplexPart::GlobUncCtx(
-          @context.GlobalUncertaintyAssignedContext::new(ids),
-        ),
+      @context.ComplexPart::GlobUncCtx(
+        @context.GlobalUncertaintyAssignedContext::new(ids),
       )
     } else if name == "GLOBAL_UNIT_ASSIGNED_CONTEXT" {
       // args look like: ((#194,#190,#189))
       let inner_args = strip_outer_parens(a) // -> (#194,#190,#189)
       let ids = parse_ref_ids(inner_args)
-      parts.push(
-        @context.ComplexPart::GlobUnitCtx(
-          @context.GlobalUnitAssignedContext::new(ids),
-        ),
+      @context.ComplexPart::GlobUnitCtx(
+        @context.GlobalUnitAssignedContext::new(ids),
       )
     } else if name == "REPRESENTATION_RELATIONSHIP" {
       let inner_args = strip_outer_parens(a)
@@ -2209,14 +2642,12 @@ fn parse_complex_instance(
       let rr_desc = strip_quotes(args_parts[1])
       let rep_1_id = parse_ref_int(args_parts[2])
       let rep_2_id = parse_ref_int(args_parts[3])
-      parts.push(
-        @context.ComplexPart::RepRel(
-          @product.RepresentationRelationship::new(
-            rr_name,
-            rr_desc,
-            @step.Ref::{ id: rep_1_id },
-            @step.Ref::{ id: rep_2_id },
-          ),
+      @context.ComplexPart::RepRel(
+        @product.RepresentationRelationship::new(
+          rr_name,
+          rr_desc,
+          @step.Ref::{ id: rep_1_id },
+          @step.Ref::{ id: rep_2_id },
         ),
       )
     } else if name == "REPRESENTATION_RELATIONSHIP_WITH_TRANSFORMATION" {
@@ -2226,53 +2657,47 @@ fn parse_complex_instance(
         fail_parse()
       }
       let t_id = parse_ref_int(args_parts[0])
-      parts.push(
-        @context.ComplexPart::RepRelWT(
-          @product.RepresentationRelationshipWithTransformation::new(@step.Ref::{
-            id: t_id,
-          }),
-        ),
+      @context.ComplexPart::RepRelWT(
+        @product.RepresentationRelationshipWithTransformation::new(@step.Ref::{
+          id: t_id,
+        }),
       )
     } else if name == "SHAPE_REPRESENTATION_RELATIONSHIP" {
       expect_empty_parens(a)
-      parts.push(@context.ComplexPart::ShapeRepRel)
+      @context.ComplexPart::ShapeRepRel
     } else if name == "REPRESENTATION_ITEM" {
       let inner_args = strip_outer_parens(a)
-      parts.push(
-        @context.ComplexPart::RepresentationItem(inner_args.trim().to_string()),
-      )
+      @context.ComplexPart::RepresentationItem(inner_args.trim().to_string())
     } else if name == "GEOMETRIC_REPRESENTATION_ITEM" {
       expect_empty_parens(a)
-      parts.push(@context.ComplexPart::GeometricRepresentationItem)
+      @context.ComplexPart::GeometricRepresentationItem
     } else if name == "SURFACE" {
       expect_empty_parens(a)
-      parts.push(@context.ComplexPart::Surface)
+      @context.ComplexPart::Surface
     } else if name == "BOUNDED_SURFACE" {
       expect_empty_parens(a)
-      parts.push(@context.ComplexPart::BoundedSurface)
+      @context.ComplexPart::BoundedSurface
     } else if name == "RATIONAL_B_SPLINE_CURVE" {
       let inner_args = strip_outer_parens(a)
       let weights = parse_literal_list(inner_args)
-      parts.push(
-        @context.ComplexPart::RatBSpline(
-          @geometry.RationalBSplineCurve::new(weights),
-        ),
+      @context.ComplexPart::RatBSpline(
+        @geometry.RationalBSplineCurve::new(weights),
       )
     } else if name == "B_SPLINE_SURFACE" {
       let inner_args = strip_outer_parens(a)
       let inner = parse_b_spline_surface(inner_args)
-      parts.push(@context.ComplexPart::BSplineSurf(inner))
+      @context.ComplexPart::BSplineSurf(inner)
     } else if name == "B_SPLINE_SURFACE_WITH_KNOTS" {
       let inner_args = strip_outer_parens(a)
       let inner = parse_b_spline_surface_with_knots(inner_args)
-      parts.push(@context.ComplexPart::BSplineSurfKnots(inner))
+      @context.ComplexPart::BSplineSurfKnots(inner)
     } else if name == "RATIONAL_B_SPLINE_SURFACE" {
       let inner = parse_rational_b_spline_surface(a)
-      parts.push(@context.ComplexPart::RatBSplineSurf(inner))
+      @context.ComplexPart::RatBSplineSurf(inner)
     } else {
-      parts.push(@context.ComplexPart::Raw(name, a))
+      @context.ComplexPart::Raw(name, a)
     }
-  }
+  })
   @context.ComplexInstance::new(parts)
 }
 
@@ -2488,12 +2913,13 @@ fn parse_string_list_or_dollar(arg : String) -> @header.StringListOrDollar? {
     return None
   }
   let parts = split_args(t)
-  let values : Array[String] = []
-  for p in parts {
+  let values = parts.map(fn(p) {
     match parse_step_string_literal(p) {
-      Some(v) => values.push(v)
-      None => return None
+      Some(v) => v
+      None => abort("")
     }
+  }) catch {
+    _ => return None
   }
   Some(@header.StringListOrDollar::List(values))
 }
@@ -2557,26 +2983,25 @@ fn parse_file_schema(stmt : String, args : String) -> @header.HeaderEntity {
 ///|
 fn parse_header_section(header_section : String) -> @header.HeaderSection {
   let stmts = split_statements(header_section)
-  let entities : Array[@header.HeaderEntity] = []
-  for stmt in stmts {
+  let entities = stmts.map(fn(stmt) {
     let lp_idx = String::find(stmt, "(")
     match lp_idx {
-      None => entities.push(@header.HeaderEntity::Raw(stmt))
+      None => @header.HeaderEntity::Raw(stmt)
       Some(j) => {
         let name = substr(stmt, 0, j).trim().to_string()
         let args = substr(stmt, j, stmt.length()).trim().to_string()
         if name == "FILE_DESCRIPTION" {
-          entities.push(parse_file_description(stmt, args))
+          parse_file_description(stmt, args)
         } else if name == "FILE_NAME" {
-          entities.push(parse_file_name(stmt, args))
+          parse_file_name(stmt, args)
         } else if name == "FILE_SCHEMA" {
-          entities.push(parse_file_schema(stmt, args))
+          parse_file_schema(stmt, args)
         } else {
-          entities.push(@header.HeaderEntity::Raw(stmt))
+          @header.HeaderEntity::Raw(stmt)
         }
       }
     }
-  }
+  })
   @header.HeaderSection::new(entities)
 }
 
@@ -2660,644 +3085,25 @@ pub fn parse_repository_from_string(
   )
   let mut repo = @repository.new()
   for row in rows {
-    let name = row.name
-    if name == "CARTESIAN_POINT" {
-      let entity = parse_cartesian_point(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_cartesian_point(entity),
-      )
-    } else if name == "DIRECTION" {
-      let entity = parse_direction(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_direction(entity),
-      )
-    } else if name == "AXIS1_PLACEMENT" {
-      let entity = parse_axis1_placement(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_axis1_placement(entity),
-      )
-    } else if name == "AXIS_2_PLACEMENT_3D" || name == "AXIS2_PLACEMENT_3D" {
-      let entity = parse_axis2_placement_3d(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_axis2_placement_3d(entity),
-      )
-    } else if name == "PLANE" {
-      let entity = parse_plane(row.args)
-      repo = repo.insert_with_id(row.id, @repository.any_entity_plane(entity))
-    } else if name == "CIRCLE" {
-      let entity = parse_circle(row.args)
-      repo = repo.insert_with_id(row.id, @repository.any_entity_circle(entity))
-    } else if name == "ELLIPSE" {
-      let entity = parse_ellipse(row.args)
-      repo = repo.insert_with_id(row.id, @repository.any_entity_ellipse(entity))
-    } else if name == "PARABOLA" {
-      let entity = parse_parabola(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_parabola(entity),
-      )
-    } else if name == "HYPERBOLA" {
-      let entity = parse_hyperbola(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_hyperbola(entity),
-      )
-    } else if name == "CYL_SURF" || name == "CYLINDRICAL_SURFACE" {
-      let entity = parse_cylindrical_surface(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_cylindrical_surface(entity),
-      )
-    } else if name == "CONICAL_SURFACE" {
-      let entity = parse_conical_surface(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_conical_surface(entity),
-      )
-    } else if name == "TOROIDAL_SURFACE" {
-      let entity = parse_toroidal_surface(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_toroidal_surface(entity),
-      )
-    } else if name == "B_SPLINE_CURVE" {
-      let entity = parse_b_spline_curve(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_b_spline_curve(entity),
-      )
-    } else if name == "B_SPLINE_CURVE_WITH_KNOTS" {
-      let entity = parse_b_spline_curve_with_knots(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_b_spline_curve_with_knots(entity),
-      )
-    } else if name == "B_SPLINE_SURFACE" {
-      let entity = parse_b_spline_surface(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_b_spline_surface(entity),
-      )
-    } else if name == "B_SPLINE_SURFACE_WITH_KNOTS" {
-      let entity = parse_b_spline_surface_with_knots(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_b_spline_surface_with_knots(entity),
-      )
-    } else if name == "RATIONAL_B_SPLINE_CURVE" {
-      let entity = parse_rational_b_spline_curve(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_rational_b_spline_curve(entity),
-      )
-    } else if name == "RATIONAL_B_SPLINE_SURFACE" {
-      let entity = parse_rational_b_spline_surface(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_rational_b_spline_surface(entity),
-      )
-    } else if name == "TRIMMED_CURVE" {
-      let entity = parse_trimmed_curve(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_trimmed_curve(entity),
-      )
-    } else if name == "OFFSET_CURVE_3D" {
-      let entity = parse_offset_curve_3d(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_offset_curve_3d(entity),
-      )
-    } else if name == "OFFSET_SURFACE" {
-      let entity = parse_offset_surface(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_offset_surface(entity),
-      )
-    } else if name == "SURFACE_OF_LINEAR_EXTRUSION" {
-      let entity = parse_surface_of_linear_extrusion(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_surface_of_linear_extrusion(entity),
-      )
-    } else if name == "SURFACE_OF_REVOLUTION" {
-      let entity = parse_surface_of_revolution(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_surface_of_revolution(entity),
-      )
-    } else if name == "SWEPT_SURFACE" {
-      let entity = parse_swept_surface(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_swept_surface(entity),
-      )
-    } else if name == "RECTANGULAR_TRIMMED_SURFACE" {
-      let entity = parse_rectangular_trimmed_surface(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_rectangular_trimmed_surface(entity),
-      )
-    } else if name == "POLYLINE" {
-      let entity = parse_polyline(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_polyline(entity),
-      )
-    } else if name == "BOOLEAN_RESULT" {
-      let entity = parse_boolean_result(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_boolean_result(entity),
-      )
-    } else if name == "CSG_SOLID" {
-      let entity = parse_csg_solid(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_csg_solid(entity),
-      )
-    } else if name == "BLOCK" {
-      let entity = parse_block(row.args)
-      repo = repo.insert_with_id(row.id, @repository.any_entity_block(entity))
-    } else if name == "SPHERE" {
-      let entity = parse_sphere(row.args)
-      repo = repo.insert_with_id(row.id, @repository.any_entity_sphere(entity))
-    } else if name == "RIGHT_CIRCULAR_CYLINDER" {
-      let entity = parse_right_circular_cylinder(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_right_circular_cylinder(entity),
-      )
-    } else if name == "RIGHT_CIRCULAR_CONE" {
-      let entity = parse_right_circular_cone(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_right_circular_cone(entity),
-      )
-    } else if name == "TORUS" {
-      let entity = parse_torus(row.args)
-      repo = repo.insert_with_id(row.id, @repository.any_entity_torus(entity))
-    } else if name == "RECTANGULAR_PYRAMID" {
-      let entity = parse_rectangular_pyramid(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_rectangular_pyramid(entity),
-      )
-    } else if name == "RIGHT_ANGULAR_WEDGE" {
-      let entity = parse_right_angular_wedge(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_right_angular_wedge(entity),
-      )
-    } else if name == "HALF_SPACE_SOLID" {
-      let entity = parse_half_space_solid(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_half_space_solid(entity),
-      )
-    } else if name == "VECTOR" {
-      let entity = parse_vector(row.args)
-      repo = repo.insert_with_id(row.id, @repository.any_entity_vector(entity))
-    } else if name == "LINE" {
-      let entity = parse_line(row.args)
-      repo = repo.insert_with_id(row.id, @repository.any_entity_line(entity))
-    } else if name == "REPRESENTATION_RELATIONSHIP" {
-      let entity = parse_representation_relationship(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_representation_relationship(entity),
-      )
-    } else if name == "REPRESENTATION_RELATIONSHIP_WITH_TRANSFORMATION" {
-      let entity = parse_representation_relationship_with_transformation(
-        row.args,
-      )
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_representation_relationship_with_transformation(
-          entity,
-        ),
-      )
-    } else if name == "SHAPE_REPRESENTATION_RELATIONSHIP" {
-      let entity = parse_shape_representation_relationship(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_shape_representation_relationship(entity),
-      )
-    } else if name == "ADVANCED_BREP_SHAPE_REPRESENTATION" {
-      let entity = parse_advanced_brep_shape_representation(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_advanced_brep_shape_representation(entity),
-      )
-    } else if name == "SHAPE_DEFINITION_REPRESENTATION" {
-      let entity = parse_shape_definition_representation(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_shape_definition_representation(entity),
-      )
-    } else if name == "SHAPE_REPRESENTATION" {
-      let entity = parse_shape_representation(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_shape_representation(entity),
-      )
-    } else if name == "REPRESENTATION" {
-      let entity = parse_representation(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_representation(entity),
-      )
-    } else if name == "DESCRIPTIVE_REPRESENTATION_ITEM" {
-      let entity = parse_descriptive_representation_item(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_descriptive_representation_item(entity),
-      )
-    } else if name == "MEASURE_REPRESENTATION_ITEM" {
-      let entity = parse_measure_representation_item(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_measure_representation_item(entity),
-      )
-    } else if name == "CONTEXT_DEPENDENT_SHAPE_REPRESENTATION" {
-      let entity = parse_context_dependent_shape_representation(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_context_dependent_shape_representation(entity),
-      )
-    } else if name == "ITEM_DEFINED_TRANSFORMATION" {
-      let entity = parse_item_defined_transformation(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_item_defined_transformation(entity),
-      )
-    } else if name == "NEXT_ASSEMBLY_USAGE_OCCURRENCE" {
-      let entity = parse_next_assembly_usage_occurrence(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_next_assembly_usage_occurrence(entity),
-      )
-    } else if name == "PRODUCT_DEFINITION_SHAPE" {
-      let entity = parse_product_definition_shape(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_product_definition_shape(entity),
-      )
-    } else if name == "PRODUCT_DEFINITION" {
-      let entity = parse_product_definition(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_product_definition(entity),
-      )
-    } else if name == "PRODUCT_DEFINITION_CONTEXT" {
-      let entity = parse_product_definition_context(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_product_definition_context(entity),
-      )
-    } else if name == "PRODUCT_DEFINITION_FORMATION" {
-      let entity = parse_product_definition_formation(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_product_definition_formation(entity),
-      )
-    } else if name == "PRODUCT_DEFINITION_FORMATION_WITH_SPECIFIED_SOURCE" {
-      let entity = parse_product_definition_formation_with_specified_source(
-        row.args,
-      )
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_product_definition_formation_with_specified_source(
-          entity,
-        ),
-      )
-    } else if name == "PROPERTY_DEFINITION" {
-      let entity = parse_property_definition(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_property_definition(entity),
-      )
-    } else if name == "PROPERTY_DEFINITION_REPRESENTATION" {
-      let entity = parse_property_definition_representation(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_property_definition_representation(entity),
-      )
-    } else if name == "PRODUCT_RELATED_PRODUCT_CATEGORY" {
-      let entity = parse_product_related_product_category(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_product_related_product_category(entity),
-      )
-    } else if name == "PRODUCT" {
-      let entity = parse_product(row.args)
-      repo = repo.insert_with_id(row.id, @repository.any_entity_product(entity))
-    } else if name == "PRODUCT_CONTEXT" {
-      let entity = parse_product_context(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_product_context(entity),
-      )
-    } else if name == "APPLICATION_PROTOCOL_DEFINITION" {
-      let entity = parse_application_protocol_definition(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_application_protocol_definition(entity),
-      )
-    } else if name == "APPLICATION_CONTEXT" {
-      let entity = parse_application_context(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_application_context(entity),
-      )
-    } else if name == "APPROVAL" {
-      let entity = parse_approval(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_approval(entity),
-      )
-    } else if name == "APPROVAL_STATUS" {
-      let entity = parse_approval_status(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_approval_status(entity),
-      )
-    } else if name == "APPROVAL_ROLE" {
-      let entity = parse_approval_role(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_approval_role(entity),
-      )
-    } else if name == "APPROVAL_PERSON_ORGANIZATION" {
-      let entity = parse_approval_person_organization(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_approval_person_organization(entity),
-      )
-    } else if name == "PERSON" {
-      let entity = parse_person(row.args)
-      repo = repo.insert_with_id(row.id, @repository.any_entity_person(entity))
-    } else if name == "ORGANIZATION" {
-      let entity = parse_organization(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_organization(entity),
-      )
-    } else if name == "PERSON_AND_ORGANIZATION" {
-      let entity = parse_person_and_organization(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_person_and_organization(entity),
-      )
-    } else if name == "DATE_AND_TIME" {
-      let entity = parse_date_and_time(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_date_and_time(entity),
-      )
-    } else if name == "LOCAL_TIME" {
-      let entity = parse_local_time(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_local_time(entity),
-      )
-    } else if name == "CALENDAR_DATE" {
-      let entity = parse_calendar_date(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_calendar_date(entity),
-      )
-    } else if name == "COORDINATED_UNIVERSAL_TIME_OFFSET" {
-      let entity = parse_coordinated_universal_time_offset(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_coordinated_universal_time_offset(entity),
-      )
-    } else if name == "SECURITY_CLASSIFICATION" {
-      let entity = parse_security_classification(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_security_classification(entity),
-      )
-    } else if name == "SECURITY_CLASSIFICATION_LEVEL" {
-      let entity = parse_security_classification_level(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_security_classification_level(entity),
-      )
-    } else if name == "CERTIFICATION" {
-      let entity = parse_certification(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_certification(entity),
-      )
-    } else if name == "CERTIFICATION_TYPE" {
-      let entity = parse_certification_type(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_certification_type(entity),
-      )
-    } else if name == "DOCUMENT" {
-      let entity = parse_document(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_document(entity),
-      )
-    } else if name == "DOCUMENT_TYPE" {
-      let entity = parse_document_type(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_document_type(entity),
-      )
-    } else if name == "MANIFOLD_SOLID_BREP" {
-      let entity = parse_manifold_solid_brep(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_manifold_solid_brep(entity),
-      )
-    } else if name == "CLOSED_SHELL" {
-      let entity = parse_closed_shell(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_closed_shell(entity),
-      )
-    } else if name == "OPEN_SHELL" {
-      let entity = parse_open_shell(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_open_shell(entity),
-      )
-    } else if name == "CONNECTED_FACE_SET" {
-      let entity = parse_connected_face_set(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_connected_face_set(entity),
-      )
-    } else if name == "SHELL_BASED_SURFACE_MODEL" {
-      let entity = parse_shell_based_surface_model(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_shell_based_surface_model(entity),
-      )
-    } else if name == "ADVANCED_FACE" {
-      let entity = parse_advanced_face(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_advanced_face(entity),
-      )
-    } else if name == "FACE_SURFACE" {
-      let entity = parse_face_surface(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_face_surface(entity),
-      )
-    } else if name == "SUBFACE" {
-      let entity = parse_subface(row.args)
-      repo = repo.insert_with_id(row.id, @repository.any_entity_subface(entity))
-    } else if name == "FACE_OUTER_BOUND" {
-      let entity = parse_face_outer_bound(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_face_outer_bound(entity),
-      )
-    } else if name == "FACE_BOUND" {
-      let entity = parse_face_bound(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_face_bound(entity),
-      )
-    } else if name == "EDGE_LOOP" {
-      let entity = parse_edge_loop(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_edge_loop(entity),
-      )
-    } else if name == "ORIENTED_EDGE" {
-      let entity = parse_oriented_edge(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_oriented_edge(entity),
-      )
-    } else if name == "EDGE_CURVE" {
-      let entity = parse_edge_curve(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_edge_curve(entity),
-      )
-    } else if name == "VERTEX_POINT" {
-      let entity = parse_vertex_point(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_vertex_point(entity),
-      )
-    } else if name == "COLOUR_RGB" {
-      let entity = parse_color_rgb(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_color_rgb(entity),
-      )
-    } else if name == "FILL_AREA_STYLE_COLOUR" {
-      let entity = parse_fill_area_style_color(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_fill_area_style_color(entity),
-      )
-    } else if name == "FILL_AREA_STYLE" {
-      let entity = parse_fill_area_style(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_fill_area_style(entity),
-      )
-    } else if name == "SURFACE_STYLE_FILL_AREA" {
-      let entity = parse_surface_style_fill_area(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_surface_style_fill_area(entity),
-      )
-    } else if name == "SURFACE_SIDE_STYLE" {
-      let entity = parse_surface_side_style(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_surface_side_style(entity),
-      )
-    } else if name == "SURFACE_STYLE_USAGE" {
-      let entity = parse_surface_style_usage(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_surface_style_usage(entity),
-      )
-    } else if name == "PRESENTATION_LAYER_ASSIGNMENT" {
-      let entity = parse_presentation_layer_assignment(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_presentation_layer_assignment(entity),
-      )
-    } else if name == "MECHANICAL_DESIGN_GEOMETRIC_PRESENTATION_REPRESENTATION" {
-      let entity = parse_mechanical_design_geometric_presentation_representation(
-        row.args,
-      )
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_mechanical_design_geometric_presentation_representation(
-          entity,
-        ),
-      )
-    } else if name == "PRESENTATION_STYLE_ASSIGNMENT" {
-      let entity = parse_presentation_style_assignment(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_presentation_style_assignment(entity),
-      )
-    } else if name == "STYLED_ITEM" {
-      let entity = parse_styled_item(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_styled_item(entity),
-      )
-    } else if name == "DIMENSIONAL_EXPONENTS" {
-      let entity = parse_dimensional_exponents(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_dimensional_exponents(entity),
-      )
-    } else if name == "UNCERTAINTY_MEASURE_WITH_UNIT" {
-      let entity = parse_uncertainty_measure_with_unit(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_uncertainty_measure_with_unit(entity),
-      )
-    } else if name == "PLANE_ANGLE_MEASURE_WITH_UNIT" {
-      let entity = parse_plane_angle_measure_with_unit(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_plane_angle_measure_with_unit(entity),
-      )
-    } else if name == "DERIVED_UNIT_ELEMENT" {
-      let entity = parse_derived_unit_element(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_derived_unit_element(entity),
-      )
-    } else if name == "DERIVED_UNIT" {
-      let entity = parse_derived_unit(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_derived_unit(entity),
-      )
-    } else if name == "__COMPLEX__" {
-      // Complex entity instance wrapper, e.g. #187=( ... );
-      let entity = parse_complex_instance(row.args)
-      repo = repo.insert_with_id(
-        row.id,
-        @repository.any_entity_complex_instance(entity),
-      )
-    } else {
-      let raw = @step.RawEntity::new(name, row.args)
-      repo = repo.insert_with_id(row.id, @repository.any_entity_raw_entity(raw))
+    match parsers.get(row.name) {
+      Some(parser_fn) => {
+        let entity = parser_fn(row.args)
+        repo = repo.insert_with_id(row.id, entity)
+      }
+      None =>
+        if row.name == "__COMPLEX__" {
+          let entity = parse_complex_instance(row.args)
+          repo = repo.insert_with_id(
+            row.id,
+            @repository.any_entity_complex_instance(entity),
+          )
+        } else {
+          let raw = @step.RawEntity::new(row.name, row.args)
+          repo = repo.insert_with_id(
+            row.id,
+            @repository.any_entity_raw_entity(raw),
+          )
+        }
     }
   }
   repo.set_header(header)

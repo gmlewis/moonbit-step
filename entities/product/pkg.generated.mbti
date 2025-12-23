@@ -121,6 +121,15 @@ pub struct Document {
 pub fn Document::new(String, String, String, @step.Ref) -> Self
 pub impl @step.Entity for Document
 
+pub struct DocumentReference {
+  id : String
+  name : String
+  description : String
+  assigned_document : @step.Ref
+}
+pub fn DocumentReference::new(String, String, String, @step.Ref) -> Self
+pub impl @step.Entity for DocumentReference
+
 pub struct DocumentType {
   product_data_type : String
 }
