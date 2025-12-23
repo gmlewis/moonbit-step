@@ -127,7 +127,7 @@ fn reverse_cycle(verts : Array[Int]) -> Array[Int] {
 }
 
 ///|
-fn rotate_point(
+pub fn rotate_point(
   p : (Double, Double, Double),
   rx : Double,
   ry : Double,

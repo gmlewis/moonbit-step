@@ -279,6 +279,24 @@ fn collect_profiles(
 }
 
 ///|
+pub fn Profile2D::ellipse(
+  width : Double,
+  height : Double,
+  segments? : Int = 64,
+) -> Array[(Double, Double)] {
+  let rx = width / 2.0
+  let ry = height / 2.0
+  let n = if segments < 3 { 3 } else { segments }
+  let angle_step = 2.0 * @math.PI / Double::from_int(n)
+  let out = []
+  for i in 0..<n {
+    let phi = Double::from_int(i) * angle_step
+    out.push((rx * @math.cos(phi), ry * @math.sin(phi)))
+  }
+  out
+}
+
+///|
 pub fn Profile2D::circle(
   diameter : Double,
   segments? : Int = 64,

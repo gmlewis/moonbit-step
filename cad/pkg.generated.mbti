@@ -24,6 +24,8 @@ pub fn is_point_in_polygon((Double, Double), Array[(Double, Double)]) -> Bool
 
 pub fn polygon_area_2d(Array[(Double, Double)]) -> Double
 
+pub fn rotate_point((Double, Double, Double), Double, Double, Double) -> (Double, Double, Double)
+
 pub fn text_at(String, Double, Double, Double, font~ : @fonts.Font, font_size? : Double, emboss_depth? : Double, rx? : Double, ry? : Double, rz? : Double) -> Array[SceneNode]
 
 pub fn translate_pts(Array[(Double, Double)], Double, Double) -> Array[(Double, Double)]
@@ -91,6 +93,7 @@ pub fn Profile2D::add_holes_at(Self, Array[(Double, Double)], Array[(Double, Dou
 pub fn Profile2D::arc(Double, Double, Double, segments? : Int) -> Array[(Double, Double)]
 pub fn Profile2D::centered_rect(Double, Double) -> Array[(Double, Double)]
 pub fn Profile2D::circle(Double, segments? : Int) -> Array[(Double, Double)]
+pub fn Profile2D::ellipse(Double, Double, segments? : Int) -> Array[(Double, Double)]
 pub fn Profile2D::new(Array[(Double, Double)]) -> Self
 pub fn Profile2D::polygon(Int, Double, rotation? : Double) -> Array[(Double, Double)]
 pub fn Profile2D::rect(Double, Double) -> Array[(Double, Double)]

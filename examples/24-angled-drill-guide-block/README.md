@@ -21,3 +21,18 @@ The intent is that you can run the code here to emit a STEP file, open it in a C
 - add retention clips or covers
 - add test coupons for your printer/material
 - add alignment pins/keys
+
+---
+
+### Variant 1
+
+Command line: `./run-example.sh 24 --angle 15 --seatDepth 10`
+
+![](preview-1.png)
+
+### Variant 2
+
+Command line: `./run-example.sh 24 --angle 0 --holeDiameter 12 --height 60`
+
+![](preview-2.png)
+
