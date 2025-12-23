@@ -10,6 +10,14 @@ import(
 // Errors
 
 // Types and methods
+pub struct AnnotationOccurrence {
+  name : String
+  styles : Array[@step.Ref]
+  item : @step.Ref
+}
+pub fn AnnotationOccurrence::new(String, Array[@step.Ref], @step.Ref) -> Self
+pub impl @step.Entity for AnnotationOccurrence
+
 pub struct ColorRgb {
   name : String
   red : Double
@@ -18,6 +26,12 @@ pub struct ColorRgb {
 }
 pub fn ColorRgb::new(String, Double, Double, Double) -> Self
 pub impl @step.Entity for ColorRgb
+
+pub struct DraughtingPreDefinedColour {
+  name : String
+}
+pub fn DraughtingPreDefinedColour::new(String) -> Self
+pub impl @step.Entity for DraughtingPreDefinedColour
 
 pub struct FillAreaStyle {
   name : String
@@ -33,6 +47,15 @@ pub struct FillAreaStyleColor {
 pub fn FillAreaStyleColor::new(String, @step.Ref) -> Self
 pub impl @step.Entity for FillAreaStyleColor
 
+pub struct HiddenElementOverRidingStyledItem {
+  name : String
+  styles : Array[@step.Ref]
+  item : @step.Ref
+  over_ridden_styled_item : @step.Ref
+}
+pub fn HiddenElementOverRidingStyledItem::new(String, Array[@step.Ref], @step.Ref, @step.Ref) -> Self
+pub impl @step.Entity for HiddenElementOverRidingStyledItem
+
 pub struct MechanicalDesignGeometricPresentationRepresentation {
   name : String
   items : Array[@step.Ref]
@@ -40,6 +63,15 @@ pub struct MechanicalDesignGeometricPresentationRepresentation {
 }
 pub fn MechanicalDesignGeometricPresentationRepresentation::new(String, Array[@step.Ref], @step.Ref) -> Self
 pub impl @step.Entity for MechanicalDesignGeometricPresentationRepresentation
+
+pub struct OverRidingStyledItem {
+  name : String
+  styles : Array[@step.Ref]
+  item : @step.Ref
+  over_ridden_styled_item : @step.Ref
+}
+pub fn OverRidingStyledItem::new(String, Array[@step.Ref], @step.Ref, @step.Ref) -> Self
+pub impl @step.Entity for OverRidingStyledItem
 
 pub struct PresentationLayerAssignment {
   name : String
@@ -82,6 +114,26 @@ pub struct SurfaceStyleUsage {
 }
 pub fn SurfaceStyleUsage::new(String, @step.Ref) -> Self
 pub impl @step.Entity for SurfaceStyleUsage
+
+pub struct TextLiteral {
+  name : String
+  literal : String
+  placement : @step.Ref
+  alignment : String
+  path : TextPath
+  font : @step.Ref
+}
+pub fn TextLiteral::new(String, String, @step.Ref, String, TextPath, @step.Ref) -> Self
+pub impl @step.Entity for TextLiteral
+
+pub(all) enum TextPath {
+  Left
+  Right
+  Up
+  Down
+}
+pub fn TextPath::from_string(String) -> Self?
+pub impl @step.Entity for TextPath
 
 // Type aliases
 

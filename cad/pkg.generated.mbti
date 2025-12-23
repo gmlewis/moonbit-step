@@ -42,8 +42,12 @@ pub struct Design {
   description : String
 }
 pub fn Design::add(Self, SceneNode) -> Self
+pub fn Design::add_iter(Self, Iter[SceneNode]) -> Self
 pub fn Design::compile(Self) -> @repository.Repository
 pub fn Design::new(name? : String, description? : String) -> Self
+pub fn Design::rotate_x(Self, Double) -> Self
+pub fn Design::rotate_y(Self, Double) -> Self
+pub fn Design::rotate_z(Self, Double) -> Self
 pub fn Design::to_step_file(Self) -> String
 pub fn Design::to_string(Self) -> String
 pub async fn Design::write_step(Self, String?) -> Unit
@@ -67,6 +71,7 @@ pub struct Profile2D {
 }
 pub fn Profile2D::arc(Double, Double, Double, segments? : Int) -> Array[(Double, Double)]
 pub fn Profile2D::circle(Double, segments? : Int) -> Array[(Double, Double)]
+pub fn Profile2D::rect(Double, Double) -> Array[(Double, Double)]
 
 pub struct Rgb {
   r : Double
@@ -75,6 +80,7 @@ pub struct Rgb {
 }
 pub fn Rgb::black() -> Self
 pub fn Rgb::blue() -> Self
+pub fn Rgb::cyan() -> Self
 pub fn Rgb::green() -> Self
 pub fn Rgb::grey() -> Self
 pub fn Rgb::new(Double, Double, Double) -> Self

@@ -7,8 +7,7 @@ async test "fixtures_corpus_roundtrip_is_stable" {
     "tests/testdata/ap242-min.step", "tests/testdata/ap242-stress.step", "tests/testdata/ap242-comments.step",
     "tests/testdata/ap242-strings.step", "tests/testdata/simple-box.step", "tests/testdata/kicadoutput01.step",
   ]
-  for i = 0; i < fixtures.length(); i = i + 1 {
-    let path = fixtures[i]
+  for path in fixtures {
     let repo1 = @parse.parse_repository_from_file(path) catch {
       @parse.StepParseError(info) =>
         fail("fixture parse failed: " + @parse.format_step_parse_error(info))

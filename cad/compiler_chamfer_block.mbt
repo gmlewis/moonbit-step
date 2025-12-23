@@ -34,18 +34,17 @@ pub fn compile_calibration_chamfer_block(
   }
 
   // Points (mm)
-  let pts_raw : Array[(Double, Double, Double)] = []
-  for ring in rings {
-    let (rz, ro) = ring
-    let px0 = ro
-    let px1 = l - ro
-    let py0 = ro
-    let py1 = w - ro
-    pts_raw.push((px0, py0, rz))
-    pts_raw.push((px1, py0, rz))
-    pts_raw.push((px1, py1, rz))
-    pts_raw.push((px0, py1, rz))
-  }
+  let pts_raw = rings
+    .iter()
+    .flat_map(fn(ring) {
+      let (rz, ro) = ring
+      let px0 = ro
+      let px1 = l - ro
+      let py0 = ro
+      let py1 = w - ro
+      [(px0, py0, rz), (px1, py0, rz), (px1, py1, rz), (px0, py1, rz)].iter()
+    })
+    .collect()
 
   // Transform all points: Rotate then Translate
   let pts = pts_raw.map(fn(pt) {

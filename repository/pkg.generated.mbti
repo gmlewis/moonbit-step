@@ -5,8 +5,10 @@ import(
   "gmlewis/step"
   "gmlewis/step/entities/context"
   "gmlewis/step/entities/geometry"
+  "gmlewis/step/entities/kinematics"
   "gmlewis/step/entities/presentation"
   "gmlewis/step/entities/product"
+  "gmlewis/step/entities/tolerancing"
   "gmlewis/step/entities/topology"
   "gmlewis/step/entities/units"
   "gmlewis/step/header"
@@ -17,11 +19,27 @@ pub fn any_entity_advanced_brep_shape_representation(@product.AdvancedBrepShapeR
 
 pub fn any_entity_advanced_face(@topology.AdvancedFace) -> AnyEntity
 
+pub fn any_entity_annotation_occurrence(@presentation.AnnotationOccurrence) -> AnyEntity
+
 pub fn any_entity_application_context(@product.ApplicationContext) -> AnyEntity
 
 pub fn any_entity_application_protocol_definition(@product.ApplicationProtocolDefinition) -> AnyEntity
 
+pub fn any_entity_approval(@product.Approval) -> AnyEntity
+
+pub fn any_entity_approval_person_organization(@product.ApprovalPersonOrganization) -> AnyEntity
+
+pub fn any_entity_approval_role(@product.ApprovalRole) -> AnyEntity
+
+pub fn any_entity_approval_status(@product.ApprovalStatus) -> AnyEntity
+
+pub fn any_entity_axis1_placement(@geometry.Axis1Placement) -> AnyEntity
+
+pub fn any_entity_axis2_placement_2d(@geometry.Axis2Placement2D) -> AnyEntity
+
 pub fn any_entity_axis2_placement_3d(@geometry.Axis2Placement3D) -> AnyEntity
+
+pub fn any_entity_b_spline_curve(@geometry.BSplineCurve) -> AnyEntity
 
 pub fn any_entity_b_spline_curve_with_knots(@geometry.BSplineCurveWithKnots) -> AnyEntity
 
@@ -29,7 +47,17 @@ pub fn any_entity_b_spline_surface(@geometry.BSplineSurface) -> AnyEntity
 
 pub fn any_entity_b_spline_surface_with_knots(@geometry.BSplineSurfaceWithKnots) -> AnyEntity
 
+pub fn any_entity_block(@geometry.Block) -> AnyEntity
+
+pub fn any_entity_boolean_result(@geometry.BooleanResult) -> AnyEntity
+
+pub fn any_entity_calendar_date(@product.CalendarDate) -> AnyEntity
+
 pub fn any_entity_cartesian_point(@geometry.CartesianPoint) -> AnyEntity
+
+pub fn any_entity_certification(@product.Certification) -> AnyEntity
+
+pub fn any_entity_certification_type(@product.CertificationType) -> AnyEntity
 
 pub fn any_entity_circle(@geometry.Circle) -> AnyEntity
 
@@ -39,13 +67,29 @@ pub fn any_entity_color_rgb(@presentation.ColorRgb) -> AnyEntity
 
 pub fn any_entity_complex_instance(@context.ComplexInstance) -> AnyEntity
 
+pub fn any_entity_composite_curve(@geometry.CompositeCurve) -> AnyEntity
+
+pub fn any_entity_composite_curve_segment(@geometry.CompositeCurveSegment) -> AnyEntity
+
 pub fn any_entity_conical_surface(@geometry.ConicalSurface) -> AnyEntity
 
+pub fn any_entity_connected_face_set(@topology.ConnectedFaceSet) -> AnyEntity
+
 pub fn any_entity_context_dependent_shape_representation(@product.ContextDependentShapeRepresentation) -> AnyEntity
+
+pub fn any_entity_coordinated_universal_time_offset(@product.CoordinatedUniversalTimeOffset) -> AnyEntity
+
+pub fn any_entity_csg_solid(@geometry.CsgSolid) -> AnyEntity
 
 pub fn any_entity_ctx_wrap(@context.CtxWrap) -> AnyEntity
 
 pub fn any_entity_cylindrical_surface(@geometry.CylindricalSurface) -> AnyEntity
+
+pub fn any_entity_date_and_time(@product.DateAndTime) -> AnyEntity
+
+pub fn any_entity_datum(@tolerancing.Datum) -> AnyEntity
+
+pub fn any_entity_datum_feature(@tolerancing.DatumFeature) -> AnyEntity
 
 pub fn any_entity_derived_unit(@units.DerivedUnit) -> AnyEntity
 
@@ -55,7 +99,17 @@ pub fn any_entity_descriptive_representation_item(@product.DescriptiveRepresenta
 
 pub fn any_entity_dimensional_exponents(@units.DimensionalExponents) -> AnyEntity
 
+pub fn any_entity_dimensional_size(@tolerancing.DimensionalSize) -> AnyEntity
+
 pub fn any_entity_direction(@geometry.Direction) -> AnyEntity
+
+pub fn any_entity_document(@product.Document) -> AnyEntity
+
+pub fn any_entity_document_reference(@product.DocumentReference) -> AnyEntity
+
+pub fn any_entity_document_type(@product.DocumentType) -> AnyEntity
+
+pub fn any_entity_draughting_pre_defined_colour(@presentation.DraughtingPreDefinedColour) -> AnyEntity
 
 pub fn any_entity_edge_curve(@topology.EdgeCurve) -> AnyEntity
 
@@ -67,27 +121,65 @@ pub fn any_entity_face_bound(@topology.FaceBound) -> AnyEntity
 
 pub fn any_entity_face_outer_bound(@topology.FaceOuterBound) -> AnyEntity
 
+pub fn any_entity_face_surface(@topology.FaceSurface) -> AnyEntity
+
 pub fn any_entity_fill_area_style(@presentation.FillAreaStyle) -> AnyEntity
 
 pub fn any_entity_fill_area_style_color(@presentation.FillAreaStyleColor) -> AnyEntity
 
+pub fn any_entity_geometric_tolerance(@tolerancing.GeometricTolerance) -> AnyEntity
+
+pub fn any_entity_half_space_solid(@geometry.HalfSpaceSolid) -> AnyEntity
+
+pub fn any_entity_hidden_element_over_riding_styled_item(@presentation.HiddenElementOverRidingStyledItem) -> AnyEntity
+
+pub fn any_entity_hyperbola(@geometry.Hyperbola) -> AnyEntity
+
 pub fn any_entity_item_defined_transformation(@product.ItemDefinedTransformation) -> AnyEntity
 
+pub fn any_entity_kinematic_joint(@kinematics.KinematicJoint) -> AnyEntity
+
+pub fn any_entity_kinematic_link(@kinematics.KinematicLink) -> AnyEntity
+
+pub fn any_entity_kinematic_pair(@kinematics.KinematicPair) -> AnyEntity
+
 pub fn any_entity_line(@geometry.Line) -> AnyEntity
+
+pub fn any_entity_local_time(@product.LocalTime) -> AnyEntity
 
 pub fn any_entity_manifold_solid_brep(@topology.ManifoldSolidBrep) -> AnyEntity
 
 pub fn any_entity_measure_representation_item(@product.MeasureRepresentationItem) -> AnyEntity
 
+pub fn any_entity_measure_with_unit(@units.MeasureWithUnit) -> AnyEntity
+
 pub fn any_entity_mechanical_design_geometric_presentation_representation(@presentation.MechanicalDesignGeometricPresentationRepresentation) -> AnyEntity
 
 pub fn any_entity_next_assembly_usage_occurrence(@product.NextAssemblyUsageOccurrence) -> AnyEntity
 
+pub fn any_entity_offset_curve_3d(@geometry.OffsetCurve3D) -> AnyEntity
+
+pub fn any_entity_offset_surface(@geometry.OffsetSurface) -> AnyEntity
+
+pub fn any_entity_open_shell(@topology.OpenShell) -> AnyEntity
+
+pub fn any_entity_organization(@product.Organization) -> AnyEntity
+
 pub fn any_entity_oriented_edge(@topology.OrientedEdge) -> AnyEntity
+
+pub fn any_entity_over_riding_styled_item(@presentation.OverRidingStyledItem) -> AnyEntity
+
+pub fn any_entity_parabola(@geometry.Parabola) -> AnyEntity
+
+pub fn any_entity_person(@product.Person) -> AnyEntity
+
+pub fn any_entity_person_and_organization(@product.PersonAndOrganization) -> AnyEntity
 
 pub fn any_entity_plane(@geometry.Plane) -> AnyEntity
 
 pub fn any_entity_plane_angle_measure_with_unit(@units.PlaneAngleMeasureWithUnit) -> AnyEntity
+
+pub fn any_entity_polyline(@geometry.Polyline) -> AnyEntity
 
 pub fn any_entity_presentation_layer_assignment(@presentation.PresentationLayerAssignment) -> AnyEntity
 
@@ -119,6 +211,8 @@ pub fn any_entity_rational_b_spline_surface(@geometry.RationalBSplineSurface) ->
 
 pub fn any_entity_raw_entity(@step.RawEntity) -> AnyEntity
 
+pub fn any_entity_rectangular_pyramid(@geometry.RectangularPyramid) -> AnyEntity
+
 pub fn any_entity_rectangular_trimmed_surface(@geometry.RectangularTrimmedSurface) -> AnyEntity
 
 pub fn any_entity_representation(@product.Representation) -> AnyEntity
@@ -127,13 +221,35 @@ pub fn any_entity_representation_relationship(@product.RepresentationRelationshi
 
 pub fn any_entity_representation_relationship_with_transformation(@product.RepresentationRelationshipWithTransformation) -> AnyEntity
 
+pub fn any_entity_right_angular_wedge(@geometry.RightAngularWedge) -> AnyEntity
+
+pub fn any_entity_right_circular_cone(@geometry.RightCircularCone) -> AnyEntity
+
+pub fn any_entity_right_circular_cylinder(@geometry.RightCircularCylinder) -> AnyEntity
+
+pub fn any_entity_security_classification(@product.SecurityClassification) -> AnyEntity
+
+pub fn any_entity_security_classification_level(@product.SecurityClassificationLevel) -> AnyEntity
+
+pub fn any_entity_shape_aspect(@product.ShapeAspect) -> AnyEntity
+
 pub fn any_entity_shape_definition_representation(@product.ShapeDefinitionRepresentation) -> AnyEntity
 
 pub fn any_entity_shape_representation(@product.ShapeRepresentation) -> AnyEntity
 
 pub fn any_entity_shape_representation_relationship(@product.ShapeRepresentationRelationship) -> AnyEntity
 
+pub fn any_entity_shell_based_surface_model(@topology.ShellBasedSurfaceModel) -> AnyEntity
+
+pub fn any_entity_sphere(@geometry.Sphere) -> AnyEntity
+
 pub fn any_entity_styled_item(@presentation.StyledItem) -> AnyEntity
+
+pub fn any_entity_subface(@topology.Subface) -> AnyEntity
+
+pub fn any_entity_surface_of_linear_extrusion(@geometry.SurfaceOfLinearExtrusion) -> AnyEntity
+
+pub fn any_entity_surface_of_revolution(@geometry.SurfaceOfRevolution) -> AnyEntity
 
 pub fn any_entity_surface_side_style(@presentation.SurfaceSideStyle) -> AnyEntity
 
@@ -141,7 +257,13 @@ pub fn any_entity_surface_style_fill_area(@presentation.SurfaceStyleFillArea) ->
 
 pub fn any_entity_surface_style_usage(@presentation.SurfaceStyleUsage) -> AnyEntity
 
+pub fn any_entity_swept_surface(@geometry.SweptSurface) -> AnyEntity
+
+pub fn any_entity_text_literal(@presentation.TextLiteral) -> AnyEntity
+
 pub fn any_entity_toroidal_surface(@geometry.ToroidalSurface) -> AnyEntity
+
+pub fn any_entity_torus(@geometry.Torus) -> AnyEntity
 
 pub fn any_entity_trimmed_curve(@geometry.TrimmedCurve) -> AnyEntity
 
@@ -160,22 +282,45 @@ pub enum AnyEntity {
   RawEntity(@step.RawEntity)
   CartesianPoint(@geometry.CartesianPoint)
   Direction(@geometry.Direction)
+  Axis1Placement(@geometry.Axis1Placement)
+  Axis2Placement2D(@geometry.Axis2Placement2D)
   Axis2Placement3D(@geometry.Axis2Placement3D)
   Plane(@geometry.Plane)
   Vector(@geometry.Vector)
   Line(@geometry.Line)
   Circle(@geometry.Circle)
   Ellipse(@geometry.Ellipse)
+  Parabola(@geometry.Parabola)
+  Hyperbola(@geometry.Hyperbola)
   CylindricalSurface(@geometry.CylindricalSurface)
   ConicalSurface(@geometry.ConicalSurface)
   ToroidalSurface(@geometry.ToroidalSurface)
+  BSplineCurve(@geometry.BSplineCurve)
   BSplineCurveWithKnots(@geometry.BSplineCurveWithKnots)
+  CompositeCurve(@geometry.CompositeCurve)
+  CompositeCurveSegment(@geometry.CompositeCurveSegment)
   BSplineSurface(@geometry.BSplineSurface)
   BSplineSurfaceWithKnots(@geometry.BSplineSurfaceWithKnots)
   RationalBSplineCurve(@geometry.RationalBSplineCurve)
   RationalBSplineSurface(@geometry.RationalBSplineSurface)
   TrimmedCurve(@geometry.TrimmedCurve)
+  OffsetCurve3D(@geometry.OffsetCurve3D)
+  OffsetSurface(@geometry.OffsetSurface)
+  SurfaceOfLinearExtrusion(@geometry.SurfaceOfLinearExtrusion)
+  SurfaceOfRevolution(@geometry.SurfaceOfRevolution)
+  SweptSurface(@geometry.SweptSurface)
   RectangularTrimmedSurface(@geometry.RectangularTrimmedSurface)
+  Polyline(@geometry.Polyline)
+  BooleanResult(@geometry.BooleanResult)
+  CsgSolid(@geometry.CsgSolid)
+  Block(@geometry.Block)
+  Sphere(@geometry.Sphere)
+  RightCircularCylinder(@geometry.RightCircularCylinder)
+  RightCircularCone(@geometry.RightCircularCone)
+  Torus(@geometry.Torus)
+  RectangularPyramid(@geometry.RectangularPyramid)
+  RightAngularWedge(@geometry.RightAngularWedge)
+  HalfSpaceSolid(@geometry.HalfSpaceSolid)
   RepresentationRelationship(@product.RepresentationRelationship)
   RepresentationRelationshipWithTransformation(@product.RepresentationRelationshipWithTransformation)
   ShapeRepresentationRelationship(@product.ShapeRepresentationRelationship)
@@ -200,9 +345,40 @@ pub enum AnyEntity {
   ProductContext(@product.ProductContext)
   ApplicationProtocolDefinition(@product.ApplicationProtocolDefinition)
   ApplicationContext(@product.ApplicationContext)
+  Approval(@product.Approval)
+  ApprovalStatus(@product.ApprovalStatus)
+  ApprovalRole(@product.ApprovalRole)
+  ApprovalPersonOrganization(@product.ApprovalPersonOrganization)
+  Person(@product.Person)
+  Organization(@product.Organization)
+  PersonAndOrganization(@product.PersonAndOrganization)
+  DateAndTime(@product.DateAndTime)
+  LocalTime(@product.LocalTime)
+  CalendarDate(@product.CalendarDate)
+  CoordinatedUniversalTimeOffset(@product.CoordinatedUniversalTimeOffset)
+  SecurityClassification(@product.SecurityClassification)
+  SecurityClassificationLevel(@product.SecurityClassificationLevel)
+  Certification(@product.Certification)
+  CertificationType(@product.CertificationType)
+  Document(@product.Document)
+  DocumentType(@product.DocumentType)
+  DocumentReference(@product.DocumentReference)
+  KinematicLink(@kinematics.KinematicLink)
+  KinematicJoint(@kinematics.KinematicJoint)
+  KinematicPair(@kinematics.KinematicPair)
+  GeometricTolerance(@tolerancing.GeometricTolerance)
+  Datum(@tolerancing.Datum)
+  DatumFeature(@tolerancing.DatumFeature)
+  DimensionalSize(@tolerancing.DimensionalSize)
   ManifoldSolidBrep(@topology.ManifoldSolidBrep)
   ClosedShell(@topology.ClosedShell)
+  OpenShell(@topology.OpenShell)
+  ConnectedFaceSet(@topology.ConnectedFaceSet)
+  ShellBasedSurfaceModel(@topology.ShellBasedSurfaceModel)
   AdvancedFace(@topology.AdvancedFace)
+  FaceSurface(@topology.FaceSurface)
+  Subface(@topology.Subface)
+  ShapeAspect(@product.ShapeAspect)
   FaceOuterBound(@topology.FaceOuterBound)
   FaceBound(@topology.FaceBound)
   EdgeLoop(@topology.EdgeLoop)
@@ -210,6 +386,7 @@ pub enum AnyEntity {
   EdgeCurve(@topology.EdgeCurve)
   VertexPoint(@topology.VertexPoint)
   ColorRgb(@presentation.ColorRgb)
+  DraughtingPreDefinedColour(@presentation.DraughtingPreDefinedColour)
   FillAreaStyleColor(@presentation.FillAreaStyleColor)
   FillAreaStyle(@presentation.FillAreaStyle)
   SurfaceStyleFillArea(@presentation.SurfaceStyleFillArea)
@@ -219,9 +396,14 @@ pub enum AnyEntity {
   PresentationLayerAssignment(@presentation.PresentationLayerAssignment)
   MechanicalDesignGeometricPresentationRepresentation(@presentation.MechanicalDesignGeometricPresentationRepresentation)
   StyledItem(@presentation.StyledItem)
+  OverRidingStyledItem(@presentation.OverRidingStyledItem)
+  HiddenElementOverRidingStyledItem(@presentation.HiddenElementOverRidingStyledItem)
+  AnnotationOccurrence(@presentation.AnnotationOccurrence)
+  TextLiteral(@presentation.TextLiteral)
   DimensionalExponents(@units.DimensionalExponents)
   UncertaintyMeasureWithUnit(@units.UncertaintyMeasureWithUnit)
   PlaneAngleMeasureWithUnit(@units.PlaneAngleMeasureWithUnit)
+  MeasureWithUnit(@units.MeasureWithUnit)
   DerivedUnitElement(@units.DerivedUnitElement)
   DerivedUnit(@units.DerivedUnit)
   CtxWrap(@context.CtxWrap)

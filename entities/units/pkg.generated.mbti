@@ -52,6 +52,13 @@ pub struct MassUnit {
 pub fn MassUnit::new() -> Self
 pub impl @step.Entity for MassUnit
 
+pub struct MeasureWithUnit {
+  value_component : String
+  unit_component : @step.Ref
+}
+pub fn MeasureWithUnit::new(String, @step.Ref) -> Self
+pub impl @step.Entity for MeasureWithUnit
+
 pub struct NamedUnit {
   dimensions : String
 }

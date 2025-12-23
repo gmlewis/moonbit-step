@@ -5,6 +5,15 @@ test "color_rgb_to_step" {
 }
 
 ///|
+test "draughting_pre_defined_colour_to_step" {
+  let c = DraughtingPreDefinedColour::new("red")
+  inspect(
+    @step.Entity::to_step(c),
+    content="DRAUGHTING_PRE_DEFINED_COLOUR('red')",
+  )
+}
+
+///|
 test "fill_area_style_color_to_step" {
   let c = FillAreaStyleColor::new("", @step.Ref::{
     id: @step.EntityId::{ value: 31 },
@@ -63,6 +72,47 @@ test "styled_item_to_step" {
     @step.Ref::{ id: @step.EntityId::{ value: 32 } },
   )
   inspect(@step.Entity::to_step(s), content="STYLED_ITEM('',(#25),#32)")
+}
+
+///|
+test "over_riding_styled_item_to_step" {
+  let s = OverRidingStyledItem::new(
+    "",
+    [@step.Ref::{ id: @step.EntityId::{ value: 25 } }],
+    @step.Ref::{ id: @step.EntityId::{ value: 32 } },
+    @step.Ref::{ id: @step.EntityId::{ value: 33 } },
+  )
+  inspect(
+    @step.Entity::to_step(s),
+    content="OVER_RIDING_STYLED_ITEM('',(#25),#32,#33)",
+  )
+}
+
+///|
+test "hidden_element_over_riding_styled_item_to_step" {
+  let s = HiddenElementOverRidingStyledItem::new(
+    "",
+    [@step.Ref::{ id: @step.EntityId::{ value: 25 } }],
+    @step.Ref::{ id: @step.EntityId::{ value: 32 } },
+    @step.Ref::{ id: @step.EntityId::{ value: 33 } },
+  )
+  inspect(
+    @step.Entity::to_step(s),
+    content="HIDDEN_ELEMENT_OVER_RIDING_STYLED_ITEM('',(#25),#32,#33)",
+  )
+}
+
+///|
+test "annotation_occurrence_to_step" {
+  let s = AnnotationOccurrence::new(
+    "",
+    [@step.Ref::{ id: @step.EntityId::{ value: 25 } }],
+    @step.Ref::{ id: @step.EntityId::{ value: 32 } },
+  )
+  inspect(
+    @step.Entity::to_step(s),
+    content="ANNOTATION_OCCURRENCE('',(#25),#32)",
+  )
 }
 
 ///|

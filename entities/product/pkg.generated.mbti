@@ -34,6 +34,55 @@ pub struct ApplicationProtocolDefinition {
 pub fn ApplicationProtocolDefinition::new(String, String, Int, @step.Ref) -> Self
 pub impl @step.Entity for ApplicationProtocolDefinition
 
+pub struct Approval {
+  status : @step.Ref
+  level : String
+}
+pub fn Approval::new(@step.Ref, String) -> Self
+pub impl @step.Entity for Approval
+
+pub struct ApprovalPersonOrganization {
+  person_organization : @step.Ref
+  approval : @step.Ref
+  role : @step.Ref
+}
+pub fn ApprovalPersonOrganization::new(@step.Ref, @step.Ref, @step.Ref) -> Self
+pub impl @step.Entity for ApprovalPersonOrganization
+
+pub struct ApprovalRole {
+  role : String
+}
+pub fn ApprovalRole::new(String) -> Self
+pub impl @step.Entity for ApprovalRole
+
+pub struct ApprovalStatus {
+  name : String
+}
+pub fn ApprovalStatus::new(String) -> Self
+pub impl @step.Entity for ApprovalStatus
+
+pub struct CalendarDate {
+  year_component : Int
+  day_component : Int
+  month_component : Int
+}
+pub fn CalendarDate::new(Int, Int, Int) -> Self
+pub impl @step.Entity for CalendarDate
+
+pub struct Certification {
+  name : String
+  purpose : String
+  kind : @step.Ref
+}
+pub fn Certification::new(String, String, @step.Ref) -> Self
+pub impl @step.Entity for Certification
+
+pub struct CertificationType {
+  description : String
+}
+pub fn CertificationType::new(String) -> Self
+pub impl @step.Entity for CertificationType
+
 pub struct ContextDependentShapeRepresentation {
   representation_relation : @step.Ref
   represented_product_relation : @step.Ref
@@ -41,12 +90,51 @@ pub struct ContextDependentShapeRepresentation {
 pub fn ContextDependentShapeRepresentation::new(@step.Ref, @step.Ref) -> Self
 pub impl @step.Entity for ContextDependentShapeRepresentation
 
+pub struct CoordinatedUniversalTimeOffset {
+  hour_offset : Int
+  minute_offset : Int
+  sense : String
+}
+pub fn CoordinatedUniversalTimeOffset::new(Int, Int, String) -> Self
+pub impl @step.Entity for CoordinatedUniversalTimeOffset
+
+pub struct DateAndTime {
+  date_component : @step.Ref
+  time_component : @step.Ref
+}
+pub fn DateAndTime::new(@step.Ref, @step.Ref) -> Self
+pub impl @step.Entity for DateAndTime
+
 pub struct DescriptiveRepresentationItem {
   name : String
   description : String
 }
 pub fn DescriptiveRepresentationItem::new(String, String) -> Self
 pub impl @step.Entity for DescriptiveRepresentationItem
+
+pub struct Document {
+  id : String
+  name : String
+  description : String
+  kind : @step.Ref
+}
+pub fn Document::new(String, String, String, @step.Ref) -> Self
+pub impl @step.Entity for Document
+
+pub struct DocumentReference {
+  id : String
+  name : String
+  description : String
+  assigned_document : @step.Ref
+}
+pub fn DocumentReference::new(String, String, String, @step.Ref) -> Self
+pub impl @step.Entity for DocumentReference
+
+pub struct DocumentType {
+  product_data_type : String
+}
+pub fn DocumentType::new(String) -> Self
+pub impl @step.Entity for DocumentType
 
 pub struct ItemDefinedTransformation {
   name : String
@@ -56,6 +144,15 @@ pub struct ItemDefinedTransformation {
 }
 pub fn ItemDefinedTransformation::new(String, String, @step.Ref, @step.Ref) -> Self
 pub impl @step.Entity for ItemDefinedTransformation
+
+pub struct LocalTime {
+  hour_component : Int
+  minute_component : Int
+  second_component : Double
+  zone : @step.Ref
+}
+pub fn LocalTime::new(Int, Int, Double, @step.Ref) -> Self
+pub impl @step.Entity for LocalTime
 
 pub struct MeasureRepresentationItem {
   name : String
@@ -80,6 +177,32 @@ pub struct NextAssemblyUsageOccurrence {
 }
 pub fn NextAssemblyUsageOccurrence::new(String, String, String, @step.Ref, @step.Ref, String) -> Self
 pub impl @step.Entity for NextAssemblyUsageOccurrence
+
+pub struct Organization {
+  id : String
+  name : String
+  description : String
+}
+pub fn Organization::new(String, String, String) -> Self
+pub impl @step.Entity for Organization
+
+pub struct Person {
+  id : String
+  last_name : String
+  first_name : String
+  middle_names : Array[String]
+  prefix_titles : Array[String]
+  suffix_titles : Array[String]
+}
+pub fn Person::new(String, String, String, Array[String], Array[String], Array[String]) -> Self
+pub impl @step.Entity for Person
+
+pub struct PersonAndOrganization {
+  the_person : @step.Ref
+  the_organization : @step.Ref
+}
+pub fn PersonAndOrganization::new(@step.Ref, @step.Ref) -> Self
+pub impl @step.Entity for PersonAndOrganization
 
 pub struct Product {
   name : String
@@ -185,6 +308,29 @@ pub struct RepresentationRelationshipWithTransformation {
 }
 pub fn RepresentationRelationshipWithTransformation::new(@step.Ref) -> Self
 pub impl @step.Entity for RepresentationRelationshipWithTransformation
+
+pub struct SecurityClassification {
+  name : String
+  purpose : String
+  security_level : @step.Ref
+}
+pub fn SecurityClassification::new(String, String, @step.Ref) -> Self
+pub impl @step.Entity for SecurityClassification
+
+pub struct SecurityClassificationLevel {
+  name : String
+}
+pub fn SecurityClassificationLevel::new(String) -> Self
+pub impl @step.Entity for SecurityClassificationLevel
+
+pub struct ShapeAspect {
+  name : String
+  description : String
+  of_shape : @step.Ref
+  product_definitional : String
+}
+pub fn ShapeAspect::new(String, String, @step.Ref, String) -> Self
+pub impl @step.Entity for ShapeAspect
 
 pub struct ShapeDefinitionRepresentation {
   definition : @step.Ref

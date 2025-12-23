@@ -23,14 +23,22 @@ pub fn CalibrationChamferBlock::new(
 }
 
 ///|
+pub fn Profile2D::rect(
+  width : Double,
+  height : Double,
+) -> Array[(Double, Double)] {
+  [(0.0, 0.0), (width, 0.0), (width, height), (0.0, height)]
+}
+
+///|
 pub fn Profile2D::circle(
   diameter : Double,
   segments? : Int = 64,
 ) -> Array[(Double, Double)] {
   let radius = diameter / 2.0
-  let out : Array[(Double, Double)] = []
   let n = if segments < 3 { 3 } else { segments }
   let angle_step = 2.0 * @math.PI / Double::from_int(n)
+  let out = []
   for i in 0..<n {
     let phi = Double::from_int(i) * angle_step
     out.push((radius * @math.cos(phi), radius * @math.sin(phi)))
@@ -46,9 +54,9 @@ pub fn Profile2D::arc(
   segments? : Int = 32,
 ) -> Array[(Double, Double)] {
   let radius = diameter / 2.0
-  let out : Array[(Double, Double)] = []
   let n = if segments < 2 { 2 } else { segments }
   let angle_step = (end_angle - start_angle) / Double::from_int(n)
+  let out = []
   for i in 0..=n {
     let phi = start_angle + Double::from_int(i) * angle_step
     out.push((radius * @math.cos(phi), radius * @math.sin(phi)))

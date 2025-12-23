@@ -10,6 +10,22 @@ import(
 // Errors
 
 // Types and methods
+pub struct Axis1Placement {
+  name : String
+  location : @step.Ref
+  axis : @step.Ref?
+}
+pub fn Axis1Placement::new(String, @step.Ref, axis? : @step.Ref?) -> Self
+pub impl @step.Entity for Axis1Placement
+
+pub struct Axis2Placement2D {
+  name : String
+  location : @step.Ref
+  ref_direction : @step.Ref?
+}
+pub fn Axis2Placement2D::new(String, @step.Ref, ref_direction? : @step.Ref?) -> Self
+pub impl @step.Entity for Axis2Placement2D
+
 pub struct Axis2Placement3D {
   name : String
   location : @step.Ref
@@ -18,6 +34,17 @@ pub struct Axis2Placement3D {
 }
 pub fn Axis2Placement3D::new(String, @step.Ref, @step.Ref, @step.Ref) -> Self
 pub impl @step.Entity for Axis2Placement3D
+
+pub struct BSplineCurve {
+  name : String
+  degree : Int
+  control_points : Array[@step.Ref]
+  curve_form : String
+  closed_curve : Bool
+  self_intersect : Bool
+}
+pub fn BSplineCurve::new(String, Int, Array[@step.Ref], String, Bool, Bool) -> Self
+pub impl @step.Entity for BSplineCurve
 
 pub struct BSplineCurveWithKnots {
   name : String
@@ -55,6 +82,33 @@ pub struct BSplineSurfaceWithKnots {
 pub fn BSplineSurfaceWithKnots::new(Array[Int], Array[Int], Array[String], Array[String], String) -> Self
 pub impl @step.Entity for BSplineSurfaceWithKnots
 
+pub struct Block {
+  name : String
+  position : @step.Ref
+  x : Double
+  y : Double
+  z : Double
+}
+pub fn Block::new(String, @step.Ref, Double, Double, Double) -> Self
+pub impl @step.Entity for Block
+
+pub(all) enum BooleanOperator {
+  Union
+  Intersection
+  Difference
+}
+pub fn BooleanOperator::from_string(String) -> Self?
+pub impl @step.Entity for BooleanOperator
+
+pub struct BooleanResult {
+  name : String
+  operator : BooleanOperator
+  first_operand : @step.Ref
+  second_operand : @step.Ref
+}
+pub fn BooleanResult::new(String, BooleanOperator, @step.Ref, @step.Ref) -> Self
+pub impl @step.Entity for BooleanResult
+
 pub struct CartesianPoint {
   name : String
   coordinates : Array[Double]
@@ -70,6 +124,22 @@ pub struct Circle {
 pub fn Circle::new(String, @step.Ref, String) -> Self
 pub impl @step.Entity for Circle
 
+pub struct CompositeCurve {
+  name : String
+  segments : Array[@step.Ref]
+  self_intersect : Bool
+}
+pub fn CompositeCurve::new(String, Array[@step.Ref], Bool) -> Self
+pub impl @step.Entity for CompositeCurve
+
+pub struct CompositeCurveSegment {
+  transition : TransitionCode
+  same_sense : Bool
+  parent_curve : @step.Ref
+}
+pub fn CompositeCurveSegment::new(TransitionCode, Bool, @step.Ref) -> Self
+pub impl @step.Entity for CompositeCurveSegment
+
 pub struct ConicalSurface {
   name : String
   position : @step.Ref
@@ -78,6 +148,13 @@ pub struct ConicalSurface {
 }
 pub fn ConicalSurface::new(String, @step.Ref, String, String) -> Self
 pub impl @step.Entity for ConicalSurface
+
+pub struct CsgSolid {
+  name : String
+  tree_root_expression : @step.Ref
+}
+pub fn CsgSolid::new(String, @step.Ref) -> Self
+pub impl @step.Entity for CsgSolid
 
 pub struct CylindricalSurface {
   name : String
@@ -103,6 +180,23 @@ pub struct Ellipse {
 pub fn Ellipse::new(String, @step.Ref, String, String) -> Self
 pub impl @step.Entity for Ellipse
 
+pub struct HalfSpaceSolid {
+  name : String
+  base_surface : @step.Ref
+  agreement_flag : Bool
+}
+pub fn HalfSpaceSolid::new(String, @step.Ref, Bool) -> Self
+pub impl @step.Entity for HalfSpaceSolid
+
+pub struct Hyperbola {
+  name : String
+  position : @step.Ref
+  semi_axis : Double
+  semi_imag_axis : Double
+}
+pub fn Hyperbola::new(String, @step.Ref, Double, Double) -> Self
+pub impl @step.Entity for Hyperbola
+
 pub struct Line {
   name : String
   pnt : @step.Ref
@@ -111,12 +205,45 @@ pub struct Line {
 pub fn Line::new(String, @step.Ref, @step.Ref) -> Self
 pub impl @step.Entity for Line
 
+pub struct OffsetCurve3D {
+  name : String
+  basis_curve : @step.Ref
+  distance : Double
+  ref_direction : @step.Ref
+}
+pub fn OffsetCurve3D::new(String, @step.Ref, Double, @step.Ref) -> Self
+pub impl @step.Entity for OffsetCurve3D
+
+pub struct OffsetSurface {
+  name : String
+  basis_surface : @step.Ref
+  distance : Double
+  self_intersect : Bool
+}
+pub fn OffsetSurface::new(String, @step.Ref, Double, Bool) -> Self
+pub impl @step.Entity for OffsetSurface
+
+pub struct Parabola {
+  name : String
+  position : @step.Ref
+  focal_dist : Double
+}
+pub fn Parabola::new(String, @step.Ref, Double) -> Self
+pub impl @step.Entity for Parabola
+
 pub struct Plane {
   name : String
   position : @step.Ref
 }
 pub fn Plane::new(String, @step.Ref) -> Self
 pub impl @step.Entity for Plane
+
+pub struct Polyline {
+  name : String
+  points : Array[@step.Ref]
+}
+pub fn Polyline::new(String, Array[@step.Ref]) -> Self
+pub impl @step.Entity for Polyline
 
 pub struct RationalBSplineCurve {
   weights : Array[String]
@@ -129,6 +256,16 @@ pub struct RationalBSplineSurface {
 }
 pub fn RationalBSplineSurface::new(Array[Array[String]]) -> Self
 pub impl @step.Entity for RationalBSplineSurface
+
+pub struct RectangularPyramid {
+  name : String
+  position : @step.Ref
+  x : Double
+  y : Double
+  height : Double
+}
+pub fn RectangularPyramid::new(String, @step.Ref, Double, Double, Double) -> Self
+pub impl @step.Entity for RectangularPyramid
 
 pub struct RectangularTrimmedSurface {
   name : String
@@ -143,6 +280,67 @@ pub struct RectangularTrimmedSurface {
 pub fn RectangularTrimmedSurface::new(String, @step.Ref, String, String, String, String, Bool, Bool) -> Self
 pub impl @step.Entity for RectangularTrimmedSurface
 
+pub struct RightAngularWedge {
+  name : String
+  position : @step.Ref
+  x : Double
+  y : Double
+  z : Double
+  ltx : Double
+}
+pub fn RightAngularWedge::new(String, @step.Ref, Double, Double, Double, Double) -> Self
+pub impl @step.Entity for RightAngularWedge
+
+pub struct RightCircularCone {
+  name : String
+  position : @step.Ref
+  height : Double
+  radius : Double
+  semi_angle : Double
+}
+pub fn RightCircularCone::new(String, @step.Ref, Double, Double, Double) -> Self
+pub impl @step.Entity for RightCircularCone
+
+pub struct RightCircularCylinder {
+  name : String
+  position : @step.Ref
+  height : Double
+  radius : Double
+}
+pub fn RightCircularCylinder::new(String, @step.Ref, Double, Double) -> Self
+pub impl @step.Entity for RightCircularCylinder
+
+pub struct Sphere {
+  name : String
+  position : @step.Ref
+  radius : Double
+}
+pub fn Sphere::new(String, @step.Ref, Double) -> Self
+pub impl @step.Entity for Sphere
+
+pub struct SurfaceOfLinearExtrusion {
+  name : String
+  swept_curve : @step.Ref
+  extrusion_axis : @step.Ref
+}
+pub fn SurfaceOfLinearExtrusion::new(String, @step.Ref, @step.Ref) -> Self
+pub impl @step.Entity for SurfaceOfLinearExtrusion
+
+pub struct SurfaceOfRevolution {
+  name : String
+  swept_curve : @step.Ref
+  axis_position : @step.Ref
+}
+pub fn SurfaceOfRevolution::new(String, @step.Ref, @step.Ref) -> Self
+pub impl @step.Entity for SurfaceOfRevolution
+
+pub struct SweptSurface {
+  name : String
+  swept_curve : @step.Ref
+}
+pub fn SweptSurface::new(String, @step.Ref) -> Self
+pub impl @step.Entity for SweptSurface
+
 pub struct ToroidalSurface {
   name : String
   position : @step.Ref
@@ -151,6 +349,24 @@ pub struct ToroidalSurface {
 }
 pub fn ToroidalSurface::new(String, @step.Ref, String, String) -> Self
 pub impl @step.Entity for ToroidalSurface
+
+pub struct Torus {
+  name : String
+  position : @step.Ref
+  major_radius : Double
+  minor_radius : Double
+}
+pub fn Torus::new(String, @step.Ref, Double, Double) -> Self
+pub impl @step.Entity for Torus
+
+pub(all) enum TransitionCode {
+  Discontinuous
+  Continuous
+  ContSameGradient
+  ContSameGradientSameCurvature
+}
+pub fn TransitionCode::from_string(String) -> Self?
+pub impl @step.Entity for TransitionCode
 
 pub struct TrimmedCurve {
   name : String

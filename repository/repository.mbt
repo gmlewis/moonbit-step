@@ -3,22 +3,45 @@ pub enum AnyEntity {
   RawEntity(@step.RawEntity)
   CartesianPoint(@geometry.CartesianPoint)
   Direction(@geometry.Direction)
+  Axis1Placement(@geometry.Axis1Placement)
+  Axis2Placement2D(@geometry.Axis2Placement2D)
   Axis2Placement3D(@geometry.Axis2Placement3D)
   Plane(@geometry.Plane)
   Vector(@geometry.Vector)
   Line(@geometry.Line)
   Circle(@geometry.Circle)
   Ellipse(@geometry.Ellipse)
+  Parabola(@geometry.Parabola)
+  Hyperbola(@geometry.Hyperbola)
   CylindricalSurface(@geometry.CylindricalSurface)
   ConicalSurface(@geometry.ConicalSurface)
   ToroidalSurface(@geometry.ToroidalSurface)
+  BSplineCurve(@geometry.BSplineCurve)
   BSplineCurveWithKnots(@geometry.BSplineCurveWithKnots)
+  CompositeCurve(@geometry.CompositeCurve)
+  CompositeCurveSegment(@geometry.CompositeCurveSegment)
   BSplineSurface(@geometry.BSplineSurface)
   BSplineSurfaceWithKnots(@geometry.BSplineSurfaceWithKnots)
   RationalBSplineCurve(@geometry.RationalBSplineCurve)
   RationalBSplineSurface(@geometry.RationalBSplineSurface)
   TrimmedCurve(@geometry.TrimmedCurve)
+  OffsetCurve3D(@geometry.OffsetCurve3D)
+  OffsetSurface(@geometry.OffsetSurface)
+  SurfaceOfLinearExtrusion(@geometry.SurfaceOfLinearExtrusion)
+  SurfaceOfRevolution(@geometry.SurfaceOfRevolution)
+  SweptSurface(@geometry.SweptSurface)
   RectangularTrimmedSurface(@geometry.RectangularTrimmedSurface)
+  Polyline(@geometry.Polyline)
+  BooleanResult(@geometry.BooleanResult)
+  CsgSolid(@geometry.CsgSolid)
+  Block(@geometry.Block)
+  Sphere(@geometry.Sphere)
+  RightCircularCylinder(@geometry.RightCircularCylinder)
+  RightCircularCone(@geometry.RightCircularCone)
+  Torus(@geometry.Torus)
+  RectangularPyramid(@geometry.RectangularPyramid)
+  RightAngularWedge(@geometry.RightAngularWedge)
+  HalfSpaceSolid(@geometry.HalfSpaceSolid)
   RepresentationRelationship(@product.RepresentationRelationship)
   RepresentationRelationshipWithTransformation(
     @product.RepresentationRelationshipWithTransformation
@@ -49,9 +72,40 @@ pub enum AnyEntity {
   ProductContext(@product.ProductContext)
   ApplicationProtocolDefinition(@product.ApplicationProtocolDefinition)
   ApplicationContext(@product.ApplicationContext)
+  Approval(@product.Approval)
+  ApprovalStatus(@product.ApprovalStatus)
+  ApprovalRole(@product.ApprovalRole)
+  ApprovalPersonOrganization(@product.ApprovalPersonOrganization)
+  Person(@product.Person)
+  Organization(@product.Organization)
+  PersonAndOrganization(@product.PersonAndOrganization)
+  DateAndTime(@product.DateAndTime)
+  LocalTime(@product.LocalTime)
+  CalendarDate(@product.CalendarDate)
+  CoordinatedUniversalTimeOffset(@product.CoordinatedUniversalTimeOffset)
+  SecurityClassification(@product.SecurityClassification)
+  SecurityClassificationLevel(@product.SecurityClassificationLevel)
+  Certification(@product.Certification)
+  CertificationType(@product.CertificationType)
+  Document(@product.Document)
+  DocumentType(@product.DocumentType)
+  DocumentReference(@product.DocumentReference)
+  KinematicLink(@kinematics.KinematicLink)
+  KinematicJoint(@kinematics.KinematicJoint)
+  KinematicPair(@kinematics.KinematicPair)
+  GeometricTolerance(@tolerancing.GeometricTolerance)
+  Datum(@tolerancing.Datum)
+  DatumFeature(@tolerancing.DatumFeature)
+  DimensionalSize(@tolerancing.DimensionalSize)
   ManifoldSolidBrep(@topology.ManifoldSolidBrep)
   ClosedShell(@topology.ClosedShell)
+  OpenShell(@topology.OpenShell)
+  ConnectedFaceSet(@topology.ConnectedFaceSet)
+  ShellBasedSurfaceModel(@topology.ShellBasedSurfaceModel)
   AdvancedFace(@topology.AdvancedFace)
+  FaceSurface(@topology.FaceSurface)
+  Subface(@topology.Subface)
+  ShapeAspect(@product.ShapeAspect)
   FaceOuterBound(@topology.FaceOuterBound)
   FaceBound(@topology.FaceBound)
   EdgeLoop(@topology.EdgeLoop)
@@ -59,6 +113,7 @@ pub enum AnyEntity {
   EdgeCurve(@topology.EdgeCurve)
   VertexPoint(@topology.VertexPoint)
   ColorRgb(@presentation.ColorRgb)
+  DraughtingPreDefinedColour(@presentation.DraughtingPreDefinedColour)
   FillAreaStyleColor(@presentation.FillAreaStyleColor)
   FillAreaStyle(@presentation.FillAreaStyle)
   SurfaceStyleFillArea(@presentation.SurfaceStyleFillArea)
@@ -70,9 +125,16 @@ pub enum AnyEntity {
     @presentation.MechanicalDesignGeometricPresentationRepresentation
   )
   StyledItem(@presentation.StyledItem)
+  OverRidingStyledItem(@presentation.OverRidingStyledItem)
+  HiddenElementOverRidingStyledItem(
+    @presentation.HiddenElementOverRidingStyledItem
+  )
+  AnnotationOccurrence(@presentation.AnnotationOccurrence)
+  TextLiteral(@presentation.TextLiteral)
   DimensionalExponents(@units.DimensionalExponents)
   UncertaintyMeasureWithUnit(@units.UncertaintyMeasureWithUnit)
   PlaneAngleMeasureWithUnit(@units.PlaneAngleMeasureWithUnit)
+  MeasureWithUnit(@units.MeasureWithUnit)
   DerivedUnitElement(@units.DerivedUnitElement)
   DerivedUnit(@units.DerivedUnit)
   CtxWrap(@context.CtxWrap)
@@ -92,6 +154,18 @@ pub fn any_entity_cartesian_point(p : @geometry.CartesianPoint) -> AnyEntity {
 ///|
 pub fn any_entity_direction(d : @geometry.Direction) -> AnyEntity {
   AnyEntity::Direction(d)
+}
+
+///|
+pub fn any_entity_axis1_placement(a : @geometry.Axis1Placement) -> AnyEntity {
+  AnyEntity::Axis1Placement(a)
+}
+
+///|
+pub fn any_entity_axis2_placement_2d(
+  a : @geometry.Axis2Placement2D,
+) -> AnyEntity {
+  AnyEntity::Axis2Placement2D(a)
 }
 
 ///|
@@ -127,6 +201,16 @@ pub fn any_entity_ellipse(e : @geometry.Ellipse) -> AnyEntity {
 }
 
 ///|
+pub fn any_entity_parabola(p : @geometry.Parabola) -> AnyEntity {
+  AnyEntity::Parabola(p)
+}
+
+///|
+pub fn any_entity_hyperbola(h : @geometry.Hyperbola) -> AnyEntity {
+  AnyEntity::Hyperbola(h)
+}
+
+///|
 pub fn any_entity_cylindrical_surface(
   s : @geometry.CylindricalSurface,
 ) -> AnyEntity {
@@ -144,10 +228,27 @@ pub fn any_entity_toroidal_surface(s : @geometry.ToroidalSurface) -> AnyEntity {
 }
 
 ///|
+pub fn any_entity_b_spline_curve(c : @geometry.BSplineCurve) -> AnyEntity {
+  AnyEntity::BSplineCurve(c)
+}
+
+///|
 pub fn any_entity_b_spline_curve_with_knots(
   c : @geometry.BSplineCurveWithKnots,
 ) -> AnyEntity {
   AnyEntity::BSplineCurveWithKnots(c)
+}
+
+///|
+pub fn any_entity_composite_curve(c : @geometry.CompositeCurve) -> AnyEntity {
+  AnyEntity::CompositeCurve(c)
+}
+
+///|
+pub fn any_entity_composite_curve_segment(
+  c : @geometry.CompositeCurveSegment,
+) -> AnyEntity {
+  AnyEntity::CompositeCurveSegment(c)
 }
 
 ///|
@@ -182,10 +283,102 @@ pub fn any_entity_trimmed_curve(c : @geometry.TrimmedCurve) -> AnyEntity {
 }
 
 ///|
+pub fn any_entity_offset_curve_3d(c : @geometry.OffsetCurve3D) -> AnyEntity {
+  AnyEntity::OffsetCurve3D(c)
+}
+
+///|
+pub fn any_entity_offset_surface(s : @geometry.OffsetSurface) -> AnyEntity {
+  AnyEntity::OffsetSurface(s)
+}
+
+///|
+pub fn any_entity_surface_of_linear_extrusion(
+  s : @geometry.SurfaceOfLinearExtrusion,
+) -> AnyEntity {
+  AnyEntity::SurfaceOfLinearExtrusion(s)
+}
+
+///|
+pub fn any_entity_surface_of_revolution(
+  s : @geometry.SurfaceOfRevolution,
+) -> AnyEntity {
+  AnyEntity::SurfaceOfRevolution(s)
+}
+
+///|
+pub fn any_entity_swept_surface(s : @geometry.SweptSurface) -> AnyEntity {
+  AnyEntity::SweptSurface(s)
+}
+
+///|
 pub fn any_entity_rectangular_trimmed_surface(
   s : @geometry.RectangularTrimmedSurface,
 ) -> AnyEntity {
   AnyEntity::RectangularTrimmedSurface(s)
+}
+
+///|
+pub fn any_entity_polyline(p : @geometry.Polyline) -> AnyEntity {
+  AnyEntity::Polyline(p)
+}
+
+///|
+pub fn any_entity_boolean_result(b : @geometry.BooleanResult) -> AnyEntity {
+  AnyEntity::BooleanResult(b)
+}
+
+///|
+pub fn any_entity_csg_solid(c : @geometry.CsgSolid) -> AnyEntity {
+  AnyEntity::CsgSolid(c)
+}
+
+///|
+pub fn any_entity_block(b : @geometry.Block) -> AnyEntity {
+  AnyEntity::Block(b)
+}
+
+///|
+pub fn any_entity_sphere(s : @geometry.Sphere) -> AnyEntity {
+  AnyEntity::Sphere(s)
+}
+
+///|
+pub fn any_entity_right_circular_cylinder(
+  c : @geometry.RightCircularCylinder,
+) -> AnyEntity {
+  AnyEntity::RightCircularCylinder(c)
+}
+
+///|
+pub fn any_entity_right_circular_cone(
+  c : @geometry.RightCircularCone,
+) -> AnyEntity {
+  AnyEntity::RightCircularCone(c)
+}
+
+///|
+pub fn any_entity_torus(t : @geometry.Torus) -> AnyEntity {
+  AnyEntity::Torus(t)
+}
+
+///|
+pub fn any_entity_rectangular_pyramid(
+  p : @geometry.RectangularPyramid,
+) -> AnyEntity {
+  AnyEntity::RectangularPyramid(p)
+}
+
+///|
+pub fn any_entity_right_angular_wedge(
+  w : @geometry.RightAngularWedge,
+) -> AnyEntity {
+  AnyEntity::RightAngularWedge(w)
+}
+
+///|
+pub fn any_entity_half_space_solid(h : @geometry.HalfSpaceSolid) -> AnyEntity {
+  AnyEntity::HalfSpaceSolid(h)
 }
 
 ///|
@@ -351,6 +544,149 @@ pub fn any_entity_application_context(
 }
 
 ///|
+pub fn any_entity_approval(a : @product.Approval) -> AnyEntity {
+  AnyEntity::Approval(a)
+}
+
+///|
+pub fn any_entity_approval_status(a : @product.ApprovalStatus) -> AnyEntity {
+  AnyEntity::ApprovalStatus(a)
+}
+
+///|
+pub fn any_entity_approval_role(a : @product.ApprovalRole) -> AnyEntity {
+  AnyEntity::ApprovalRole(a)
+}
+
+///|
+pub fn any_entity_approval_person_organization(
+  a : @product.ApprovalPersonOrganization,
+) -> AnyEntity {
+  AnyEntity::ApprovalPersonOrganization(a)
+}
+
+///|
+pub fn any_entity_person(p : @product.Person) -> AnyEntity {
+  AnyEntity::Person(p)
+}
+
+///|
+pub fn any_entity_organization(o : @product.Organization) -> AnyEntity {
+  AnyEntity::Organization(o)
+}
+
+///|
+pub fn any_entity_person_and_organization(
+  p : @product.PersonAndOrganization,
+) -> AnyEntity {
+  AnyEntity::PersonAndOrganization(p)
+}
+
+///|
+pub fn any_entity_date_and_time(d : @product.DateAndTime) -> AnyEntity {
+  AnyEntity::DateAndTime(d)
+}
+
+///|
+pub fn any_entity_local_time(l : @product.LocalTime) -> AnyEntity {
+  AnyEntity::LocalTime(l)
+}
+
+///|
+pub fn any_entity_calendar_date(c : @product.CalendarDate) -> AnyEntity {
+  AnyEntity::CalendarDate(c)
+}
+
+///|
+pub fn any_entity_coordinated_universal_time_offset(
+  c : @product.CoordinatedUniversalTimeOffset,
+) -> AnyEntity {
+  AnyEntity::CoordinatedUniversalTimeOffset(c)
+}
+
+///|
+pub fn any_entity_security_classification(
+  s : @product.SecurityClassification,
+) -> AnyEntity {
+  AnyEntity::SecurityClassification(s)
+}
+
+///|
+pub fn any_entity_security_classification_level(
+  s : @product.SecurityClassificationLevel,
+) -> AnyEntity {
+  AnyEntity::SecurityClassificationLevel(s)
+}
+
+///|
+pub fn any_entity_certification(c : @product.Certification) -> AnyEntity {
+  AnyEntity::Certification(c)
+}
+
+///|
+pub fn any_entity_certification_type(
+  c : @product.CertificationType,
+) -> AnyEntity {
+  AnyEntity::CertificationType(c)
+}
+
+///|
+pub fn any_entity_document(d : @product.Document) -> AnyEntity {
+  AnyEntity::Document(d)
+}
+
+///|
+pub fn any_entity_document_type(d : @product.DocumentType) -> AnyEntity {
+  AnyEntity::DocumentType(d)
+}
+
+///|
+pub fn any_entity_document_reference(
+  d : @product.DocumentReference,
+) -> AnyEntity {
+  AnyEntity::DocumentReference(d)
+}
+
+///|
+pub fn any_entity_kinematic_link(k : @kinematics.KinematicLink) -> AnyEntity {
+  AnyEntity::KinematicLink(k)
+}
+
+///|
+pub fn any_entity_kinematic_joint(k : @kinematics.KinematicJoint) -> AnyEntity {
+  AnyEntity::KinematicJoint(k)
+}
+
+///|
+pub fn any_entity_kinematic_pair(k : @kinematics.KinematicPair) -> AnyEntity {
+  AnyEntity::KinematicPair(k)
+}
+
+///|
+pub fn any_entity_geometric_tolerance(
+  g : @tolerancing.GeometricTolerance,
+) -> AnyEntity {
+  AnyEntity::GeometricTolerance(g)
+}
+
+///|
+pub fn any_entity_datum(d : @tolerancing.Datum) -> AnyEntity {
+  AnyEntity::Datum(d)
+}
+
+///|
+pub fn any_entity_datum_feature(d : @tolerancing.DatumFeature) -> AnyEntity {
+  AnyEntity::DatumFeature(d)
+}
+
+///|
+pub fn any_entity_dimensional_size(
+  d : @tolerancing.DimensionalSize,
+) -> AnyEntity {
+  AnyEntity::DimensionalSize(d)
+}
+
+///|
 pub fn any_entity_manifold_solid_brep(
   m : @topology.ManifoldSolidBrep,
 ) -> AnyEntity {
@@ -363,8 +699,42 @@ pub fn any_entity_closed_shell(c : @topology.ClosedShell) -> AnyEntity {
 }
 
 ///|
+pub fn any_entity_open_shell(o : @topology.OpenShell) -> AnyEntity {
+  AnyEntity::OpenShell(o)
+}
+
+///|
+pub fn any_entity_connected_face_set(
+  c : @topology.ConnectedFaceSet,
+) -> AnyEntity {
+  AnyEntity::ConnectedFaceSet(c)
+}
+
+///|
+pub fn any_entity_shell_based_surface_model(
+  s : @topology.ShellBasedSurfaceModel,
+) -> AnyEntity {
+  AnyEntity::ShellBasedSurfaceModel(s)
+}
+
+///|
 pub fn any_entity_advanced_face(a : @topology.AdvancedFace) -> AnyEntity {
   AnyEntity::AdvancedFace(a)
+}
+
+///|
+pub fn any_entity_face_surface(f : @topology.FaceSurface) -> AnyEntity {
+  AnyEntity::FaceSurface(f)
+}
+
+///|
+pub fn any_entity_subface(f : @topology.Subface) -> AnyEntity {
+  AnyEntity::Subface(f)
+}
+
+///|
+pub fn any_entity_shape_aspect(s : @product.ShapeAspect) -> AnyEntity {
+  AnyEntity::ShapeAspect(s)
 }
 
 ///|
@@ -400,6 +770,13 @@ pub fn any_entity_vertex_point(e : @topology.VertexPoint) -> AnyEntity {
 ///|
 pub fn any_entity_color_rgb(c : @presentation.ColorRgb) -> AnyEntity {
   AnyEntity::ColorRgb(c)
+}
+
+///|
+pub fn any_entity_draughting_pre_defined_colour(
+  c : @presentation.DraughtingPreDefinedColour,
+) -> AnyEntity {
+  AnyEntity::DraughtingPreDefinedColour(c)
 }
 
 ///|
@@ -462,6 +839,32 @@ pub fn any_entity_styled_item(s : @presentation.StyledItem) -> AnyEntity {
 }
 
 ///|
+pub fn any_entity_over_riding_styled_item(
+  s : @presentation.OverRidingStyledItem,
+) -> AnyEntity {
+  AnyEntity::OverRidingStyledItem(s)
+}
+
+///|
+pub fn any_entity_hidden_element_over_riding_styled_item(
+  s : @presentation.HiddenElementOverRidingStyledItem,
+) -> AnyEntity {
+  AnyEntity::HiddenElementOverRidingStyledItem(s)
+}
+
+///|
+pub fn any_entity_annotation_occurrence(
+  a : @presentation.AnnotationOccurrence,
+) -> AnyEntity {
+  AnyEntity::AnnotationOccurrence(a)
+}
+
+///|
+pub fn any_entity_text_literal(t : @presentation.TextLiteral) -> AnyEntity {
+  AnyEntity::TextLiteral(t)
+}
+
+///|
 pub fn any_entity_dimensional_exponents(
   d : @units.DimensionalExponents,
 ) -> AnyEntity {
@@ -480,6 +883,11 @@ pub fn any_entity_plane_angle_measure_with_unit(
   p : @units.PlaneAngleMeasureWithUnit,
 ) -> AnyEntity {
   AnyEntity::PlaneAngleMeasureWithUnit(p)
+}
+
+///|
+pub fn any_entity_measure_with_unit(m : @units.MeasureWithUnit) -> AnyEntity {
+  AnyEntity::MeasureWithUnit(m)
 }
 
 ///|
@@ -550,8 +958,7 @@ pub fn Repository::len(self : Repository) -> Int {
 
 ///|
 pub fn Repository::get(self : Repository, id : @step.EntityId) -> AnyEntity? {
-  for i = 0; i < self.entities.length(); i = i + 1 {
-    let entry = self.entities[i]
+  for entry in self.entities {
     if entry.id.value == id.value {
       return Some(entry.entity)
     }
@@ -593,22 +1000,45 @@ fn entity_to_step(entity : AnyEntity) -> String {
     RawEntity(e) => @step.Entity::to_step(e)
     CartesianPoint(p) => @step.Entity::to_step(p)
     Direction(d) => @step.Entity::to_step(d)
+    Axis1Placement(a) => @step.Entity::to_step(a)
+    Axis2Placement2D(a) => @step.Entity::to_step(a)
     Axis2Placement3D(a) => @step.Entity::to_step(a)
     Plane(p) => @step.Entity::to_step(p)
     Vector(v) => @step.Entity::to_step(v)
     Line(l) => @step.Entity::to_step(l)
     Circle(c) => @step.Entity::to_step(c)
     Ellipse(e) => @step.Entity::to_step(e)
+    Parabola(p) => @step.Entity::to_step(p)
+    Hyperbola(h) => @step.Entity::to_step(h)
     CylindricalSurface(s) => @step.Entity::to_step(s)
     ConicalSurface(s) => @step.Entity::to_step(s)
     ToroidalSurface(s) => @step.Entity::to_step(s)
+    BSplineCurve(c) => @step.Entity::to_step(c)
     BSplineCurveWithKnots(c) => @step.Entity::to_step(c)
+    CompositeCurve(c) => @step.Entity::to_step(c)
+    CompositeCurveSegment(c) => @step.Entity::to_step(c)
     BSplineSurface(s) => @step.Entity::to_step(s)
     BSplineSurfaceWithKnots(s) => @step.Entity::to_step(s)
     RationalBSplineCurve(c) => @step.Entity::to_step(c)
     RationalBSplineSurface(s) => @step.Entity::to_step(s)
     TrimmedCurve(c) => @step.Entity::to_step(c)
+    OffsetCurve3D(c) => @step.Entity::to_step(c)
+    OffsetSurface(s) => @step.Entity::to_step(s)
+    SurfaceOfLinearExtrusion(s) => @step.Entity::to_step(s)
+    SurfaceOfRevolution(s) => @step.Entity::to_step(s)
+    SweptSurface(s) => @step.Entity::to_step(s)
     RectangularTrimmedSurface(s) => @step.Entity::to_step(s)
+    Polyline(p) => @step.Entity::to_step(p)
+    BooleanResult(b) => @step.Entity::to_step(b)
+    CsgSolid(c) => @step.Entity::to_step(c)
+    Block(b) => @step.Entity::to_step(b)
+    Sphere(s) => @step.Entity::to_step(s)
+    RightCircularCylinder(c) => @step.Entity::to_step(c)
+    RightCircularCone(c) => @step.Entity::to_step(c)
+    Torus(t) => @step.Entity::to_step(t)
+    RectangularPyramid(p) => @step.Entity::to_step(p)
+    RightAngularWedge(w) => @step.Entity::to_step(w)
+    HalfSpaceSolid(h) => @step.Entity::to_step(h)
     RepresentationRelationship(r) => @step.Entity::to_step(r)
     RepresentationRelationshipWithTransformation(r) => @step.Entity::to_step(r)
     ShapeRepresentationRelationship(r) => @step.Entity::to_step(r)
@@ -633,9 +1063,40 @@ fn entity_to_step(entity : AnyEntity) -> String {
     ProductContext(c) => @step.Entity::to_step(c)
     ApplicationProtocolDefinition(a) => @step.Entity::to_step(a)
     ApplicationContext(a) => @step.Entity::to_step(a)
+    Approval(a) => @step.Entity::to_step(a)
+    ApprovalStatus(a) => @step.Entity::to_step(a)
+    ApprovalRole(a) => @step.Entity::to_step(a)
+    ApprovalPersonOrganization(a) => @step.Entity::to_step(a)
+    Person(p) => @step.Entity::to_step(p)
+    Organization(o) => @step.Entity::to_step(o)
+    PersonAndOrganization(p) => @step.Entity::to_step(p)
+    DateAndTime(d) => @step.Entity::to_step(d)
+    LocalTime(l) => @step.Entity::to_step(l)
+    CalendarDate(c) => @step.Entity::to_step(c)
+    CoordinatedUniversalTimeOffset(c) => @step.Entity::to_step(c)
+    SecurityClassification(s) => @step.Entity::to_step(s)
+    SecurityClassificationLevel(s) => @step.Entity::to_step(s)
+    Certification(c) => @step.Entity::to_step(c)
+    CertificationType(c) => @step.Entity::to_step(c)
+    Document(d) => @step.Entity::to_step(d)
+    DocumentType(d) => @step.Entity::to_step(d)
+    DocumentReference(d) => @step.Entity::to_step(d)
+    KinematicLink(k) => @step.Entity::to_step(k)
+    KinematicJoint(k) => @step.Entity::to_step(k)
+    KinematicPair(k) => @step.Entity::to_step(k)
+    GeometricTolerance(g) => @step.Entity::to_step(g)
+    Datum(d) => @step.Entity::to_step(d)
+    DatumFeature(d) => @step.Entity::to_step(d)
+    DimensionalSize(d) => @step.Entity::to_step(d)
     ManifoldSolidBrep(m) => @step.Entity::to_step(m)
     ClosedShell(c) => @step.Entity::to_step(c)
+    OpenShell(o) => @step.Entity::to_step(o)
+    ConnectedFaceSet(c) => @step.Entity::to_step(c)
+    ShellBasedSurfaceModel(s) => @step.Entity::to_step(s)
     AdvancedFace(a) => @step.Entity::to_step(a)
+    FaceSurface(f) => @step.Entity::to_step(f)
+    Subface(f) => @step.Entity::to_step(f)
+    ShapeAspect(s) => @step.Entity::to_step(s)
     FaceOuterBound(b) => @step.Entity::to_step(b)
     FaceBound(b) => @step.Entity::to_step(b)
     EdgeLoop(e) => @step.Entity::to_step(e)
@@ -643,6 +1104,7 @@ fn entity_to_step(entity : AnyEntity) -> String {
     EdgeCurve(e) => @step.Entity::to_step(e)
     VertexPoint(e) => @step.Entity::to_step(e)
     ColorRgb(c) => @step.Entity::to_step(c)
+    DraughtingPreDefinedColour(c) => @step.Entity::to_step(c)
     FillAreaStyleColor(c) => @step.Entity::to_step(c)
     FillAreaStyle(s) => @step.Entity::to_step(s)
     SurfaceStyleFillArea(s) => @step.Entity::to_step(s)
@@ -653,9 +1115,14 @@ fn entity_to_step(entity : AnyEntity) -> String {
     MechanicalDesignGeometricPresentationRepresentation(r) =>
       @step.Entity::to_step(r)
     StyledItem(s) => @step.Entity::to_step(s)
+    OverRidingStyledItem(s) => @step.Entity::to_step(s)
+    HiddenElementOverRidingStyledItem(s) => @step.Entity::to_step(s)
+    AnnotationOccurrence(a) => @step.Entity::to_step(a)
+    TextLiteral(t) => @step.Entity::to_step(t)
     DimensionalExponents(d) => @step.Entity::to_step(d)
     UncertaintyMeasureWithUnit(u) => @step.Entity::to_step(u)
     PlaneAngleMeasureWithUnit(p) => @step.Entity::to_step(p)
+    MeasureWithUnit(m) => @step.Entity::to_step(m)
     DerivedUnitElement(d) => @step.Entity::to_step(d)
     DerivedUnit(d) => @step.Entity::to_step(d)
     CtxWrap(c) => @step.Entity::to_step(c)
@@ -667,8 +1134,7 @@ fn entity_to_step(entity : AnyEntity) -> String {
 // Minimal serializer for now (DATA section only).
 pub fn Repository::to_step_data_section(self : Repository) -> String {
   let lines : Array[String] = []
-  for i = 0; i < self.entities.length(); i = i + 1 {
-    let entry = self.entities[i]
+  for entry in self.entities {
     lines.push("#\{entry.id.value}=\{entity_to_step(entry.entity)};")
   }
   lines.join("\n")
@@ -690,10 +1156,9 @@ pub fn Repository::to_step_file(self : Repository) -> String {
   }
   // Normalize Windows CRLF (or stray CR) so output is stable/idempotent.
   let builder = StringBuilder::new()
-  for i = 0; i < out.length(); i = i + 1 {
-    let cu = UInt16::to_int(String::code_unit_at(out, i))
-    if cu != Char::to_int('\r') {
-      builder.write_char(cu.unsafe_to_char())
+  for c in out {
+    if c != '\r' {
+      builder.write_char(c)
     }
   }
   builder.to_string()

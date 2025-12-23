@@ -26,6 +26,13 @@ pub struct ClosedShell {
 pub fn ClosedShell::new(String, Array[@step.Ref]) -> Self
 pub impl @step.Entity for ClosedShell
 
+pub struct ConnectedFaceSet {
+  name : String
+  cfs_faces : Array[@step.Ref]
+}
+pub fn ConnectedFaceSet::new(String, Array[@step.Ref]) -> Self
+pub impl @step.Entity for ConnectedFaceSet
+
 pub struct EdgeCurve {
   name : String
   edge_start : @step.Ref
@@ -59,12 +66,28 @@ pub struct FaceOuterBound {
 pub fn FaceOuterBound::new(String, @step.Ref, Bool) -> Self
 pub impl @step.Entity for FaceOuterBound
 
+pub struct FaceSurface {
+  name : String
+  bounds : Array[@step.Ref]
+  face_geometry : @step.Ref
+  same_sense : Bool
+}
+pub fn FaceSurface::new(String, Array[@step.Ref], @step.Ref, Bool) -> Self
+pub impl @step.Entity for FaceSurface
+
 pub struct ManifoldSolidBrep {
   name : String
   outer : @step.Ref
 }
 pub fn ManifoldSolidBrep::new(String, @step.Ref) -> Self
 pub impl @step.Entity for ManifoldSolidBrep
+
+pub struct OpenShell {
+  name : String
+  faces : Array[@step.Ref]
+}
+pub fn OpenShell::new(String, Array[@step.Ref]) -> Self
+pub impl @step.Entity for OpenShell
 
 pub struct OrientedEdge {
   name : String
@@ -75,6 +98,21 @@ pub struct OrientedEdge {
 }
 pub fn OrientedEdge::new(String, String, String, @step.Ref, Bool) -> Self
 pub impl @step.Entity for OrientedEdge
+
+pub struct ShellBasedSurfaceModel {
+  name : String
+  sbsm_boundary : Array[@step.Ref]
+}
+pub fn ShellBasedSurfaceModel::new(String, Array[@step.Ref]) -> Self
+pub impl @step.Entity for ShellBasedSurfaceModel
+
+pub struct Subface {
+  name : String
+  bounds : Array[@step.Ref]
+  parent_face : @step.Ref
+}
+pub fn Subface::new(String, Array[@step.Ref], @step.Ref) -> Self
+pub impl @step.Entity for Subface
 
 pub struct VertexPoint {
   name : String

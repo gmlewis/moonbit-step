@@ -213,6 +213,59 @@ test "parse_repository_from_string_representation_relationship_with_transformati
 }
 
 ///|
+test "parse_repository_from_string_polyline" {
+  let content = "ISO-10303-21;\nDATA;\n#10=POLYLINE('poly',(#1,#2,#3));\nENDSEC;\nEND-ISO-10303-21;\n"
+  let repo = parse_repository_from_string(content)
+  inspect(repo.len(), content="1")
+  let out = repo.to_step_data_section()
+  assert_true(out.contains("#10=POLYLINE('poly',(#1,#2,#3));"))
+}
+
+///|
+test "parse_repository_from_string_boolean_result" {
+  let content = "ISO-10303-21;\nDATA;\n#10=BOOLEAN_RESULT('result',.UNION.,#20,#30);\nENDSEC;\nEND-ISO-10303-21;\n"
+  let repo = parse_repository_from_string(content)
+  inspect(repo.len(), content="1")
+  let out = repo.to_step_data_section()
+  assert_true(out.contains("#10=BOOLEAN_RESULT('result',.UNION.,#20,#30);"))
+}
+
+///|
+test "parse_repository_from_string_csg_solid" {
+  let content = "ISO-10303-21;\nDATA;\n#10=CSG_SOLID('solid',#20);\nENDSEC;\nEND-ISO-10303-21;\n"
+  let repo = parse_repository_from_string(content)
+  inspect(repo.len(), content="1")
+  let out = repo.to_step_data_section()
+  assert_true(out.contains("#10=CSG_SOLID('solid',#20);"))
+}
+
+///|
+test "parse_repository_from_string_csg_primitives" {
+  let content = "ISO-10303-21;\nDATA;\n#1=BLOCK('b',#10,1.,2.,3.);\n#2=SPHERE('s',#10,5.);\n#3=RIGHT_CIRCULAR_CYLINDER('cyl',#10,50.,10.);\n#4=RIGHT_CIRCULAR_CONE('cone',#10,50.,10.,0.5);\n#5=TORUS('t',#10,20.,5.);\n#6=RECTANGULAR_PYRAMID('p',#10,10.0,20.0,30.0);\n#7=RIGHT_ANGULAR_WEDGE('w',#10,10.0,20.0,30.0,5.0);\nENDSEC;\nEND-ISO-10303-21;\n"
+  let repo = parse_repository_from_string(content)
+  inspect(repo.len(), content="7")
+  let out = repo.to_step_data_section()
+  assert_true(out.contains("#1=BLOCK('b',#10,1.0,2.0,3.0);"))
+  assert_true(out.contains("#2=SPHERE('s',#10,5.0);"))
+  assert_true(out.contains("#3=RIGHT_CIRCULAR_CYLINDER('cyl',#10,50.0,10.0);"))
+  assert_true(out.contains("#4=RIGHT_CIRCULAR_CONE('cone',#10,50.0,10.0,0.5);"))
+  assert_true(out.contains("#5=TORUS('t',#10,20.0,5.0);"))
+  assert_true(out.contains("#6=RECTANGULAR_PYRAMID('p',#10,10.0,20.0,30.0);"))
+  assert_true(
+    out.contains("#7=RIGHT_ANGULAR_WEDGE('w',#10,10.0,20.0,30.0,5.0);"),
+  )
+}
+
+///|
+test "parse_repository_from_string_half_space_solid" {
+  let content = "ISO-10303-21;\nDATA;\n#1=HALF_SPACE_SOLID('hs',#10,.T.);\nENDSEC;\nEND-ISO-10303-21;\n"
+  let repo = parse_repository_from_string(content)
+  inspect(repo.len(), content="1")
+  let out = repo.to_step_data_section()
+  assert_true(out.contains("#1=HALF_SPACE_SOLID('hs',#10,.T.);"))
+}
+
+///|
 test "parse_repository_from_string_advanced_brep_shape_representation" {
   let content = "ISO-10303-21;\nDATA;\n#11=ADVANCED_BREP_SHAPE_REPRESENTATION('cube-None',(#32),#187);\nENDSEC;\nEND-ISO-10303-21;\n"
   let repo = parse_repository_from_string(content)
@@ -221,6 +274,228 @@ test "parse_repository_from_string_advanced_brep_shape_representation" {
   assert_true(
     out.contains(
       "#11=ADVANCED_BREP_SHAPE_REPRESENTATION('cube-None',(#32),#187);",
+    ),
+  )
+}
+
+///|
+test "parse_repository_from_string_open_shell" {
+  let content = "ISO-10303-21;\nDATA;\n#10=OPEN_SHELL('open',(#1,#2));\nENDSEC;\nEND-ISO-10303-21;\n"
+  let repo = parse_repository_from_string(content)
+  inspect(repo.len(), content="1")
+  let out = repo.to_step_data_section()
+  assert_true(out.contains("#10=OPEN_SHELL('open',(#1,#2));"))
+}
+
+///|
+test "parse_repository_from_string_connected_face_set" {
+  let content = "ISO-10303-21;\nDATA;\n#10=CONNECTED_FACE_SET('cfs',(#1,#2));\nENDSEC;\nEND-ISO-10303-21;\n"
+  let repo = parse_repository_from_string(content)
+  inspect(repo.len(), content="1")
+  let out = repo.to_step_data_section()
+  assert_true(out.contains("#10=CONNECTED_FACE_SET('cfs',(#1,#2));"))
+}
+
+///|
+test "parse_repository_from_string_shell_based_surface_model" {
+  let content = "ISO-10303-21;\nDATA;\n#10=SHELL_BASED_SURFACE_MODEL('model',(#1,#2));\nENDSEC;\nEND-ISO-10303-21;\n"
+  let repo = parse_repository_from_string(content)
+  inspect(repo.len(), content="1")
+  let out = repo.to_step_data_section()
+  assert_true(out.contains("#10=SHELL_BASED_SURFACE_MODEL('model',(#1,#2));"))
+}
+
+///|
+test "parse_repository_from_string_face_surface" {
+  let content = "ISO-10303-21;\nDATA;\n#10=FACE_SURFACE('face',(#1,#2),#3,.T.);\nENDSEC;\nEND-ISO-10303-21;\n"
+  let repo = parse_repository_from_string(content)
+  inspect(repo.len(), content="1")
+  let out = repo.to_step_data_section()
+  assert_true(out.contains("#10=FACE_SURFACE('face',(#1,#2),#3,.T.);"))
+}
+
+///|
+test "parse_repository_from_string_subface" {
+  let content = "ISO-10303-21;\nDATA;\n#10=SUBFACE('sub',(#1,#2),#3);\nENDSEC;\nEND-ISO-10303-21;\n"
+  let repo = parse_repository_from_string(content)
+  inspect(repo.len(), content="1")
+  let out = repo.to_step_data_section()
+  assert_true(out.contains("#10=SUBFACE('sub',(#1,#2),#3);"))
+}
+
+///|
+test "parse_repository_from_string_approval" {
+  let content = "ISO-10303-21;\nDATA;\n#1=APPROVAL_STATUS('approved');\n#2=APPROVAL(#1,'level');\nENDSEC;\nEND-ISO-10303-21;\n"
+  let repo = parse_repository_from_string(content)
+  inspect(repo.len(), content="2")
+  let out = repo.to_step_data_section()
+  assert_true(out.contains("#1=APPROVAL_STATUS('approved');"))
+  assert_true(out.contains("#2=APPROVAL(#1,'level');"))
+}
+
+///|
+test "parse_repository_from_string_approval_person_org" {
+  let content = "ISO-10303-21;\nDATA;\n#1=PERSON('p1','Doe','John',('M'),('Mr'),('Jr'));\n#2=ORGANIZATION('o1','ACME','Acme Corp');\n#3=PERSON_AND_ORGANIZATION(#1,#2);\n#4=APPROVAL_STATUS('approved');\n#5=APPROVAL(#4,'level');\n#6=APPROVAL_ROLE('approver');\n#7=APPROVAL_PERSON_ORGANIZATION(#3,#5,#6);\nENDSEC;\nEND-ISO-10303-21;\n"
+  let repo = parse_repository_from_string(content)
+  inspect(repo.len(), content="7")
+  let out = repo.to_step_data_section()
+  assert_true(out.contains("#1=PERSON('p1','Doe','John',('M'),('Mr'),('Jr'));"))
+  assert_true(out.contains("#2=ORGANIZATION('o1','ACME','Acme Corp');"))
+  assert_true(out.contains("#3=PERSON_AND_ORGANIZATION(#1,#2);"))
+  assert_true(out.contains("#4=APPROVAL_STATUS('approved');"))
+  assert_true(out.contains("#5=APPROVAL(#4,'level');"))
+  assert_true(out.contains("#6=APPROVAL_ROLE('approver');"))
+  assert_true(out.contains("#7=APPROVAL_PERSON_ORGANIZATION(#3,#5,#6);"))
+}
+
+///|
+test "parse_repository_from_string_date_time" {
+  let content = "ISO-10303-21;\nDATA;\n#1=CALENDAR_DATE(2025,22,12);\n#2=COORDINATED_UNIVERSAL_TIME_OFFSET(0,0,.EXACT.);\n#3=LOCAL_TIME(12,30,0.0,#2);\n#4=DATE_AND_TIME(#1,#3);\nENDSEC;\nEND-ISO-10303-21;\n"
+  let repo = parse_repository_from_string(content)
+  inspect(repo.len(), content="4")
+  let out = repo.to_step_data_section()
+  assert_true(out.contains("#1=CALENDAR_DATE(2025,22,12);"))
+  assert_true(
+    out.contains("#2=COORDINATED_UNIVERSAL_TIME_OFFSET(0,0,.EXACT.);"),
+  )
+  assert_true(out.contains("#3=LOCAL_TIME(12,30,0.0,#2);"))
+  assert_true(out.contains("#4=DATE_AND_TIME(#1,#3);"))
+}
+
+///|
+test "parse_repository_from_string_security" {
+  let content = "ISO-10303-21;\nDATA;\n#1=SECURITY_CLASSIFICATION_LEVEL('top secret');\n#2=SECURITY_CLASSIFICATION('sc','confidential',#1);\nENDSEC;\nEND-ISO-10303-21;\n"
+  let repo = parse_repository_from_string(content)
+  inspect(repo.len(), content="2")
+  let out = repo.to_step_data_section()
+  assert_true(out.contains("#1=SECURITY_CLASSIFICATION_LEVEL('top secret');"))
+  assert_true(
+    out.contains("#2=SECURITY_CLASSIFICATION('sc','confidential',#1);"),
+  )
+}
+
+///|
+test "parse_repository_from_string_certification" {
+  let content = "ISO-10303-21;\nDATA;\n#1=CERTIFICATION_TYPE('kind');\n#2=CERTIFICATION('cert','purpose',#1);\nENDSEC;\nEND-ISO-10303-21;\n"
+  let repo = parse_repository_from_string(content)
+  inspect(repo.len(), content="2")
+  let out = repo.to_step_data_section()
+  assert_true(out.contains("#1=CERTIFICATION_TYPE('kind');"))
+  assert_true(out.contains("#2=CERTIFICATION('cert','purpose',#1);"))
+}
+
+///|
+test "parse_repository_from_string_document" {
+  let content = "ISO-10303-21;\nDATA;\n#1=DOCUMENT_TYPE('kind');\n#2=DOCUMENT('d1','name','desc',#1);\nENDSEC;\nEND-ISO-10303-21;\n"
+  let repo = parse_repository_from_string(content)
+  inspect(repo.len(), content="2")
+  let out = repo.to_step_data_section()
+  assert_true(out.contains("#1=DOCUMENT_TYPE('kind');"))
+  assert_true(out.contains("#2=DOCUMENT('d1','name','desc',#1);"))
+}
+
+///|
+test "parse_repository_from_string_doc_ref" {
+  let content = "ISO-10303-21;\nDATA;\n#1=DOCUMENT_TYPE('kind');\n#2=DOCUMENT('d1','name','desc',#1);\n#3=DOCUMENT_REFERENCE('dr1','ref','ref_desc',#2);\nENDSEC;\nEND-ISO-10303-21;\n"
+  let repo = parse_repository_from_string(content)
+  inspect(repo.len(), content="3")
+  let out = repo.to_step_data_section()
+  assert_true(out.contains("#1=DOCUMENT_TYPE('kind');"))
+  assert_true(out.contains("#2=DOCUMENT('d1','name','desc',#1);"))
+  assert_true(out.contains("#3=DOCUMENT_REFERENCE('dr1','ref','ref_desc',#2);"))
+}
+
+///|
+test "parse_repository_from_string_kinematics" {
+  let content = "ISO-10303-21;\nDATA;\n#1=KINEMATIC_LINK('l1');\n#2=KINEMATIC_LINK('l2');\n#3=KINEMATIC_JOINT('j',#1,#2);\n#4=KINEMATIC_PAIR('p','desc',#3);\nENDSEC;\nEND-ISO-10303-21;\n"
+  let repo = parse_repository_from_string(content)
+  inspect(repo.len(), content="4")
+  let out = repo.to_step_data_section()
+  assert_true(out.contains("#1=KINEMATIC_LINK('l1');"))
+  assert_true(out.contains("#2=KINEMATIC_LINK('l2');"))
+  assert_true(out.contains("#3=KINEMATIC_JOINT('j',#1,#2);"))
+  assert_true(out.contains("#4=KINEMATIC_PAIR('p','desc',#3);"))
+}
+
+///|
+test "parse_repository_from_string_geometric_tolerance" {
+  let content = "ISO-10303-21;\nDATA;\n#1=MEASURE_WITH_UNIT(LENGTH_MEASURE(0.1),#10);\n#2=SHAPE_ASPECT('sa','desc',#20,.T.);\n#3=GEOMETRIC_TOLERANCE('gt','desc',#1,#2);\nENDSEC;\nEND-ISO-10303-21;\n"
+  let repo = parse_repository_from_string(content)
+  inspect(repo.len(), content="3")
+  let out = repo.to_step_data_section()
+  assert_true(out.contains("#1=MEASURE_WITH_UNIT(LENGTH_MEASURE(0.1),#10);"))
+  assert_true(out.contains("#2=SHAPE_ASPECT('sa','desc',#20,.T.);"))
+  assert_true(out.contains("#3=GEOMETRIC_TOLERANCE('gt','desc',#1,#2);"))
+}
+
+///|
+test "parse_repository_from_string_datum" {
+  let content = "ISO-10303-21;\nDATA;\n#1=DATUM('d1','desc1',#10,.T.,'A');\n#2=DATUM_FEATURE('df1','desc2',#20,.T.);\nENDSEC;\nEND-ISO-10303-21;\n"
+  let repo = parse_repository_from_string(content)
+  inspect(repo.len(), content="2")
+  let out = repo.to_step_data_section()
+  assert_true(out.contains("#1=DATUM('d1','desc1',#10,.T.,'A');"))
+  assert_true(out.contains("#2=DATUM_FEATURE('df1','desc2',#20,.T.);"))
+}
+
+///|
+test "parse_repository_from_string_dimensional_size" {
+  let content = "ISO-10303-21;\nDATA;\n#1=DIMENSIONAL_SIZE(#10,'size');\nENDSEC;\nEND-ISO-10303-21;\n"
+  let repo = parse_repository_from_string(content)
+  inspect(repo.len(), content="1")
+  let out = repo.to_step_data_section()
+  assert_true(out.contains("#1=DIMENSIONAL_SIZE(#10,'size');"))
+}
+
+///|
+test "parse_repository_from_string_draughting_pre_defined_colour" {
+  let content = "ISO-10303-21;\nDATA;\n#1=DRAUGHTING_PRE_DEFINED_COLOUR('red');\nENDSEC;\nEND-ISO-10303-21;\n"
+  let repo = parse_repository_from_string(content)
+  inspect(repo.len(), content="1")
+  let out = repo.to_step_data_section()
+  assert_true(out.contains("#1=DRAUGHTING_PRE_DEFINED_COLOUR('red');"))
+}
+
+///|
+test "parse_repository_from_string_over_riding_styled_item" {
+  let content = "ISO-10303-21;\nDATA;\n#1=OVER_RIDING_STYLED_ITEM('name',(#10),#20,#30);\nENDSEC;\nEND-ISO-10303-21;\n"
+  let repo = parse_repository_from_string(content)
+  inspect(repo.len(), content="1")
+  let out = repo.to_step_data_section()
+  assert_true(out.contains("#1=OVER_RIDING_STYLED_ITEM('name',(#10),#20,#30);"))
+}
+
+///|
+test "parse_repository_from_string_hidden_item" {
+  let content = "ISO-10303-21;\nDATA;\n#1=HIDDEN_ELEMENT_OVER_RIDING_STYLED_ITEM('name',(#10),#20,#30);\nENDSEC;\nEND-ISO-10303-21;\n"
+  let repo = parse_repository_from_string(content)
+  inspect(repo.len(), content="1")
+  let out = repo.to_step_data_section()
+  assert_true(
+    out.contains(
+      "#1=HIDDEN_ELEMENT_OVER_RIDING_STYLED_ITEM('name',(#10),#20,#30);",
+    ),
+  )
+}
+
+///|
+test "parse_repository_from_string_annotation_occurrence" {
+  let content = "ISO-10303-21;\nDATA;\n#1=ANNOTATION_OCCURRENCE('name',(#10),#20);\nENDSEC;\nEND-ISO-10303-21;\n"
+  let repo = parse_repository_from_string(content)
+  inspect(repo.len(), content="1")
+  let out = repo.to_step_data_section()
+  assert_true(out.contains("#1=ANNOTATION_OCCURRENCE('name',(#10),#20);"))
+}
+
+///|
+test "parse_repository_from_string_text_literal" {
+  let content = "ISO-10303-21;\nDATA;\n#1=TEXT_LITERAL('name','literal',#10,'alignment',.RIGHT.,#20);\nENDSEC;\nEND-ISO-10303-21;\n"
+  let repo = parse_repository_from_string(content)
+  inspect(repo.len(), content="1")
+  let out = repo.to_step_data_section()
+  assert_true(
+    out.contains(
+      "#1=TEXT_LITERAL('name','literal',#10,'alignment',.RIGHT.,#20);",
     ),
   )
 }
@@ -300,6 +575,24 @@ test "parse_repository_from_string_ellipse" {
 }
 
 ///|
+test "parse_repository_from_string_parabola" {
+  let content = "ISO-10303-21;\nDATA;\n#10=PARABOLA('par',#1,5.0);\nENDSEC;\nEND-ISO-10303-21;\n"
+  let repo = parse_repository_from_string(content)
+  inspect(repo.len(), content="1")
+  let out = repo.to_step_data_section()
+  assert_true(out.contains("#10=PARABOLA('par',#1,5.0);"))
+}
+
+///|
+test "parse_repository_from_string_hyperbola" {
+  let content = "ISO-10303-21;\nDATA;\n#10=HYPERBOLA('hyp',#1,10.0,5.0);\nENDSEC;\nEND-ISO-10303-21;\n"
+  let repo = parse_repository_from_string(content)
+  inspect(repo.len(), content="1")
+  let out = repo.to_step_data_section()
+  assert_true(out.contains("#10=HYPERBOLA('hyp',#1,10.0,5.0);"))
+}
+
+///|
 test "parse_repository_from_string_cylindrical_surface" {
   let content = "ISO-10303-21;\nDATA;\n#123=CYLINDRICAL_SURFACE('',#602,0.435);\nENDSEC;\nEND-ISO-10303-21;\n"
   let repo = parse_repository_from_string(content)
@@ -331,6 +624,19 @@ test "parse_repository_from_string_toroidal_surface" {
 }
 
 ///|
+test "parse_repository_from_string_bspline_curve" {
+  let content = "ISO-10303-21;\nDATA;\n#10=B_SPLINE_CURVE('curve',3,(#1,#2,#3,#4),.UNSPECIFIED.,.F.,.F.);\nENDSEC;\nEND-ISO-10303-21;\n"
+  let repo = parse_repository_from_string(content)
+  inspect(repo.len(), content="1")
+  let out = repo.to_step_data_section()
+  assert_true(
+    out.contains(
+      "#10=B_SPLINE_CURVE('curve',3,(#1,#2,#3,#4),.UNSPECIFIED.,.F.,.F.);",
+    ),
+  )
+}
+
+///|
 test "parse_repository_from_string_b_spline_curve_with_knots" {
   let content = "ISO-10303-21;\nDATA;\n#39=B_SPLINE_CURVE_WITH_KNOTS('',3,(#10,#11,#12,#13),.UNSPECIFIED.,.F.,.F.,(4,4),(0.,1.),.UNSPECIFIED.);\nENDSEC;\nEND-ISO-10303-21;\n"
   let repo = parse_repository_from_string(content)
@@ -341,6 +647,16 @@ test "parse_repository_from_string_b_spline_curve_with_knots" {
       "#39=B_SPLINE_CURVE_WITH_KNOTS('',3,(#10,#11,#12,#13),.UNSPECIFIED.,.F.,.F.,(4,4),(0.,1.),.UNSPECIFIED.);",
     ),
   )
+}
+
+///|
+test "parse_repository_from_string_composite_curve" {
+  let content = "ISO-10303-21;\nDATA;\n#1=COMPOSITE_CURVE_SEGMENT(.CONTINUOUS.,.T.,#10);\n#2=COMPOSITE_CURVE('curve',(#1),.F.);\nENDSEC;\nEND-ISO-10303-21;\n"
+  let repo = parse_repository_from_string(content)
+  inspect(repo.len(), content="2")
+  let out = repo.to_step_data_section()
+  assert_true(out.contains("#1=COMPOSITE_CURVE_SEGMENT(.CONTINUOUS.,.T.,#10);"))
+  assert_true(out.contains("#2=COMPOSITE_CURVE('curve',(#1),.F.);"))
 }
 
 ///|
@@ -502,6 +818,71 @@ test "parse_repository_from_string_trimmed_curve" {
       "#13=TRIMMED_CURVE('',#12,(PARAMETER_VALUE(0.0)),(PARAMETER_VALUE(1.0)),.T.,.PARAMETER.);",
     ),
   )
+}
+
+///|
+test "parse_repository_from_string_offset_curve_3d" {
+  let content = "ISO-10303-21;\nDATA;\n#10=OFFSET_CURVE_3D('off',#1,5.0,#2);\nENDSEC;\nEND-ISO-10303-21;\n"
+  let repo = parse_repository_from_string(content)
+  inspect(repo.len(), content="1")
+  let out = repo.to_step_data_section()
+  assert_true(out.contains("#10=OFFSET_CURVE_3D('off',#1,5.0,#2);"))
+}
+
+///|
+test "parse_repository_from_string_offset_surface" {
+  let content = "ISO-10303-21;\nDATA;\n#10=OFFSET_SURFACE('off_surf',#1,5.0,.F.);\nENDSEC;\nEND-ISO-10303-21;\n"
+  let repo = parse_repository_from_string(content)
+  inspect(repo.len(), content="1")
+  let out = repo.to_step_data_section()
+  assert_true(out.contains("#10=OFFSET_SURFACE('off_surf',#1,5.0,.F.);"))
+}
+
+///|
+test "parse_repository_from_string_surface_of_linear_extrusion" {
+  let content = "ISO-10303-21;\nDATA;\n#10=SURFACE_OF_LINEAR_EXTRUSION('swept',#1,#2);\nENDSEC;\nEND-ISO-10303-21;\n"
+  let repo = parse_repository_from_string(content)
+  inspect(repo.len(), content="1")
+  let out = repo.to_step_data_section()
+  assert_true(out.contains("#10=SURFACE_OF_LINEAR_EXTRUSION('swept',#1,#2);"))
+}
+
+///|
+test "parse_repository_from_string_axis1_placement" {
+  let content = "ISO-10303-21;\nDATA;\n#1=AXIS1_PLACEMENT('a1',#10,$);\n#2=AXIS1_PLACEMENT('a2',#10,#20);\nENDSEC;\nEND-ISO-10303-21;\n"
+  let repo = parse_repository_from_string(content)
+  inspect(repo.len(), content="2")
+  let out = repo.to_step_data_section()
+  assert_true(out.contains("#1=AXIS1_PLACEMENT('a1',#10,$);"))
+  assert_true(out.contains("#2=AXIS1_PLACEMENT('a2',#10,#20);"))
+}
+
+///|
+test "parse_repository_from_string_axis2_placement_2d" {
+  let content = "ISO-10303-21;\nDATA;\n#1=AXIS2_PLACEMENT_2D('a1',#10,$);\n#2=AXIS2_PLACEMENT_2D('a2',#10,#20);\nENDSEC;\nEND-ISO-10303-21;\n"
+  let repo = parse_repository_from_string(content)
+  inspect(repo.len(), content="2")
+  let out = repo.to_step_data_section()
+  assert_true(out.contains("#1=AXIS2_PLACEMENT_2D('a1',#10,$);"))
+  assert_true(out.contains("#2=AXIS2_PLACEMENT_2D('a2',#10,#20);"))
+}
+
+///|
+test "parse_repository_from_string_surface_of_revolution" {
+  let content = "ISO-10303-21;\nDATA;\n#10=SURFACE_OF_REVOLUTION('rev',#1,#2);\nENDSEC;\nEND-ISO-10303-21;\n"
+  let repo = parse_repository_from_string(content)
+  inspect(repo.len(), content="1")
+  let out = repo.to_step_data_section()
+  assert_true(out.contains("#10=SURFACE_OF_REVOLUTION('rev',#1,#2);"))
+}
+
+///|
+test "parse_repository_from_string_swept_surface" {
+  let content = "ISO-10303-21;\nDATA;\n#10=SWEPT_SURFACE('swept',#1);\nENDSEC;\nEND-ISO-10303-21;\n"
+  let repo = parse_repository_from_string(content)
+  inspect(repo.len(), content="1")
+  let out = repo.to_step_data_section()
+  assert_true(out.contains("#10=SWEPT_SURFACE('swept',#1);"))
 }
 
 ///|
@@ -719,8 +1100,8 @@ test "parse_repository_from_string_styled_item_chain" {
     "#24=STYLED_ITEM('',(#25),#32);", "#23=PRESENTATION_LAYER_ASSIGNMENT('1','Layer 1',(#32));",
   ]
   let mut all_found = true
-  for i = 0; i < expect_lines.length(); i = i + 1 {
-    let found = match String::find(out, expect_lines[i]) {
+  for line in expect_lines {
+    let found = match String::find(out, line) {
       Some(_) => true
       None => false
     }
@@ -740,8 +1121,8 @@ test "parse_repository_from_string_units_and_unit_wrappers" {
     "#188=UNCERTAINTY_MEASURE_WITH_UNIT(LENGTH_MEASURE(2.E-005),#194,'DISTANCE_ACCURACY_VALUE','Maximum Tolerance applied to model');",
   ]
   let mut all_found = true
-  for i = 0; i < expect_lines.length(); i = i + 1 {
-    let found = match String::find(out, expect_lines[i]) {
+  for line in expect_lines {
+    let found = match String::find(out, line) {
       Some(_) => true
       None => false
     }

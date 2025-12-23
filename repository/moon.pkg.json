@@ -1,12 +1,14 @@
 {
   "import": [
     "gmlewis/step",
-    "gmlewis/step/header",
-    "gmlewis/step/entities/geometry",
-    "gmlewis/step/entities/presentation",
     "gmlewis/step/entities/context",
-    "gmlewis/step/entities/units",
+    "gmlewis/step/entities/geometry",
+    "gmlewis/step/entities/kinematics",
+    "gmlewis/step/entities/presentation",
     "gmlewis/step/entities/product",
-    "gmlewis/step/entities/topology"
+    "gmlewis/step/entities/tolerancing",
+    "gmlewis/step/entities/topology",
+    "gmlewis/step/entities/units",
+    "gmlewis/step/header"
   ]
 }

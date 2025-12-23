@@ -1,0 +1,51 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "gmlewis/step/entities/tolerancing"
+
+import(
+  "gmlewis/step"
+)
+
+// Values
+
+// Errors
+
+// Types and methods
+pub struct Datum {
+  name : String
+  description : String
+  of_shape : @step.Ref
+  product_definitional : String
+  identification : String
+}
+pub fn Datum::new(String, String, @step.Ref, String, String) -> Self
+pub impl @step.Entity for Datum
+
+pub struct DatumFeature {
+  name : String
+  description : String
+  of_shape : @step.Ref
+  product_definitional : String
+}
+pub fn DatumFeature::new(String, String, @step.Ref, String) -> Self
+pub impl @step.Entity for DatumFeature
+
+pub struct DimensionalSize {
+  applies_to : @step.Ref
+  name : String
+}
+pub fn DimensionalSize::new(@step.Ref, String) -> Self
+pub impl @step.Entity for DimensionalSize
+
+pub struct GeometricTolerance {
+  name : String
+  description : String
+  magnitude : @step.Ref
+  toleranced_shape_aspect : @step.Ref
+}
+pub fn GeometricTolerance::new(String, String, @step.Ref, @step.Ref) -> Self
+pub impl @step.Entity for GeometricTolerance
+
+// Type aliases
+
+// Traits
+

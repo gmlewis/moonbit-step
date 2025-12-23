@@ -108,7 +108,7 @@ async fn main {
   )
 
   // Handle the error-throwing function call
-  let text = @draw.to_graphic(font, name, alignment=Center).scale_to_fit(
+  let text = @draw.to_graphic(font, name, alignment=Center, y_up=true).scale_to_fit(
     bbox,
     anchor=Center,
   ) catch {
@@ -136,7 +136,6 @@ async fn main {
   }
 
   // Base tag.
-
   let base = @cad.CalibrationChamferBlock::new(
       length_mm,
       width_mm,
@@ -146,7 +145,7 @@ async fn main {
       fillet_segments=10,
     )
     .with_name("tag-base")
-    .with_color(@cad.Rgb::grey())
+    .with_color(@cad.Rgb::new(0.5, 0.0, 0.5)) // purple
     .translate(x=tx, y=ty, z=tz)
   let mut design = @cad.Design::new(name="keychain-tag").add(base)
 
@@ -155,8 +154,8 @@ async fn main {
   for g in all_paths {
     // Use the upstream helper that returns polygons as tuples directly.
     let profiles = @draw.Graphic::to_profiles_tuples(g, curve_segments)
-    for pi = 0; pi < profiles.length(); pi = pi + 1 {
-      let (outer, holes) = profiles[pi]
+    for profile in profiles {
+      let (outer, holes) = profile
       if outer.length() < 3 {
         continue
       }
@@ -181,6 +180,8 @@ async fn main {
       design = design.add(solid)
     }
   }
+
+  //
   if debug {
     println("Generated \{profile_count} extruded text profiles")
   }

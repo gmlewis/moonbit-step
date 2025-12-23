@@ -1,0 +1,38 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "gmlewis/step/entities/kinematics"
+
+import(
+  "gmlewis/step"
+)
+
+// Values
+
+// Errors
+
+// Types and methods
+pub struct KinematicJoint {
+  name : String
+  first_link : @step.Ref
+  second_link : @step.Ref
+}
+pub fn KinematicJoint::new(String, @step.Ref, @step.Ref) -> Self
+pub impl @step.Entity for KinematicJoint
+
+pub struct KinematicLink {
+  name : String
+}
+pub fn KinematicLink::new(String) -> Self
+pub impl @step.Entity for KinematicLink
+
+pub struct KinematicPair {
+  name : String
+  description : String
+  joint : @step.Ref
+}
+pub fn KinematicPair::new(String, String, @step.Ref) -> Self
+pub impl @step.Entity for KinematicPair
+
+// Type aliases
+
+// Traits
+

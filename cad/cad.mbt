@@ -81,8 +81,20 @@ pub fn Design::compile(self : Design) -> @repository.Repository {
 
     // Axis placement for the part
     let origin = ctx.cartesian_point(node.tx, node.ty, node.tz)
-    let dz = ctx.direction(0.0, 0.0, 1.0)
-    let dx = ctx.direction(1.0, 0.0, 0.0)
+    let (dzx, dzy, dzz) = rotate_point(
+      (0.0, 0.0, 1.0),
+      node.rx,
+      node.ry,
+      node.rz,
+    )
+    let (dxx, dxy, dxz) = rotate_point(
+      (1.0, 0.0, 0.0),
+      node.rx,
+      node.ry,
+      node.rz,
+    )
+    let dz = ctx.direction(dzx, dzy, dzz)
+    let dx = ctx.direction(dxx, dxy, dxz)
     let a2p = @geometry.Axis2Placement3D::new("", origin, dz, dx)
     let a2p_ref = ctx.add(@repository.any_entity_axis2_placement_3d(a2p))
     let shape_rep = @product.ShapeRepresentation::new(
@@ -149,6 +161,60 @@ pub async fn Design::write_step(self : Design, out_path : String?) -> Unit {
 pub fn Design::add(self : Design, node : SceneNode) -> Design {
   self.nodes.push(node)
   Design::{ ..self, next_solid_id: self.next_solid_id + 1 }
+}
+
+///|
+pub fn Design::add_iter(self : Design, nodes : Iter[SceneNode]) -> Design {
+  let mut d = self
+  for node in nodes {
+    d = d.add(node)
+  }
+  d
+}
+
+///|
+pub fn Design::rotate_x(self : Design, angle : Double) -> Design {
+  let nodes = self.nodes.map(fn(node) {
+    let (tx, ty, tz) = rotate_point(
+      (node.tx, node.ty, node.tz),
+      angle,
+      0.0,
+      0.0,
+    )
+    let new_node = node.rotate_x(angle)
+    { ..new_node, tx, ty, tz }
+  })
+  { ..self, nodes, }
+}
+
+///|
+pub fn Design::rotate_y(self : Design, angle : Double) -> Design {
+  let nodes = self.nodes.map(fn(node) {
+    let (tx, ty, tz) = rotate_point(
+      (node.tx, node.ty, node.tz),
+      0.0,
+      angle,
+      0.0,
+    )
+    let new_node = node.rotate_y(angle)
+    { ..new_node, tx, ty, tz }
+  })
+  { ..self, nodes, }
+}
+
+///|
+pub fn Design::rotate_z(self : Design, angle : Double) -> Design {
+  let nodes = self.nodes.map(fn(node) {
+    let (tx, ty, tz) = rotate_point(
+      (node.tx, node.ty, node.tz),
+      0.0,
+      0.0,
+      angle,
+    )
+    let new_node = node.rotate_z(angle)
+    { ..new_node, tx, ty, tz }
+  })
+  { ..self, nodes, }
 }
 
 ///|
