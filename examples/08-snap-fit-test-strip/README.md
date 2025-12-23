@@ -21,3 +21,18 @@ The intent is that you can run the code here to emit a STEP file, open it in a C
 - emit a small “label plaque” with the chosen settings
 - add a quick-fit calibration part alongside the main part
 - generate a “fit ladder” variant automatically
+
+---
+
+### Variant 1
+
+Command line: `./run-example.sh 08 --stepCount 3`
+
+_[Render Failed]_
+
+### Variant 2
+
+Command line: `./run-example.sh 08 --stepCount 5 --interference 0.2 --interferenceStep 0.2`
+
+_[Render Failed]_
+

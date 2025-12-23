@@ -40,7 +40,7 @@ if [[ "$EXAMPLE_ARG_STRIPPED" == *"/"* ]]; then
 else
   # If it's a number, try to find the full folder name (e.g. "1" or "01" -> "01-hello-cube").
   if [[ "$EXAMPLE_BASENAME" =~ ^[0-9]+$ ]]; then
-    SEARCH_NUM=$(printf "%02d" "$EXAMPLE_BASENAME" 2>/dev/null || echo "$EXAMPLE_BASENAME")
+    SEARCH_NUM=$(printf "%02d" $((10#$EXAMPLE_BASENAME)) 2>/dev/null || echo "$EXAMPLE_BASENAME")
     MATCHES=("$ROOT_DIR"/examples/"$SEARCH_NUM"-*)
     if [[ -d "${MATCHES[0]}" ]]; then
       EXAMPLE_PATH_REL="examples/$(basename "${MATCHES[0]}")"

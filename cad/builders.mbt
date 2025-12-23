@@ -23,6 +23,11 @@ pub fn CalibrationChamferBlock::new(
 }
 
 ///|
+pub fn Profile2D::rect(width : Double, height : Double) -> Array[(Double, Double)] {
+  [(0.0, 0.0), (width, 0.0), (width, height), (0.0, height)]
+}
+
+///|
 pub fn Profile2D::circle(
   diameter : Double,
   segments? : Int = 64,
