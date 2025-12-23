@@ -1396,6 +1396,34 @@ fn parse_coordinated_universal_time_offset(
 }
 
 ///|
+fn parse_security_classification(
+  args : String,
+) -> @product.SecurityClassification raise StepParseError {
+  let parts = split_args(args)
+  if parts.length() != 3 {
+    fail_parse()
+  }
+  let name = strip_quotes(parts[0])
+  let purpose = strip_quotes(parts[1])
+  let level_id = parse_ref_int(parts[2])
+  @product.SecurityClassification::new(name, purpose, @step.Ref::{
+    id: level_id,
+  })
+}
+
+///|
+fn parse_security_classification_level(
+  args : String,
+) -> @product.SecurityClassificationLevel raise StepParseError {
+  let parts = split_args(args)
+  if parts.length() != 1 {
+    fail_parse()
+  }
+  let name = strip_quotes(parts[0])
+  @product.SecurityClassificationLevel::new(name)
+}
+
+///|
 fn parse_manifold_solid_brep(
   args : String,
 ) -> @topology.ManifoldSolidBrep raise StepParseError {
@@ -2997,6 +3025,18 @@ pub fn parse_repository_from_string(
       repo = repo.insert_with_id(
         row.id,
         @repository.any_entity_coordinated_universal_time_offset(entity),
+      )
+    } else if name == "SECURITY_CLASSIFICATION" {
+      let entity = parse_security_classification(row.args)
+      repo = repo.insert_with_id(
+        row.id,
+        @repository.any_entity_security_classification(entity),
+      )
+    } else if name == "SECURITY_CLASSIFICATION_LEVEL" {
+      let entity = parse_security_classification_level(row.args)
+      repo = repo.insert_with_id(
+        row.id,
+        @repository.any_entity_security_classification_level(entity),
       )
     } else if name == "MANIFOLD_SOLID_BREP" {
       let entity = parse_manifold_solid_brep(row.args)

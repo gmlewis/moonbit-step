@@ -80,6 +80,8 @@ pub enum AnyEntity {
   LocalTime(@product.LocalTime)
   CalendarDate(@product.CalendarDate)
   CoordinatedUniversalTimeOffset(@product.CoordinatedUniversalTimeOffset)
+  SecurityClassification(@product.SecurityClassification)
+  SecurityClassificationLevel(@product.SecurityClassificationLevel)
   ManifoldSolidBrep(@topology.ManifoldSolidBrep)
   ClosedShell(@topology.ClosedShell)
   OpenShell(@topology.OpenShell)
@@ -560,6 +562,20 @@ pub fn any_entity_coordinated_universal_time_offset(
 }
 
 ///|
+pub fn any_entity_security_classification(
+  s : @product.SecurityClassification,
+) -> AnyEntity {
+  AnyEntity::SecurityClassification(s)
+}
+
+///|
+pub fn any_entity_security_classification_level(
+  s : @product.SecurityClassificationLevel,
+) -> AnyEntity {
+  AnyEntity::SecurityClassificationLevel(s)
+}
+
+///|
 pub fn any_entity_manifold_solid_brep(
   m : @topology.ManifoldSolidBrep,
 ) -> AnyEntity {
@@ -901,6 +917,8 @@ fn entity_to_step(entity : AnyEntity) -> String {
     LocalTime(l) => @step.Entity::to_step(l)
     CalendarDate(c) => @step.Entity::to_step(c)
     CoordinatedUniversalTimeOffset(c) => @step.Entity::to_step(c)
+    SecurityClassification(s) => @step.Entity::to_step(s)
+    SecurityClassificationLevel(s) => @step.Entity::to_step(s)
     ManifoldSolidBrep(m) => @step.Entity::to_step(m)
     ClosedShell(c) => @step.Entity::to_step(c)
     OpenShell(o) => @step.Entity::to_step(o)

@@ -271,6 +271,20 @@ pub struct RepresentationRelationshipWithTransformation {
 pub fn RepresentationRelationshipWithTransformation::new(@step.Ref) -> Self
 pub impl @step.Entity for RepresentationRelationshipWithTransformation
 
+pub struct SecurityClassification {
+  name : String
+  purpose : String
+  security_level : @step.Ref
+}
+pub fn SecurityClassification::new(String, String, @step.Ref) -> Self
+pub impl @step.Entity for SecurityClassification
+
+pub struct SecurityClassificationLevel {
+  name : String
+}
+pub fn SecurityClassificationLevel::new(String) -> Self
+pub impl @step.Entity for SecurityClassificationLevel
+
 pub struct ShapeDefinitionRepresentation {
   definition : @step.Ref
   used_representation : @step.Ref
