@@ -5,6 +5,7 @@ import(
   "gmlewis/step"
   "gmlewis/step/entities/context"
   "gmlewis/step/entities/geometry"
+  "gmlewis/step/entities/kinematics"
   "gmlewis/step/entities/presentation"
   "gmlewis/step/entities/product"
   "gmlewis/step/entities/topology"
@@ -122,6 +123,12 @@ pub fn any_entity_hidden_element_over_riding_styled_item(@presentation.HiddenEle
 pub fn any_entity_hyperbola(@geometry.Hyperbola) -> AnyEntity
 
 pub fn any_entity_item_defined_transformation(@product.ItemDefinedTransformation) -> AnyEntity
+
+pub fn any_entity_kinematic_joint(@kinematics.KinematicJoint) -> AnyEntity
+
+pub fn any_entity_kinematic_link(@kinematics.KinematicLink) -> AnyEntity
+
+pub fn any_entity_kinematic_pair(@kinematics.KinematicPair) -> AnyEntity
 
 pub fn any_entity_line(@geometry.Line) -> AnyEntity
 
@@ -337,6 +344,9 @@ pub enum AnyEntity {
   Document(@product.Document)
   DocumentType(@product.DocumentType)
   DocumentReference(@product.DocumentReference)
+  KinematicLink(@kinematics.KinematicLink)
+  KinematicJoint(@kinematics.KinematicJoint)
+  KinematicPair(@kinematics.KinematicPair)
   ManifoldSolidBrep(@topology.ManifoldSolidBrep)
   ClosedShell(@topology.ClosedShell)
   OpenShell(@topology.OpenShell)

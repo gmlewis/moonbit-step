@@ -7,6 +7,7 @@
     "gmlewis/step/entities/context",
     "gmlewis/step/entities/units",
     "gmlewis/step/entities/product",
-    "gmlewis/step/entities/topology"
+    "gmlewis/step/entities/topology",
+    "gmlewis/step/entities/kinematics"
   ]
 }

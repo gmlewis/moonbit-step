@@ -88,6 +88,9 @@ pub enum AnyEntity {
   Document(@product.Document)
   DocumentType(@product.DocumentType)
   DocumentReference(@product.DocumentReference)
+  KinematicLink(@kinematics.KinematicLink)
+  KinematicJoint(@kinematics.KinematicJoint)
+  KinematicPair(@kinematics.KinematicPair)
   ManifoldSolidBrep(@topology.ManifoldSolidBrep)
   ClosedShell(@topology.ClosedShell)
   OpenShell(@topology.OpenShell)
@@ -625,6 +628,21 @@ pub fn any_entity_document_reference(
 }
 
 ///|
+pub fn any_entity_kinematic_link(k : @kinematics.KinematicLink) -> AnyEntity {
+  AnyEntity::KinematicLink(k)
+}
+
+///|
+pub fn any_entity_kinematic_joint(k : @kinematics.KinematicJoint) -> AnyEntity {
+  AnyEntity::KinematicJoint(k)
+}
+
+///|
+pub fn any_entity_kinematic_pair(k : @kinematics.KinematicPair) -> AnyEntity {
+  AnyEntity::KinematicPair(k)
+}
+
+///|
 pub fn any_entity_manifold_solid_brep(
   m : @topology.ManifoldSolidBrep,
 ) -> AnyEntity {
@@ -1007,6 +1025,9 @@ fn entity_to_step(entity : AnyEntity) -> String {
     Document(d) => @step.Entity::to_step(d)
     DocumentType(d) => @step.Entity::to_step(d)
     DocumentReference(d) => @step.Entity::to_step(d)
+    KinematicLink(k) => @step.Entity::to_step(k)
+    KinematicJoint(k) => @step.Entity::to_step(k)
+    KinematicPair(k) => @step.Entity::to_step(k)
     ManifoldSolidBrep(m) => @step.Entity::to_step(m)
     ClosedShell(c) => @step.Entity::to_step(c)
     OpenShell(o) => @step.Entity::to_step(o)

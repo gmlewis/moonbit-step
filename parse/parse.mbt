@@ -298,6 +298,15 @@ fn init {
   parsers.set("DOCUMENT_TYPE", fn(args) raise StepParseError {
     @repository.any_entity_document_type(parse_document_type(args))
   })
+  parsers.set("KINEMATIC_LINK", fn(args) raise StepParseError {
+    @repository.any_entity_kinematic_link(parse_kinematic_link(args))
+  })
+  parsers.set("KINEMATIC_JOINT", fn(args) raise StepParseError {
+    @repository.any_entity_kinematic_joint(parse_kinematic_joint(args))
+  })
+  parsers.set("KINEMATIC_PAIR", fn(args) raise StepParseError {
+    @repository.any_entity_kinematic_pair(parse_kinematic_pair(args))
+  })
   parsers.set("MANIFOLD_SOLID_BREP", fn(args) raise StepParseError {
     @repository.any_entity_manifold_solid_brep(parse_manifold_solid_brep(args))
   })
@@ -1977,6 +1986,48 @@ fn parse_document_type(
   }
   let desc = strip_quotes(parts[0])
   @product.DocumentType::new(desc)
+}
+
+///|
+fn parse_kinematic_link(
+  args : String,
+) -> @kinematics.KinematicLink raise StepParseError {
+  let parts = split_args(args)
+  if parts.length() != 1 {
+    fail_parse()
+  }
+  let name = strip_quotes(parts[0])
+  @kinematics.KinematicLink::new(name)
+}
+
+///|
+fn parse_kinematic_joint(
+  args : String,
+) -> @kinematics.KinematicJoint raise StepParseError {
+  let parts = split_args(args)
+  if parts.length() != 3 {
+    fail_parse()
+  }
+  let name = strip_quotes(parts[0])
+  let l1_id = parse_ref_int(parts[1])
+  let l2_id = parse_ref_int(parts[2])
+  @kinematics.KinematicJoint::new(name, @step.Ref::{ id: l1_id }, @step.Ref::{
+    id: l2_id,
+  })
+}
+
+///|
+fn parse_kinematic_pair(
+  args : String,
+) -> @kinematics.KinematicPair raise StepParseError {
+  let parts = split_args(args)
+  if parts.length() != 3 {
+    fail_parse()
+  }
+  let name = strip_quotes(parts[0])
+  let desc = strip_quotes(parts[1])
+  let joint_id = parse_ref_int(parts[2])
+  @kinematics.KinematicPair::new(name, desc, @step.Ref::{ id: joint_id })
 }
 
 ///|

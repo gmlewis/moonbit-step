@@ -406,6 +406,18 @@ test "parse_repository_from_string_doc_ref" {
 }
 
 ///|
+test "parse_repository_from_string_kinematics" {
+  let content = "ISO-10303-21;\nDATA;\n#1=KINEMATIC_LINK('l1');\n#2=KINEMATIC_LINK('l2');\n#3=KINEMATIC_JOINT('j',#1,#2);\n#4=KINEMATIC_PAIR('p','desc',#3);\nENDSEC;\nEND-ISO-10303-21;\n"
+  let repo = parse_repository_from_string(content)
+  inspect(repo.len(), content="4")
+  let out = repo.to_step_data_section()
+  assert_true(out.contains("#1=KINEMATIC_LINK('l1');"))
+  assert_true(out.contains("#2=KINEMATIC_LINK('l2');"))
+  assert_true(out.contains("#3=KINEMATIC_JOINT('j',#1,#2);"))
+  assert_true(out.contains("#4=KINEMATIC_PAIR('p','desc',#3);"))
+}
+
+///|
 test "parse_repository_from_string_draughting_pre_defined_colour" {
   let content = "ISO-10303-21;\nDATA;\n#1=DRAUGHTING_PRE_DEFINED_COLOUR('red');\nENDSEC;\nEND-ISO-10303-21;\n"
   let repo = parse_repository_from_string(content)
