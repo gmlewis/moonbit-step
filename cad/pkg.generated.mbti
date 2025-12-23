@@ -71,6 +71,7 @@ pub struct Profile2D {
 }
 pub fn Profile2D::arc(Double, Double, Double, segments? : Int) -> Array[(Double, Double)]
 pub fn Profile2D::circle(Double, segments? : Int) -> Array[(Double, Double)]
+pub fn Profile2D::rect(Double, Double) -> Array[(Double, Double)]
 
 pub struct Rgb {
   r : Double
@@ -79,6 +80,7 @@ pub struct Rgb {
 }
 pub fn Rgb::black() -> Self
 pub fn Rgb::blue() -> Self
+pub fn Rgb::cyan() -> Self
 pub fn Rgb::green() -> Self
 pub fn Rgb::grey() -> Self
 pub fn Rgb::new(Double, Double, Double) -> Self
