@@ -324,6 +324,9 @@ fn init {
   parsers.set("DATUM_FEATURE", fn(args) raise StepParseError {
     @repository.any_entity_datum_feature(parse_datum_feature(args))
   })
+  parsers.set("DIMENSIONAL_SIZE", fn(args) raise StepParseError {
+    @repository.any_entity_dimensional_size(parse_dimensional_size(args))
+  })
   parsers.set("MANIFOLD_SOLID_BREP", fn(args) raise StepParseError {
     @repository.any_entity_manifold_solid_brep(parse_manifold_solid_brep(args))
   })
@@ -2157,6 +2160,19 @@ fn parse_datum_feature(
     @step.Ref::{ id: shape_id },
     definitional,
   )
+}
+
+///|
+fn parse_dimensional_size(
+  args : String,
+) -> @tolerancing.DimensionalSize raise StepParseError {
+  let parts = split_args(args)
+  if parts.length() != 2 {
+    fail_parse()
+  }
+  let shape_id = parse_ref_int(parts[0])
+  let name = strip_quotes(parts[1])
+  @tolerancing.DimensionalSize::new(@step.Ref::{ id: shape_id }, name)
 }
 
 ///|

@@ -29,6 +29,13 @@ pub struct DatumFeature {
 pub fn DatumFeature::new(String, String, @step.Ref, String) -> Self
 pub impl @step.Entity for DatumFeature
 
+pub struct DimensionalSize {
+  applies_to : @step.Ref
+  name : String
+}
+pub fn DimensionalSize::new(@step.Ref, String) -> Self
+pub impl @step.Entity for DimensionalSize
+
 pub struct GeometricTolerance {
   name : String
   description : String

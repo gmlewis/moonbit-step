@@ -96,6 +96,7 @@ pub enum AnyEntity {
   GeometricTolerance(@tolerancing.GeometricTolerance)
   Datum(@tolerancing.Datum)
   DatumFeature(@tolerancing.DatumFeature)
+  DimensionalSize(@tolerancing.DimensionalSize)
   ManifoldSolidBrep(@topology.ManifoldSolidBrep)
   ClosedShell(@topology.ClosedShell)
   OpenShell(@topology.OpenShell)
@@ -679,6 +680,13 @@ pub fn any_entity_datum_feature(d : @tolerancing.DatumFeature) -> AnyEntity {
 }
 
 ///|
+pub fn any_entity_dimensional_size(
+  d : @tolerancing.DimensionalSize,
+) -> AnyEntity {
+  AnyEntity::DimensionalSize(d)
+}
+
+///|
 pub fn any_entity_manifold_solid_brep(
   m : @topology.ManifoldSolidBrep,
 ) -> AnyEntity {
@@ -1079,6 +1087,7 @@ fn entity_to_step(entity : AnyEntity) -> String {
     GeometricTolerance(g) => @step.Entity::to_step(g)
     Datum(d) => @step.Entity::to_step(d)
     DatumFeature(d) => @step.Entity::to_step(d)
+    DimensionalSize(d) => @step.Entity::to_step(d)
     ManifoldSolidBrep(m) => @step.Entity::to_step(m)
     ClosedShell(c) => @step.Entity::to_step(c)
     OpenShell(o) => @step.Entity::to_step(o)

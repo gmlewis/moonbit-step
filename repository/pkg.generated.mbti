@@ -99,6 +99,8 @@ pub fn any_entity_descriptive_representation_item(@product.DescriptiveRepresenta
 
 pub fn any_entity_dimensional_exponents(@units.DimensionalExponents) -> AnyEntity
 
+pub fn any_entity_dimensional_size(@tolerancing.DimensionalSize) -> AnyEntity
+
 pub fn any_entity_direction(@geometry.Direction) -> AnyEntity
 
 pub fn any_entity_document(@product.Document) -> AnyEntity
@@ -367,6 +369,7 @@ pub enum AnyEntity {
   GeometricTolerance(@tolerancing.GeometricTolerance)
   Datum(@tolerancing.Datum)
   DatumFeature(@tolerancing.DatumFeature)
+  DimensionalSize(@tolerancing.DimensionalSize)
   ManifoldSolidBrep(@topology.ManifoldSolidBrep)
   ClosedShell(@topology.ClosedShell)
   OpenShell(@topology.OpenShell)

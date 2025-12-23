@@ -439,6 +439,15 @@ test "parse_repository_from_string_datum" {
 }
 
 ///|
+test "parse_repository_from_string_dimensional_size" {
+  let content = "ISO-10303-21;\nDATA;\n#1=DIMENSIONAL_SIZE(#10,'size');\nENDSEC;\nEND-ISO-10303-21;\n"
+  let repo = parse_repository_from_string(content)
+  inspect(repo.len(), content="1")
+  let out = repo.to_step_data_section()
+  assert_true(out.contains("#1=DIMENSIONAL_SIZE(#10,'size');"))
+}
+
+///|
 test "parse_repository_from_string_draughting_pre_defined_colour" {
   let content = "ISO-10303-21;\nDATA;\n#1=DRAUGHTING_PRE_DEFINED_COLOUR('red');\nENDSEC;\nEND-ISO-10303-21;\n"
   let repo = parse_repository_from_string(content)
