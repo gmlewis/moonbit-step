@@ -316,7 +316,7 @@ fn parse_int_list(arg : String) -> Array[Int] {
 
 ///|
 fn parse_literal_list(arg : String) -> Array[String] {
-  split_args(arg).map(fn(p) { p.trim().to_string() })
+  split_args(arg).map(parse_step_string_or_strip)
 }
 
 ///|
@@ -1263,6 +1263,80 @@ fn parse_approval_status(
   }
   let name = strip_quotes(parts[0])
   @product.ApprovalStatus::new(name)
+}
+
+///|
+fn parse_approval_role(
+  args : String,
+) -> @product.ApprovalRole raise StepParseError {
+  let parts = split_args(args)
+  if parts.length() != 1 {
+    fail_parse()
+  }
+  let role = strip_quotes(parts[0])
+  @product.ApprovalRole::new(role)
+}
+
+///|
+fn parse_approval_person_organization(
+  args : String,
+) -> @product.ApprovalPersonOrganization raise StepParseError {
+  let parts = split_args(args)
+  if parts.length() != 3 {
+    fail_parse()
+  }
+  let po_id = parse_ref_int(parts[0])
+  let approval_id = parse_ref_int(parts[1])
+  let role_id = parse_ref_int(parts[2])
+  @product.ApprovalPersonOrganization::new(
+    @step.Ref::{ id: po_id },
+    @step.Ref::{ id: approval_id },
+    @step.Ref::{ id: role_id },
+  )
+}
+
+///|
+fn parse_person(args : String) -> @product.Person raise StepParseError {
+  let parts = split_args(args)
+  if parts.length() != 6 {
+    fail_parse()
+  }
+  let id = strip_quotes(parts[0])
+  let last = strip_quotes(parts[1])
+  let first = strip_quotes(parts[2])
+  let middles = parse_literal_list(parts[3])
+  let prefixes = parse_literal_list(parts[4])
+  let suffixes = parse_literal_list(parts[5])
+  @product.Person::new(id, last, first, middles, prefixes, suffixes)
+}
+
+///|
+fn parse_organization(
+  args : String,
+) -> @product.Organization raise StepParseError {
+  let parts = split_args(args)
+  if parts.length() != 3 {
+    fail_parse()
+  }
+  let id = strip_quotes(parts[0])
+  let name = strip_quotes(parts[1])
+  let desc = strip_quotes(parts[2])
+  @product.Organization::new(id, name, desc)
+}
+
+///|
+fn parse_person_and_organization(
+  args : String,
+) -> @product.PersonAndOrganization raise StepParseError {
+  let parts = split_args(args)
+  if parts.length() != 2 {
+    fail_parse()
+  }
+  let person_id = parse_ref_int(parts[0])
+  let org_id = parse_ref_int(parts[1])
+  @product.PersonAndOrganization::new(@step.Ref::{ id: person_id }, @step.Ref::{
+    id: org_id,
+  })
 }
 
 ///|
@@ -2816,6 +2890,33 @@ pub fn parse_repository_from_string(
       repo = repo.insert_with_id(
         row.id,
         @repository.any_entity_approval_status(entity),
+      )
+    } else if name == "APPROVAL_ROLE" {
+      let entity = parse_approval_role(row.args)
+      repo = repo.insert_with_id(
+        row.id,
+        @repository.any_entity_approval_role(entity),
+      )
+    } else if name == "APPROVAL_PERSON_ORGANIZATION" {
+      let entity = parse_approval_person_organization(row.args)
+      repo = repo.insert_with_id(
+        row.id,
+        @repository.any_entity_approval_person_organization(entity),
+      )
+    } else if name == "PERSON" {
+      let entity = parse_person(row.args)
+      repo = repo.insert_with_id(row.id, @repository.any_entity_person(entity))
+    } else if name == "ORGANIZATION" {
+      let entity = parse_organization(row.args)
+      repo = repo.insert_with_id(
+        row.id,
+        @repository.any_entity_organization(entity),
+      )
+    } else if name == "PERSON_AND_ORGANIZATION" {
+      let entity = parse_person_and_organization(row.args)
+      repo = repo.insert_with_id(
+        row.id,
+        @repository.any_entity_person_and_organization(entity),
       )
     } else if name == "MANIFOLD_SOLID_BREP" {
       let entity = parse_manifold_solid_brep(row.args)

@@ -23,6 +23,10 @@ pub fn any_entity_application_protocol_definition(@product.ApplicationProtocolDe
 
 pub fn any_entity_approval(@product.Approval) -> AnyEntity
 
+pub fn any_entity_approval_person_organization(@product.ApprovalPersonOrganization) -> AnyEntity
+
+pub fn any_entity_approval_role(@product.ApprovalRole) -> AnyEntity
+
 pub fn any_entity_approval_status(@product.ApprovalStatus) -> AnyEntity
 
 pub fn any_entity_axis1_placement(@geometry.Axis1Placement) -> AnyEntity
@@ -111,9 +115,15 @@ pub fn any_entity_offset_surface(@geometry.OffsetSurface) -> AnyEntity
 
 pub fn any_entity_open_shell(@topology.OpenShell) -> AnyEntity
 
+pub fn any_entity_organization(@product.Organization) -> AnyEntity
+
 pub fn any_entity_oriented_edge(@topology.OrientedEdge) -> AnyEntity
 
 pub fn any_entity_parabola(@geometry.Parabola) -> AnyEntity
+
+pub fn any_entity_person(@product.Person) -> AnyEntity
+
+pub fn any_entity_person_and_organization(@product.PersonAndOrganization) -> AnyEntity
 
 pub fn any_entity_plane(@geometry.Plane) -> AnyEntity
 
@@ -276,6 +286,11 @@ pub enum AnyEntity {
   ApplicationContext(@product.ApplicationContext)
   Approval(@product.Approval)
   ApprovalStatus(@product.ApprovalStatus)
+  ApprovalRole(@product.ApprovalRole)
+  ApprovalPersonOrganization(@product.ApprovalPersonOrganization)
+  Person(@product.Person)
+  Organization(@product.Organization)
+  PersonAndOrganization(@product.PersonAndOrganization)
   ManifoldSolidBrep(@topology.ManifoldSolidBrep)
   ClosedShell(@topology.ClosedShell)
   OpenShell(@topology.OpenShell)

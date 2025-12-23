@@ -71,6 +71,11 @@ pub enum AnyEntity {
   ApplicationContext(@product.ApplicationContext)
   Approval(@product.Approval)
   ApprovalStatus(@product.ApprovalStatus)
+  ApprovalRole(@product.ApprovalRole)
+  ApprovalPersonOrganization(@product.ApprovalPersonOrganization)
+  Person(@product.Person)
+  Organization(@product.Organization)
+  PersonAndOrganization(@product.PersonAndOrganization)
   ManifoldSolidBrep(@topology.ManifoldSolidBrep)
   ClosedShell(@topology.ClosedShell)
   OpenShell(@topology.OpenShell)
@@ -500,6 +505,35 @@ pub fn any_entity_approval_status(a : @product.ApprovalStatus) -> AnyEntity {
 }
 
 ///|
+pub fn any_entity_approval_role(a : @product.ApprovalRole) -> AnyEntity {
+  AnyEntity::ApprovalRole(a)
+}
+
+///|
+pub fn any_entity_approval_person_organization(
+  a : @product.ApprovalPersonOrganization,
+) -> AnyEntity {
+  AnyEntity::ApprovalPersonOrganization(a)
+}
+
+///|
+pub fn any_entity_person(p : @product.Person) -> AnyEntity {
+  AnyEntity::Person(p)
+}
+
+///|
+pub fn any_entity_organization(o : @product.Organization) -> AnyEntity {
+  AnyEntity::Organization(o)
+}
+
+///|
+pub fn any_entity_person_and_organization(
+  p : @product.PersonAndOrganization,
+) -> AnyEntity {
+  AnyEntity::PersonAndOrganization(p)
+}
+
+///|
 pub fn any_entity_manifold_solid_brep(
   m : @topology.ManifoldSolidBrep,
 ) -> AnyEntity {
@@ -832,6 +866,11 @@ fn entity_to_step(entity : AnyEntity) -> String {
     ApplicationContext(a) => @step.Entity::to_step(a)
     Approval(a) => @step.Entity::to_step(a)
     ApprovalStatus(a) => @step.Entity::to_step(a)
+    ApprovalRole(a) => @step.Entity::to_step(a)
+    ApprovalPersonOrganization(a) => @step.Entity::to_step(a)
+    Person(p) => @step.Entity::to_step(p)
+    Organization(o) => @step.Entity::to_step(o)
+    PersonAndOrganization(p) => @step.Entity::to_step(p)
     ManifoldSolidBrep(m) => @step.Entity::to_step(m)
     ClosedShell(c) => @step.Entity::to_step(c)
     OpenShell(o) => @step.Entity::to_step(o)

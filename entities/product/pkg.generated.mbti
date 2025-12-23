@@ -41,6 +41,20 @@ pub struct Approval {
 pub fn Approval::new(@step.Ref, String) -> Self
 pub impl @step.Entity for Approval
 
+pub struct ApprovalPersonOrganization {
+  person_organization : @step.Ref
+  approval : @step.Ref
+  role : @step.Ref
+}
+pub fn ApprovalPersonOrganization::new(@step.Ref, @step.Ref, @step.Ref) -> Self
+pub impl @step.Entity for ApprovalPersonOrganization
+
+pub struct ApprovalRole {
+  role : String
+}
+pub fn ApprovalRole::new(String) -> Self
+pub impl @step.Entity for ApprovalRole
+
 pub struct ApprovalStatus {
   name : String
 }
@@ -93,6 +107,32 @@ pub struct NextAssemblyUsageOccurrence {
 }
 pub fn NextAssemblyUsageOccurrence::new(String, String, String, @step.Ref, @step.Ref, String) -> Self
 pub impl @step.Entity for NextAssemblyUsageOccurrence
+
+pub struct Organization {
+  id : String
+  name : String
+  description : String
+}
+pub fn Organization::new(String, String, String) -> Self
+pub impl @step.Entity for Organization
+
+pub struct Person {
+  id : String
+  last_name : String
+  first_name : String
+  middle_names : Array[String]
+  prefix_titles : Array[String]
+  suffix_titles : Array[String]
+}
+pub fn Person::new(String, String, String, Array[String], Array[String], Array[String]) -> Self
+pub impl @step.Entity for Person
+
+pub struct PersonAndOrganization {
+  the_person : @step.Ref
+  the_organization : @step.Ref
+}
+pub fn PersonAndOrganization::new(@step.Ref, @step.Ref) -> Self
+pub impl @step.Entity for PersonAndOrganization
 
 pub struct Product {
   name : String

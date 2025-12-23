@@ -334,6 +334,21 @@ test "parse_repository_from_string_approval" {
 }
 
 ///|
+test "parse_repository_from_string_approval_person_org" {
+  let content = "ISO-10303-21;\nDATA;\n#1=PERSON('p1','Doe','John',('M'),('Mr'),('Jr'));\n#2=ORGANIZATION('o1','ACME','Acme Corp');\n#3=PERSON_AND_ORGANIZATION(#1,#2);\n#4=APPROVAL_STATUS('approved');\n#5=APPROVAL(#4,'level');\n#6=APPROVAL_ROLE('approver');\n#7=APPROVAL_PERSON_ORGANIZATION(#3,#5,#6);\nENDSEC;\nEND-ISO-10303-21;\n"
+  let repo = parse_repository_from_string(content)
+  inspect(repo.len(), content="7")
+  let out = repo.to_step_data_section()
+  assert_true(out.contains("#1=PERSON('p1','Doe','John',('M'),('Mr'),('Jr'));"))
+  assert_true(out.contains("#2=ORGANIZATION('o1','ACME','Acme Corp');"))
+  assert_true(out.contains("#3=PERSON_AND_ORGANIZATION(#1,#2);"))
+  assert_true(out.contains("#4=APPROVAL_STATUS('approved');"))
+  assert_true(out.contains("#5=APPROVAL(#4,'level');"))
+  assert_true(out.contains("#6=APPROVAL_ROLE('approver');"))
+  assert_true(out.contains("#7=APPROVAL_PERSON_ORGANIZATION(#3,#5,#6);"))
+}
+
+///|
 test "parse_repository_from_string_shape_definition_representation" {
   let content = "ISO-10303-21;\nDATA;\n#12=SHAPE_DEFINITION_REPRESENTATION(#13,#22);\nENDSEC;\nEND-ISO-10303-21;\n"
   let repo = parse_repository_from_string(content)
