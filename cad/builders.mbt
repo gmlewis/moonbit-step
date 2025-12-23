@@ -198,6 +198,47 @@ pub fn tube(
 }
 
 ///|
+/// Profile2D::rect_with_notches returns a rectangular profile of (width x height)
+/// with rectangular notches cut out from the top edge (the edge at Y = height).
+/// The notches are specified as a list of (x_offset, notch_width, notch_depth).
+pub fn Profile2D::rect_with_notches(
+  width : Double,
+  height : Double,
+  notches : Array[(Double, Double, Double)],
+) -> Array[(Double, Double)] {
+  let pts = [(0.0, 0.0), (width, 0.0), (width, height)]
+  // Sort notches by X offset descending to process from right to left (maintaining CCW)
+  let sorted_notches = notches.copy()
+  sorted_notches.sort_by(fn(a, b) { b.0.compare(a.0) })
+  for notch in sorted_notches {
+    let (x, w, d) = notch
+    if x + w < width {
+      pts.push((x + w, height))
+    }
+    pts.push((x + w, height - d))
+    pts.push((x, height - d))
+    pts.push((x, height))
+  }
+  if pts[pts.length() - 1].0 > 0.0 {
+    pts.push((0.0, height))
+  }
+  pts
+}
+
+///|
+/// notched_block returns a Shape representing a block of (width x length x height)
+/// with notches cut out from one of its faces.
+pub fn notched_block(
+  width : Double,
+  length : Double,
+  height : Double,
+  notches : Array[(Double, Double, Double)],
+) -> Shape {
+  let profile = Profile2D::rect_with_notches(width, height, notches)
+  ExtrudedProfile::new(profile, length)
+}
+
+///|
 pub fn Profile2D::circle(
   diameter : Double,
   segments? : Int = 64,

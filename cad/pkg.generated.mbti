@@ -19,6 +19,8 @@ pub fn dovetail_slider(Double, Double, Double, Double, clearance? : Double) -> S
 
 pub fn hex_bit_holder(Int, Int, Double, Double, Double) -> Shape
 
+pub fn notched_block(Double, Double, Double, Array[(Double, Double, Double)]) -> Shape
+
 pub fn polygon_knob(Int, Double, Double, Int, Double, hole_rotation? : Double) -> Shape
 
 pub fn tube(Double, Double, Double, segments? : Int) -> Shape
@@ -85,6 +87,7 @@ pub fn Profile2D::circle(Double, segments? : Int) -> Array[(Double, Double)]
 pub fn Profile2D::dovetail(Double, Double, Double) -> Array[(Double, Double)]
 pub fn Profile2D::polygon(Int, Double, rotation? : Double) -> Array[(Double, Double)]
 pub fn Profile2D::rect(Double, Double) -> Array[(Double, Double)]
+pub fn Profile2D::rect_with_notches(Double, Double, Array[(Double, Double, Double)]) -> Array[(Double, Double)]
 
 pub struct Rgb {
   r : Double
