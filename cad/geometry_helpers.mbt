@@ -45,7 +45,7 @@ pub fn is_point_in_polygon(
     let j = (i + 1) % n
     let (xi, yi) = poly[i]
     let (xj, yj) = poly[j]
-    let intersect = ((yi > py) != yj) > py &&
+    let intersect = (yi > py) != (yj > py) &&
       px < (xj - xi) * (py - yi) / (yj - yi) + xi
     if intersect {
       inside = !inside
@@ -124,25 +124,6 @@ fn v_norm(a : (Double, Double, Double)) -> (Double, Double, Double) {
 ///|
 fn reverse_cycle(verts : Array[Int]) -> Array[Int] {
   verts.rev()
-}
-
-///|
-fn cycle_area_xy(
-  pts : Array[(Double, Double, Double)],
-  cycle : Array[Int],
-) -> Double {
-  let n = cycle.length()
-  if n < 3 {
-    return 0.0
-  }
-  let mut a = 0.0
-  for i in 0..<n {
-    let j = (i + 1) % n
-    let (xi, yi, _zi) = pts[cycle[i]]
-    let (xj, yj, _zj) = pts[cycle[j]]
-    a = a + (xi * yj - xj * yi)
-  }
-  a
 }
 
 ///|
@@ -258,14 +239,8 @@ fn add_plane_face_oriented(
   verts_cycle : Array[Int],
   expected_out : (Double, Double, Double),
 ) -> @step.Ref {
-  let a0 = verts_cycle[0]
-  let a1 = verts_cycle[1]
-  let a2 = verts_cycle[2]
-  let p0 = pts[a0]
-  let p1 = pts[a1]
-  let p2 = pts[a2]
-  let n = v_cross(v_sub(p1, p0), v_sub(p2, p0))
-  let cycle = if v_dot(n, expected_out) < 0.0 {
+  let area_vec = cycle_area_3d(pts, verts_cycle)
+  let cycle = if v_dot(area_vec, expected_out) < 0.0 {
     reverse_cycle(verts_cycle)
   } else {
     verts_cycle

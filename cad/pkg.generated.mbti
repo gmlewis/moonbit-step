@@ -16,13 +16,23 @@ pub fn compile_cuboid(StepContext, SceneNode, Cuboid) -> @step.Ref
 
 pub fn compile_extruded_profile(StepContext, SceneNode, ExtrudedProfile) -> @step.Ref
 
+pub fn cycle_area_3d(Array[(Double, Double, Double)], Array[Int]) -> (Double, Double, Double)
+
 pub fn dovetail_base(Double, Double, Double, Double, Double, Double) -> Shape
 
 pub fn dovetail_slider(Double, Double, Double, Double, clearance? : Double) -> Shape
 
+pub fn force_ccw(Array[(Double, Double)]) -> Array[(Double, Double)]
+
+pub fn force_cw(Array[(Double, Double)]) -> Array[(Double, Double)]
+
 pub fn hex_bit_holder(Int, Int, Double, Double, Double) -> Shape
 
+pub fn is_point_in_polygon((Double, Double), Array[(Double, Double)]) -> Bool
+
 pub fn notched_block(Double, Double, Double, Array[(Double, Double, Double)]) -> Shape
+
+pub fn polygon_area_2d(Array[(Double, Double)]) -> Double
 
 pub fn polygon_knob(Int, Double, Double, Int, Double, hole_rotation? : Double) -> Shape
 
