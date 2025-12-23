@@ -63,3 +63,8 @@
   run `./test-all.sh` that runs `moon fmt` and `moon info`.
 - Please never use grey in any of the example renders. Use beautiful colors like
   purples, greens, blues, cyans, oranges, magentas, etc.
+- As you implement more examples, look for opportunities to make the helper methods
+  in the 'cad' package more generally-useful and maybe less highly-specific to a single
+  use case. It's OK to have some helper methods in the main.mbt example files if those
+  methods are so specific to that example that it doesn't make sense to add them to
+  the 'cad' package. We want a nice balance here.
