@@ -1340,6 +1340,62 @@ fn parse_person_and_organization(
 }
 
 ///|
+fn parse_date_and_time(
+  args : String,
+) -> @product.DateAndTime raise StepParseError {
+  let parts = split_args(args)
+  if parts.length() != 2 {
+    fail_parse()
+  }
+  let date_id = parse_ref_int(parts[0])
+  let time_id = parse_ref_int(parts[1])
+  @product.DateAndTime::new(@step.Ref::{ id: date_id }, @step.Ref::{
+    id: time_id,
+  })
+}
+
+///|
+fn parse_local_time(args : String) -> @product.LocalTime raise StepParseError {
+  let parts = split_args(args)
+  if parts.length() != 4 {
+    fail_parse()
+  }
+  let hour = parse_int_dec(parts[0])
+  let minute = parse_int_dec(parts[1])
+  let second = parse_double(parts[2])
+  let zone_id = parse_ref_int(parts[3])
+  @product.LocalTime::new(hour, minute, second, @step.Ref::{ id: zone_id })
+}
+
+///|
+fn parse_calendar_date(
+  args : String,
+) -> @product.CalendarDate raise StepParseError {
+  let parts = split_args(args)
+  if parts.length() != 3 {
+    fail_parse()
+  }
+  let year = parse_int_dec(parts[0])
+  let day = parse_int_dec(parts[1])
+  let month = parse_int_dec(parts[2])
+  @product.CalendarDate::new(year, day, month)
+}
+
+///|
+fn parse_coordinated_universal_time_offset(
+  args : String,
+) -> @product.CoordinatedUniversalTimeOffset raise StepParseError {
+  let parts = split_args(args)
+  if parts.length() != 3 {
+    fail_parse()
+  }
+  let hour = parse_int_dec(parts[0])
+  let minute = parse_int_dec(parts[1])
+  let sense = parts[2].trim().to_string()
+  @product.CoordinatedUniversalTimeOffset::new(hour, minute, sense)
+}
+
+///|
 fn parse_manifold_solid_brep(
   args : String,
 ) -> @topology.ManifoldSolidBrep raise StepParseError {
@@ -2917,6 +2973,30 @@ pub fn parse_repository_from_string(
       repo = repo.insert_with_id(
         row.id,
         @repository.any_entity_person_and_organization(entity),
+      )
+    } else if name == "DATE_AND_TIME" {
+      let entity = parse_date_and_time(row.args)
+      repo = repo.insert_with_id(
+        row.id,
+        @repository.any_entity_date_and_time(entity),
+      )
+    } else if name == "LOCAL_TIME" {
+      let entity = parse_local_time(row.args)
+      repo = repo.insert_with_id(
+        row.id,
+        @repository.any_entity_local_time(entity),
+      )
+    } else if name == "CALENDAR_DATE" {
+      let entity = parse_calendar_date(row.args)
+      repo = repo.insert_with_id(
+        row.id,
+        @repository.any_entity_calendar_date(entity),
+      )
+    } else if name == "COORDINATED_UNIVERSAL_TIME_OFFSET" {
+      let entity = parse_coordinated_universal_time_offset(row.args)
+      repo = repo.insert_with_id(
+        row.id,
+        @repository.any_entity_coordinated_universal_time_offset(entity),
       )
     } else if name == "MANIFOLD_SOLID_BREP" {
       let entity = parse_manifold_solid_brep(row.args)

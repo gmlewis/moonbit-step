@@ -45,6 +45,8 @@ pub fn any_entity_block(@geometry.Block) -> AnyEntity
 
 pub fn any_entity_boolean_result(@geometry.BooleanResult) -> AnyEntity
 
+pub fn any_entity_calendar_date(@product.CalendarDate) -> AnyEntity
+
 pub fn any_entity_cartesian_point(@geometry.CartesianPoint) -> AnyEntity
 
 pub fn any_entity_circle(@geometry.Circle) -> AnyEntity
@@ -61,11 +63,15 @@ pub fn any_entity_connected_face_set(@topology.ConnectedFaceSet) -> AnyEntity
 
 pub fn any_entity_context_dependent_shape_representation(@product.ContextDependentShapeRepresentation) -> AnyEntity
 
+pub fn any_entity_coordinated_universal_time_offset(@product.CoordinatedUniversalTimeOffset) -> AnyEntity
+
 pub fn any_entity_csg_solid(@geometry.CsgSolid) -> AnyEntity
 
 pub fn any_entity_ctx_wrap(@context.CtxWrap) -> AnyEntity
 
 pub fn any_entity_cylindrical_surface(@geometry.CylindricalSurface) -> AnyEntity
+
+pub fn any_entity_date_and_time(@product.DateAndTime) -> AnyEntity
 
 pub fn any_entity_derived_unit(@units.DerivedUnit) -> AnyEntity
 
@@ -100,6 +106,8 @@ pub fn any_entity_hyperbola(@geometry.Hyperbola) -> AnyEntity
 pub fn any_entity_item_defined_transformation(@product.ItemDefinedTransformation) -> AnyEntity
 
 pub fn any_entity_line(@geometry.Line) -> AnyEntity
+
+pub fn any_entity_local_time(@product.LocalTime) -> AnyEntity
 
 pub fn any_entity_manifold_solid_brep(@topology.ManifoldSolidBrep) -> AnyEntity
 
@@ -291,6 +299,10 @@ pub enum AnyEntity {
   Person(@product.Person)
   Organization(@product.Organization)
   PersonAndOrganization(@product.PersonAndOrganization)
+  DateAndTime(@product.DateAndTime)
+  LocalTime(@product.LocalTime)
+  CalendarDate(@product.CalendarDate)
+  CoordinatedUniversalTimeOffset(@product.CoordinatedUniversalTimeOffset)
   ManifoldSolidBrep(@topology.ManifoldSolidBrep)
   ClosedShell(@topology.ClosedShell)
   OpenShell(@topology.OpenShell)

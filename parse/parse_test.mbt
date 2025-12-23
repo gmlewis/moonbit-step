@@ -349,6 +349,20 @@ test "parse_repository_from_string_approval_person_org" {
 }
 
 ///|
+test "parse_repository_from_string_date_time" {
+  let content = "ISO-10303-21;\nDATA;\n#1=CALENDAR_DATE(2025,22,12);\n#2=COORDINATED_UNIVERSAL_TIME_OFFSET(0,0,.EXACT.);\n#3=LOCAL_TIME(12,30,0.0,#2);\n#4=DATE_AND_TIME(#1,#3);\nENDSEC;\nEND-ISO-10303-21;\n"
+  let repo = parse_repository_from_string(content)
+  inspect(repo.len(), content="4")
+  let out = repo.to_step_data_section()
+  assert_true(out.contains("#1=CALENDAR_DATE(2025,22,12);"))
+  assert_true(
+    out.contains("#2=COORDINATED_UNIVERSAL_TIME_OFFSET(0,0,.EXACT.);"),
+  )
+  assert_true(out.contains("#3=LOCAL_TIME(12,30,0.0,#2);"))
+  assert_true(out.contains("#4=DATE_AND_TIME(#1,#3);"))
+}
+
+///|
 test "parse_repository_from_string_shape_definition_representation" {
   let content = "ISO-10303-21;\nDATA;\n#12=SHAPE_DEFINITION_REPRESENTATION(#13,#22);\nENDSEC;\nEND-ISO-10303-21;\n"
   let repo = parse_repository_from_string(content)

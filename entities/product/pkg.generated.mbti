@@ -61,12 +61,35 @@ pub struct ApprovalStatus {
 pub fn ApprovalStatus::new(String) -> Self
 pub impl @step.Entity for ApprovalStatus
 
+pub struct CalendarDate {
+  year_component : Int
+  day_component : Int
+  month_component : Int
+}
+pub fn CalendarDate::new(Int, Int, Int) -> Self
+pub impl @step.Entity for CalendarDate
+
 pub struct ContextDependentShapeRepresentation {
   representation_relation : @step.Ref
   represented_product_relation : @step.Ref
 }
 pub fn ContextDependentShapeRepresentation::new(@step.Ref, @step.Ref) -> Self
 pub impl @step.Entity for ContextDependentShapeRepresentation
+
+pub struct CoordinatedUniversalTimeOffset {
+  hour_offset : Int
+  minute_offset : Int
+  sense : String
+}
+pub fn CoordinatedUniversalTimeOffset::new(Int, Int, String) -> Self
+pub impl @step.Entity for CoordinatedUniversalTimeOffset
+
+pub struct DateAndTime {
+  date_component : @step.Ref
+  time_component : @step.Ref
+}
+pub fn DateAndTime::new(@step.Ref, @step.Ref) -> Self
+pub impl @step.Entity for DateAndTime
 
 pub struct DescriptiveRepresentationItem {
   name : String
@@ -83,6 +106,15 @@ pub struct ItemDefinedTransformation {
 }
 pub fn ItemDefinedTransformation::new(String, String, @step.Ref, @step.Ref) -> Self
 pub impl @step.Entity for ItemDefinedTransformation
+
+pub struct LocalTime {
+  hour_component : Int
+  minute_component : Int
+  second_component : Double
+  zone : @step.Ref
+}
+pub fn LocalTime::new(Int, Int, Double, @step.Ref) -> Self
+pub impl @step.Entity for LocalTime
 
 pub struct MeasureRepresentationItem {
   name : String

@@ -76,6 +76,10 @@ pub enum AnyEntity {
   Person(@product.Person)
   Organization(@product.Organization)
   PersonAndOrganization(@product.PersonAndOrganization)
+  DateAndTime(@product.DateAndTime)
+  LocalTime(@product.LocalTime)
+  CalendarDate(@product.CalendarDate)
+  CoordinatedUniversalTimeOffset(@product.CoordinatedUniversalTimeOffset)
   ManifoldSolidBrep(@topology.ManifoldSolidBrep)
   ClosedShell(@topology.ClosedShell)
   OpenShell(@topology.OpenShell)
@@ -534,6 +538,28 @@ pub fn any_entity_person_and_organization(
 }
 
 ///|
+pub fn any_entity_date_and_time(d : @product.DateAndTime) -> AnyEntity {
+  AnyEntity::DateAndTime(d)
+}
+
+///|
+pub fn any_entity_local_time(l : @product.LocalTime) -> AnyEntity {
+  AnyEntity::LocalTime(l)
+}
+
+///|
+pub fn any_entity_calendar_date(c : @product.CalendarDate) -> AnyEntity {
+  AnyEntity::CalendarDate(c)
+}
+
+///|
+pub fn any_entity_coordinated_universal_time_offset(
+  c : @product.CoordinatedUniversalTimeOffset,
+) -> AnyEntity {
+  AnyEntity::CoordinatedUniversalTimeOffset(c)
+}
+
+///|
 pub fn any_entity_manifold_solid_brep(
   m : @topology.ManifoldSolidBrep,
 ) -> AnyEntity {
@@ -871,6 +897,10 @@ fn entity_to_step(entity : AnyEntity) -> String {
     Person(p) => @step.Entity::to_step(p)
     Organization(o) => @step.Entity::to_step(o)
     PersonAndOrganization(p) => @step.Entity::to_step(p)
+    DateAndTime(d) => @step.Entity::to_step(d)
+    LocalTime(l) => @step.Entity::to_step(l)
+    CalendarDate(c) => @step.Entity::to_step(c)
+    CoordinatedUniversalTimeOffset(c) => @step.Entity::to_step(c)
     ManifoldSolidBrep(m) => @step.Entity::to_step(m)
     ClosedShell(c) => @step.Entity::to_step(c)
     OpenShell(o) => @step.Entity::to_step(o)
