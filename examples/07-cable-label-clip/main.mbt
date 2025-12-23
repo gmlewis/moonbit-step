@@ -72,12 +72,8 @@ async fn main {
 
   //
   let c_profile : Array[(Double, Double)] = []
-  for pt in outer_arc {
-    c_profile.push(pt)
-  }
-  for i in 0..<inner_arc.length() {
-    c_profile.push(inner_arc[inner_arc.length() - 1 - i])
-  }
+  c_profile.push_iter(outer_arc.iter())
+  c_profile.push_iter(inner_arc.rev().iter())
 
   // 1. The C-clip body (extruded along Z)
   let clip_body = @cad.ExtrudedProfile::new(c_profile, clip_length)
@@ -119,31 +115,35 @@ async fn main {
   let all_paths = text_fitted.all_paths_and_compound_paths()
 
   //
-  for g in all_paths {
-    let profiles = @draw.Graphic::to_profiles_tuples(g, 8)
-    for profile in profiles {
-      let (outer, holes) = profile
-      if outer.length() < 3 {
-        continue
-      }
+  let text_solids = all_paths
+    .iter()
+    .flat_map(fn(g) {
+      @draw.Graphic::to_profiles_tuples(g, 8)
+      .iter()
+      .filter_map(fn(profile) {
+        let (outer, holes) = profile
+        if outer.length() < 3 {
+          return None
+        }
 
-      // ExtrudedProfile is XY plane, extruding along Z.
-      // We rotate it -90 deg around X so its "Z" (height) becomes "Y" (facing out),
-      // and its "Y" becomes "Z" (along the clip).
-      // We translate by z=tz + clip_length because Local Y maps to Global -Z.
-      let text_solid = @cad.ExtrudedProfile::new(outer, emboss_depth, holes~)
-        .with_name("label-text")
-        .with_color(@cad.Rgb::orange())
-        .rotate_x(-90)
-        .rotate_y(180) // make the text upright
-        .translate(
-          x=tx + plaque_width / 2.0,
-          y=ty + diameter / 2.0 + plaque_thickness - 0.01,
-          z=tz,
-        )
-      design = design.add(text_solid)
-    }
-  }
+        // ExtrudedProfile is XY plane, extruding along Z.
+        // We rotate it -90 deg around X so its "Z" (height) becomes "Y" (facing out),
+        // and its "Y" becomes "Z" (along the clip).
+        // We translate by z=tz + clip_length because Local Y maps to Global -Z.
+        let solid = @cad.ExtrudedProfile::new(outer, emboss_depth, holes~)
+          .with_name("label-text")
+          .with_color(@cad.Rgb::orange())
+          .rotate_x(-90)
+          .rotate_y(180) // make the text upright
+          .translate(
+            x=tx + plaque_width / 2.0,
+            y=ty + diameter / 2.0 + plaque_thickness - 0.01,
+            z=tz,
+          )
+        Some(solid)
+      })
+    })
+  design = design.add_iter(text_solids)
 
   //
   let design = design.rotate_z(180) // better viewing angle

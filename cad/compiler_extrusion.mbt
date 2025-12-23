@@ -11,12 +11,10 @@ pub fn compile_extruded_profile(
   }
 
   // Flatten loops (outer first, then holes).
-  let loops : Array[Array[(Double, Double)]] = [profile.outer]
-  for hole in profile.holes {
-    if hole.length() >= 3 {
-      loops.push(hole)
-    }
-  }
+  let loops : Array[Array[(Double, Double)]] = [
+    profile.outer,
+    ..profile.holes.filter(fn(h) { h.length() >= 3 }),
+  ]
 
   // Build 3D points (bottom then top per loop).
   let pts_raw : Array[(Double, Double, Double)] = []
@@ -94,13 +92,8 @@ pub fn compile_extruded_profile(
 
   // Bottom/top (with holes)
   let (outer_b, outer_t) = loop_indices[0]
-  let hole_bs : Array[Array[Int]] = []
-  let hole_ts : Array[Array[Int]] = []
-  for i in 1..<loop_indices.length() {
-    let (hb, ht) = loop_indices[i]
-    hole_bs.push(hb)
-    hole_ts.push(ht)
-  }
+  let hole_bs = loop_indices.iter().drop(1).map(fn(lp) { lp.0 }).collect()
+  let hole_ts = loop_indices.iter().drop(1).map(fn(lp) { lp.1 }).collect()
   let down_raw = rotate_point((0.0, 0.0, -1.0), node.rx, node.ry, node.rz)
   let up_raw = rotate_point((0.0, 0.0, 1.0), node.rx, node.ry, node.rz)
   face_refs.push(

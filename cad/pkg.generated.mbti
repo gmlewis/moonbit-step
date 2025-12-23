@@ -42,6 +42,7 @@ pub struct Design {
   description : String
 }
 pub fn Design::add(Self, SceneNode) -> Self
+pub fn Design::add_iter(Self, Iter[SceneNode]) -> Self
 pub fn Design::compile(Self) -> @repository.Repository
 pub fn Design::new(name? : String, description? : String) -> Self
 pub fn Design::rotate_x(Self, Double) -> Self

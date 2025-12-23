@@ -180,6 +180,8 @@ async fn main {
       design = design.add(solid)
     }
   }
+
+  //
   if debug {
     println("Generated \{profile_count} extruded text profiles")
   }

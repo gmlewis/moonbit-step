@@ -188,8 +188,9 @@ fn split_whitespace(s : String) -> Array[String] {
 
 ///|
 fn expand_double_dash_equals(argv : Array[String]) -> Array[String] {
-  let out : Array[String] = []
-  for a in argv {
+  argv
+  .iter()
+  .flat_map(fn(a) {
     // Expand "--name=value" -> ["--name", "value"].
     // clap treats the '=' form as part of the argument name, so we normalize.
     if a.length() >= 4 &&
@@ -198,18 +199,17 @@ fn expand_double_dash_equals(argv : Array[String]) -> Array[String] {
       match String::find(a, "=") {
         Some(eq_idx) =>
           if eq_idx > 2 {
-            out.push(substr(a, 0, eq_idx))
-            out.push(substr(a, eq_idx + 1, a.length()))
+            [substr(a, 0, eq_idx), substr(a, eq_idx + 1, a.length())].iter()
           } else {
-            out.push(a)
+            [a].iter()
           }
-        None => out.push(a)
+        None => [a].iter()
       }
     } else {
-      out.push(a)
+      [a].iter()
     }
-  }
-  out
+  })
+  .collect()
 }
 
 ///|
@@ -531,14 +531,7 @@ pub async fn parse(
   let parser = @clap.Parser::new(prog~, args=clap_args, description~)
   let value = @clap.SimpleValue::new(parser.prog)
   let argv0 : Array[String] = if cli_args.is_empty() {
-    let all = @env.args()
-    let out : Array[String] = []
-    let mut i = 1
-    while i < all.length() {
-      out.push(all[i])
-      i = i + 1
-    }
-    out
+    @env.args().iter().drop(1).collect()
   } else {
     cli_args
   }

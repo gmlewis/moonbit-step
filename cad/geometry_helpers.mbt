@@ -44,16 +44,7 @@ fn v_norm(a : (Double, Double, Double)) -> (Double, Double, Double) {
 
 ///|
 fn reverse_cycle(verts : Array[Int]) -> Array[Int] {
-  let out : Array[Int] = []
-  let mut i = verts.length() - 1
-  while i >= 0 {
-    out.push(verts[i])
-    if i == 0 {
-      break
-    }
-    i = i - 1
-  }
-  out
+  verts.rev()
 }
 
 ///|
@@ -262,12 +253,15 @@ fn add_plane_face_with_holes_oriented(
 
   //
   let bounds : Array[@step.Ref] = [fob_ref]
-  for loop_pts in hole_cycles {
-    let loop_ref = face_loop(ctx, edges, loop_pts)
-    let fb = @topology.FaceBound::new("", loop_ref, true)
-    let fb_ref = ctx.add(@repository.any_entity_face_bound(fb))
-    bounds.push(fb_ref)
-  }
+  bounds.push_iter(
+    hole_cycles
+    .iter()
+    .map(fn(loop_pts) {
+      let loop_ref = face_loop(ctx, edges, loop_pts)
+      let fb = @topology.FaceBound::new("", loop_ref, true)
+      ctx.add(@repository.any_entity_face_bound(fb))
+    }),
+  )
   let face = @topology.AdvancedFace::new("", bounds, plane_ref, true)
   ctx.add(@repository.any_entity_advanced_face(face))
 }

@@ -399,18 +399,15 @@ pub fn tokenize_step_data_section_with_base(
       })
     }
   }
-  let rows : Array[RawEntityRow] = []
-  for span in stmts {
+  let rows = stmts.map(fn(span) {
     let (abs_line, abs_col) = apply_base(
       span.line,
       span.col,
       base_line,
       base_col,
     )
-    rows.push(
-      parse_row(StatementSpan::{ stmt: span.stmt, line: abs_line, col: abs_col }),
-    )
-  }
+    parse_row(StatementSpan::{ stmt: span.stmt, line: abs_line, col: abs_col })
+  })
   rows
 }
 

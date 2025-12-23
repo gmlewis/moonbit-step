@@ -120,6 +120,7 @@ async fn main {
       .translate(x=tx + x, y=ty + WALL_THICKNESS, z=tz + BASE_THICKNESS)
     design = design.add(div)
   }
+
   // Y Dividers
   for j in 1..<rows {
     let y = Double::from_int(j) * GRID_UNIT - WALL_THICKNESS / 2.0
@@ -159,32 +160,36 @@ async fn main {
           }
         }
         let all_paths = text_fitted.all_paths_and_compound_paths()
-        for g in all_paths {
-          let profiles = @draw.Graphic::to_profiles_tuples(g, 8)
-          for profile in profiles {
-            let (outer, holes) = profile
-            if outer.length() < 3 {
-              continue
-            }
-            // Engrave on the front wall (-Y face)
-            // We extend the extrusion slightly (0.1mm) outside the face
-            // to avoid Z-fighting and ensure clean boolean operations.
-            let text_solid = @cad.ExtrudedProfile::new(
-                outer,
-                emboss_depth + 0.1,
-                holes~,
-              )
-              .with_name("label")
-              .with_color(@cad.Rgb::orange())
-              .rotate_x(90.0)
-              .translate(
-                x=tx + margin,
-                y=ty + emboss_depth,
-                z=tz + BASE_THICKNESS + (wall_height - label_height) / 2.0,
-              )
-            design = design.add(text_solid)
-          }
-        }
+        let text_solids = all_paths
+          .iter()
+          .flat_map(fn(g) {
+            @draw.Graphic::to_profiles_tuples(g, 8)
+            .iter()
+            .filter_map(fn(profile) {
+              let (outer, holes) = profile
+              if outer.length() < 3 {
+                return None
+              }
+              // Engrave on the front wall (-Y face)
+              // We extend the extrusion slightly (0.1mm) outside the face
+              // to avoid Z-fighting and ensure clean boolean operations.
+              let solid = @cad.ExtrudedProfile::new(
+                  outer,
+                  emboss_depth + 0.1,
+                  holes~,
+                )
+                .with_name("label")
+                .with_color(@cad.Rgb::orange())
+                .rotate_x(90.0)
+                .translate(
+                  x=tx + margin,
+                  y=ty + emboss_depth,
+                  z=tz + BASE_THICKNESS + (wall_height - label_height) / 2.0,
+                )
+              Some(solid)
+            })
+          })
+        design = design.add_iter(text_solids)
       }
     }
     None => ()

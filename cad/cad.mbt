@@ -164,6 +164,15 @@ pub fn Design::add(self : Design, node : SceneNode) -> Design {
 }
 
 ///|
+pub fn Design::add_iter(self : Design, nodes : Iter[SceneNode]) -> Design {
+  let mut d = self
+  for node in nodes {
+    d = d.add(node)
+  }
+  d
+}
+
+///|
 pub fn Design::rotate_x(self : Design, angle : Double) -> Design {
   let nodes = self.nodes.map(fn(node) {
     let (tx, ty, tz) = rotate_point(
