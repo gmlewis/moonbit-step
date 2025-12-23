@@ -95,7 +95,11 @@ pub fn dovetail_slider(
   clearance? : Double = 0.0,
 ) -> Shape {
   // Apply clearance: narrow the width and shorten the height.
-  let dt = Profile2D::dovetail(width - 2.0 * clearance, height - clearance, angle)
+  let dt = Profile2D::dovetail(
+    width - 2.0 * clearance,
+    height - clearance,
+    angle,
+  )
   // Flip Y to match the groove orientation (neck at the top, pointing down).
   // We also reverse the order to maintain CCW orientation.
   let n = dt.length()

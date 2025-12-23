@@ -105,14 +105,8 @@ async fn main {
     @cli.eprintln("error: dovetailHeight must be less than baseHeight")
     abort("")
   }
-
   let base = @cad.dovetail_base(
-      base_width,
-      base_height,
-      base_length,
-      dovetail_width,
-      dovetail_height,
-      dovetail_angle,
+      base_width, base_height, base_length, dovetail_width, dovetail_height, dovetail_angle,
     )
     .with_name("dovetail-base")
     .with_color(@cad.Rgb::purple())
@@ -132,7 +126,8 @@ async fn main {
     .with_name("dovetail-slider")
     .with_color(@cad.Rgb::orange())
     .translate(x=tx, y=ty + base_height / 2.0, z=tz + slider_pos)
-
-  let design = @cad.Design::new(name="dovetail-slider-jig").add(base).add(slider)
+  let design = @cad.Design::new(name="dovetail-slider-jig")
+    .add(base)
+    .add(slider)
   design.write_step(out_path)
 }

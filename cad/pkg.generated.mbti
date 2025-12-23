@@ -13,6 +13,10 @@ pub fn compile_cuboid(StepContext, SceneNode, Cuboid) -> @step.Ref
 
 pub fn compile_extruded_profile(StepContext, SceneNode, ExtrudedProfile) -> @step.Ref
 
+pub fn dovetail_base(Double, Double, Double, Double, Double, Double) -> Shape
+
+pub fn dovetail_slider(Double, Double, Double, Double, clearance? : Double) -> Shape
+
 pub async fn write_step_text(String, String?) -> Unit
 
 // Errors
@@ -70,7 +74,9 @@ pub struct Profile2D {
   holes : Array[Array[(Double, Double)]]
 }
 pub fn Profile2D::arc(Double, Double, Double, segments? : Int) -> Array[(Double, Double)]
+pub fn Profile2D::centered_rect(Double, Double) -> Array[(Double, Double)]
 pub fn Profile2D::circle(Double, segments? : Int) -> Array[(Double, Double)]
+pub fn Profile2D::dovetail(Double, Double, Double) -> Array[(Double, Double)]
 pub fn Profile2D::rect(Double, Double) -> Array[(Double, Double)]
 
 pub struct Rgb {
@@ -83,8 +89,10 @@ pub fn Rgb::blue() -> Self
 pub fn Rgb::cyan() -> Self
 pub fn Rgb::green() -> Self
 pub fn Rgb::grey() -> Self
+pub fn Rgb::magenta() -> Self
 pub fn Rgb::new(Double, Double, Double) -> Self
 pub fn Rgb::orange() -> Self
+pub fn Rgb::purple() -> Self
 pub fn Rgb::red() -> Self
 pub fn Rgb::white() -> Self
 
