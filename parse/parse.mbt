@@ -345,6 +345,11 @@ fn init {
   parsers.set("COLOUR_RGB", fn(args) raise StepParseError {
     @repository.any_entity_color_rgb(parse_color_rgb(args))
   })
+  parsers.set("DRAUGHTING_PRE_DEFINED_COLOUR", fn(args) raise StepParseError {
+    @repository.any_entity_draughting_pre_defined_colour(
+      parse_draughting_pre_defined_colour(args),
+    )
+  })
   parsers.set("FILL_AREA_STYLE_COLOUR", fn(args) raise StepParseError {
     @repository.any_entity_fill_area_style_color(
       parse_fill_area_style_color(args),
@@ -2201,6 +2206,18 @@ fn parse_color_rgb(
   let g = parse_double(parts[2])
   let b = parse_double(parts[3])
   @presentation.ColorRgb::new(name, r, g, b)
+}
+
+///|
+fn parse_draughting_pre_defined_colour(
+  args : String,
+) -> @presentation.DraughtingPreDefinedColour raise StepParseError {
+  let parts = split_args(args)
+  if parts.length() != 1 {
+    fail_parse()
+  }
+  let name = strip_quotes(parts[0])
+  @presentation.DraughtingPreDefinedColour::new(name)
 }
 
 ///|

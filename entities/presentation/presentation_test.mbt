@@ -5,6 +5,15 @@ test "color_rgb_to_step" {
 }
 
 ///|
+test "draughting_pre_defined_colour_to_step" {
+  let c = DraughtingPreDefinedColour::new("red")
+  inspect(
+    @step.Entity::to_step(c),
+    content="DRAUGHTING_PRE_DEFINED_COLOUR('red')",
+  )
+}
+
+///|
 test "fill_area_style_color_to_step" {
   let c = FillAreaStyleColor::new("", @step.Ref::{
     id: @step.EntityId::{ value: 31 },

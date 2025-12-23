@@ -102,6 +102,7 @@ pub enum AnyEntity {
   EdgeCurve(@topology.EdgeCurve)
   VertexPoint(@topology.VertexPoint)
   ColorRgb(@presentation.ColorRgb)
+  DraughtingPreDefinedColour(@presentation.DraughtingPreDefinedColour)
   FillAreaStyleColor(@presentation.FillAreaStyleColor)
   FillAreaStyle(@presentation.FillAreaStyle)
   SurfaceStyleFillArea(@presentation.SurfaceStyleFillArea)
@@ -691,6 +692,13 @@ pub fn any_entity_color_rgb(c : @presentation.ColorRgb) -> AnyEntity {
 }
 
 ///|
+pub fn any_entity_draughting_pre_defined_colour(
+  c : @presentation.DraughtingPreDefinedColour,
+) -> AnyEntity {
+  AnyEntity::DraughtingPreDefinedColour(c)
+}
+
+///|
 pub fn any_entity_fill_area_style_color(
   c : @presentation.FillAreaStyleColor,
 ) -> AnyEntity {
@@ -973,6 +981,7 @@ fn entity_to_step(entity : AnyEntity) -> String {
     EdgeCurve(e) => @step.Entity::to_step(e)
     VertexPoint(e) => @step.Entity::to_step(e)
     ColorRgb(c) => @step.Entity::to_step(c)
+    DraughtingPreDefinedColour(c) => @step.Entity::to_step(c)
     FillAreaStyleColor(c) => @step.Entity::to_step(c)
     FillAreaStyle(s) => @step.Entity::to_step(s)
     SurfaceStyleFillArea(s) => @step.Entity::to_step(s)

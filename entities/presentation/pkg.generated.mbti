@@ -19,6 +19,12 @@ pub struct ColorRgb {
 pub fn ColorRgb::new(String, Double, Double, Double) -> Self
 pub impl @step.Entity for ColorRgb
 
+pub struct DraughtingPreDefinedColour {
+  name : String
+}
+pub fn DraughtingPreDefinedColour::new(String) -> Self
+pub impl @step.Entity for DraughtingPreDefinedColour
+
 pub struct FillAreaStyle {
   name : String
   styles : Array[@step.Ref]

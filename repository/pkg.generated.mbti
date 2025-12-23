@@ -93,6 +93,8 @@ pub fn any_entity_document_reference(@product.DocumentReference) -> AnyEntity
 
 pub fn any_entity_document_type(@product.DocumentType) -> AnyEntity
 
+pub fn any_entity_draughting_pre_defined_colour(@presentation.DraughtingPreDefinedColour) -> AnyEntity
+
 pub fn any_entity_edge_curve(@topology.EdgeCurve) -> AnyEntity
 
 pub fn any_entity_edge_loop(@topology.EdgeLoop) -> AnyEntity
@@ -339,6 +341,7 @@ pub enum AnyEntity {
   EdgeCurve(@topology.EdgeCurve)
   VertexPoint(@topology.VertexPoint)
   ColorRgb(@presentation.ColorRgb)
+  DraughtingPreDefinedColour(@presentation.DraughtingPreDefinedColour)
   FillAreaStyleColor(@presentation.FillAreaStyleColor)
   FillAreaStyle(@presentation.FillAreaStyle)
   SurfaceStyleFillArea(@presentation.SurfaceStyleFillArea)
