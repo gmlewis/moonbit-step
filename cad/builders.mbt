@@ -616,6 +616,67 @@ pub fn breadboard_rail_clip(
 }
 
 ///|
+/// zip_tie_anchor_panel returns an array of SceneNodes representing a base plate
+/// with a grid of zip-tie anchor points.
+pub fn zip_tie_anchor_panel(
+  rows : Int,
+  cols : Int,
+  spacing : Double,
+  base_thickness : Double,
+  anchor_width : Double,
+  anchor_height : Double,
+  slot_width : Double,
+  slot_height : Double,
+) -> Array[SceneNode] {
+  let panel_w = Double::from_int(cols) * spacing
+  let panel_l = Double::from_int(rows) * spacing
+  let base = Cuboid::new(panel_w, panel_l, base_thickness)
+    .with_name("base")
+    .with_color(Rgb::cyan())
+    .translate(x=0.0, y=0.0, z=0.0)
+  let nodes = [base]
+  for r in 0..<rows {
+    for c in 0..<cols {
+      let x = Double::from_int(c) * spacing + spacing / 2.0
+      let y = Double::from_int(r) * spacing + spacing / 2.0
+
+      // An anchor is a small block with a slot cut through it.
+      // We'll model it as two side walls and a top bridge.
+      let wall_w = (anchor_width - slot_width) / 2.0
+      let left_wall = Cuboid::new(wall_w, anchor_width, anchor_height)
+        .with_name("anchor-\{r}-\{c}-lw")
+        .with_color(Rgb::blue())
+        .translate(
+          x=x - anchor_width / 2.0,
+          y=y - anchor_width / 2.0,
+          z=base_thickness,
+        )
+      let right_wall = Cuboid::new(wall_w, anchor_width, anchor_height)
+        .with_name("anchor-\{r}-\{c}-rw")
+        .with_color(Rgb::blue())
+        .translate(
+          x=x + slot_width / 2.0,
+          y=y - anchor_width / 2.0,
+          z=base_thickness,
+        )
+      let bridge_h = anchor_height - slot_height
+      let bridge = Cuboid::new(anchor_width, anchor_width, bridge_h)
+        .with_name("anchor-\{r}-\{c}-bridge")
+        .with_color(Rgb::blue())
+        .translate(
+          x=x - anchor_width / 2.0,
+          y=y - anchor_width / 2.0,
+          z=base_thickness + slot_height,
+        )
+      nodes.push(left_wall)
+      nodes.push(right_wall)
+      nodes.push(bridge)
+    }
+  }
+  nodes
+}
+
+///|
 /// living_hinge returns a Shape representing a plate with a lattice hinge
 /// pattern (series of staggered slots) that allows the material to bend.
 pub fn living_hinge(

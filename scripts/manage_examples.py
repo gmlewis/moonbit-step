@@ -30,7 +30,8 @@ SUITE = {
     "18": [["--width", "60", "--length", "80", "--height", "30"], ["--wallThickness", "3", "--filletRadius", "10", "--bossOD", "10"]],
     "19": [["--width", "85", "--length", "75"], ["--width", "100", "--length", "60", "--slotLength", "20"]],
     "20": [["--standoffHeight", "6"], ["--standoffHeight", "12", "--standoffOD", "8", "--frameThickness", "5"]],
-    "21": [["--width", "54.5", "--height", "8"], ["--width", "35", "--height", "6", "--armThickness", "2"]]
+    "21": [["--width", "54.5", "--height", "8"], ["--width", "35", "--height", "6", "--armThickness", "2"]],
+    "22": [["--rows", "2", "--cols", "2"], ["--rows", "1", "--cols", "4", "--spacing", "20", "--anchorWidth", "8"]]
 }
 
 # --- Utils ---

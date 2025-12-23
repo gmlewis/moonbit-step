@@ -60,6 +60,8 @@ pub fn vented_enclosure(Double, Double, Double, Double, Double, Double, Double, 
 
 pub async fn write_step_text(String, String?) -> Unit
 
+pub fn zip_tie_anchor_panel(Int, Int, Double, Double, Double, Double, Double, Double) -> Array[SceneNode]
+
 // Errors
 
 // Types and methods
