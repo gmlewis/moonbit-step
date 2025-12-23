@@ -21,3 +21,18 @@ The intent is that you can run the code here to emit a STEP file, open it in a C
 - add cable routing features
 - generate variants for multiple hardware standards
 - add alignment pins/keys
+
+---
+
+### Variant 1
+
+Command line: `./run-example.sh 19 --width 85 --length 75`
+
+![](preview-1.png)
+
+### Variant 2
+
+Command line: `./run-example.sh 19 --width 100 --length 60 --slotLength 20`
+
+![](preview-2.png)
+

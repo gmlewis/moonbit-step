@@ -46,6 +46,8 @@ pub fn polygon_area_2d(Array[(Double, Double)]) -> Double
 
 pub fn polygon_knob(Int, Double, Double, Int, Double, hole_rotation? : Double) -> Shape
 
+pub fn raspberry_pi_mount_plate(Double, Double, Double, Double, Double, Double) -> Shape
+
 pub fn text_at(String, Double, Double, Double, font~ : @fonts.Font, font_size? : Double, emboss_depth? : Double, rx? : Double, ry? : Double, rz? : Double) -> Array[SceneNode]
 
 pub fn tube(Double, Double, Double, segments? : Int) -> Shape
