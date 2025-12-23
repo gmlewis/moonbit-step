@@ -18,6 +18,14 @@ pub struct Axis1Placement {
 pub fn Axis1Placement::new(String, @step.Ref, axis? : @step.Ref?) -> Self
 pub impl @step.Entity for Axis1Placement
 
+pub struct Axis2Placement2D {
+  name : String
+  location : @step.Ref
+  ref_direction : @step.Ref?
+}
+pub fn Axis2Placement2D::new(String, @step.Ref, ref_direction? : @step.Ref?) -> Self
+pub impl @step.Entity for Axis2Placement2D
+
 pub struct Axis2Placement3D {
   name : String
   location : @step.Ref

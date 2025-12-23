@@ -115,6 +115,26 @@ pub struct SurfaceStyleUsage {
 pub fn SurfaceStyleUsage::new(String, @step.Ref) -> Self
 pub impl @step.Entity for SurfaceStyleUsage
 
+pub struct TextLiteral {
+  name : String
+  literal : String
+  placement : @step.Ref
+  alignment : String
+  path : TextPath
+  font : @step.Ref
+}
+pub fn TextLiteral::new(String, String, @step.Ref, String, TextPath, @step.Ref) -> Self
+pub impl @step.Entity for TextLiteral
+
+pub(all) enum TextPath {
+  Left
+  Right
+  Up
+  Down
+}
+pub fn TextPath::from_string(String) -> Self?
+pub impl @step.Entity for TextPath
+
 // Type aliases
 
 // Traits

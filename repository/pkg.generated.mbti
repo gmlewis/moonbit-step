@@ -33,6 +33,8 @@ pub fn any_entity_approval_status(@product.ApprovalStatus) -> AnyEntity
 
 pub fn any_entity_axis1_placement(@geometry.Axis1Placement) -> AnyEntity
 
+pub fn any_entity_axis2_placement_2d(@geometry.Axis2Placement2D) -> AnyEntity
+
 pub fn any_entity_axis2_placement_3d(@geometry.Axis2Placement3D) -> AnyEntity
 
 pub fn any_entity_b_spline_curve(@geometry.BSplineCurve) -> AnyEntity
@@ -233,6 +235,8 @@ pub fn any_entity_surface_style_usage(@presentation.SurfaceStyleUsage) -> AnyEnt
 
 pub fn any_entity_swept_surface(@geometry.SweptSurface) -> AnyEntity
 
+pub fn any_entity_text_literal(@presentation.TextLiteral) -> AnyEntity
+
 pub fn any_entity_toroidal_surface(@geometry.ToroidalSurface) -> AnyEntity
 
 pub fn any_entity_torus(@geometry.Torus) -> AnyEntity
@@ -255,6 +259,7 @@ pub enum AnyEntity {
   CartesianPoint(@geometry.CartesianPoint)
   Direction(@geometry.Direction)
   Axis1Placement(@geometry.Axis1Placement)
+  Axis2Placement2D(@geometry.Axis2Placement2D)
   Axis2Placement3D(@geometry.Axis2Placement3D)
   Plane(@geometry.Plane)
   Vector(@geometry.Vector)
@@ -360,6 +365,7 @@ pub enum AnyEntity {
   OverRidingStyledItem(@presentation.OverRidingStyledItem)
   HiddenElementOverRidingStyledItem(@presentation.HiddenElementOverRidingStyledItem)
   AnnotationOccurrence(@presentation.AnnotationOccurrence)
+  TextLiteral(@presentation.TextLiteral)
   DimensionalExponents(@units.DimensionalExponents)
   UncertaintyMeasureWithUnit(@units.UncertaintyMeasureWithUnit)
   PlaneAngleMeasureWithUnit(@units.PlaneAngleMeasureWithUnit)

@@ -15,10 +15,10 @@ fn init {
   parsers.set("AXIS1_PLACEMENT", fn(args) raise StepParseError {
     @repository.any_entity_axis1_placement(parse_axis1_placement(args))
   })
-  parsers.set("AXIS2_PLACEMENT_3D", fn(args) raise StepParseError {
-    @repository.any_entity_axis2_placement_3d(parse_axis2_placement_3d(args))
+  parsers.set("AXIS2_PLACEMENT_2D", fn(args) raise StepParseError {
+    @repository.any_entity_axis2_placement_2d(parse_axis2_placement_2d(args))
   })
-  parsers.set("AXIS_2_PLACEMENT_3D", fn(args) raise StepParseError {
+  parsers.set("AXIS2_PLACEMENT_3D", fn(args) raise StepParseError {
     @repository.any_entity_axis2_placement_3d(parse_axis2_placement_3d(args))
   })
   parsers.set("PLANE", fn(args) raise StepParseError {
@@ -601,6 +601,29 @@ fn parse_axis1_placement(
     Some(@step.Ref::{ id: parse_ref_int(axis_id_str) })
   }
   @geometry.Axis1Placement::new(name, @step.Ref::{ id: location_id }, axis~)
+}
+
+///|
+fn parse_axis2_placement_2d(
+  args : String,
+) -> @geometry.Axis2Placement2D raise StepParseError {
+  let parts = split_args(args)
+  if parts.length() != 3 {
+    fail_parse()
+  }
+  let name = strip_quotes(parts[0])
+  let location_id = parse_ref_int(parts[1])
+  let dir_id_str = parts[2].trim().to_string()
+  let ref_direction = if dir_id_str == "$" {
+    None
+  } else {
+    Some(@step.Ref::{ id: parse_ref_int(dir_id_str) })
+  }
+  @geometry.Axis2Placement2D::new(
+    name,
+    @step.Ref::{ id: location_id },
+    ref_direction~,
+  )
 }
 
 ///|

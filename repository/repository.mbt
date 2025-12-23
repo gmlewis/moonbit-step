@@ -4,6 +4,7 @@ pub enum AnyEntity {
   CartesianPoint(@geometry.CartesianPoint)
   Direction(@geometry.Direction)
   Axis1Placement(@geometry.Axis1Placement)
+  Axis2Placement2D(@geometry.Axis2Placement2D)
   Axis2Placement3D(@geometry.Axis2Placement3D)
   Plane(@geometry.Plane)
   Vector(@geometry.Vector)
@@ -119,6 +120,7 @@ pub enum AnyEntity {
     @presentation.HiddenElementOverRidingStyledItem
   )
   AnnotationOccurrence(@presentation.AnnotationOccurrence)
+  TextLiteral(@presentation.TextLiteral)
   DimensionalExponents(@units.DimensionalExponents)
   UncertaintyMeasureWithUnit(@units.UncertaintyMeasureWithUnit)
   PlaneAngleMeasureWithUnit(@units.PlaneAngleMeasureWithUnit)
@@ -146,6 +148,13 @@ pub fn any_entity_direction(d : @geometry.Direction) -> AnyEntity {
 ///|
 pub fn any_entity_axis1_placement(a : @geometry.Axis1Placement) -> AnyEntity {
   AnyEntity::Axis1Placement(a)
+}
+
+///|
+pub fn any_entity_axis2_placement_2d(
+  a : @geometry.Axis2Placement2D,
+) -> AnyEntity {
+  AnyEntity::Axis2Placement2D(a)
 }
 
 ///|
@@ -784,6 +793,11 @@ pub fn any_entity_annotation_occurrence(
 }
 
 ///|
+pub fn any_entity_text_literal(t : @presentation.TextLiteral) -> AnyEntity {
+  AnyEntity::TextLiteral(t)
+}
+
+///|
 pub fn any_entity_dimensional_exponents(
   d : @units.DimensionalExponents,
 ) -> AnyEntity {
@@ -915,6 +929,7 @@ fn entity_to_step(entity : AnyEntity) -> String {
     CartesianPoint(p) => @step.Entity::to_step(p)
     Direction(d) => @step.Entity::to_step(d)
     Axis1Placement(a) => @step.Entity::to_step(a)
+    Axis2Placement2D(a) => @step.Entity::to_step(a)
     Axis2Placement3D(a) => @step.Entity::to_step(a)
     Plane(p) => @step.Entity::to_step(p)
     Vector(v) => @step.Entity::to_step(v)
@@ -1021,6 +1036,7 @@ fn entity_to_step(entity : AnyEntity) -> String {
     OverRidingStyledItem(s) => @step.Entity::to_step(s)
     HiddenElementOverRidingStyledItem(s) => @step.Entity::to_step(s)
     AnnotationOccurrence(a) => @step.Entity::to_step(a)
+    TextLiteral(t) => @step.Entity::to_step(t)
     DimensionalExponents(d) => @step.Entity::to_step(d)
     UncertaintyMeasureWithUnit(u) => @step.Entity::to_step(u)
     PlaneAngleMeasureWithUnit(p) => @step.Entity::to_step(p)
