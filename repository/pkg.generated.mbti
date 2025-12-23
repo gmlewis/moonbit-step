@@ -139,6 +139,8 @@ pub fn any_entity_organization(@product.Organization) -> AnyEntity
 
 pub fn any_entity_oriented_edge(@topology.OrientedEdge) -> AnyEntity
 
+pub fn any_entity_over_riding_styled_item(@presentation.OverRidingStyledItem) -> AnyEntity
+
 pub fn any_entity_parabola(@geometry.Parabola) -> AnyEntity
 
 pub fn any_entity_person(@product.Person) -> AnyEntity
@@ -351,6 +353,7 @@ pub enum AnyEntity {
   PresentationLayerAssignment(@presentation.PresentationLayerAssignment)
   MechanicalDesignGeometricPresentationRepresentation(@presentation.MechanicalDesignGeometricPresentationRepresentation)
   StyledItem(@presentation.StyledItem)
+  OverRidingStyledItem(@presentation.OverRidingStyledItem)
   DimensionalExponents(@units.DimensionalExponents)
   UncertaintyMeasureWithUnit(@units.UncertaintyMeasureWithUnit)
   PlaneAngleMeasureWithUnit(@units.PlaneAngleMeasureWithUnit)

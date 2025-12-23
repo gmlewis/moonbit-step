@@ -75,6 +75,20 @@ test "styled_item_to_step" {
 }
 
 ///|
+test "over_riding_styled_item_to_step" {
+  let s = OverRidingStyledItem::new(
+    "",
+    [@step.Ref::{ id: @step.EntityId::{ value: 25 } }],
+    @step.Ref::{ id: @step.EntityId::{ value: 32 } },
+    @step.Ref::{ id: @step.EntityId::{ value: 33 } },
+  )
+  inspect(
+    @step.Entity::to_step(s),
+    content="OVER_RIDING_STYLED_ITEM('',(#25),#32,#33)",
+  )
+}
+
+///|
 test "presentation_layer_assignment_to_step" {
   let p = PresentationLayerAssignment::new("1", "Layer 1", [
     @step.Ref::{ id: @step.EntityId::{ value: 32 } },

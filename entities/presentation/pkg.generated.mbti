@@ -47,6 +47,15 @@ pub struct MechanicalDesignGeometricPresentationRepresentation {
 pub fn MechanicalDesignGeometricPresentationRepresentation::new(String, Array[@step.Ref], @step.Ref) -> Self
 pub impl @step.Entity for MechanicalDesignGeometricPresentationRepresentation
 
+pub struct OverRidingStyledItem {
+  name : String
+  styles : Array[@step.Ref]
+  item : @step.Ref
+  over_ridden_styled_item : @step.Ref
+}
+pub fn OverRidingStyledItem::new(String, Array[@step.Ref], @step.Ref, @step.Ref) -> Self
+pub impl @step.Entity for OverRidingStyledItem
+
 pub struct PresentationLayerAssignment {
   name : String
   description : String
