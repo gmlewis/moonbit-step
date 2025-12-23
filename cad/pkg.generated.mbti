@@ -30,6 +30,8 @@ pub fn hex_bit_holder(Int, Int, Double, Double, Double) -> Shape
 
 pub fn is_point_in_polygon((Double, Double), Array[(Double, Double)]) -> Bool
 
+pub fn living_hinge(Double, Double, Double, Double, Double, Double, Int) -> Shape
+
 pub fn metric_nut(Double, Double, height? : Double) -> Shape
 
 pub fn metric_nut_dimensions(Double) -> (Double, Double)

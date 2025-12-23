@@ -25,7 +25,8 @@ SUITE = {
     "13": [["--length", "60", "--width", "70"], ["--length", "100", "--width", "80", "--height", "15"], ["--width", "50", "--height", "12"]],
     "14": [["--length", "100"], ["--length", "150", "--width", "50"], ["--length", "80", "--height", "12"]],
     "15": [["--boltDiameter", "8", "--clearance", "0.1"], ["--boltDiameter", "10", "--interference", "0.1", "--clearanceStep", "0.1", "--stepCount", "3"]],
-    "16": [["--pinDiameter", "5", "--clearance", "0.05"], ["--pinDiameter", "10", "--interference", "0.1", "--clearanceStep", "0.05", "--stepCount", "4"]]
+    "16": [["--pinDiameter", "5", "--clearance", "0.05"], ["--pinDiameter", "10", "--interference", "0.1", "--clearanceStep", "0.05", "--stepCount", "4"]],
+    "17": [["--thickness", "2", "--hingeWidth", "15"], ["--width", "30", "--slotLength", "5", "--numRows", "10"]]
 }
 
 # --- Utils ---

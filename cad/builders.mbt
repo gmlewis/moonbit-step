@@ -305,6 +305,53 @@ pub fn pin_gauge(
 }
 
 ///|
+/// living_hinge returns a Shape representing a plate with a lattice hinge
+/// pattern (series of staggered slots) that allows the material to bend.
+pub fn living_hinge(
+  plate_length : Double,
+  total_width : Double,
+  thickness : Double,
+  hinge_width : Double,
+  slot_width : Double,
+  slot_length : Double,
+  num_rows : Int,
+) -> Shape {
+  let total_length = 2.0 * plate_length + hinge_width
+  let outer = Profile2D::rect(total_length, total_width)
+  let holes = []
+  let row_spacing = hinge_width / Double::from_int(num_rows + 1)
+  for i in 0..<num_rows {
+    let row_x = plate_length + Double::from_int(i + 1) * row_spacing
+    let is_offset = i % 2 == 1
+
+    // Number of slots in this row
+    let mut current_y = if is_offset { -slot_length / 2.0 } else { 0.0 }
+    let spacing_y = slot_length * 1.2
+    let padding = 1.0
+    while current_y < total_width + slot_length {
+      let y_start = if current_y < padding { padding } else { current_y }
+      let y_end = if current_y + slot_length > total_width - padding {
+        total_width - padding
+      } else {
+        current_y + slot_length
+      }
+      if y_end - y_start > 1.0 { // Minimum slot length
+        let sw = slot_width
+        let hole = [
+          (row_x - sw / 2.0, y_start),
+          (row_x + sw / 2.0, y_start),
+          (row_x + sw / 2.0, y_end),
+          (row_x - sw / 2.0, y_end),
+        ].rev()
+        holes.push(hole)
+      }
+      current_y = current_y + spacing_y
+    }
+  }
+  ExtrudedProfile::new(outer, thickness, holes~)
+}
+
+///|
 /// tube returns a Shape representing a hollow (or solid) cylinder.
 /// If inner_diameter <= 0, it returns a solid cylinder.
 pub fn tube(
