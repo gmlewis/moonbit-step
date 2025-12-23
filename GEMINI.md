@@ -53,3 +53,7 @@
   then imported back into this one. Following the "No modification of .mooncakes" rule, any
   improvements or fixes to these external packages must be documented in a separate
   Markdown file for the user to implement externally.
+- Make sure to run `./scripts/manage_examples.py 9 --render --readme --validate`
+  (for example) to validate the design and update the readme.
+- Please never use grey in any of the example renders. Use beautiful colors like
+  purples, greens, blues, cyans, oranges, magentas, etc.

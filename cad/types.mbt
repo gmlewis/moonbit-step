@@ -26,6 +26,16 @@ pub fn Rgb::grey() -> Rgb {
 }
 
 ///|
+pub fn Rgb::purple() -> Rgb {
+  { r: 0.5, g: 0.0, b: 0.5 }
+}
+
+///|
+pub fn Rgb::magenta() -> Rgb {
+  { r: 1.0, g: 0.0, b: 1.0 }
+}
+
+///|
 pub fn Rgb::white() -> Rgb {
   { r: 1.0, g: 1.0, b: 1.0 }
 }

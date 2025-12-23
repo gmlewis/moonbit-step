@@ -31,6 +31,83 @@ pub fn Profile2D::rect(
 }
 
 ///|
+pub fn Profile2D::centered_rect(
+  width : Double,
+  height : Double,
+) -> Array[(Double, Double)] {
+  let hw = width / 2.0
+  let hh = height / 2.0
+  [(-hw, -hh), (hw, -hh), (hw, hh), (-hw, hh)]
+}
+
+///|
+pub fn Profile2D::dovetail(
+  width : Double,
+  height : Double,
+  angle : Double, // angle in degrees from vertical
+) -> Array[(Double, Double)] {
+  let angle_rad = angle * @math.PI / 180.0
+  let dx = height * @math.tan(angle_rad)
+  let half_width = width / 2.0
+  [
+    (-half_width, 0.0),
+    (half_width, 0.0),
+    (half_width + dx, height),
+    (-half_width - dx, height),
+  ]
+}
+
+///|
+pub fn dovetail_base(
+  width : Double,
+  height : Double,
+  length : Double,
+  dovetail_width : Double,
+  dovetail_height : Double,
+  dovetail_angle : Double,
+) -> Shape {
+  let hw = width / 2.0
+  let hh = height / 2.0
+  let dhw = dovetail_width / 2.0
+  let angle_rad = dovetail_angle * @math.PI / 180.0
+  let dx = dovetail_height * @math.tan(angle_rad)
+
+  // Construct a single CCW loop including the dovetail cutout at the top.
+  let outer = [
+    (-hw, hh),
+    (-hw, -hh),
+    (hw, -hh),
+    (hw, hh),
+    (dhw, hh),
+    (dhw + dx, hh - dovetail_height),
+    (-dhw - dx, hh - dovetail_height),
+    (-dhw, hh),
+  ]
+  ExtrudedProfile::new(outer, length)
+}
+
+///|
+pub fn dovetail_slider(
+  width : Double,
+  height : Double,
+  length : Double,
+  angle : Double,
+  clearance? : Double = 0.0,
+) -> Shape {
+  // Apply clearance: narrow the width and shorten the height.
+  let dt = Profile2D::dovetail(width - 2.0 * clearance, height - clearance, angle)
+  // Flip Y to match the groove orientation (neck at the top, pointing down).
+  // We also reverse the order to maintain CCW orientation.
+  let n = dt.length()
+  let flipped = []
+  for i in 0..<n {
+    let p = dt[n - 1 - i]
+    flipped.push((p.0, -p.1))
+  }
+  ExtrudedProfile::new(flipped, length)
+}
+
+///|
 pub fn Profile2D::circle(
   diameter : Double,
   segments? : Int = 64,

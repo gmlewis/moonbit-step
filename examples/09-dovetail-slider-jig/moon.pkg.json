@@ -1,0 +1,8 @@
+{
+  "is-main": true,
+  "import": [
+    "gmlewis/step/cad",
+    "gmlewis/step/cli",
+    "moonbitlang/async"
+  ]
+}
