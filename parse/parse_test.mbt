@@ -885,8 +885,8 @@ test "parse_repository_from_string_styled_item_chain" {
     "#24=STYLED_ITEM('',(#25),#32);", "#23=PRESENTATION_LAYER_ASSIGNMENT('1','Layer 1',(#32));",
   ]
   let mut all_found = true
-  for i = 0; i < expect_lines.length(); i = i + 1 {
-    let found = match String::find(out, expect_lines[i]) {
+  for line in expect_lines {
+    let found = match String::find(out, line) {
       Some(_) => true
       None => false
     }
@@ -906,8 +906,8 @@ test "parse_repository_from_string_units_and_unit_wrappers" {
     "#188=UNCERTAINTY_MEASURE_WITH_UNIT(LENGTH_MEASURE(2.E-005),#194,'DISTANCE_ACCURACY_VALUE','Maximum Tolerance applied to model');",
   ]
   let mut all_found = true
-  for i = 0; i < expect_lines.length(); i = i + 1 {
-    let found = match String::find(out, expect_lines[i]) {
+  for line in expect_lines {
+    let found = match String::find(out, line) {
       Some(_) => true
       None => false
     }

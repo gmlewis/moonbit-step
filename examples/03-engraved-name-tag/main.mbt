@@ -154,8 +154,8 @@ async fn main {
   for g in all_paths {
     // Use the upstream helper that returns polygons as tuples directly.
     let profiles = @draw.Graphic::to_profiles_tuples(g, curve_segments)
-    for pi = 0; pi < profiles.length(); pi = pi + 1 {
-      let (outer, holes) = profiles[pi]
+    for profile in profiles {
+      let (outer, holes) = profile
       if outer.length() < 3 {
         continue
       }

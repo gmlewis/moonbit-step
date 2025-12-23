@@ -33,7 +33,7 @@ async test "machine_contact_medium_roundtrip_is_idempotent" {
     fn get_line(s : String, target_line : Int) -> String {
       let mut line = 1
       let mut start = 0
-      for j = 0; j < s.length(); j = j + 1 {
+      for j in 0..<s.length() {
         if UInt16::to_int(String::code_unit_at(s, j)) == Char::to_int('\n') {
           if line == target_line {
             return substr(s, start, j)

@@ -139,7 +139,7 @@ fn parse_int_dec(s : String) -> Int {
     0
   }
   let mut acc = 0
-  for i = start_i; i < t.length(); i = i + 1 {
+  for i in start_i..<t.length() {
     let ci = cu_at(t, i)
     if ci >= Char::to_int('0') && ci <= Char::to_int('9') {
       acc = acc * 10 + (ci - Char::to_int('0'))
@@ -400,8 +400,7 @@ pub fn tokenize_step_data_section_with_base(
     }
   }
   let rows : Array[RawEntityRow] = []
-  for i = 0; i < stmts.length(); i = i + 1 {
-    let span = stmts[i]
+  for span in stmts {
     let (abs_line, abs_col) = apply_base(
       span.line,
       span.col,
@@ -433,7 +432,7 @@ pub fn split_args(args : String) -> Array[String] {
   let mut in_str = false
   let mut skip_quote = false
   let mut start = inner_start
-  for i = inner_start; i < inner_end; i = i + 1 {
+  for i in inner_start..<inner_end {
     let ci = cu_at(s, i)
     if ci == Char::to_int('\'') {
       if skip_quote {

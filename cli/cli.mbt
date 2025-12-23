@@ -189,8 +189,7 @@ fn split_whitespace(s : String) -> Array[String] {
 ///|
 fn expand_double_dash_equals(argv : Array[String]) -> Array[String] {
   let out : Array[String] = []
-  for i = 0; i < argv.length(); i = i + 1 {
-    let a = argv[i]
+  for a in argv {
     // Expand "--name=value" -> ["--name", "value"].
     // clap treats the '=' form as part of the argument name, so we normalize.
     if a.length() >= 4 &&

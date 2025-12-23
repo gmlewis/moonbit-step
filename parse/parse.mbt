@@ -84,8 +84,8 @@ fn parse_cartesian_point(
   let name = strip_quotes(parts[0])
   let coord_parts = split_args(parts[1])
   let coords : Array[Double] = []
-  for i = 0; i < coord_parts.length(); i = i + 1 {
-    coords.push(parse_double(coord_parts[i]))
+  for p in coord_parts {
+    coords.push(parse_double(p))
   }
   @geometry.CartesianPoint::new(name, coords)
 }
@@ -99,8 +99,8 @@ fn parse_direction(args : String) -> @geometry.Direction raise StepParseError {
   let name = strip_quotes(parts[0])
   let ratio_parts = split_args(parts[1])
   let ratios : Array[Double] = []
-  for i = 0; i < ratio_parts.length(); i = i + 1 {
-    ratios.push(parse_double(ratio_parts[i]))
+  for p in ratio_parts {
+    ratios.push(parse_double(p))
   }
   @geometry.Direction::new(name, ratios)
 }
@@ -293,8 +293,8 @@ fn parse_b_spline_curve(
   let degree = parse_int_dec(parts[1])
   let cp_ids = parse_ref_ids(parts[2])
   let control_points : Array[@step.Ref] = []
-  for i = 0; i < cp_ids.length(); i = i + 1 {
-    control_points.push(@step.Ref::{ id: cp_ids[i] })
+  for id in cp_ids {
+    control_points.push(@step.Ref::{ id, })
   }
   let curve_form = parts[3].trim().to_string()
   let closed_str = parts[4].trim().to_string()
@@ -322,8 +322,8 @@ fn parse_b_spline_curve(
 fn parse_int_list(arg : String) -> Array[Int] {
   let parts = split_args(arg)
   let out : Array[Int] = []
-  for i = 0; i < parts.length(); i = i + 1 {
-    out.push(parse_int_dec(parts[i]))
+  for p in parts {
+    out.push(parse_int_dec(p))
   }
   out
 }
@@ -332,8 +332,8 @@ fn parse_int_list(arg : String) -> Array[Int] {
 fn parse_literal_list(arg : String) -> Array[String] {
   let parts = split_args(arg)
   let out : Array[String] = []
-  for i = 0; i < parts.length(); i = i + 1 {
-    out.push(parts[i].trim().to_string())
+  for p in parts {
+    out.push(p.trim().to_string())
   }
   out
 }
@@ -350,8 +350,8 @@ fn parse_b_spline_curve_with_knots(
   let degree = parse_int_dec(parts[1])
   let cp_ids = parse_ref_ids(parts[2])
   let control_points : Array[@step.Ref] = []
-  for i = 0; i < cp_ids.length(); i = i + 1 {
-    control_points.push(@step.Ref::{ id: cp_ids[i] })
+  for id in cp_ids {
+    control_points.push(@step.Ref::{ id, })
   }
   let curve_form = parts[3].trim().to_string()
   let closed_str = parts[4].trim().to_string()
@@ -403,11 +403,11 @@ fn parse_b_spline_surface(
   let v_degree = parse_int_dec(parts[1])
   let row_parts = split_args(parts[2])
   let control_points_list : Array[Array[@step.Ref]] = []
-  for i = 0; i < row_parts.length(); i = i + 1 {
-    let ids = parse_ref_ids(row_parts[i])
+  for row_part in row_parts {
+    let ids = parse_ref_ids(row_part)
     let row : Array[@step.Ref] = []
-    for j = 0; j < ids.length(); j = j + 1 {
-      row.push(@step.Ref::{ id: ids[j] })
+    for id in ids {
+      row.push(@step.Ref::{ id, })
     }
     control_points_list.push(row)
   }
@@ -470,8 +470,8 @@ fn parse_rational_b_spline_surface(
   // parts[0] looks like: ((1.,...),(...),(...))
   let row_parts = split_args(parts[0])
   let weights : Array[Array[String]] = []
-  for i = 0; i < row_parts.length(); i = i + 1 {
-    weights.push(parse_literal_list(row_parts[i]))
+  for row_part in row_parts {
+    weights.push(parse_literal_list(row_part))
   }
   @geometry.RationalBSplineSurface::new(weights)
 }
@@ -647,8 +647,8 @@ fn parse_polyline(args : String) -> @geometry.Polyline raise StepParseError {
   let name = strip_quotes(parts[0])
   let ids = parse_ref_ids(parts[1])
   let points : Array[@step.Ref] = []
-  for i = 0; i < ids.length(); i = i + 1 {
-    points.push(@step.Ref::{ id: ids[i] })
+  for id in ids {
+    points.push(@step.Ref::{ id, })
   }
   @geometry.Polyline::new(name, points)
 }
@@ -909,8 +909,8 @@ fn parse_advanced_brep_shape_representation(
   let name = strip_quotes(parts[0])
   let item_ids = parse_ref_ids(parts[1])
   let items : Array[@step.Ref] = []
-  for i = 0; i < item_ids.length(); i = i + 1 {
-    items.push(@step.Ref::{ id: item_ids[i] })
+  for id in item_ids {
+    items.push(@step.Ref::{ id, })
   }
   let ctx_id = parse_ref_int(parts[2])
   @product.AdvancedBrepShapeRepresentation::new(name, items, @step.Ref::{
@@ -944,8 +944,8 @@ fn parse_shape_representation(
   let name = strip_quotes(parts[0])
   let item_ids = parse_ref_ids(parts[1])
   let items : Array[@step.Ref] = []
-  for i = 0; i < item_ids.length(); i = i + 1 {
-    items.push(@step.Ref::{ id: item_ids[i] })
+  for id in item_ids {
+    items.push(@step.Ref::{ id, })
   }
   let ctx_id = parse_ref_int(parts[2])
   @product.ShapeRepresentation::new(name, items, @step.Ref::{ id: ctx_id })
@@ -962,8 +962,8 @@ fn parse_representation(
   let name = strip_quotes(parts[0])
   let item_ids = parse_ref_ids(parts[1])
   let items : Array[@step.Ref] = []
-  for i = 0; i < item_ids.length(); i = i + 1 {
-    items.push(@step.Ref::{ id: item_ids[i] })
+  for id in item_ids {
+    items.push(@step.Ref::{ id, })
   }
   let ctx_id = parse_ref_int(parts[2])
   @product.Representation::new(name, items, @step.Ref::{ id: ctx_id })
@@ -1218,8 +1218,8 @@ fn parse_product_related_product_category(
   let description = strip_quotes(parts[1])
   let product_ids = parse_ref_ids(parts[2])
   let products : Array[@step.Ref] = []
-  for i = 0; i < product_ids.length(); i = i + 1 {
-    products.push(@step.Ref::{ id: product_ids[i] })
+  for id in product_ids {
+    products.push(@step.Ref::{ id, })
   }
   @product.ProductRelatedProductCategory::new(name, description, products)
 }
@@ -1235,8 +1235,8 @@ fn parse_product(args : String) -> @product.Product raise StepParseError {
   let description = strip_quotes(parts[2])
   let ref_ids = parse_ref_ids(parts[3])
   let refs : Array[@step.Ref] = []
-  for i = 0; i < ref_ids.length(); i = i + 1 {
-    refs.push(@step.Ref::{ id: ref_ids[i] })
+  for id in ref_ids {
+    refs.push(@step.Ref::{ id, })
   }
   @product.Product::new(name, id, description, refs)
 }
@@ -1312,8 +1312,8 @@ fn parse_closed_shell(
   let name = strip_quotes(parts[0])
   let face_ids = parse_ref_ids(parts[1])
   let faces : Array[@step.Ref] = []
-  for i = 0; i < face_ids.length(); i = i + 1 {
-    faces.push(@step.Ref::{ id: face_ids[i] })
+  for id in face_ids {
+    faces.push(@step.Ref::{ id, })
   }
   @topology.ClosedShell::new(name, faces)
 }
@@ -1327,8 +1327,8 @@ fn parse_open_shell(args : String) -> @topology.OpenShell raise StepParseError {
   let name = strip_quotes(parts[0])
   let face_ids = parse_ref_ids(parts[1])
   let faces : Array[@step.Ref] = []
-  for i = 0; i < face_ids.length(); i = i + 1 {
-    faces.push(@step.Ref::{ id: face_ids[i] })
+  for id in face_ids {
+    faces.push(@step.Ref::{ id, })
   }
   @topology.OpenShell::new(name, faces)
 }
@@ -1344,8 +1344,8 @@ fn parse_face_surface(
   let name = strip_quotes(parts[0])
   let bound_ids = parse_ref_ids(parts[1])
   let bounds : Array[@step.Ref] = []
-  for i = 0; i < bound_ids.length(); i = i + 1 {
-    bounds.push(@step.Ref::{ id: bound_ids[i] })
+  for id in bound_ids {
+    bounds.push(@step.Ref::{ id, })
   }
   let geom_id = parse_ref_int(parts[2])
   let ss_str = parts[3].trim().to_string()
@@ -1375,8 +1375,8 @@ fn parse_shell_based_surface_model(
   let name = strip_quotes(parts[0])
   let bound_ids = parse_ref_ids(parts[1])
   let bounds : Array[@step.Ref] = []
-  for i = 0; i < bound_ids.length(); i = i + 1 {
-    bounds.push(@step.Ref::{ id: bound_ids[i] })
+  for id in bound_ids {
+    bounds.push(@step.Ref::{ id, })
   }
   @topology.ShellBasedSurfaceModel::new(name, bounds)
 }
@@ -1392,8 +1392,8 @@ fn parse_advanced_face(
   let name = strip_quotes(parts[0])
   let bound_ids = parse_ref_ids(parts[1])
   let bounds : Array[@step.Ref] = []
-  for i = 0; i < bound_ids.length(); i = i + 1 {
-    bounds.push(@step.Ref::{ id: bound_ids[i] })
+  for id in bound_ids {
+    bounds.push(@step.Ref::{ id, })
   }
   let surface_id = parse_ref_int(parts[2])
   let ss = parts[3].trim().to_string()
@@ -1461,8 +1461,8 @@ fn parse_edge_loop(args : String) -> @topology.EdgeLoop raise StepParseError {
   let name = strip_quotes(parts[0])
   let edge_ids = parse_ref_ids(parts[1])
   let edges : Array[@step.Ref] = []
-  for i = 0; i < edge_ids.length(); i = i + 1 {
-    edges.push(@step.Ref::{ id: edge_ids[i] })
+  for id in edge_ids {
+    edges.push(@step.Ref::{ id, })
   }
   @topology.EdgeLoop::new(name, edges)
 }
@@ -1555,8 +1555,8 @@ fn parse_color_rgb(
 fn parse_ref_ids(arg : String) -> Array[@step.EntityId] raise StepParseError {
   let parts = split_args(arg)
   let out : Array[@step.EntityId] = []
-  for i = 0; i < parts.length(); i = i + 1 {
-    out.push(parse_ref_int(parts[i]))
+  for p in parts {
+    out.push(parse_ref_int(p))
   }
   out
 }
@@ -1599,8 +1599,8 @@ fn parse_fill_area_style(
   let name = strip_quotes(parts[0])
   let style_ids = parse_ref_ids(parts[1])
   let styles : Array[@step.Ref] = []
-  for i = 0; i < style_ids.length(); i = i + 1 {
-    styles.push(@step.Ref::{ id: style_ids[i] })
+  for id in style_ids {
+    styles.push(@step.Ref::{ id, })
   }
   @presentation.FillAreaStyle::new(name, styles)
 }
@@ -1628,8 +1628,8 @@ fn parse_surface_side_style(
   let name = strip_quotes(parts[0])
   let style_ids = parse_ref_ids(parts[1])
   let styles : Array[@step.Ref] = []
-  for i = 0; i < style_ids.length(); i = i + 1 {
-    styles.push(@step.Ref::{ id: style_ids[i] })
+  for id in style_ids {
+    styles.push(@step.Ref::{ id, })
   }
   @presentation.SurfaceSideStyle::new(name, styles)
 }
@@ -1657,8 +1657,8 @@ fn parse_presentation_style_assignment(
   }
   let style_ids = parse_ref_ids(parts[0])
   let styles : Array[@step.Ref] = []
-  for i = 0; i < style_ids.length(); i = i + 1 {
-    styles.push(@step.Ref::{ id: style_ids[i] })
+  for id in style_ids {
+    styles.push(@step.Ref::{ id, })
   }
   @presentation.PresentationStyleAssignment::new(styles)
 }
@@ -1675,8 +1675,8 @@ fn parse_presentation_layer_assignment(
   let description = strip_quotes(parts[1])
   let item_ids = parse_ref_ids(parts[2])
   let items : Array[@step.Ref] = []
-  for i = 0; i < item_ids.length(); i = i + 1 {
-    items.push(@step.Ref::{ id: item_ids[i] })
+  for id in item_ids {
+    items.push(@step.Ref::{ id, })
   }
   @presentation.PresentationLayerAssignment::new(name, description, items)
 }
@@ -1692,8 +1692,8 @@ fn parse_mechanical_design_geometric_presentation_representation(
   let name = strip_quotes(parts[0])
   let item_ids = parse_ref_ids(parts[1])
   let items : Array[@step.Ref] = []
-  for i = 0; i < item_ids.length(); i = i + 1 {
-    items.push(@step.Ref::{ id: item_ids[i] })
+  for id in item_ids {
+    items.push(@step.Ref::{ id, })
   }
   let ctx_id = parse_ref_int(parts[2])
   @presentation.MechanicalDesignGeometricPresentationRepresentation::new(
@@ -1714,8 +1714,8 @@ fn parse_styled_item(
   let name = strip_quotes(parts[0])
   let style_ids = parse_ref_ids(parts[1])
   let styles : Array[@step.Ref] = []
-  for i = 0; i < style_ids.length(); i = i + 1 {
-    styles.push(@step.Ref::{ id: style_ids[i] })
+  for id in style_ids {
+    styles.push(@step.Ref::{ id, })
   }
   let item_id = parse_ref_int(parts[2])
   @presentation.StyledItem::new(name, styles, @step.Ref::{ id: item_id })
@@ -1826,8 +1826,8 @@ fn parse_derived_unit(args : String) -> @units.DerivedUnit raise StepParseError 
   }
   let elem_ids = parse_ref_ids(parts[0])
   let elems : Array[@step.Ref] = []
-  for i = 0; i < elem_ids.length(); i = i + 1 {
-    elems.push(@step.Ref::{ id: elem_ids[i] })
+  for id in elem_ids {
+    elems.push(@step.Ref::{ id, })
   }
   @units.DerivedUnit::new(elems)
 }
@@ -1840,7 +1840,7 @@ fn split_complex_parts(body : String) -> Array[String] {
   let mut in_str = false
   let mut skip_quote = false
   let mut start = 0
-  for i = 0; i < body.length(); i = i + 1 {
+  for i in 0..<body.length() {
     let ci = cu_at(body, i)
     if ci == Char::to_int('\'') {
       if skip_quote {
@@ -1934,8 +1934,7 @@ fn parse_complex_instance(
   let inner = substr(t, 1, t.length() - 1)
   let part_strs = split_complex_parts(inner)
   let parts : Array[@context.ComplexPart] = []
-  for i = 0; i < part_strs.length(); i = i + 1 {
-    let s = part_strs[i]
+  for s in part_strs {
     let lp_idx = match String::find(s, "(") {
       Some(j) => j
       None => fail_parse()
@@ -2318,8 +2317,8 @@ fn parse_string_list_or_dollar(arg : String) -> @header.StringListOrDollar? {
   }
   let parts = split_args(t)
   let values : Array[String] = []
-  for i = 0; i < parts.length(); i = i + 1 {
-    match parse_step_string_literal(parts[i]) {
+  for p in parts {
+    match parse_step_string_literal(p) {
       Some(v) => values.push(v)
       None => return None
     }
@@ -2387,8 +2386,7 @@ fn parse_file_schema(stmt : String, args : String) -> @header.HeaderEntity {
 fn parse_header_section(header_section : String) -> @header.HeaderSection {
   let stmts = split_statements(header_section)
   let entities : Array[@header.HeaderEntity] = []
-  for i = 0; i < stmts.length(); i = i + 1 {
-    let stmt = stmts[i]
+  for stmt in stmts {
     let lp_idx = String::find(stmt, "(")
     match lp_idx {
       None => entities.push(@header.HeaderEntity::Raw(stmt))
@@ -2489,8 +2487,7 @@ pub fn parse_repository_from_string(
     data_section, base_line, base_col,
   )
   let mut repo = @repository.new()
-  for i = 0; i < rows.length(); i = i + 1 {
-    let row = rows[i]
+  for row in rows {
     let name = row.name
     if name == "CARTESIAN_POINT" {
       let entity = parse_cartesian_point(row.args)

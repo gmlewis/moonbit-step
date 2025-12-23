@@ -44,7 +44,7 @@ fn rand_upper_name(state : Int) -> (String, Int) {
   s = s1
   let len = 3 + len0 // 3..12
   let builder = StringBuilder::new()
-  for _i = 0; _i < len; _i = _i + 1 {
+  for _ in 0..<len {
     let (choice, s2) = rand_range(s, 28)
     s = s2
     if choice < 26 {
@@ -64,7 +64,7 @@ fn rand_digits(state : Int, min_len : Int, max_len : Int) -> (String, Int) {
   s = s1
   let len = min_len + d0
   let builder = StringBuilder::new()
-  for i = 0; i < len; i = i + 1 {
+  for i in 0..<len {
     let (c, s2) = rand_range(s, 10)
     s = s2
     // avoid leading zero sometimes
@@ -86,7 +86,7 @@ fn rand_step_string(state : Int) -> (String, Int) {
   let len = len0 // 0..29
   let builder = StringBuilder::new()
   builder.write_char('\'')
-  for _i = 0; _i < len; _i = _i + 1 {
+  for _ in 0..<len {
     let (choice, s2) = rand_range(s, 40)
     s = s2
     if choice < 26 {
@@ -122,7 +122,7 @@ fn rand_comment(state : Int) -> (String, Int) {
   let len = 3 + len0
   let builder = StringBuilder::new()
   builder.write_string("/*")
-  for _i = 0; _i < len; _i = _i + 1 {
+  for _ in 0..<len {
     let (choice, s2) = rand_range(s, 20)
     s = s2
     if choice < 10 {
@@ -173,7 +173,7 @@ fn rand_value(state : Int, depth : Int) -> (String, Int) {
     let count = 1 + count0
     let builder = StringBuilder::new()
     builder.write_char('(')
-    for i = 0; i < count; i = i + 1 {
+    for i in 0..<count {
       let (v, s4) = rand_value(s2, depth - 1)
       s2 = s4
       if i > 0 {
@@ -202,7 +202,7 @@ fn rand_args(state : Int) -> (String, Int) {
   let count = count0
   let builder = StringBuilder::new()
   builder.write_char('(')
-  for i = 0; i < count; i = i + 1 {
+  for i in 0..<count {
     let (v, s2) = rand_value(s, 2)
     s = s2
     if i > 0 {
@@ -250,12 +250,12 @@ fn wrap_as_step_file(data_section : String) -> String {
 test "fuzz_parse_never_aborts_and_roundtrips_when_ok" {
   let mut state = 1234567
   // Bound runtime: small corpus, small statements.
-  for iter = 0; iter < 120; iter = iter + 1 {
+  for iter in 0..<120 {
     let (stmt_count0, s1) = rand_range(state, 25)
     state = s1
     let stmt_count = 1 + stmt_count0
     let builder = StringBuilder::new()
-    for i = 0; i < stmt_count; i = i + 1 {
+    for i in 0..<stmt_count {
       let (stmt, s2) = rand_data_statement(state, 1 + i)
       state = s2
       builder.write_string(stmt)
@@ -287,19 +287,19 @@ test "fuzz_parse_never_aborts_and_roundtrips_when_ok" {
 ///|
 test "fuzz_tokenizer_never_aborts" {
   let mut state = 7654321
-  for _iter = 0; _iter < 200; _iter = _iter + 1 {
+  for _iter in 0..<200 {
     let (stmt_count0, s1) = rand_range(state, 18)
     state = s1
     let stmt_count = stmt_count0
     let builder = StringBuilder::new()
-    for i = 0; i < stmt_count; i = i + 1 {
+    for i in 0..<stmt_count {
       let (stmt, s2) = rand_data_statement(state, 100 + i)
       state = s2
       builder.write_string(stmt)
       // sprinkle some extra whitespace
       let (spaces0, s3) = rand_range(state, 3)
       state = s3
-      for _j = 0; _j < spaces0; _j = _j + 1 {
+      for _ in 0..<spaces0 {
         builder.write_char(' ')
       }
     }

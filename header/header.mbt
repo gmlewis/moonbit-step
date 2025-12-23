@@ -109,11 +109,7 @@ fn step_string_or_dollar_to_step(s : StringOrDollar) -> String {
 
 ///|
 fn step_string_list_to_step(values : Array[String]) -> String {
-  let parts : Array[String] = []
-  for i = 0; i < values.length(); i = i + 1 {
-    parts.push(@step.step_str(values[i]))
-  }
-  let joined = parts.join(",")
+  let joined = values.map(@step.step_str).join(",")
   "(\{joined})"
 }
 
@@ -164,11 +160,7 @@ fn header_entity_to_step(e : HeaderEntity) -> String {
 // Serialize only the statements inside HEADER...ENDSEC.
 // Each statement is terminated with a semicolon and separated by newlines.
 pub fn HeaderSection::to_step_statements(self : HeaderSection) -> String {
-  let lines : Array[String] = []
-  for i = 0; i < self.entities.length(); i = i + 1 {
-    lines.push("\{header_entity_to_step(self.entities[i])};")
-  }
-  lines.join("\n")
+  self.entities.map(fn(e) { "\{header_entity_to_step(e)};" }).join("\n")
 }
 
 ///|

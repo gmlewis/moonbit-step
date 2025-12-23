@@ -112,7 +112,7 @@ fn cu_at_err(s : String, i : Int) -> Int {
 ///|
 fn render_spaces(n : Int) -> String {
   let builder = StringBuilder::new()
-  for _i = 0; _i < n; _i = _i + 1 {
+  for _ in 0..<n {
     builder.write_char(' ')
   }
   builder.to_string()

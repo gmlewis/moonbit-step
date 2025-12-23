@@ -702,8 +702,7 @@ pub fn Repository::len(self : Repository) -> Int {
 
 ///|
 pub fn Repository::get(self : Repository, id : @step.EntityId) -> AnyEntity? {
-  for i = 0; i < self.entities.length(); i = i + 1 {
-    let entry = self.entities[i]
+  for entry in self.entities {
     if entry.id.value == id.value {
       return Some(entry.entity)
     }
@@ -842,8 +841,7 @@ fn entity_to_step(entity : AnyEntity) -> String {
 // Minimal serializer for now (DATA section only).
 pub fn Repository::to_step_data_section(self : Repository) -> String {
   let lines : Array[String] = []
-  for i = 0; i < self.entities.length(); i = i + 1 {
-    let entry = self.entities[i]
+  for entry in self.entities {
     lines.push("#\{entry.id.value}=\{entity_to_step(entry.entity)};")
   }
   lines.join("\n")
@@ -865,10 +863,9 @@ pub fn Repository::to_step_file(self : Repository) -> String {
   }
   // Normalize Windows CRLF (or stray CR) so output is stable/idempotent.
   let builder = StringBuilder::new()
-  for i = 0; i < out.length(); i = i + 1 {
-    let cu = UInt16::to_int(String::code_unit_at(out, i))
-    if cu != Char::to_int('\r') {
-      builder.write_char(cu.unsafe_to_char())
+  for c in out {
+    if c != '\r' {
+      builder.write_char(c)
     }
   }
   builder.to_string()
