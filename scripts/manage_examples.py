@@ -22,7 +22,8 @@ SUITE = {
     "10": [["--sides", "6", "--holeSides", "6"], ["--sides", "5", "--holeSides", "3", "--diameter", "25"], ["--sides", "8", "--holeSides", "4", "--holeRotation", "45", "--diameter", "40"]],
     "11": [["--rows", "2", "--cols", "4"], ["--rows", "1", "--cols", "5", "--spacing", "8.5", "--tolerance", "0.05"], ["--rows", "3", "--cols", "3", "--spacing", "15", "--height", "25"]],
     "12": [["--diameter", "25.4", "--type", "cap"], ["--diameter", "25.4", "--type", "plug", "--topThickness", "5"], ["--diameter", "50", "--wall", "1.2", "--height", "20"]],
-    "13": [["--length", "60", "--width", "70"], ["--length", "100", "--width", "80", "--height", "15"], ["--width", "50", "--baseHeight", "5"]]
+    "13": [["--length", "60", "--width", "70"], ["--length", "100", "--width", "80", "--height", "15"], ["--width", "50", "--height", "12"]],
+    "14": [["--length", "100"], ["--length", "150", "--width", "50"], ["--length", "80", "--height", "12"]]
 }
 
 # --- Utils ---
@@ -183,6 +184,39 @@ def update_readme(example_dir, variants_data):
     readme_path.write_text(content + new_section + "\n")
 
 def main():
+    root = Path(__file__).parent.parent
+
+    # Run moon check first
+    print("Running 'moon check --target native'...")
+    try:
+        subprocess.run(["moon", "check", "--target", "native"], cwd=root, check=True, capture_output=True, text=True)
+        print("  Check: OK")
+    except subprocess.CalledProcessError as e:
+        print("\nERROR: 'moon check --target native' failed. Please fix the following errors before running this script again:\n")
+        print(e.stdout)
+        print(e.stderr)
+        sys.exit(1)
+
+    # Run test-all.sh
+    print("Running './test-all.sh'...")
+    try:
+        result = subprocess.run(["./test-all.sh"], cwd=root, check=True, capture_output=True, text=True)
+        if "failed: 0" in result.stdout:
+            print("  Tests: OK")
+        else:
+            print("\nERROR: './test-all.sh' reported failures:\n")
+            # Show only the summary line
+            lines = result.stdout.splitlines()
+            for line in lines:
+                if "Total tests:" in line:
+                    print(line)
+            sys.exit(1)
+    except subprocess.CalledProcessError as e:
+        print("\nERROR: './test-all.sh' failed to execute correctly:\n")
+        print(e.stdout)
+        print(e.stderr)
+        sys.exit(1)
+
     parser = argparse.ArgumentParser()
     parser.add_argument("target", help="Example number or 'all'")
     parser.add_argument("--validate", action="store_true")
@@ -222,7 +256,7 @@ def main():
 
         variants_processed = []
         for i, config in enumerate(SUITE[padded_num], 1):
-            print(f"  [Set {i}] Args: {' '.join(config)}")
+            print(f"  [Set {i}] Args: {" ".join(config)}")
             step_file = Path(f"/tmp/example-{padded_num}-{i}.step")
 
             if not generate_step(padded_num, config, step_file): continue

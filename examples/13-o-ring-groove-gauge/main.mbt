@@ -26,11 +26,6 @@ async fn main {
       help="Height of the gauge block (mm)",
       min=5.0,
     ),
-    "baseHeight": @cli.opt_double(
-      3.0,
-      help="Thickness of the solid base plate (mm)",
-      min=1.0,
-    ),
     "out": @cli.opt_string(
       short='o',
       help="Write output to a file (default: stdout)",
@@ -48,7 +43,6 @@ async fn main {
   let block_length = args.double("length")
   let block_width = args.double("width")
   let notched_height = args.double("height")
-  let base_height = args.double("baseHeight")
   let out_path = args.string_opt("out")
   let (tx, ty, tz) = match args.translate_xyz() {
     Some(v) => v
@@ -93,24 +87,22 @@ async fn main {
   }
 
   //
-  // 1. The solid base plate
-  let base = @cad.Cuboid::new(block_width, block_length, base_height)
-    .with_name("gauge-base")
-    .with_color(@cad.Rgb::purple())
-    .translate(x=tx, y=ty, z=tz)
-
-  //
-  // 2. The notched block
-  // notched_block extrudes along 'length', so its profile is (width x height)
+  // 1. The notched block.
+  // We rotate it 90 around X and 180 around Z so it lies flat on the XY plane
+  // with the notches facing UP (+Z).
+  // Local X (Width) -> World -X (centered)
+  // Local Y (Height) -> World Z
+  // Local Z (Length) -> World Y
   let gauge = @cad.notched_block(
       block_width, block_length, notched_height, notches,
     )
     .with_name("gauge-notches")
-    .with_color(@cad.Rgb::green())
-    .translate(x=tx, y=ty, z=tz + base_height)
+    .with_color(@cad.Rgb::orange())
+    .rotate_x(90.0)
+    .rotate_z(180.0)
+    .translate(x=tx, y=ty, z=tz)
 
   //
-  let design = @cad.Design::new(name="o-ring-groove-gauge").add(base).add(gauge)
-  let design = design.rotate_z(180)
+  let design = @cad.Design::new(name="o-ring-groove-gauge").add(gauge)
   design.write_step(out_path)
 }

@@ -59,10 +59,7 @@ pub fn compile_calibration_chamfer_block(
   })
 
   // Vertex points
-  let vp_refs = cp_refs.map(fn(cp_ref) {
-    let vp = @topology.VertexPoint::new("", cp_ref)
-    ctx.add(@repository.any_entity_vertex_point(vp))
-  })
+  let vp_refs = cp_refs.map(fn(cp_ref) { ctx.vertex_point(cp_ref) })
   let edges : Array[EdgeInfo] = []
   let seen : Map[String, Bool] = Map::new()
   let add_edge = fn(a : Int, b : Int) -> Unit {
@@ -76,16 +73,8 @@ pub fn compile_calibration_chamfer_block(
     let dir_raw = v_norm(v_sub(pts[end], pts[start]))
     let dir_ref = ctx.direction(dir_raw.0, dir_raw.1, dir_raw.2)
     let vec_ref = ctx.vector(dir_ref, 1.0)
-    let line = @geometry.Line::new("", cp_refs[start], vec_ref)
-    let line_ref = ctx.add(@repository.any_entity_line(line))
-    let ec = @topology.EdgeCurve::new(
-      "",
-      vp_refs[start],
-      vp_refs[end],
-      line_ref,
-      true,
-    )
-    let ec_ref = ctx.add(@repository.any_entity_edge_curve(ec))
+    let line_ref = ctx.line(cp_refs[start], vec_ref)
+    let ec_ref = ctx.edge_curve(vp_refs[start], vp_refs[end], line_ref, true)
     edges.push(EdgeInfo::{ start, end, edge: ec_ref })
   }
 

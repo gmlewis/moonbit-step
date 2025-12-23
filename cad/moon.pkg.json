@@ -9,6 +9,7 @@
     "gmlewis/step/entities/units",
     "gmlewis/step/header",
     "gmlewis/step/repository",
+    "gmlewis/fonts/draw",
     "moonbitlang/async",
     "moonbitlang/async/fs",
     "moonbitlang/x/time"

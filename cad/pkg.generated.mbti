@@ -2,26 +2,41 @@
 package "gmlewis/step/cad"
 
 import(
+  "gmlewis/fonts"
   "gmlewis/step"
   "gmlewis/step/repository"
 )
 
 // Values
+pub fn bolt_length_gauge_base(Double, Double, Double, Double, Double, Array[Double]) -> Shape
+
 pub fn compile_calibration_chamfer_block(StepContext, SceneNode, CalibrationChamferBlock) -> @step.Ref
 
 pub fn compile_cuboid(StepContext, SceneNode, Cuboid) -> @step.Ref
 
 pub fn compile_extruded_profile(StepContext, SceneNode, ExtrudedProfile) -> @step.Ref
 
+pub fn cycle_area_3d(Array[(Double, Double, Double)], Array[Int]) -> (Double, Double, Double)
+
 pub fn dovetail_base(Double, Double, Double, Double, Double, Double) -> Shape
 
 pub fn dovetail_slider(Double, Double, Double, Double, clearance? : Double) -> Shape
 
+pub fn force_ccw(Array[(Double, Double)]) -> Array[(Double, Double)]
+
+pub fn force_cw(Array[(Double, Double)]) -> Array[(Double, Double)]
+
 pub fn hex_bit_holder(Int, Int, Double, Double, Double) -> Shape
+
+pub fn is_point_in_polygon((Double, Double), Array[(Double, Double)]) -> Bool
 
 pub fn notched_block(Double, Double, Double, Array[(Double, Double, Double)]) -> Shape
 
+pub fn polygon_area_2d(Array[(Double, Double)]) -> Double
+
 pub fn polygon_knob(Int, Double, Double, Int, Double, hole_rotation? : Double) -> Shape
+
+pub fn text_at(String, Double, Double, Double, font~ : @fonts.Font, font_size? : Double, emboss_depth? : Double, rx? : Double, ry? : Double, rz? : Double) -> Array[SceneNode]
 
 pub fn tube(Double, Double, Double, segments? : Int) -> Shape
 
@@ -140,13 +155,19 @@ pub struct StepContext {
   directions : Map[String, @step.Ref]
   vectors : Map[String, @step.Ref]
   cartesian_points : Map[String, @step.Ref]
+  vertex_points : Map[Int, @step.Ref]
+  lines : Map[String, @step.Ref]
+  edge_curves : Map[String, @step.Ref]
 }
 pub fn StepContext::add_product_definition(Self, String) -> @step.Ref
 pub fn StepContext::cartesian_point(Self, Double, Double, Double) -> @step.Ref
 pub fn StepContext::direction(Self, Double, Double, Double) -> @step.Ref
+pub fn StepContext::edge_curve(Self, @step.Ref, @step.Ref, @step.Ref, Bool) -> @step.Ref
 pub fn StepContext::init_standard_context(Self, String) -> Unit
+pub fn StepContext::line(Self, @step.Ref, @step.Ref) -> @step.Ref
 pub fn StepContext::new() -> Self
 pub fn StepContext::vector(Self, @step.Ref, Double) -> @step.Ref
+pub fn StepContext::vertex_point(Self, @step.Ref) -> @step.Ref
 
 // Type aliases
 
