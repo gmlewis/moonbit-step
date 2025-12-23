@@ -26,6 +26,7 @@ pub enum AnyEntity {
   OffsetSurface(@geometry.OffsetSurface)
   SurfaceOfLinearExtrusion(@geometry.SurfaceOfLinearExtrusion)
   SurfaceOfRevolution(@geometry.SurfaceOfRevolution)
+  SweptSurface(@geometry.SweptSurface)
   RectangularTrimmedSurface(@geometry.RectangularTrimmedSurface)
   Polyline(@geometry.Polyline)
   BooleanResult(@geometry.BooleanResult)
@@ -243,6 +244,11 @@ pub fn any_entity_surface_of_revolution(
   s : @geometry.SurfaceOfRevolution,
 ) -> AnyEntity {
   AnyEntity::SurfaceOfRevolution(s)
+}
+
+///|
+pub fn any_entity_swept_surface(s : @geometry.SweptSurface) -> AnyEntity {
+  AnyEntity::SweptSurface(s)
 }
 
 ///|
@@ -748,6 +754,7 @@ fn entity_to_step(entity : AnyEntity) -> String {
     OffsetSurface(s) => @step.Entity::to_step(s)
     SurfaceOfLinearExtrusion(s) => @step.Entity::to_step(s)
     SurfaceOfRevolution(s) => @step.Entity::to_step(s)
+    SweptSurface(s) => @step.Entity::to_step(s)
     RectangularTrimmedSurface(s) => @step.Entity::to_step(s)
     Polyline(p) => @step.Entity::to_step(p)
     BooleanResult(b) => @step.Entity::to_step(b)

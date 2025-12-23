@@ -310,6 +310,13 @@ pub struct SurfaceOfRevolution {
 pub fn SurfaceOfRevolution::new(String, @step.Ref, @step.Ref) -> Self
 pub impl @step.Entity for SurfaceOfRevolution
 
+pub struct SweptSurface {
+  name : String
+  swept_curve : @step.Ref
+}
+pub fn SweptSurface::new(String, @step.Ref) -> Self
+pub impl @step.Entity for SweptSurface
+
 pub struct ToroidalSurface {
   name : String
   position : @step.Ref

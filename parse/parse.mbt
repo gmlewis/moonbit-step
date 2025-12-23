@@ -584,6 +584,19 @@ fn parse_surface_of_revolution(
 }
 
 ///|
+fn parse_swept_surface(
+  args : String,
+) -> @geometry.SweptSurface raise StepParseError {
+  let parts = split_args(args)
+  if parts.length() != 2 {
+    fail_parse()
+  }
+  let name = strip_quotes(parts[0])
+  let curve_id = parse_ref_int(parts[1])
+  @geometry.SweptSurface::new(name, @step.Ref::{ id: curve_id })
+}
+
+///|
 fn parse_rectangular_trimmed_surface(
   args : String,
 ) -> @geometry.RectangularTrimmedSurface raise StepParseError {
@@ -2559,6 +2572,12 @@ pub fn parse_repository_from_string(
       repo = repo.insert_with_id(
         row.id,
         @repository.any_entity_surface_of_revolution(entity),
+      )
+    } else if name == "SWEPT_SURFACE" {
+      let entity = parse_swept_surface(row.args)
+      repo = repo.insert_with_id(
+        row.id,
+        @repository.any_entity_swept_surface(entity),
       )
     } else if name == "RECTANGULAR_TRIMMED_SURFACE" {
       let entity = parse_rectangular_trimmed_surface(row.args)

@@ -179,6 +179,8 @@ pub fn any_entity_surface_style_fill_area(@presentation.SurfaceStyleFillArea) ->
 
 pub fn any_entity_surface_style_usage(@presentation.SurfaceStyleUsage) -> AnyEntity
 
+pub fn any_entity_swept_surface(@geometry.SweptSurface) -> AnyEntity
+
 pub fn any_entity_toroidal_surface(@geometry.ToroidalSurface) -> AnyEntity
 
 pub fn any_entity_torus(@geometry.Torus) -> AnyEntity
@@ -223,6 +225,7 @@ pub enum AnyEntity {
   OffsetSurface(@geometry.OffsetSurface)
   SurfaceOfLinearExtrusion(@geometry.SurfaceOfLinearExtrusion)
   SurfaceOfRevolution(@geometry.SurfaceOfRevolution)
+  SweptSurface(@geometry.SweptSurface)
   RectangularTrimmedSurface(@geometry.RectangularTrimmedSurface)
   Polyline(@geometry.Polyline)
   BooleanResult(@geometry.BooleanResult)
