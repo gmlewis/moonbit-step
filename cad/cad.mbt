@@ -159,8 +159,9 @@ pub async fn Design::write_step(self : Design, out_path : String?) -> Unit {
 
 ///|
 pub fn Design::add(self : Design, node : SceneNode) -> Design {
-  self.nodes.push(node)
-  Design::{ ..self, next_solid_id: self.next_solid_id + 1 }
+  let nodes = self.nodes.copy()
+  nodes.push(node)
+  Design::{ ..self, nodes, next_solid_id: self.next_solid_id + 1 }
 }
 
 ///|
