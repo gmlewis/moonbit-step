@@ -12,6 +12,8 @@ pub fn arduino_uno_standoff_frame(Double, Double, Double, Double) -> Array[Scene
 
 pub fn bolt_length_gauge_base(Double, Double, Double, Double, Double, Array[Double]) -> Shape
 
+pub fn breadboard_rail_clip(Double, Double, Double, Double, Double, Double, Double) -> Array[SceneNode]
+
 pub fn compile_calibration_chamfer_block(StepContext, SceneNode, CalibrationChamferBlock) -> @step.Ref
 
 pub fn compile_cuboid(StepContext, SceneNode, Cuboid) -> @step.Ref
