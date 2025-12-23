@@ -1243,6 +1243,29 @@ fn parse_application_context(
 }
 
 ///|
+fn parse_approval(args : String) -> @product.Approval raise StepParseError {
+  let parts = split_args(args)
+  if parts.length() != 2 {
+    fail_parse()
+  }
+  let status_id = parse_ref_int(parts[0])
+  let level = strip_quotes(parts[1])
+  @product.Approval::new(@step.Ref::{ id: status_id }, level)
+}
+
+///|
+fn parse_approval_status(
+  args : String,
+) -> @product.ApprovalStatus raise StepParseError {
+  let parts = split_args(args)
+  if parts.length() != 1 {
+    fail_parse()
+  }
+  let name = strip_quotes(parts[0])
+  @product.ApprovalStatus::new(name)
+}
+
+///|
 fn parse_manifold_solid_brep(
   args : String,
 ) -> @topology.ManifoldSolidBrep raise StepParseError {
@@ -2781,6 +2804,18 @@ pub fn parse_repository_from_string(
       repo = repo.insert_with_id(
         row.id,
         @repository.any_entity_application_context(entity),
+      )
+    } else if name == "APPROVAL" {
+      let entity = parse_approval(row.args)
+      repo = repo.insert_with_id(
+        row.id,
+        @repository.any_entity_approval(entity),
+      )
+    } else if name == "APPROVAL_STATUS" {
+      let entity = parse_approval_status(row.args)
+      repo = repo.insert_with_id(
+        row.id,
+        @repository.any_entity_approval_status(entity),
       )
     } else if name == "MANIFOLD_SOLID_BREP" {
       let entity = parse_manifold_solid_brep(row.args)

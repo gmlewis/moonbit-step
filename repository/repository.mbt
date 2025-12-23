@@ -69,6 +69,8 @@ pub enum AnyEntity {
   ProductContext(@product.ProductContext)
   ApplicationProtocolDefinition(@product.ApplicationProtocolDefinition)
   ApplicationContext(@product.ApplicationContext)
+  Approval(@product.Approval)
+  ApprovalStatus(@product.ApprovalStatus)
   ManifoldSolidBrep(@topology.ManifoldSolidBrep)
   ClosedShell(@topology.ClosedShell)
   OpenShell(@topology.OpenShell)
@@ -488,6 +490,16 @@ pub fn any_entity_application_context(
 }
 
 ///|
+pub fn any_entity_approval(a : @product.Approval) -> AnyEntity {
+  AnyEntity::Approval(a)
+}
+
+///|
+pub fn any_entity_approval_status(a : @product.ApprovalStatus) -> AnyEntity {
+  AnyEntity::ApprovalStatus(a)
+}
+
+///|
 pub fn any_entity_manifold_solid_brep(
   m : @topology.ManifoldSolidBrep,
 ) -> AnyEntity {
@@ -818,6 +830,8 @@ fn entity_to_step(entity : AnyEntity) -> String {
     ProductContext(c) => @step.Entity::to_step(c)
     ApplicationProtocolDefinition(a) => @step.Entity::to_step(a)
     ApplicationContext(a) => @step.Entity::to_step(a)
+    Approval(a) => @step.Entity::to_step(a)
+    ApprovalStatus(a) => @step.Entity::to_step(a)
     ManifoldSolidBrep(m) => @step.Entity::to_step(m)
     ClosedShell(c) => @step.Entity::to_step(c)
     OpenShell(o) => @step.Entity::to_step(o)

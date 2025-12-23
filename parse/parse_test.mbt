@@ -324,6 +324,16 @@ test "parse_repository_from_string_subface" {
 }
 
 ///|
+test "parse_repository_from_string_approval" {
+  let content = "ISO-10303-21;\nDATA;\n#1=APPROVAL_STATUS('approved');\n#2=APPROVAL(#1,'level');\nENDSEC;\nEND-ISO-10303-21;\n"
+  let repo = parse_repository_from_string(content)
+  inspect(repo.len(), content="2")
+  let out = repo.to_step_data_section()
+  assert_true(out.contains("#1=APPROVAL_STATUS('approved');"))
+  assert_true(out.contains("#2=APPROVAL(#1,'level');"))
+}
+
+///|
 test "parse_repository_from_string_shape_definition_representation" {
   let content = "ISO-10303-21;\nDATA;\n#12=SHAPE_DEFINITION_REPRESENTATION(#13,#22);\nENDSEC;\nEND-ISO-10303-21;\n"
   let repo = parse_repository_from_string(content)

@@ -21,6 +21,10 @@ pub fn any_entity_application_context(@product.ApplicationContext) -> AnyEntity
 
 pub fn any_entity_application_protocol_definition(@product.ApplicationProtocolDefinition) -> AnyEntity
 
+pub fn any_entity_approval(@product.Approval) -> AnyEntity
+
+pub fn any_entity_approval_status(@product.ApprovalStatus) -> AnyEntity
+
 pub fn any_entity_axis1_placement(@geometry.Axis1Placement) -> AnyEntity
 
 pub fn any_entity_axis2_placement_3d(@geometry.Axis2Placement3D) -> AnyEntity
@@ -270,6 +274,8 @@ pub enum AnyEntity {
   ProductContext(@product.ProductContext)
   ApplicationProtocolDefinition(@product.ApplicationProtocolDefinition)
   ApplicationContext(@product.ApplicationContext)
+  Approval(@product.Approval)
+  ApprovalStatus(@product.ApprovalStatus)
   ManifoldSolidBrep(@topology.ManifoldSolidBrep)
   ClosedShell(@topology.ClosedShell)
   OpenShell(@topology.OpenShell)

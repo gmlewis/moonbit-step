@@ -34,6 +34,19 @@ pub struct ApplicationProtocolDefinition {
 pub fn ApplicationProtocolDefinition::new(String, String, Int, @step.Ref) -> Self
 pub impl @step.Entity for ApplicationProtocolDefinition
 
+pub struct Approval {
+  status : @step.Ref
+  level : String
+}
+pub fn Approval::new(@step.Ref, String) -> Self
+pub impl @step.Entity for Approval
+
+pub struct ApprovalStatus {
+  name : String
+}
+pub fn ApprovalStatus::new(String) -> Self
+pub impl @step.Entity for ApprovalStatus
+
 pub struct ContextDependentShapeRepresentation {
   representation_relation : @step.Ref
   represented_product_relation : @step.Ref
