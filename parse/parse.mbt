@@ -401,6 +401,11 @@ fn init {
       parse_hidden_element_over_riding_styled_item(args),
     )
   })
+  parsers.set("ANNOTATION_OCCURRENCE", fn(args) raise StepParseError {
+    @repository.any_entity_annotation_occurrence(
+      parse_annotation_occurrence(args),
+    )
+  })
   parsers.set("DIMENSIONAL_EXPONENTS", fn(args) raise StepParseError {
     @repository.any_entity_dimensional_exponents(
       parse_dimensional_exponents(args),
@@ -2419,6 +2424,23 @@ fn parse_hidden_element_over_riding_styled_item(
     @step.Ref::{ id: item_id },
     @step.Ref::{ id: over_id },
   )
+}
+
+///|
+fn parse_annotation_occurrence(
+  args : String,
+) -> @presentation.AnnotationOccurrence raise StepParseError {
+  let parts = split_args(args)
+  if parts.length() != 3 {
+    fail_parse()
+  }
+  let name = strip_quotes(parts[0])
+  let style_ids = parse_ref_ids(parts[1])
+  let styles = style_ids.map(fn(id) { @step.Ref::{ id, } })
+  let item_id = parse_ref_int(parts[2])
+  @presentation.AnnotationOccurrence::new(name, styles, @step.Ref::{
+    id: item_id,
+  })
 }
 
 ///|

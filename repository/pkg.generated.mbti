@@ -17,6 +17,8 @@ pub fn any_entity_advanced_brep_shape_representation(@product.AdvancedBrepShapeR
 
 pub fn any_entity_advanced_face(@topology.AdvancedFace) -> AnyEntity
 
+pub fn any_entity_annotation_occurrence(@presentation.AnnotationOccurrence) -> AnyEntity
+
 pub fn any_entity_application_context(@product.ApplicationContext) -> AnyEntity
 
 pub fn any_entity_application_protocol_definition(@product.ApplicationProtocolDefinition) -> AnyEntity
@@ -357,6 +359,7 @@ pub enum AnyEntity {
   StyledItem(@presentation.StyledItem)
   OverRidingStyledItem(@presentation.OverRidingStyledItem)
   HiddenElementOverRidingStyledItem(@presentation.HiddenElementOverRidingStyledItem)
+  AnnotationOccurrence(@presentation.AnnotationOccurrence)
   DimensionalExponents(@units.DimensionalExponents)
   UncertaintyMeasureWithUnit(@units.UncertaintyMeasureWithUnit)
   PlaneAngleMeasureWithUnit(@units.PlaneAngleMeasureWithUnit)

@@ -103,6 +103,19 @@ test "hidden_element_over_riding_styled_item_to_step" {
 }
 
 ///|
+test "annotation_occurrence_to_step" {
+  let s = AnnotationOccurrence::new(
+    "",
+    [@step.Ref::{ id: @step.EntityId::{ value: 25 } }],
+    @step.Ref::{ id: @step.EntityId::{ value: 32 } },
+  )
+  inspect(
+    @step.Entity::to_step(s),
+    content="ANNOTATION_OCCURRENCE('',(#25),#32)",
+  )
+}
+
+///|
 test "presentation_layer_assignment_to_step" {
   let p = PresentationLayerAssignment::new("1", "Layer 1", [
     @step.Ref::{ id: @step.EntityId::{ value: 32 } },

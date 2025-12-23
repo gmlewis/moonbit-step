@@ -10,6 +10,14 @@ import(
 // Errors
 
 // Types and methods
+pub struct AnnotationOccurrence {
+  name : String
+  styles : Array[@step.Ref]
+  item : @step.Ref
+}
+pub fn AnnotationOccurrence::new(String, Array[@step.Ref], @step.Ref) -> Self
+pub impl @step.Entity for AnnotationOccurrence
+
 pub struct ColorRgb {
   name : String
   red : Double
