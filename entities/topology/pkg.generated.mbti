@@ -83,6 +83,13 @@ pub struct OrientedEdge {
 pub fn OrientedEdge::new(String, String, String, @step.Ref, Bool) -> Self
 pub impl @step.Entity for OrientedEdge
 
+pub struct ShellBasedSurfaceModel {
+  name : String
+  sbsm_boundary : Array[@step.Ref]
+}
+pub fn ShellBasedSurfaceModel::new(String, Array[@step.Ref]) -> Self
+pub impl @step.Entity for ShellBasedSurfaceModel
+
 pub struct VertexPoint {
   name : String
   vertex_geometry : @step.Ref

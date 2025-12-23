@@ -72,6 +72,7 @@ pub enum AnyEntity {
   ManifoldSolidBrep(@topology.ManifoldSolidBrep)
   ClosedShell(@topology.ClosedShell)
   OpenShell(@topology.OpenShell)
+  ShellBasedSurfaceModel(@topology.ShellBasedSurfaceModel)
   AdvancedFace(@topology.AdvancedFace)
   FaceOuterBound(@topology.FaceOuterBound)
   FaceBound(@topology.FaceBound)
@@ -501,6 +502,13 @@ pub fn any_entity_open_shell(o : @topology.OpenShell) -> AnyEntity {
 }
 
 ///|
+pub fn any_entity_shell_based_surface_model(
+  s : @topology.ShellBasedSurfaceModel,
+) -> AnyEntity {
+  AnyEntity::ShellBasedSurfaceModel(s)
+}
+
+///|
 pub fn any_entity_advanced_face(a : @topology.AdvancedFace) -> AnyEntity {
   AnyEntity::AdvancedFace(a)
 }
@@ -794,6 +802,7 @@ fn entity_to_step(entity : AnyEntity) -> String {
     ManifoldSolidBrep(m) => @step.Entity::to_step(m)
     ClosedShell(c) => @step.Entity::to_step(c)
     OpenShell(o) => @step.Entity::to_step(o)
+    ShellBasedSurfaceModel(s) => @step.Entity::to_step(s)
     AdvancedFace(a) => @step.Entity::to_step(a)
     FaceOuterBound(b) => @step.Entity::to_step(b)
     FaceBound(b) => @step.Entity::to_step(b)

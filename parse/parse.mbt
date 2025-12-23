@@ -1334,6 +1334,23 @@ fn parse_open_shell(args : String) -> @topology.OpenShell raise StepParseError {
 }
 
 ///|
+fn parse_shell_based_surface_model(
+  args : String,
+) -> @topology.ShellBasedSurfaceModel raise StepParseError {
+  let parts = split_args(args)
+  if parts.length() != 2 {
+    fail_parse()
+  }
+  let name = strip_quotes(parts[0])
+  let bound_ids = parse_ref_ids(parts[1])
+  let bounds : Array[@step.Ref] = []
+  for i = 0; i < bound_ids.length(); i = i + 1 {
+    bounds.push(@step.Ref::{ id: bound_ids[i] })
+  }
+  @topology.ShellBasedSurfaceModel::new(name, bounds)
+}
+
+///|
 fn parse_advanced_face(
   args : String,
 ) -> @topology.AdvancedFace raise StepParseError {
@@ -2814,6 +2831,12 @@ pub fn parse_repository_from_string(
       repo = repo.insert_with_id(
         row.id,
         @repository.any_entity_open_shell(entity),
+      )
+    } else if name == "SHELL_BASED_SURFACE_MODEL" {
+      let entity = parse_shell_based_surface_model(row.args)
+      repo = repo.insert_with_id(
+        row.id,
+        @repository.any_entity_shell_based_surface_model(entity),
       )
     } else if name == "ADVANCED_FACE" {
       let entity = parse_advanced_face(row.args)

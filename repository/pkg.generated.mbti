@@ -165,6 +165,8 @@ pub fn any_entity_shape_representation(@product.ShapeRepresentation) -> AnyEntit
 
 pub fn any_entity_shape_representation_relationship(@product.ShapeRepresentationRelationship) -> AnyEntity
 
+pub fn any_entity_shell_based_surface_model(@topology.ShellBasedSurfaceModel) -> AnyEntity
+
 pub fn any_entity_sphere(@geometry.Sphere) -> AnyEntity
 
 pub fn any_entity_styled_item(@presentation.StyledItem) -> AnyEntity
@@ -265,6 +267,7 @@ pub enum AnyEntity {
   ManifoldSolidBrep(@topology.ManifoldSolidBrep)
   ClosedShell(@topology.ClosedShell)
   OpenShell(@topology.OpenShell)
+  ShellBasedSurfaceModel(@topology.ShellBasedSurfaceModel)
   AdvancedFace(@topology.AdvancedFace)
   FaceOuterBound(@topology.FaceOuterBound)
   FaceBound(@topology.FaceBound)
