@@ -35,7 +35,8 @@ SUITE = {
     "23": [["--innerDiameter", "8", "--panelThickness", "2"], ["--innerDiameter", "12", "--split"]],
     "24": [["--angle", "15", "--seatDepth", "10"], ["--angle", "0", "--holeDiameter", "12", "--height", "60"]],
     "25": [["--angles", "15,22.5,30,45"], ["--size", "80", "--angles", "36,54"]],
-    "26": [["--armLength", "250"], ["--baseDiameter", "180", "--armLength", "400", "--armWidth", "50"]]
+    "26": [["--armLength", "250"], ["--baseDiameter", "180", "--armLength", "400", "--armWidth", "50"]],
+    "27": [["--length", "60"], ["--width", "42", "--height", "12"]]
 }
 
 # --- Utils ---

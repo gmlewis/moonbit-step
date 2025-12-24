@@ -219,6 +219,17 @@ pub fn Design::rotate_z(self : Design, angle : Double) -> Design {
 }
 
 ///|
+pub fn Design::translate(
+  self : Design,
+  x? : Double = 0.0,
+  y? : Double = 0.0,
+  z? : Double = 0.0,
+) -> Design {
+  let nodes = self.nodes.map(fn(node) { node.translate(x~, y~, z~) })
+  { ..self, nodes, }
+}
+
+///|
 pub async fn write_step_text(step_text : String, out_path : String?) -> Unit {
   match out_path {
     None => println(step_text)

@@ -69,6 +69,7 @@ pub fn Design::rotate_y(Self, Double) -> Self
 pub fn Design::rotate_z(Self, Double) -> Self
 pub fn Design::to_step_file(Self) -> String
 pub fn Design::to_string(Self) -> String
+pub fn Design::translate(Self, x? : Double, y? : Double, z? : Double) -> Self
 pub async fn Design::write_step(Self, String?) -> Unit
 pub async fn Design::write_step_file(Self, String?) -> Unit
 
