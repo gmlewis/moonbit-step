@@ -1,0 +1,25 @@
+{
+  "name": "examples/29-headphone-hook",
+  "version": "0.1.0",
+  "deps": {
+    "gmlewis/step": {
+      "path": "../.."
+    },
+    "moonbitlang/async": "0.15.0",
+    "moonbitlang/x": "0.4.38",
+    "TheWaWaR/clap": "0.2.6",
+    "gmlewis/fonts": "0.18.3",
+    "gmlewis/fonts-b": "0.18.3"
+  },
+  "readme": "README.md",
+  "repository": "https://github.com/gmlewis/moonbit-step",
+  "license": "Apache-2.0",
+  "keywords": [
+    "cad",
+    "step",
+    "3d",
+    "modeling"
+  ],
+  "description": "A wall/desk hook with computed fillets and a strength-focused profile.",
+  "preferred-target": "native"
+}

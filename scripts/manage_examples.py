@@ -37,7 +37,8 @@ SUITE = {
     "25": [["--angles", "15,22.5,30,45"], ["--size", "80", "--angles", "36,54"]],
     "26": [["--armLength", "250"], ["--baseDiameter", "180", "--armLength", "400", "--armWidth", "50"]],
     "27": [["--length", "60"], ["--width", "42", "--height", "12"]],
-    "28": [["--phoneThickness", "10"], ["--viewAngle", "30", "--width", "100"]]
+    "28": [["--phoneThickness", "10"], ["--viewAngle", "30", "--width", "100"]],
+    "29": [["--width", "40", "--armLength", "80"], ["--hookHeight", "40", "--thickness", "8"]]
 }
 
 # --- Utils ---
