@@ -50,6 +50,31 @@ pub struct Arg {
 }
 
 ///|
+pub fn opt_int(
+  default : Int,
+  short? : Char = '\u0000',
+  help? : String = "",
+  min? : Int,
+  max? : Int,
+) -> Arg {
+  let clap = @clap.Arg::named(
+    short~,
+    nargs=@clap.Fixed(1),
+    defaults=[default.to_string()],
+    help~,
+  )
+  let min = match min {
+    Some(v) => v.to_double()
+    None => nan()
+  }
+  let max = match max {
+    Some(v) => v.to_double()
+    None => nan()
+  }
+  Arg::{ clap, min, max, min_exclusive: false, max_exclusive: false }
+}
+
+///|
 pub fn opt_double(
   default : Double,
   short? : Char = '\u0000',
@@ -335,6 +360,29 @@ pub async fn Args::double(self : Args, name : String) -> Double {
       eprintln(err.to_string())
       abort("")
       0.0
+    }
+  }
+}
+
+///|
+pub async fn Args::int(self : Args, name : String) -> Int {
+  try {
+    let raw : String = @clap.SimpleValue::get_one(self.value, name)
+    let s = decode_cli_minus(raw.trim().to_string())
+    try @strconv.parse_int(s) catch {
+      err => {
+        eprintln(err.to_string())
+        abort("")
+        0
+      }
+    } noraise {
+      v => v
+    }
+  } catch {
+    err => {
+      eprintln(err.to_string())
+      abort("")
+      0
     }
   }
 }

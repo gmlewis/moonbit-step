@@ -12,6 +12,8 @@ pub fn flag(short? : Char, help? : String) -> Arg
 
 pub fn opt_double(Double, short? : Char, help? : String, min? : Double, max? : Double, min_exclusive? : Bool, max_exclusive? : Bool) -> Arg
 
+pub fn opt_int(Int, short? : Char, help? : String, min? : Int, max? : Int) -> Arg
+
 pub fn opt_string(short? : Char, help? : String) -> Arg
 
 pub fn opt_vec3(short? : Char, help? : String) -> Arg
@@ -38,6 +40,7 @@ pub fn Args::bool_opt(Self, String) -> Bool
 pub async fn Args::double(Self, String) -> Double
 pub async fn Args::doubles(Self, String) -> Array[Double]
 pub fn Args::flag(Self, String) -> Bool
+pub async fn Args::int(Self, String) -> Int
 pub async fn Args::string_opt(Self, String) -> String?
 pub async fn Args::translate_xyz(Self, translate_name? : String, tx_name? : String, ty_name? : String, tz_name? : String) -> (Double, Double, Double)?
 

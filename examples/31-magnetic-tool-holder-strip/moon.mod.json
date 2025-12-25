@@ -1,5 +1,5 @@
 {
-  "name": "examples/26-router-circle-cutting-jig",
+  "name": "examples/31-magnetic-tool-holder-strip",
   "version": "0.1.0",
   "deps": {
     "gmlewis/step": {
@@ -20,6 +20,6 @@
     "3d",
     "modeling"
   ],
-  "description": "A circle-cutting jig where radius, mounting, and handle are all variables.",
+  "description": "A strip with magnet pockets, spacing rules, and configurable retention lips.",
   "preferred-target": "native"
 }

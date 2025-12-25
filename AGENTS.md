@@ -70,6 +70,8 @@ The `cad` package follows an **intent-based architecture**. Do not revert to eag
   - **Validation**: Uses OCCT to check topological integrity.
   - **Rendering**: Uses OCCT's `DRAWEXE`. On macOS, this requires a Cocoa/OpenGL context.
   - **macOS Rendering Quirk**: `DRAWEXE` must be called via a STDIN pipe (not script file or `-c`) to properly initialize the Cocoa event loop. It often falls back to `.ppm` files; the script uses `sips` to convert to `.png`.
+- Note that an agent should _NEVER_ have to call `./update.sh` as that is used
+  by the package maintainer when it is known that external dependencies have been updated.
 
 ## Error Handling
 

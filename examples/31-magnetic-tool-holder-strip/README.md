@@ -15,9 +15,24 @@ The intent is that you can run the code here to emit a STEP file, open it in a C
 - `cols`
 - `cellSize`
 - `filletRadius`
-- `chamferSize`
+- `labelPrefix`
 
 ## Suggested extensions
 - generate multiple sizes in one run
 - add embossed labels for each pocket
 - add a variant generator (small/medium/large)
+
+---
+
+### Variant 1
+
+Command line: `./run-example.sh 31 --rows 1 --cols 5 --labelPrefix P`
+
+![](preview-1.png)
+
+### Variant 2
+
+Command line: `./run-example.sh 31 --rows 2 --cols 3 --cellSize 40 --magnetDiameter 12 --labelPrefix T`
+
+![](preview-2.png)
+
