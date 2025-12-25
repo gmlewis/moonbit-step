@@ -64,7 +64,7 @@ pub struct Design {
 }
 pub fn Design::add(Self, SceneNode) -> Self
 pub fn Design::add_iter(Self, Iter[SceneNode]) -> Self
-pub fn Design::add_text_on_face(Self, SceneNode, String, Face, @fonts.Font, font_size? : Double, emboss_depth? : Double, offset_x? : Double, offset_y? : Double, margin? : Double, color? : Rgb) -> Self
+pub fn Design::add_text_on_face(Self, SceneNode, String, Face, @fonts.Font, font_size? : Double, emboss_depth? : Double, offset_x? : Double, offset_y? : Double, rotation? : Double, margin? : Double, color? : Rgb) -> Self
 pub fn Design::compile(Self) -> @repository.Repository
 pub fn Design::new(name? : String, description? : String) -> Self
 pub fn Design::rotate_x(Self, Double) -> Self

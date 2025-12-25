@@ -400,6 +400,7 @@ pub fn Design::add_text_on_face(
   emboss_depth? : Double,
   offset_x? : Double = 0.0,
   offset_y? : Double = 0.0,
+  rotation? : Double = 0.0,
   margin? : Double,
   color? : Rgb = Rgb::orange(),
 ) -> Design {
@@ -453,7 +454,7 @@ pub fn Design::add_text_on_face(
         min_z + 0.01,
         180.0,
         0.0,
-        0.0,
+        180.0,
         dx,
         dy,
       )
@@ -462,31 +463,22 @@ pub fn Design::add_text_on_face(
         mid_x + offset_x,
         max_y - 0.01,
         mid_z + offset_y,
-        -90.0,
-        0.0,
-        0.0,
-        dx,
-        dz,
-      )
-    Back =>
-      (
-        mid_x - offset_x,
-        min_y + 0.01,
-        mid_z + offset_y,
-        -90.0,
+        90.0,
         0.0,
         180.0,
         dx,
         dz,
       )
+    Back =>
+      (mid_x - offset_x, min_y + 0.01, mid_z + offset_y, 90.0, 0.0, 0.0, dx, dz)
     Left =>
       (
         min_x + 0.01,
         mid_y + offset_x,
         mid_z + offset_y,
+        90.0,
         0.0,
         -90.0,
-        90.0,
         dy,
         dz,
       )
@@ -495,9 +487,9 @@ pub fn Design::add_text_on_face(
         max_x - 0.01,
         mid_y - offset_x,
         mid_z + offset_y,
+        90.0,
         0.0,
         90.0,
-        -90.0,
         dy,
         dz,
       )
@@ -525,7 +517,7 @@ pub fn Design::add_text_on_face(
     emboss_depth=ed,
     rx=lrx,
     ry=lry,
-    rz=lrz,
+    rz=lrz + rotation,
   )
   let final_nodes = text_nodes.map(fn(n) {
     let n = n.with_color(color)

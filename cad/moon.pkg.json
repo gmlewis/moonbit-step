@@ -13,5 +13,8 @@
     "moonbitlang/async",
     "moonbitlang/async/fs",
     "moonbitlang/x/time"
+  ],
+  "test-import": [
+    "gmlewis/fonts"
   ]
 }

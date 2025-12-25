@@ -95,6 +95,7 @@ async fn main {
     )
     .translate(x=tx, y=ty, z=tz)
     .rotate_y(180.0)
+    .rotate_z(180.0)
   design.write_step(out_path)
 }
 
