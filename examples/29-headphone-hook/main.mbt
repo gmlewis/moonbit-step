@@ -68,8 +68,6 @@ async fn main {
   }
 
   // Create the main hook body
-  // Profile in XY: X=depth, Y=height.
-  // We rotate it 90 deg on X so Height(Y) -> Z (UP), and Extrusion(Z) -> -Y (Width).
   let hook = main_hook_body(width, arm_l, hook_h, mount_h, t, r).rotate_x(90.0)
 
   // Add a reinforcing rib in the middle
@@ -78,24 +76,21 @@ async fn main {
     .rotate_x(90.0)
     .translate(y=-(width - rib_t) / 2.0)
 
-  // Add branding text on the side
-  // Side face is at Y = 0 (after hook rotation).
+  // Add branding text on the side face
   let font = @baloo.font
-  let brand_text = @cad.text_at(
-    "STUDIO",
-    t + (arm_l - t) * 0.5,
-    0.0,
-    t * 0.5, // x (depth), y (face), z (height)
-    font~,
-    font_size=t * 0.8,
-    emboss_depth=1.0,
-    rx=-90.0,
-  ).map(fn(node) { node.with_color(@cad.Rgb::orange()) })
   let design = @cad.Design::new(name="headphone-hook")
     .add(hook)
     .add(rib)
-    .add_iter(brand_text.iter())
-    .rotate_z(180.0) // Better viewing angle
+    .add_text_on_face(
+      hook,
+      "STUDIO",
+      Top,
+      font,
+      font_size=t * 0.8,
+      offset_x=t / 2.0,
+      offset_y=t / 2.0 - mount_h / 2.0,
+      color=@cad.Rgb::orange(),
+    )
     .translate(x=tx, y=ty, z=tz)
   design.write_step(out_path)
 }
@@ -110,33 +105,24 @@ fn main_hook_body(
   r : Double,
 ) -> @cad.SceneNode {
   let pts = []
-
-  // Profile in XY plane (X=depth, Y=height)
-  // CCW order
-  pts.push((0.0, 0.0)) // 1. Origin (back bottom)
-  pts.push((arm_l, 0.0)) // 2. Front bottom
-  pts.push((arm_l, hook_h)) // 3. Front top outer
-  pts.push((arm_l - t, hook_h)) // 4. Front top inner
-
-  // 5. Front bottom inner elbow (CW arc for concave corner)
+  pts.push((0.0, 0.0))
+  pts.push((arm_l, 0.0))
+  pts.push((arm_l, hook_h))
+  pts.push((arm_l - t, hook_h))
   let c2 = (arm_l - t - r, t + r)
   pts.push_iter(
     @cad.Profile2D::arc(2.0 * r, 0.0, -0.5 * @math.PI, segments=8)
     .iter()
     .map(fn(p) { (p.0 + c2.0, p.1 + c2.1) }),
   )
-
-  // 6. Back bottom inner elbow (CW arc for concave corner)
   let c1 = (t + r, t + r)
   pts.push_iter(
     @cad.Profile2D::arc(2.0 * r, 1.5 * @math.PI, @math.PI, segments=8)
     .iter()
     .map(fn(p) { (p.0 + c1.0, p.1 + c1.1) }),
   )
-  pts.push((t, mount_h)) // 7. Back top inner
-  pts.push((0.0, mount_h)) // 8. Back top outer
-
-  // Extrude along Z (width)
+  pts.push((t, mount_h))
+  pts.push((0.0, mount_h))
   @cad.ExtrudedProfile::new(pts, width)
   .with_name("headphone-hook")
   .with_color(@cad.Rgb::new(0.4, 0.2, 0.6))
@@ -148,7 +134,6 @@ fn reinforcing_rib(
   t : Double,
   rib_t : Double,
 ) -> @cad.SceneNode {
-  // A simple triangular gusset for strength
   let profile = [(t, t), (t + mount_h * 0.5, t), (t, t + mount_h * 0.5)]
   @cad.ExtrudedProfile::new(profile, rib_t)
   .with_name("rib")

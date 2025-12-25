@@ -81,7 +81,6 @@ async fn main {
   let base = @cad.ExtrudedProfile::new(outer, height, holes~)
     .with_name("gauge-base")
     .with_color(@cad.Rgb::purple())
-    .translate(x=tx, y=ty, z=tz)
   let mut design = @cad.Design::new(name="bolt-length-gauge").add(base)
 
   // 3. Add labels
@@ -91,31 +90,33 @@ async fn main {
     let hole_x = -width * 0.38
 
     // Place labels between the hole and the center slot
-    let labels = @cad.text_at(
+    // mid_y is length/2. We want it at hole_y.
+    design = design.add_text_on_face(
+      base,
       name,
-      tx + hole_x + 8.2,
-      ty + hole_y,
-      tz + height - 0.1,
-      font~,
+      Top,
+      font,
       font_size=3.5,
+      offset_x=hole_x + 8.2,
+      offset_y=hole_y - length / 2.0,
     )
-    design = design.add_iter(labels.iter())
   }
 
   // 4. Add ruler markings
   for i in 1..=(length.to_int() / 10 - 1) {
     let pos_y = Double::from_int(i * 10)
-    let labels = @cad.text_at(
+    design = design.add_text_on_face(
+      base,
       pos_y.to_int().to_string(),
-      tx + width / 4.0,
-      ty + pos_y,
-      tz + height - 0.1,
-      font~,
+      Top,
+      font,
       font_size=3.5,
+      offset_x=width / 4.0,
+      offset_y=pos_y - length / 2.0,
     )
-    design = design.add_iter(labels.iter())
   }
 
   //
+  design = design.translate(x=tx, y=ty, z=tz)
   design.write_step(out_path)
 }

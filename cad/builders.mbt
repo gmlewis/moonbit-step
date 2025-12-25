@@ -194,12 +194,15 @@ pub fn text_at(
   z : Double,
   font~ : @draw.Font,
   font_size? : Double = 5.0,
+  max_width? : Double = 1000.0,
   emboss_depth? : Double = 0.5,
   rx? : Double = 0.0,
   ry? : Double = 0.0,
   rz? : Double = 0.0,
 ) -> Array[SceneNode] {
-  let bbox = @draw.bbox(-500.0, -font_size / 2.0, 500.0, font_size / 2.0)
+  let fs = font_size
+  let mw = max_width
+  let bbox = @draw.bbox(-mw / 2.0, -fs / 2.0, mw / 2.0, fs / 2.0)
   let text_graphic = @draw.to_graphic(font, text, alignment=Center, y_up=true).scale_to_fit(
     bbox,
     anchor=Center,
@@ -384,4 +387,169 @@ pub fn SceneNode::rotate_y(self : SceneNode, angle : Double) -> SceneNode {
 /// the Z-axis.
 pub fn SceneNode::rotate_z(self : SceneNode, angle : Double) -> SceneNode {
   { ..self, rz: self.rz + angle }
+}
+
+///|
+pub fn Design::add_text_on_face(
+  self : Design,
+  target : SceneNode,
+  text : String,
+  face : Face,
+  font : @draw.Font,
+  font_size? : Double,
+  emboss_depth? : Double,
+  offset_x? : Double = 0.0,
+  offset_y? : Double = 0.0,
+  margin? : Double,
+  color? : Rgb = Rgb::orange(),
+) -> Design {
+  let (min_x, max_x, min_y, max_y, min_z, max_z) = match target.shape {
+    Cuboid(c) => (0.0, c.sx, 0.0, c.sy, 0.0, c.sz)
+    CalibrationChamferBlock(b) =>
+      (0.0, b.length_mm, 0.0, b.width_mm, 0.0, b.height_mm)
+    ExtrudedProfile(e) => {
+      let mut x0 = 1000000.0
+      let mut x1 = -1000000.0
+      let mut y0 = 1000000.0
+      let mut y1 = -1000000.0
+      for pt in e.profile.outer {
+        if pt.0 < x0 {
+          x0 = pt.0
+        }
+        if pt.0 > x1 {
+          x1 = pt.0
+        }
+        if pt.1 < y0 {
+          y0 = pt.1
+        }
+        if pt.1 > y1 {
+          y1 = pt.1
+        }
+      }
+      (x0, x1, y0, y1, 0.0, e.height_mm)
+    }
+  }
+  let mid_x = (min_x + max_x) / 2.0
+  let mid_y = (min_y + max_y) / 2.0
+  let mid_z = (min_z + max_z) / 2.0
+  let dx = max_x - min_x
+  let dy = max_y - min_y
+  let dz = max_z - min_z
+  let m = match margin {
+    Some(v) => v
+    None => 2.0
+  }
+
+  // Local coordinates and rotations relative to shape origin (0,0,0)
+  // We subtract 0.01 from the "outward" direction to embed the text slightly
+  // and avoid Z-fighting.
+  let (lx, ly, lz, lrx, lry, lrz, fw, fh) = match face {
+    Top =>
+      (mid_x + offset_x, mid_y + offset_y, max_z - 0.01, 0.0, 0.0, 0.0, dx, dy)
+    Bottom =>
+      (
+        mid_x + offset_x,
+        mid_y - offset_y,
+        min_z + 0.01,
+        180.0,
+        0.0,
+        0.0,
+        dx,
+        dy,
+      )
+    Front =>
+      (
+        mid_x + offset_x,
+        max_y - 0.01,
+        mid_z + offset_y,
+        -90.0,
+        0.0,
+        0.0,
+        dx,
+        dz,
+      )
+    Back =>
+      (
+        mid_x - offset_x,
+        min_y + 0.01,
+        mid_z + offset_y,
+        -90.0,
+        0.0,
+        180.0,
+        dx,
+        dz,
+      )
+    Left =>
+      (
+        min_x + 0.01,
+        mid_y + offset_x,
+        mid_z + offset_y,
+        0.0,
+        -90.0,
+        90.0,
+        dy,
+        dz,
+      )
+    Right =>
+      (
+        max_x - 0.01,
+        mid_y - offset_x,
+        mid_z + offset_y,
+        0.0,
+        90.0,
+        -90.0,
+        dy,
+        dz,
+      )
+  }
+  let fs = match font_size {
+    Some(v) => v
+    None => {
+      let mut s = fh - 2.0 * m
+      if s <= 0.0 {
+        s = 1.0
+      }
+      s
+    }
+  }
+  let mw = fw - 2.0 * m
+  let ed = emboss_depth.unwrap_or(0.5)
+  let text_nodes = text_at(
+    text,
+    lx,
+    ly,
+    lz,
+    font~,
+    font_size=fs,
+    max_width=mw,
+    emboss_depth=ed,
+    rx=lrx,
+    ry=lry,
+    rz=lrz,
+  )
+  let final_nodes = text_nodes.map(fn(n) {
+    let n = n.with_color(color)
+    // Apply target's own local-to-global transform
+    // We compose the rotations: R_target * R_local
+    let m_local = rotation_matrix(n.rx, n.ry, n.rz)
+    let m_target = rotation_matrix(target.rx, target.ry, target.rz)
+    let m_combined = multiply_matrices(m_target, m_local)
+    let (grx, gry, grz) = matrix_to_euler(m_combined)
+    let (gx, gy, gz) = rotate_point(
+      (n.tx, n.ty, n.tz),
+      target.rx,
+      target.ry,
+      target.rz,
+    )
+    {
+      ..n,
+      tx: gx + target.tx,
+      ty: gy + target.ty,
+      tz: gz + target.tz,
+      rx: grx,
+      ry: gry,
+      rz: grz,
+    }
+  })
+  self.add_iter(final_nodes.iter())
 }

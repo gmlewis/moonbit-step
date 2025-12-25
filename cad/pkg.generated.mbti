@@ -22,11 +22,13 @@ pub fn force_cw(Array[(Double, Double)]) -> Array[(Double, Double)]
 
 pub fn is_point_in_polygon((Double, Double), Array[(Double, Double)]) -> Bool
 
+pub fn matrix_to_euler(Matrix3x3) -> (Double, Double, Double)
+
 pub fn polygon_area_2d(Array[(Double, Double)]) -> Double
 
 pub fn rotate_point((Double, Double, Double), Double, Double, Double) -> (Double, Double, Double)
 
-pub fn text_at(String, Double, Double, Double, font~ : @fonts.Font, font_size? : Double, emboss_depth? : Double, rx? : Double, ry? : Double, rz? : Double) -> Array[SceneNode]
+pub fn text_at(String, Double, Double, Double, font~ : @fonts.Font, font_size? : Double, max_width? : Double, emboss_depth? : Double, rx? : Double, ry? : Double, rz? : Double) -> Array[SceneNode]
 
 pub fn translate_pts(Array[(Double, Double)], Double, Double) -> Array[(Double, Double)]
 
@@ -62,6 +64,7 @@ pub struct Design {
 }
 pub fn Design::add(Self, SceneNode) -> Self
 pub fn Design::add_iter(Self, Iter[SceneNode]) -> Self
+pub fn Design::add_text_on_face(Self, SceneNode, String, Face, @fonts.Font, font_size? : Double, emboss_depth? : Double, offset_x? : Double, offset_y? : Double, margin? : Double, color? : Rgb) -> Self
 pub fn Design::compile(Self) -> @repository.Repository
 pub fn Design::new(name? : String, description? : String) -> Self
 pub fn Design::rotate_x(Self, Double) -> Self
@@ -84,6 +87,27 @@ pub struct ExtrudedProfile {
   height_mm : Double
 }
 pub fn ExtrudedProfile::new(Array[(Double, Double)], Double, holes? : Array[Array[(Double, Double)]]) -> Shape
+
+pub(all) enum Face {
+  Top
+  Bottom
+  Front
+  Back
+  Left
+  Right
+}
+
+pub(all) struct Matrix3x3 {
+  m00 : Double
+  m01 : Double
+  m02 : Double
+  m10 : Double
+  m11 : Double
+  m12 : Double
+  m20 : Double
+  m21 : Double
+  m22 : Double
+}
 
 pub struct Profile2D {
   outer : Array[(Double, Double)]

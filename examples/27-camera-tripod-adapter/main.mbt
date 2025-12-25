@@ -57,15 +57,11 @@ async fn main {
   }
 
   // Create the main Arca-Swiss plate body
-  // Profile in XY (Width, Height), Extrude in Z (Length).
-  // Rotate -90 on X so Height(Y) becomes Z (up), and Length(Z) becomes Y (front).
-  // After rotation, Y is from 0 to Length.
-  // We translate by -Length/2 to center it in Y.
   let plate = arca_swiss_body(width, length, height)
     .with_name("tripod-plate")
     .with_color(@cad.Rgb::cyan())
-    .rotate_x(-90.0)
-    .translate(y=-length / 2.0)
+    .rotate_x(90.0)
+    .translate(y=length / 2.0)
 
   // Add rubber grip pads on top
   let pad_w = width * 0.2
@@ -82,23 +78,23 @@ async fn main {
     .translate(x=width * 0.25 - pad_w / 2.0, y=-pad_l / 2.0, z=height / 2.0)
 
   // Add some text branding on top
-  // The pads are 1.0mm high, so we emboss the text 1.5mm so it stands out.
   let font = @baloo.font
-  let brand_text = @cad.text_at(
-    "ARCA-SWISS",
-    0.0,
-    0.0,
-    height / 2.0,
-    font~,
-    font_size=4.0,
-    emboss_depth=1.5,
-  ).map(fn(node) { node.with_color(@cad.Rgb::orange()) })
   let design = @cad.Design::new(name="camera-tripod-adapter")
     .add(plate)
     .add(left_pad)
     .add(right_pad)
-    .add_iter(brand_text.iter())
+    .add_text_on_face(
+      plate,
+      "ARCA-SWISS",
+      Back, // Original min_y face, points DOWN after rotate_x(90)
+      font,
+      font_size=3.5,
+      emboss_depth=0.5,
+      offset_y=0.0,
+      color=@cad.Rgb::orange(),
+    )
     .translate(x=tx, y=ty, z=tz)
+    .rotate_y(180.0)
   design.write_step(out_path)
 }
 
@@ -113,17 +109,13 @@ fn arca_swiss_body(
   let dx = dh // 45 degrees
   let w_max = width / 2.0
   let w_min = w_max - dx
-
-  // Profile (looking from front/back)
-  // Bottom surface at Y=-hh
-  // Top surface at Y=hh
   let profile = [
-    (-w_max, -hh), // Bottom-left
-    (w_max, -hh), // Bottom-right
-    (w_min, -hh + dh), // Dovetail-right
-    (w_min, hh), // Top-right
-    (-w_min, hh), // Top-left
-    (-w_max, -hh + dh), // Dovetail-left
+    (-w_max, -hh),
+    (w_max, -hh),
+    (w_min, -hh + dh),
+    (w_min, hh),
+    (-w_min, hh),
+    (-w_max, -hh + dh),
   ]
   @cad.ExtrudedProfile::new(profile, length)
 }

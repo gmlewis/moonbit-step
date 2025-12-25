@@ -61,7 +61,7 @@ async fn main {
   let cols = args.double("cols").to_int()
   let height = args.double("height")
   let text_opt = args.string_opt("text")
-  let font_size = args.double("fontSize")
+  let font_size_opt = args.double("fontSize")
   let emboss_depth = args.double("embossDepth")
   let out_path = args.string_opt("out")
   let (tx, ty, tz) = match args.translate_xyz() {
@@ -82,7 +82,7 @@ async fn main {
     .translate(x=tx, y=ty, z=tz)
   design = design.add(base)
 
-  // 2. Outer Walls (Extruded Profile with a hole)
+  // 2. Outer Walls
   let outer_poly = [
     (0.0, 0.0),
     (total_width, 0.0),
@@ -104,8 +104,7 @@ async fn main {
     .translate(x=tx, y=ty, z=tz + BASE_THICKNESS)
   design = design.add(walls)
 
-  // 3. Internal Dividers (if cols > 1 or rows > 1)
-  // X Dividers
+  // 3. Internal Dividers
   for i in 1..<cols {
     let x = Double::from_int(i) * GRID_UNIT - WALL_THICKNESS / 2.0
     let div = @cad.Cuboid::new(
@@ -118,8 +117,6 @@ async fn main {
       .translate(x=tx + x, y=ty + WALL_THICKNESS, z=tz + BASE_THICKNESS)
     design = design.add(div)
   }
-
-  // Y Dividers
   for j in 1..<rows {
     let y = Double::from_int(j) * GRID_UNIT - WALL_THICKNESS / 2.0
     let div = @cad.Cuboid::new(
@@ -133,61 +130,29 @@ async fn main {
     design = design.add(div)
   }
 
-  // 4. Label Text (if provided)
+  // 4. Label Text
   match text_opt {
     Some(label) => {
-      let margin = WALL_THICKNESS + 2.0
-      let label_width = total_width - 2.0 * margin
-      if label_width > 5.0 {
-        let label_height = if font_size > 0.0 {
-          font_size
-        } else {
-          wall_height * 0.6
-        }
-        let bbox = @draw.bbox(0.0, 0.0, label_width, label_height)
-        let font = @baloo.font
-        let text_fitted = @draw.to_graphic(
-          font,
+      let font = @baloo.font
+      if font_size_opt > 0.0 {
+        design = design.add_text_on_face(
+          walls,
           label,
-          alignment=Center,
-          y_up=true,
-        ).scale_to_fit(bbox, anchor=Center) catch {
-          e => {
-            @cli.eprintln("Error creating text: \{e}")
-            abort("")
-          }
-        }
-        let all_paths = text_fitted.all_paths_and_compound_paths()
-        let text_solids = all_paths
-          .iter()
-          .flat_map(fn(g) {
-            @draw.Graphic::to_profiles_tuples(g, 8)
-            .iter()
-            .filter_map(fn(profile) {
-              let (outer, holes) = profile
-              if outer.length() < 3 {
-                return None
-              }
-              // Engrave on the front wall (-Y face)
-              // We extend the extrusion slightly (0.1mm) outside the face
-              // to avoid Z-fighting and ensure clean boolean operations.
-              let solid = @cad.ExtrudedProfile::new(
-                  outer,
-                  emboss_depth + 0.1,
-                  holes~,
-                )
-                .with_name("label")
-                .with_color(@cad.Rgb::orange())
-                .rotate_x(90.0)
-                .translate(
-                  x=tx + margin,
-                  y=ty + emboss_depth,
-                  z=tz + BASE_THICKNESS + (wall_height - label_height) / 2.0,
-                )
-              Some(solid)
-            })
-          })
-        design = design.add_iter(text_solids)
+          Back, // min_y face
+          font,
+          font_size=font_size_opt,
+          emboss_depth~,
+          color=@cad.Rgb::orange(),
+        )
+      } else {
+        design = design.add_text_on_face(
+          walls,
+          label,
+          Back, // min_y face
+          font,
+          emboss_depth~,
+          color=@cad.Rgb::orange(),
+        )
       }
     }
     None => ()

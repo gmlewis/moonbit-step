@@ -17,7 +17,7 @@ async fn main {
       min=10.0,
       max=120.0,
     ),
-    "fontSize": @cli.opt_double(8.0, help="Font size", min=1.0),
+    "fontSize": @cli.opt_double(0.0, help="Font size", min=0.0),
     "embossDepth": @cli.opt_double(0.5, help="Engraving depth (mm)", min=0.0),
     "out": @cli.opt_string(
       short='o',
@@ -39,6 +39,7 @@ async fn main {
   let wall = args.double("thickness")
   let opening_deg = args.double("opening")
   let emboss_depth = args.double("embossDepth")
+  let font_size_opt = args.double("fontSize")
   let out_path = args.string_opt("out")
   let (tx, ty, tz) = match args.translate_xyz() {
     Some(v) => v
@@ -80,7 +81,6 @@ async fn main {
   design = design.add(clip_body)
 
   // 2. Label Plaque
-  // We place it on the TOP surface (facing +Y)
   let plaque_width = diameter + wall
   let plaque_thickness = wall
   let plaque = @cad.Cuboid::new(plaque_width, plaque_thickness, clip_length)
@@ -90,59 +90,28 @@ async fn main {
   design = design.add(plaque)
 
   // 3. Text
-  let text_font = @baloo.font
-  let margin = 2.0
-  let text_bbox = @draw.bbox(
-    margin,
-    margin,
-    plaque_width - margin,
-    clip_length - margin,
-  )
-  let text_fitted = @draw.to_graphic(
-    text_font,
-    label_text,
-    alignment=Center,
-    y_up=true,
-  ).scale_to_fit(text_bbox, anchor=Center) catch {
-    e => {
-      @cli.eprintln("Error creating text: \{e}")
-      abort("")
-    }
+  let font = @baloo.font
+  if font_size_opt > 0.0 {
+    design = design.add_text_on_face(
+      plaque,
+      label_text,
+      Top,
+      font,
+      font_size=font_size_opt,
+      emboss_depth~,
+      color=@cad.Rgb::orange(),
+    )
+  } else {
+    design = design.add_text_on_face(
+      plaque,
+      label_text,
+      Top,
+      font,
+      emboss_depth~,
+      color=@cad.Rgb::orange(),
+    )
   }
-  let all_paths = text_fitted.all_paths_and_compound_paths()
 
   //
-  let text_solids = all_paths
-    .iter()
-    .flat_map(fn(g) {
-      @draw.Graphic::to_profiles_tuples(g, 8)
-      .iter()
-      .filter_map(fn(profile) {
-        let (outer, holes) = profile
-        if outer.length() < 3 {
-          return None
-        }
-
-        // ExtrudedProfile is XY plane, extruding along Z.
-        // We rotate it -90 deg around X so its "Z" (height) becomes "Y" (facing out),
-        // and its "Y" becomes "Z" (along the clip).
-        // We translate by z=tz + clip_length because Local Y maps to Global -Z.
-        let solid = @cad.ExtrudedProfile::new(outer, emboss_depth, holes~)
-          .with_name("label-text")
-          .with_color(@cad.Rgb::orange())
-          .rotate_x(-90)
-          .rotate_y(180) // make the text upright
-          .translate(
-            x=tx + plaque_width / 2.0,
-            y=ty + diameter / 2.0 + plaque_thickness - 0.01,
-            z=tz,
-          )
-        Some(solid)
-      })
-    })
-  design = design.add_iter(text_solids)
-
-  //
-  let design = design.rotate_z(180) // better viewing angle
   design.write_step(out_path)
 }

@@ -54,11 +54,11 @@ async fn main {
     }
   }
   let angles = parse_angles(angles_str)
-  let nodes = miter_templates(angles, size, thickness, hole_dia)
-  let mut design = @cad.Design::new(name="miter-templates")
-  for node in nodes {
-    design = design.add(node.translate(x=tx, y=ty, z=tz))
-  }
+  let design = miter_templates(angles, size, thickness, hole_dia).translate(
+    x=tx,
+    y=ty,
+    z=tz,
+  )
   design.write_step(out_path)
 }
 
@@ -85,14 +85,14 @@ fn miter_templates(
   size : Double,
   thickness : Double,
   hole_dia : Double,
-) -> Array[@cad.SceneNode] {
-  let nodes = []
+) -> @cad.Design {
+  let mut design = @cad.Design::new(name="miter-templates")
   let spacing = size + 10.0
   let font = @baloo.font
   for i, angle in angles {
     let x_off = Double::from_int(i) * spacing
 
-    // Wedge profile: A more professional "gauge" shape.
+    // Wedge profile
     let angle_rad = angle * @math.PI / 180.0
     let h_max = size * @math.tan(angle_rad)
     let base_h = 10.0
@@ -103,8 +103,6 @@ fn miter_templates(
       (0.0, base_h),
     ]
     let mut profile = @cad.Profile2D::new(wedge_poly)
-
-    // Add hanging hole
     if hole_dia > 0.0 {
       let hx = size * 0.8
       let hy = base_h * 0.5
@@ -121,20 +119,20 @@ fn miter_templates(
       .with_name("wedge-\{angle}")
       .with_color(@cad.Rgb::purple())
       .translate(x=x_off)
-    nodes.push(wedge)
+    design = design.add(wedge)
 
-    // Label - place it on the face, upright
+    // Label on the large side face
     let label_text = "\{angle}°"
-    let label_fs = size * 0.15 // Slightly smaller to be safer
-    let labels = @cad.text_at(
+    design = design.add_text_on_face(
+      wedge,
       label_text,
-      x_off + size * 0.5,
-      base_h * 0.6, // Higher up from bottom
-      thickness,
-      font~,
-      font_size=label_fs,
-    ).map(fn(node) { node.with_color(@cad.Rgb::white()) })
-    nodes.push_iter(labels.iter())
+      Top,
+      font,
+      font_size=base_h * 0.6,
+      offset_x=size * 0.3,
+      offset_y=0.0,
+      color=@cad.Rgb::white(),
+    )
   }
-  nodes
+  design
 }

@@ -133,42 +133,91 @@ pub fn rotate_point(
   ry : Double,
   rz : Double,
 ) -> (Double, Double, Double) {
+  let m = rotation_matrix(rx, ry, rz)
+  apply_matrix(m, p)
+}
+
+///|
+pub(all) struct Matrix3x3 {
+  m00 : Double
+  m01 : Double
+  m02 : Double
+  m10 : Double
+  m11 : Double
+  m12 : Double
+  m20 : Double
+  m21 : Double
+  m22 : Double
+}
+
+///|
+fn rotation_matrix(rx : Double, ry : Double, rz : Double) -> Matrix3x3 {
   let rad_x = rx * @math.PI / 180.0
   let rad_y = ry * @math.PI / 180.0
   let rad_z = rz * @math.PI / 180.0
+  let sx = @math.sin(rad_x)
+  let cx = @math.cos(rad_x)
+  let sy = @math.sin(rad_y)
+  let cy = @math.cos(rad_y)
+  let sz = @math.sin(rad_z)
+  let cz = @math.cos(rad_z)
 
-  //
-  let (x0, y0, z0) = p
-  let mut x = x0
-  let mut y = y0
-  let mut z = z0
-
-  // Rotate X
-  if rx != 0.0 {
-    let old_y = y
-    let old_z = z
-    y = old_y * @math.cos(rad_x) - old_z * @math.sin(rad_x)
-    z = old_y * @math.sin(rad_x) + old_z * @math.cos(rad_x)
+  // Combined matrix Rz * Ry * Rx
+  Matrix3x3::{
+    m00: cy * cz,
+    m01: sx * sy * cz - cx * sz,
+    m02: cx * sy * cz + sx * sz,
+    m10: cy * sz,
+    m11: sx * sy * sz + cx * cz,
+    m12: cx * sy * sz - sx * cz,
+    m20: -sy,
+    m21: sx * cy,
+    m22: cx * cy,
   }
+}
 
-  // Rotate Y
-  if ry != 0.0 {
-    let old_x = x
-    let old_z = z
-    x = old_x * @math.cos(rad_y) + old_z * @math.sin(rad_y)
-    z = -old_x * @math.sin(rad_y) + old_z * @math.cos(rad_y)
+///|
+fn apply_matrix(
+  m : Matrix3x3,
+  p : (Double, Double, Double),
+) -> (Double, Double, Double) {
+  let (x, y, z) = p
+  (
+    m.m00 * x + m.m01 * y + m.m02 * z,
+    m.m10 * x + m.m11 * y + m.m12 * z,
+    m.m20 * x + m.m21 * y + m.m22 * z,
+  )
+}
+
+///|
+fn multiply_matrices(a : Matrix3x3, b : Matrix3x3) -> Matrix3x3 {
+  Matrix3x3::{
+    m00: a.m00 * b.m00 + a.m01 * b.m10 + a.m02 * b.m20,
+    m01: a.m00 * b.m01 + a.m01 * b.m11 + a.m02 * b.m21,
+    m02: a.m00 * b.m02 + a.m01 * b.m12 + a.m02 * b.m22,
+    m10: a.m10 * b.m00 + a.m11 * b.m10 + a.m12 * b.m20,
+    m11: a.m10 * b.m01 + a.m11 * b.m11 + a.m12 * b.m21,
+    m12: a.m10 * b.m02 + a.m11 * b.m12 + a.m12 * b.m22,
+    m20: a.m20 * b.m00 + a.m21 * b.m10 + a.m22 * b.m20,
+    m21: a.m20 * b.m01 + a.m21 * b.m11 + a.m22 * b.m21,
+    m22: a.m20 * b.m02 + a.m21 * b.m12 + a.m22 * b.m22,
   }
+}
 
-  // Rotate Z
-  if rz != 0.0 {
-    let old_x = x
-    let old_y = y
-    x = old_x * @math.cos(rad_z) - old_y * @math.sin(rad_z)
-    y = old_x * @math.sin(rad_z) + old_y * @math.cos(rad_z)
+///|
+pub fn matrix_to_euler(m : Matrix3x3) -> (Double, Double, Double) {
+  // Extract Euler angles from rotation matrix assuming order Rz * Ry * Rx
+  let ry = -@math.asin(m.m20)
+  if Double::abs(@math.cos(ry)) > 0.0001 {
+    let rx = @math.atan2(m.m21, m.m22)
+    let rz = @math.atan2(m.m10, m.m00)
+    (rx * 180.0 / @math.PI, ry * 180.0 / @math.PI, rz * 180.0 / @math.PI)
+  } else {
+    // Gimbal lock
+    let rx = 0.0
+    let rz = @math.atan2(-m.m01, m.m11)
+    (rx, ry * 180.0 / @math.PI, rz * 180.0 / @math.PI)
   }
-
-  //
-  (x, y, z)
 }
 
 ///|

@@ -86,37 +86,23 @@ async fn main {
     .with_color(@cad.Rgb::new(0.1, 0.2, 0.5))
     .translate(x=-inner_w / 2.0, y=base_l - t, z=0.0)
 
-  // Add some branding
+  // Add branding text on the back plate
   let font = @baloo.font
-  let brand_text = @cad.text_at(
-    "PHONE",
-    0.0,
-    height * 0.7,
-    0.0, // z=0 is bottom surface of text
-    font~,
-    font_size=10.0,
-    emboss_depth=2.0,
-  ).map(fn(node) {
-    // We want the text to be on the front surface of the back plate.
-    // Before rotation, the front surface is at z=t.
-    // So we calculate the rotated position of (node.tx, node.ty, t).
-    let (ntx, nty, ntz) = @cad.rotate_point(
-      (node.tx, node.ty, t),
-      rot,
-      0.0,
-      0.0,
-    )
-    node
-    .with_color(@cad.Rgb::orange())
-    .rotate_x(rot)
-    .translate(x=ntx - node.tx, y=nty - node.ty, z=ntz - node.tz)
-  })
   let design = @cad.Design::new(name="phone-stand")
     .add_iter(left_side.iter())
     .add_iter(right_side.iter())
     .add(back_plate)
     .add(front_lip)
-    .add_iter(brand_text.iter())
+    .add_text_on_face(
+      back_plate,
+      "PHONE",
+      Top, // In ExtrudedProfile, Top is the Z-end face
+      font,
+      font_size=10.0,
+      emboss_depth=2.0,
+      offset_y=height * 0.2, // Move it up
+      color=@cad.Rgb::orange(),
+    )
     .translate(x=tx, y=ty, z=tz)
   design.write_step(out_path)
 }
@@ -138,7 +124,7 @@ fn side_support(
     .with_name("side-lip")
     .with_color(color)
     .translate(y=base_l - t)
-  let back = @cad.Cuboid::new(t, back_h, t)
+  let back = @cad.Cuboid::new(t, t, back_h)
     .with_name("side-back")
     .with_color(color)
     .rotate_x(rot)

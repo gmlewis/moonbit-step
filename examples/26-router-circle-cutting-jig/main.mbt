@@ -79,36 +79,25 @@ async fn main {
     }
   }
 
-  // 1. Build the main profile (Circle + Rectangle)
-  // We'll approximate the union by using a polygon that covers both.
+  // 1. Build the main profile
   let base_r = base_dia / 2.0
   let half_arm_w = arm_w / 2.0
-
-  // Calculate where the arm meets the circle
   let base_angle = @math.asin(half_arm_w / base_r)
   let outer_arc = @cad.Profile2D::arc(
     base_dia,
     base_angle,
     2.0 * @math.PI - base_angle,
   )
-
-  // Arm end points
   let arm_end_pts = [(arm_l, -half_arm_w), (arm_l, half_arm_w)]
   let jig_poly = [..outer_arc, ..arm_end_pts]
   let mut jig_profile = @cad.Profile2D::new(jig_poly)
 
   // 2. Add holes
-  // Central bit hole
   let bit_hole = @cad.Profile2D::circle(bit_dia).rev()
   jig_profile = jig_profile.add_hole(bit_hole)
-
-  // Mounting holes (on Y axis for simplicity)
   let mount_locs = [(0.0, mount_s / 2.0), (0.0, -mount_s / 2.0)]
   let mount_hole_poly = @cad.Profile2D::circle(mount_dia)
   jig_profile = jig_profile.add_holes_at(mount_locs, mount_hole_poly)
-
-  // Pivot slot
-  // Starts after the base circle, ends before the arm end
   let slot_start = base_r + 10.0
   let slot_end = arm_l - 10.0
   if slot_end > slot_start {
@@ -129,21 +118,21 @@ async fn main {
     )
     .with_name("router-jig")
     .with_color(@cad.Rgb::orange())
-    .translate(x=tx, y=ty, z=tz)
 
   // 4. Add some labels
   let font = @baloo.font
-  let label = @cad.text_at(
-    "ROUTER JIG",
-    tx + base_r * 0.6,
-    ty,
-    tz + thick,
-    font~,
-    font_size=8.0,
-    rz=-90.0, // align along arm
-  ).map(fn(n) { n.with_color(@cad.Rgb::white()) })
   let design = @cad.Design::new(name="router-circle-jig")
     .add(jig)
-    .add_iter(label.iter())
+    .add_text_on_face(
+      jig,
+      "ROUTER JIG",
+      Top,
+      font,
+      font_size=arm_w * 0.3,
+      offset_x=base_r,
+      offset_y=arm_w * 0.3,
+      color=@cad.Rgb::white(),
+    )
+    .translate(x=tx, y=ty, z=tz)
   design.write_step(out_path)
 }

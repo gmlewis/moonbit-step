@@ -108,3 +108,13 @@ pub struct SceneNode {
   ry : Double // rotation Y in degrees
   rz : Double // rotation Z in degrees
 }
+
+///|
+pub(all) enum Face {
+  Top
+  Bottom
+  Front
+  Back
+  Left
+  Right
+}
