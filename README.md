@@ -54,7 +54,7 @@ fn parse_example(step_text : String) -> Unit {
 ## Development & Validation
 
 ### Verification
-Run the blazing fast unit tests and formatters:
+Run the unit tests and formatters:
 - `./test-all.sh`
 
 ### Geometric Validation & Rendering
