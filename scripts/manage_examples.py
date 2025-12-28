@@ -40,7 +40,8 @@ SUITE = {
     "28": [["--phoneThickness", "10"], ["--viewAngle", "30", "--width", "100"]],
     "29": [["--width", "40", "--armLength", "80"], ["--hookHeight", "40", "--thickness", "8"]],
     "30": [["--length", "150", "--width", "50", "--height", "40"], ["--length", "300", "--width", "80", "--height", "60", "--thickness", "4"]],
-    "31": [["--rows", "1", "--cols", "5", "--labelPrefix", "P"], ["--rows", "2", "--cols", "3", "--cellSize", "40", "--magnetDiameter", "12", "--labelPrefix", "T"]]
+    "31": [["--rows", "1", "--cols", "5", "--labelPrefix", "P"], ["--rows", "2", "--cols", "3", "--cellSize", "40", "--magnetDiameter", "12", "--labelPrefix", "T"]],
+    "32": [["--baseLength", "100", "--armHeight", "150"], ["--axleDia", "30", "--armWidth", "40", "--armBaseThickness", "50", "--armTopThickness", "35", "--holeSpacing", "80", "--baseLength", "110"]]
 }
 
 # --- Utils ---
