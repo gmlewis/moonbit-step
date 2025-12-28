@@ -44,7 +44,8 @@ SUITE = {
     "32": [["--baseLength", "100", "--armHeight", "150"], ["--axleDia", "30", "--armWidth", "40", "--armBaseThickness", "50", "--armTopThickness", "35", "--holeSpacing", "80", "--baseLength", "110"]],
     "33": [["--bodyLength", "45", "--bodyWidth", "35"], ["--wallThickness", "2", "--filamentClearance", "0.8", "--switchWidth", "15"]],
     "34": [["--length", "50", "--width", "25"], ["--height", "20", "--beltThickness", "2.0", "--boltDia", "5.2"]],
-    "35": [["--railWidth", "12", "--railHeight", "8"], ["--railWidth", "15", "--railHeight", "10", "--thickness", "15"]]
+    "35": [["--railWidth", "12", "--railHeight", "8"], ["--railWidth", "15", "--railHeight", "10", "--thickness", "15"]],
+    "100": [["--petals", "12"], ["--petals", "8", "--tx", "50"]],
 }
 
 # --- Utils ---
@@ -194,8 +195,9 @@ def update_readme(example_dir, variants_data):
         preview = data["preview"]
         arg_str = " ".join(config)
 
+        num_part = example_dir.name.split("-")[0]
         new_section += f"\n### Variant {i}\n\n"
-        new_section += f"Command line: `./run-example.sh {example_dir.name[:2]} {arg_str}`\n\n"
+        new_section += f"Command line: `./run-example.sh {num_part} {arg_str}`\n\n"
 
         if preview:
             new_section += f"![]({preview})\n"

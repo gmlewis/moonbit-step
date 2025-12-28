@@ -118,3 +118,4 @@ Each entry below links to a subfolder containing a **working example**: code tha
 - [97-lattice-infill-explorer](./97-lattice-infill-explorer) - A lattice volume generator to explore patterns, density gradients, and strength.
 - [98-assembly-exploded-view-demo](./98-assembly-exploded-view-demo) - Multi-part assembly where positions are computed, enabling “exploded” layouts.
 - [99-full-workshop-vise-accessory-pack](./99-full-workshop-vise-accessory-pack) - A pack of vise jaws, soft inserts, and adapters generated from your vise dimensions.
+- [100-chronos-gear-flower](./100-chronos-gear-flower) - A parametric design with colors and complex symmetry.
