@@ -3,7 +3,6 @@
   "import": [
     "gmlewis/step/cad",
     "gmlewis/step/cli",
-    "gmlewis/fonts/draw",
     "gmlewis/fonts-b/baloo",
     "moonbitlang/async"
   ]
