@@ -21,3 +21,18 @@ The intent is that you can run the code here to emit a STEP file, open it in a C
 - emit a small “label plaque” with the chosen settings
 - add a quick-fit calibration part alongside the main part
 - add gasket grooves or light pipes
+
+---
+
+### Variant 1
+
+Command line: `./run-example.sh 33 --bodyLength 45 --bodyWidth 35`
+
+![](preview-1.png)
+
+### Variant 2
+
+Command line: `./run-example.sh 33 --wallThickness 2 --filamentClearance 0.8 --switchWidth 15`
+
+![](preview-2.png)
+

@@ -506,6 +506,12 @@ pub fn Design::add_text_on_face(
   }
   let mw = fw - 2.0 * m
   let ed = emboss_depth.unwrap_or(0.5)
+  let (frx, fry, frz) = matrix_to_euler(
+    multiply_matrices(
+      rotation_matrix(lrx, lry, lrz),
+      rotation_matrix(0.0, 0.0, rotation),
+    ),
+  )
   let text_nodes = text_at(
     text,
     lx,
@@ -515,9 +521,9 @@ pub fn Design::add_text_on_face(
     font_size=fs,
     max_width=mw,
     emboss_depth=ed,
-    rx=lrx,
-    ry=lry,
-    rz=lrz + rotation,
+    rx=frx,
+    ry=fry,
+    rz=frz,
   )
   let final_nodes = text_nodes.map(fn(n) {
     let n = n.with_color(color)

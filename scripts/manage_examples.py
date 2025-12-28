@@ -41,7 +41,8 @@ SUITE = {
     "29": [["--width", "40", "--armLength", "80"], ["--hookHeight", "40", "--thickness", "8"]],
     "30": [["--length", "150", "--width", "50", "--height", "40"], ["--length", "300", "--width", "80", "--height", "60", "--thickness", "4"]],
     "31": [["--rows", "1", "--cols", "5", "--labelPrefix", "P"], ["--rows", "2", "--cols", "3", "--cellSize", "40", "--magnetDiameter", "12", "--labelPrefix", "T"]],
-    "32": [["--baseLength", "100", "--armHeight", "150"], ["--axleDia", "30", "--armWidth", "40", "--armBaseThickness", "50", "--armTopThickness", "35", "--holeSpacing", "80", "--baseLength", "110"]]
+    "32": [["--baseLength", "100", "--armHeight", "150"], ["--axleDia", "30", "--armWidth", "40", "--armBaseThickness", "50", "--armTopThickness", "35", "--holeSpacing", "80", "--baseLength", "110"]],
+    "33": [["--bodyLength", "45", "--bodyWidth", "35"], ["--wallThickness", "2", "--filamentClearance", "0.8", "--switchWidth", "15"]]
 }
 
 # --- Utils ---
