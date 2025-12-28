@@ -43,7 +43,8 @@ SUITE = {
     "31": [["--rows", "1", "--cols", "5", "--labelPrefix", "P"], ["--rows", "2", "--cols", "3", "--cellSize", "40", "--magnetDiameter", "12", "--labelPrefix", "T"]],
     "32": [["--baseLength", "100", "--armHeight", "150"], ["--axleDia", "30", "--armWidth", "40", "--armBaseThickness", "50", "--armTopThickness", "35", "--holeSpacing", "80", "--baseLength", "110"]],
     "33": [["--bodyLength", "45", "--bodyWidth", "35"], ["--wallThickness", "2", "--filamentClearance", "0.8", "--switchWidth", "15"]],
-    "34": [["--length", "50", "--width", "25"], ["--height", "20", "--beltThickness", "2.0", "--boltDia", "5.2"]]
+    "34": [["--length", "50", "--width", "25"], ["--height", "20", "--beltThickness", "2.0", "--boltDia", "5.2"]],
+    "35": [["--railWidth", "12", "--railHeight", "8"], ["--railWidth", "15", "--railHeight", "10", "--thickness", "15"]]
 }
 
 # --- Utils ---
