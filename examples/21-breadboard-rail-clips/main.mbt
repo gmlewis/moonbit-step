@@ -70,7 +70,7 @@ async fn main {
   for node in nodes {
     design = design.add(node.translate(x=tx, y=ty, z=tz))
   }
-  design.rotate_x(90.0).write_step(out_path)
+  design.rotate_x(-90.0).write_step(out_path)
 }
 
 ///|
