@@ -2,14 +2,14 @@
 
 A high-level 3D modeling DSL and lossless STEP (ISO 10303-21) parser/serializer in MoonBit.
 
-This repo allows you to build 3D models using a beautiful, fluent API and export them to valid, topologically sound STEP files.
+This repo allows you to build 3D models using a simple API and export them to valid, topologically sound STEP files.
 
 ## Quick Start (Modeling)
 
-Building a model is intuitive for both newcomers and experts:
+Building a model is intuitive:
 
 ```moonbit
-fn main {
+async fn main {
   let design = @cad.Design::new(name="my-model")
     .add(
       @cad.Cuboid::new(20, 20, 20)
@@ -22,13 +22,13 @@ fn main {
         .translate(z=20)
     )
 
-  design.write_step("model.step")
+  design.write_step(Some("model.step"))
 }
 ```
 
 ## Quick Start (Parsing)
 
-Parsing from a string (Result-style API, never raises):
+Parsing from a string:
 
 ```moonbit
 fn parse_example(step_text : String) -> Unit {
