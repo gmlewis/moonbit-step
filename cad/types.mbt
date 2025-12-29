@@ -90,10 +90,17 @@ pub struct ExtrudedProfile {
 }
 
 ///|
+pub struct SweptProfile {
+  path : SweepPath
+  profile : SweepProfile
+}
+
+///|
 pub enum Shape {
   Cuboid(Cuboid)
   CalibrationChamferBlock(CalibrationChamferBlock)
   ExtrudedProfile(ExtrudedProfile)
+  SweptProfile(SweptProfile)
 }
 
 ///|

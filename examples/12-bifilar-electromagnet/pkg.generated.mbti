@@ -6,6 +6,7 @@ package "gmlewis/step/examples/12-bifilar-electromagnet"
 // Errors
 
 // Types and methods
+type Params
 
 // Type aliases
 

@@ -358,6 +358,11 @@ pub fn Shape::with_name(self : Shape, name : String) -> SceneNode {
 }
 
 ///|
+pub fn Shape::with_color(self : Shape, color : Rgb) -> SceneNode {
+  self.with_name("unnamed").with_color(color)
+}
+
+///|
 pub fn SceneNode::with_color(self : SceneNode, color : Rgb) -> SceneNode {
   { ..self, color, }
 }
@@ -414,10 +419,10 @@ pub fn Design::add_text_on_face(
     CalibrationChamferBlock(b) =>
       (0.0, b.length_mm, 0.0, b.width_mm, 0.0, b.height_mm)
     ExtrudedProfile(e) => {
-      let mut x0 = 1000000.0
-      let mut x1 = -1000000.0
-      let mut y0 = 1000000.0
-      let mut y1 = -1000000.0
+      let mut x0 = @double.max_value
+      let mut x1 = @double.min_value
+      let mut y0 = @double.max_value
+      let mut y1 = @double.min_value
       for pt in e.profile.outer {
         if pt.0 < x0 {
           x0 = pt.0
@@ -433,6 +438,36 @@ pub fn Design::add_text_on_face(
         }
       }
       (x0, x1, y0, y1, 0.0, e.height_mm)
+    }
+    SweptProfile(s) => {
+      let mut x0 = @double.max_value
+      let mut x1 = @double.min_value
+      let mut y0 = @double.max_value
+      let mut y1 = @double.min_value
+      let mut z0 = @double.max_value
+      let mut z1 = @double.min_value
+      for pt in s.path.points {
+        if pt.0 < x0 {
+          x0 = pt.0
+        }
+        if pt.0 > x1 {
+          x1 = pt.0
+        }
+        if pt.1 < y0 {
+          y0 = pt.1
+        }
+        if pt.1 > y1 {
+          y1 = pt.1
+        }
+        if pt.2 < z0 {
+          z0 = pt.2
+        }
+        if pt.2 > z1 {
+          z1 = pt.2
+        }
+      }
+      // Expand by a reasonable amount for the profile
+      (x0 - 5.0, x1 + 5.0, y0 - 5.0, y1 + 5.0, z0 - 5.0, z1 + 5.0)
     }
   }
   let mid_x = (min_x + max_x) / 2.0

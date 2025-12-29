@@ -20,6 +20,8 @@ pub fn force_ccw(Array[(Double, Double)]) -> Array[(Double, Double)]
 
 pub fn force_cw(Array[(Double, Double)]) -> Array[(Double, Double)]
 
+pub fn helix_path(pos? : (Double, Double, Double), size? : (Double, Double, Double), num_turns? : Double, num_segs_per_turn? : Int, start_angle? : Double, clockwise? : Bool) -> SweepPath
+
 pub fn is_point_in_polygon((Double, Double), Array[(Double, Double)]) -> Bool
 
 pub fn matrix_to_euler(Matrix3x3) -> (Double, Double, Double)
@@ -158,12 +160,15 @@ pub fn SceneNode::rotate_y(Self, Double) -> Self
 pub fn SceneNode::rotate_z(Self, Double) -> Self
 pub fn SceneNode::translate(Self, x? : Double, y? : Double, z? : Double) -> Self
 pub fn SceneNode::with_color(Self, Rgb) -> Self
+pub fn SceneNode::with_name(Self, String) -> Self
 
 pub enum Shape {
   Cuboid(Cuboid)
   CalibrationChamferBlock(CalibrationChamferBlock)
   ExtrudedProfile(ExtrudedProfile)
+  SweptProfile(SweptProfile)
 }
+pub fn Shape::with_color(Self, Rgb) -> SceneNode
 pub fn Shape::with_name(Self, String) -> SceneNode
 
 pub struct StepContext {
@@ -189,6 +194,26 @@ pub fn StepContext::line(Self, @step.Ref, @step.Ref) -> @step.Ref
 pub fn StepContext::new() -> Self
 pub fn StepContext::vector(Self, @step.Ref, Double) -> @step.Ref
 pub fn StepContext::vertex_point(Self, @step.Ref) -> @step.Ref
+
+pub(all) struct SweepPath {
+  points : Array[(Double, Double, Double)]
+  normals : Array[(Double, Double, Double)]
+  tangents : Array[(Double, Double, Double)]
+}
+
+pub(all) struct SweepProfile {
+  center : (Double, Double, Double)
+  vertices : Array[(Double, Double, Double)]
+  normal_dir : (Double, Double, Double)
+  right_dir : (Double, Double, Double)
+}
+pub fn SweepProfile::new(Array[(Double, Double, Double)], center? : (Double, Double, Double), normal_dir? : (Double, Double, Double), right_dir? : (Double, Double, Double)) -> Self
+
+pub struct SweptProfile {
+  path : SweepPath
+  profile : SweepProfile
+}
+pub fn SweptProfile::new(path~ : SweepPath, profile~ : SweepProfile) -> Shape
 
 // Type aliases
 

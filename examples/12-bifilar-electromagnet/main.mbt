@@ -171,7 +171,7 @@ fn make_coil(
     (-hw, hw, 0.0),
   ]
   let wire_profile = @cad.SweepProfile::new(wire_pts)
-  let coil_shape = @cad.Sweep::new(path=helix_path, profile=wire_profile).with_color(
+  let coil_shape = @cad.SweptProfile::new(path=helix_path, profile=wire_profile).with_color(
     color,
   )
   coil_shape

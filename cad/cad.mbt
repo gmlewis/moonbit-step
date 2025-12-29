@@ -32,6 +32,7 @@ pub fn Design::compile(self : Design) -> @repository.Repository {
       CalibrationChamferBlock(b) =>
         compile_calibration_chamfer_block(ctx, node, b)
       ExtrudedProfile(e) => compile_extruded_profile(ctx, node, e)
+      SweptProfile(s) => compile_swept_profile(ctx, node, s)
     }
 
     // Presentation styling
