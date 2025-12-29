@@ -5,9 +5,9 @@ A high-level 3D modeling DSL and lossless STEP (ISO 10303-21) parser/serializer 
 This repo allows you to build 3D models using a simple API and export them to valid,
 topologically-sound STEP files.
 
-![Chronos Gear-Flower](examples/100-chronos-gear-flower/preview-1.png)
+![Chronos Gear-Flower](examples/36-chronos-gear-flower/preview-1.png)
 
-*Example 100: The Chronos Gear-Flower, a parametric design with multiple colors.*
+*Example 36: The Chronos Gear-Flower, a parametric design with multiple colors.*
 
 ## Quick Start (Modeling)
 

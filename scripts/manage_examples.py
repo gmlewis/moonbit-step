@@ -21,7 +21,7 @@ SUITE = {
     "09": [["--baseWidth", "60", "--baseLength", "80"], ["--dovetailAngle", "20", "--dovetailHeight", "10"], ["--clearance", "0.5"]],
     "10": [["--sides", "6", "--holeSides", "6"], ["--sides", "5", "--holeSides", "3", "--diameter", "25"], ["--sides", "8", "--holeSides", "4", "--holeRotation", "45", "--diameter", "40"]],
     "11": [["--rows", "2", "--cols", "4"], ["--rows", "1", "--cols", "5", "--spacing", "8.5", "--tolerance", "0.05"], ["--rows", "3", "--cols", "3", "--spacing", "15", "--height", "25"]],
-    "12": [["--diameter", "25.4", "--type", "cap"], ["--diameter", "25.4", "--type", "plug", "--topThickness", "5"], ["--diameter", "50", "--wall", "1.2", "--height", "20"]],
+    "12": [[]],
     "13": [["--length", "60", "--width", "70"], ["--length", "100", "--width", "80", "--height", "15"], ["--width", "50", "--height", "12"]],
     "14": [["--length", "100"], ["--length", "150", "--width", "50"], ["--length", "80", "--height", "12"]],
     "15": [["--boltDiameter", "8", "--clearance", "0.1"], ["--boltDiameter", "10", "--interference", "0.1", "--clearanceStep", "0.1", "--stepCount", "3"]],
@@ -45,7 +45,8 @@ SUITE = {
     "33": [["--bodyLength", "45", "--bodyWidth", "35"], ["--wallThickness", "2", "--filamentClearance", "0.8", "--switchWidth", "15"]],
     "34": [["--length", "50", "--width", "25"], ["--height", "20", "--beltThickness", "2.0", "--boltDia", "5.2"]],
     "35": [["--railWidth", "12", "--railHeight", "8"], ["--railWidth", "15", "--railHeight", "10", "--thickness", "15"]],
-    "100": [["--petals", "12"], ["--petals", "8", "--tx", "50"]],
+    "36": [["--petals", "12"], ["--petals", "8", "--tx", "50"]],
+    "37": [["--diameter", "25.4", "--type", "cap"], ["--diameter", "25.4", "--type", "plug", "--topThickness", "5"], ["--diameter", "50", "--wall", "1.2", "--height", "20"]],
 }
 
 # --- Utils ---
