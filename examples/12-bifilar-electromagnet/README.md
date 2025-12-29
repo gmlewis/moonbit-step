@@ -10,7 +10,7 @@ the next pair of windings is completely rotated 180 degrees, then the
 capacitance between the coils will be in both the radial direction _and_ the
 axial direction!
 
-----------------------------------------------------------------------
+======================================================================
 
 # License
 
@@ -27,3 +27,18 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
+
+---
+
+### Variant 1
+
+Command line: `./run-example.sh 12 --numPairs 3 --wireGap 0.5 --vertTurns 1`
+
+![](preview-1.png)
+
+### Variant 2
+
+Command line: `./run-example.sh 12 --numPairs 10 --vertTurns 5`
+
+![](preview-2.png)
+

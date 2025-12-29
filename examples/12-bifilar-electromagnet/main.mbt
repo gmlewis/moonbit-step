@@ -20,8 +20,8 @@ async fn main {
     "numPairs": @cli.opt_int(
       10,
       short='p',
-      help="Number of coil pairs (minimum 2)",
-      min=2,
+      help="Number of coil pairs (minimum 1)",
+      min=1,
     ),
     "numSegs": @cli.opt_int(
       36,
@@ -63,7 +63,7 @@ async fn main {
     ),
     "wireGap": @cli.opt_double(
       short='g',
-      0.5,
+      0.1,
       help="Wire gap in millimeters",
       min=0,
       min_exclusive=true,
@@ -152,10 +152,11 @@ fn make_coil(
   color? : @cad.Rgb = @cad.Rgb::red(),
 ) -> @cad.SceneNode {
   let pos = (0.0, 0.0, 0.0)
+  let hw = params.wire_width / 2.0
   let radius = params.inner_diam +
-    (pair_num - 1).to_double() *
-    (2.0 * params.radial_thickness + params.wire_gap * 2.0 + params.wire_width)
-  let height = params.vert_turns * (params.wire_width + params.wire_gap) * 2.0
+    hw +
+    (pair_num - 1).to_double() * (params.wire_gap + params.wire_width)
+  let height = params.vert_turns * (params.wire_width + params.wire_gap)
   let helix_path = @cad.helix_path(
     pos~,
     size=(radius, radius, height),
@@ -163,12 +164,11 @@ fn make_coil(
     num_segs_per_turn=params.num_segs,
     start_angle~,
   )
-  let hw = params.wire_width / 2.0
   let wire_pts = [
-    (-hw, -hw, 0.0),
-    (hw, -hw, 0.0),
-    (hw, hw, 0.0),
-    (-hw, hw, 0.0),
+    (-hw, 0.0, -hw),
+    (hw, 0.0, -hw),
+    (hw, 0.0, hw),
+    (-hw, 0.0, hw),
   ]
   let wire_profile = @cad.SweepProfile::new(wire_pts)
   let coil_shape = @cad.SweptProfile::new(path=helix_path, profile=wire_profile).with_color(

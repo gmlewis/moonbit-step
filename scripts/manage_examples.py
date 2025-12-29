@@ -21,7 +21,7 @@ SUITE = {
     "09": [["--baseWidth", "60", "--baseLength", "80"], ["--dovetailAngle", "20", "--dovetailHeight", "10"], ["--clearance", "0.5"]],
     "10": [["--sides", "6", "--holeSides", "6"], ["--sides", "5", "--holeSides", "3", "--diameter", "25"], ["--sides", "8", "--holeSides", "4", "--holeRotation", "45", "--diameter", "40"]],
     "11": [["--rows", "2", "--cols", "4"], ["--rows", "1", "--cols", "5", "--spacing", "8.5", "--tolerance", "0.05"], ["--rows", "3", "--cols", "3", "--spacing", "15", "--height", "25"]],
-    "12": [[]],
+    "12": [["--numPairs", "3", "--wireGap", "0.5", "--vertTurns", "1"], ["--numPairs", "10", "--vertTurns", "5"]],
     "13": [["--length", "60", "--width", "70"], ["--length", "100", "--width", "80", "--height", "15"], ["--width", "50", "--height", "12"]],
     "14": [["--length", "100"], ["--length", "150", "--width", "50"], ["--length", "80", "--height", "12"]],
     "15": [["--boltDiameter", "8", "--clearance", "0.1"], ["--boltDiameter", "10", "--interference", "0.1", "--clearanceStep", "0.1", "--stepCount", "3"]],
