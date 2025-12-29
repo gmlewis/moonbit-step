@@ -164,12 +164,13 @@ fn make_coil(
     start_angle~,
   )
   let hw = params.wire_width / 2.0
-  let wire_profile = [
+  let wire_pts = [
     (-hw, -hw, 0.0),
     (hw, -hw, 0.0),
     (hw, hw, 0.0),
     (-hw, hw, 0.0),
   ]
+  let wire_profile = @cad.SweepProfile::new(wire_pts)
   let coil_shape = @cad.Sweep::new(path=helix_path, profile=wire_profile).with_color(
     color,
   )
