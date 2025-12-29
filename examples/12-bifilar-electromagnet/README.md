@@ -32,7 +32,7 @@ limitations under the License.
 
 ### Variant 1
 
-Command line: `./run-example.sh 12 --numPairs 3 --wireGap 0.5 --vertTurns 1`
+Command line: `./run-example.sh 12 --numPairs 2 --wireGap 0.5 --vertTurns 1`
 
 ![](preview-1.png)
 

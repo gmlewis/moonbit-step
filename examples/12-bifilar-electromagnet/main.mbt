@@ -10,6 +10,10 @@ async fn main {
   let base_args_spec = {
     // "addSupport":       @cli.flag("as", false, "Add inner support shaft"),
     "debug": @cli.flag(short='d', help="Turn on debugging info"),
+    "nocage": @cli.flag(
+      short='n',
+      help="Do not add wire cage around electromagnet",
+    ),
     "innerDiam": @cli.opt_double(
       6.0,
       short='i',
@@ -20,8 +24,8 @@ async fn main {
     "numPairs": @cli.opt_int(
       10,
       short='p',
-      help="Number of coil pairs (minimum 1)",
-      min=1,
+      help="Number of coil pairs (minimum 2)",
+      min=2,
     ),
     "numSegs": @cli.opt_int(
       36,
@@ -97,6 +101,7 @@ async fn main {
     radial_thickness: args.double("radialThickness"),
     vert_turns: args.double("vertTurns"),
     debug: args.flag("debug"),
+    nocage: args.flag("nocage"),
   }
 
   //
@@ -124,6 +129,7 @@ struct Params {
   radial_thickness : Double
   vert_turns : Double
   debug : Bool
+  nocage : Bool
 }
 
 ///|
@@ -156,10 +162,10 @@ fn make_coil(
   let radius = params.inner_diam +
     hw +
     (pair_num - 1).to_double() * (params.wire_gap + params.wire_width)
-  let height = params.vert_turns * (params.wire_width + params.wire_gap)
+  let height = 2.0 * (params.wire_width + params.wire_gap)
   let helix_path = @cad.helix_path(
     pos~,
-    size=(radius, radius, height),
+    size_per_turn=(radius, radius, height),
     num_turns=params.vert_turns,
     num_segs_per_turn=params.num_segs,
     start_angle~,

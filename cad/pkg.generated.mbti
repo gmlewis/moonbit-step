@@ -20,7 +20,7 @@ pub fn force_ccw(Array[(Double, Double)]) -> Array[(Double, Double)]
 
 pub fn force_cw(Array[(Double, Double)]) -> Array[(Double, Double)]
 
-pub fn helix_path(pos? : (Double, Double, Double), size? : (Double, Double, Double), num_turns? : Double, num_segs_per_turn? : Int, start_angle? : Double, clockwise? : Bool) -> SweepPath
+pub fn helix_path(pos? : (Double, Double, Double), size_per_turn? : (Double, Double, Double), num_turns? : Double, num_segs_per_turn? : Int, start_angle? : Double, clockwise? : Bool) -> SweepPath
 
 pub fn is_point_in_polygon((Double, Double), Array[(Double, Double)]) -> Bool
 

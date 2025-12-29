@@ -1,7 +1,7 @@
 ///|
 pub fn helix_path(
   pos? : (Double, Double, Double) = (0.0, 0.0, 0.0),
-  size? : (Double, Double, Double) = (1.0, 1.0, 1.0),
+  size_per_turn? : (Double, Double, Double) = (1.0, 1.0, 1.0),
   num_turns? : Double = 1.0,
   num_segs_per_turn? : Int = 36,
   start_angle? : Double = 0.0,
@@ -19,15 +19,15 @@ pub fn helix_path(
 
   //
   let angle_delta = max_angle / total_segments
-  let delta_z = size.1 * num_turns / total_segments
+  let delta_z = size_per_turn.2 * num_turns / total_segments
   let direction = if clockwise { -1.0 } else { 1.0 }
   let start_angle = @math.PI * start_angle / 180
   for seg_idx in 0..<capacity {
     let angle = direction * (start_angle + seg_idx.to_double() * angle_delta)
     let cos_angle = @math.cos(angle)
     let sin_angle = @math.sin(angle)
-    let x = pos.0 + size.0 * cos_angle
-    let y = pos.1 + size.1 * sin_angle
+    let x = pos.0 + size_per_turn.0 * cos_angle
+    let y = pos.1 + size_per_turn.1 * sin_angle
     let z = pos.2 + seg_idx.to_double() * delta_z
     let point = (x, y, z)
     points.push(point)
@@ -67,14 +67,33 @@ fn cross(
 ///|
 test "helix_path generates correct number of points" {
   let path = helix_path(
-    size=(10.0, 10.0, 20.0),
-    num_turns=1.0,
+    size_per_turn=(10.0, 10.0, 20.0),
+    num_turns=2.0,
     num_segs_per_turn=4,
     start_angle=0.0,
   )
   inspect(
     path.points,
-    content="[(10, 0, 0), (6.123233995736766e-16, -10, 2.5), (-10, -1.2246467991473533e-15, 5), (-1.8369701987210296e-15, 10, 7.5), (10, 2.4492935982947065e-15, 10)]",
+    content="[(10, 0, 0), (6.123233995736766e-16, -10, 5), (-10, -1.2246467991473533e-15, 10), (-1.8369701987210296e-15, 10, 15), (10, 2.4492935982947065e-15, 20), (3.061616997868383e-15, -10, 25), (-10, -3.673940397442059e-15, 30), (-4.2862637970157365e-15, 10, 35), (10, 4.898587196589413e-15, 40)]",
+  )
+  inspect(
+    path.normals,
+    content="[(0, 0, -1), (0, 0, -1), (0, 0, -1), (0, 0, -1), (0, 0, -1), (0, 0, -1), (0, 0, -1), (0, 0, -1), (0, 0, -1)]",
+  )
+  inspect(
+    path.tangents,
+    content="[(0, -1, 0), (-1, -6.123233995736766e-17, 0), (-1.2246467991473532e-16, 1, 0), (1, 1.8369701987210297e-16, 0), (2.4492935982947064e-16, -1, 0), (-1, -3.061616997868383e-16, 0), (-3.6739403974420594e-16, 1, 0), (1, 4.286263797015736e-16, 0), (4.898587196589413e-16, -1, 0)]",
+  )
+  // Now rotate it 180 degrees
+  let path = helix_path(
+    size_per_turn=(10.0, 10.0, 20.0),
+    num_turns=1.0,
+    num_segs_per_turn=4,
+    start_angle=180.0,
+  )
+  inspect(
+    path.points,
+    content="[(-10, -1.2246467991473533e-15, 0), (-1.8369701987210296e-15, 10, 5), (10, 2.4492935982947065e-15, 10), (3.061616997868383e-15, -10, 15), (-10, -3.673940397442059e-15, 20)]",
   )
   inspect(
     path.normals,
@@ -82,6 +101,6 @@ test "helix_path generates correct number of points" {
   )
   inspect(
     path.tangents,
-    content="[(0, -1, 0), (-1, -6.123233995736766e-17, 0), (-1.2246467991473532e-16, 1, 0), (1, 1.8369701987210297e-16, 0), (2.4492935982947064e-16, -1, 0)]",
+    content="[(-1.2246467991473532e-16, 1, 0), (1, 1.8369701987210297e-16, 0), (2.4492935982947064e-16, -1, 0), (-1, -3.061616997868383e-16, 0), (-3.6739403974420594e-16, 1, 0)]",
   )
 }
