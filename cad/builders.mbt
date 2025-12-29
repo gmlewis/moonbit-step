@@ -363,6 +363,11 @@ pub fn SceneNode::with_color(self : SceneNode, color : Rgb) -> SceneNode {
 }
 
 ///|
+pub fn SceneNode::with_name(self : SceneNode, name : String) -> SceneNode {
+  { ..self, name, }
+}
+
+///|
 pub fn SceneNode::translate(
   self : SceneNode,
   x? : Double = 0.0,
