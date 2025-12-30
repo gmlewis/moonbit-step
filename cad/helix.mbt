@@ -1,7 +1,7 @@
 ///|
 pub fn helix_path(
-  pos? : (Double, Double, Double) = (0.0, 0.0, 0.0),
-  size_per_turn? : (Double, Double, Double) = (1.0, 1.0, 1.0),
+  pos? : Vec3 = (0.0, 0.0, 0.0),
+  size_per_turn? : Vec3 = (1.0, 1.0, 1.0),
   num_turns? : Double = 1.0,
   num_segs_per_turn? : Int = 36,
   start_angle? : Double = 0.0,
@@ -47,7 +47,7 @@ pub fn helix_path(
 }
 
 ///|
-fn normalize(v : (Double, Double, Double)) -> (Double, Double, Double) {
+fn normalize(v : Vec3) -> Vec3 {
   let len = Double::sqrt(v.0 * v.0 + v.1 * v.1 + v.2 * v.2)
   if len == 0.0 {
     (0.0, 0.0, 0.0)
@@ -57,10 +57,7 @@ fn normalize(v : (Double, Double, Double)) -> (Double, Double, Double) {
 }
 
 ///|
-fn cross(
-  a : (Double, Double, Double),
-  b : (Double, Double, Double),
-) -> (Double, Double, Double) {
+fn cross(a : Vec3, b : Vec3) -> Vec3 {
   (a.1 * b.2 - a.2 * b.1, a.2 * b.0 - a.0 * b.2, a.0 * b.1 - a.1 * b.0)
 }
 

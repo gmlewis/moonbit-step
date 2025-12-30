@@ -1,13 +1,10 @@
 ///|
-pub fn Profile2D::new(outer : Array[(Double, Double)]) -> Profile2D {
+pub fn Profile2D::new(outer : Array[Vec2]) -> Profile2D {
   { outer, holes: [] }
 }
 
 ///|
-pub fn Profile2D::add_hole(
-  self : Profile2D,
-  hole : Array[(Double, Double)],
-) -> Profile2D {
+pub fn Profile2D::add_hole(self : Profile2D, hole : Array[Vec2]) -> Profile2D {
   let holes = self.holes.copy()
   holes.push(hole)
   { ..self, holes, }
@@ -16,8 +13,8 @@ pub fn Profile2D::add_hole(
 ///|
 pub fn Profile2D::add_holes_at(
   self : Profile2D,
-  locs : Array[(Double, Double)],
-  hole_profile : Array[(Double, Double)],
+  locs : Array[Vec2],
+  hole_profile : Array[Vec2],
 ) -> Profile2D {
   let holes = self.holes.copy()
   for loc in locs {
@@ -28,18 +25,14 @@ pub fn Profile2D::add_holes_at(
 }
 
 ///|
-pub fn translate_pts(
-  pts : Array[(Double, Double)],
-  x : Double,
-  y : Double,
-) -> Array[(Double, Double)] {
+pub fn translate_pts(pts : Array[Vec2], x : Double, y : Double) -> Array[Vec2] {
   pts.map(fn(p) { (p.0 + x, p.1 + y) })
 }
 
 ///|
 pub fn SceneNode::repeat_at(
   self : SceneNode,
-  locs : Array[(Double, Double, Double)],
+  locs : Array[Vec3],
 ) -> Array[SceneNode] {
   locs.map(fn(loc) {
     let (lx, ly, lz) = loc
@@ -72,18 +65,12 @@ pub fn CalibrationChamferBlock::new(
 }
 
 ///|
-pub fn Profile2D::rect(
-  width : Double,
-  height : Double,
-) -> Array[(Double, Double)] {
+pub fn Profile2D::rect(width : Double, height : Double) -> Array[Vec2] {
   [(0.0, 0.0), (width, 0.0), (width, height), (0.0, height)]
 }
 
 ///|
-pub fn Profile2D::centered_rect(
-  width : Double,
-  height : Double,
-) -> Array[(Double, Double)] {
+pub fn Profile2D::centered_rect(width : Double, height : Double) -> Array[Vec2] {
   let hw = width / 2.0
   let hh = height / 2.0
   [(-hw, -hh), (hw, -hh), (hw, hh), (-hw, hh)]
@@ -95,7 +82,7 @@ pub fn Profile2D::rounded_rect(
   height : Double,
   radius : Double,
   segments? : Int = 32,
-) -> Array[(Double, Double)] {
+) -> Array[Vec2] {
   if radius <= 0.0 {
     return Profile2D::rect(width, height)
   }
@@ -113,25 +100,25 @@ pub fn Profile2D::rounded_rect(
   pts.push_iter(
     Profile2D::arc(2.0 * r, 1.5 * @math.PI, 2.0 * @math.PI, segments=qn)
     .iter()
-    .map(fn(p : (Double, Double)) { (p.0 + width - r, p.1 + r) }),
+    .map(fn(p : Vec2) { (p.0 + width - r, p.1 + r) }),
   )
   // Top-right arc: 0 to 90 degrees
   pts.push_iter(
     Profile2D::arc(2.0 * r, 0.0, 0.5 * @math.PI, segments=qn)
     .iter()
-    .map(fn(p : (Double, Double)) { (p.0 + width - r, p.1 + height - r) }),
+    .map(fn(p : Vec2) { (p.0 + width - r, p.1 + height - r) }),
   )
   // Top-left arc: 90 to 180 degrees
   pts.push_iter(
     Profile2D::arc(2.0 * r, 0.5 * @math.PI, @math.PI, segments=qn)
     .iter()
-    .map(fn(p : (Double, Double)) { (p.0 + r, p.1 + height - r) }),
+    .map(fn(p : Vec2) { (p.0 + r, p.1 + height - r) }),
   )
   // Bottom-left arc: 180 to 270 degrees
   pts.push_iter(
     Profile2D::arc(2.0 * r, @math.PI, 1.5 * @math.PI, segments=qn)
     .iter()
-    .map(fn(p : (Double, Double)) { (p.0 + r, p.1 + r) }),
+    .map(fn(p : Vec2) { (p.0 + r, p.1 + r) }),
   )
   pts
 }
@@ -143,7 +130,7 @@ pub fn Profile2D::polygon(
   sides : Int,
   diameter : Double,
   rotation? : Double = 0.0,
-) -> Array[(Double, Double)] {
+) -> Array[Vec2] {
   let n = if sides < 3 { 3 } else { sides }
   let radius = diameter / 2.0
   let angle_step = 2.0 * @math.PI / Double::from_int(n)
@@ -235,7 +222,7 @@ pub fn text_at(
 fn collect_profiles(
   g : @draw.Graphic,
   segments : Int,
-) -> Array[(Array[(Double, Double)], Array[Array[(Double, Double)]])] {
+) -> Array[(Array[Vec2], Array[Array[Vec2]])] {
   match g {
     CompoundPath(cp) => {
       let outers = []
@@ -286,7 +273,7 @@ pub fn Profile2D::ellipse(
   width : Double,
   height : Double,
   segments? : Int = 64,
-) -> Array[(Double, Double)] {
+) -> Array[Vec2] {
   let rx = width / 2.0
   let ry = height / 2.0
   let n = if segments < 3 { 3 } else { segments }
@@ -303,7 +290,7 @@ pub fn Profile2D::ellipse(
 pub fn Profile2D::circle(
   diameter : Double,
   segments? : Int = 64,
-) -> Array[(Double, Double)] {
+) -> Array[Vec2] {
   let radius = diameter / 2.0
   let n = if segments < 3 { 3 } else { segments }
   let angle_step = 2.0 * @math.PI / Double::from_int(n)
@@ -321,7 +308,7 @@ pub fn Profile2D::arc(
   start_angle : Double,
   end_angle : Double,
   segments? : Int = 32,
-) -> Array[(Double, Double)] {
+) -> Array[Vec2] {
   let radius = diameter / 2.0
   let n = if segments < 2 { 2 } else { segments }
   let angle_step = (end_angle - start_angle) / Double::from_int(n)
@@ -335,9 +322,9 @@ pub fn Profile2D::arc(
 
 ///|
 pub fn ExtrudedProfile::new(
-  outer : Array[(Double, Double)],
+  outer : Array[Vec2],
   height_mm : Double,
-  holes? : Array[Array[(Double, Double)]] = [],
+  holes? : Array[Array[Vec2]] = [],
 ) -> Shape {
   Shape::ExtrudedProfile({ profile: { outer, holes }, height_mm })
 }

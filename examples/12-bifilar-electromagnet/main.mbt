@@ -10,10 +10,8 @@ async fn main {
   let base_args_spec = {
     // "addSupport":       @cli.flag("as", false, "Add inner support shaft"),
     "debug": @cli.flag(short='d', help="Turn on debugging info"),
-    "nocage": @cli.flag(
-      short='n',
-      help="Do not add wire cage around electromagnet",
-    ),
+    "nocage": @cli.flag(help="Do not add wire cage around electromagnet"),
+    "nocoil": @cli.flag(help="Do not build electromagnet"),
     "innerDiam": @cli.opt_double(
       6.0,
       short='i',
@@ -58,6 +56,22 @@ async fn main {
       min=0,
       min_exclusive=true,
     ),
+    "tolerance": @cli.opt_double(0.1, help="Tolerance in millimeters", min=0),
+    "connector_length": @cli.opt_double(
+      12.0,
+      help="Length of connector wires in millimeters",
+      min=0,
+    ),
+    "exit_wire_diameter": @cli.opt_double(
+      1.0,
+      help="Diameter of exit wires in millimeters",
+      min=0,
+    ),
+    "exit_wire_separation": @cli.opt_double(
+      4.0,
+      help="Separation of exit wires in millimeters",
+      min=0,
+    ),
     "vertTurns": @cli.opt_double(
       short='t',
       15.0,
@@ -89,47 +103,93 @@ async fn main {
     is Some(args) else {
     return
   }
+  let pos = match args.translate_xyz() {
+    Some(v) => v
+    None => {
+      @cli.eprintln("error: invalid translation")
+      abort("")
+    }
+  }
   let params = Params::{
+    pos,
     inner_diam: args.double("innerDiam"),
     num_pairs: args.int("numPairs"),
     num_segs: args.int("numSegs"),
     out_path: args.string_opt("out"),
     wire_width: args.double("wireWidth"),
     wire_gap: args.double("wireGap"),
+    tolerance: args.double("tolerance"),
     back_thickness: args.double("backThickness"),
     front_thickness: args.double("frontThickness"),
     radial_thickness: args.double("radialThickness"),
+    connector_length: args.double("connector_length"),
+    exit_wire_diameter: args.double("exit_wire_diameter"),
+    exit_wire_separation: args.double("exit_wire_separation"),
     vert_turns: args.double("vertTurns"),
     debug: args.flag("debug"),
     nocage: args.flag("nocage"),
+    nocoil: args.flag("nocoil"),
   }
 
   //
   let mut design = @cad.Design::new(name="bifilar-electromagnet")
-  for pair_num in 1..=params.num_pairs {
-    if params.debug {
-      @cli.eprintln("Generating pair #\{pair_num} of \{params.num_pairs}")
+  // Add coil pairs
+  if !params.nocoil {
+    for pair_num in 1..=params.num_pairs {
+      if params.debug {
+        @cli.eprintln("Generating pair #\{pair_num} of \{params.num_pairs}")
+      }
+      let coil_pair = make_coil_pair(pair_num~, params~)
+      design = design.add(coil_pair.0).add(coil_pair.1)
     }
-    let coil_pair = make_coil_pair(pair_num~, params~)
-    design = design.add(coil_pair.0).add(coil_pair.1)
+  }
+  // Add cage if requested
+  if !params.nocage {
+    let (radius, height) = calc_radius_height(params.num_pairs - 1, params)
+    let nodes = make_bfem_cage(
+      pos=params.pos,
+      size=(radius, radius, height),
+      connector_length=params.connector_length,
+      exit_wire_diameter=params.exit_wire_diameter,
+      exit_wire_separation=params.exit_wire_separation,
+      front_thickness=params.front_thickness,
+      back_thickness=params.back_thickness,
+      radial_thickness=params.radial_thickness,
+      inner_radius=params.inner_diam / 2.0,
+      tolerance=params.tolerance,
+      turns=params.vert_turns,
+      wire_gap=params.wire_gap,
+      wire_width=params.wire_width,
+      segments=params.num_segs,
+      num_pairs=params.num_pairs,
+    )
+    for node in nodes {
+      design = design.add(node)
+    }
   }
   design.write_step(params.out_path)
 }
 
 ///|
 struct Params {
+  pos : Vec3
   inner_diam : Double
   num_pairs : Int
   num_segs : Int
   out_path : String?
   wire_width : Double
   wire_gap : Double
+  tolerance : Double
+  connector_length : Double
+  exit_wire_diameter : Double
+  exit_wire_separation : Double
   back_thickness : Double
   front_thickness : Double
   radial_thickness : Double
   vert_turns : Double
   debug : Bool
   nocage : Bool
+  nocoil : Bool
 }
 
 ///|
@@ -151,20 +211,26 @@ fn make_coil_pair(
 }
 
 ///|
+fn calc_radius_height(pair_num : Int, params : Params) -> (Double, Double) {
+  let hw = params.wire_width / 2.0
+  let radius = params.inner_diam / 2.0 +
+    hw +
+    (pair_num - 1).to_double() * (params.wire_gap + params.wire_width)
+  let height = 2.0 * (params.wire_width + params.wire_gap)
+  return (radius, height)
+}
+
+///|
 fn make_coil(
   start_angle : Double,
   pair_num~ : Int,
   params~ : Params,
   color? : @cad.Rgb = @cad.Rgb::red(),
 ) -> @cad.SceneNode {
-  let pos = (0.0, 0.0, 0.0)
   let hw = params.wire_width / 2.0
-  let radius = params.inner_diam +
-    hw +
-    (pair_num - 1).to_double() * (params.wire_gap + params.wire_width)
-  let height = 2.0 * (params.wire_width + params.wire_gap)
+  let (radius, height) = calc_radius_height(pair_num, params)
   let helix_path = @cad.helix_path(
-    pos~,
+    pos=params.pos,
     size_per_turn=(radius, radius, height),
     num_turns=params.vert_turns,
     num_segs_per_turn=params.num_segs,

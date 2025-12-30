@@ -1,4 +1,10 @@
 ///|
+pub type Vec2 = (Double, Double)
+
+///|
+pub type Vec3 = (Double, Double, Double)
+
+///|
 pub struct Rgb {
   r : Double
   g : Double
@@ -129,29 +135,29 @@ pub(all) enum Face {
 ///|
 /// SweepPath represents the information needed to sweep a profile along a path.
 pub(all) struct SweepPath {
-  points : Array[(Double, Double, Double)]
-  normals : Array[(Double, Double, Double)]
-  tangents : Array[(Double, Double, Double)]
+  points : Array[Vec3]
+  normals : Array[Vec3]
+  tangents : Array[Vec3]
 }
 
 ///|
 /// SweepProfile represents a 2D profile to be swept along a path.
 pub(all) struct SweepProfile {
-  center : (Double, Double, Double)
-  vertices : Array[(Double, Double, Double)]
+  center : Vec3
+  vertices : Array[Vec3]
   // normal_dir points in the direction of extrusion
-  normal_dir : (Double, Double, Double)
+  normal_dir : Vec3
   // right_dir points to the "right" side of the profile when looking along normal_dir
-  right_dir : (Double, Double, Double)
+  right_dir : Vec3
 }
 
 ///|
 /// SweepProfile::new returns a new SweepProfile.
 pub fn SweepProfile::new(
-  vertices : Array[(Double, Double, Double)],
-  center? : (Double, Double, Double) = (0.0, 0.0, 0.0),
-  normal_dir? : (Double, Double, Double) = (0.0, 1.0, 0.0),
-  right_dir? : (Double, Double, Double) = (1.0, 0.0, 0.0),
+  vertices : Array[Vec3],
+  center? : Vec3 = (0.0, 0.0, 0.0),
+  normal_dir? : Vec3 = (0.0, 1.0, 0.0),
+  right_dir? : Vec3 = (1.0, 0.0, 0.0),
 ) -> SweepProfile {
   { center, vertices, normal_dir, right_dir }
 }

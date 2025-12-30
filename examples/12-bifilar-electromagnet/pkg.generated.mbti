@@ -8,6 +8,12 @@ package "gmlewis/step/examples/12-bifilar-electromagnet"
 // Types and methods
 type Params
 
+type VerticalCylinder
+
+type VerticalPostWedge
+
+type VerticalWedge
+
 // Type aliases
 
 // Traits

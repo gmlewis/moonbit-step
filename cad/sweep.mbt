@@ -43,7 +43,7 @@ fn compile_swept_profile(
   })
 
   // 2. Transform local_verts to each path point.
-  let pts_raw : Array[(Double, Double, Double)] = []
+  let pts_raw : Array[Vec3] = []
   for i in 0..<num_path_pts {
     let p_origin = path.points[i]
     let p_tangent = v_norm(path.tangents[i])

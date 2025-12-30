@@ -1,5 +1,5 @@
 ///|
-pub fn polygon_area_2d(pts : Array[(Double, Double)]) -> Double {
+pub fn polygon_area_2d(pts : Array[Vec2]) -> Double {
   let n = pts.length()
   if n < 3 {
     return 0.0
@@ -13,7 +13,7 @@ pub fn polygon_area_2d(pts : Array[(Double, Double)]) -> Double {
 }
 
 ///|
-pub fn force_ccw(pts : Array[(Double, Double)]) -> Array[(Double, Double)] {
+pub fn force_ccw(pts : Array[Vec2]) -> Array[Vec2] {
   if polygon_area_2d(pts) < 0.0 {
     pts.rev()
   } else {
@@ -22,7 +22,7 @@ pub fn force_ccw(pts : Array[(Double, Double)]) -> Array[(Double, Double)] {
 }
 
 ///|
-pub fn force_cw(pts : Array[(Double, Double)]) -> Array[(Double, Double)] {
+pub fn force_cw(pts : Array[Vec2]) -> Array[Vec2] {
   if polygon_area_2d(pts) > 0.0 {
     pts.rev()
   } else {
@@ -31,10 +31,7 @@ pub fn force_cw(pts : Array[(Double, Double)]) -> Array[(Double, Double)] {
 }
 
 ///|
-pub fn is_point_in_polygon(
-  p : (Double, Double),
-  poly : Array[(Double, Double)],
-) -> Bool {
+pub fn is_point_in_polygon(p : Vec2, poly : Array[Vec2]) -> Bool {
   let n = poly.length()
   if n < 3 {
     return false
@@ -55,10 +52,7 @@ pub fn is_point_in_polygon(
 }
 
 ///|
-pub fn cycle_area_3d(
-  pts : Array[(Double, Double, Double)],
-  cycle : Array[Int],
-) -> (Double, Double, Double) {
+pub fn cycle_area_3d(pts : Array[Vec3], cycle : Array[Int]) -> Vec3 {
   let n = cycle.length()
   if n < 3 {
     return (0.0, 0.0, 0.0)
@@ -78,40 +72,34 @@ pub fn cycle_area_3d(
 }
 
 ///|
-fn v_sub(
-  a : (Double, Double, Double),
-  b : (Double, Double, Double),
-) -> (Double, Double, Double) {
+fn v_sub(a : Vec3, b : Vec3) -> Vec3 {
   let (ax, ay, az) = a
   let (bx, by, bz) = b
   (ax - bx, ay - by, az - bz)
 }
 
 ///|
-fn v_cross(
-  a : (Double, Double, Double),
-  b : (Double, Double, Double),
-) -> (Double, Double, Double) {
+fn v_cross(a : Vec3, b : Vec3) -> Vec3 {
   let (ax, ay, az) = a
   let (bx, by, bz) = b
   (ay * bz - az * by, az * bx - ax * bz, ax * by - ay * bx)
 }
 
 ///|
-fn v_dot(a : (Double, Double, Double), b : (Double, Double, Double)) -> Double {
+fn v_dot(a : Vec3, b : Vec3) -> Double {
   let (ax, ay, az) = a
   let (bx, by, bz) = b
   ax * bx + ay * by + az * bz
 }
 
 ///|
-fn v_len(a : (Double, Double, Double)) -> Double {
+fn v_len(a : Vec3) -> Double {
   let (x, y, z) = a
   Double::sqrt(x * x + y * y + z * z)
 }
 
 ///|
-fn v_norm(a : (Double, Double, Double)) -> (Double, Double, Double) {
+fn v_norm(a : Vec3) -> Vec3 {
   let l = v_len(a)
   if l == 0.0 {
     (1.0, 0.0, 0.0)
@@ -127,12 +115,7 @@ fn reverse_cycle(verts : Array[Int]) -> Array[Int] {
 }
 
 ///|
-pub fn rotate_point(
-  p : (Double, Double, Double),
-  rx : Double,
-  ry : Double,
-  rz : Double,
-) -> (Double, Double, Double) {
+pub fn rotate_point(p : Vec3, rx : Double, ry : Double, rz : Double) -> Vec3 {
   let m = rotation_matrix(rx, ry, rz)
   apply_matrix(m, p)
 }
@@ -177,10 +160,7 @@ fn rotation_matrix(rx : Double, ry : Double, rz : Double) -> Matrix3x3 {
 }
 
 ///|
-fn apply_matrix(
-  m : Matrix3x3,
-  p : (Double, Double, Double),
-) -> (Double, Double, Double) {
+fn apply_matrix(m : Matrix3x3, p : Vec3) -> Vec3 {
   let (x, y, z) = p
   (
     m.m00 * x + m.m01 * y + m.m02 * z,
@@ -205,7 +185,7 @@ fn multiply_matrices(a : Matrix3x3, b : Matrix3x3) -> Matrix3x3 {
 }
 
 ///|
-pub fn matrix_to_euler(m : Matrix3x3) -> (Double, Double, Double) {
+pub fn matrix_to_euler(m : Matrix3x3) -> Vec3 {
   // Extract Euler angles from rotation matrix assuming order Rz * Ry * Rx
   let ry = -@math.asin(m.m20)
   if Double::abs(@math.cos(ry)) > 0.0001 {
@@ -283,10 +263,10 @@ fn add_plane_face(
 fn add_plane_face_oriented(
   ctx : StepContext,
   edges : Array[EdgeInfo],
-  pts : Array[(Double, Double, Double)],
+  pts : Array[Vec3],
   cp_refs : Array[@step.Ref],
   verts_cycle : Array[Int],
-  expected_out : (Double, Double, Double),
+  expected_out : Vec3,
 ) -> @step.Ref {
   let area_vec = cycle_area_3d(pts, verts_cycle)
   let cycle = if v_dot(area_vec, expected_out) < 0.0 {
@@ -306,11 +286,11 @@ fn add_plane_face_oriented(
 fn add_plane_face_with_holes_oriented(
   ctx : StepContext,
   edges : Array[EdgeInfo],
-  pts : Array[(Double, Double, Double)],
+  pts : Array[Vec3],
   cp_refs : Array[@step.Ref],
   outer_cycle_in : Array[Int],
   hole_cycles_in : Array[Array[Int]],
-  expected_out : (Double, Double, Double),
+  expected_out : Vec3,
 ) -> @step.Ref {
   let area_vec = cycle_area_3d(pts, outer_cycle_in)
   let outer_cycle = if v_dot(area_vec, expected_out) < 0.0 {

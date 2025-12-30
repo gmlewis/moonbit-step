@@ -11,13 +11,13 @@ pub fn compile_extruded_profile(
   }
 
   // Flatten loops (outer first, then holes).
-  let loops : Array[Array[(Double, Double)]] = [
+  let loops : Array[Array[Vec2]] = [
     profile.outer,
     ..profile.holes.filter(fn(h) { h.length() >= 3 }),
   ]
 
   // Build 3D points (bottom then top per loop).
-  let pts_raw : Array[(Double, Double, Double)] = []
+  let pts_raw : Array[Vec3] = []
   let loop_indices = loops.map(fn(poly) {
     let b = poly.map(fn(pt) {
       let (px, py) = pt

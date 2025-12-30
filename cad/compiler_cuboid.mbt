@@ -9,7 +9,7 @@ pub fn compile_cuboid(
   let sz = cuboid.sz
 
   // Corner points (mm)
-  let pts_raw : Array[(Double, Double, Double)] = [
+  let pts_raw : Array[Vec3] = [
     (0.0, 0.0, 0.0),
     (sx, 0.0, 0.0),
     (sx, sy, 0.0),
