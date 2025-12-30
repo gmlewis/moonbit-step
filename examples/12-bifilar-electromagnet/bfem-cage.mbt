@@ -236,7 +236,7 @@ fn make_bfem_cage(
   // let backbone = Primitives.line(vector(0,0,0), vector(0,1,0), 1)
 
   let rail_angle_delta = @math.PI / num_pairs
-  let inner_radius = size.0 + wire_width / 2 + wire_gap
+  let inner_radius = size.0 + wire_width / 2 + wire_gap // TODO: Remove params.inner_radius ?
   let outer_radius = inner_radius + radial_thickness
   let inner_dtheta = @math.asin(wire_gap / (2 * inner_radius))
   let outer_dtheta = @math.asin(wire_gap / (2 * outer_radius))
@@ -343,7 +343,6 @@ fn make_bfem_cage(
     return points
   }
 
-  //
   // now generate both front/bottom and back/top connectors to the helices
   for i in 0..<npairs {
     let z = zs[i] + wire_width
@@ -376,7 +375,6 @@ fn make_bfem_cage(
       .translate(z=z - bottom_thickness)
     out_nodes.push(node)
 
-    //
     // add a vertical post to the back/top of the design for connecting the coils
     // this is the back/top of the design
     // these are the odd coils (1, 3, 5, etc.)
@@ -405,7 +403,6 @@ fn make_bfem_cage(
       .translate(z=top_helix_z)
     out_nodes.push(node)
 
-    //
     // this is the "over" part of the "up-and-over" connector on the back/top of the design for the odd coils:
     let over_start_angle = -(i + 1) * rail_angle_delta
     // top_helix_y + over_height,
@@ -421,7 +418,6 @@ fn make_bfem_cage(
       .translate(z=top_helix_z + over_height - top_thickness)
     out_nodes.push(node)
 
-    //
     // for all but the first coil, the helix needs to be connected to the shifted back/top "up-and-over" connector
     if i > 0 {
       let sx5 = pos.0 + connector_radius * @math.cos(rotation)
@@ -434,6 +430,20 @@ fn make_bfem_cage(
         .translate(z=top_helix_z)
       out_nodes.push(node)
     }
+
+    // second connection for pair directly opposite first connection
+    // this is the front/bottom of the design
+    let polygon = gen_points(inner_start_angle + @math.PI, inner_angle_delta)
+    let sx = pos.0 + connector_radius * @math.cos(rotation + @math.PI)
+    let sy = pos.1 + connector_radius * @math.sin(rotation + @math.PI)
+    let tx = pos.0 + connector_radius * @math.cos(t_angle + @math.PI)
+    let ty = pos.1 + connector_radius * @math.sin(t_angle + @math.PI)
+    polygon.push((tx, ty))
+    polygon.push((sx, sy))
+    let node = @cad.ExtrudedProfile::new(polygon, bottom_thickness)
+      .with_name("bfem-cage-second-bottom-front-\{i.to_int()}")
+      .translate(z=z - bottom_thickness)
+    out_nodes.push(node)
 
     //
   }
