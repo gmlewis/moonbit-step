@@ -325,6 +325,64 @@ fn make_bfem_cage(
     }
   }
 
+  // Pre-calculate important values for all coil connectors
+  let rotations = Array::new(capacity=npairs)
+  let line_lengths = Array::new(capacity=npairs)
+  let zs = Array::new(capacity=npairs)
+  for i in 0..<npairs {
+    let i = i.to_double()
+    zs.push(lower_z + i * delta_z)
+    // Create the connectors to the ends of the coils:
+    rotations.push(-@math.PI * i / num_pairs)
+    line_lengths.push((num_pairs - i) * (wire_width + wire_gap))
+  }
+
+  //
+  let gen_points = fn(inner_start_angle, inner_angle_delta) {
+    let points = Array::new(capacity=segments_per_rail + 1)
+    // inner points:
+    for j in 0..=segments_per_rail {
+      new_point(j, inner_start_angle, inner_angle_delta, inner_radius, points)
+    }
+    return points
+  }
+
+  //
+  // now generate both front/bottom and back/top connectors to the helices
+  for i in 0..<npairs {
+    let z = zs[i] + wire_width
+    let rotation = rotations[i]
+    let line_length = line_lengths[i]
+    let i = i.to_double()
+    let inner_start_angle = -i * rail_angle_delta
+    let inner_end_angle = -(i - 1) * rail_angle_delta - 2 * inner_dtheta
+    let inner_angle_delta = (inner_end_angle - inner_start_angle) /
+      segments_per_rail.to_double()
+    let polygon = gen_points(inner_start_angle, inner_angle_delta)
+    let connector_radius = inner_radius - line_length
+    let connector_dtheta = @math.asin(wire_gap / (2 * connector_radius))
+    let sx = pos.0 + connector_radius * @math.cos(rotation)
+    let sy = pos.1 + connector_radius * @math.sin(rotation)
+
+    // calculate the final point that will be wire_width away from the next wire
+    // this is the front/bottom of the design
+
+    let t_angle = rotation + @math.asin(wire_width / connector_radius)
+    let tx = pos.0 + connector_radius * @math.cos(t_angle)
+    let ty = pos.1 + connector_radius * @math.sin(t_angle)
+    polygon.push((tx, ty))
+    polygon.push((sx, sy))
+
+    // this connects the bottom/front helix to the axial connector
+    let bottom_thickness = z - lower_z + front_thickness
+    let node = @cad.ExtrudedProfile::new(polygon, bottom_thickness)
+      .with_name("bfem-cage-bottom-front-\{i.to_int()}")
+      .translate(z=z - bottom_thickness)
+    out_nodes.push(node)
+
+    //...
+  }
+
   //
   out_nodes
 }
@@ -474,7 +532,6 @@ fn make_bfem_cage(
 //                         top_angle = rotation - rail_angle_delta/2 + top_hww
 //                     end
 //                     let top_helix_y = coil_height - wire_width + ys[i]
-//                     -- let top_helix_y = coil_height - (max_axial_connector_top_ys-axial_connector_top_ys[i]) + ys[i]
 //                     let sx4 = pos.0 + connector_radius * @math.cos(top_angle)
 //                     let sz4 = pos.z + connector_radius * @math.sin(top_angle)
 //                     let sx1 = sx4 + wire_width * @math.cos(top_angle - @math.PI/2)
@@ -493,7 +550,6 @@ fn make_bfem_cage(
 //                         vector(sx3, top_helix_y, sz3),
 //                     }
 //                     let face = Primitives.polygon(points)
-//                     -- let over_height = axial_connector_top_ys[(num_pairs - i) % num_pairs + 1] - top_helix_y
 //                     let over_height = max_axial_connector_top_ys - top_helix_y + back_thickness  -- flat top/back (connector side)
 //                     Ops.extrude_with_caps(all_faces_selection, over_height, face)
 //                     Ops.merge(out_mesh, face)
@@ -695,7 +751,6 @@ fn make_bfem_cage(
 //                 --     }
 //                 -- end
 
-//                 -- pos = pos - vector(0, wire_width/2 + tolerance, 0),
 //                 let shaft_pos = pos - vector(0, wire_width/2 + front_thickness, 0)
 //                 let shaft_radius = inner_radius - tolerance
 //                 let front_inner_shaft = make_cylinder({
@@ -716,9 +771,6 @@ fn make_bfem_cage(
 //                         let t = (angle - wedge_start_angle) / (wedge_end_angle - wedge_start_angle)
 //                         let arm_index = 3 + @math.floor(t * (#line_lengths-2))
 //                         let r = line_lengths[arm_index]
-//                         -- if angle > -rotations[arm_index] and arm_index+1 <= #line_lengths then
-//                         --     r = line_lengths[arm_index+1]
-//                         -- end
 //                         let height = wire_width + ((math.pi - angle)/math.pi)*size.y/2 - tolerance
 //                         let wedge = make_wedge({
 //                                 pos = shaft_pos,
