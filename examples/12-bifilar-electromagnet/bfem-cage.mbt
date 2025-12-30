@@ -4,20 +4,20 @@ using @cad {type SceneNode, type Vec2, type Vec3}
 ///|
 struct VerticalPostWedge {
   post : SceneNode
-  top_p0 : Vec3
-  top_p1 : Vec3
+  top_p0 : Vec2
+  top_p1 : Vec2
 }
 
 ///|
 struct VerticalWedge {
   wedge : SceneNode
-  points : Array[Vec3]
+  points : Array[Vec2]
 }
 
 ///|
 struct VerticalCylinder {
   cylinder : SceneNode
-  points : Array[Vec3]
+  points : Array[Vec2]
 }
 
 ///|
@@ -97,12 +97,12 @@ fn center_of_face(points : Array[Vec3]) -> Vec3 {
 ///     top_p0 -- corner vertex of top connection edge
 ///     top_p1 -- other vertex of top connection edge
 fn make_vertical_post_wedge(
-  pos : Vec3,
-  inner_radius : Double,
-  start_angle : Double,
-  normal_angle : Double,
-  post_height : Double,
-  wire_width : Double,
+  pos~ : Vec3,
+  inner_radius~ : Double,
+  start_angle~ : Double,
+  normal_angle~ : Double,
+  post_height~ : Double,
+  wire_width~ : Double,
   color? : @cad.Rgb = @cad.Rgb::red(),
 ) -> VerticalPostWedge {
   let sx4 = pos.0 + inner_radius * @math.cos(start_angle)
@@ -118,11 +118,7 @@ fn make_vertical_post_wedge(
     .with_name("vertical-post-wedge-r\{inner_radius}-a\{start_angle}")
     .with_color(color)
     .translate(z=pos.2)
-  {
-    post,
-    top_p0: (sx2, sy2, pos.2 + post_height),
-    top_p1: (sx3, sy3, pos.2 + post_height),
-  }
+  { post, top_p0: (sx2, sy2), top_p1: (sx3, sy3) }
 }
 
 ///|
@@ -162,7 +158,7 @@ fn make_wedge(
     .with_name("vertical-wedge-r\{inner_radius}-a\{start_angle}")
     .with_color(color)
     .translate(z=pos.2)
-  { wedge, points: points.map(fn(pt) { (pt.0, pt.1, pos.2) }) }
+  { wedge, points }
 }
 
 ///|
@@ -195,7 +191,7 @@ fn make_cylinder(
     .with_name("vertical-cylinder-r\{radius}")
     .with_color(color)
     .translate(z=pos.2)
-  { cylinder, points: points.map(fn(pt) { (pt.0, pt.1, pos.2) }) }
+  { cylinder, points }
 }
 
 ///|
@@ -481,6 +477,7 @@ fn make_bfem_cage(
     if ni >= npairs { // final output connector of last coil (closer to center)
       // Ops.extrude_with_caps(all_faces_selection, wire_width, face)
       // Ops.merge(out_mesh, face)
+      // BUG!!!
       let node = @cad.ExtrudedProfile::new(polygon, wire_width)
         .with_name("bfem-cage-even-final-last-coil-\{i.to_int()}")
         .translate(z=top_helix_z)
@@ -505,13 +502,54 @@ fn make_bfem_cage(
       let flat_top_height = 2.5 * wire_width + back_thickness
       // Ops.extrude_with_caps(all_faces_selection, flat_top_height, face)
       // Ops.merge(out_mesh, face)
+      // BUG!!!
       let node = @cad.ExtrudedProfile::new(polygon, flat_top_height)
         .with_name("bfem-cage-even-flat-top-final-last-coil-\{i.to_int()}")
         .translate(z=top_helix_z)
       out_nodes.push(node)
-
-      //
+      // } else { // THIS SECTION IS NOT NEEDED BECAUSE OF THE make_vertical_post_wedge CALL BELOW
+      //   let extrude_amount = 2.0 * wire_width + wire_gap
+      //   // Ops.extrude_with_caps(all_faces_selection, extrude_amount + back_thickness, face)
+      //   // Ops.merge(out_mesh, face)
+      //   let node = @cad.ExtrudedProfile::new(
+      //       polygon,
+      //       extrude_amount + back_thickness,
+      //     )
+      //     .with_name("bfem-cage-even-back-top-coil-\{i.to_int()}")
+      //     .translate(z=top_helix_z)
+      //   out_nodes.push(node)
     }
+
+    //
+    if ni < npairs {
+      // this is the "up" part of the "up-and-over" connector on the back/top of the design for the even coils:
+      let over_height = max_axial_connector_top_zs -
+        top_helix_z +
+        back_thickness // flat top/back (connector side)
+      let post = make_vertical_post_wedge(
+        pos=(pos.0, pos.1, pos.2 + top_helix_z),
+        inner_radius=connector_radius,
+        start_angle=top_angle + @math.PI,
+        normal_angle=top_angle + @math.PI / 2,
+        post_height=over_height,
+        wire_width~,
+      )
+      // Ops.merge(out_mesh, post.mesh)
+      out_nodes.push(post.post)
+      // this is the "over" part of the "up-and-over" connector on the back/top of the design for the even coils:
+      let over_start_angle = -(i + 1) * rail_angle_delta + @math.PI
+      let polygon = gen_points(over_start_angle, inner_angle_delta)
+      polygon.push(post.top_p0)
+      polygon.push(post.top_p1)
+      // let face = Primitives.polygon(points)
+      // Ops.extrude_with_caps(all_faces_selection, top_thickness, face)
+      // Ops.merge(out_mesh, face)
+      let node = @cad.ExtrudedProfile::new(polygon, top_thickness)
+        .with_name("bfem-cage-even-over-top-coil-\{i.to_int()}")
+        .translate(z=top_helix_z + over_height - top_thickness)
+      out_nodes.push(node)
+    }
+    //
   }
 
   //
