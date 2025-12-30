@@ -11,13 +11,13 @@ struct VerticalPostWedge {
 ///|
 struct VerticalWedge {
   wedge : SceneNode
-  points : Array[Vec2]
+  // points : Array[Vec2]
 }
 
 ///|
 struct VerticalCylinder {
   cylinder : SceneNode
-  points : Array[Vec2]
+  // points : Array[Vec2]
 }
 
 ///|
@@ -158,7 +158,7 @@ fn make_wedge(
     .with_name("vertical-wedge-r\{inner_radius}-a\{start_angle}")
     .with_color(color)
     .translate(z=pos.2)
-  { wedge, points }
+  { wedge, } // points }
 }
 
 ///|
@@ -191,47 +191,52 @@ fn make_cylinder(
     .with_name("vertical-cylinder-r\{radius}")
     .with_color(color)
     .translate(z=pos.2)
-  { cylinder, points }
+  { cylinder, } // points }
 }
 
 ///|
 /// make_bfem_cage makes a wire cage around the bifilar electromagnet and wires up the coils.
-fn make_bfem_cage(
-  pos? : Vec3 = (0, 0, 0), // pos is lowered by wire_width/2
-  size? : Vec3 = (10, 0, 10), // wire_width/2 + wire_gap is added to size.
-  connector_length? : Double = 12,
-  exit_wire_diameter? : Double = 1,
-  exit_wire_separation? : Double = 4,
-  front_thickness? : Double = 1,
-  back_thickness? : Double = 1,
-  radial_thickness? : Double = 2,
-  inner_radius? : Double = 1,
-  tolerance? : Double = 0.1,
-  turns? : Double = 1,
-  wire_gap? : Double = 1,
-  wire_width? : Double = 1,
-  segments? : Int = 36,
-  num_pairs? : Int = 3,
-  nowires~ : Bool,
-  nosupport~ : Bool,
-) -> Array[@cad.SceneNode] {
-  let npairs = num_pairs
-  let num_pairs = num_pairs.to_double()
-  let mut segments_per_rail = @math.ceil(0.5 * segments.to_double() / num_pairs).to_int()
+fn make_bfem_cage(size~ : Vec3, params~ : Params) -> Array[@cad.SceneNode] {
+  // pos? : Vec3 = (0, 0, 0), // pos is lowered by wire_width/2
+  // size? : Vec3 = (10, 0, 10), // wire_width/2 + wire_gap is added to size.
+  // connector_length? : Double = 12,
+  // exit_wire_diameter? : Double = 1,
+  // exit_wire_separation? : Double = 4,
+  // front_thickness? : Double = 1,
+  // back_thickness? : Double = 1,
+  // params.radial_thickness? : Double = 2,
+  // inner_radius? : Double = 1,
+  // tolerance? : Double = 0.1,
+  // turns? : Double = 1,
+  // wire_gap? : Double = 1,
+  // wire_width? : Double = 1,
+  // segments? : Int = 36,
+  // num_pairs? : Int = 3,
+  // nowires~ : Bool,
+  // nosupport~ : Bool,
+  // ) -> Array[@cad.SceneNode] {
+  let npairs = params.num_pairs
+  let num_pairs = npairs.to_double()
+  let mut segments_per_rail = @math.ceil(
+    0.5 * params.num_segs.to_double() / num_pairs,
+  ).to_int()
   if segments_per_rail < 2 {
     segments_per_rail = 2
   }
 
   //
-  let lower_z = pos.2 - wire_width / 2
-  let coil_height = 2.0 * turns * (wire_width + wire_gap) + wire_width
-  let extrude_height = coil_height + wire_gap + wire_width
+  let lower_z = params.pos.2 - params.wire_width / 2
+  let coil_height = 2.0 *
+    params.vert_turns *
+    (params.wire_width + params.wire_gap) +
+    params.wire_width
+  let extrude_height = coil_height + params.wire_gap + params.wire_width
   let rail_angle_delta = @math.PI / num_pairs
-  let inner_radius = size.0 + wire_width / 2 + wire_gap // TODO: Remove params.inner_radius ?
-  let outer_radius = inner_radius + radial_thickness
-  let inner_dtheta = @math.asin(wire_gap / (2 * inner_radius))
-  let outer_dtheta = @math.asin(wire_gap / (2 * outer_radius))
-  let delta_z = (wire_gap + wire_width) / (num_pairs - 1)
+  let inner_radius = size.0 + params.wire_width / 2 + params.wire_gap
+  let outer_radius = inner_radius + params.radial_thickness
+  let inner_dtheta = @math.asin(params.wire_gap / (2 * inner_radius))
+  let outer_dtheta = @math.asin(params.wire_gap / (2 * outer_radius))
+  let delta_z = (params.wire_gap + params.wire_width) / (num_pairs - 1)
 
   //
   let new_point = fn(
@@ -242,8 +247,8 @@ fn make_bfem_cage(
     points : Array[Vec2],
   ) -> Unit {
     let angle = start_angle + j.to_double() * angle_delta
-    let x = pos.0 + r * @math.cos(angle)
-    let y = pos.2 + r * @math.sin(angle)
+    let x = params.pos.0 + r * @math.cos(angle)
+    let y = params.pos.1 + r * @math.sin(angle)
     let point = (x, y)
     points.push(point)
   }
@@ -294,21 +299,24 @@ fn make_bfem_cage(
       // final output connector of coil 1 (at outer edge)
       let node = @cad.ExtrudedProfile::new(
           polygon,
-          extrude_height + 1.5 * wire_width + front_thickness + back_thickness,
+          extrude_height +
+          1.5 * params.wire_width +
+          params.front_thickness +
+          params.back_thickness,
         )
         .with_name("bfem-cage-axial-connector-0")
-        .translate(z=lower_z - front_thickness)
+        .translate(z=lower_z - params.front_thickness)
       out_nodes.push(node.with_color(@cad.Rgb::red()))
     } else {
       let node = @cad.ExtrudedProfile::new(
           polygon,
           max_axial_connector_top_zs -
           lower_z +
-          front_thickness +
-          back_thickness,
+          params.front_thickness +
+          params.back_thickness,
         )
         .with_name("bfem-cage-axial-connector-\{i.to_int()}")
-        .translate(z=lower_z - front_thickness)
+        .translate(z=lower_z - params.front_thickness)
       let color = if ni <= npairs {
         @cad.Rgb::green()
       } else if ni == npairs + 1 {
@@ -330,7 +338,7 @@ fn make_bfem_cage(
     zs.push(lower_z + i * delta_z)
     // Create the connectors to the ends of the coils:
     rotations.push(-@math.PI * i / num_pairs)
-    line_lengths.push((num_pairs - i) * (wire_width + wire_gap))
+    line_lengths.push((num_pairs - i) * (params.wire_width + params.wire_gap))
   }
 
   //
@@ -345,7 +353,7 @@ fn make_bfem_cage(
 
   // now generate both front/bottom and back/top connectors to the helices
   for i in 0..<npairs {
-    let z = zs[i] + wire_width
+    let z = zs[i] + params.wire_width
     let rotation = rotations[i]
     let line_length = line_lengths[i]
     let ni = i + 1
@@ -356,21 +364,21 @@ fn make_bfem_cage(
       segments_per_rail.to_double()
     let polygon = gen_points(inner_start_angle, inner_angle_delta)
     let connector_radius = inner_radius - line_length
-    let connector_dtheta = @math.asin(wire_gap / (2 * connector_radius))
-    let sx = pos.0 + connector_radius * @math.cos(rotation)
-    let sy = pos.1 + connector_radius * @math.sin(rotation)
+    let connector_dtheta = @math.asin(params.wire_gap / (2 * connector_radius))
+    let sx = params.pos.0 + connector_radius * @math.cos(rotation)
+    let sy = params.pos.1 + connector_radius * @math.sin(rotation)
 
-    // calculate the final point that will be wire_width away from the next wire
+    // calculate the final point that will be params.wire_width away from the next wire
     // this is the front/bottom of the design
 
-    let t_angle = rotation + @math.asin(wire_width / connector_radius)
-    let tx = pos.0 + connector_radius * @math.cos(t_angle)
-    let ty = pos.1 + connector_radius * @math.sin(t_angle)
+    let t_angle = rotation + @math.asin(params.wire_width / connector_radius)
+    let tx = params.pos.0 + connector_radius * @math.cos(t_angle)
+    let ty = params.pos.1 + connector_radius * @math.sin(t_angle)
     polygon.push((tx, ty))
     polygon.push((sx, sy))
 
     // this connects the bottom/front helix to the axial connector
-    let bottom_thickness = z - lower_z + front_thickness
+    let bottom_thickness = z - lower_z + params.front_thickness
     let node = @cad.ExtrudedProfile::new(polygon, bottom_thickness)
       .with_name("bfem-cage-bottom-front-\{i.to_int()}")
       .translate(z=z - bottom_thickness)
@@ -382,23 +390,27 @@ fn make_bfem_cage(
     let mut top_angle = rotation
     if i > 0 {
       // half wire-width at outer radius in radians
-      let top_hww = 0.5 * @math.asin(wire_width / (2 * outer_radius))
+      let top_hww = 0.5 * @math.asin(params.wire_width / (2 * outer_radius))
       top_angle = rotation - rail_angle_delta / 2 + top_hww
     }
-    let top_helix_z = z + coil_height - 2 * wire_width
-    let sx4 = pos.0 + connector_radius * @math.cos(top_angle)
-    let sy4 = pos.1 + connector_radius * @math.sin(top_angle)
-    let sx1 = sx4 + wire_width * @math.cos(top_angle - @math.PI / 2)
-    let sy1 = sy4 + wire_width * @math.sin(top_angle - @math.PI / 2)
-    let sx2 = pos.0 + (connector_radius + wire_width) * @math.cos(top_angle)
-    let sy2 = pos.1 + (connector_radius + wire_width) * @math.sin(top_angle)
-    let sx3 = sx2 + wire_width * @math.cos(top_angle - @math.PI / 2)
-    let sy3 = sy2 + wire_width * @math.sin(top_angle - @math.PI / 2)
+    let top_helix_z = z + coil_height - 2 * params.wire_width
+    let sx4 = params.pos.0 + connector_radius * @math.cos(top_angle)
+    let sy4 = params.pos.1 + connector_radius * @math.sin(top_angle)
+    let sx1 = sx4 + params.wire_width * @math.cos(top_angle - @math.PI / 2)
+    let sy1 = sy4 + params.wire_width * @math.sin(top_angle - @math.PI / 2)
+    let sx2 = params.pos.0 +
+      (connector_radius + params.wire_width) * @math.cos(top_angle)
+    let sy2 = params.pos.1 +
+      (connector_radius + params.wire_width) * @math.sin(top_angle)
+    let sx3 = sx2 + params.wire_width * @math.cos(top_angle - @math.PI / 2)
+    let sy3 = sy2 + params.wire_width * @math.sin(top_angle - @math.PI / 2)
 
     // this is the "up" part of the "up-and-over" connector on the back/top of the design for the odd coils:
     // note the the "up" part for the last odd coil is simply the wire width.
     let polygon = [(sx1, sy1), (sx4, sy4), (sx2, sy2), (sx3, sy3)]
-    let over_height = max_axial_connector_top_zs - top_helix_z + back_thickness // flat top/back (connector side)
+    let over_height = max_axial_connector_top_zs -
+      top_helix_z +
+      params.back_thickness // flat top/back (connector side)
     let node = @cad.ExtrudedProfile::new(polygon, over_height)
       .with_name("bfem-cage-odd-top-back-\{i.to_int()}")
       .translate(z=top_helix_z)
@@ -409,7 +421,7 @@ fn make_bfem_cage(
     let polygon = gen_points(over_start_angle, inner_angle_delta)
     polygon.push((sx2, sy2))
     polygon.push((sx3, sy3))
-    let mut top_thickness = over_height - wire_width - wire_gap
+    let mut top_thickness = over_height - params.wire_width - params.wire_gap
     if i == num_pairs {
       top_thickness = over_height
     }
@@ -420,12 +432,14 @@ fn make_bfem_cage(
 
     // for all but the first coil, the helix needs to be connected to the shifted back/top "up-and-over" connector
     if i > 0 {
-      let sx5 = pos.0 + connector_radius * @math.cos(rotation)
-      let sy5 = pos.1 + connector_radius * @math.sin(rotation)
-      let sx6 = pos.0 + (connector_radius + wire_width) * @math.cos(rotation)
-      let sy6 = pos.1 + (connector_radius + wire_width) * @math.sin(rotation)
+      let sx5 = params.pos.0 + connector_radius * @math.cos(rotation)
+      let sy5 = params.pos.1 + connector_radius * @math.sin(rotation)
+      let sx6 = params.pos.0 +
+        (connector_radius + params.wire_width) * @math.cos(rotation)
+      let sy6 = params.pos.1 +
+        (connector_radius + params.wire_width) * @math.sin(rotation)
       let polygon = [(sx5, sy5), (sx6, sy6), (sx2, sy2), (sx4, sy4)]
-      let node = @cad.ExtrudedProfile::new(polygon, wire_width)
+      let node = @cad.ExtrudedProfile::new(polygon, params.wire_width)
         .with_name("bfem-cage-top-connector-\{i.to_int()}")
         .translate(z=top_helix_z)
       out_nodes.push(node.with_color(@cad.Rgb::red()))
@@ -434,10 +448,10 @@ fn make_bfem_cage(
     // second connection for pair directly opposite first connection
     // this is the front/bottom of the design
     let polygon = gen_points(inner_start_angle + @math.PI, inner_angle_delta)
-    let sx = pos.0 + connector_radius * @math.cos(rotation + @math.PI)
-    let sy = pos.1 + connector_radius * @math.sin(rotation + @math.PI)
-    let tx = pos.0 + connector_radius * @math.cos(t_angle + @math.PI)
-    let ty = pos.1 + connector_radius * @math.sin(t_angle + @math.PI)
+    let sx = params.pos.0 + connector_radius * @math.cos(rotation + @math.PI)
+    let sy = params.pos.1 + connector_radius * @math.sin(rotation + @math.PI)
+    let tx = params.pos.0 + connector_radius * @math.cos(t_angle + @math.PI)
+    let ty = params.pos.1 + connector_radius * @math.sin(t_angle + @math.PI)
     polygon.push((tx, ty))
     polygon.push((sx, sy))
     let node = @cad.ExtrudedProfile::new(polygon, bottom_thickness)
@@ -453,70 +467,72 @@ fn make_bfem_cage(
       // final output connector of last coil
       top_angle = rotation - connector_dtheta
     }
-    let top_helix_z = z + coil_height - 2 * wire_width
-    let sx4 = pos.0 + connector_radius * @math.cos(top_angle + @math.PI)
-    let sy4 = pos.1 + connector_radius * @math.sin(top_angle + @math.PI)
-    let mut sx1 = sx4 + wire_width * @math.cos(top_angle + @math.PI / 2)
-    let mut sy1 = sy4 + wire_width * @math.sin(top_angle + @math.PI / 2)
-    let sx2 = pos.0 +
-      (connector_radius + wire_width) * @math.cos(top_angle + @math.PI)
-    let sy2 = pos.1 +
-      (connector_radius + wire_width) * @math.sin(top_angle + @math.PI)
-    let mut sx3 = sx2 + wire_width * @math.cos(top_angle + @math.PI / 2)
-    let mut sy3 = sy2 + wire_width * @math.sin(top_angle + @math.PI / 2)
+    let top_helix_z = z + coil_height - 2 * params.wire_width
+    let sx4 = params.pos.0 + connector_radius * @math.cos(top_angle + @math.PI)
+    let sy4 = params.pos.1 + connector_radius * @math.sin(top_angle + @math.PI)
+    let mut sx1 = sx4 + params.wire_width * @math.cos(top_angle + @math.PI / 2)
+    let mut sy1 = sy4 + params.wire_width * @math.sin(top_angle + @math.PI / 2)
+    let sx2 = params.pos.0 +
+      (connector_radius + params.wire_width) * @math.cos(top_angle + @math.PI)
+    let sy2 = params.pos.1 +
+      (connector_radius + params.wire_width) * @math.sin(top_angle + @math.PI)
+    let mut sx3 = sx2 + params.wire_width * @math.cos(top_angle + @math.PI / 2)
+    let mut sy3 = sy2 + params.wire_width * @math.sin(top_angle + @math.PI / 2)
     if ni >= npairs { // final output connector of last coil
       let angle_diff = rail_angle_delta - 2 * outer_dtheta
-      sx1 = pos.0 +
+      sx1 = params.pos.0 +
         connector_radius * @math.cos(top_angle + @math.PI - angle_diff)
-      sy1 = pos.1 +
+      sy1 = params.pos.1 +
         connector_radius * @math.sin(top_angle + @math.PI - angle_diff)
-      sx3 = pos.0 +
-        (connector_radius + wire_width) *
+      sx3 = params.pos.0 +
+        (connector_radius + params.wire_width) *
         @math.cos(top_angle + @math.PI - angle_diff)
-      sy3 = pos.1 +
-        (connector_radius + wire_width) *
+      sy3 = params.pos.1 +
+        (connector_radius + params.wire_width) *
         @math.sin(top_angle + @math.PI - angle_diff)
     }
     let polygon = [(sx1, sy1), (sx4, sy4), (sx2, sy2), (sx3, sy3)]
 
     //
     if ni >= npairs { // final output connector of last coil (closer to center)
-      let node = @cad.ExtrudedProfile::new(polygon, wire_width)
+      let node = @cad.ExtrudedProfile::new(polygon, params.wire_width)
         .with_name("bfem-cage-even-final-last-coil-\{i.to_int()}")
         .translate(z=top_helix_z)
       out_nodes.push(node.with_color(@cad.Rgb::green()))
       // generate inner final output connector of last coil with same radial thickness as other connector
       let angle_diff = rail_angle_delta - 2 * outer_dtheta
       let ew_inner_radius = connector_radius -
-        0.6 * exit_wire_separation -
-        exit_wire_diameter
+        0.6 * params.exit_wire_separation -
+        params.exit_wire_diameter
       let s2 = vertex_at(
-        center=(pos.0, pos.1),
+        center=(params.pos.0, params.pos.1),
         radius=ew_inner_radius,
         angle=top_angle + @math.PI,
       )
       let s3 = vertex_at(
-        center=(pos.0, pos.1),
+        center=(params.pos.0, params.pos.1),
         radius=ew_inner_radius,
         angle=top_angle + @math.PI - angle_diff,
       )
       let polygon = [(sx4, sy4), (sx1, sy1), s3, s2]
-      let flat_top_height = 2.5 * wire_width + back_thickness
+      let flat_top_height = 2.5 * params.wire_width + params.back_thickness
       let node = @cad.ExtrudedProfile::new(polygon, flat_top_height)
         .with_name("bfem-cage-even-flat-top-final-last-coil-\{i.to_int()}")
         .translate(z=top_helix_z)
       out_nodes.push(node.with_color(@cad.Rgb::green()))
 
       // now make the exit wire cylinders
-      if !nowires {
+      if !params.nowires {
         let inner_wire_post_center = center_of_face(polygon) // + vector(0,0,flat_top_height)
         let mut inner_wire_pos = inner_wire_post_center
         let outer_wire_radius = (inner_radius + outer_radius) / 2
-        let outer_wire_dtheta = @math.asin(wire_gap / (2 * outer_wire_radius))
+        let outer_wire_dtheta = @math.asin(
+          params.wire_gap / (2 * outer_wire_radius),
+        )
         let outer_wire_start_angle = 0.0
         let outer_wire_end_angle = rail_angle_delta - 2 * outer_wire_dtheta
         let outer_wire_post_center = vertex_at(
-          center=(pos.0, pos.1), // , inner_wire_pos.y),
+          center=(params.pos.0, params.pos.1), // , inner_wire_pos.y),
           radius=outer_wire_radius,
           angle=(outer_wire_end_angle - outer_wire_start_angle) / 2,
         )
@@ -525,12 +541,12 @@ fn make_bfem_cage(
         let centers_distance = vector_length(
           outer_wire_post_center, inner_wire_post_center,
         )
-        if centers_distance < exit_wire_separation {
+        if centers_distance < params.exit_wire_separation {
           let pa = inner_wire_post_center
           let va = (polygon[3].0, polygon[3].1) //, inner_wire_pos.y)
           let pb = outer_wire_post_center
           let vb = vertex_at(
-            center=(pos.0, pos.1), // , inner_wire_pos.y),
+            center=(params.pos.0, params.pos.1), // , inner_wire_pos.y),
             radius=(inner_radius + outer_radius) / 2,
             angle=outer_wire_start_angle,
           )
@@ -542,7 +558,7 @@ fn make_bfem_cage(
           let f2 = fn(t) {
             (pb.0 + t * (vb.0 - pb.0), pb.1 + t * (vb.1 - pb.1))
           }
-          let d = exit_wire_separation
+          let d = params.exit_wire_separation
           let t = solve_for_t(d, fn(t) { vector_length(f1(t), f2(t)) })
           inner_wire_pos = f1(t)
           outer_wire_pos = f2(t)
@@ -553,9 +569,9 @@ fn make_bfem_cage(
             inner_wire_pos.1,
             top_helix_z + flat_top_height,
           ),
-          radius=exit_wire_diameter / 2,
+          radius=params.exit_wire_diameter / 2,
           segments=12,
-          height=connector_length,
+          height=params.connector_length,
         )
         // Ops.merge(out_mesh, inner_exit_wire.mesh)
         out_nodes.push(inner_exit_wire.cylinder.with_color(@cad.Rgb::green()))
@@ -565,9 +581,9 @@ fn make_bfem_cage(
             outer_wire_pos.1,
             top_helix_z + flat_top_height,
           ),
-          radius=exit_wire_diameter / 2,
+          radius=params.exit_wire_diameter / 2,
           segments=12,
-          height=connector_length,
+          height=params.connector_length,
         )
         // Ops.merge(out_mesh, outer_exit_wire.mesh)
         out_nodes.push(outer_exit_wire.cylinder.with_color(@cad.Rgb::red()))
@@ -579,14 +595,14 @@ fn make_bfem_cage(
       // this is the "up" part of the "up-and-over" connector on the back/top of the design for the even coils:
       let over_height = max_axial_connector_top_zs -
         top_helix_z +
-        back_thickness // flat top/back (connector side)
+        params.back_thickness // flat top/back (connector side)
       let post = make_vertical_post_wedge(
-        pos=(pos.0, pos.1, pos.2 + top_helix_z),
+        pos=(params.pos.0, params.pos.1, params.pos.2 + top_helix_z),
         inner_radius=connector_radius,
         start_angle=top_angle + @math.PI,
         normal_angle=top_angle + @math.PI / 2,
         post_height=over_height,
-        wire_width~,
+        wire_width=params.wire_width,
       )
       out_nodes.push(post.post.with_color(@cad.Rgb::green()))
       // this is the "over" part of the "up-and-over" connector on the back/top of the design for the even coils:
@@ -602,45 +618,53 @@ fn make_bfem_cage(
     // for all but the first connector, the helix needs to be connected to the shifted connector
     if ni > 1 {
       let wire = make_wedge(
-        pos=(pos.0, pos.1, top_helix_z),
+        pos=(params.pos.0, params.pos.1, top_helix_z),
         inner_radius=connector_radius,
         start_angle=top_angle + @math.PI,
         end_angle=rotation + @math.PI,
-        radial_length=wire_width,
-        height=wire_width,
+        radial_length=params.wire_width,
+        height=params.wire_width,
       )
       out_nodes.push(wire.wedge.with_color(@cad.Rgb::green()))
     }
   }
 
   //
-  if !nosupport {
+  if !params.nosupport {
     // Finally, add support structures
-    let shaft_pos = (pos.0, pos.1, pos.2 + wire_width / 2 + front_thickness)
-    let shaft_radius = inner_radius - tolerance
+    let shaft_pos = (
+      params.pos.0,
+      params.pos.1,
+      params.pos.2 - params.wire_width / 2 - params.front_thickness,
+    )
+    let shaft_radius = params.inner_diam / 2 - params.tolerance
     let front_inner_shaft = make_cylinder(
       pos=shaft_pos,
       radius=shaft_radius,
-      segments~,
-      height=coil_height + front_thickness, // flush with top coil
+      segments=params.num_segs,
+      // height=coil_height + params.front_thickness + params.back_thickness, // flush with top coil
+      height=extrude_height +
+        1.5 * params.wire_width +
+        params.front_thickness +
+        params.back_thickness,
     )
-    out_nodes.push(front_inner_shaft.cylinder.with_color(@cad.Rgb::green()))
-    let wedge_start_angle = @math.asin(tolerance) + rail_angle_delta
-    let wedge_end_angle = @math.PI - @math.asin(tolerance)
-    // let dz = size.2 / segments.to_double()
-    for ni in 1..=(segments / 2) {
+    out_nodes.push(front_inner_shaft.cylinder.with_color(@cad.Rgb::blue()))
+    let wedge_start_angle = @math.asin(params.tolerance) + rail_angle_delta
+    let wedge_end_angle = @math.PI - @math.asin(params.tolerance)
+    // let dz = size.2 / params.num_segs.to_double()
+    for ni in 1..=(params.num_segs / 2) {
       let i = ni.to_double()
-      let angle = (i - 1) * 2 * @math.PI / segments.to_double()
-      let next_angle = i * 2 * @math.PI / segments.to_double()
+      let angle = (i - 1) * 2 * @math.PI / params.num_segs.to_double()
+      let next_angle = i * 2 * @math.PI / params.num_segs.to_double()
       if angle > wedge_start_angle && next_angle < wedge_end_angle {
         let t = (angle - wedge_start_angle) /
           (wedge_end_angle - wedge_start_angle)
         let arm_index = 2 +
           @math.floor(t * (line_lengths.length() - 2).to_double()).to_int()
         let r = line_lengths[arm_index]
-        let height = wire_width +
+        let height = params.wire_width +
           (@math.PI - angle) / @math.PI * size.2 / 2 -
-          tolerance
+          params.tolerance
 
         //
         let wedge = make_wedge(
@@ -651,7 +675,7 @@ fn make_bfem_cage(
           radial_length=r,
           height~,
         )
-        out_nodes.push(wedge.wedge.with_color(@cad.Rgb::red()))
+        out_nodes.push(wedge.wedge.with_color(@cad.Rgb::blue()))
 
         //
         let wedge = make_wedge(
@@ -662,7 +686,7 @@ fn make_bfem_cage(
           radial_length=r,
           height~,
         )
-        out_nodes.push(wedge.wedge.with_color(@cad.Rgb::green()))
+        out_nodes.push(wedge.wedge.with_color(@cad.Rgb::blue()))
       }
     }
   }
@@ -683,7 +707,7 @@ fn vector_length(a : Vec2, b : Vec2) -> Double {
 //         BFEMCage = {
 //             label = "Bifilar Electromagnet Cage",
 //             op = function(inputs)
-//                 let segments_per_rail = @math.ceil(segments / num_pairs / 2)
+//                 let num_segs_per_rail = @math.ceil(segments / num_pairs / 2)
 //                 if segments_per_rail < 2 then
 //                     segments_per_rail = 2
 //                 end
@@ -1043,7 +1067,7 @@ fn vector_length(a : Vec2, b : Vec2) -> Double {
 //                 -- end
 
 //                 let shaft_pos = pos - vector(0, wire_width/2 + front_thickness, 0)
-//                 let shaft_radius = inner_radius - tolerance
+//                 let shaft_radius = inner_radius - params.tolerance
 //                 let front_inner_shaft = make_cylinder({
 //                         pos = shaft_pos,
 //                         radius = shaft_radius,
@@ -1096,7 +1120,7 @@ fn vector_length(a : Vec2, b : Vec2) -> Double {
 //                 P.scalar("exit_wire_separation", {default = 4, min = 0, soft_max = 10}),
 //                 P.scalar("front_thickness", {default = 1, min = 0, soft_max = 10}),
 //                 P.scalar("back_thickness", {default = 1, min = 0, soft_max = 10}),
-//                 P.scalar("radial_thickness", {default = 2, min = 0, soft_max = 10}),
+//                 P.scalar("params.radial_thickness", {default = 2, min = 0, soft_max = 10}),
 //                 P.scalar("inner_radius", {default = 1, min = 0, soft_max = 10}),
 //                 P.scalar("tolerance", {default = 0.1, min = 0, soft_max = 10}),
 //                 P.scalar("turns", {default = 1, min = 0, soft_max = 10}),
