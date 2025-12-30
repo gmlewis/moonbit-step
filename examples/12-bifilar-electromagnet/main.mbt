@@ -145,7 +145,7 @@ async fn main {
   }
   // Add cage if requested
   if !params.nocage {
-    let (radius, height) = calc_radius_height(params.num_pairs - 1, params)
+    let (radius, height) = calc_radius_height(params.num_pairs, params)
     let nodes = make_bfem_cage(
       pos=params.pos,
       size=(radius, radius, height),
