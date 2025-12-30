@@ -12,6 +12,8 @@ async fn main {
     "debug": @cli.flag(short='d', help="Turn on debugging info"),
     "nocage": @cli.flag(help="Do not add wire cage around electromagnet"),
     "nocoil": @cli.flag(help="Do not build electromagnet"),
+    "nowires": @cli.flag(help="Do not build exit wires"),
+    "nosupport": @cli.flag(help="Do not build support structure"),
     "innerDiam": @cli.opt_double(
       6.0,
       short='i',
@@ -129,6 +131,8 @@ async fn main {
     debug: args.flag("debug"),
     nocage: args.flag("nocage"),
     nocoil: args.flag("nocoil"),
+    nowires: args.flag("nowires"),
+    nosupport: args.flag("nosupport"),
   }
 
   //
@@ -162,6 +166,8 @@ async fn main {
       wire_width=params.wire_width,
       segments=params.num_segs,
       num_pairs=params.num_pairs,
+      nowires=params.nowires,
+      nosupport=params.nosupport,
     )
     for node in nodes {
       design = design.add(node)
@@ -190,6 +196,8 @@ struct Params {
   debug : Bool
   nocage : Bool
   nocoil : Bool
+  nowires : Bool
+  nosupport : Bool
 }
 
 ///|

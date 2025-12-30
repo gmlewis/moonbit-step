@@ -212,6 +212,8 @@ fn make_bfem_cage(
   wire_width? : Double = 1,
   segments? : Int = 36,
   num_pairs? : Int = 3,
+  nowires~ : Bool,
+  nosupport~ : Bool,
 ) -> Array[@cad.SceneNode] {
   let npairs = num_pairs
   let num_pairs = num_pairs.to_double()
@@ -506,56 +508,70 @@ fn make_bfem_cage(
       out_nodes.push(node.with_color(@cad.Rgb::green()))
 
       // now make the exit wire cylinders
-      let inner_wire_post_center = center_of_face(polygon) // + vector(0,0,flat_top_height)
-      let mut inner_wire_pos = inner_wire_post_center
-      let outer_wire_radius = (inner_radius + outer_radius) / 2
-      let outer_wire_dtheta = @math.asin(wire_gap / (2 * outer_wire_radius))
-      let outer_wire_start_angle = 0.0
-      let outer_wire_end_angle = rail_angle_delta - 2 * outer_wire_dtheta
-      let outer_wire_post_center = vertex_at(
-        center=(pos.0, pos.1), // , inner_wire_pos.y),
-        radius=outer_wire_radius,
-        angle=(outer_wire_end_angle - outer_wire_start_angle) / 2,
-      )
-      let mut outer_wire_pos = outer_wire_post_center
-      // outer_wire_pos = (outer_wire_pos.0, outer_wire_pos.1) // , inner_wire_pos.y
-      let centers_distance = vector_length(
-        outer_wire_post_center, inner_wire_post_center,
-      )
-      if centers_distance < exit_wire_separation {
-        let pa = inner_wire_post_center
-        let va = (polygon[3].0, polygon[3].1) //, inner_wire_pos.y)
-        let pb = outer_wire_post_center
-        let vb = vertex_at(
+      if !nowires {
+        let inner_wire_post_center = center_of_face(polygon) // + vector(0,0,flat_top_height)
+        let mut inner_wire_pos = inner_wire_post_center
+        let outer_wire_radius = (inner_radius + outer_radius) / 2
+        let outer_wire_dtheta = @math.asin(wire_gap / (2 * outer_wire_radius))
+        let outer_wire_start_angle = 0.0
+        let outer_wire_end_angle = rail_angle_delta - 2 * outer_wire_dtheta
+        let outer_wire_post_center = vertex_at(
           center=(pos.0, pos.1), // , inner_wire_pos.y),
-          radius=(inner_radius + outer_radius) / 2,
-          angle=outer_wire_start_angle,
+          radius=outer_wire_radius,
+          angle=(outer_wire_end_angle - outer_wire_start_angle) / 2,
         )
+        let mut outer_wire_pos = outer_wire_post_center
+        // outer_wire_pos = (outer_wire_pos.0, outer_wire_pos.1) // , inner_wire_pos.y
+        let centers_distance = vector_length(
+          outer_wire_post_center, inner_wire_post_center,
+        )
+        if centers_distance < exit_wire_separation {
+          let pa = inner_wire_post_center
+          let va = (polygon[3].0, polygon[3].1) //, inner_wire_pos.y)
+          let pb = outer_wire_post_center
+          let vb = vertex_at(
+            center=(pos.0, pos.1), // , inner_wire_pos.y),
+            radius=(inner_radius + outer_radius) / 2,
+            angle=outer_wire_start_angle,
+          )
 
-        //
-        let f1 = fn(t) { (pa.0 + t * (va.0 - pa.0), pa.1 + t * (va.1 - pa.1)) }
-        let f2 = fn(t) { (pb.0 + t * (vb.0 - pb.0), pb.1 + t * (vb.1 - pb.1)) }
-        let d = exit_wire_separation
-        let t = solve_for_t(d, fn(t) { vector_length(f1(t), f2(t)) })
-        inner_wire_pos = f1(t)
-        outer_wire_pos = f2(t)
+          //
+          let f1 = fn(t) {
+            (pa.0 + t * (va.0 - pa.0), pa.1 + t * (va.1 - pa.1))
+          }
+          let f2 = fn(t) {
+            (pb.0 + t * (vb.0 - pb.0), pb.1 + t * (vb.1 - pb.1))
+          }
+          let d = exit_wire_separation
+          let t = solve_for_t(d, fn(t) { vector_length(f1(t), f2(t)) })
+          inner_wire_pos = f1(t)
+          outer_wire_pos = f2(t)
+        }
+        let inner_exit_wire = make_cylinder(
+          pos=(
+            inner_wire_pos.0,
+            inner_wire_pos.1,
+            top_helix_z + flat_top_height,
+          ),
+          radius=exit_wire_diameter / 2,
+          segments=12,
+          height=connector_length,
+        )
+        // Ops.merge(out_mesh, inner_exit_wire.mesh)
+        out_nodes.push(inner_exit_wire.cylinder.with_color(@cad.Rgb::green()))
+        let outer_exit_wire = make_cylinder(
+          pos=(
+            outer_wire_pos.0,
+            outer_wire_pos.1,
+            top_helix_z + flat_top_height,
+          ),
+          radius=exit_wire_diameter / 2,
+          segments=12,
+          height=connector_length,
+        )
+        // Ops.merge(out_mesh, outer_exit_wire.mesh)
+        out_nodes.push(outer_exit_wire.cylinder.with_color(@cad.Rgb::red()))
       }
-      let inner_exit_wire = make_cylinder(
-        pos=(inner_wire_pos.0, inner_wire_pos.1, top_helix_z + flat_top_height),
-        radius=exit_wire_diameter / 2,
-        segments=12,
-        height=connector_length,
-      )
-      // Ops.merge(out_mesh, inner_exit_wire.mesh)
-      out_nodes.push(inner_exit_wire.cylinder.with_color(@cad.Rgb::green()))
-      let outer_exit_wire = make_cylinder(
-        pos=(outer_wire_pos.0, outer_wire_pos.1, top_helix_z + flat_top_height),
-        radius=exit_wire_diameter / 2,
-        segments=12,
-        height=connector_length,
-      )
-      // Ops.merge(out_mesh, outer_exit_wire.mesh)
-      out_nodes.push(outer_exit_wire.cylinder.with_color(@cad.Rgb::red()))
     }
 
     //
@@ -597,54 +613,59 @@ fn make_bfem_cage(
     }
   }
 
-  // Finally, add support structures
-  // let shaft_pos = (pos.0, pos.1, pos.2 + wire_width / 2 + front_thickness)
-  // let shaft_radius = inner_radius - tolerance
-  // let front_inner_shaft = make_cylinder(
-  //   pos=shaft_pos,
-  //   radius=shaft_radius,
-  //   segments~,
-  //   height=coil_height + front_thickness, // flush with top coil
-  // )
-  // out_nodes.push(front_inner_shaft.cylinder.with_color(@cad.Rgb::green()))
-  // let wedge_start_angle = @math.asin(tolerance) + rail_angle_delta
-  // let wedge_end_angle = @math.PI - @math.asin(tolerance)
-  // // let dz = size.2 / segments.to_double()
-  // for ni in 1..=(segments / 2) {
-  //   let i = ni.to_double()
-  //   let angle = (i - 1) * 2 * @math.PI / segments.to_double()
-  //   let next_angle = i * 2 * @math.PI / segments.to_double()
-  //   if angle > wedge_start_angle && next_angle < wedge_end_angle {
-  //     let t = (angle - wedge_start_angle) /
-  //       (wedge_end_angle - wedge_start_angle)
-  //     let arm_index = 2 +
-  //       @math.floor(t * (line_lengths.length() - 2).to_double()).to_int()
-  //     let r = line_lengths[arm_index]
-  //     let height = wire_width +
-  //       (@math.PI - angle) / @math.PI * size.2 / 2 -
-  //       tolerance
-  //     let wedge = make_wedge(
-  //       pos=shaft_pos,
-  //       inner_radius=shaft_radius,
-  //       start_angle=angle,
-  //       end_angle=next_angle,
-  //       radial_length=r,
-  //       height~,
-  //     )
-  //     // Ops.merge(out_mesh, wedge.mesh)
-  //     out_nodes.push(wedge.wedge.with_color(@cad.Rgb::green()))
-  //     let wedge = make_wedge(
-  //       pos=shaft_pos,
-  //       inner_radius=shaft_radius,
-  //       start_angle=angle + @math.PI,
-  //       end_angle=next_angle + @math.PI,
-  //       radial_length=r,
-  //       height~,
-  //     )
-  //     // Ops.merge(out_mesh, wedge.mesh)
-  //     out_nodes.push(wedge.wedge.with_color(@cad.Rgb::green()))
-  //   }
-  // }
+  //
+  if !nosupport {
+    // Finally, add support structures
+    let shaft_pos = (pos.0, pos.1, pos.2 + wire_width / 2 + front_thickness)
+    let shaft_radius = inner_radius - tolerance
+    let front_inner_shaft = make_cylinder(
+      pos=shaft_pos,
+      radius=shaft_radius,
+      segments~,
+      height=coil_height + front_thickness, // flush with top coil
+    )
+    out_nodes.push(front_inner_shaft.cylinder.with_color(@cad.Rgb::green()))
+    let wedge_start_angle = @math.asin(tolerance) + rail_angle_delta
+    let wedge_end_angle = @math.PI - @math.asin(tolerance)
+    // let dz = size.2 / segments.to_double()
+    for ni in 1..=(segments / 2) {
+      let i = ni.to_double()
+      let angle = (i - 1) * 2 * @math.PI / segments.to_double()
+      let next_angle = i * 2 * @math.PI / segments.to_double()
+      if angle > wedge_start_angle && next_angle < wedge_end_angle {
+        let t = (angle - wedge_start_angle) /
+          (wedge_end_angle - wedge_start_angle)
+        let arm_index = 2 +
+          @math.floor(t * (line_lengths.length() - 2).to_double()).to_int()
+        let r = line_lengths[arm_index]
+        let height = wire_width +
+          (@math.PI - angle) / @math.PI * size.2 / 2 -
+          tolerance
+
+        //
+        let wedge = make_wedge(
+          pos=shaft_pos,
+          inner_radius=shaft_radius,
+          start_angle=angle,
+          end_angle=next_angle,
+          radial_length=r,
+          height~,
+        )
+        out_nodes.push(wedge.wedge.with_color(@cad.Rgb::red()))
+
+        //
+        let wedge = make_wedge(
+          pos=shaft_pos,
+          inner_radius=shaft_radius,
+          start_angle=angle + @math.PI,
+          end_angle=next_angle + @math.PI,
+          radial_length=r,
+          height~,
+        )
+        out_nodes.push(wedge.wedge.with_color(@cad.Rgb::green()))
+      }
+    }
+  }
 
   //
   out_nodes
