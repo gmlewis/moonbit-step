@@ -149,9 +149,49 @@ fn compile_swept_profile(
     }
   }
 
+  // Start cap
+  if s.make_start_cap {
+    let tangent = path.tangents[0]
+    let (tx, ty, tz) = rotate_point(tangent, node.rx, node.ry, node.rz)
+    let expected_out = (-tx, -ty, -tz)
+    let verts_cycle = Array::make(num_prof_verts, 0)
+    for j in 0..<num_prof_verts {
+      verts_cycle[j] = j
+    }
+    face_refs.push(
+      add_plane_face_oriented(
+        ctx, edges, pts, cp_refs, verts_cycle, expected_out,
+      ),
+    )
+  }
+
+  // End cap
+  if s.make_end_cap {
+    let tangent = path.tangents[num_path_pts - 1]
+    let (tx, ty, tz) = rotate_point(tangent, node.rx, node.ry, node.rz)
+    let expected_out = (tx, ty, tz)
+    let offset = (num_path_pts - 1) * num_prof_verts
+    let verts_cycle = Array::make(num_prof_verts, 0)
+    for j in 0..<num_prof_verts {
+      verts_cycle[j] = offset + j
+    }
+    face_refs.push(
+      add_plane_face_oriented(
+        ctx, edges, pts, cp_refs, verts_cycle, expected_out,
+      ),
+    )
+  }
+
   // 6. Wrap in shell and model
-  let shell = @topology.OpenShell::new("", face_refs)
-  let shell_ref = ctx.add(@repository.any_entity_open_shell(shell))
-  let model = @topology.ShellBasedSurfaceModel::new("", [shell_ref])
-  ctx.add(@repository.any_entity_shell_based_surface_model(model))
+  if s.make_start_cap && s.make_end_cap {
+    let shell = @topology.ClosedShell::new("", face_refs)
+    let shell_ref = ctx.add(@repository.any_entity_closed_shell(shell))
+    let brep = @topology.ManifoldSolidBrep::new("", shell_ref)
+    ctx.add(@repository.any_entity_manifold_solid_brep(brep))
+  } else {
+    let shell = @topology.OpenShell::new("", face_refs)
+    let shell_ref = ctx.add(@repository.any_entity_open_shell(shell))
+    let model = @topology.ShellBasedSurfaceModel::new("", [shell_ref])
+    ctx.add(@repository.any_entity_shell_based_surface_model(model))
+  }
 }

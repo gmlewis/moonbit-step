@@ -212,8 +212,10 @@ pub fn SweepProfile::new(Array[(Double, Double, Double)], center? : (Double, Dou
 pub struct SweptProfile {
   path : SweepPath
   profile : SweepProfile
+  make_start_cap : Bool
+  make_end_cap : Bool
 }
-pub fn SweptProfile::new(path~ : SweepPath, profile~ : SweepProfile) -> Shape
+pub fn SweptProfile::new(path~ : SweepPath, profile~ : SweepProfile, make_start_cap? : Bool, make_end_cap? : Bool) -> Shape
 
 // Type aliases
 pub type Vec2 = (Double, Double)
