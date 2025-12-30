@@ -137,7 +137,7 @@ async fn main {
 
   //
   let mut design = @cad.Design::new(name="bifilar-electromagnet")
-  // Add coil pairs
+  // Add coil pairs if requested
   if !params.nocoil {
     for pair_num in 1..=params.num_pairs {
       if params.debug {
@@ -150,26 +150,7 @@ async fn main {
   // Add cage if requested
   if !params.nocage {
     let (radius, height) = calc_radius_height(params.num_pairs, params)
-    let nodes = make_bfem_cage(
-      size=(radius, radius, height),
-      params~,
-      // pos=params.pos,
-      // connector_length=params.connector_length,
-      // exit_wire_diameter=params.exit_wire_diameter,
-      // exit_wire_separation=params.exit_wire_separation,
-      // front_thickness=params.front_thickness,
-      // back_thickness=params.back_thickness,
-      // radial_thickness=params.radial_thickness,
-      // inner_radius=params.inner_diam / 2.0,
-      // tolerance=params.tolerance,
-      // turns=params.vert_turns,
-      // wire_gap=params.wire_gap,
-      // wire_width=params.wire_width,
-      // segments=params.num_segs,
-      // num_pairs=params.num_pairs,
-      // nowires=params.nowires,
-      // nosupport=params.nosupport,
-    )
+    let nodes = make_bfem_cage(size=(radius, radius, height), params~)
     for node in nodes {
       design = design.add(node)
     }

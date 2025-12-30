@@ -1,8 +1,13 @@
 ///|
 /// SweptProfile::new generates a new Shape by sweeping a 2D profile along a 3D path.
 /// Note that the resulting Shape has no end caps; both ends are open.
-pub fn SweptProfile::new(path~ : SweepPath, profile~ : SweepProfile) -> Shape {
-  Shape::SweptProfile({ path, profile })
+pub fn SweptProfile::new(
+  path~ : SweepPath,
+  profile~ : SweepProfile,
+  make_start_cap? : Bool = true,
+  make_end_cap? : Bool = true,
+) -> Shape {
+  Shape::SweptProfile({ path, profile, make_start_cap, make_end_cap })
 }
 
 ///|

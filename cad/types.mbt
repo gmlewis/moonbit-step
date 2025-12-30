@@ -99,6 +99,8 @@ pub struct ExtrudedProfile {
 pub struct SweptProfile {
   path : SweepPath
   profile : SweepProfile
+  make_start_cap : Bool
+  make_end_cap : Bool
 }
 
 ///|
