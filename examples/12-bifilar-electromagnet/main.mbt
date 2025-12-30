@@ -81,7 +81,7 @@ async fn main {
     ),
     "wireGap": @cli.opt_double(
       short='g',
-      0.1,
+      0.2,
       help="Wire gap in millimeters",
       min=0,
       min_exclusive=true,
@@ -197,6 +197,16 @@ fn make_coil_pair(
   pair_num~ : Int,
   params~ : Params,
 ) -> (@cad.SceneNode, @cad.SceneNode) {
+  let delta_z = (params.wire_gap + params.wire_width) /
+    (params.num_pairs.to_double() - 1)
+  let new_pos = (
+    params.pos.0,
+    params.pos.1,
+    params.pos.2 + (pair_num - 1).to_double() * delta_z,
+  )
+  let params = { ..params, pos: new_pos }
+
+  //
   let start_angle = 180.0 *
     (pair_num.to_double() - 1) /
     params.num_pairs.to_double()
