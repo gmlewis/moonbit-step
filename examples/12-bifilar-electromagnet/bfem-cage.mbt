@@ -240,11 +240,7 @@ fn make_bfem_cage(
   let outer_radius = inner_radius + radial_thickness
   let inner_dtheta = @math.asin(wire_gap / (2 * inner_radius))
   let outer_dtheta = @math.asin(wire_gap / (2 * outer_radius))
-  let delta_z = if num_pairs > 1 {
-    (wire_gap + wire_width) / (num_pairs - 1)
-  } else {
-    0
-  }
+  let delta_z = (wire_gap + wire_width) / (num_pairs - 1)
 
   //
   let new_point = fn(
@@ -380,7 +376,36 @@ fn make_bfem_cage(
       .translate(z=z - bottom_thickness)
     out_nodes.push(node)
 
-    //...
+    //
+    // add a vertical post to the back/top of the design for connecting the coils
+    // this is the back/top of the design
+    // these are the odd coils (1, 3, 5, etc.)
+    let mut top_angle = rotation
+    if i > 0 {
+      // half wire-width at outer radius in radians
+      let top_hww = 0.5 * @math.asin(wire_width / (2 * outer_radius))
+      top_angle = rotation - rail_angle_delta / 2 + top_hww
+    }
+    let top_helix_z = z + coil_height - 2 * wire_width
+    let sx4 = pos.0 + connector_radius * @math.cos(top_angle)
+    let sy4 = pos.1 + connector_radius * @math.sin(top_angle)
+    let sx1 = sx4 + wire_width * @math.cos(top_angle - @math.PI / 2)
+    let sy1 = sy4 + wire_width * @math.sin(top_angle - @math.PI / 2)
+    let sx2 = pos.0 + (connector_radius + wire_width) * @math.cos(top_angle)
+    let sy2 = pos.1 + (connector_radius + wire_width) * @math.sin(top_angle)
+    let sx3 = sx2 + wire_width * @math.cos(top_angle - @math.PI / 2)
+    let sy3 = sy2 + wire_width * @math.sin(top_angle - @math.PI / 2)
+
+    // this is the "up" part of the "up-and-over" connector on the back/top of the design for the odd coils:
+    // note the the "up" part for the last odd coil is simply the wire width.
+    let polygon = [(sx1, sy1), (sx4, sy4), (sx2, sy2), (sx3, sy3)]
+    let over_height = max_axial_connector_top_zs - top_helix_z + back_thickness // flat top/back (connector side)
+    let node = @cad.ExtrudedProfile::new(polygon, over_height)
+      .with_name("bfem-cage-top-back-\{i.to_int()}")
+      .translate(z=top_helix_z)
+    out_nodes.push(node)
+
+    //
   }
 
   //
