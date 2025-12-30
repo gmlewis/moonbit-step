@@ -58,12 +58,8 @@ fn solve_for_t(d : Double, f : (Double) -> Double) -> Double {
 ///
 /// returns:
 ///     vertex -- (as a vector)
-fn vertex_at(center : Vec3, radius : Double, angle : Double) -> Vec3 {
-  (
-    center.0 + radius * @math.cos(angle),
-    center.1,
-    center.2 + radius * @math.sin(angle),
-  )
+fn vertex_at(center~ : Vec2, radius~ : Double, angle~ : Double) -> Vec2 {
+  (center.0 + radius * @math.cos(angle), center.1 + radius * @math.sin(angle))
 }
 
 ///|
@@ -348,6 +344,7 @@ fn make_bfem_cage(
     let z = zs[i] + wire_width
     let rotation = rotations[i]
     let line_length = line_lengths[i]
+    let ni = i + 1
     let i = i.to_double()
     let inner_start_angle = -i * rail_angle_delta
     let inner_end_angle = -(i - 1) * rail_angle_delta - 2 * inner_dtheta
@@ -399,7 +396,7 @@ fn make_bfem_cage(
     let polygon = [(sx1, sy1), (sx4, sy4), (sx2, sy2), (sx3, sy3)]
     let over_height = max_axial_connector_top_zs - top_helix_z + back_thickness // flat top/back (connector side)
     let node = @cad.ExtrudedProfile::new(polygon, over_height)
-      .with_name("bfem-cage-top-back-\{i.to_int()}")
+      .with_name("bfem-cage-odd-top-back-\{i.to_int()}")
       .translate(z=top_helix_z)
     out_nodes.push(node)
 
@@ -445,8 +442,79 @@ fn make_bfem_cage(
       .translate(z=z - bottom_thickness)
     out_nodes.push(node)
 
+    // add a vertical post to the back/top of the design for connecting the coils
+    // this is the back/top of the design
+    // these are the even coils (2, 4, 6, etc.)
+
+    if ni >= npairs { // final output connector of last coil
+      // wire-width at outer radius in radians
+      let top_ww = @math.asin(wire_width / (2 * outer_radius))
+      top_angle = rotation - top_ww
+    }
+    let top_helix_z = z + coil_height - 2 * wire_width
+    let sx4 = pos.0 + connector_radius * @math.cos(top_angle + @math.PI)
+    let sy4 = pos.1 + connector_radius * @math.sin(top_angle + @math.PI)
+    let mut sx1 = sx4 + wire_width * @math.cos(top_angle + @math.PI / 2)
+    let mut sy1 = sy4 + wire_width * @math.sin(top_angle + @math.PI / 2)
+    let sx2 = pos.0 +
+      (connector_radius + wire_width) * @math.cos(top_angle + @math.PI)
+    let sy2 = pos.1 +
+      (connector_radius + wire_width) * @math.sin(top_angle + @math.PI)
+    let mut sx3 = sx2 + wire_width * @math.cos(top_angle + @math.PI / 2)
+    let mut sy3 = sy2 + wire_width * @math.sin(top_angle + @math.PI / 2)
+    if ni >= npairs { // final output connector of last coil
+      let angle_diff = rail_angle_delta - 2 * outer_dtheta
+      sx1 = pos.0 +
+        connector_radius * @math.cos(top_angle + @math.PI - angle_diff)
+      sy1 = pos.1 +
+        connector_radius * @math.sin(top_angle + @math.PI - angle_diff)
+      sx3 = pos.0 +
+        (connector_radius + wire_width) *
+        @math.cos(top_angle + @math.PI - angle_diff)
+      sy3 = pos.1 +
+        (connector_radius + wire_width) *
+        @math.sin(top_angle + @math.PI - angle_diff)
+    }
+    let polygon = [(sx1, sy1), (sx4, sy4), (sx2, sy2), (sx3, sy3)]
+
     //
+    if ni >= npairs { // final output connector of last coil (closer to center)
+      // Ops.extrude_with_caps(all_faces_selection, wire_width, face)
+      // Ops.merge(out_mesh, face)
+      let node = @cad.ExtrudedProfile::new(polygon, wire_width)
+        .with_name("bfem-cage-even-final-last-coil-\{i.to_int()}")
+        .translate(z=top_helix_z)
+      out_nodes.push(node)
+      // generate inner final output connector of last coil with same radial thickness as other connector
+      let angle_diff = rail_angle_delta - 2 * outer_dtheta
+      let ew_inner_radius = connector_radius -
+        0.6 * exit_wire_separation -
+        exit_wire_diameter
+      let s2 = vertex_at(
+        center=(pos.0, pos.1),
+        radius=ew_inner_radius,
+        angle=top_angle + @math.PI,
+      )
+      let s3 = vertex_at(
+        center=(pos.0, pos.1),
+        radius=ew_inner_radius,
+        angle=top_angle + @math.PI - angle_diff,
+      )
+      let polygon = [(sx4, sy4), (sx1, sy1), s3, s2]
+      // let face = Primitives.polygon(points)
+      let flat_top_height = 2.5 * wire_width + back_thickness
+      // Ops.extrude_with_caps(all_faces_selection, flat_top_height, face)
+      // Ops.merge(out_mesh, face)
+      let node = @cad.ExtrudedProfile::new(polygon, flat_top_height)
+        .with_name("bfem-cage-even-flat-top-final-last-coil-\{i.to_int()}")
+        .translate(z=top_helix_z)
+      out_nodes.push(node)
+
+      //
+    }
   }
+
+  //
 
   //
   out_nodes
