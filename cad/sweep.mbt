@@ -1,6 +1,6 @@
 ///|
 /// SweptProfile::new generates a new Shape by sweeping a 2D profile along a 3D path.
-/// Note that the resulting Shape has no end caps; both ends are open.
+/// By default, it generates end caps, making it a topologically-closed solid.
 pub fn SweptProfile::new(
   path~ : SweepPath,
   profile~ : SweepProfile,
