@@ -1,6 +1,6 @@
 # 012-bifilar-electromagnet
 
-Here's a video describing the process of how I came up with this model:
+Here's a YouTube video describing the process of how I came up with this model:
 
 [![Axial plus Radial Bifilar Electromagnet](https://img.youtube.com/vi/CV303dJUbq0/0.jpg)](https://www.youtube.com/watch?v=CV303dJUbq0)
 
@@ -9,6 +9,12 @@ radius but are wound next to each other (180-degrees out of phase), and then
 the next pair of windings is completely rotated 180 degrees, then the
 capacitance between the coils will be in both the radial direction _and_ the
 axial direction!
+
+Onshape design: https://cad.onshape.com/documents/b8320fedf1f1ea6028755ae8/w/50dfab2e1185c97711b860a6/e/20263eabe6f1f22cc85a5a09?renderMode=0&uiState=695414a99e93423471a30e60
+
+![Bifilar Electromagnet](bifilar-electromagnet-onshape.png)
+
+*Example 12: The Bifilar Electromagnet, an invention of mine with interesting electrical properties.*
 
 ======================================================================
 

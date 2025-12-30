@@ -5,13 +5,11 @@ A high-level 3D modeling DSL and lossless STEP (ISO 10303-21) parser/serializer 
 This repo allows you to build 3D models using a simple API and export them to valid,
 topologically-sound STEP files.
 
-![Bifilar Electromagnet](examples/12-bifilar-electromagnet/preview-3.png)
+Onshape design: https://cad.onshape.com/documents/b8320fedf1f1ea6028755ae8/w/50dfab2e1185c97711b860a6/e/20263eabe6f1f22cc85a5a09?renderMode=0&uiState=695414a99e93423471a30e60
+
+![Bifilar Electromagnet](examples/12-bifilar-electromagnet/bifilar-electromagnet-onshape.png)
 
 *Example 12: The Bifilar Electromagnet, an invention of mine with interesting electrical properties.*
-
-![Chronos Gear-Flower](examples/36-chronos-gear-flower/preview-1.png)
-
-*Example 36: The Chronos Gear-Flower, a parametric design with multiple colors.*
 
 ## Quick Start (Modeling)
 
