@@ -36,15 +36,3 @@ Command line: `./run-example.sh 12 --nocage --numPairs 2 --wireGap 0.5 --vertTur
 
 ![](preview-1.png)
 
-### Variant 2
-
-Command line: `./run-example.sh 12 --nocoil --numPairs 10 --vertTurns 10`
-
-![](preview-2.png)
-
-### Variant 3
-
-Command line: `./run-example.sh 12 --numPairs 10 --vertTurns 10`
-
-![](preview-3.png)
-
