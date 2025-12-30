@@ -416,12 +416,24 @@ fn make_bfem_cage(
     if i == num_pairs {
       top_thickness = over_height
     }
-    // Ops.extrude_with_caps(all_faces_selection, top_thickness, face)
-    // Ops.merge(out_mesh, face)
     let node = @cad.ExtrudedProfile::new(polygon, top_thickness)
       .with_name("bfem-cage-over-\{i.to_int()}")
       .translate(z=top_helix_z + over_height - top_thickness)
     out_nodes.push(node)
+
+    //
+    // for all but the first coil, the helix needs to be connected to the shifted back/top "up-and-over" connector
+    if i > 0 {
+      let sx5 = pos.0 + connector_radius * @math.cos(rotation)
+      let sy5 = pos.1 + connector_radius * @math.sin(rotation)
+      let sx6 = pos.0 + (connector_radius + wire_width) * @math.cos(rotation)
+      let sy6 = pos.1 + (connector_radius + wire_width) * @math.sin(rotation)
+      let polygon = [(sx5, sy5), (sx6, sy6), (sx2, sy2), (sx4, sy4)]
+      let node = @cad.ExtrudedProfile::new(polygon, wire_width)
+        .with_name("bfem-cage-top-connector-\{i.to_int()}")
+        .translate(z=top_helix_z)
+      out_nodes.push(node)
+    }
 
     //
   }
