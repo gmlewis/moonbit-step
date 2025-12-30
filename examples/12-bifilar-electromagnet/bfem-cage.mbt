@@ -406,6 +406,24 @@ fn make_bfem_cage(
     out_nodes.push(node)
 
     //
+    // this is the "over" part of the "up-and-over" connector on the back/top of the design for the odd coils:
+    let over_start_angle = -(i + 1) * rail_angle_delta
+    // top_helix_y + over_height,
+    let polygon = gen_points(over_start_angle, inner_angle_delta)
+    polygon.push((sx2, sy2))
+    polygon.push((sx3, sy3))
+    let mut top_thickness = over_height - wire_width - wire_gap
+    if i == num_pairs {
+      top_thickness = over_height
+    }
+    // Ops.extrude_with_caps(all_faces_selection, top_thickness, face)
+    // Ops.merge(out_mesh, face)
+    let node = @cad.ExtrudedProfile::new(polygon, top_thickness)
+      .with_name("bfem-cage-over-\{i.to_int()}")
+      .translate(z=top_helix_z + over_height - top_thickness)
+    out_nodes.push(node)
+
+    //
   }
 
   //
