@@ -124,18 +124,6 @@ fn make_vertical_post_wedge(
 ///|
 /// make_wedge generates a vertical wedge.
 /// It extrudes upward.
-///
-/// args:
-///     pos -- vector(x,y,z) - lower origin corner of base face of vertical wedge
-///     inner_radius -- inner radius of arc
-///     start_angle -- start angle of arc
-///     end_angle -- end angle of arc
-///     radial_length -- radial length of wedge
-///     height -- height of wedge
-///
-/// returns table of:
-///     mesh - mesh of generated geometry
-///     points -- vertices around the base circle
 fn make_wedge(
   pos~ : Vec3,
   inner_radius~ : Double,
@@ -145,9 +133,16 @@ fn make_wedge(
   height~ : Double,
   color? : @cad.Rgb = @cad.Rgb::red(),
   name? : String = "vertical-wedge-r\{inner_radius}-a\{start_angle}",
+  trim_last_edge? : Bool = false,
+  wire_gap? : Double = 0.0, // only used if trim_last_edge is true
 ) -> VerticalWedge {
-  let sx4 = pos.0 + inner_radius * @math.cos(start_angle)
-  let sy4 = pos.1 + inner_radius * @math.sin(start_angle)
+  let mut sx4 = pos.0 + inner_radius * @math.cos(start_angle)
+  let mut sy4 = pos.1 + inner_radius * @math.sin(start_angle)
+  if trim_last_edge {
+    let trim_angle = start_angle + @math.asin(wire_gap / inner_radius)
+    sx4 = pos.0 + inner_radius * @math.cos(trim_angle)
+    sy4 = pos.1 + inner_radius * @math.sin(trim_angle)
+  }
   let sx2 = pos.0 + (inner_radius + radial_length) * @math.cos(start_angle)
   let sy2 = pos.1 + (inner_radius + radial_length) * @math.sin(start_angle)
   let sx5 = pos.0 + inner_radius * @math.cos(end_angle)
@@ -775,27 +770,6 @@ fn add_support(
   trim_last_edge~ : Bool,
 ) -> Unit {
   let radial_length = info.inner_radius - shaft_radius - params.tolerance
-  if trim_last_edge {
-    let sx4 = shaft_pos.0 + shaft_radius * @math.cos(info.start_angle)
-    let sy4 = shaft_pos.1 + shaft_radius * @math.sin(info.start_angle)
-    let sx2 = shaft_pos.0 +
-      (shaft_radius + radial_length) * @math.cos(info.start_angle)
-    let sy2 = shaft_pos.1 +
-      (shaft_radius + radial_length) * @math.sin(info.start_angle)
-    let sx5 = shaft_pos.0 + shaft_radius * @math.cos(info.end_angle)
-    let sy5 = shaft_pos.1 + shaft_radius * @math.sin(info.end_angle)
-    let sx6 = shaft_pos.0 +
-      (shaft_radius + radial_length) * @math.cos(info.end_angle)
-    let sy6 = shaft_pos.1 +
-      (shaft_radius + radial_length) * @math.sin(info.end_angle)
-    let points = [(sx5, sy5), (sx6, sy6), (sx2, sy2), (sx4, sy4)]
-    let wedge = @cad.ExtrudedProfile::new(points, height)
-      .with_name(name)
-      .with_color(@cad.Rgb::blue())
-      .translate(z=shaft_pos.2)
-    out_nodes.push(wedge.with_color(@cad.Rgb::blue()))
-    return
-  }
   let support = make_wedge(
     pos=shaft_pos,
     inner_radius=shaft_radius,
@@ -804,6 +778,8 @@ fn add_support(
     radial_length~,
     height~,
     name="bfem-cage-\{name}-support-\{idx}",
+    trim_last_edge~,
+    wire_gap=params.wire_gap,
   )
   out_nodes.push(support.wedge.with_color(@cad.Rgb::blue()))
 }
