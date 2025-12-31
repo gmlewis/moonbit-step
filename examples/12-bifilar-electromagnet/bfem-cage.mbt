@@ -364,7 +364,8 @@ fn make_bfem_cage(size~ : Vec3, params~ : Params) -> Array[@cad.SceneNode] {
 
     // Save this info so that the cage can be `tolerance` away from these wires:
     if ni > 1 {
-      let last_rotation = rotations[ni - 2]
+      let end_angle = rotations[ni - 2] -
+        @math.asin(params.wire_gap / connector_radius)
       let start_angle = if ni < npairs {
         rotations[ni - 1] - 0.1 // temporary debugging hack
       } else {
@@ -375,7 +376,7 @@ fn make_bfem_cage(size~ : Vec3, params~ : Params) -> Array[@cad.SceneNode] {
         pt2: (sx, sy),
         inner_radius: connector_radius,
         start_angle,
-        end_angle: last_rotation,
+        end_angle,
       })
     }
 
@@ -463,7 +464,9 @@ fn make_bfem_cage(size~ : Vec3, params~ : Params) -> Array[@cad.SceneNode] {
 
     // Save this information so that the cage can be `tolerance` away from these wires:
     if ni > 1 {
-      let last_rotation = rotations[ni - 2]
+      let end_angle = rotations[ni - 2] -
+        @math.asin(params.wire_gap / connector_radius) +
+        @math.PI
       let start_angle = @math.PI +
         (if ni < npairs {
           rotations[ni - 1] - 0.1 // temporary debugging hack
@@ -475,7 +478,7 @@ fn make_bfem_cage(size~ : Vec3, params~ : Params) -> Array[@cad.SceneNode] {
         pt2: (sx, sy),
         inner_radius: connector_radius,
         start_angle,
-        end_angle: last_rotation + @math.PI,
+        end_angle,
       })
     }
 
@@ -666,7 +669,8 @@ fn make_bfem_cage(size~ : Vec3, params~ : Params) -> Array[@cad.SceneNode] {
       height=extrude_height +
         1.5 * params.wire_width +
         params.front_thickness +
-        params.back_thickness,
+        params.back_thickness +
+        params.connector_length,
     )
     out_nodes.push(front_inner_shaft.cylinder.with_color(@cad.Rgb::blue()))
     let wedge_start_angle = @math.asin(params.tolerance) + rail_angle_delta
