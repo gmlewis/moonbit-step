@@ -367,8 +367,6 @@ fn make_bfem_cage(size~ : Vec3, params~ : Params) -> Array[@cad.SceneNode] {
         rotations[ni - 1]
       }
       red_cage_wire_support_info.push({
-        pt1: (tx, ty),
-        pt2: (sx, sy),
         inner_radius: connector_radius,
         start_angle,
         end_angle,
@@ -469,8 +467,6 @@ fn make_bfem_cage(size~ : Vec3, params~ : Params) -> Array[@cad.SceneNode] {
           rotations[ni - 1]
         })
       green_cage_wire_support_info.push({
-        pt1: (tx, ty),
-        pt2: (sx, sy),
         inner_radius: connector_radius,
         start_angle,
         end_angle,
@@ -668,46 +664,8 @@ fn make_bfem_cage(size~ : Vec3, params~ : Params) -> Array[@cad.SceneNode] {
         params.connector_length,
     )
     out_nodes.push(front_inner_shaft.cylinder.with_color(@cad.Rgb::blue()))
-    let wedge_start_angle = @math.asin(params.tolerance) + rail_angle_delta
-    let wedge_end_angle = @math.PI - @math.asin(params.tolerance)
-    // let dz = size.2 / params.num_segs.to_double()
-    // for ni in 1..=(params.num_segs / 2) {
-    //   let i = ni.to_double()
-    //   let angle = (i - 1) * 2 * @math.PI / params.num_segs.to_double()
-    //   let next_angle = i * 2 * @math.PI / params.num_segs.to_double()
-    //   if angle > wedge_start_angle && next_angle < wedge_end_angle {
-    //     let t = (angle - wedge_start_angle) /
-    //       (wedge_end_angle - wedge_start_angle)
-    //     let arm_index = 2 +
-    //       @math.floor(t * (line_lengths.length() - 2).to_double()).to_int()
-    //     let r = line_lengths[arm_index]
-    //     let height = params.wire_width +
-    //       (@math.PI - angle) / @math.PI * size.2 / 2 -
-    //       params.tolerance
 
-    //     //
-    //     let wedge = make_wedge(
-    //       pos=shaft_pos,
-    //       inner_radius=shaft_radius,
-    //       start_angle=angle,
-    //       end_angle=next_angle,
-    //       radial_length=r,
-    //       height~,
-    //     )
-    //     out_nodes.push(wedge.wedge.with_color(@cad.Rgb::blue()))
-
-    //     //
-    //     let wedge = make_wedge(
-    //       pos=shaft_pos,
-    //       inner_radius=shaft_radius,
-    //       start_angle=angle + @math.PI,
-    //       end_angle=next_angle + @math.PI,
-    //       radial_length=r,
-    //       height~,
-    //     )
-    //     out_nodes.push(wedge.wedge.with_color(@cad.Rgb::blue()))
-    //   }
-    // }
+    //
     for idx, info in red_cage_wire_support_info {
       let height = params.wire_width -
         info.end_angle / @math.PI * size.2 / 2 -
@@ -750,8 +708,6 @@ fn make_bfem_cage(size~ : Vec3, params~ : Params) -> Array[@cad.SceneNode] {
 
 ///|
 struct SupportInfo {
-  pt1 : Vec2
-  pt2 : Vec2
   inner_radius : Double
   start_angle : Double
   end_angle : Double
