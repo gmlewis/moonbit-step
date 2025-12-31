@@ -74,6 +74,7 @@ async fn main {
       help="Separation of exit wires in millimeters",
       min=0,
     ),
+    "union": @cli.flag(help="Union wires together and support shapes together"),
     "vertTurns": @cli.opt_double(
       15.0,
       help="Vertical turns of wire in electromagnet",
@@ -132,10 +133,13 @@ async fn main {
     nocoil: args.flag("nocoil"),
     nowires: args.flag("nowires"),
     nosupport: args.flag("nosupport"),
+    union: args.flag("union"),
   }
 
   //
   let mut design = @cad.Design::new(name="bifilar-electromagnet")
+  let wire_nodes = []
+  let support_nodes = []
   // Add coil pairs if requested
   if !params.nocoil {
     for pair_num in 1..=params.num_pairs {
@@ -143,14 +147,27 @@ async fn main {
         @cli.eprintln("Generating pair #\{pair_num} of \{params.num_pairs}")
       }
       let coil_pair = make_coil_pair(pair_num~, params~)
-      design = design.add(coil_pair.0).add(coil_pair.1)
+      wire_nodes..push(coil_pair.0).push(coil_pair.1)
     }
   }
   // Add cage if requested
   if !params.nocage {
     let (radius, height) = calc_radius_height(params.num_pairs, params)
-    let nodes = make_bfem_cage(size=(radius, radius, height), params~)
-    for node in nodes {
+    let (wires, support) = make_bfem_cage(
+      size=(radius, radius, height),
+      params~,
+    )
+    wire_nodes.append(wires)
+    support_nodes.append(support)
+  }
+  if params.union {
+    // TODO: union wire_nodes together
+    // TODO: union support_nodes together
+  } else {
+    for node in wire_nodes {
+      design = design.add(node)
+    }
+    for node in support_nodes {
       design = design.add(node)
     }
   }
@@ -179,6 +196,7 @@ struct Params {
   nocoil : Bool
   nowires : Bool
   nosupport : Bool
+  union : Bool
 }
 
 ///|

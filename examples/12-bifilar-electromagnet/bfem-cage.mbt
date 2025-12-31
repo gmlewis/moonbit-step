@@ -192,7 +192,11 @@ fn make_cylinder(
 
 ///|
 /// make_bfem_cage makes a wire cage around the bifilar electromagnet and wires up the coils.
-fn make_bfem_cage(size~ : Vec3, params~ : Params) -> Array[@cad.SceneNode] {
+/// It also returns an optional support structure to hold the coils.
+fn make_bfem_cage(
+  size~ : Vec3,
+  params~ : Params,
+) -> (Array[@cad.SceneNode], Array[@cad.SceneNode]) {
   let red_cage_wire_support_info = Array::new(capacity=params.num_pairs)
   let green_cage_wire_support_info = Array::new(capacity=params.num_pairs)
   let npairs = params.num_pairs
@@ -238,7 +242,8 @@ fn make_bfem_cage(size~ : Vec3, params~ : Params) -> Array[@cad.SceneNode] {
   let max_axial_connector_top_zs = extrude_height +
     lower_z +
     (num_pairs - 1) * delta_z
-  let out_nodes = []
+  let wire_nodes = []
+  let support_nodes = []
   for i in 0..<(2 * npairs) {
     let ni = i + 1
     let i = i.to_double()
@@ -286,7 +291,7 @@ fn make_bfem_cage(size~ : Vec3, params~ : Params) -> Array[@cad.SceneNode] {
         )
         .with_name("bfem-cage-axial-connector-0")
         .translate(z=lower_z - params.front_thickness)
-      out_nodes.push(node.with_color(@cad.Rgb::red()))
+      wire_nodes.push(node.with_color(@cad.Rgb::red()))
     } else {
       let node = @cad.ExtrudedProfile::new(
           polygon,
@@ -304,7 +309,7 @@ fn make_bfem_cage(size~ : Vec3, params~ : Params) -> Array[@cad.SceneNode] {
       } else {
         @cad.Rgb::red()
       }
-      out_nodes.push(node.with_color(color))
+      wire_nodes.push(node.with_color(color))
     }
   }
 
@@ -378,7 +383,7 @@ fn make_bfem_cage(size~ : Vec3, params~ : Params) -> Array[@cad.SceneNode] {
     let node = @cad.ExtrudedProfile::new(polygon, bottom_thickness)
       .with_name("bfem-cage-bottom-front-\{i.to_int()}")
       .translate(z=z - bottom_thickness)
-    out_nodes.push(node.with_color(@cad.Rgb::red()))
+    wire_nodes.push(node.with_color(@cad.Rgb::red()))
 
     // add a vertical post to the back/top of the design for connecting the coils
     // this is the back/top of the design
@@ -410,7 +415,7 @@ fn make_bfem_cage(size~ : Vec3, params~ : Params) -> Array[@cad.SceneNode] {
     let node = @cad.ExtrudedProfile::new(polygon, over_height)
       .with_name("bfem-cage-odd-top-back-\{i.to_int()}")
       .translate(z=top_helix_z)
-    out_nodes.push(node.with_color(@cad.Rgb::red()))
+    wire_nodes.push(node.with_color(@cad.Rgb::red()))
 
     // this is the "over" part of the "up-and-over" connector on the back/top of the design for the odd coils:
     let over_start_angle = -(i + 1) * rail_angle_delta
@@ -424,7 +429,7 @@ fn make_bfem_cage(size~ : Vec3, params~ : Params) -> Array[@cad.SceneNode] {
     let node = @cad.ExtrudedProfile::new(polygon, top_thickness)
       .with_name("bfem-cage-over-\{i.to_int()}")
       .translate(z=top_helix_z + over_height - top_thickness)
-    out_nodes.push(node.with_color(@cad.Rgb::red()))
+    wire_nodes.push(node.with_color(@cad.Rgb::red()))
 
     // for all but the first coil, the helix needs to be connected to the shifted back/top "up-and-over" connector
     if i > 0 {
@@ -438,7 +443,7 @@ fn make_bfem_cage(size~ : Vec3, params~ : Params) -> Array[@cad.SceneNode] {
       let node = @cad.ExtrudedProfile::new(polygon, params.wire_width)
         .with_name("bfem-cage-top-connector-\{i.to_int()}")
         .translate(z=top_helix_z)
-      out_nodes.push(node.with_color(@cad.Rgb::red()))
+      wire_nodes.push(node.with_color(@cad.Rgb::red()))
     }
 
     // second connection for pair directly opposite first connection
@@ -453,7 +458,7 @@ fn make_bfem_cage(size~ : Vec3, params~ : Params) -> Array[@cad.SceneNode] {
     let node = @cad.ExtrudedProfile::new(polygon, bottom_thickness)
       .with_name("bfem-cage-second-bottom-front-\{i.to_int()}")
       .translate(z=z - bottom_thickness)
-    out_nodes.push(node.with_color(@cad.Rgb::green()))
+    wire_nodes.push(node.with_color(@cad.Rgb::green()))
 
     // Save this information so that the cage can be `tolerance` away from these wires:
     if ni > 1 {
@@ -512,7 +517,7 @@ fn make_bfem_cage(size~ : Vec3, params~ : Params) -> Array[@cad.SceneNode] {
       let node = @cad.ExtrudedProfile::new(polygon, params.wire_width)
         .with_name("bfem-cage-even-final-last-coil-\{i.to_int()}")
         .translate(z=top_helix_z)
-      out_nodes.push(node.with_color(@cad.Rgb::green()))
+      wire_nodes.push(node.with_color(@cad.Rgb::green()))
       // generate inner final output connector of last coil with same radial thickness as other connector
       let angle_diff = rail_angle_delta - 2 * outer_dtheta
       let ew_inner_radius = connector_radius -
@@ -533,7 +538,7 @@ fn make_bfem_cage(size~ : Vec3, params~ : Params) -> Array[@cad.SceneNode] {
       let node = @cad.ExtrudedProfile::new(polygon, flat_top_height)
         .with_name("bfem-cage-even-flat-top-final-last-coil-\{i.to_int()}")
         .translate(z=top_helix_z)
-      out_nodes.push(node.with_color(@cad.Rgb::green()))
+      wire_nodes.push(node.with_color(@cad.Rgb::green()))
 
       // now make the exit wire cylinders
       if !params.nowires {
@@ -588,7 +593,7 @@ fn make_bfem_cage(size~ : Vec3, params~ : Params) -> Array[@cad.SceneNode] {
           height=params.connector_length,
         )
         // Ops.merge(out_mesh, inner_exit_wire.mesh)
-        out_nodes.push(inner_exit_wire.cylinder.with_color(@cad.Rgb::green()))
+        wire_nodes.push(inner_exit_wire.cylinder.with_color(@cad.Rgb::green()))
         let outer_exit_wire = make_cylinder(
           pos=(
             outer_wire_pos.0,
@@ -600,7 +605,7 @@ fn make_bfem_cage(size~ : Vec3, params~ : Params) -> Array[@cad.SceneNode] {
           height=params.connector_length,
         )
         // Ops.merge(out_mesh, outer_exit_wire.mesh)
-        out_nodes.push(outer_exit_wire.cylinder.with_color(@cad.Rgb::red()))
+        wire_nodes.push(outer_exit_wire.cylinder.with_color(@cad.Rgb::red()))
       }
     }
 
@@ -618,7 +623,7 @@ fn make_bfem_cage(size~ : Vec3, params~ : Params) -> Array[@cad.SceneNode] {
         post_height=over_height,
         wire_width=params.wire_width,
       )
-      out_nodes.push(post.post.with_color(@cad.Rgb::green()))
+      wire_nodes.push(post.post.with_color(@cad.Rgb::green()))
       // this is the "over" part of the "up-and-over" connector on the back/top of the design for the even coils:
       let over_start_angle = -(i + 1) * rail_angle_delta + @math.PI
       let polygon = gen_points(over_start_angle, inner_angle_delta)
@@ -627,7 +632,7 @@ fn make_bfem_cage(size~ : Vec3, params~ : Params) -> Array[@cad.SceneNode] {
       let node = @cad.ExtrudedProfile::new(polygon, top_thickness)
         .with_name("bfem-cage-even-over-top-coil-\{i.to_int()}")
         .translate(z=top_helix_z + over_height - top_thickness)
-      out_nodes.push(node.with_color(@cad.Rgb::green()))
+      wire_nodes.push(node.with_color(@cad.Rgb::green()))
     }
     // for all but the first connector, the helix needs to be connected to the shifted connector
     if ni > 1 {
@@ -639,7 +644,7 @@ fn make_bfem_cage(size~ : Vec3, params~ : Params) -> Array[@cad.SceneNode] {
         radial_length=params.wire_width,
         height=params.wire_width,
       )
-      out_nodes.push(wire.wedge.with_color(@cad.Rgb::green()))
+      wire_nodes.push(wire.wedge.with_color(@cad.Rgb::green()))
     }
   }
 
@@ -663,7 +668,7 @@ fn make_bfem_cage(size~ : Vec3, params~ : Params) -> Array[@cad.SceneNode] {
         params.back_thickness +
         params.connector_length,
     )
-    out_nodes.push(front_inner_shaft.cylinder.with_color(@cad.Rgb::blue()))
+    support_nodes.push(front_inner_shaft.cylinder.with_color(@cad.Rgb::blue()))
 
     //
     for idx, info in red_cage_wire_support_info {
@@ -679,7 +684,7 @@ fn make_bfem_cage(size~ : Vec3, params~ : Params) -> Array[@cad.SceneNode] {
         shaft_radius~,
         height~,
         params~,
-        out_nodes~,
+        support_nodes~,
         trim_last_edge~,
       )
     }
@@ -696,14 +701,14 @@ fn make_bfem_cage(size~ : Vec3, params~ : Params) -> Array[@cad.SceneNode] {
         shaft_radius~,
         height~,
         params~,
-        out_nodes~,
+        support_nodes~,
         trim_last_edge~,
       )
     }
   }
 
   //
-  out_nodes
+  (wire_nodes, support_nodes)
 }
 
 ///|
@@ -722,7 +727,7 @@ fn add_support(
   shaft_radius~ : Double,
   height~ : Double,
   params~ : Params,
-  out_nodes~ : Array[@cad.SceneNode],
+  support_nodes~ : Array[@cad.SceneNode],
   trim_last_edge~ : Bool,
 ) -> Unit {
   let radial_length = info.inner_radius - shaft_radius - params.tolerance
@@ -737,7 +742,7 @@ fn add_support(
     trim_last_edge~,
     wire_gap=params.wire_gap,
   )
-  out_nodes.push(support.wedge.with_color(@cad.Rgb::blue()))
+  support_nodes.push(support.wedge.with_color(@cad.Rgb::blue()))
 }
 
 ///|
