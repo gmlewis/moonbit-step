@@ -365,11 +365,16 @@ fn make_bfem_cage(size~ : Vec3, params~ : Params) -> Array[@cad.SceneNode] {
     // Save this info so that the cage can be `tolerance` away from these wires:
     if ni > 1 {
       let last_rotation = rotations[ni - 2]
+      let start_angle = if ni < npairs {
+        rotations[ni - 1] - 0.1 // temporary debugging hack
+      } else {
+        rotations[ni - 1]
+      }
       red_cage_wire_support_info.push({
         pt1: (tx, ty),
         pt2: (sx, sy),
         inner_radius: connector_radius,
-        start_angle: rotation,
+        start_angle,
         end_angle: last_rotation,
       })
     }
@@ -459,11 +464,17 @@ fn make_bfem_cage(size~ : Vec3, params~ : Params) -> Array[@cad.SceneNode] {
     // Save this information so that the cage can be `tolerance` away from these wires:
     if ni > 1 {
       let last_rotation = rotations[ni - 2]
+      let start_angle = @math.PI +
+        (if ni < npairs {
+          rotations[ni - 1] - 0.1 // temporary debugging hack
+        } else {
+          rotations[ni - 1]
+        })
       green_cage_wire_support_info.push({
         pt1: (tx, ty),
         pt2: (sx, sy),
         inner_radius: connector_radius,
-        start_angle: rotation + @math.PI,
+        start_angle,
         end_angle: last_rotation + @math.PI,
       })
     }
