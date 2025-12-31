@@ -144,6 +144,7 @@ fn make_wedge(
   radial_length~ : Double,
   height~ : Double,
   color? : @cad.Rgb = @cad.Rgb::red(),
+  name? : String = "vertical-wedge-r\{inner_radius}-a\{start_angle}",
 ) -> VerticalWedge {
   let sx4 = pos.0 + inner_radius * @math.cos(start_angle)
   let sy4 = pos.1 + inner_radius * @math.sin(start_angle)
@@ -155,7 +156,7 @@ fn make_wedge(
   let sy6 = pos.1 + (inner_radius + radial_length) * @math.sin(end_angle)
   let points = [(sx5, sy5), (sx6, sy6), (sx2, sy2), (sx4, sy4)]
   let wedge = @cad.ExtrudedProfile::new(points, height)
-    .with_name("vertical-wedge-r\{inner_radius}-a\{start_angle}")
+    .with_name(name)
     .with_color(color)
     .translate(z=pos.2)
   { wedge, } // points }
@@ -197,24 +198,8 @@ fn make_cylinder(
 ///|
 /// make_bfem_cage makes a wire cage around the bifilar electromagnet and wires up the coils.
 fn make_bfem_cage(size~ : Vec3, params~ : Params) -> Array[@cad.SceneNode] {
-  // pos? : Vec3 = (0, 0, 0), // pos is lowered by wire_width/2
-  // size? : Vec3 = (10, 0, 10), // wire_width/2 + wire_gap is added to size.
-  // connector_length? : Double = 12,
-  // exit_wire_diameter? : Double = 1,
-  // exit_wire_separation? : Double = 4,
-  // front_thickness? : Double = 1,
-  // back_thickness? : Double = 1,
-  // params.radial_thickness? : Double = 2,
-  // inner_radius? : Double = 1,
-  // tolerance? : Double = 0.1,
-  // turns? : Double = 1,
-  // wire_gap? : Double = 1,
-  // wire_width? : Double = 1,
-  // segments? : Int = 36,
-  // num_pairs? : Int = 3,
-  // nowires~ : Bool,
-  // nosupport~ : Bool,
-  // ) -> Array[@cad.SceneNode] {
+  let red_cage_wire_support_info = Array::new(capacity=params.num_pairs)
+  let green_cage_wire_support_info = Array::new(capacity=params.num_pairs)
   let npairs = params.num_pairs
   let num_pairs = npairs.to_double()
   let mut segments_per_rail = @math.ceil(
@@ -377,6 +362,18 @@ fn make_bfem_cage(size~ : Vec3, params~ : Params) -> Array[@cad.SceneNode] {
     polygon.push((tx, ty))
     polygon.push((sx, sy))
 
+    // Save this info so that the cage can be `tolerance` away from these wires:
+    if ni > 1 {
+      let last_rotation = rotations[ni - 2]
+      red_cage_wire_support_info.push({
+        pt1: (tx, ty),
+        pt2: (sx, sy),
+        inner_radius: connector_radius,
+        start_angle: rotation,
+        end_angle: last_rotation,
+      })
+    }
+
     // this connects the bottom/front helix to the axial connector
     let bottom_thickness = z - lower_z + params.front_thickness
     let node = @cad.ExtrudedProfile::new(polygon, bottom_thickness)
@@ -458,6 +455,18 @@ fn make_bfem_cage(size~ : Vec3, params~ : Params) -> Array[@cad.SceneNode] {
       .with_name("bfem-cage-second-bottom-front-\{i.to_int()}")
       .translate(z=z - bottom_thickness)
     out_nodes.push(node.with_color(@cad.Rgb::green()))
+
+    // Save this information so that the cage can be `tolerance` away from these wires:
+    if ni > 1 {
+      let last_rotation = rotations[ni - 2]
+      green_cage_wire_support_info.push({
+        pt1: (tx, ty),
+        pt2: (sx, sy),
+        inner_radius: connector_radius,
+        start_angle: rotation + @math.PI,
+        end_angle: last_rotation + @math.PI,
+      })
+    }
 
     // add a vertical post to the back/top of the design for connecting the coils
     // this is the back/top of the design
@@ -652,47 +661,109 @@ fn make_bfem_cage(size~ : Vec3, params~ : Params) -> Array[@cad.SceneNode] {
     let wedge_start_angle = @math.asin(params.tolerance) + rail_angle_delta
     let wedge_end_angle = @math.PI - @math.asin(params.tolerance)
     // let dz = size.2 / params.num_segs.to_double()
-    for ni in 1..=(params.num_segs / 2) {
-      let i = ni.to_double()
-      let angle = (i - 1) * 2 * @math.PI / params.num_segs.to_double()
-      let next_angle = i * 2 * @math.PI / params.num_segs.to_double()
-      if angle > wedge_start_angle && next_angle < wedge_end_angle {
-        let t = (angle - wedge_start_angle) /
-          (wedge_end_angle - wedge_start_angle)
-        let arm_index = 2 +
-          @math.floor(t * (line_lengths.length() - 2).to_double()).to_int()
-        let r = line_lengths[arm_index]
-        let height = params.wire_width +
-          (@math.PI - angle) / @math.PI * size.2 / 2 -
-          params.tolerance
+    // for ni in 1..=(params.num_segs / 2) {
+    //   let i = ni.to_double()
+    //   let angle = (i - 1) * 2 * @math.PI / params.num_segs.to_double()
+    //   let next_angle = i * 2 * @math.PI / params.num_segs.to_double()
+    //   if angle > wedge_start_angle && next_angle < wedge_end_angle {
+    //     let t = (angle - wedge_start_angle) /
+    //       (wedge_end_angle - wedge_start_angle)
+    //     let arm_index = 2 +
+    //       @math.floor(t * (line_lengths.length() - 2).to_double()).to_int()
+    //     let r = line_lengths[arm_index]
+    //     let height = params.wire_width +
+    //       (@math.PI - angle) / @math.PI * size.2 / 2 -
+    //       params.tolerance
 
-        //
-        let wedge = make_wedge(
-          pos=shaft_pos,
-          inner_radius=shaft_radius,
-          start_angle=angle,
-          end_angle=next_angle,
-          radial_length=r,
-          height~,
-        )
-        out_nodes.push(wedge.wedge.with_color(@cad.Rgb::blue()))
+    //     //
+    //     let wedge = make_wedge(
+    //       pos=shaft_pos,
+    //       inner_radius=shaft_radius,
+    //       start_angle=angle,
+    //       end_angle=next_angle,
+    //       radial_length=r,
+    //       height~,
+    //     )
+    //     out_nodes.push(wedge.wedge.with_color(@cad.Rgb::blue()))
 
-        //
-        let wedge = make_wedge(
-          pos=shaft_pos,
-          inner_radius=shaft_radius,
-          start_angle=angle + @math.PI,
-          end_angle=next_angle + @math.PI,
-          radial_length=r,
-          height~,
-        )
-        out_nodes.push(wedge.wedge.with_color(@cad.Rgb::blue()))
-      }
+    //     //
+    //     let wedge = make_wedge(
+    //       pos=shaft_pos,
+    //       inner_radius=shaft_radius,
+    //       start_angle=angle + @math.PI,
+    //       end_angle=next_angle + @math.PI,
+    //       radial_length=r,
+    //       height~,
+    //     )
+    //     out_nodes.push(wedge.wedge.with_color(@cad.Rgb::blue()))
+    //   }
+    // }
+    for idx, info in red_cage_wire_support_info {
+      let height = params.wire_width -
+        info.end_angle / @math.PI * size.2 / 2 -
+        params.tolerance
+      add_support(
+        idx,
+        "red",
+        info,
+        shaft_pos~,
+        shaft_radius~,
+        height~,
+        params~,
+        out_nodes~,
+      )
+    }
+    for idx, info in green_cage_wire_support_info {
+      let height = params.wire_width +
+        (@math.PI - info.end_angle) / @math.PI * size.2 / 2 -
+        params.tolerance
+      add_support(
+        idx,
+        "green",
+        info,
+        shaft_pos~,
+        shaft_radius~,
+        height~,
+        params~,
+        out_nodes~,
+      )
     }
   }
 
   //
   out_nodes
+}
+
+///|
+struct SupportInfo {
+  pt1 : Vec2
+  pt2 : Vec2
+  inner_radius : Double
+  start_angle : Double
+  end_angle : Double
+}
+
+///|
+fn add_support(
+  idx : Int,
+  name : String,
+  info : SupportInfo,
+  shaft_pos~ : Vec3,
+  shaft_radius~ : Double,
+  height~ : Double,
+  params~ : Params,
+  out_nodes~ : Array[@cad.SceneNode],
+) -> Unit {
+  let wire = make_wedge(
+    pos=shaft_pos,
+    inner_radius=shaft_radius,
+    start_angle=info.start_angle,
+    end_angle=info.end_angle,
+    radial_length=info.inner_radius - shaft_radius - params.tolerance,
+    height~,
+    name="bfem-cage-\{name}-support-\{idx}",
+  )
+  out_nodes.push(wire.wedge.with_color(@cad.Rgb::blue()))
 }
 
 ///|

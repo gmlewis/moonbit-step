@@ -75,7 +75,6 @@ async fn main {
       min=0,
     ),
     "vertTurns": @cli.opt_double(
-      short='t',
       15.0,
       help="Vertical turns of wire in electromagnet",
       min=0,
