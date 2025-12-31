@@ -717,6 +717,7 @@ fn make_bfem_cage(size~ : Vec3, params~ : Params) -> Array[@cad.SceneNode] {
       let height = params.wire_width -
         info.end_angle / @math.PI * size.2 / 2 -
         params.tolerance
+      let trim_last_edge = idx == red_cage_wire_support_info.length() - 1
       add_support(
         idx,
         "red",
@@ -726,12 +727,14 @@ fn make_bfem_cage(size~ : Vec3, params~ : Params) -> Array[@cad.SceneNode] {
         height~,
         params~,
         out_nodes~,
+        trim_last_edge~,
       )
     }
     for idx, info in green_cage_wire_support_info {
       let height = params.wire_width +
         (@math.PI - info.end_angle) / @math.PI * size.2 / 2 -
         params.tolerance
+      let trim_last_edge = idx == green_cage_wire_support_info.length() - 1
       add_support(
         idx,
         "green",
@@ -741,6 +744,7 @@ fn make_bfem_cage(size~ : Vec3, params~ : Params) -> Array[@cad.SceneNode] {
         height~,
         params~,
         out_nodes~,
+        trim_last_edge~,
       )
     }
   }
@@ -768,17 +772,40 @@ fn add_support(
   height~ : Double,
   params~ : Params,
   out_nodes~ : Array[@cad.SceneNode],
+  trim_last_edge~ : Bool,
 ) -> Unit {
-  let wire = make_wedge(
+  let radial_length = info.inner_radius - shaft_radius - params.tolerance
+  if trim_last_edge {
+    let sx4 = shaft_pos.0 + shaft_radius * @math.cos(info.start_angle)
+    let sy4 = shaft_pos.1 + shaft_radius * @math.sin(info.start_angle)
+    let sx2 = shaft_pos.0 +
+      (shaft_radius + radial_length) * @math.cos(info.start_angle)
+    let sy2 = shaft_pos.1 +
+      (shaft_radius + radial_length) * @math.sin(info.start_angle)
+    let sx5 = shaft_pos.0 + shaft_radius * @math.cos(info.end_angle)
+    let sy5 = shaft_pos.1 + shaft_radius * @math.sin(info.end_angle)
+    let sx6 = shaft_pos.0 +
+      (shaft_radius + radial_length) * @math.cos(info.end_angle)
+    let sy6 = shaft_pos.1 +
+      (shaft_radius + radial_length) * @math.sin(info.end_angle)
+    let points = [(sx5, sy5), (sx6, sy6), (sx2, sy2), (sx4, sy4)]
+    let wedge = @cad.ExtrudedProfile::new(points, height)
+      .with_name(name)
+      .with_color(@cad.Rgb::blue())
+      .translate(z=shaft_pos.2)
+    out_nodes.push(wedge.with_color(@cad.Rgb::blue()))
+    return
+  }
+  let support = make_wedge(
     pos=shaft_pos,
     inner_radius=shaft_radius,
     start_angle=info.start_angle,
     end_angle=info.end_angle,
-    radial_length=info.inner_radius - shaft_radius - params.tolerance,
+    radial_length~,
     height~,
     name="bfem-cage-\{name}-support-\{idx}",
   )
-  out_nodes.push(wire.wedge.with_color(@cad.Rgb::blue()))
+  out_nodes.push(support.wedge.with_color(@cad.Rgb::blue()))
 }
 
 ///|
