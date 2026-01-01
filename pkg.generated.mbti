@@ -4,8 +4,6 @@ package "gmlewis/step"
 // Values
 pub fn fmt_num(Double) -> String
 
-pub fn fmt_snapped(Double) -> String
-
 pub fn step_str(String) -> String
 
 pub let unknown_entity_witness : UnknownEntity
