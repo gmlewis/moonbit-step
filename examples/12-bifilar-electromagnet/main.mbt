@@ -161,8 +161,8 @@ async fn main {
     support_nodes.append(support)
   }
   if params.union {
-    // TODO: union wire_nodes together
-    // TODO: union support_nodes together
+    design = design.add(@cad.union_all(wire_nodes, name="wires"))
+    design = design.add(@cad.union_all(support_nodes, name="support"))
   } else {
     for node in wire_nodes {
       design = design.add(node)

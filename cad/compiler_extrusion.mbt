@@ -3,11 +3,11 @@ pub fn compile_extruded_profile(
   ctx : StepContext,
   node : SceneNode,
   extrusion : ExtrudedProfile,
-) -> @step.Ref {
+) -> Array[@step.Ref] {
   let profile = extrusion.profile
   let height_mm = extrusion.height_mm
   if height_mm == 0.0 || profile.outer.length() < 3 {
-    return { id: { value: 0 } }
+    return []
   }
 
   // Flatten loops (outer first, then holes).
@@ -120,10 +120,5 @@ pub fn compile_extruded_profile(
       )
     }
   }
-
-  // Solid
-  let shell = @topology.ClosedShell::new("", face_refs)
-  let shell_ref = ctx.add(@repository.any_entity_closed_shell(shell))
-  let brep = @topology.ManifoldSolidBrep::new("", shell_ref)
-  ctx.add(@repository.any_entity_manifold_solid_brep(brep))
+  face_refs
 }

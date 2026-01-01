@@ -3,7 +3,7 @@ pub fn compile_calibration_chamfer_block(
   ctx : StepContext,
   node : SceneNode,
   block : CalibrationChamferBlock,
-) -> @step.Ref {
+) -> Array[@step.Ref] {
   let l = block.length_mm
   let w = block.width_mm
   let h = block.height_mm
@@ -177,10 +177,5 @@ pub fn compile_calibration_chamfer_block(
       ),
     )
   }
-
-  // Solid
-  let shell = @topology.ClosedShell::new("", face_refs)
-  let shell_ref = ctx.add(@repository.any_entity_closed_shell(shell))
-  let brep = @topology.ManifoldSolidBrep::new("", shell_ref)
-  ctx.add(@repository.any_entity_manifold_solid_brep(brep))
+  face_refs
 }

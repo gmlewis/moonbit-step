@@ -3,7 +3,7 @@ pub fn compile_cuboid(
   ctx : StepContext,
   node : SceneNode,
   cuboid : Cuboid,
-) -> @step.Ref {
+) -> Array[@step.Ref] {
   let sx = cuboid.sx
   let sy = cuboid.sy
   let sz = cuboid.sz
@@ -85,10 +85,5 @@ pub fn compile_cuboid(
     add_plane_face(ctx, edges, [0, 4, 7, 3], cp_refs[0], ndx, dy),
     add_plane_face(ctx, edges, [1, 2, 6, 5], cp_refs[1], dx, dy),
   ]
-
-  // Closed shell and Brep
-  let shell = @topology.ClosedShell::new("", face_refs)
-  let shell_ref = ctx.add(@repository.any_entity_closed_shell(shell))
-  let brep = @topology.ManifoldSolidBrep::new("", shell_ref)
-  ctx.add(@repository.any_entity_manifold_solid_brep(brep))
+  face_refs
 }

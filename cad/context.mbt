@@ -16,6 +16,36 @@ pub struct StepContext {
   vertex_points : Map[Int, @step.Ref]
   lines : Map[String, @step.Ref]
   edge_curves : Map[String, @step.Ref]
+  axis2_placements : Map[String, @step.Ref]
+  oriented_edges : Map[String, @step.Ref]
+  edge_loops : Map[String, @step.Ref]
+  face_bounds : Map[String, @step.Ref]
+  advanced_faces : Map[String, @step.Ref]
+}
+
+///|
+fn snap_double(v : Double) -> Double {
+  let eps = 1.e-5
+  let sign = if v < 0.0 { -1.0 } else { 1.0 }
+  let abs_v = v.abs()
+  let scaled = (abs_v / eps + 0.5).to_int().to_double()
+  sign * scaled * eps
+}
+
+///|
+fn fmt_double(v : Double) -> String {
+  let eps = 1.e-5
+  let snapped = snap_double(v)
+  let abs_snapped = snapped.abs()
+  let scaled = (abs_snapped / eps + 0.5).to_int()
+  let whole = scaled / 100000
+  let frac = scaled % 100000
+  let mut frac_str = frac.to_string()
+  while frac_str.length() < 5 {
+    frac_str = "0" + frac_str
+  }
+  let sign_str = if snapped < -eps / 2.0 { "-" } else { "" }
+  "\{sign_str}\{whole}.\{frac_str}"
 }
 
 ///|
@@ -33,6 +63,11 @@ pub fn StepContext::new() -> StepContext {
     vertex_points: Map::new(),
     lines: Map::new(),
     edge_curves: Map::new(),
+    axis2_placements: Map::new(),
+    oriented_edges: Map::new(),
+    edge_loops: Map::new(),
+    face_bounds: Map::new(),
+    advanced_faces: Map::new(),
   }
 }
 
@@ -53,13 +88,16 @@ pub fn StepContext::direction(
   y : Double,
   z : Double,
 ) -> @step.Ref {
-  let key = "\{x},\{y},\{z}"
+  let sx = snap_double(x)
+  let sy = snap_double(y)
+  let sz = snap_double(z)
+  let key = "DIR:\{fmt_double(sx)},\{fmt_double(sy)},\{fmt_double(sz)}"
   match self.directions.get(key) {
     Some(r) => r
     None => {
       let r = self.add(
         @repository.any_entity_direction(
-          @geometry.Direction::new("", [x, y, z]),
+          @geometry.Direction::new("", [sx, sy, sz]),
         ),
       )
       self.directions.set(key, r)
@@ -74,12 +112,13 @@ pub fn StepContext::vector(
   dir : @step.Ref,
   magnitude : Double,
 ) -> @step.Ref {
-  let key = "\{dir.id.value},\{magnitude}"
+  let smag = snap_double(magnitude)
+  let key = "VEC:\{dir.id.value},\{fmt_double(smag)}"
   match self.vectors.get(key) {
     Some(r) => r
     None => {
       let r = self.add(
-        @repository.any_entity_vector(@geometry.Vector::new("", dir, magnitude)),
+        @repository.any_entity_vector(@geometry.Vector::new("", dir, smag)),
       )
       self.vectors.set(key, r)
       r
@@ -94,16 +133,133 @@ pub fn StepContext::cartesian_point(
   y : Double,
   z : Double,
 ) -> @step.Ref {
-  let key = "\{x},\{y},\{z}"
+  let sx = snap_double(x)
+  let sy = snap_double(y)
+  let sz = snap_double(z)
+  let key = "PNT:\{fmt_double(sx)},\{fmt_double(sy)},\{fmt_double(sz)}"
   match self.cartesian_points.get(key) {
     Some(r) => r
     None => {
       let r = self.add(
         @repository.any_entity_cartesian_point(
-          @geometry.CartesianPoint::new("", [x, y, z]),
+          @geometry.CartesianPoint::new("", [sx, sy, sz]),
         ),
       )
       self.cartesian_points.set(key, r)
+      r
+    }
+  }
+}
+
+///|
+pub fn StepContext::axis2_placement_3d(
+  self : StepContext,
+  origin : @step.Ref,
+  axis : @step.Ref,
+  ref_direction : @step.Ref,
+) -> @step.Ref {
+  let key = "\{origin.id.value},\{axis.id.value},\{ref_direction.id.value}"
+  match self.axis2_placements.get(key) {
+    Some(r) => r
+    None => {
+      let a2p = @geometry.Axis2Placement3D::new("", origin, axis, ref_direction)
+      let r = self.add(@repository.any_entity_axis2_placement_3d(a2p))
+      self.axis2_placements.set(key, r)
+      r
+    }
+  }
+}
+
+///|
+pub fn StepContext::oriented_edge(
+  self : StepContext,
+  edge_element : @step.Ref,
+  orientation : Bool,
+) -> @step.Ref {
+  let key = "\{edge_element.id.value},\{orientation}"
+  match self.oriented_edges.get(key) {
+    Some(r) => r
+    None => {
+      let oe = @topology.OrientedEdge::new(
+        "", "*", "*", edge_element, orientation,
+      )
+      let r = self.add(@repository.any_entity_oriented_edge(oe))
+      self.oriented_edges.set(key, r)
+      r
+    }
+  }
+}
+
+///|
+pub fn StepContext::edge_loop(
+  self : StepContext,
+  edge_list : Array[@step.Ref],
+) -> @step.Ref {
+  let key = edge_list.map(fn(r) { r.id.value.to_string() }).join(",")
+  match self.edge_loops.get(key) {
+    Some(r) => r
+    None => {
+      let el = @topology.EdgeLoop::new("", edge_list)
+      let r = self.add(@repository.any_entity_edge_loop(el))
+      self.edge_loops.set(key, r)
+      r
+    }
+  }
+}
+
+///|
+pub fn StepContext::face_bound(
+  self : StepContext,
+  bound : @step.Ref,
+  orientation : Bool,
+) -> @step.Ref {
+  let key = "\{bound.id.value},\{orientation}"
+  match self.face_bounds.get(key) {
+    Some(r) => r
+    None => {
+      let fb = @topology.FaceBound::new("", bound, orientation)
+      let r = self.add(@repository.any_entity_face_bound(fb))
+      self.face_bounds.set(key, r)
+      r
+    }
+  }
+}
+
+///|
+pub fn StepContext::face_outer_bound(
+  self : StepContext,
+  bound : @step.Ref,
+  orientation : Bool,
+) -> @step.Ref {
+  let key = "OUTER:\{bound.id.value},\{orientation}"
+  match self.face_bounds.get(key) {
+    Some(r) => r
+    None => {
+      let fob = @topology.FaceOuterBound::new("", bound, orientation)
+      let r = self.add(@repository.any_entity_face_outer_bound(fob))
+      self.face_bounds.set(key, r)
+      r
+    }
+  }
+}
+
+///|
+pub fn StepContext::advanced_face(
+  self : StepContext,
+  bounds : Array[@step.Ref],
+  face_geometry : @step.Ref,
+  same_sense : Bool,
+) -> @step.Ref {
+  let bounds_key = bounds.map(fn(r) { r.id.value.to_string() }).join(",")
+  let key = "\{face_geometry.id.value},\{same_sense}:\{bounds_key}"
+  match self.advanced_faces.get(key) {
+    Some(r) => r
+    None => {
+      let af = @topology.AdvancedFace::new(
+        "", bounds, face_geometry, same_sense,
+      )
+      let r = self.add(@repository.any_entity_advanced_face(af))
+      self.advanced_faces.set(key, r)
       r
     }
   }

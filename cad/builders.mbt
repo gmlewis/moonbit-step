@@ -330,6 +330,19 @@ pub fn ExtrudedProfile::new(
 }
 
 ///|
+/// union_all returns a new SceneNode representing the grouping of an array of nodes.
+///
+/// Note that this does not currently perform a formal STEP "union" (which is a CSG
+/// operation that many CAD engines struggle to translate), but instead groups
+/// the solids together in the same design.
+pub fn union_all(
+  nodes : Array[SceneNode],
+  name? : String = "union",
+) -> SceneNode {
+  Shape::Union({ nodes, }).with_name(name)
+}
+
+///|
 pub fn Shape::with_name(self : Shape, name : String) -> SceneNode {
   SceneNode::{
     shape: self,
@@ -401,62 +414,7 @@ pub fn Design::add_text_on_face(
   margin? : Double,
   color? : Rgb = Rgb::orange(),
 ) -> Design {
-  let (min_x, max_x, min_y, max_y, min_z, max_z) = match target.shape {
-    Cuboid(c) => (0.0, c.sx, 0.0, c.sy, 0.0, c.sz)
-    CalibrationChamferBlock(b) =>
-      (0.0, b.length_mm, 0.0, b.width_mm, 0.0, b.height_mm)
-    ExtrudedProfile(e) => {
-      let mut x0 = @double.max_value
-      let mut x1 = @double.min_value
-      let mut y0 = @double.max_value
-      let mut y1 = @double.min_value
-      for pt in e.profile.outer {
-        if pt.0 < x0 {
-          x0 = pt.0
-        }
-        if pt.0 > x1 {
-          x1 = pt.0
-        }
-        if pt.1 < y0 {
-          y0 = pt.1
-        }
-        if pt.1 > y1 {
-          y1 = pt.1
-        }
-      }
-      (x0, x1, y0, y1, 0.0, e.height_mm)
-    }
-    SweptProfile(s) => {
-      let mut x0 = @double.max_value
-      let mut x1 = @double.min_value
-      let mut y0 = @double.max_value
-      let mut y1 = @double.min_value
-      let mut z0 = @double.max_value
-      let mut z1 = @double.min_value
-      for pt in s.path.points {
-        if pt.0 < x0 {
-          x0 = pt.0
-        }
-        if pt.0 > x1 {
-          x1 = pt.0
-        }
-        if pt.1 < y0 {
-          y0 = pt.1
-        }
-        if pt.1 > y1 {
-          y1 = pt.1
-        }
-        if pt.2 < z0 {
-          z0 = pt.2
-        }
-        if pt.2 > z1 {
-          z1 = pt.2
-        }
-      }
-      // Expand by a reasonable amount for the profile
-      (x0 - 5.0, x1 + 5.0, y0 - 5.0, y1 + 5.0, z0 - 5.0, z1 + 5.0)
-    }
-  }
+  let (min_x, max_x, min_y, max_y, min_z, max_z) = target.shape.bounding_box()
   let mid_x = (min_x + max_x) / 2.0
   let mid_y = (min_y + max_y) / 2.0
   let mid_z = (min_z + max_z) / 2.0

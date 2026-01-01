@@ -217,7 +217,7 @@ fn find_edge(edges : Array[EdgeInfo], a : Int, b : Int) -> (@step.Ref, Bool) {
       return (e.edge, false)
     }
   }
-  (edges[0].edge, true)
+  abort("edge not found between points \{a} and \{b}")
 }
 
 ///|
@@ -232,11 +232,9 @@ fn face_loop(
     let a = verts[i]
     let b = verts[(i + 1) % n]
     let (edge_ref, ori) = find_edge(edges, a, b)
-    let oe = @topology.OrientedEdge::new("", "*", "*", edge_ref, ori)
-    oe_refs.push(ctx.add(@repository.any_entity_oriented_edge(oe)))
+    oe_refs.push(ctx.oriented_edge(edge_ref, ori))
   }
-  let edge_loop = @topology.EdgeLoop::new("", oe_refs)
-  ctx.add(@repository.any_entity_edge_loop(edge_loop))
+  ctx.edge_loop(oe_refs)
 }
 
 ///|
@@ -248,15 +246,12 @@ fn add_plane_face(
   axis_dir : @step.Ref,
   ref_dir : @step.Ref,
 ) -> @step.Ref {
-  let a2p = @geometry.Axis2Placement3D::new("", location_pt, axis_dir, ref_dir)
-  let a2p_ref = ctx.add(@repository.any_entity_axis2_placement_3d(a2p))
+  let a2p_ref = ctx.axis2_placement_3d(location_pt, axis_dir, ref_dir)
   let plane = @geometry.Plane::new("", a2p_ref)
   let plane_ref = ctx.add(@repository.any_entity_plane(plane))
   let loop_ref = face_loop(ctx, edges, verts_cycle)
-  let fob = @topology.FaceOuterBound::new("", loop_ref, true)
-  let fob_ref = ctx.add(@repository.any_entity_face_outer_bound(fob))
-  let face = @topology.AdvancedFace::new("", [fob_ref], plane_ref, true)
-  ctx.add(@repository.any_entity_advanced_face(face))
+  let fob_ref = ctx.face_outer_bound(loop_ref, true)
+  ctx.advanced_face([fob_ref], plane_ref, true)
 }
 
 ///|
@@ -319,15 +314,13 @@ fn add_plane_face_with_holes_oriented(
   let ref_ref = ctx.direction(refd_raw.0, refd_raw.1, refd_raw.2)
 
   //
-  let a2p = @geometry.Axis2Placement3D::new("", cp_refs[b0], axis_ref, ref_ref)
-  let a2p_ref = ctx.add(@repository.any_entity_axis2_placement_3d(a2p))
+  let a2p_ref = ctx.axis2_placement_3d(cp_refs[b0], axis_ref, ref_ref)
   let plane = @geometry.Plane::new("", a2p_ref)
   let plane_ref = ctx.add(@repository.any_entity_plane(plane))
 
   //
   let outer_loop_ref = face_loop(ctx, edges, outer_cycle)
-  let fob = @topology.FaceOuterBound::new("", outer_loop_ref, true)
-  let fob_ref = ctx.add(@repository.any_entity_face_outer_bound(fob))
+  let fob_ref = ctx.face_outer_bound(outer_loop_ref, true)
 
   //
   let bounds : Array[@step.Ref] = [fob_ref]
@@ -336,10 +329,8 @@ fn add_plane_face_with_holes_oriented(
     .iter()
     .map(fn(loop_pts) {
       let loop_ref = face_loop(ctx, edges, loop_pts)
-      let fb = @topology.FaceBound::new("", loop_ref, true)
-      ctx.add(@repository.any_entity_face_bound(fb))
+      ctx.face_bound(loop_ref, true)
     }),
   )
-  let face = @topology.AdvancedFace::new("", bounds, plane_ref, true)
-  ctx.add(@repository.any_entity_advanced_face(face))
+  ctx.advanced_face(bounds, plane_ref, true)
 }

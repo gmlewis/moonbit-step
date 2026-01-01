@@ -8,11 +8,11 @@ import(
 )
 
 // Values
-pub fn compile_calibration_chamfer_block(StepContext, SceneNode, CalibrationChamferBlock) -> @step.Ref
+pub fn compile_calibration_chamfer_block(StepContext, SceneNode, CalibrationChamferBlock) -> Array[@step.Ref]
 
-pub fn compile_cuboid(StepContext, SceneNode, Cuboid) -> @step.Ref
+pub fn compile_cuboid(StepContext, SceneNode, Cuboid) -> Array[@step.Ref]
 
-pub fn compile_extruded_profile(StepContext, SceneNode, ExtrudedProfile) -> @step.Ref
+pub fn compile_extruded_profile(StepContext, SceneNode, ExtrudedProfile) -> Array[@step.Ref]
 
 pub fn cycle_area_3d(Array[(Double, Double, Double)], Array[Int]) -> (Double, Double, Double)
 
@@ -36,11 +36,17 @@ pub fn translate_pts(Array[(Double, Double)], Double, Double) -> Array[(Double, 
 
 pub fn tube(Double, Double, Double, segments? : Int) -> Shape
 
+pub fn union_all(Array[SceneNode], name? : String) -> SceneNode
+
 pub async fn write_step_text(String, String?) -> Unit
 
 // Errors
 
 // Types and methods
+pub struct BooleanUnion {
+  nodes : Array[SceneNode]
+}
+
 pub struct CalibrationChamferBlock {
   length_mm : Double
   width_mm : Double
@@ -154,6 +160,7 @@ pub struct SceneNode {
   ry : Double
   rz : Double
 }
+pub fn SceneNode::bounding_box(Self) -> (Double, Double, Double, Double, Double, Double)
 pub fn SceneNode::repeat_at(Self, Array[(Double, Double, Double)]) -> Array[Self]
 pub fn SceneNode::rotate_x(Self, Double) -> Self
 pub fn SceneNode::rotate_y(Self, Double) -> Self
@@ -167,7 +174,9 @@ pub enum Shape {
   CalibrationChamferBlock(CalibrationChamferBlock)
   ExtrudedProfile(ExtrudedProfile)
   SweptProfile(SweptProfile)
+  Union(BooleanUnion)
 }
+pub fn Shape::bounding_box(Self) -> (Double, Double, Double, Double, Double, Double)
 pub fn Shape::with_color(Self, Rgb) -> SceneNode
 pub fn Shape::with_name(Self, String) -> SceneNode
 
@@ -184,14 +193,25 @@ pub struct StepContext {
   vertex_points : Map[Int, @step.Ref]
   lines : Map[String, @step.Ref]
   edge_curves : Map[String, @step.Ref]
+  axis2_placements : Map[String, @step.Ref]
+  oriented_edges : Map[String, @step.Ref]
+  edge_loops : Map[String, @step.Ref]
+  face_bounds : Map[String, @step.Ref]
+  advanced_faces : Map[String, @step.Ref]
 }
 pub fn StepContext::add_product_definition(Self, String) -> @step.Ref
+pub fn StepContext::advanced_face(Self, Array[@step.Ref], @step.Ref, Bool) -> @step.Ref
+pub fn StepContext::axis2_placement_3d(Self, @step.Ref, @step.Ref, @step.Ref) -> @step.Ref
 pub fn StepContext::cartesian_point(Self, Double, Double, Double) -> @step.Ref
 pub fn StepContext::direction(Self, Double, Double, Double) -> @step.Ref
 pub fn StepContext::edge_curve(Self, @step.Ref, @step.Ref, @step.Ref, Bool) -> @step.Ref
+pub fn StepContext::edge_loop(Self, Array[@step.Ref]) -> @step.Ref
+pub fn StepContext::face_bound(Self, @step.Ref, Bool) -> @step.Ref
+pub fn StepContext::face_outer_bound(Self, @step.Ref, Bool) -> @step.Ref
 pub fn StepContext::init_standard_context(Self, String) -> Unit
 pub fn StepContext::line(Self, @step.Ref, @step.Ref) -> @step.Ref
 pub fn StepContext::new() -> Self
+pub fn StepContext::oriented_edge(Self, @step.Ref, Bool) -> @step.Ref
 pub fn StepContext::vector(Self, @step.Ref, Double) -> @step.Ref
 pub fn StepContext::vertex_point(Self, @step.Ref) -> @step.Ref
 

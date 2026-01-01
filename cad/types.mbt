@@ -104,11 +104,17 @@ pub struct SweptProfile {
 }
 
 ///|
+pub struct BooleanUnion {
+  nodes : Array[SceneNode]
+}
+
+///|
 pub enum Shape {
   Cuboid(Cuboid)
   CalibrationChamferBlock(CalibrationChamferBlock)
   ExtrudedProfile(ExtrudedProfile)
   SweptProfile(SweptProfile)
+  Union(BooleanUnion)
 }
 
 ///|
@@ -162,4 +168,144 @@ pub fn SweepProfile::new(
   right_dir? : Vec3 = (1.0, 0.0, 0.0),
 ) -> SweepProfile {
   { center, vertices, normal_dir, right_dir }
+}
+
+///|
+pub fn Shape::bounding_box(
+  self : Shape,
+) -> (Double, Double, Double, Double, Double, Double) {
+  match self {
+    Cuboid(c) => (0.0, c.sx, 0.0, c.sy, 0.0, c.sz)
+    CalibrationChamferBlock(b) =>
+      (0.0, b.length_mm, 0.0, b.width_mm, 0.0, b.height_mm)
+    ExtrudedProfile(e) => {
+      let mut x0 = @double.max_value
+      let mut x1 = @double.min_value
+      let mut y0 = @double.max_value
+      let mut y1 = @double.min_value
+      for pt in e.profile.outer {
+        if pt.0 < x0 {
+          x0 = pt.0
+        }
+        if pt.0 > x1 {
+          x1 = pt.0
+        }
+        if pt.1 < y0 {
+          y0 = pt.1
+        }
+        if pt.1 > y1 {
+          y1 = pt.1
+        }
+      }
+      (x0, x1, y0, y1, 0.0, e.height_mm)
+    }
+    SweptProfile(s) => {
+      let mut x0 = @double.max_value
+      let mut x1 = @double.min_value
+      let mut y0 = @double.max_value
+      let mut y1 = @double.min_value
+      let mut z0 = @double.max_value
+      let mut z1 = @double.min_value
+      for pt in s.path.points {
+        if pt.0 < x0 {
+          x0 = pt.0
+        }
+        if pt.0 > x1 {
+          x1 = pt.0
+        }
+        if pt.1 < y0 {
+          y0 = pt.1
+        }
+        if pt.1 > y1 {
+          y1 = pt.1
+        }
+        if pt.2 < z0 {
+          z0 = pt.2
+        }
+        if pt.2 > z1 {
+          z1 = pt.2
+        }
+      }
+      // Expand by a reasonable amount for the profile
+      (x0 - 5.0, x1 + 5.0, y0 - 5.0, y1 + 5.0, z0 - 5.0, z1 + 5.0)
+    }
+    Union(u) => {
+      let mut x0 = @double.max_value
+      let mut x1 = @double.min_value
+      let mut y0 = @double.max_value
+      let mut y1 = @double.min_value
+      let mut z0 = @double.max_value
+      let mut z1 = @double.min_value
+      for child in u.nodes {
+        let (cx0, cx1, cy0, cy1, cz0, cz1) = child.bounding_box()
+        if cx0 < x0 {
+          x0 = cx0
+        }
+        if cx1 > x1 {
+          x1 = cx1
+        }
+        if cy0 < y0 {
+          y0 = cy0
+        }
+        if cy1 > y1 {
+          y1 = cy1
+        }
+        if cz0 < z0 {
+          z0 = cz0
+        }
+        if cz1 > z1 {
+          z1 = cz1
+        }
+      }
+      (x0, x1, y0, y1, z0, z1)
+    }
+  }
+}
+
+///|
+pub fn SceneNode::bounding_box(
+  self : SceneNode,
+) -> (Double, Double, Double, Double, Double, Double) {
+  let (lx0, lx1, ly0, ly1, lz0, lz1) = self.shape.bounding_box()
+  let corners = [
+    (lx0, ly0, lz0),
+    (lx1, ly0, lz0),
+    (lx1, ly1, lz0),
+    (lx0, ly1, lz0),
+    (lx0, ly0, lz1),
+    (lx1, ly0, lz1),
+    (lx1, ly1, lz1),
+    (lx0, ly1, lz1),
+  ]
+  let mut x0 = @double.max_value
+  let mut x1 = @double.min_value
+  let mut y0 = @double.max_value
+  let mut y1 = @double.min_value
+  let mut z0 = @double.max_value
+  let mut z1 = @double.min_value
+  for p in corners {
+    let (tx, ty, tz) = rotate_point(p, self.rx, self.ry, self.rz)
+    let gx = tx + self.tx
+    let gy = ty + self.ty
+    let gz = tz + self.tz
+    if gx < x0 {
+      x0 = gx
+    }
+    if gx > x1 {
+      x1 = gx
+    }
+    if gy < y0 {
+      y0 = gy
+    }
+    if gy > y1 {
+      y1 = gy
+    }
+    if gz < z0 {
+      z0 = gz
+    }
+    if gz > z1 {
+      z1 = gz
+    }
+  }
+  (x0, x1, y0, y1, z0, z1)
 }

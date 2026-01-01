@@ -15,11 +15,11 @@ fn compile_swept_profile(
   ctx : StepContext,
   node : SceneNode,
   s : SweptProfile,
-) -> @step.Ref {
+) -> Array[@step.Ref] {
   let path = s.path
   let profile = s.profile
   if path.points.length() < 2 || profile.vertices.length() < 3 {
-    return { id: { value: 0 } }
+    return []
   }
   let num_path_pts = path.points.length()
   let num_prof_verts = profile.vertices.length()
@@ -181,17 +181,5 @@ fn compile_swept_profile(
       ),
     )
   }
-
-  // 6. Wrap in shell and model
-  if s.make_start_cap && s.make_end_cap {
-    let shell = @topology.ClosedShell::new("", face_refs)
-    let shell_ref = ctx.add(@repository.any_entity_closed_shell(shell))
-    let brep = @topology.ManifoldSolidBrep::new("", shell_ref)
-    ctx.add(@repository.any_entity_manifold_solid_brep(brep))
-  } else {
-    let shell = @topology.OpenShell::new("", face_refs)
-    let shell_ref = ctx.add(@repository.any_entity_open_shell(shell))
-    let model = @topology.ShellBasedSurfaceModel::new("", [shell_ref])
-    ctx.add(@repository.any_entity_shell_based_surface_model(model))
-  }
+  face_refs
 }
