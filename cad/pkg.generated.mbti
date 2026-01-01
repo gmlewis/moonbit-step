@@ -16,7 +16,7 @@ pub fn compile_extruded_profile(StepContext, SceneNode, ExtrudedProfile) -> Arra
 
 pub fn cycle_area_3d(Array[(Double, Double, Double)], Array[Int]) -> (Double, Double, Double)
 
-pub fn fmt_double(Double) -> String
+pub fn fmt_double(Double, Double?) -> String
 
 pub fn force_ccw(Array[(Double, Double)]) -> Array[(Double, Double)]
 
@@ -32,7 +32,7 @@ pub fn polygon_area_2d(Array[(Double, Double)]) -> Double
 
 pub fn rotate_point((Double, Double, Double), Double, Double, Double) -> (Double, Double, Double)
 
-pub fn snap_double(Double) -> Double
+pub fn snap_double(Double, Double?) -> Double
 
 pub fn text_at(String, Double, Double, Double, font~ : @fonts.Font, font_size? : Double, max_width? : Double, emboss_depth? : Double, rx? : Double, ry? : Double, rz? : Double) -> Array[SceneNode]
 
@@ -73,12 +73,13 @@ pub struct Design {
   next_solid_id : Int
   name : String
   description : String
+  snapping : Double?
 }
 pub fn Design::add(Self, SceneNode) -> Self
 pub fn Design::add_iter(Self, Iter[SceneNode]) -> Self
 pub fn Design::add_text_on_face(Self, SceneNode, String, Face, @fonts.Font, font_size? : Double, emboss_depth? : Double, offset_x? : Double, offset_y? : Double, rotation? : Double, margin? : Double, color? : Rgb) -> Self
 pub fn Design::compile(Self) -> @repository.Repository
-pub fn Design::new(name? : String, description? : String) -> Self
+pub fn Design::new(name? : String, description? : String, snapping? : Double) -> Self
 pub fn Design::rotate_x(Self, Double) -> Self
 pub fn Design::rotate_y(Self, Double) -> Self
 pub fn Design::rotate_z(Self, Double) -> Self
@@ -191,6 +192,7 @@ pub struct StepContext {
   mut solid_angle_unit_id : @step.EntityId
   mut uncertainty_id : @step.EntityId
   mut repo_ctx_id : @step.EntityId
+  snapping : Double?
   directions : Map[String, @step.Ref]
   vectors : Map[String, @step.Ref]
   cartesian_points : Map[String, @step.Ref]
@@ -214,7 +216,7 @@ pub fn StepContext::face_bound(Self, @step.Ref, Bool) -> @step.Ref
 pub fn StepContext::face_outer_bound(Self, @step.Ref, Bool) -> @step.Ref
 pub fn StepContext::init_standard_context(Self, String) -> Unit
 pub fn StepContext::line(Self, @step.Ref, @step.Ref) -> @step.Ref
-pub fn StepContext::new() -> Self
+pub fn StepContext::new(snapping? : Double) -> Self
 pub fn StepContext::oriented_edge(Self, @step.Ref, Bool) -> @step.Ref
 pub fn StepContext::vector(Self, @step.Ref, Double) -> @step.Ref
 pub fn StepContext::vertex_point(Self, @step.Ref) -> @step.Ref

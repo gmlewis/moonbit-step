@@ -8,6 +8,7 @@ pub struct StepContext {
   mut solid_angle_unit_id : @step.EntityId
   mut uncertainty_id : @step.EntityId
   mut repo_ctx_id : @step.EntityId
+  snapping : Double?
 
   // Deduplication caches
   directions : Map[String, @step.Ref]
@@ -24,32 +25,60 @@ pub struct StepContext {
 }
 
 ///|
-pub fn snap_double(v : Double) -> Double {
-  let eps = 1.e-5
-  let sign = if v < 0.0 { -1.0 } else { 1.0 }
-  let abs_v = v.abs()
-  let scaled = (abs_v / eps + 0.5).to_int().to_double()
-  sign * scaled * eps
-}
-
-///|
-pub fn fmt_double(v : Double) -> String {
-  let eps = 1.e-5
-  let snapped = snap_double(v)
-  let abs_snapped = snapped.abs()
-  let scaled = (abs_snapped / eps + 0.5).to_int()
-  let whole = scaled / 100000
-  let frac = scaled % 100000
-  let mut frac_str = frac.to_string()
-  while frac_str.length() < 5 {
-    frac_str = "0" + frac_str
+pub fn snap_double(v : Double, snapping : Double?) -> Double {
+  match snapping {
+    None => v
+    Some(eps) => {
+      if eps <= 0.0 {
+        return v
+      }
+      let sign = if v < 0.0 { -1.0 } else { 1.0 }
+      let abs_v = v.abs()
+      let scaled = (abs_v / eps + 0.5).to_int().to_double()
+      sign * scaled * eps
+    }
   }
-  let sign_str = if snapped < -eps / 2.0 { "-" } else { "" }
-  "\{sign_str}\{whole}.\{frac_str}"
 }
 
 ///|
-pub fn StepContext::new() -> StepContext {
+pub fn fmt_double(v : Double, snapping : Double?) -> String {
+  match snapping {
+    None => v.to_string()
+    Some(eps) => {
+      if eps <= 0.0 {
+        return v.to_string()
+      }
+      let snapped = snap_double(v, Some(eps))
+      let abs_snapped = snapped.abs()
+      let mut prec = 0
+      let mut temp_eps = eps
+      while temp_eps < 0.999999 && prec < 10 {
+        temp_eps = temp_eps * 10.0
+        prec = prec + 1
+      }
+      let mut multiplier = 1
+      for i in 0..<prec {
+        multiplier = multiplier * 10
+      }
+      let scaled = (abs_snapped * multiplier.to_double() + 0.5).to_int()
+      let whole = scaled / multiplier
+      let frac = scaled % multiplier
+      let mut frac_str = frac.to_string()
+      while frac_str.length() < prec {
+        frac_str = "0" + frac_str
+      }
+      let sign_str = if snapped < -eps / 2.0 { "-" } else { "" }
+      if prec > 0 {
+        "\{sign_str}\{whole}.\{frac_str}"
+      } else {
+        "\{sign_str}\{whole}.0"
+      }
+    }
+  }
+}
+
+///|
+pub fn StepContext::new(snapping? : Double) -> StepContext {
   {
     repo: @repository.new(),
     length_unit_id: { value: 0 },
@@ -57,6 +86,7 @@ pub fn StepContext::new() -> StepContext {
     solid_angle_unit_id: { value: 0 },
     uncertainty_id: { value: 0 },
     repo_ctx_id: { value: 0 },
+    snapping,
     directions: Map::new(),
     vectors: Map::new(),
     cartesian_points: Map::new(),
@@ -88,10 +118,10 @@ pub fn StepContext::direction(
   y : Double,
   z : Double,
 ) -> @step.Ref {
-  let sx = snap_double(x)
-  let sy = snap_double(y)
-  let sz = snap_double(z)
-  let key = "DIR:\{fmt_double(sx)},\{fmt_double(sy)},\{fmt_double(sz)}"
+  let sx = snap_double(x, self.snapping)
+  let sy = snap_double(y, self.snapping)
+  let sz = snap_double(z, self.snapping)
+  let key = "DIR:\{fmt_double(sx, self.snapping)},\{fmt_double(sy, self.snapping)},\{fmt_double(sz, self.snapping)}"
   match self.directions.get(key) {
     Some(r) => r
     None => {
@@ -112,8 +142,8 @@ pub fn StepContext::vector(
   dir : @step.Ref,
   magnitude : Double,
 ) -> @step.Ref {
-  let smag = snap_double(magnitude)
-  let key = "VEC:\{dir.id.value},\{fmt_double(smag)}"
+  let smag = snap_double(magnitude, self.snapping)
+  let key = "VEC:\{dir.id.value},\{fmt_double(smag, self.snapping)}"
   match self.vectors.get(key) {
     Some(r) => r
     None => {
@@ -133,10 +163,10 @@ pub fn StepContext::cartesian_point(
   y : Double,
   z : Double,
 ) -> @step.Ref {
-  let sx = snap_double(x)
-  let sy = snap_double(y)
-  let sz = snap_double(z)
-  let key = "PNT:\{fmt_double(sx)},\{fmt_double(sy)},\{fmt_double(sz)}"
+  let sx = snap_double(x, self.snapping)
+  let sy = snap_double(y, self.snapping)
+  let sz = snap_double(z, self.snapping)
+  let key = "PNT:\{fmt_double(sx, self.snapping)},\{fmt_double(sy, self.snapping)},\{fmt_double(sz, self.snapping)}"
   match self.cartesian_points.get(key) {
     Some(r) => r
     None => {
@@ -380,8 +410,13 @@ pub fn StepContext::init_standard_context(
   self.length_unit_id = mm_ref.id
 
   // Uncertainty
+  let unc_val = match self.snapping {
+    None => 2.e-5
+    Some(eps) => eps * 2.0
+  }
+  let unc_str = fmt_double(unc_val, self.snapping)
   let unc = @units.UncertaintyMeasureWithUnit::new(
-    "2.E-005", mm_ref, "DISTANCE_ACCURACY_VALUE", "Maximum Tolerance applied to model",
+    unc_str, mm_ref, "DISTANCE_ACCURACY_VALUE", "Maximum Tolerance applied to model",
   )
   self.uncertainty_id = self.add(
       @repository.any_entity_uncertainty_measure_with_unit(unc),

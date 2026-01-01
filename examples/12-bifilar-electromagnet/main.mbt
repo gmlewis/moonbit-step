@@ -74,6 +74,11 @@ async fn main {
       help="Separation of exit wires in millimeters",
       min=0,
     ),
+    "snapping": @cli.opt_double(
+      1.e-3,
+      help="Geometric snapping accuracy in millimeters (e.g. 1.e-3 for 1 micron)",
+      min=0,
+    ),
     "union": @cli.flag(help="Union wires together and support shapes together"),
     "vertTurns": @cli.opt_double(
       15.0,
@@ -134,10 +139,14 @@ async fn main {
     nowires: args.flag("nowires"),
     nosupport: args.flag("nosupport"),
     union: args.flag("union"),
+    snapping: args.double("snapping"),
   }
 
   //
-  let mut design = @cad.Design::new(name="bifilar-electromagnet")
+  let mut design = @cad.Design::new(
+    name="bifilar-electromagnet",
+    snapping=params.snapping,
+  )
   let wire_nodes = []
   let support_nodes = []
   // Add coil pairs if requested
@@ -197,6 +206,7 @@ struct Params {
   nowires : Bool
   nosupport : Bool
   union : Bool
+  snapping : Double
 }
 
 ///|
