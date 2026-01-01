@@ -24,7 +24,7 @@ pub struct StepContext {
 }
 
 ///|
-fn snap_double(v : Double) -> Double {
+pub fn snap_double(v : Double) -> Double {
   let eps = 1.e-5
   let sign = if v < 0.0 { -1.0 } else { 1.0 }
   let abs_v = v.abs()
@@ -33,7 +33,7 @@ fn snap_double(v : Double) -> Double {
 }
 
 ///|
-fn fmt_double(v : Double) -> String {
+pub fn fmt_double(v : Double) -> String {
   let eps = 1.e-5
   let snapped = snap_double(v)
   let abs_snapped = snapped.abs()

@@ -16,6 +16,8 @@ pub fn compile_extruded_profile(StepContext, SceneNode, ExtrudedProfile) -> Arra
 
 pub fn cycle_area_3d(Array[(Double, Double, Double)], Array[Int]) -> (Double, Double, Double)
 
+pub fn fmt_double(Double) -> String
+
 pub fn force_ccw(Array[(Double, Double)]) -> Array[(Double, Double)]
 
 pub fn force_cw(Array[(Double, Double)]) -> Array[(Double, Double)]
@@ -29,6 +31,8 @@ pub fn matrix_to_euler(Matrix3x3) -> (Double, Double, Double)
 pub fn polygon_area_2d(Array[(Double, Double)]) -> Double
 
 pub fn rotate_point((Double, Double, Double), Double, Double, Double) -> (Double, Double, Double)
+
+pub fn snap_double(Double) -> Double
 
 pub fn text_at(String, Double, Double, Double, font~ : @fonts.Font, font_size? : Double, max_width? : Double, emboss_depth? : Double, rx? : Double, ry? : Double, rz? : Double) -> Array[SceneNode]
 
