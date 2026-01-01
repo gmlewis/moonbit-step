@@ -75,8 +75,8 @@ async fn main {
       min=0,
     ),
     "snapping": @cli.opt_double(
-      1.e-3,
-      help="Geometric snapping accuracy in millimeters (e.g. 1.e-3 for 1 micron)",
+      3.e-3,
+      help="Geometric snapping accuracy in millimeters (default: 3.e-3 for 3 microns)",
       min=0,
     ),
     "union": @cli.flag(help="Union wires together and support shapes together"),

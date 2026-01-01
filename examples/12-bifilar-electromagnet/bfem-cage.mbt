@@ -422,13 +422,17 @@ fn make_bfem_cage(
     let polygon = gen_points(over_start_angle, inner_angle_delta)
     polygon.push((sx2, sy2))
     polygon.push((sx3, sy3))
-    let mut top_thickness = over_height - params.wire_width - params.wire_gap
-    if i == num_pairs {
-      top_thickness = over_height
+    let top_thickness = if i == num_pairs {
+      over_height
+    } else {
+      over_height - params.wire_width - params.wire_gap
     }
-    let node = @cad.ExtrudedProfile::new(polygon, top_thickness)
+    let node = @cad.ExtrudedProfile::new(
+        polygon,
+        top_thickness - params.wire_gap,
+      )
       .with_name("bfem-cage-over-\{i.to_int()}")
-      .translate(z=top_helix_z + over_height - top_thickness)
+      .translate(z=top_helix_z + over_height - top_thickness + params.wire_gap)
     wire_nodes.push(node.with_color(@cad.Rgb::red()))
 
     // for all but the first coil, the helix needs to be connected to the shifted back/top "up-and-over" connector
@@ -612,9 +616,6 @@ fn make_bfem_cage(
     //
     if ni < npairs {
       // this is the "up" part of the "up-and-over" connector on the back/top of the design for the even coils:
-      let over_height = max_axial_connector_top_zs -
-        top_helix_z +
-        params.back_thickness // flat top/back (connector side)
       let post = make_vertical_post_wedge(
         pos=(params.pos.0, params.pos.1, params.pos.2 + top_helix_z),
         inner_radius=connector_radius,
@@ -629,9 +630,14 @@ fn make_bfem_cage(
       let polygon = gen_points(over_start_angle, inner_angle_delta)
       polygon.push(post.top_p0)
       polygon.push(post.top_p1)
-      let node = @cad.ExtrudedProfile::new(polygon, top_thickness)
+      let node = @cad.ExtrudedProfile::new(
+          polygon,
+          top_thickness - params.wire_gap,
+        )
         .with_name("bfem-cage-even-over-top-coil-\{i.to_int()}")
-        .translate(z=top_helix_z + over_height - top_thickness)
+        .translate(
+          z=top_helix_z + over_height - top_thickness + params.wire_gap,
+        )
       wire_nodes.push(node.with_color(@cad.Rgb::green()))
     }
     // for all but the first connector, the helix needs to be connected to the shifted connector
