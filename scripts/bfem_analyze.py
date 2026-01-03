@@ -211,12 +211,144 @@ def build_parser() -> argparse.ArgumentParser:
         help="Assumed inductance (Henries) for required-C estimate.",
     )
 
+    p.add_argument(
+        "--sweep",
+        action="store_true",
+        help="Run a parameter sweep (Cartesian product of sweep lists) and rank results.",
+    )
+    p.add_argument(
+        "--sweep-numPairs",
+        type=str,
+        default=None,
+        help="Comma-separated list, e.g. '6,8,10'. Defaults to current --numPairs.",
+    )
+    p.add_argument(
+        "--sweep-vertTurns",
+        type=str,
+        default=None,
+        help="Comma-separated list, e.g. '10,12.5,15'. Defaults to current --vertTurns.",
+    )
+    p.add_argument(
+        "--sweep-wireWidth",
+        type=str,
+        default=None,
+        help="Comma-separated list (mm), e.g. '0.8,1.0,1.2'. Defaults to current --wireWidth.",
+    )
+    p.add_argument(
+        "--sweep-wireGap",
+        type=str,
+        default=None,
+        help="Comma-separated list (mm), e.g. '0.1,0.2,0.3'. Defaults to current --wireGap.",
+    )
+    p.add_argument(
+        "--top",
+        type=int,
+        default=10,
+        help="Show top N sweep results (default: 10).",
+    )
+
     return p
+
+
+def _parse_csv_ints(s: Optional[str], default: int) -> list[int]:
+    if not s:
+        return [default]
+    return [int(x.strip()) for x in s.split(",") if x.strip()]
+
+
+def _parse_csv_floats(s: Optional[str], default: float) -> list[float]:
+    if not s:
+        return [default]
+    return [float(x.strip()) for x in s.split(",") if x.strip()]
+
+
+def capacitance_proxy(helix_length_mm: float, wire_width_mm: float, wire_gap_mm: float) -> float:
+    # Very rough: C per-unit-length scales ~ (w / gap) for closely spaced prismatic conductors.
+    # Total C then scales with length.
+    eps = 1e-9
+    return helix_length_mm * wire_width_mm / max(wire_gap_mm, eps)
+
+
+def print_sweep_results(rows: list[dict], top_n: int) -> None:
+    if not rows:
+        print("no sweep results")
+        return
+
+    rows_sorted = sorted(
+        rows,
+        key=lambda r: (
+            -r["c_proxy"],
+            r["rdc_ohm"],
+            r["helix_length_m"],
+        ),
+    )
+    print("\nsweep ranking (higher C_proxy better; lower Rdc better)")
+    header = (
+        "  numPairs vertTurns wireWidth wireGap | helix_m  Rdc_ohm  C_proxy | cage_Rdc exit_Rdc"
+    )
+    print(header)
+    print("  " + "-" * (len(header) - 2))
+    for r in rows_sorted[: max(1, top_n)]:
+        print(
+            "  "
+            f"{r['numPairs']:>7} {r['vertTurns']:>8.3g} {r['wireWidth']:>8.3g} {r['wireGap']:>7.3g}"
+            " | "
+            f"{r['helix_length_m']:>6.3f} {r['rdc_ohm']:>8.4f} {r['c_proxy']:>7.3g}"
+            " | "
+            f"{r['cage_rdc_ohm']:>7.4f} {r['exit_rdc_ohm']:>7.4f}"
+        )
 
 
 def main() -> int:
     parser = build_parser()
     args = parser.parse_args()
+
+    if args.sweep:
+        num_pairs_list = _parse_csv_ints(args.sweep_numPairs, args.numPairs)
+        vert_turns_list = _parse_csv_floats(args.sweep_vertTurns, args.vertTurns)
+        wire_width_list = _parse_csv_floats(args.sweep_wireWidth, args.wireWidth)
+        wire_gap_list = _parse_csv_floats(args.sweep_wireGap, args.wireGap)
+
+        rows: list[dict] = []
+        total = (
+            len(num_pairs_list)
+            * len(vert_turns_list)
+            * len(wire_width_list)
+            * len(wire_gap_list)
+        )
+        print(
+            f"bfem_analyze: sweep variants={total} (this runs moon for each variant; first run may be slower)"
+        )
+
+        # Reuse the same argparse.Namespace object to avoid re-building.
+        for np in num_pairs_list:
+            for vt in vert_turns_list:
+                for ww in wire_width_list:
+                    for wg in wire_gap_list:
+                        args.numPairs = np
+                        args.vertTurns = vt
+                        args.wireWidth = ww
+                        args.wireGap = wg
+                        report = run_bfem_report(args)
+                        c_proxy = capacitance_proxy(
+                            report.helix_length_mm, report.wire_width_mm, wg
+                        )
+                        rows.append(
+                            {
+                                "numPairs": np,
+                                "vertTurns": vt,
+                                "wireWidth": ww,
+                                "wireGap": wg,
+                                "helix_length_m": report.helix_length_m,
+                                "rdc_ohm": report.rdc_est_ohm,
+                                "c_proxy": c_proxy,
+                                "cage_rdc_ohm": float(report.cage_rdc_est_ohm or 0.0),
+                                "exit_rdc_ohm": float(report.exit_rdc_est_ohm or 0.0),
+                            }
+                        )
+
+        print_sweep_results(rows, args.top)
+        return 0
 
     report = run_bfem_report(args)
 
