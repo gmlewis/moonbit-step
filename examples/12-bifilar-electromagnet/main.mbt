@@ -230,11 +230,11 @@ fn make_coil_pair(
   // Create the two helices for the bifilar coil pair
   let color = @cad.Rgb::red()
   let coil1 = make_coil(start_angle, pair_num~, params~, color~).with_name(
-    "coil-1-pair-\{pair_num}",
+    "bfem:coil:red:pair-\{pair_num}",
   )
   let color = @cad.Rgb::green()
   let coil2 = make_coil(start_angle + 180, pair_num~, params~, color~).with_name(
-    "coil-2-pair-\{pair_num}",
+    "bfem:coil:green:pair-\{pair_num}",
   )
   return (coil1, coil2)
 }

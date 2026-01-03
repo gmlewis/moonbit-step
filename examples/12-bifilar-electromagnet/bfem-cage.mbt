@@ -89,7 +89,7 @@ fn make_vertical_post_wedge(
   let sy3 = sy2 + wire_width * @math.sin(normal_angle)
   let points = [(sx1, sy1), (sx4, sy4), (sx2, sy2), (sx3, sy3)]
   let post = @cad.ExtrudedProfile::new(points, post_height)
-    .with_name("vertical-post-wedge-r\{inner_radius}-a\{start_angle}")
+    .with_name("bfem:cage:post-wedge:r\{inner_radius}:a\{start_angle}")
     .with_color(color)
     .translate(z=pos.2)
   { post, top_p0: (sx2, sy2), top_p1: (sx3, sy3) }
@@ -138,6 +138,7 @@ fn make_cylinder(
   segments~ : Int,
   height~ : Double,
   color? : @cad.Rgb = @cad.Rgb::red(),
+  name? : String = "bfem:cage:cylinder",
 ) -> VerticalCylinder {
   let points = []
   for i in 1..=segments {
@@ -147,7 +148,7 @@ fn make_cylinder(
     points.push((x, y))
   }
   let cylinder = @cad.ExtrudedProfile::new(points, height)
-    .with_name("vertical-cylinder-r\{radius}")
+    .with_name(name)
     .with_color(color)
     .translate(z=pos.2)
   { cylinder, }
@@ -257,6 +258,7 @@ fn append_axial_connectors(
 ) -> Unit {
   for i in 0..<(2 * ctx.npairs) {
     let ni = i + 1
+    let idx = i
     let i = i.to_double()
     let inner_start_angle = i * ctx.rail_angle_delta
     let inner_end_angle = (i + 1) * ctx.rail_angle_delta - 2 * ctx.inner_dtheta
@@ -308,7 +310,7 @@ fn append_axial_connectors(
           params.front_thickness +
           params.back_thickness,
         )
-        .with_name("bfem-cage-axial-connector-0")
+        .with_name("bfem:cage:axial:outlet-red")
         .translate(z=ctx.lower_z - params.front_thickness)
       wire_nodes.push(node.with_color(@cad.Rgb::red()))
     } else {
@@ -319,7 +321,7 @@ fn append_axial_connectors(
           params.front_thickness +
           params.back_thickness,
         )
-        .with_name("bfem-cage-axial-connector-\{i.to_int()}")
+        .with_name("bfem:cage:axial:rail-\{idx}")
         .translate(z=ctx.lower_z - params.front_thickness)
       let color = if ni <= ctx.npairs {
         @cad.Rgb::green()
@@ -394,7 +396,7 @@ fn append_helix_connectors_and_exit_wires(
     // this connects the bottom/front helix to the axial connector
     let bottom_thickness = z - ctx.lower_z + params.front_thickness
     let node = @cad.ExtrudedProfile::new(polygon, bottom_thickness)
-      .with_name("bfem-cage-bottom-front-\{i.to_int()}")
+      .with_name("bfem:cage:front-bottom:red:pair-\{ni}")
       .translate(z=z - bottom_thickness)
     wire_nodes.push(node.with_color(@cad.Rgb::red()))
 
@@ -426,7 +428,7 @@ fn append_helix_connectors_and_exit_wires(
       top_helix_z +
       params.back_thickness // flat top/back (connector side)
     let node = @cad.ExtrudedProfile::new(polygon, over_height)
-      .with_name("bfem-cage-odd-top-back-\{i.to_int()}")
+      .with_name("bfem:cage:back-top:red:post:pair-\{ni}")
       .translate(z=top_helix_z)
     wire_nodes.push(node.with_color(@cad.Rgb::red()))
 
@@ -444,7 +446,7 @@ fn append_helix_connectors_and_exit_wires(
         polygon,
         top_thickness - params.wire_gap,
       )
-      .with_name("bfem-cage-over-\{i.to_int()}")
+      .with_name("bfem:cage:back-top:red:over:pair-\{ni}")
       .translate(z=top_helix_z + over_height - top_thickness + params.wire_gap)
     wire_nodes.push(node.with_color(@cad.Rgb::red()))
 
@@ -458,7 +460,7 @@ fn append_helix_connectors_and_exit_wires(
         (connector_radius + params.wire_width) * @math.sin(rotation)
       let polygon = [(sx5, sy5), (sx6, sy6), (sx2, sy2), (sx4, sy4)]
       let node = @cad.ExtrudedProfile::new(polygon, params.wire_width)
-        .with_name("bfem-cage-top-connector-\{i.to_int()}")
+        .with_name("bfem:cage:back-top:red:helix-link:pair-\{ni}")
         .translate(z=top_helix_z)
       wire_nodes.push(node.with_color(@cad.Rgb::red()))
     }
@@ -473,7 +475,7 @@ fn append_helix_connectors_and_exit_wires(
     polygon.push((tx, ty))
     polygon.push((sx, sy))
     let node = @cad.ExtrudedProfile::new(polygon, bottom_thickness)
-      .with_name("bfem-cage-second-bottom-front-\{i.to_int()}")
+      .with_name("bfem:cage:front-bottom:green:pair-\{ni}")
       .translate(z=z - bottom_thickness)
     wire_nodes.push(node.with_color(@cad.Rgb::green()))
 
@@ -532,7 +534,7 @@ fn append_helix_connectors_and_exit_wires(
     //
     if ni >= ctx.npairs { // final output connector of last coil (closer to center)
       let node = @cad.ExtrudedProfile::new(polygon, params.wire_width)
-        .with_name("bfem-cage-even-final-last-coil-\{i.to_int()}")
+        .with_name("bfem:cage:back-top:green:outlet-outer")
         .translate(z=top_helix_z)
       wire_nodes.push(node.with_color(@cad.Rgb::green()))
       // generate inner final output connector of last coil with same radial thickness as other connector
@@ -553,7 +555,7 @@ fn append_helix_connectors_and_exit_wires(
       let polygon = [(sx4, sy4), (sx1, sy1), s3, s2]
       let flat_top_height = 2.5 * params.wire_width + params.back_thickness
       let node = @cad.ExtrudedProfile::new(polygon, flat_top_height)
-        .with_name("bfem-cage-even-flat-top-final-last-coil-\{i.to_int()}")
+        .with_name("bfem:cage:back-top:green:outlet-inner")
         .translate(z=top_helix_z)
       wire_nodes.push(node.with_color(@cad.Rgb::green()))
 
@@ -607,6 +609,7 @@ fn append_helix_connectors_and_exit_wires(
           radius=params.exit_wire_diameter / 2,
           segments=12,
           height=params.connector_length,
+          name="bfem:exit-wire:green",
         )
         wire_nodes.push(inner_exit_wire.cylinder.with_color(@cad.Rgb::green()))
         let outer_exit_wire = make_cylinder(
@@ -618,6 +621,7 @@ fn append_helix_connectors_and_exit_wires(
           radius=params.exit_wire_diameter / 2,
           segments=12,
           height=params.connector_length,
+          name="bfem:exit-wire:red",
         )
         wire_nodes.push(outer_exit_wire.cylinder.with_color(@cad.Rgb::red()))
       }
@@ -644,7 +648,7 @@ fn append_helix_connectors_and_exit_wires(
           polygon,
           top_thickness - params.wire_gap,
         )
-        .with_name("bfem-cage-even-over-top-coil-\{i.to_int()}")
+        .with_name("bfem:cage:back-top:green:over:pair-\{ni}")
         .translate(
           z=top_helix_z + over_height - top_thickness + params.wire_gap,
         )
@@ -659,6 +663,7 @@ fn append_helix_connectors_and_exit_wires(
         end_angle=rotation + @math.PI,
         radial_length=params.wire_width,
         height=params.wire_width,
+        name="bfem:cage:back-top:green:helix-link:pair-\{ni}",
       )
       wire_nodes.push(wire.wedge.with_color(@cad.Rgb::green()))
     }
@@ -691,6 +696,7 @@ fn append_supports(
       params.front_thickness +
       params.back_thickness +
       params.connector_length,
+    name="bfem:support:inner-shaft",
   )
   support_nodes.push(front_inner_shaft.cylinder.with_color(@cad.Rgb::blue()))
 
@@ -808,7 +814,7 @@ fn add_support(
     end_angle=info.end_angle,
     radial_length~,
     height~,
-    name="bfem-cage-\{name}-support-\{idx}",
+    name="bfem:cage:support:\{name}:\{idx + 1}",
     trim_last_edge~,
     wire_gap=params.wire_gap,
   )
