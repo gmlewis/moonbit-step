@@ -254,6 +254,26 @@ async fn report_electrical_geometry(params : Params) -> Unit {
   @cli.eprintln(
     "bfem:report:note=helix-only length; connectors/cage not included",
   )
+  if !params.nocage {
+    let (radius, height) = coil_turn_dimensions(params.num_pairs, params)
+    let m = estimate_bfem_cage_conductors(
+      size=(radius, radius, height),
+      params~,
+    )
+    let cage_rdc = params.rho * 1.0e3 * m.cage.mm_over_mm2
+    let exit_rdc = params.rho * 1.0e3 * m.exit_wires.mm_over_mm2
+    @cli.eprintln("bfem:report:cage_length_mm=\{m.cage.length_mm}")
+    @cli.eprintln("bfem:report:cage_volume_mm3=\{m.cage.volume_mm3}")
+    @cli.eprintln("bfem:report:cage_segments=\{m.cage.segments}")
+    @cli.eprintln("bfem:report:cage_rdc_est_ohm=\{cage_rdc}")
+    @cli.eprintln("bfem:report:exit_length_mm=\{m.exit_wires.length_mm}")
+    @cli.eprintln("bfem:report:exit_volume_mm3=\{m.exit_wires.volume_mm3}")
+    @cli.eprintln("bfem:report:exit_segments=\{m.exit_wires.segments}")
+    @cli.eprintln("bfem:report:exit_rdc_est_ohm=\{exit_rdc}")
+    @cli.eprintln(
+      "bfem:report:note2=cage/exit Rdc assumes current flows along each extrusion axis; treat as rough",
+    )
+  }
 }
 
 ///|

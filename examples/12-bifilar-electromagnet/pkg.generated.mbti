@@ -4,6 +4,8 @@ package "gmlewis/step/examples/12-bifilar-electromagnet"
 // Values
 pub fn center_of_face(Array[(Double, Double)]) -> (Double, Double)
 
+pub fn estimate_bfem_cage_conductors(size~ : (Double, Double, Double), params~ : Params) -> CageConductorMetrics
+
 pub fn solve_for_t(Double, (Double) -> Double) -> Double
 
 pub fn vector_length((Double, Double), (Double, Double)) -> Double
@@ -13,7 +15,11 @@ pub fn vertex_at(center~ : (Double, Double), radius~ : Double, angle~ : Double) 
 // Errors
 
 // Types and methods
+type CageConductorMetrics
+
 type CageContext
+
+type ConductorTotals
 
 type Params
 

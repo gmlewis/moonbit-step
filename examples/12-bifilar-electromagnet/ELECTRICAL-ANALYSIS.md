@@ -159,6 +159,17 @@ Example usage:
   --innerDiam 6.0 --rho 1.724e-8
 ```
 
+Ballpark (defaults as of 2026-01-03):
+
+- Helix length: ~16.77 m → $R_{DC}$ (helix-only) ~0.289 Ω (assuming $\rho=1.724\times10^{-8}\ \Omega\cdot m$ and 1 mm² cross-section)
+- Cage extrusions (rough): ~1.022 m total extrusion length → ~0.0047 Ω (very model-dependent; see note below)
+- Exit wires (2×12 mm, 1 mm diameter, 12-gon approximation): ~0.00055 Ω
+
+Notes:
+
+- The cage/exit $R_{DC}$ estimates assume current flows along each extrusion’s axis with cross-section equal to the polygon area.
+  This is a **rough** approximation, but it gives an order-of-magnitude sense of how small the connector contribution is compared to the long helices.
+
 With a resonance target (requires an assumed L, purely for feasibility math):
 
 ```bash

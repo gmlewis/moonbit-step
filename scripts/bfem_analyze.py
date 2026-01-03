@@ -44,6 +44,14 @@ class BfemReport:
     helix_length_m: float
     rho_ohm_m: float
     rdc_est_ohm: float
+    cage_length_mm: Optional[float] = None
+    cage_volume_mm3: Optional[float] = None
+    cage_segments: Optional[int] = None
+    cage_rdc_est_ohm: Optional[float] = None
+    exit_length_mm: Optional[float] = None
+    exit_volume_mm3: Optional[float] = None
+    exit_segments: Optional[int] = None
+    exit_rdc_est_ohm: Optional[float] = None
 
 
 def _repo_root() -> Path:
@@ -120,6 +128,12 @@ def run_bfem_report(args: argparse.Namespace) -> BfemReport:
     if missing:
         raise RuntimeError(f"Missing report keys: {missing}. Got keys={sorted(kv.keys())}")
 
+    def fopt(key: str) -> Optional[float]:
+        return float(kv[key]) if key in kv else None
+
+    def iopt(key: str) -> Optional[int]:
+        return int(float(kv[key])) if key in kv else None
+
     return BfemReport(
         wire_width_mm=float(kv["wire_width_mm"]),
         area_mm2=float(kv["area_mm2"]),
@@ -128,6 +142,14 @@ def run_bfem_report(args: argparse.Namespace) -> BfemReport:
         helix_length_m=float(kv["helix_length_m"]),
         rho_ohm_m=float(kv["rho_ohm_m"]),
         rdc_est_ohm=float(kv["rdc_est_ohm"]),
+        cage_length_mm=fopt("cage_length_mm"),
+        cage_volume_mm3=fopt("cage_volume_mm3"),
+        cage_segments=iopt("cage_segments"),
+        cage_rdc_est_ohm=fopt("cage_rdc_est_ohm"),
+        exit_length_mm=fopt("exit_length_mm"),
+        exit_volume_mm3=fopt("exit_volume_mm3"),
+        exit_segments=iopt("exit_segments"),
+        exit_rdc_est_ohm=fopt("exit_rdc_est_ohm"),
     )
 
 
@@ -200,9 +222,21 @@ def main() -> int:
 
     print("bfem_analyze: helix-only geometry")
     print(f"  helix length: {report.helix_length_mm:.6g} mm ({fmt_si(report.helix_length_m, 'm')})")
-    print(f"  cross-section area: {report.area_mm2:.6g} mm^2 ({fmt_si(report.area_m2, 'm^2')})")
+    # Avoid SI-prefix formatting for squared units ("m^2") to prevent confusion (e.g. µm^2).
+    print(f"  cross-section area: {report.area_mm2:.6g} mm^2 ({report.area_m2:.6g} m^2)")
     print(f"  rho: {report.rho_ohm_m:.6g} ohm*m")
     print(f"  Rdc (helix-only): {report.rdc_est_ohm:.6g} ohm")
+
+    if report.cage_length_mm is not None:
+        print("\nadditional conductors (rough, extrusion-axis assumption)")
+        print(
+            f"  cage: length {report.cage_length_mm:.6g} mm, volume {report.cage_volume_mm3:.6g} mm^3, "
+            f"segments {report.cage_segments}, Rdc {report.cage_rdc_est_ohm:.6g} ohm"
+        )
+        print(
+            f"  exit wires: length {report.exit_length_mm:.6g} mm, volume {report.exit_volume_mm3:.6g} mm^3, "
+            f"segments {report.exit_segments}, Rdc {report.exit_rdc_est_ohm:.6g} ohm"
+        )
 
     if (args.target_f0_hz is None) ^ (args.assumed_L_h is None):
         print("\nerror: provide both --target-f0-hz and --assumed-L-h (or neither)", file=sys.stderr)
