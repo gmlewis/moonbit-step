@@ -13,6 +13,8 @@ pub fn vertex_at(center~ : (Double, Double), radius~ : Double, angle~ : Double) 
 // Errors
 
 // Types and methods
+type CageContext
+
 type Params
 
 type SupportInfo
