@@ -58,6 +58,15 @@ async fn main {
       min=0,
       min_exclusive=true,
     ),
+    "report": @cli.flag(
+      help="Print derived electrical geometry info to stderr (does not affect STEP output)",
+    ),
+    "rho": @cli.opt_double(
+      1.724e-8,
+      help="Resistivity in ohm*m for Rdc estimate (default: ~copper at 20C)",
+      min=0,
+      min_exclusive=true,
+    ),
     "tolerance": @cli.opt_double(0.1, help="Tolerance in millimeters", min=0),
     "connector_length": @cli.opt_double(
       12.0,
@@ -129,6 +138,8 @@ async fn main {
     back_thickness: args.double("backThickness"),
     front_thickness: args.double("frontThickness"),
     radial_thickness: args.double("radialThickness"),
+    report: args.flag("report"),
+    rho: args.double("rho"),
     connector_length: args.double("connector_length"),
     exit_wire_diameter: args.double("exit_wire_diameter"),
     exit_wire_separation: args.double("exit_wire_separation"),
@@ -140,6 +151,11 @@ async fn main {
     nosupport: args.flag("nosupport"),
     union: args.flag("union"),
     snapping: args.double("snapping"),
+  }
+
+  //
+  if params.report {
+    report_electrical_geometry(params)
   }
 
   //
@@ -161,7 +177,7 @@ async fn main {
   }
   // Add cage if requested
   if !params.nocage {
-    let (radius, height) = calc_radius_height(params.num_pairs, params)
+    let (radius, height) = coil_turn_dimensions(params.num_pairs, params)
     let (wires, support) = make_bfem_cage(
       size=(radius, radius, height),
       params~,
@@ -193,6 +209,8 @@ struct Params {
   wire_width : Double
   wire_gap : Double
   tolerance : Double
+  report : Bool
+  rho : Double
   connector_length : Double
   exit_wire_diameter : Double
   exit_wire_separation : Double
@@ -207,6 +225,103 @@ struct Params {
   nosupport : Bool
   union : Bool
   snapping : Double
+}
+
+///|
+async fn report_electrical_geometry(params : Params) -> Unit {
+  // NOTE: Print only to stderr so stdout remains a clean STEP stream.
+  let wire_width_mm = params.wire_width
+  let area_mm2 = wire_width_mm * wire_width_mm
+  let area_m2 = area_mm2 * 1.0e-6
+  let total_helix_length_mm = if params.nocoil {
+    0.0
+  } else {
+    total_bifilar_helix_centerline_length_mm(params)
+  }
+  let total_helix_length_m = total_helix_length_mm * 1.0e-3
+  let rdc_est = if total_helix_length_m == 0.0 {
+    0.0
+  } else {
+    params.rho * total_helix_length_m / area_m2
+  }
+  @cli.eprintln("bfem:report:wire_width_mm=\{wire_width_mm}")
+  @cli.eprintln("bfem:report:area_mm2=\{area_mm2}")
+  @cli.eprintln("bfem:report:area_m2=\{area_m2}")
+  @cli.eprintln("bfem:report:helix_length_mm=\{total_helix_length_mm}")
+  @cli.eprintln("bfem:report:helix_length_m=\{total_helix_length_m}")
+  @cli.eprintln("bfem:report:rho_ohm_m=\{params.rho}")
+  @cli.eprintln("bfem:report:rdc_est_ohm=\{rdc_est}")
+  @cli.eprintln(
+    "bfem:report:note=helix-only length; connectors/cage not included",
+  )
+  if !params.nocage {
+    let (radius, height) = coil_turn_dimensions(params.num_pairs, params)
+    let m = estimate_bfem_cage_conductors(
+      size=(radius, radius, height),
+      params~,
+    )
+    let cage_rdc = params.rho * 1.0e3 * m.cage.mm_over_mm2
+    let exit_rdc = params.rho * 1.0e3 * m.exit_wires.mm_over_mm2
+    @cli.eprintln("bfem:report:cage_length_mm=\{m.cage.length_mm}")
+    @cli.eprintln("bfem:report:cage_volume_mm3=\{m.cage.volume_mm3}")
+    @cli.eprintln("bfem:report:cage_segments=\{m.cage.segments}")
+    @cli.eprintln("bfem:report:cage_rdc_est_ohm=\{cage_rdc}")
+    @cli.eprintln("bfem:report:exit_length_mm=\{m.exit_wires.length_mm}")
+    @cli.eprintln("bfem:report:exit_volume_mm3=\{m.exit_wires.volume_mm3}")
+    @cli.eprintln("bfem:report:exit_segments=\{m.exit_wires.segments}")
+    @cli.eprintln("bfem:report:exit_rdc_est_ohm=\{exit_rdc}")
+    @cli.eprintln(
+      "bfem:report:note2=cage/exit Rdc assumes current flows along each extrusion axis; treat as rough",
+    )
+  }
+}
+
+///|
+fn total_bifilar_helix_centerline_length_mm(params : Params) -> Double {
+  // The model creates two helices per pair (start_angle and start_angle+180).
+  // For length purposes, start angle doesn’t matter, so total length is twice
+  // the sum of per-pair helix centerline lengths.
+  let mut sum = 0.0
+  for pair_num in 1..=params.num_pairs {
+    sum = sum + coil_helix_centerline_length_mm(pair_num, params)
+  }
+  2.0 * sum
+}
+
+///|
+fn coil_helix_centerline_length_mm(pair_num : Int, params : Params) -> Double {
+  let (radius, height_per_turn) = coil_turn_dimensions(pair_num, params)
+  let start_angle = 180.0 *
+    (pair_num.to_double() - 1) /
+    params.num_pairs.to_double()
+  let path = @cad.helix_path(
+    pos=params.pos,
+    size_per_turn=(radius, radius, height_per_turn),
+    num_turns=params.vert_turns,
+    num_segs_per_turn=params.num_segs,
+    start_angle~,
+  )
+  path_length_mm(path.points)
+}
+
+///|
+fn path_length_mm(points : Array[Vec3]) -> Double {
+  if points.length() < 2 {
+    return 0.0
+  }
+  let mut sum = 0.0
+  for i in 1..<points.length() {
+    sum = sum + vec3_distance(points[i - 1], points[i])
+  }
+  sum
+}
+
+///|
+fn vec3_distance(a : Vec3, b : Vec3) -> Double {
+  let dx = b.0 - a.0
+  let dy = b.1 - a.1
+  let dz = b.2 - a.2
+  (dx * dx + dy * dy + dz * dz).sqrt()
 }
 
 ///|
@@ -230,23 +345,36 @@ fn make_coil_pair(
   // Create the two helices for the bifilar coil pair
   let color = @cad.Rgb::red()
   let coil1 = make_coil(start_angle, pair_num~, params~, color~).with_name(
-    "coil-1-pair-\{pair_num}",
+    "bfem:coil:red:pair-\{pair_num}",
   )
   let color = @cad.Rgb::green()
   let coil2 = make_coil(start_angle + 180, pair_num~, params~, color~).with_name(
-    "coil-2-pair-\{pair_num}",
+    "bfem:coil:green:pair-\{pair_num}",
   )
   return (coil1, coil2)
 }
 
 ///|
-fn calc_radius_height(pair_num : Int, params : Params) -> (Double, Double) {
+/// coil_turn_dimensions returns the helix path X/Y radius and Z rise per turn
+/// for the given coil pair index (1-based).
+fn coil_turn_dimensions(pair_num : Int, params : Params) -> (Double, Double) {
   let hw = params.wire_width / 2.0
   let radius = params.inner_diam / 2.0 +
     hw +
     (pair_num - 1).to_double() * (params.wire_gap + params.wire_width)
   let height = 2.0 * (params.wire_width + params.wire_gap)
   return (radius, height)
+}
+
+///|
+fn square_wire_profile(hw : Double) -> @cad.SweepProfile {
+  let wire_pts = [
+    (-hw, 0.0, -hw),
+    (hw, 0.0, -hw),
+    (hw, 0.0, hw),
+    (-hw, 0.0, hw),
+  ]
+  @cad.SweepProfile::new(wire_pts)
 }
 
 ///|
@@ -257,7 +385,7 @@ fn make_coil(
   color? : @cad.Rgb = @cad.Rgb::red(),
 ) -> @cad.SceneNode {
   let hw = params.wire_width / 2.0
-  let (radius, height) = calc_radius_height(pair_num, params)
+  let (radius, height) = coil_turn_dimensions(pair_num, params)
   let helix_path = @cad.helix_path(
     pos=params.pos,
     size_per_turn=(radius, radius, height),
@@ -265,13 +393,7 @@ fn make_coil(
     num_segs_per_turn=params.num_segs,
     start_angle~,
   )
-  let wire_pts = [
-    (-hw, 0.0, -hw),
-    (hw, 0.0, -hw),
-    (hw, 0.0, hw),
-    (-hw, 0.0, hw),
-  ]
-  let wire_profile = @cad.SweepProfile::new(wire_pts)
+  let wire_profile = square_wire_profile(hw)
   let coil_shape = @cad.SweptProfile::new(path=helix_path, profile=wire_profile).with_color(
     color,
   )
