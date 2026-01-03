@@ -165,6 +165,44 @@ Ballpark (defaults as of 2026-01-03):
 - Cage extrusions (rough): ~1.022 m total extrusion length → ~0.0047 Ω (very model-dependent; see note below)
 - Exit wires (2×12 mm, 1 mm diameter, 12-gon approximation): ~0.00055 Ω
 
+## Initial sweep findings (capacitance proxy)
+
+This repo currently includes a sweep mode that ranks candidates by a very rough capacitance proxy:
+
+$$C_{proxy} \propto L_{helix} \cdot \frac{wireWidth}{wireGap}$$
+
+This is **not** a physical capacitance; it’s only a heuristic that tends to reward longer coupled length, larger facing area, and smaller separation.
+
+Command run (12 variants total):
+
+```bash
+./scripts/bfem_analyze.py --sweep \
+  --sweep-numPairs 6,10 \
+  --sweep-vertTurns 10,15 \
+  --sweep-wireWidth 1.0 \
+  --sweep-wireGap 0.1,0.2,0.3 \
+  --top 5
+```
+
+Top 5 results (ranked by higher $C_{proxy}$, then lower $R_{DC}$):
+
+```text
+sweep ranking (higher C_proxy better; lower Rdc better)
+  numPairs vertTurns wireWidth wireGap | helix_m  Rdc_ohm  C_proxy | cage_Rdc exit_Rdc
+  ------------------------------------------------------------------------------------
+       10       15        1     0.1 | 15.924   0.2745 1.59e+05 |  0.0049  0.0006
+       10       10        1     0.1 | 10.616   0.1830 1.06e+05 |  0.0041  0.0006
+       10       15        1     0.2 | 16.773   0.2892 8.39e+04 |  0.0047  0.0006
+        6       15        1     0.1 |  7.072   0.1219 7.07e+04 |  0.0028  0.0006
+       10       15        1     0.3 | 17.623   0.3038 5.87e+04 |  0.0047  0.0006
+```
+
+Immediate takeaways from this small sweep:
+
+- Smaller `wireGap` dominates the ranking strongly (as expected when chasing higher capacitance).
+- Increasing turns/pairs raises the proxy but also raises $R_{DC}$ (longer conductor).
+- In these variants the helix dominates $R_{DC}$; the cage/exits are orders of magnitude smaller in the rough model.
+
 Notes:
 
 - The cage/exit $R_{DC}$ estimates assume current flows along each extrusion’s axis with cross-section equal to the polygon area.
@@ -175,3 +213,125 @@ With a resonance target (requires an assumed L, purely for feasibility math):
 ```bash
 ./scripts/bfem_analyze.py --target-f0-hz 10000 --assumed-L-h 1e-3
 ```
+
+## More robust / accurate resonant-frequency analysis
+
+If you want a credible $f_0$ estimate (and not just “directional” tuning), you need a workflow that produces a believable equivalent **$L$ and $C$** (and ideally $R(f)$) for *your specific geometry and environment*.
+
+For the kHz range you care about, a **quasi-static** approach is typically appropriate and cost-effective (you generally do not need full-wave solvers unless you push into MHz+ or have strong radiation/antenna-like structures).
+
+### Step 0: Decide what environment you’re modeling
+
+Capacitance and resonance are extremely sensitive to surroundings.
+
+Pick at least one modeling scenario:
+
+- air only (lower $C$)
+- embedded in a dielectric (epoxy/ceramic/substrate) (higher $C$)
+- near a ground plane / enclosure / nearby metal (can radically change $C$ and losses)
+
+Also define “ports”:
+
+- two terminals: `IN` and `OUT` of the single series path
+- optional: define a reference conductor/ground if you want C-to-ground rather than purely inter-conductor coupling
+
+### Option A (best cost/value): PEEC / quasi-static extraction
+
+This is usually the fastest path to usable $R$, $L$, and $C$ for complex 3D conductor networks.
+
+Tools:
+
+- **FastHenry2**: inductance + frequency-dependent resistance (quasi-static)
+- **FastCap2**: electrostatic capacitance extraction
+
+How this maps to this design:
+
+- FastHenry wants a network of **wire segments/filaments** with node coordinates and cross-section.
+- FastCap wants discretized **conductor surfaces/panels** for electrostatics.
+
+Important practical note for this repo:
+
+- The most robust way to drive these solvers is often **not** converting STEP/STL.
+- Instead, export the *intent* directly from parameters:
+  - a polyline (many short segments) for the centerline of each conductor path
+  - cross-section (square: `wireWidth × wireWidth`)
+  - terminal definition (where the series path begins/ends)
+
+That avoids CAD-to-mesh pain for long helical wires.
+
+What you do with the solver outputs:
+
+1. Run FastHenry → get $R(f)$ and an inductance description (often a partial inductance matrix).
+2. Run FastCap → get capacitance coefficients between conductor groups.
+3. Build an equivalent circuit model:
+   - simplest: one lumped $L$ and one lumped $C$ → $f_0 \approx 1/(2\pi\sqrt{LC})$
+   - better: distributed ladder network (segments each with partial L/C) and find the first resonance numerically
+
+Python can help with the last step:
+
+- `numpy` / `scipy` to build the ladder network and sweep impedance vs frequency
+- optional: `scikit-rf` if you want to work in a more RF/network-analysis style once you have multiport equivalents
+
+### Option B (more geometry-faithful, heavier): FEM via Gmsh + Elmer or GetDP
+
+This is a strong “ground truth” path, especially when you care about dielectric environment details.
+
+You typically do two separate solves:
+
+- Electrostatics (for $C$): apply 1 V between terminals, compute stored energy $W_e$, then
+  $$C = 2 W_e / V^2$$
+- Magnetostatics / low-frequency AC magnetics (for $L$): apply current $I$, compute magnetic energy $W_m$, then
+  $$L = 2 W_m / I^2$$
+
+Geometry/mesh pipeline:
+
+- export STEP from the generator (you already do)
+- import STEP into **Gmsh**, generate a tetrahedral mesh
+- tag terminal faces / conductor regions (“physical groups”)
+- run Elmer/GetDP and extract energy from the solution
+
+This works, but helical conductors can require careful meshing to avoid huge element counts.
+
+### Option C (later / validation only): openEMS full-wave
+
+Use this if you eventually care about MHz+ behavior, radiation, or wave effects. For your stated goal (<10 kHz), quasi-static PEEC/FEM is usually the better starting point.
+
+## Do you need STEP/STL conversion?
+
+- For FEM: typically **yes** (STEP → Gmsh mesh).
+- For FastHenry/FastCap: often **no** (export segments/panels directly from parameters is usually cleaner).
+
+## Installation guidance (Linux Mint vs macOS)
+
+### Linux Mint 22.2 (recommended for solver work)
+
+Linux is typically the smoothest environment for building/running these toolchains.
+
+- Install baseline tooling (packages names may vary slightly):
+  - C/C++/Fortran toolchain (`gcc`, `g++`, `gfortran`, `make`)
+  - Python (`python3`, `python3-venv`, `pip`)
+  - Gmsh if you plan FEM (`gmsh`)
+
+If you tell me which path you want first (FastHenry/FastCap vs FEM), I can give a copy/paste install sequence tailored to Mint.
+
+### macOS (M2 Max)
+
+macOS is great for:
+
+- running the MoonBit generator and Python analysis
+- installing/using Gmsh via Homebrew
+
+But older solver build chains (especially Fortran-heavy ones) can be finicky. If build friction shows up on macOS, the fastest iteration loop is often:
+
+- model/sweep on macOS
+- run extraction on Mint
+
+## Recommended next concrete step
+
+To make this analysis practical and repeatable, the highest-leverage missing piece is an export of the **discretized series-path centerline** (points/segments) from the generator.
+
+If you want, I can add an opt-in export mode (JSON or a direct FastHenry-ish text format) so Python can:
+
+- generate a segmented conductor network from the exact parametric geometry
+- run/parse extraction tools
+- compute and report the lowest resonance numerically
