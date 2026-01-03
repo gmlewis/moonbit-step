@@ -145,3 +145,22 @@ A solver-based approach is strongly recommended for credible $C$ and resonance e
   - cross-section area (mm² and m²)
   - optional $R_{DC}$ estimate using a provided resistivity
 - Add a small Python helper under `scripts/` for quick sweeps and early feasibility checks.
+
+### What’s implemented now
+
+- Example 12 supports `--report` (prints to stderr) and `--rho` (ohm*m).
+- Quick analysis helper script:
+  - [scripts/bfem_analyze.py](scripts/bfem_analyze.py)
+
+Example usage:
+
+```bash
+./scripts/bfem_analyze.py --numPairs 10 --vertTurns 15 --wireWidth 1.0 --wireGap 0.2 \
+  --innerDiam 6.0 --rho 1.724e-8
+```
+
+With a resonance target (requires an assumed L, purely for feasibility math):
+
+```bash
+./scripts/bfem_analyze.py --target-f0-hz 10000 --assumed-L-h 1e-3
+```

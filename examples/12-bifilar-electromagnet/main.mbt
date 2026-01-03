@@ -228,7 +228,7 @@ struct Params {
 }
 
 ///|
-fn report_electrical_geometry(params : Params) -> Unit {
+async fn report_electrical_geometry(params : Params) -> Unit {
   // NOTE: Print only to stderr so stdout remains a clean STEP stream.
   let wire_width_mm = params.wire_width
   let area_mm2 = wire_width_mm * wire_width_mm
@@ -261,10 +261,11 @@ fn total_bifilar_helix_centerline_length_mm(params : Params) -> Double {
   // The model creates two helices per pair (start_angle and start_angle+180).
   // For length purposes, start angle doesn’t matter, so total length is twice
   // the sum of per-pair helix centerline lengths.
-  2.0 *
-  (1..=params.num_pairs).fold(0.0, fn(acc, pair_num) {
-    acc + coil_helix_centerline_length_mm(pair_num, params)
-  })
+  let mut sum = 0.0
+  for pair_num in 1..=params.num_pairs {
+    sum = sum + coil_helix_centerline_length_mm(pair_num, params)
+  }
+  2.0 * sum
 }
 
 ///|
@@ -288,9 +289,11 @@ fn path_length_mm(points : Array[Vec3]) -> Double {
   if points.length() < 2 {
     return 0.0
   }
-  (1..<points.length()).fold(0.0, fn(acc, i) {
-    acc + vec3_distance(points[i - 1], points[i])
-  })
+  let mut sum = 0.0
+  for i in 1..<points.length() {
+    sum = sum + vec3_distance(points[i - 1], points[i])
+  }
+  sum
 }
 
 ///|
