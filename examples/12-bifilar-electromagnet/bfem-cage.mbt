@@ -11,19 +11,20 @@ struct VerticalPostWedge {
 ///|
 struct VerticalWedge {
   wedge : SceneNode
-  // points : Array[Vec2]
 }
 
 ///|
 struct VerticalCylinder {
   cylinder : SceneNode
-  // points : Array[Vec2]
 }
 
 ///|
-/// solve_for_t solve the provided function for t where 0<=t<=1.
-/// If the solution can't be found, t=2 or t=-1 are returned to signify an error.
-fn solve_for_t(d : Double, f : (Double) -> Double) -> Double {
+/// solve_for_t solves the provided function for `t` where `0 <= t <= 1`.
+///
+/// If the solution can't be found, returns:
+/// - `2` when `d > f(1)`
+/// - `-1` when `d < f(0)`
+pub fn solve_for_t(d : Double, f : (Double) -> Double) -> Double {
   let d1 = f(1)
   if d > d1 {
     return 2
@@ -49,29 +50,14 @@ fn solve_for_t(d : Double, f : (Double) -> Double) -> Double {
 }
 
 ///|
-/// vertex_at generates a vertex at an angle and radius.
-///
-/// args:
-///     center -- center of circle
-///     radius -- radius of vertex
-///     angle  -- angle of of vertex in radians
-///
-/// returns:
-///     vertex -- (as a vector)
-fn vertex_at(center~ : Vec2, radius~ : Double, angle~ : Double) -> Vec2 {
+/// vertex_at returns a 2D point given polar coordinates around `center`.
+pub fn vertex_at(center~ : Vec2, radius~ : Double, angle~ : Double) -> Vec2 {
   (center.0 + radius * @math.cos(angle), center.1 + radius * @math.sin(angle))
 }
 
 ///|
-/// center_of_face returns the center point of a face.
-///
-/// args:
-///     points -- table of points (vectors)
-///
-///
-/// returns:
-///     vector -- represents center of face
-fn center_of_face(points : Array[Vec2]) -> Vec2 {
+/// center_of_face returns the centroid of a polygon (simple average of vertices).
+pub fn center_of_face(points : Array[Vec2]) -> Vec2 {
   let mut sum = (0.0, 0.0)
   for pt in points {
     sum = (sum.0 + pt.0, sum.1 + pt.1)
@@ -81,21 +67,9 @@ fn center_of_face(points : Array[Vec2]) -> Vec2 {
 }
 
 ///|
-/// make_vertical_post_wedge generates a vertical wire post wedge at a given radius and start_angle.
-/// It extrudes upward.
+/// make_vertical_post_wedge builds a rectangular "post" profile at `inner_radius` and extrudes up.
 ///
-/// args:
-///     pos -- vector(x,y,z) - lower origin corner of base face of vertical post
-///     inner_radius -- inner radius of vertical wire post
-///     start_angle -- start angle of wire post
-///     normal_angle -- 90 degree rotation of start_angle in the outward direction
-///     post_height -- height of wire post
-///     wire_width -- width and depth of wire post at the inner_radius
-///
-/// returns table of:
-///     mesh -- mesh of generated geometry
-///     top_p0 -- corner vertex of top connection edge
-///     top_p1 -- other vertex of top connection edge
+/// Returns the SceneNode and the two top-edge points used to connect subsequent geometry.
 fn make_vertical_post_wedge(
   pos~ : Vec3,
   inner_radius~ : Double,
@@ -122,8 +96,7 @@ fn make_vertical_post_wedge(
 }
 
 ///|
-/// make_wedge generates a vertical wedge.
-/// It extrudes upward.
+/// make_wedge generates an annular wedge and extrudes upward.
 fn make_wedge(
   pos~ : Vec3,
   inner_radius~ : Double,
@@ -158,17 +131,7 @@ fn make_wedge(
 }
 
 ///|
-/// make_cylinder makes a n-sided vertical cylinder at the given position with the height and radius.
-///
-/// args:
-///     pos -- vector(x,y,z) - center of cylinder base
-///     radius -- radius of cylinder
-///     segments -- number of radial segments
-///     height -- height of cylinder
-///
-/// returns table of:
-///     mesh -- mesh of generated geometry
-///     points -- vertices around the base circle
+/// make_cylinder makes an n-sided vertical "cylinder" by extruding a polygonal circle.
 fn make_cylinder(
   pos~ : Vec3,
   radius~ : Double,
@@ -187,7 +150,20 @@ fn make_cylinder(
     .with_name("vertical-cylinder-r\{radius}")
     .with_color(color)
     .translate(z=pos.2)
-  { cylinder, } // points }
+  { cylinder, }
+}
+
+///|
+fn push_arc_point(
+  center : Vec2,
+  start_angle : Double,
+  angle_delta : Double,
+  radius : Double,
+  j : Int,
+  points : Array[Vec2],
+) -> Unit {
+  let angle = start_angle + j.to_double() * angle_delta
+  points.push(vertex_at(center~, radius~, angle~))
 }
 
 ///|
@@ -221,21 +197,7 @@ fn make_bfem_cage(
   let inner_dtheta = @math.asin(params.wire_gap / (2 * inner_radius))
   let outer_dtheta = @math.asin(params.wire_gap / (2 * outer_radius))
   let delta_z = (params.wire_gap + params.wire_width) / (num_pairs - 1)
-
-  //
-  let new_point = fn(
-    j : Int,
-    start_angle : Double,
-    angle_delta : Double,
-    r : Double,
-    points : Array[Vec2],
-  ) -> Unit {
-    let angle = start_angle + j.to_double() * angle_delta
-    let x = params.pos.0 + r * @math.cos(angle)
-    let y = params.pos.1 + r * @math.sin(angle)
-    let point = (x, y)
-    points.push(point)
-  }
+  let center = (params.pos.0, params.pos.1)
 
   // first, generate the long axial connectors
   let axial_connector_top_zs = Array::new(capacity=2 * npairs)
@@ -267,15 +229,18 @@ fn make_bfem_cage(
     let polygon = Array::new(capacity=segments_per_rail * 2 + 2)
     // inner points:
     for j in 0..=segments_per_rail {
-      new_point(j, inner_start_angle, inner_angle_delta, inner_radius, polygon)
+      push_arc_point(
+        center, inner_start_angle, inner_angle_delta, inner_radius, j, polygon,
+      )
     }
     // outer points:
     for j in 0..=segments_per_rail {
-      new_point(
-        segments_per_rail - j,
+      push_arc_point(
+        center,
         outer_start_angle,
         outer_angle_delta,
         outer_radius,
+        segments_per_rail - j,
         polygon,
       )
     }
@@ -331,7 +296,9 @@ fn make_bfem_cage(
     let points = Array::new(capacity=segments_per_rail + 1)
     // inner points:
     for j in 0..=segments_per_rail {
-      new_point(j, inner_start_angle, inner_angle_delta, inner_radius, points)
+      push_arc_point(
+        center, inner_start_angle, inner_angle_delta, inner_radius, j, points,
+      )
     }
     return points
   }
@@ -752,7 +719,7 @@ fn add_support(
 }
 
 ///|
-fn vector_length(a : Vec2, b : Vec2) -> Double {
+pub fn vector_length(a : Vec2, b : Vec2) -> Double {
   let dx = b.0 - a.0
   let dy = b.1 - a.1
   (dx * dx + dy * dy).sqrt()

@@ -2,6 +2,13 @@
 package "gmlewis/step/examples/12-bifilar-electromagnet"
 
 // Values
+pub fn center_of_face(Array[(Double, Double)]) -> (Double, Double)
+
+pub fn solve_for_t(Double, (Double) -> Double) -> Double
+
+pub fn vector_length((Double, Double), (Double, Double)) -> Double
+
+pub fn vertex_at(center~ : (Double, Double), radius~ : Double, angle~ : Double) -> (Double, Double)
 
 // Errors
 

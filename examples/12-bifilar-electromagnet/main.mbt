@@ -161,7 +161,7 @@ async fn main {
   }
   // Add cage if requested
   if !params.nocage {
-    let (radius, height) = calc_radius_height(params.num_pairs, params)
+    let (radius, height) = coil_turn_dimensions(params.num_pairs, params)
     let (wires, support) = make_bfem_cage(
       size=(radius, radius, height),
       params~,
@@ -240,13 +240,26 @@ fn make_coil_pair(
 }
 
 ///|
-fn calc_radius_height(pair_num : Int, params : Params) -> (Double, Double) {
+/// coil_turn_dimensions returns the helix path X/Y radius and Z rise per turn
+/// for the given coil pair index (1-based).
+fn coil_turn_dimensions(pair_num : Int, params : Params) -> (Double, Double) {
   let hw = params.wire_width / 2.0
   let radius = params.inner_diam / 2.0 +
     hw +
     (pair_num - 1).to_double() * (params.wire_gap + params.wire_width)
   let height = 2.0 * (params.wire_width + params.wire_gap)
   return (radius, height)
+}
+
+///|
+fn square_wire_profile(hw : Double) -> @cad.SweepProfile {
+  let wire_pts = [
+    (-hw, 0.0, -hw),
+    (hw, 0.0, -hw),
+    (hw, 0.0, hw),
+    (-hw, 0.0, hw),
+  ]
+  @cad.SweepProfile::new(wire_pts)
 }
 
 ///|
@@ -257,7 +270,7 @@ fn make_coil(
   color? : @cad.Rgb = @cad.Rgb::red(),
 ) -> @cad.SceneNode {
   let hw = params.wire_width / 2.0
-  let (radius, height) = calc_radius_height(pair_num, params)
+  let (radius, height) = coil_turn_dimensions(pair_num, params)
   let helix_path = @cad.helix_path(
     pos=params.pos,
     size_per_turn=(radius, radius, height),
@@ -265,13 +278,7 @@ fn make_coil(
     num_segs_per_turn=params.num_segs,
     start_angle~,
   )
-  let wire_pts = [
-    (-hw, 0.0, -hw),
-    (hw, 0.0, -hw),
-    (hw, 0.0, hw),
-    (-hw, 0.0, hw),
-  ]
-  let wire_profile = @cad.SweepProfile::new(wire_pts)
+  let wire_profile = square_wire_profile(hw)
   let coil_shape = @cad.SweptProfile::new(path=helix_path, profile=wire_profile).with_color(
     color,
   )
