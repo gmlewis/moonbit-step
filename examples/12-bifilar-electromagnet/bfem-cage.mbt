@@ -334,37 +334,16 @@ fn append_axial_connectors(
 }
 
 ///|
-/// make_bfem_cage makes a wire cage around the bifilar electromagnet and wires up the coils.
-/// It also returns an optional support structure to hold the coils.
-fn make_bfem_cage(
-  size~ : Vec3,
-  params~ : Params,
-) -> (Array[@cad.SceneNode], Array[@cad.SceneNode]) {
-  let ctx = make_cage_context(size, params)
-  let red_cage_wire_support_info = Array::new(capacity=ctx.npairs)
-  let green_cage_wire_support_info = Array::new(capacity=ctx.npairs)
-  let axial_connector_top_zs = Array::new(capacity=2 * ctx.npairs)
-  let wire_nodes = []
-  let support_nodes = []
-
-  // first, generate the long axial connectors
-  append_axial_connectors(ctx, params, axial_connector_top_zs, wire_nodes)
-
-  // Pre-calculate important values for all coil connectors
-  // rotations represents the angle around the coil where the connector starts
-  let rotations = Array::new(capacity=ctx.npairs)
-  let line_lengths = Array::new(capacity=ctx.npairs)
-  let zs = Array::new(capacity=ctx.npairs)
-  for i in 0..<ctx.npairs {
-    let i = i.to_double()
-    zs.push(ctx.lower_z + i * ctx.delta_z)
-    // Create the connectors to the ends of the coils:
-    rotations.push(-@math.PI * i / ctx.num_pairs)
-    line_lengths.push(
-      (ctx.num_pairs - i) * (params.wire_width + params.wire_gap),
-    )
-  }
-
+fn append_helix_connectors_and_exit_wires(
+  ctx : CageContext,
+  params : Params,
+  rotations : Array[Double],
+  line_lengths : Array[Double],
+  zs : Array[Double],
+  red_cage_wire_support_info : Array[SupportInfo],
+  green_cage_wire_support_info : Array[SupportInfo],
+  wire_nodes : Array[@cad.SceneNode],
+) -> Unit {
   //
   let gen_points = fn(inner_start_angle, inner_angle_delta) {
     gen_inner_arc_points(ctx, inner_start_angle, inner_angle_delta)
@@ -580,7 +559,7 @@ fn make_bfem_cage(
 
       // now make the exit wire cylinders
       if !params.nowires {
-        let inner_wire_post_center = center_of_face(polygon) // + vector(0,0,flat_top_height)
+        let inner_wire_post_center = center_of_face(polygon)
         let mut inner_wire_pos = inner_wire_post_center
         let outer_wire_radius = (ctx.inner_radius + ctx.outer_radius) / 2
         let outer_wire_dtheta = @math.asin(
@@ -589,21 +568,20 @@ fn make_bfem_cage(
         let outer_wire_start_angle = 0.0
         let outer_wire_end_angle = ctx.rail_angle_delta - 2 * outer_wire_dtheta
         let outer_wire_post_center = vertex_at(
-          center=(params.pos.0, params.pos.1), // , inner_wire_pos.y),
+          center=(params.pos.0, params.pos.1),
           radius=outer_wire_radius,
           angle=(outer_wire_end_angle - outer_wire_start_angle) / 2,
         )
         let mut outer_wire_pos = outer_wire_post_center
-        // outer_wire_pos = (outer_wire_pos.0, outer_wire_pos.1) // , inner_wire_pos.y
         let centers_distance = vector_length(
           outer_wire_post_center, inner_wire_post_center,
         )
         if centers_distance < params.exit_wire_separation {
           let pa = inner_wire_post_center
-          let va = (polygon[3].0, polygon[3].1) //, inner_wire_pos.y)
+          let va = (polygon[3].0, polygon[3].1)
           let pb = outer_wire_post_center
           let vb = vertex_at(
-            center=(params.pos.0, params.pos.1), // , inner_wire_pos.y),
+            center=(params.pos.0, params.pos.1),
             radius=(ctx.inner_radius + ctx.outer_radius) / 2,
             angle=outer_wire_start_angle,
           )
@@ -630,7 +608,6 @@ fn make_bfem_cage(
           segments=12,
           height=params.connector_length,
         )
-        // Ops.merge(out_mesh, inner_exit_wire.mesh)
         wire_nodes.push(inner_exit_wire.cylinder.with_color(@cad.Rgb::green()))
         let outer_exit_wire = make_cylinder(
           pos=(
@@ -642,7 +619,6 @@ fn make_bfem_cage(
           segments=12,
           height=params.connector_length,
         )
-        // Ops.merge(out_mesh, outer_exit_wire.mesh)
         wire_nodes.push(outer_exit_wire.cylinder.with_color(@cad.Rgb::red()))
       }
     }
@@ -687,64 +663,118 @@ fn make_bfem_cage(
       wire_nodes.push(wire.wedge.with_color(@cad.Rgb::green()))
     }
   }
+}
+
+///|
+fn append_supports(
+  ctx : CageContext,
+  size : Vec3,
+  params : Params,
+  red_cage_wire_support_info : Array[SupportInfo],
+  green_cage_wire_support_info : Array[SupportInfo],
+  support_nodes : Array[@cad.SceneNode],
+) -> Unit {
+  // Finally, add support structures
+  let shaft_pos = (
+    params.pos.0,
+    params.pos.1,
+    params.pos.2 - params.wire_width / 2 - params.front_thickness,
+  )
+  let shaft_radius = params.inner_diam / 2 - params.tolerance
+  let front_inner_shaft = make_cylinder(
+    pos=shaft_pos,
+    radius=shaft_radius,
+    segments=params.num_segs,
+    // height=coil_height + params.front_thickness + params.back_thickness, // flush with top coil
+    height=ctx.extrude_height +
+      1.5 * params.wire_width +
+      params.front_thickness +
+      params.back_thickness +
+      params.connector_length,
+  )
+  support_nodes.push(front_inner_shaft.cylinder.with_color(@cad.Rgb::blue()))
+
+  //
+  for idx, info in red_cage_wire_support_info {
+    let height = params.wire_width -
+      info.end_angle / @math.PI * size.2 / 2 -
+      params.tolerance
+    let trim_last_edge = idx == red_cage_wire_support_info.length() - 1
+    add_support(
+      idx,
+      "red",
+      info,
+      shaft_pos~,
+      shaft_radius~,
+      height~,
+      params~,
+      support_nodes~,
+      trim_last_edge~,
+    )
+  }
+  for idx, info in green_cage_wire_support_info {
+    let height = params.wire_width +
+      (@math.PI - info.end_angle) / @math.PI * size.2 / 2 -
+      params.tolerance
+    let trim_last_edge = idx == green_cage_wire_support_info.length() - 1
+    add_support(
+      idx,
+      "green",
+      info,
+      shaft_pos~,
+      shaft_radius~,
+      height~,
+      params~,
+      support_nodes~,
+      trim_last_edge~,
+    )
+  }
+}
+
+///|
+/// make_bfem_cage makes a wire cage around the bifilar electromagnet and wires up the coils.
+/// It also returns an optional support structure to hold the coils.
+fn make_bfem_cage(
+  size~ : Vec3,
+  params~ : Params,
+) -> (Array[@cad.SceneNode], Array[@cad.SceneNode]) {
+  let ctx = make_cage_context(size, params)
+  let red_cage_wire_support_info = Array::new(capacity=ctx.npairs)
+  let green_cage_wire_support_info = Array::new(capacity=ctx.npairs)
+  let axial_connector_top_zs = Array::new(capacity=2 * ctx.npairs)
+  let wire_nodes = []
+  let support_nodes = []
+
+  // first, generate the long axial connectors
+  append_axial_connectors(ctx, params, axial_connector_top_zs, wire_nodes)
+
+  // Pre-calculate important values for all coil connectors
+  // rotations represents the angle around the coil where the connector starts
+  let rotations = Array::new(capacity=ctx.npairs)
+  let line_lengths = Array::new(capacity=ctx.npairs)
+  let zs = Array::new(capacity=ctx.npairs)
+  for i in 0..<ctx.npairs {
+    let i = i.to_double()
+    zs.push(ctx.lower_z + i * ctx.delta_z)
+    // Create the connectors to the ends of the coils:
+    rotations.push(-@math.PI * i / ctx.num_pairs)
+    line_lengths.push(
+      (ctx.num_pairs - i) * (params.wire_width + params.wire_gap),
+    )
+  }
+
+  //
+  append_helix_connectors_and_exit_wires(
+    ctx, params, rotations, line_lengths, zs, red_cage_wire_support_info, green_cage_wire_support_info,
+    wire_nodes,
+  )
 
   //
   if !params.nosupport {
-    // Finally, add support structures
-    let shaft_pos = (
-      params.pos.0,
-      params.pos.1,
-      params.pos.2 - params.wire_width / 2 - params.front_thickness,
+    append_supports(
+      ctx, size, params, red_cage_wire_support_info, green_cage_wire_support_info,
+      support_nodes,
     )
-    let shaft_radius = params.inner_diam / 2 - params.tolerance
-    let front_inner_shaft = make_cylinder(
-      pos=shaft_pos,
-      radius=shaft_radius,
-      segments=params.num_segs,
-      // height=coil_height + params.front_thickness + params.back_thickness, // flush with top coil
-      height=ctx.extrude_height +
-        1.5 * params.wire_width +
-        params.front_thickness +
-        params.back_thickness +
-        params.connector_length,
-    )
-    support_nodes.push(front_inner_shaft.cylinder.with_color(@cad.Rgb::blue()))
-
-    //
-    for idx, info in red_cage_wire_support_info {
-      let height = params.wire_width -
-        info.end_angle / @math.PI * size.2 / 2 -
-        params.tolerance
-      let trim_last_edge = idx == red_cage_wire_support_info.length() - 1
-      add_support(
-        idx,
-        "red",
-        info,
-        shaft_pos~,
-        shaft_radius~,
-        height~,
-        params~,
-        support_nodes~,
-        trim_last_edge~,
-      )
-    }
-    for idx, info in green_cage_wire_support_info {
-      let height = params.wire_width +
-        (@math.PI - info.end_angle) / @math.PI * size.2 / 2 -
-        params.tolerance
-      let trim_last_edge = idx == green_cage_wire_support_info.length() - 1
-      add_support(
-        idx,
-        "green",
-        info,
-        shaft_pos~,
-        shaft_radius~,
-        height~,
-        params~,
-        support_nodes~,
-        trim_last_edge~,
-      )
-    }
   }
 
   //
