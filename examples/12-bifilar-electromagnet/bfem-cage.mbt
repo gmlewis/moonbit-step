@@ -1,5 +1,4 @@
 ///|
-using @cad {type SceneNode, type Vec2, type Vec3}
 
 ///|
 struct VerticalPostWedge {
@@ -11,19 +10,20 @@ struct VerticalPostWedge {
 ///|
 struct VerticalWedge {
   wedge : SceneNode
-  // points : Array[Vec2]
 }
 
 ///|
 struct VerticalCylinder {
   cylinder : SceneNode
-  // points : Array[Vec2]
 }
 
 ///|
-/// solve_for_t solve the provided function for t where 0<=t<=1.
-/// If the solution can't be found, t=2 or t=-1 are returned to signify an error.
-fn solve_for_t(d : Double, f : (Double) -> Double) -> Double {
+/// solve_for_t solves the provided function for `t` where `0 <= t <= 1`.
+///
+/// If the solution can't be found, returns:
+/// - `2` when `d > f(1)`
+/// - `-1` when `d < f(0)`
+pub fn solve_for_t(d : Double, f : (Double) -> Double) -> Double {
   let d1 = f(1)
   if d > d1 {
     return 2
@@ -49,29 +49,14 @@ fn solve_for_t(d : Double, f : (Double) -> Double) -> Double {
 }
 
 ///|
-/// vertex_at generates a vertex at an angle and radius.
-///
-/// args:
-///     center -- center of circle
-///     radius -- radius of vertex
-///     angle  -- angle of of vertex in radians
-///
-/// returns:
-///     vertex -- (as a vector)
-fn vertex_at(center~ : Vec2, radius~ : Double, angle~ : Double) -> Vec2 {
+/// vertex_at returns a 2D point given polar coordinates around `center`.
+pub fn vertex_at(center~ : Vec2, radius~ : Double, angle~ : Double) -> Vec2 {
   (center.0 + radius * @math.cos(angle), center.1 + radius * @math.sin(angle))
 }
 
 ///|
-/// center_of_face returns the center point of a face.
-///
-/// args:
-///     points -- table of points (vectors)
-///
-///
-/// returns:
-///     vector -- represents center of face
-fn center_of_face(points : Array[Vec2]) -> Vec2 {
+/// center_of_face returns the centroid of a polygon (simple average of vertices).
+pub fn center_of_face(points : Array[Vec2]) -> Vec2 {
   let mut sum = (0.0, 0.0)
   for pt in points {
     sum = (sum.0 + pt.0, sum.1 + pt.1)
@@ -81,21 +66,9 @@ fn center_of_face(points : Array[Vec2]) -> Vec2 {
 }
 
 ///|
-/// make_vertical_post_wedge generates a vertical wire post wedge at a given radius and start_angle.
-/// It extrudes upward.
+/// make_vertical_post_wedge builds a rectangular "post" profile at `inner_radius` and extrudes up.
 ///
-/// args:
-///     pos -- vector(x,y,z) - lower origin corner of base face of vertical post
-///     inner_radius -- inner radius of vertical wire post
-///     start_angle -- start angle of wire post
-///     normal_angle -- 90 degree rotation of start_angle in the outward direction
-///     post_height -- height of wire post
-///     wire_width -- width and depth of wire post at the inner_radius
-///
-/// returns table of:
-///     mesh -- mesh of generated geometry
-///     top_p0 -- corner vertex of top connection edge
-///     top_p1 -- other vertex of top connection edge
+/// Returns the SceneNode and the two top-edge points used to connect subsequent geometry.
 fn make_vertical_post_wedge(
   pos~ : Vec3,
   inner_radius~ : Double,
@@ -115,15 +88,14 @@ fn make_vertical_post_wedge(
   let sy3 = sy2 + wire_width * @math.sin(normal_angle)
   let points = [(sx1, sy1), (sx4, sy4), (sx2, sy2), (sx3, sy3)]
   let post = @cad.ExtrudedProfile::new(points, post_height)
-    .with_name("vertical-post-wedge-r\{inner_radius}-a\{start_angle}")
+    .with_name("bfem:cage:post-wedge:r\{inner_radius}:a\{start_angle}")
     .with_color(color)
     .translate(z=pos.2)
   { post, top_p0: (sx2, sy2), top_p1: (sx3, sy3) }
 }
 
 ///|
-/// make_wedge generates a vertical wedge.
-/// It extrudes upward.
+/// make_wedge generates an annular wedge and extrudes upward.
 fn make_wedge(
   pos~ : Vec3,
   inner_radius~ : Double,
@@ -158,23 +130,14 @@ fn make_wedge(
 }
 
 ///|
-/// make_cylinder makes a n-sided vertical cylinder at the given position with the height and radius.
-///
-/// args:
-///     pos -- vector(x,y,z) - center of cylinder base
-///     radius -- radius of cylinder
-///     segments -- number of radial segments
-///     height -- height of cylinder
-///
-/// returns table of:
-///     mesh -- mesh of generated geometry
-///     points -- vertices around the base circle
+/// make_cylinder makes an n-sided vertical "cylinder" by extruding a polygonal circle.
 fn make_cylinder(
   pos~ : Vec3,
   radius~ : Double,
   segments~ : Int,
   height~ : Double,
   color? : @cad.Rgb = @cad.Rgb::red(),
+  name? : String = "bfem:cage:cylinder",
 ) -> VerticalCylinder {
   let points = []
   for i in 1..=segments {
@@ -184,21 +147,45 @@ fn make_cylinder(
     points.push((x, y))
   }
   let cylinder = @cad.ExtrudedProfile::new(points, height)
-    .with_name("vertical-cylinder-r\{radius}")
+    .with_name(name)
     .with_color(color)
     .translate(z=pos.2)
-  { cylinder, } // points }
+  { cylinder, }
 }
 
 ///|
-/// make_bfem_cage makes a wire cage around the bifilar electromagnet and wires up the coils.
-/// It also returns an optional support structure to hold the coils.
-fn make_bfem_cage(
-  size~ : Vec3,
-  params~ : Params,
-) -> (Array[@cad.SceneNode], Array[@cad.SceneNode]) {
-  let red_cage_wire_support_info = Array::new(capacity=params.num_pairs)
-  let green_cage_wire_support_info = Array::new(capacity=params.num_pairs)
+fn push_arc_point(
+  center : Vec2,
+  start_angle : Double,
+  angle_delta : Double,
+  radius : Double,
+  j : Int,
+  points : Array[Vec2],
+) -> Unit {
+  let angle = start_angle + j.to_double() * angle_delta
+  points.push(vertex_at(center~, radius~, angle~))
+}
+
+///|
+struct CageContext {
+  center : Vec2
+  npairs : Int
+  num_pairs : Double
+  segments_per_rail : Int
+  lower_z : Double
+  coil_height : Double
+  extrude_height : Double
+  rail_angle_delta : Double
+  inner_radius : Double
+  outer_radius : Double
+  inner_dtheta : Double
+  outer_dtheta : Double
+  delta_z : Double
+  max_axial_connector_top_zs : Double
+}
+
+///|
+fn make_cage_context(size : Vec3, params : Params) -> CageContext {
   let npairs = params.num_pairs
   let num_pairs = npairs.to_double()
   let mut segments_per_rail = @math.ceil(
@@ -207,8 +194,6 @@ fn make_bfem_cage(
   if segments_per_rail < 2 {
     segments_per_rail = 2
   }
-
-  //
   let lower_z = params.pos.2 - params.wire_width / 2
   let coil_height = 2.0 *
     params.vert_turns *
@@ -221,61 +206,96 @@ fn make_bfem_cage(
   let inner_dtheta = @math.asin(params.wire_gap / (2 * inner_radius))
   let outer_dtheta = @math.asin(params.wire_gap / (2 * outer_radius))
   let delta_z = (params.wire_gap + params.wire_width) / (num_pairs - 1)
-
-  //
-  let new_point = fn(
-    j : Int,
-    start_angle : Double,
-    angle_delta : Double,
-    r : Double,
-    points : Array[Vec2],
-  ) -> Unit {
-    let angle = start_angle + j.to_double() * angle_delta
-    let x = params.pos.0 + r * @math.cos(angle)
-    let y = params.pos.1 + r * @math.sin(angle)
-    let point = (x, y)
-    points.push(point)
-  }
-
-  // first, generate the long axial connectors
-  let axial_connector_top_zs = Array::new(capacity=2 * npairs)
+  let center = (params.pos.0, params.pos.1)
   let max_axial_connector_top_zs = extrude_height +
     lower_z +
     (num_pairs - 1) * delta_z
-  let wire_nodes = []
-  let support_nodes = []
-  for i in 0..<(2 * npairs) {
+  {
+    center,
+    npairs,
+    num_pairs,
+    segments_per_rail,
+    lower_z,
+    coil_height,
+    extrude_height,
+    rail_angle_delta,
+    inner_radius,
+    outer_radius,
+    inner_dtheta,
+    outer_dtheta,
+    delta_z,
+    max_axial_connector_top_zs,
+  }
+}
+
+///|
+fn gen_inner_arc_points(
+  ctx : CageContext,
+  inner_start_angle : Double,
+  inner_angle_delta : Double,
+) -> Array[Vec2] {
+  let points = Array::new(capacity=ctx.segments_per_rail + 1)
+  for j in 0..=ctx.segments_per_rail {
+    push_arc_point(
+      ctx.center,
+      inner_start_angle,
+      inner_angle_delta,
+      ctx.inner_radius,
+      j,
+      points,
+    )
+  }
+  points
+}
+
+///|
+fn append_axial_connectors(
+  ctx : CageContext,
+  params : Params,
+  axial_connector_top_zs : Array[Double],
+  wire_nodes : Array[@cad.SceneNode],
+) -> Unit {
+  for i in 0..<(2 * ctx.npairs) {
     let ni = i + 1
+    let idx = i
     let i = i.to_double()
-    let inner_start_angle = i * rail_angle_delta
-    let inner_end_angle = (i + 1) * rail_angle_delta - 2 * inner_dtheta
+    let inner_start_angle = i * ctx.rail_angle_delta
+    let inner_end_angle = (i + 1) * ctx.rail_angle_delta - 2 * ctx.inner_dtheta
     let inner_angle_delta = (inner_end_angle - inner_start_angle) /
-      segments_per_rail.to_double()
+      ctx.segments_per_rail.to_double()
     //
-    let outer_start_angle = i * rail_angle_delta
-    let outer_end_angle = (i + 1) * rail_angle_delta - 2 * outer_dtheta
+    let outer_start_angle = i * ctx.rail_angle_delta
+    let outer_end_angle = (i + 1) * ctx.rail_angle_delta - 2 * ctx.outer_dtheta
     let outer_angle_delta = (outer_end_angle - outer_start_angle) /
-      segments_per_rail.to_double()
+      ctx.segments_per_rail.to_double()
     //
     if inner_angle_delta <= 0 || outer_angle_delta <= 0 {
       abort("wire_gap too large with given num_pairs and size")
     }
     //
-    let z = lower_z + (num_pairs - i) % num_pairs * delta_z
-    axial_connector_top_zs.push(z + extrude_height)
+    let z = ctx.lower_z + (ctx.num_pairs - i) % ctx.num_pairs * ctx.delta_z
+    axial_connector_top_zs.push(z + ctx.extrude_height)
     //
-    let polygon = Array::new(capacity=segments_per_rail * 2 + 2)
+    let polygon = Array::new(capacity=ctx.segments_per_rail * 2 + 2)
     // inner points:
-    for j in 0..=segments_per_rail {
-      new_point(j, inner_start_angle, inner_angle_delta, inner_radius, polygon)
+    for j in 0..=ctx.segments_per_rail {
+      push_arc_point(
+        ctx.center,
+        inner_start_angle,
+        inner_angle_delta,
+        ctx.inner_radius,
+        j,
+        polygon,
+      )
     }
     // outer points:
-    for j in 0..=segments_per_rail {
-      new_point(
-        segments_per_rail - j,
+    for j in 0..=ctx.segments_per_rail {
+      push_arc_point(
+        ctx.center,
         outer_start_angle,
         outer_angle_delta,
-        outer_radius,
+        ctx.outer_radius,
+        ctx.segments_per_rail - j,
         polygon,
       )
     }
@@ -284,27 +304,27 @@ fn make_bfem_cage(
       // final output connector of coil 1 (at outer edge)
       let node = @cad.ExtrudedProfile::new(
           polygon,
-          extrude_height +
+          ctx.extrude_height +
           1.5 * params.wire_width +
           params.front_thickness +
           params.back_thickness,
         )
-        .with_name("bfem-cage-axial-connector-0")
-        .translate(z=lower_z - params.front_thickness)
+        .with_name("bfem:cage:axial:outlet-red")
+        .translate(z=ctx.lower_z - params.front_thickness)
       wire_nodes.push(node.with_color(@cad.Rgb::red()))
     } else {
       let node = @cad.ExtrudedProfile::new(
           polygon,
-          max_axial_connector_top_zs -
-          lower_z +
+          ctx.max_axial_connector_top_zs -
+          ctx.lower_z +
           params.front_thickness +
           params.back_thickness,
         )
-        .with_name("bfem-cage-axial-connector-\{i.to_int()}")
-        .translate(z=lower_z - params.front_thickness)
-      let color = if ni <= npairs {
+        .with_name("bfem:cage:axial:rail-\{idx}")
+        .translate(z=ctx.lower_z - params.front_thickness)
+      let color = if ni <= ctx.npairs {
         @cad.Rgb::green()
-      } else if ni == npairs + 1 {
+      } else if ni == ctx.npairs + 1 {
         @cad.Rgb::orange() // half-way transition from even to odd coils
       } else {
         @cad.Rgb::red()
@@ -312,43 +332,37 @@ fn make_bfem_cage(
       wire_nodes.push(node.with_color(color))
     }
   }
+}
 
-  // Pre-calculate important values for all coil connectors
-  // rotations represents the angle around the coil where the connector starts
-  let rotations = Array::new(capacity=npairs)
-  let line_lengths = Array::new(capacity=npairs)
-  let zs = Array::new(capacity=npairs)
-  for i in 0..<npairs {
-    let i = i.to_double()
-    zs.push(lower_z + i * delta_z)
-    // Create the connectors to the ends of the coils:
-    rotations.push(-@math.PI * i / num_pairs)
-    line_lengths.push((num_pairs - i) * (params.wire_width + params.wire_gap))
-  }
-
+///|
+fn append_helix_connectors_and_exit_wires(
+  ctx : CageContext,
+  params : Params,
+  rotations : Array[Double],
+  line_lengths : Array[Double],
+  zs : Array[Double],
+  red_cage_wire_support_info : Array[SupportInfo],
+  green_cage_wire_support_info : Array[SupportInfo],
+  wire_nodes : Array[@cad.SceneNode],
+) -> Unit {
   //
   let gen_points = fn(inner_start_angle, inner_angle_delta) {
-    let points = Array::new(capacity=segments_per_rail + 1)
-    // inner points:
-    for j in 0..=segments_per_rail {
-      new_point(j, inner_start_angle, inner_angle_delta, inner_radius, points)
-    }
-    return points
+    gen_inner_arc_points(ctx, inner_start_angle, inner_angle_delta)
   }
 
   // now generate both front/bottom and back/top connectors to the helices
-  for i in 0..<npairs {
+  for i in 0..<ctx.npairs {
     let z = zs[i] + params.wire_width
     let rotation = rotations[i]
     let line_length = line_lengths[i]
     let ni = i + 1
     let i = i.to_double()
-    let inner_start_angle = -i * rail_angle_delta
-    let inner_end_angle = -(i - 1) * rail_angle_delta - 2 * inner_dtheta
+    let inner_start_angle = -i * ctx.rail_angle_delta
+    let inner_end_angle = -(i - 1) * ctx.rail_angle_delta - 2 * ctx.inner_dtheta
     let inner_angle_delta = (inner_end_angle - inner_start_angle) /
-      segments_per_rail.to_double()
+      ctx.segments_per_rail.to_double()
     let polygon = gen_points(inner_start_angle, inner_angle_delta)
-    let connector_radius = inner_radius - line_length
+    let connector_radius = ctx.inner_radius - line_length
     let connector_dtheta = @math.asin(params.wire_gap / (2 * connector_radius))
     let sx = params.pos.0 + connector_radius * @math.cos(rotation)
     let sy = params.pos.1 + connector_radius * @math.sin(rotation)
@@ -366,7 +380,7 @@ fn make_bfem_cage(
     if ni > 1 {
       let end_angle = rotations[ni - 2] -
         @math.asin(params.wire_gap / connector_radius)
-      let start_angle = if ni < npairs {
+      let start_angle = if ni < ctx.npairs {
         rotations[ni - 1] - 0.1 // temporary debugging hack
       } else {
         rotations[ni - 1]
@@ -379,9 +393,9 @@ fn make_bfem_cage(
     }
 
     // this connects the bottom/front helix to the axial connector
-    let bottom_thickness = z - lower_z + params.front_thickness
+    let bottom_thickness = z - ctx.lower_z + params.front_thickness
     let node = @cad.ExtrudedProfile::new(polygon, bottom_thickness)
-      .with_name("bfem-cage-bottom-front-\{i.to_int()}")
+      .with_name("bfem:cage:front-bottom:red:pair-\{ni}")
       .translate(z=z - bottom_thickness)
     wire_nodes.push(node.with_color(@cad.Rgb::red()))
 
@@ -391,10 +405,10 @@ fn make_bfem_cage(
     let mut top_angle = rotation
     if i > 0 {
       // half wire-width at outer radius in radians
-      let top_hww = 0.5 * @math.asin(params.wire_width / (2 * outer_radius))
-      top_angle = rotation - rail_angle_delta / 2 + top_hww
+      let top_hww = 0.5 * @math.asin(params.wire_width / (2 * ctx.outer_radius))
+      top_angle = rotation - ctx.rail_angle_delta / 2 + top_hww
     }
-    let top_helix_z = z + coil_height - 2 * params.wire_width
+    let top_helix_z = z + ctx.coil_height - 2 * params.wire_width
     let sx4 = params.pos.0 + connector_radius * @math.cos(top_angle)
     let sy4 = params.pos.1 + connector_radius * @math.sin(top_angle)
     let sx1 = sx4 + params.wire_width * @math.cos(top_angle - @math.PI / 2)
@@ -409,20 +423,20 @@ fn make_bfem_cage(
     // this is the "up" part of the "up-and-over" connector on the back/top of the design for the odd coils:
     // note the the "up" part for the last odd coil is simply the wire width.
     let polygon = [(sx1, sy1), (sx4, sy4), (sx2, sy2), (sx3, sy3)]
-    let over_height = max_axial_connector_top_zs -
+    let over_height = ctx.max_axial_connector_top_zs -
       top_helix_z +
       params.back_thickness // flat top/back (connector side)
     let node = @cad.ExtrudedProfile::new(polygon, over_height)
-      .with_name("bfem-cage-odd-top-back-\{i.to_int()}")
+      .with_name("bfem:cage:back-top:red:post:pair-\{ni}")
       .translate(z=top_helix_z)
     wire_nodes.push(node.with_color(@cad.Rgb::red()))
 
     // this is the "over" part of the "up-and-over" connector on the back/top of the design for the odd coils:
-    let over_start_angle = -(i + 1) * rail_angle_delta
+    let over_start_angle = -(i + 1) * ctx.rail_angle_delta
     let polygon = gen_points(over_start_angle, inner_angle_delta)
     polygon.push((sx2, sy2))
     polygon.push((sx3, sy3))
-    let top_thickness = if i == num_pairs {
+    let top_thickness = if i == ctx.num_pairs {
       over_height
     } else {
       over_height - params.wire_width - params.wire_gap
@@ -431,7 +445,7 @@ fn make_bfem_cage(
         polygon,
         top_thickness - params.wire_gap,
       )
-      .with_name("bfem-cage-over-\{i.to_int()}")
+      .with_name("bfem:cage:back-top:red:over:pair-\{ni}")
       .translate(z=top_helix_z + over_height - top_thickness + params.wire_gap)
     wire_nodes.push(node.with_color(@cad.Rgb::red()))
 
@@ -445,7 +459,7 @@ fn make_bfem_cage(
         (connector_radius + params.wire_width) * @math.sin(rotation)
       let polygon = [(sx5, sy5), (sx6, sy6), (sx2, sy2), (sx4, sy4)]
       let node = @cad.ExtrudedProfile::new(polygon, params.wire_width)
-        .with_name("bfem-cage-top-connector-\{i.to_int()}")
+        .with_name("bfem:cage:back-top:red:helix-link:pair-\{ni}")
         .translate(z=top_helix_z)
       wire_nodes.push(node.with_color(@cad.Rgb::red()))
     }
@@ -460,7 +474,7 @@ fn make_bfem_cage(
     polygon.push((tx, ty))
     polygon.push((sx, sy))
     let node = @cad.ExtrudedProfile::new(polygon, bottom_thickness)
-      .with_name("bfem-cage-second-bottom-front-\{i.to_int()}")
+      .with_name("bfem:cage:front-bottom:green:pair-\{ni}")
       .translate(z=z - bottom_thickness)
     wire_nodes.push(node.with_color(@cad.Rgb::green()))
 
@@ -470,7 +484,7 @@ fn make_bfem_cage(
         @math.asin(params.wire_gap / connector_radius) +
         @math.PI
       let start_angle = @math.PI +
-        (if ni < npairs {
+        (if ni < ctx.npairs {
           rotations[ni - 1] - 0.1 // temporary debugging hack
         } else {
           rotations[ni - 1]
@@ -486,11 +500,11 @@ fn make_bfem_cage(
     // this is the back/top of the design
     // these are the even coils (2, 4, 6, etc.)
 
-    if ni >= npairs {
+    if ni >= ctx.npairs {
       // final output connector of last coil
       top_angle = rotation - connector_dtheta
     }
-    let top_helix_z = z + coil_height - 2 * params.wire_width
+    let top_helix_z = z + ctx.coil_height - 2 * params.wire_width
     let sx4 = params.pos.0 + connector_radius * @math.cos(top_angle + @math.PI)
     let sy4 = params.pos.1 + connector_radius * @math.sin(top_angle + @math.PI)
     let mut sx1 = sx4 + params.wire_width * @math.cos(top_angle + @math.PI / 2)
@@ -501,8 +515,8 @@ fn make_bfem_cage(
       (connector_radius + params.wire_width) * @math.sin(top_angle + @math.PI)
     let mut sx3 = sx2 + params.wire_width * @math.cos(top_angle + @math.PI / 2)
     let mut sy3 = sy2 + params.wire_width * @math.sin(top_angle + @math.PI / 2)
-    if ni >= npairs { // final output connector of last coil
-      let angle_diff = rail_angle_delta - 2 * outer_dtheta
+    if ni >= ctx.npairs { // final output connector of last coil
+      let angle_diff = ctx.rail_angle_delta - 2 * ctx.outer_dtheta
       sx1 = params.pos.0 +
         connector_radius * @math.cos(top_angle + @math.PI - angle_diff)
       sy1 = params.pos.1 +
@@ -517,13 +531,13 @@ fn make_bfem_cage(
     let polygon = [(sx1, sy1), (sx4, sy4), (sx2, sy2), (sx3, sy3)]
 
     //
-    if ni >= npairs { // final output connector of last coil (closer to center)
+    if ni >= ctx.npairs { // final output connector of last coil (closer to center)
       let node = @cad.ExtrudedProfile::new(polygon, params.wire_width)
-        .with_name("bfem-cage-even-final-last-coil-\{i.to_int()}")
+        .with_name("bfem:cage:back-top:green:outlet-outer")
         .translate(z=top_helix_z)
       wire_nodes.push(node.with_color(@cad.Rgb::green()))
       // generate inner final output connector of last coil with same radial thickness as other connector
-      let angle_diff = rail_angle_delta - 2 * outer_dtheta
+      let angle_diff = ctx.rail_angle_delta - 2 * ctx.outer_dtheta
       let ew_inner_radius = connector_radius -
         0.6 * params.exit_wire_separation -
         params.exit_wire_diameter
@@ -540,37 +554,36 @@ fn make_bfem_cage(
       let polygon = [(sx4, sy4), (sx1, sy1), s3, s2]
       let flat_top_height = 2.5 * params.wire_width + params.back_thickness
       let node = @cad.ExtrudedProfile::new(polygon, flat_top_height)
-        .with_name("bfem-cage-even-flat-top-final-last-coil-\{i.to_int()}")
+        .with_name("bfem:cage:back-top:green:outlet-inner")
         .translate(z=top_helix_z)
       wire_nodes.push(node.with_color(@cad.Rgb::green()))
 
       // now make the exit wire cylinders
       if !params.nowires {
-        let inner_wire_post_center = center_of_face(polygon) // + vector(0,0,flat_top_height)
+        let inner_wire_post_center = center_of_face(polygon)
         let mut inner_wire_pos = inner_wire_post_center
-        let outer_wire_radius = (inner_radius + outer_radius) / 2
+        let outer_wire_radius = (ctx.inner_radius + ctx.outer_radius) / 2
         let outer_wire_dtheta = @math.asin(
           params.wire_gap / (2 * outer_wire_radius),
         )
         let outer_wire_start_angle = 0.0
-        let outer_wire_end_angle = rail_angle_delta - 2 * outer_wire_dtheta
+        let outer_wire_end_angle = ctx.rail_angle_delta - 2 * outer_wire_dtheta
         let outer_wire_post_center = vertex_at(
-          center=(params.pos.0, params.pos.1), // , inner_wire_pos.y),
+          center=(params.pos.0, params.pos.1),
           radius=outer_wire_radius,
           angle=(outer_wire_end_angle - outer_wire_start_angle) / 2,
         )
         let mut outer_wire_pos = outer_wire_post_center
-        // outer_wire_pos = (outer_wire_pos.0, outer_wire_pos.1) // , inner_wire_pos.y
         let centers_distance = vector_length(
           outer_wire_post_center, inner_wire_post_center,
         )
         if centers_distance < params.exit_wire_separation {
           let pa = inner_wire_post_center
-          let va = (polygon[3].0, polygon[3].1) //, inner_wire_pos.y)
+          let va = (polygon[3].0, polygon[3].1)
           let pb = outer_wire_post_center
           let vb = vertex_at(
-            center=(params.pos.0, params.pos.1), // , inner_wire_pos.y),
-            radius=(inner_radius + outer_radius) / 2,
+            center=(params.pos.0, params.pos.1),
+            radius=(ctx.inner_radius + ctx.outer_radius) / 2,
             angle=outer_wire_start_angle,
           )
 
@@ -595,8 +608,8 @@ fn make_bfem_cage(
           radius=params.exit_wire_diameter / 2,
           segments=12,
           height=params.connector_length,
+          name="bfem:exit-wire:green",
         )
-        // Ops.merge(out_mesh, inner_exit_wire.mesh)
         wire_nodes.push(inner_exit_wire.cylinder.with_color(@cad.Rgb::green()))
         let outer_exit_wire = make_cylinder(
           pos=(
@@ -607,14 +620,14 @@ fn make_bfem_cage(
           radius=params.exit_wire_diameter / 2,
           segments=12,
           height=params.connector_length,
+          name="bfem:exit-wire:red",
         )
-        // Ops.merge(out_mesh, outer_exit_wire.mesh)
         wire_nodes.push(outer_exit_wire.cylinder.with_color(@cad.Rgb::red()))
       }
     }
 
     //
-    if ni < npairs {
+    if ni < ctx.npairs {
       // this is the "up" part of the "up-and-over" connector on the back/top of the design for the even coils:
       let post = make_vertical_post_wedge(
         pos=(params.pos.0, params.pos.1, params.pos.2 + top_helix_z),
@@ -626,7 +639,7 @@ fn make_bfem_cage(
       )
       wire_nodes.push(post.post.with_color(@cad.Rgb::green()))
       // this is the "over" part of the "up-and-over" connector on the back/top of the design for the even coils:
-      let over_start_angle = -(i + 1) * rail_angle_delta + @math.PI
+      let over_start_angle = -(i + 1) * ctx.rail_angle_delta + @math.PI
       let polygon = gen_points(over_start_angle, inner_angle_delta)
       polygon.push(post.top_p0)
       polygon.push(post.top_p1)
@@ -634,7 +647,7 @@ fn make_bfem_cage(
           polygon,
           top_thickness - params.wire_gap,
         )
-        .with_name("bfem-cage-even-over-top-coil-\{i.to_int()}")
+        .with_name("bfem:cage:back-top:green:over:pair-\{ni}")
         .translate(
           z=top_helix_z + over_height - top_thickness + params.wire_gap,
         )
@@ -649,68 +662,124 @@ fn make_bfem_cage(
         end_angle=rotation + @math.PI,
         radial_length=params.wire_width,
         height=params.wire_width,
+        name="bfem:cage:back-top:green:helix-link:pair-\{ni}",
       )
       wire_nodes.push(wire.wedge.with_color(@cad.Rgb::green()))
     }
   }
+}
+
+///|
+fn append_supports(
+  ctx : CageContext,
+  size : Vec3,
+  params : Params,
+  red_cage_wire_support_info : Array[SupportInfo],
+  green_cage_wire_support_info : Array[SupportInfo],
+  support_nodes : Array[@cad.SceneNode],
+) -> Unit {
+  // Finally, add support structures
+  let shaft_pos = (
+    params.pos.0,
+    params.pos.1,
+    params.pos.2 - params.wire_width / 2 - params.front_thickness,
+  )
+  let shaft_radius = params.inner_diam / 2 - params.tolerance
+  let front_inner_shaft = make_cylinder(
+    pos=shaft_pos,
+    radius=shaft_radius,
+    segments=params.num_segs,
+    // height=coil_height + params.front_thickness + params.back_thickness, // flush with top coil
+    height=ctx.extrude_height +
+      1.5 * params.wire_width +
+      params.front_thickness +
+      params.back_thickness +
+      params.connector_length,
+    name="bfem:support:inner-shaft",
+  )
+  support_nodes.push(front_inner_shaft.cylinder.with_color(@cad.Rgb::blue()))
+
+  //
+  for idx, info in red_cage_wire_support_info {
+    let height = params.wire_width -
+      info.end_angle / @math.PI * size.2 / 2 -
+      params.tolerance
+    let trim_last_edge = idx == red_cage_wire_support_info.length() - 1
+    add_support(
+      idx,
+      "red",
+      info,
+      shaft_pos~,
+      shaft_radius~,
+      height~,
+      params~,
+      support_nodes~,
+      trim_last_edge~,
+    )
+  }
+  for idx, info in green_cage_wire_support_info {
+    let height = params.wire_width +
+      (@math.PI - info.end_angle) / @math.PI * size.2 / 2 -
+      params.tolerance
+    let trim_last_edge = idx == green_cage_wire_support_info.length() - 1
+    add_support(
+      idx,
+      "green",
+      info,
+      shaft_pos~,
+      shaft_radius~,
+      height~,
+      params~,
+      support_nodes~,
+      trim_last_edge~,
+    )
+  }
+}
+
+///|
+/// make_bfem_cage makes a wire cage around the bifilar electromagnet and wires up the coils.
+/// It also returns an optional support structure to hold the coils.
+fn make_bfem_cage(
+  size~ : Vec3,
+  params~ : Params,
+) -> (Array[@cad.SceneNode], Array[@cad.SceneNode]) {
+  let ctx = make_cage_context(size, params)
+  let red_cage_wire_support_info = Array::new(capacity=ctx.npairs)
+  let green_cage_wire_support_info = Array::new(capacity=ctx.npairs)
+  let axial_connector_top_zs = Array::new(capacity=2 * ctx.npairs)
+  let wire_nodes = []
+  let support_nodes = []
+
+  // first, generate the long axial connectors
+  append_axial_connectors(ctx, params, axial_connector_top_zs, wire_nodes)
+
+  // Pre-calculate important values for all coil connectors
+  // rotations represents the angle around the coil where the connector starts
+  let rotations = Array::new(capacity=ctx.npairs)
+  let line_lengths = Array::new(capacity=ctx.npairs)
+  let zs = Array::new(capacity=ctx.npairs)
+  for i in 0..<ctx.npairs {
+    let i = i.to_double()
+    zs.push(ctx.lower_z + i * ctx.delta_z)
+    // Create the connectors to the ends of the coils:
+    rotations.push(-@math.PI * i / ctx.num_pairs)
+    line_lengths.push(
+      (ctx.num_pairs - i) * (params.wire_width + params.wire_gap),
+    )
+  }
+
+  //
+  append_helix_connectors_and_exit_wires(
+    ctx, params, rotations, line_lengths, zs, red_cage_wire_support_info, green_cage_wire_support_info,
+    wire_nodes,
+  )
 
   //
   if !params.nosupport {
-    // Finally, add support structures
-    let shaft_pos = (
-      params.pos.0,
-      params.pos.1,
-      params.pos.2 - params.wire_width / 2 - params.front_thickness,
+    append_supports(
+      ctx, size, params, red_cage_wire_support_info, green_cage_wire_support_info,
+      support_nodes,
     )
-    let shaft_radius = params.inner_diam / 2 - params.tolerance
-    let front_inner_shaft = make_cylinder(
-      pos=shaft_pos,
-      radius=shaft_radius,
-      segments=params.num_segs,
-      // height=coil_height + params.front_thickness + params.back_thickness, // flush with top coil
-      height=extrude_height +
-        1.5 * params.wire_width +
-        params.front_thickness +
-        params.back_thickness +
-        params.connector_length,
-    )
-    support_nodes.push(front_inner_shaft.cylinder.with_color(@cad.Rgb::blue()))
-
-    //
-    for idx, info in red_cage_wire_support_info {
-      let height = params.wire_width -
-        info.end_angle / @math.PI * size.2 / 2 -
-        params.tolerance
-      let trim_last_edge = idx == red_cage_wire_support_info.length() - 1
-      add_support(
-        idx,
-        "red",
-        info,
-        shaft_pos~,
-        shaft_radius~,
-        height~,
-        params~,
-        support_nodes~,
-        trim_last_edge~,
-      )
-    }
-    for idx, info in green_cage_wire_support_info {
-      let height = params.wire_width +
-        (@math.PI - info.end_angle) / @math.PI * size.2 / 2 -
-        params.tolerance
-      let trim_last_edge = idx == green_cage_wire_support_info.length() - 1
-      add_support(
-        idx,
-        "green",
-        info,
-        shaft_pos~,
-        shaft_radius~,
-        height~,
-        params~,
-        support_nodes~,
-        trim_last_edge~,
-      )
-    }
   }
 
   //
@@ -744,7 +813,7 @@ fn add_support(
     end_angle=info.end_angle,
     radial_length~,
     height~,
-    name="bfem-cage-\{name}-support-\{idx}",
+    name="bfem:cage:support:\{name}:\{idx + 1}",
     trim_last_edge~,
     wire_gap=params.wire_gap,
   )
@@ -752,7 +821,7 @@ fn add_support(
 }
 
 ///|
-fn vector_length(a : Vec2, b : Vec2) -> Double {
+pub fn vector_length(a : Vec2, b : Vec2) -> Double {
   let dx = b.0 - a.0
   let dy = b.1 - a.1
   (dx * dx + dy * dy).sqrt()
