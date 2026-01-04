@@ -112,8 +112,8 @@ async fn export_conductor_network_json(
   let series = Array::new()
 
   // Start at IN terminal (top of the green exit wire) then go down to the base.
-  series.push(in_term)
-  series.push(in_base)
+  push_point(series, in_term)
+  push_point(series, in_base)
 
   // Precompute all helix point arrays so we can stitch deterministically.
   let delta_z = (params.wire_gap + params.wire_width) /
@@ -154,13 +154,13 @@ async fn export_conductor_network_json(
     )
 
     // Jump from current series end to green top.
-    series.push(green_top_to_bottom[0])
+    push_point(series, green_top_to_bottom[0])
 
     // Append green helix (skip duplicate start point if already present).
     append_polyline(series, green_top_to_bottom)
 
     // Jump from green bottom to red bottom.
-    series.push(red_bottom_to_top[0])
+    push_point(series, red_bottom_to_top[0])
 
     // Append red helix.
     append_polyline(series, red_bottom_to_top)
@@ -170,8 +170,8 @@ async fn export_conductor_network_json(
   }
 
   // End at OUT base and then extend to the OUT terminal top.
-  series.push(out_base)
-  series.push(out_term)
+  push_point(series, out_base)
+  push_point(series, out_term)
 
   // Emit JSON.
   let builder = StringBuilder::new()
@@ -217,6 +217,18 @@ async fn export_conductor_network_json(
       @cli.eprintln("error: failed to write conductor network JSON: \{err}")
       abort("")
     }
+  }
+}
+
+///|
+fn push_point(dst : Array[Vec3], p : Vec3) -> Unit {
+  if dst.length() == 0 {
+    dst.push(p)
+    return
+  }
+  let last = dst[dst.length() - 1]
+  if last != p {
+    dst.push(p)
   }
 }
 

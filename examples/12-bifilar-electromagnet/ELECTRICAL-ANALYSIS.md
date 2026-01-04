@@ -235,6 +235,44 @@ Also define “ports”:
 - two terminals: `IN` and `OUT` of the single series path
 - optional: define a reference conductor/ground if you want C-to-ground rather than purely inter-conductor coupling
 
+### Step 1: Extract L of the full series path (FastHenry)
+
+This repo can generate a **single-port** FastHenry deck for the full IN→OUT conductor path:
+
+```bash
+./scripts/bfem_fasthenry.py --out-inp /tmp/bfem.inp \
+  --numPairs 10 --vertTurns 15 --wireWidth 1.0 --wireGap 0.2 --innerDiam 6.0
+```
+
+Run `fasthenry` on a machine that has it installed, then record the extracted inductance for the `BFEM_IN_OUT` port.
+
+Important note: for absolute inductance accuracy you usually also model an explicit return path / reference conductor. For SRF ballparks, start with the simplest extraction and refine once you have a capacitance model.
+
+### Step 2: Compute a lumped SRF once you have L and an effective C
+
+Once you have (or assume) an equivalent $L$ and effective $C$, compute:
+
+```bash
+./scripts/bfem_resonance.py --L-mH 1.0 --C-nF 1.0
+```
+
+Or, if you have $L$ and want to know how much $C$ you need to hit a target:
+
+```bash
+./scripts/bfem_resonance.py --L-mH 1.0 --target-f0-hz 10000
+```
+
+### Step 3 (the hard part): Extract an effective C that matches this topology
+
+For this design, the capacitance that drives self-resonance is **distributed** (inter-turn / inter-segment coupling at different potentials along a *single* conductor).
+
+That means:
+
+- A naive “one conductor vs ground” capacitance extraction is generally **not sufficient** to predict SRF.
+- A credible quasi-static approach usually segments the conductor into many electrically-distinct pieces (nodes), computes a capacitance matrix between them, and then solves the resulting PEEC network.
+
+Next work in this repo should focus on exporting a segmentation suitable for capacitance extraction (FastCap / FEM) and then building the reduced-order network to estimate SRF.
+
 ### Option A (best cost/value): PEEC / quasi-static extraction
 
 This is usually the fastest path to usable $R$, $L$, and $C$ for complex 3D conductor networks.
