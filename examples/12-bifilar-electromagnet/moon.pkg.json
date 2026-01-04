@@ -3,6 +3,7 @@
   "import": [
     "gmlewis/step/cad",
     "gmlewis/step/cli",
-    "moonbitlang/async"
+    "moonbitlang/async",
+    "moonbitlang/async/fs"
   ]
 }

@@ -335,3 +335,33 @@ If you want, I can add an opt-in export mode (JSON or a direct FastHenry-ish tex
 - generate a segmented conductor network from the exact parametric geometry
 - run/parse extraction tools
 - compute and report the lowest resonance numerically
+
+## PEEC workflow (FastHenry2) using centerline export (implemented)
+
+Example 12 now supports exporting discretized helix centerlines as JSON:
+
+```bash
+moon run --target native examples/12-bifilar-electromagnet -- \
+  --export_centerlines /tmp/bfem_centerlines.json \
+  > /dev/null
+```
+
+This JSON is designed to be a stable “intent export” for solver tooling (mm units, per-helix polylines).
+
+To generate a **FastHenry2** input deck from that export:
+
+```bash
+./scripts/bfem_fasthenry.py --out-inp /tmp/bfem.inp \
+  --numPairs 10 --vertTurns 15 --wireWidth 1.0 --wireGap 0.2 --innerDiam 6.0
+```
+
+Then run FastHenry2 (recommended on Linux):
+
+```bash
+fasthenry /tmp/bfem.inp
+```
+
+Important modeling note:
+
+- The generated deck defines **one `.external` per helix** (between its endpoints).
+- This is a good starting point for extracting per-helix $L$ and $R(f)$, but it is not automatically a physical “loop inductance” unless you model an explicit return path (a return conductor or ground plane).

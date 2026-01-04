@@ -88,8 +88,6 @@ def run_bfem_report(args: argparse.Namespace) -> BfemReport:
         str(args.numSegs),
         "--rho",
         str(args.rho),
-        "-o",
-        "/dev/null",
     ]
     cmd = [c for c in cmd if c]
 
