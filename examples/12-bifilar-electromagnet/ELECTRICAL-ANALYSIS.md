@@ -407,6 +407,61 @@ With $L$ in the few-µH range, you would need unrealistically large $C$ in air. 
 
 - If the goal is “low resonance” rather than “purely geometry-defined SRF”, a real capacitor across the terminals is by far the simplest way to push resonance into kHz.
 
+### Practical note: avoiding magnetic cores (carousel + permanent magnets)
+
+If these electromagnets live near strong permanent magnets (e.g., a carousel), adding ferromagnetic cores can introduce unwanted forces/torques and disturb motion. In that case, the most practical “big lever” for dramatically lowering SRF is typically:
+
+- **A shunt capacitor across IN/OUT** for each electromagnet.
+
+This changes the problem from “what is the geometry’s self-resonance in air?” to “what is the resonance of the coil + intentionally added capacitance?”, which is often the only realistic path to kHz resonance without magnetic material.
+
+### How much capacitor would be needed?
+
+Using the extracted inductance from FastHenry (this repo’s captured run):
+
+- $L \approx 2.91\ \mu\text{H}$
+
+The capacitor needed for a target resonance is:
+
+$$C \approx \frac{1}{(2\pi f_0)^2 L}$$
+
+Ballpark capacitor sizes (with $L\approx 2.91\ \mu$H):
+
+| Target $f_0$ | Required $C$ |
+|---:|---:|
+| 1 MHz | ~8.7 nF |
+| 100 kHz | ~0.87 µF |
+| 10 kHz | ~87 µF |
+| 1 kHz | ~8.7 mF |
+
+So:
+
+- If you truly want **<10 kHz**, you should expect **tens of µF per coil** (order-of-magnitude).
+- If “low” means **~100 kHz**, then **sub-µF** per coil is more plausible.
+
+### Will changing `--vertTurns` help?
+
+Increasing `--vertTurns` increases total conductor length. In many geometries, both $L$ and effective $C$ scale roughly with length.
+
+- If $L \propto \ell$ and $C \propto \ell$, then $f_0 \propto 1/\ell$.
+
+That means `--vertTurns` can help, but only *linearly*. To move SRF down by a factor of 1000, you would need roughly 1000× more length/turns, which is usually mechanically impossible.
+
+Given the current ballpark (air-only SRF in the ~10–20 MHz range), `--vertTurns` alone is very unlikely to get you to kHz.
+
+### Drive and damping implications (important with external C)
+
+Adding a shunt capacitor can create a higher-Q resonant system.
+
+- Near resonance, reactive currents can become large depending on the driver and losses.
+- Real capacitors have ESR/ESL; ESR often provides useful damping.
+
+Practical mitigations:
+
+- Prefer a **known damping strategy** (intentional series resistance, or a driver mode that limits current).
+- Choose capacitor types appropriate for the expected AC current (film/ceramic depending on your frequency/current regime).
+- If you are driving many coils (e.g., 18), decide whether caps are always connected or switched and whether resonance interactions matter.
+
 ### Modeling improvements (what to do next in this repo)
 
 1) **Make FastHenry inductance correspond to your measurement environment**
