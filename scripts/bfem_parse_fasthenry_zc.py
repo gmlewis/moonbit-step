@@ -63,8 +63,9 @@ def _iter_zpoints(lines: Iterable[str]) -> Iterable[ZPoint]:
     - Yield a ZPoint and then clear frequency so we don't accidentally consume
       subsequent metadata.
 
-    If the file omits explicit frequency lines (rare), we fall back to parsing
-    the first line with >=3 floats as (f, Re, Im).
+    We intentionally do *not* use a pre-frequency fallback because the header
+    often contains integers like "Row 1 ... 0 ... 10823" which can be misread
+    as numeric data.
     """
 
     cur_f: Optional[float] = None
@@ -86,12 +87,7 @@ def _iter_zpoints(lines: Iterable[str]) -> Iterable[ZPoint]:
                 cur_f = None
             continue
 
-        # Fallback: line contains (f, Re, Im)
-        if len(nums) >= 3:
-            f0, r, x = float(nums[0]), float(nums[1]), float(nums[2])
-            yield ZPoint(f_hz=f0, r_ohm=r, x_ohm=x)
-            # Only take the first plausible triple in fallback mode.
-            return
+        # No fallback parsing before a frequency line.
 
 
 def parse_zc(path: Path) -> List[ZPoint]:
