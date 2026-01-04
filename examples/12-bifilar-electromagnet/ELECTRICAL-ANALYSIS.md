@@ -150,7 +150,7 @@ A solver-based approach is strongly recommended for credible $C$ and resonance e
 
 - Example 12 supports `--report` (prints to stderr) and `--rho` (ohm*m).
 - Quick analysis helper script:
-  - [scripts/bfem_analyze.py](scripts/bfem_analyze.py)
+  - [scripts/bfem_analyze.py](../../scripts/bfem_analyze.py)
 
 Example usage:
 
@@ -272,6 +272,152 @@ That means:
 - A credible quasi-static approach usually segments the conductor into many electrically-distinct pieces (nodes), computes a capacitance matrix between them, and then solves the resulting PEEC network.
 
 Next work in this repo should focus on exporting a segmentation suitable for capacitance extraction (FastCap / FEM) and then building the reduced-order network to estimate SRF.
+
+---
+
+## 2026-01-03 status: end-to-end SRF workflow (what we actually did)
+
+This section captures the concrete workflow we executed in this repo to get a first-pass estimate of self-resonant frequency (SRF), starting from the parametric generator.
+
+### Step A: Prove the electrical topology (single series path)
+
+We added an explicit network export that defines the **single continuous conductor path** from:
+
+- IN terminal: `bfem:exit-wire:green`
+- OUT terminal: `bfem:exit-wire:red`
+
+Key changes:
+
+- New generator flag: `--export_conductor_network <path>`
+  - Emits JSON schema `bfem:conductor-network:v1`.
+  - Includes explicit `terminals` (IN/OUT) and a single polyline `paths[0]` named `bfem:conductor:series`.
+- New generator flag: `--nostep`
+  - Suppresses STEP output (useful for pure analysis/export runs).
+
+Proof command (one-shot helper):
+
+```bash
+python3 scripts/bfem_prove_single_wire.py
+```
+
+Files involved:
+
+- [scripts/bfem_prove_single_wire.py](../../scripts/bfem_prove_single_wire.py)
+- [scripts/bfem_verify_connectivity.py](../../scripts/bfem_verify_connectivity.py)
+
+Result (defaults as of 2026-01-03): the exported conductor graph is a single connected component with exactly two degree-1 nodes, and those match the IN/OUT terminals.
+
+### Step B: Extract L and R for the IN→OUT port (FastHenry)
+
+We generate a FastHenry deck for the **single series path** (one conductor, one port):
+
+```bash
+./scripts/bfem_fasthenry.py --out-inp /tmp/bfem.inp \
+  --numPairs 10 --vertTurns 15 --wireWidth 1.0 --wireGap 0.2 --innerDiam 6.0
+```
+
+Then run `fasthenry` (Linux recommended) and copy the output matrix file into this example directory.
+
+- FastHenry output file: [examples/12-bifilar-electromagnet/Zc.mat](examples/12-bifilar-electromagnet/Zc.mat)
+
+Parse it with:
+
+```bash
+python3 scripts/bfem_parse_fasthenry_zc.py examples/12-bifilar-electromagnet/Zc.mat
+```
+
+For the run captured in this repo (frequency = 1 Hz), `Zc.mat` reports:
+
+- $Z \approx 0.295705 + j\,1.82665\times 10^{-5}\ \Omega$
+- $R \approx 0.2957\ \Omega$
+- $L = \mathrm{Im}(Z)/(2\pi f) \approx 2.91\ \mu\text{H}$
+
+This $R$ is consistent with the earlier DC-length-based estimate (order-of-magnitude check passes).
+
+### Step C: Estimate air-only effective capacitance (ballpark)
+
+We added a fast, solver-free “air-only” estimator that uses the exported conductor polyline and sums coupling between nearby, parallel-ish segments.
+
+Run:
+
+```bash
+python3 scripts/bfem_capacitance_air.py
+```
+
+File:
+
+- [scripts/bfem_capacitance_air.py](../../scripts/bfem_capacitance_air.py)
+
+Result (defaults as of 2026-01-03):
+
+- $C_{eff,air}$ estimate: ~38.1 pF
+
+Important: this is a **ranking/ballpark** estimator, not a substitute for FastCap/PEEC/FEM capacitance extraction.
+
+### Step D: Compute SRF from L and C
+
+We compute a lumped SRF estimate using:
+
+$$f_0 \approx \frac{1}{2\pi\sqrt{LC}}$$
+
+Script:
+
+- [scripts/bfem_resonance.py](../../scripts/bfem_resonance.py)
+
+Using the extracted $L \approx 2.91\ \mu\text{H}$ and the air-only $C_{eff} \approx 38.1\ \text{pF}$:
+
+- $f_0$ ballpark is ~15.1 MHz.
+
+Feasibility check for a very low target (example: 10 kHz) with that inductance:
+
+- Required $C$ would be on the order of ~87 µF, which is not physically plausible for this geometry in air.
+
+---
+
+## Conclusions (current best understanding)
+
+1. The generator-exported electrical topology is consistent with a **single series conductor** between the two exit wires.
+2. The FastHenry result indicates **very low inductance** at the terminals for this series-bifilar geometry (µH scale), despite long conductor length.
+   - This is consistent with substantial magnetic-field cancellation expected in strongly coupled bifilar arrangements.
+3. In **air**, even an optimistic effective capacitance (tens of pF) combined with µH inductance implies SRF in the **MHz range**, not the kHz range.
+
+---
+
+## Recommendations to dramatically reduce SRF
+
+To reduce SRF dramatically, you need to increase $L$ and/or increase effective $C$ by **orders of magnitude**.
+
+### If you want SRF in the kHz range
+
+With $L$ in the few-µH range, you would need unrealistically large $C$ in air. Therefore, for kHz SRF, you must change at least one of:
+
+1) **Increase inductance (reduce cancellation / add magnetic core)**
+
+- Use a ferromagnetic core (ferrite/laminations/soft iron) to increase $L$.
+- Change the current path topology so it behaves like an inductor rather than a near-cancelling transmission-line-like structure.
+  - “Bifilar” is excellent for coupling and capacitance, but it often cancels inductance when the currents are opposite in nearby conductors.
+
+2) **Increase capacitance (beyond air)**
+
+- Embed/fill the structure with a dielectric (epoxy, ceramic-filled resin, etc.). Higher relative permittivity increases capacitance substantially.
+- Add intentional capacitor geometry (interleaved plates/foils) integrated into the print or in assembly.
+- Add a nearby grounded enclosure/ground plane if your real-world environment includes one.
+
+3) **Add an explicit external capacitor across IN/OUT**
+
+- If the goal is “low resonance” rather than “purely geometry-defined SRF”, a real capacitor across the terminals is by far the simplest way to push resonance into kHz.
+
+### Modeling improvements (what to do next in this repo)
+
+1) **Make FastHenry inductance correspond to your measurement environment**
+
+- Inductance depends strongly on the return path / fixture.
+- Add an optional modeled return conductor or ground reference in the FastHenry deck generator to bound $L$ (best-case vs worst-case), matching how you will actually drive the device.
+
+2) **Replace the air-only capacitance proxy with a capacitance matrix workflow**
+
+- SRF-driving capacitance here is distributed; a credible model generally needs segmentation and a capacitance matrix (FastCap/PEEC/FEM), then reduction to an effective terminal $C$.
+- The conductor-network export already gives us a natural segmentation basis (polyline segments). Next step is to export a solver-friendly panel/filament representation for electrostatics.
 
 ### Option A (best cost/value): PEEC / quasi-static extraction
 
