@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""Generate a FastHenry2 input deck from Example 12 helix centerlines.
+"""Generate a FastHenry2 input deck from Example 12 conductor-network export.
 
 This script uses the Example 12 generator's `--export_centerlines` output to
 avoid fragile STEP/STL conversion.
 
 What it generates
-- One conductor (polyline of segments) per exported helix.
-- One `.external` per helix (between its endpoints).
+- One conductor (single polyline of segments) for the full series path.
+- One `.external` between IN and OUT terminals.
 
 Important modeling note
 FastHenry computes *partial inductances* unless you include an explicit return
@@ -44,7 +44,7 @@ def _repo_root() -> Path:
     return Path(__file__).resolve().parents[1]
 
 
-def _run_export_centerlines(args: argparse.Namespace, json_path: Path) -> None:
+def _run_export_conductor_network(args: argparse.Namespace, json_path: Path) -> None:
     repo = _repo_root()
 
     cmd = [
@@ -54,7 +54,7 @@ def _run_export_centerlines(args: argparse.Namespace, json_path: Path) -> None:
         "native",
         "examples/12-bifilar-electromagnet",
         "--",
-        "--export_centerlines",
+        "--export_conductor_network",
         str(json_path),
         "--nocoil" if args.nocoil else "",
         "--nocage" if args.nocage else "",
@@ -94,7 +94,7 @@ def _mm_to_m(mm: float) -> float:
 
 def _load_centerlines(path: Path) -> Dict[str, Any]:
     data = json.loads(path.read_text(encoding="utf-8"))
-    if data.get("schema") != "bfem:centerlines:v1":
+    if data.get("schema") != "bfem:conductor-network:v1":
         raise ValueError(f"Unexpected schema: {data.get('schema')}")
     if data.get("units") != "mm":
         raise ValueError(f"Unexpected units: {data.get('units')}")
@@ -140,35 +140,33 @@ def build_fasthenry_deck(
     )
     lines.append("")
 
-    externals: List[Tuple[str, str, str]] = []
+    paths = data.get("paths", [])
+    if not isinstance(paths, list) or not paths:
+        raise ValueError("No paths found in conductor-network JSON")
+    path = paths[0]
+    name = str(path.get("name", "bfem:conductor:series"))
+    safe = _sanitize_name(name)
+    pts = path.get("points")
+    if not isinstance(pts, list) or len(pts) < 2:
+        raise ValueError("Series path must have at least 2 points")
 
-    # Emit nodes and segments per path.
-    for path_index, path in enumerate(data.get("paths", [])):
-        name = str(path.get("name", f"path-{path_index}"))
-        safe = _sanitize_name(name)
-        pts = path.get("points")
-        if not isinstance(pts, list) or len(pts) < 2:
-            continue
+    node_names: List[str] = []
+    for i, p in enumerate(pts):
+        x_mm, y_mm, z_mm = float(p[0]), float(p[1]), float(p[2])
+        node = f"N_{safe}_{i}"
+        node_names.append(node)
+        lines.append(
+            f"{node} x={_format_float(_mm_to_m(x_mm))} y={_format_float(_mm_to_m(y_mm))} z={_format_float(_mm_to_m(z_mm))}"
+        )
 
-        node_names: List[str] = []
-        for i, p in enumerate(pts):
-            x_mm, y_mm, z_mm = float(p[0]), float(p[1]), float(p[2])
-            node = f"N_{safe}_{i}"
-            node_names.append(node)
-            lines.append(
-                f"{node} x={_format_float(_mm_to_m(x_mm))} y={_format_float(_mm_to_m(y_mm))} z={_format_float(_mm_to_m(z_mm))}"
-            )
+    for i in range(1, len(node_names)):
+        seg = f"E_{safe}_{i-1}_{i}"
+        lines.append(f"{seg} {node_names[i-1]} {node_names[i]}")
 
-        for i in range(1, len(node_names)):
-            seg = f"E_{safe}_{i-1}_{i}"
-            lines.append(f"{seg} {node_names[i-1]} {node_names[i]}")
-
-        externals.append((node_names[0], node_names[-1], safe))
-        lines.append("")
-
-    # Externals (ports)
-    for n1, n2, label in externals:
-        lines.append(f".external {n1} {n2} {label}")
+    # Single external between endpoints. Exporter ensures endpoints correspond
+    # to IN and OUT terminal points.
+    lines.append("")
+    lines.append(f".external {node_names[0]} {node_names[-1]} BFEM_IN_OUT")
 
     lines.append(
         f".freq fmin={_format_float(fmin_hz)} fmax={_format_float(fmax_hz)} ndec={ndec}"
@@ -219,7 +217,7 @@ def main() -> None:
 
     with tempfile.TemporaryDirectory(prefix="bfem_centerlines_") as td:
         json_path = Path(td) / "centerlines.json"
-        _run_export_centerlines(args, json_path)
+        _run_export_conductor_network(args, json_path)
         data = _load_centerlines(json_path)
 
     deck = build_fasthenry_deck(
@@ -233,9 +231,7 @@ def main() -> None:
     )
     args.out_inp.write_text(deck, encoding="utf-8")
     print(f"Wrote: {args.out_inp}")
-    print(
-        "Note: This deck defines one .external per helix. For loop inductance, model an explicit return path (or ground plane)."
-    )
+    print("Note: This deck defines a single .external between BFEM IN/OUT.")
 
 
 if __name__ == "__main__":

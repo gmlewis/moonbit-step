@@ -21,6 +21,12 @@ async fn main {
   }
 
   //
+  match params.export_conductor_network_path {
+    None => ()
+    Some(path) => export_conductor_network_json(params, path)
+  }
+
+  //
   let mut design = @cad.Design::new(
     name="bifilar-electromagnet",
     snapping=params.snapping,
@@ -58,7 +64,9 @@ async fn main {
       design = design.add(node)
     }
   }
-  design.write_step(params.out_path)
+  if !params.nostep {
+    design.write_step(params.out_path)
+  }
 }
 
 ///|

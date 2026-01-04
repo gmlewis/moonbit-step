@@ -35,8 +35,14 @@ async fn parse_params() -> Params? {
       short='o',
       help="Write output to a STEP file (default: stdout)",
     ),
+    "nostep": @cli.flag(
+      help="Do not write STEP output (neither stdout nor file); useful for pure export/report runs",
+    ),
     "export_centerlines": @cli.opt_string(
       help="Write discretized helix centerlines as JSON (for PEEC/FastHenry workflows); does not affect STEP output",
+    ),
+    "export_conductor_network": @cli.opt_string(
+      help="Write a single-series conductor network JSON with explicit IN/OUT terminals (for PEEC/FastHenry workflows); does not affect STEP output",
     ),
     "backThickness": @cli.opt_double(
       short='b',
@@ -134,6 +140,8 @@ async fn parse_params() -> Params? {
     num_segs: args.int("numSegs"),
     out_path: args.string_opt("out"),
     export_centerlines_path: args.string_opt("export_centerlines"),
+    export_conductor_network_path: args.string_opt("export_conductor_network"),
+    nostep: args.flag("nostep"),
     wire_width: args.double("wireWidth"),
     wire_gap: args.double("wireGap"),
     tolerance: args.double("tolerance"),

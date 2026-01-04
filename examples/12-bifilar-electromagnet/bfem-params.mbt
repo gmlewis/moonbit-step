@@ -12,6 +12,8 @@ struct Params {
   num_segs : Int
   out_path : String?
   export_centerlines_path : String?
+  export_conductor_network_path : String?
+  nostep : Bool
   wire_width : Double
   wire_gap : Double
   tolerance : Double

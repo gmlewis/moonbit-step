@@ -46,20 +46,37 @@ def _load(path: Path) -> Dict[str, Any]:
     data = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(data, dict):
         raise ValueError("JSON root must be an object")
-    if data.get("schema") != "bfem:centerlines:v1":
-        raise ValueError(f"Unexpected schema: {data.get('schema')}")
+    schema = data.get("schema")
+    if schema not in {"bfem:centerlines:v1", "bfem:conductor-network:v1"}:
+        raise ValueError(f"Unexpected schema: {schema}")
     if data.get("units") != "mm":
         raise ValueError(f"Unexpected units: {data.get('units')}")
     return data
 
 
-def _iter_edges(data: Dict[str, Any]) -> Iterable[Tuple[str, List[float], List[float]]]:
+def _iter_segment_edges(
+    data: Dict[str, Any]
+) -> Iterable[Tuple[str, List[float], List[float]]]:
+    """Yield undirected edges for each consecutive point-pair in each path."""
     for idx, path in enumerate(data.get("paths", [])):
         name = str(path.get("name", f"path-{idx}"))
         pts = path.get("points")
         if not isinstance(pts, list) or len(pts) < 2:
             continue
-        yield name, pts[0], pts[-1]
+        for i in range(1, len(pts)):
+            yield f"{name}[{i-1}->{i}]", pts[i - 1], pts[i]
+
+
+def _terminals(data: Dict[str, Any]) -> Dict[str, List[float]]:
+    out: Dict[str, List[float]] = {}
+    for t in data.get("terminals", []) or []:
+        if not isinstance(t, dict):
+            continue
+        label = t.get("label")
+        p = t.get("point")
+        if isinstance(label, str) and isinstance(p, list) and len(p) == 3:
+            out[label] = [float(p[0]), float(p[1]), float(p[2])]
+    return out
 
 
 def analyze(data: Dict[str, Any], tol_mm: float) -> None:
@@ -69,7 +86,7 @@ def analyze(data: Dict[str, Any], tol_mm: float) -> None:
 
     nodes: set[Key3] = set()
     edges = 0
-    for name, a, b in _iter_edges(data):
+    for name, a, b in _iter_segment_edges(data):
         ka = _quantize_mm(a, tol_mm)
         kb = _quantize_mm(b, tol_mm)
         nodes.add(ka)
@@ -118,8 +135,27 @@ def analyze(data: Dict[str, Any], tol_mm: float) -> None:
     deg2 = [n for n in nodes if len(adj[n]) == 2]
     deg_other = [n for n in nodes if len(adj[n]) not in (1, 2)]
 
-    if len(comps) == 1 and len(deg1) == 2 and not deg_other:
-        print("OK: graph is a single path (two terminals, all internal nodes degree-2)")
+    terms = _terminals(data)
+    term_ok = True
+    if data.get("schema") == "bfem:conductor-network:v1":
+        missing = sorted({"IN", "OUT"} - set(terms))
+        if missing:
+            term_ok = False
+            print(f"NOT OK: missing terminals in JSON: {missing}")
+        else:
+            kin = _quantize_mm(terms["IN"], tol_mm)
+            kout = _quantize_mm(terms["OUT"], tol_mm)
+            if kin not in nodes or kout not in nodes:
+                term_ok = False
+                print("NOT OK: terminal points are not present on any path node")
+            else:
+                # For a single series path, the two degree-1 nodes must be the terminals.
+                if set(deg1) != {kin, kout}:
+                    term_ok = False
+                    print("NOT OK: degree-1 nodes do not match IN/OUT terminals")
+
+    if len(comps) == 1 and len(deg1) == 2 and not deg_other and term_ok:
+        print("OK: graph is a single path (IN/OUT are terminals; all internal nodes degree-2)")
     else:
         print("NOT a single series path yet (given current export)")
         if len(comps) != 1:
