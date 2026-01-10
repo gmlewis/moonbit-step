@@ -36,7 +36,9 @@ pub fn tokenize_step_data_section(String) -> Array[RawEntityRow] raise StepParse
 pub fn tokenize_step_data_section_with_base(String, Int, Int) -> Array[RawEntityRow] raise StepParseError
 
 // Errors
-pub suberror StepParseError StepParseErrorInfo
+pub suberror StepParseError {
+  StepParseError(StepParseErrorInfo)
+}
 
 // Types and methods
 pub enum ParseRepositoryFromFileResult {

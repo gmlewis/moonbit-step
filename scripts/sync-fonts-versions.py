@@ -48,9 +48,9 @@ def sync_versions():
         update_sh_lines = ["#!/bin/bash -ex"]
         for dep_name, dep_val in deps.items():
             if isinstance(dep_val, str):
-                update_sh_lines.append(f"moon add {dep_name}")
+                update_sh_lines.append(f"moon add --no-update {dep_name}")
         
-        update_sh_lines.append("moon update && moon install")
+        update_sh_lines.append("moon install")
         update_sh_lines.append("moon check --target native")
         update_sh_content = "\n".join(update_sh_lines) + "\n"
 

@@ -17,7 +17,9 @@ pub struct StepParseErrorInfo {
 }
 
 ///|
-pub suberror StepParseError StepParseErrorInfo
+pub suberror StepParseError {
+  StepParseError(StepParseErrorInfo)
+}
 
 ///|
 // Raise a generic parse error.
