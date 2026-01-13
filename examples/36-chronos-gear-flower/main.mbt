@@ -150,7 +150,7 @@ async fn main {
   }
 
   // 4. Branding - High-contrast text on the Core
-  let font = @baloo.font
+  let font = @cad.load_font("baloo")
   design = design.add_text_on_face(
     hub_core,
     "CHRONOS",

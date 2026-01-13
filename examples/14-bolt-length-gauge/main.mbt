@@ -48,7 +48,7 @@ async fn main {
     ("M8", 8.4),
   ]
   let slot_width = 10.0
-  let font = @baloo.font
+  let font = @cad.load_font("baloo")
 
   // 1. Build the profile with holes (2D CSG)
   let holes = []

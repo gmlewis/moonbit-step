@@ -88,7 +88,7 @@ fn miter_templates(
 ) -> @cad.Design {
   let mut design = @cad.Design::new(name="miter-templates")
   let spacing = size + 10.0
-  let font = @baloo.font
+  let font = @cad.load_font("baloo")
   for i, angle in angles {
     let x_off = Double::from_int(i) * spacing
 
