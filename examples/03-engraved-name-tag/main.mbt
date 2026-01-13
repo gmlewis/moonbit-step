@@ -68,7 +68,7 @@ async fn main {
       abort("")
     }
   }
-  let font = @baloo.font
+  let font = @cad.load_font("baloo")
   let out_path = args.string_opt("out")
 
   // Base tag.

@@ -9,12 +9,11 @@
     "gmlewis/step/entities/units",
     "gmlewis/step/header",
     "gmlewis/step/repository",
+    "gmlewis/fonts",
     "gmlewis/fonts/draw",
+    "gmlewis/fonts/loader",
     "moonbitlang/async",
     "moonbitlang/async/fs",
     "moonbitlang/x/time"
-  ],
-  "test-import": [
-    "gmlewis/fonts"
   ]
 }
