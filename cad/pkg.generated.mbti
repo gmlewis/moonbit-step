@@ -26,6 +26,8 @@ pub fn helix_path(pos? : (Double, Double, Double), size_per_turn? : (Double, Dou
 
 pub fn is_point_in_polygon((Double, Double), Array[(Double, Double)]) -> Bool
 
+pub async fn load_font(String) -> @fonts.Font raise LoaderError
+
 pub fn matrix_to_euler(Matrix3x3) -> (Double, Double, Double)
 
 pub fn polygon_area_2d(Array[(Double, Double)]) -> Double
@@ -45,6 +47,11 @@ pub fn union_all(Array[SceneNode], name? : String) -> SceneNode
 pub async fn write_step_text(String, String?) -> Unit
 
 // Errors
+pub suberror LoaderError {
+  LoaderError(String)
+}
+pub impl Eq for LoaderError
+pub impl Show for LoaderError
 
 // Types and methods
 pub struct BooleanUnion {
@@ -244,6 +251,8 @@ pub struct SweptProfile {
 pub fn SweptProfile::new(path~ : SweepPath, profile~ : SweepProfile, make_start_cap? : Bool, make_end_cap? : Bool) -> Shape
 
 // Type aliases
+pub using @fonts {type Font}
+
 pub type Vec2 = (Double, Double)
 
 pub type Vec3 = (Double, Double, Double)

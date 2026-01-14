@@ -80,7 +80,7 @@ fn parse_angles(s : String) -> Array[Double] {
 }
 
 ///|
-fn miter_templates(
+async fn miter_templates(
   angles : Array[Double],
   size : Double,
   thickness : Double,
