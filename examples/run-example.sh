@@ -58,8 +58,8 @@ if [[ ! -d "$ROOT_DIR/$EXAMPLE_PATH_REL" ]]; then
   exit 1
 fi
 
-cd "$ROOT_DIR"
-
-# Runs the example module by folder name. Any extra args are forwarded to the example's main.
-cd "$EXAMPLE_PATH_REL"
-moon run --quiet --target native . -- "$@" || exit 1
+# We want to run the example but keep the current working directory
+# so that output files (via -o) are created where the user expects.
+# We use 'moon run -C <ROOT_DIR>' to point MoonBit to the project root,
+# and then provide the relative path to the example package.
+moon run -C "$ROOT_DIR" --quiet --target native "$EXAMPLE_PATH_REL" -- "$@"

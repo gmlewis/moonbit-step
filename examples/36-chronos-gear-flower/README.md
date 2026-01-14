@@ -17,12 +17,13 @@ It features:
 
 ### Variant 1
 
-Command line: `./run-example.sh 100 --petals 12`
+Command line: `./run-example.sh 36 --petals 12`
 
 ![](preview-1.png)
 
 ### Variant 2
 
-Command line: `./run-example.sh 100 --petals 8 --tx 50`
+Command line: `./run-example.sh 36 --petals 8 --tx 50`
 
 ![](preview-2.png)
+
