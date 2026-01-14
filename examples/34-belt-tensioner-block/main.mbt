@@ -111,7 +111,7 @@ async fn main {
 
   // 4. Design and Labels
 
-  let font = @baloo.font
+  let font = @cad.load_font("baloo")
   let design = @cad.Design::new(name="belt-tensioner")
     .add(tensioner)
     .add_text_on_face(

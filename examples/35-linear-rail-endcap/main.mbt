@@ -86,7 +86,7 @@ async fn main {
 
   // 4. Labels
 
-  let font = @baloo.font
+  let font = @cad.load_font("baloo")
   let hole_top = seat_y + sd / 2.0
   let edge_top = body_h / 2.0
   let label_y = (hole_top + edge_top) / 2.0

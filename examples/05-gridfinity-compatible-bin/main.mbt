@@ -133,7 +133,7 @@ async fn main {
   // 4. Label Text
   match text_opt {
     Some(label) => {
-      let font = @baloo.font
+      let font = @cad.load_font("baloo")
       if font_size_opt > 0.0 {
         design = design.add_text_on_face(
           walls,

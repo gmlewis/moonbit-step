@@ -1,5 +1,11 @@
 {
   "import": [
+    "gmlewis/base64",
+    "gmlewis/flate",
+    "gmlewis/fonts",
+    "gmlewis/fonts/draw",
+    "gmlewis/gzip",
+    "gmlewis/io",
     "gmlewis/step",
     "gmlewis/step/entities/context",
     "gmlewis/step/entities/geometry",
@@ -9,12 +15,10 @@
     "gmlewis/step/entities/units",
     "gmlewis/step/header",
     "gmlewis/step/repository",
-    "gmlewis/fonts/draw",
     "moonbitlang/async",
     "moonbitlang/async/fs",
+    "moonbitlang/async/stdio",
+    "moonbitlang/x/sys",
     "moonbitlang/x/time"
-  ],
-  "test-import": [
-    "gmlewis/fonts"
   ]
 }

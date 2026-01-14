@@ -20,19 +20,19 @@ The intent is that you can run the code here to emit a STEP file, open it in a C
 
 ### Variant 1
 
-Command line: `./run-example.sh 12 --diameter 25.4 --type cap`
+Command line: `./run-example.sh 37 --diameter 25.4 --type cap`
 
 ![](preview-1.png)
 
 ### Variant 2
 
-Command line: `./run-example.sh 12 --diameter 25.4 --type plug --topThickness 5`
+Command line: `./run-example.sh 37 --diameter 25.4 --type plug --topThickness 5`
 
 ![](preview-2.png)
 
 ### Variant 3
 
-Command line: `./run-example.sh 12 --diameter 50 --wall 1.2 --height 20`
+Command line: `./run-example.sh 37 --diameter 50 --wall 1.2 --height 20`
 
 ![](preview-3.png)
 

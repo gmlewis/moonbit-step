@@ -1,7 +1,6 @@
 {
   "is-main": true,
   "import": [
-    "gmlewis/fonts-b/baloo",
     "gmlewis/step/cad",
     "gmlewis/step/cli",
     "moonbitlang/async"

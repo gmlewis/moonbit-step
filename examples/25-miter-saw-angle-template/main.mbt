@@ -80,7 +80,7 @@ fn parse_angles(s : String) -> Array[Double] {
 }
 
 ///|
-fn miter_templates(
+async fn miter_templates(
   angles : Array[Double],
   size : Double,
   thickness : Double,
@@ -88,7 +88,7 @@ fn miter_templates(
 ) -> @cad.Design {
   let mut design = @cad.Design::new(name="miter-templates")
   let spacing = size + 10.0
-  let font = @baloo.font
+  let font = @cad.load_font("baloo")
   for i, angle in angles {
     let x_off = Double::from_int(i) * spacing
 

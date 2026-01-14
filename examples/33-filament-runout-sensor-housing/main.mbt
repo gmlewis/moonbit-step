@@ -161,7 +161,7 @@ async fn main {
     .translate(x=tx - sw_w / 2.0, y=ty - sw_l / 2.0, z=tz + body_h / 2.0 + 1.0)
 
   // 4. Design and Labels
-  let font = @baloo.font
+  let font = @cad.load_font("baloo")
   let design = @cad.Design::new(name="filament-runout-sensor")
     .add(housing)
     .add(flange)

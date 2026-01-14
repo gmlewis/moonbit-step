@@ -78,7 +78,7 @@ async fn main {
     .translate(x=width * 0.25 - pad_w / 2.0, y=-pad_l / 2.0, z=height / 2.0)
 
   // Add some text branding on top
-  let font = @baloo.font
+  let font = @cad.load_font("baloo")
   let design = @cad.Design::new(name="camera-tripod-adapter")
     .add(plate)
     .add(left_pad)

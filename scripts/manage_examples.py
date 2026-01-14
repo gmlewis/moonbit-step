@@ -264,12 +264,12 @@ def main():
         padded_num = num.zfill(2)
         if padded_num not in SUITE:
             print(f"Example {num} (padded: {padded_num}) not found in SUITE.")
-            continue
+            sys.exit(1)
 
         example_dir = find_example_dir(padded_num)
         if not example_dir:
             print(f"Example directory for {padded_num} not found.")
-            continue
+            sys.exit(1)
 
         print(f"Processing Example {padded_num}...")
 
@@ -285,14 +285,15 @@ def main():
             print(f"  [Set {i}] Args: {" ".join(config)}")
             step_file = Path(f"/tmp/example-{padded_num}-{i}.step")
 
-            if not generate_step(padded_num, config, step_file): continue
+            if not generate_step(padded_num, config, step_file):
+                sys.exit(1)
 
             if args.validate:
                 if validate_step(occt_bin, step_file):
                     print("    Topology: OK")
                 else:
                     print("    Topology: FAILED")
-                    continue
+                    sys.exit(1)
 
             preview = None
             if args.render:
@@ -301,6 +302,7 @@ def main():
                     print(f"    Render: SUCCESS ({preview})")
                 else:
                     print(f"    Render: FAILED")
+                    sys.exit(1)
 
             variants_processed.append({"config": config, "preview": preview})
 

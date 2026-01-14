@@ -146,7 +146,7 @@ async fn main {
   // 4. Optional labels for each pocket
   match label_prefix {
     Some(prefix) => {
-      let font = @baloo.font
+      let font = @cad.load_font("baloo")
       let bbox_node = @cad.Cuboid::new(total_width, total_height, thickness)
         .with_name("bbox")
         .translate(x=tx, y=ty, z=tz)

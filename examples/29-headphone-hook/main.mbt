@@ -77,7 +77,7 @@ async fn main {
     .translate(y=-(width - rib_t) / 2.0)
 
   // Add branding text on the side face
-  let font = @baloo.font
+  let font = @cad.load_font("baloo")
   let design = @cad.Design::new(name="headphone-hook")
     .add(hook)
     .add(rib)
