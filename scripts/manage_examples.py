@@ -319,10 +319,13 @@ def main():
         for i, config in enumerate(SUITE[padded_num], 1):
             print(f"  [Set {i}] Args: {' '.join(config)}")
             if args.bpy:
-                bpy_file = bpy_output_dir / f"example-{padded_num}-{i}.py"
-                blend_file = bpy_output_dir / f"example-{padded_num}-{i}.blend"
+                base_name = f"example-{padded_num}-{i}"
+                bpy_file = bpy_output_dir / f"{base_name}.py"
+                blend_file = bpy_output_dir / f"{base_name}.blend"
+                print(f"  Generating {base_name}.py ...")
                 if not generate_bpy(padded_num, config, bpy_file):
                     sys.exit(1)
+                print(f"  Validating {base_name}.py and generating {base_name}.blend ...")
                 if not validate_bpy(root, bpy_file, blend_file):
                     sys.exit(1)
                 variants_processed.append({"config": config, "preview": None})

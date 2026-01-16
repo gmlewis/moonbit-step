@@ -410,6 +410,7 @@ pub fn SceneNode::rotate_z(self : SceneNode, angle : Double) -> SceneNode {
 }
 
 ///|
+/// add_text_on_face returns text nodes positioned on a face of the target.
 pub fn Design::add_text_on_face(
   self : Design,
   target : SceneNode,
@@ -425,155 +426,6 @@ pub fn Design::add_text_on_face(
   color? : Rgb = Rgb::orange(),
   emboss? : Bool = true,
 ) -> Design {
-  let color_val = color
-  let emboss_val = emboss
-  let final_nodes = match font_size {
-    Some(fs) =>
-      match emboss_depth {
-        Some(ed) =>
-          match margin {
-            Some(m) =>
-              text_nodes_on_face(
-                target,
-                text,
-                face,
-                font,
-                font_size=fs,
-                emboss_depth=ed,
-                offset_x~,
-                offset_y~,
-                rotation~,
-                margin=m,
-                color=color_val,
-                emboss=emboss_val,
-              )
-            None =>
-              text_nodes_on_face(
-                target,
-                text,
-                face,
-                font,
-                font_size=fs,
-                emboss_depth=ed,
-                offset_x~,
-                offset_y~,
-                rotation~,
-                color=color_val,
-                emboss=emboss_val,
-              )
-          }
-        None =>
-          match margin {
-            Some(m) =>
-              text_nodes_on_face(
-                target,
-                text,
-                face,
-                font,
-                font_size=fs,
-                offset_x~,
-                offset_y~,
-                rotation~,
-                margin=m,
-                color=color_val,
-                emboss=emboss_val,
-              )
-            None =>
-              text_nodes_on_face(
-                target,
-                text,
-                face,
-                font,
-                font_size=fs,
-                offset_x~,
-                offset_y~,
-                rotation~,
-                color=color_val,
-                emboss=emboss_val,
-              )
-          }
-      }
-    None =>
-      match emboss_depth {
-        Some(ed) =>
-          match margin {
-            Some(m) =>
-              text_nodes_on_face(
-                target,
-                text,
-                face,
-                font,
-                emboss_depth=ed,
-                offset_x~,
-                offset_y~,
-                rotation~,
-                margin=m,
-                color=color_val,
-                emboss=emboss_val,
-              )
-            None =>
-              text_nodes_on_face(
-                target,
-                text,
-                face,
-                font,
-                emboss_depth=ed,
-                offset_x~,
-                offset_y~,
-                rotation~,
-                color=color_val,
-                emboss=emboss_val,
-              )
-          }
-        None =>
-          match margin {
-            Some(m) =>
-              text_nodes_on_face(
-                target,
-                text,
-                face,
-                font,
-                offset_x~,
-                offset_y~,
-                rotation~,
-                margin=m,
-                color=color_val,
-                emboss=emboss_val,
-              )
-            None =>
-              text_nodes_on_face(
-                target,
-                text,
-                face,
-                font,
-                offset_x~,
-                offset_y~,
-                rotation~,
-                color=color_val,
-                emboss=emboss_val,
-              )
-          }
-      }
-  }
-  self.add_iter(final_nodes.iter())
-}
-
-///|
-/// text_nodes_on_face returns text nodes positioned on a face of the target.
-pub fn text_nodes_on_face(
-  target : SceneNode,
-  text : String,
-  face : Face,
-  font : @draw.Font,
-  font_size? : Double,
-  emboss_depth? : Double,
-  offset_x? : Double = 0.0,
-  offset_y? : Double = 0.0,
-  rotation? : Double = 0.0,
-  margin? : Double,
-  color? : Rgb = Rgb::orange(),
-  emboss? : Bool = true,
-) -> Array[SceneNode] {
   let (min_x, max_x, min_y, max_y, min_z, max_z) = target.shape.bounding_box()
   let mid_x = (min_x + max_x) / 2.0
   let mid_y = (min_y + max_y) / 2.0
@@ -590,151 +442,33 @@ pub fn text_nodes_on_face(
   // We subtract 0.01 from the "outward" direction to embed the text slightly
   // and avoid Z-fighting.
   let (lx, ly, lz, lrx, lry, lrz, fw, fh) = match face {
-    Top =>
-      if emboss {
-        (
-          mid_x + offset_x,
-          mid_y + offset_y,
-          max_z - 0.01,
-          0.0,
-          0.0,
-          0.0,
-          dx,
-          dy,
-        )
-      } else {
-        (
-          mid_x + offset_x,
-          mid_y + offset_y,
-          max_z + 0.01,
-          180.0,
-          0.0,
-          180.0,
-          dx,
-          dy,
-        )
-      }
-    Bottom =>
-      if emboss {
-        (
-          mid_x + offset_x,
-          mid_y - offset_y,
-          min_z + 0.01,
-          180.0,
-          0.0,
-          180.0,
-          dx,
-          dy,
-        )
-      } else {
-        (
-          mid_x + offset_x,
-          mid_y - offset_y,
-          min_z - 0.01,
-          0.0,
-          0.0,
-          0.0,
-          dx,
-          dy,
-        )
-      }
-    Front =>
-      if emboss {
-        (
-          mid_x + offset_x,
-          max_y - 0.01,
-          mid_z + offset_y,
-          90.0,
-          0.0,
-          180.0,
-          dx,
-          dz,
-        )
-      } else {
-        (
-          mid_x + offset_x,
-          max_y + 0.01,
-          mid_z + offset_y,
-          270.0,
-          0.0,
-          0.0,
-          dx,
-          dz,
-        )
-      }
-    Back =>
-      if emboss {
-        (
-          mid_x - offset_x,
-          min_y + 0.01,
-          mid_z + offset_y,
-          90.0,
-          0.0,
-          0.0,
-          dx,
-          dz,
-        )
-      } else {
-        (
-          mid_x - offset_x,
-          min_y - 0.01,
-          mid_z + offset_y,
-          270.0,
-          0.0,
-          180.0,
-          dx,
-          dz,
-        )
-      }
-    Left =>
-      if emboss {
-        (
-          min_x + 0.01,
-          mid_y + offset_x,
-          mid_z + offset_y,
-          90.0,
-          0.0,
-          -90.0,
-          dy,
-          dz,
-        )
-      } else {
-        (
-          min_x - 0.01,
-          mid_y + offset_x,
-          mid_z + offset_y,
-          270.0,
-          0.0,
-          90.0,
-          dy,
-          dz,
-        )
-      }
-    Right =>
-      if emboss {
-        (
-          max_x - 0.01,
-          mid_y - offset_x,
-          mid_z + offset_y,
-          90.0,
-          0.0,
-          90.0,
-          dy,
-          dz,
-        )
-      } else {
-        (
-          max_x + 0.01,
-          mid_y - offset_x,
-          mid_z + offset_y,
-          270.0,
-          0.0,
-          -90.0,
-          dy,
-          dz,
-        )
-      }
+    Top => {
+      let new_max_z = if emboss { max_z - 0.01 } else { max_z + 0.01 }
+      (mid_x + offset_x, mid_y + offset_y, new_max_z, 0.0, 0.0, 0.0, dx, dy)
+    }
+    Bottom => {
+      let new_min_z = if emboss { min_z + 0.01 } else { min_z - 0.01 }
+      (mid_x + offset_x, mid_y - offset_y, new_min_z, 180.0, 0.0, 180.0, dx, dy)
+    }
+    Front => {
+      let new_max_y = if emboss { max_y - 0.01 } else { max_y + 0.01 }
+      (mid_x + offset_x, new_max_y, mid_z + offset_y, 90.0, 0.0, 180.0, dx, dz)
+    }
+    Back => {
+      let new_min_y = if emboss { min_y + 0.01 } else { min_y - 0.01 }
+      (mid_x - offset_x, new_min_y, mid_z + offset_y, 90.0, 0.0, 0.0, dx, dz)
+    }
+    Left => {
+      let new_min_x = if emboss { min_x + 0.01 } else { min_x - 0.01 }
+      (new_min_x, mid_y + offset_x, mid_z + offset_y, 90.0, 0.0, -90.0, dy, dz)
+    }
+    Right => {
+      let new_max_x = if emboss { max_x - 0.01 } else { max_x + 0.01 }
+      (new_max_x, mid_y - offset_x, mid_z + offset_y, 90.0, 0.0, 90.0, dy, dz)
+    }
   }
+
+  //
   let fs = match font_size {
     Some(v) => v
     None => {
@@ -766,7 +500,7 @@ pub fn text_nodes_on_face(
     ry=fry,
     rz=frz,
   )
-  text_nodes.map(fn(n) {
+  let final_nodes = text_nodes.map(fn(n) {
     let n = n.with_color(color)
     // Apply target's own local-to-global transform
     // We compose the rotations: R_target * R_local
@@ -790,4 +524,5 @@ pub fn text_nodes_on_face(
       rz: grz,
     }
   })
+  self.add_iter(final_nodes.iter())
 }

@@ -88,7 +88,9 @@ async fn main {
     )
     .with_name("tag-base")
     .with_color(@cad.Rgb::new(0.5, 0.0, 0.5)) // purple
-  let text_nodes = @cad.text_nodes_on_face(
+
+  //
+  let text_design = @cad.Design::new(name="text-only").add_text_on_face(
     base,
     name,
     Top,
@@ -98,6 +100,9 @@ async fn main {
     color=@cad.Rgb::orange(),
     emboss~,
   )
+  let text_nodes = text_design.nodes
+
+  //
   let design = if emboss {
     @cad.Design::new(name="keychain-tag")
     .add(base)

@@ -40,8 +40,6 @@ pub fn snap_double(Double, Double?) -> Double
 
 pub fn text_at(String, Double, Double, Double, font~ : @fonts.Font, font_size? : Double, max_width? : Double, emboss_depth? : Double, rx? : Double, ry? : Double, rz? : Double) -> Array[SceneNode]
 
-pub fn text_nodes_on_face(SceneNode, String, Face, @fonts.Font, font_size? : Double, emboss_depth? : Double, offset_x? : Double, offset_y? : Double, rotation? : Double, margin? : Double, color? : Rgb, emboss? : Bool) -> Array[SceneNode]
-
 pub fn translate_pts(Array[(Double, Double)], Double, Double) -> Array[(Double, Double)]
 
 pub fn tube(Double, Double, Double, segments? : Int) -> Shape
