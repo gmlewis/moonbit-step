@@ -118,3 +118,12 @@ test "to_blender_python table-driven" {
     assert_contains_all(label, out, needles)
   }
 }
+
+///|
+test "to_blender_python separates statements" {
+  let design = @cad.Design::new(name="newline-check")
+    .add(@cad.Cuboid::new(1.0, 1.0, 1.0).with_name("a"))
+    .add(@cad.Cuboid::new(2.0, 2.0, 2.0).with_name("b"))
+  let out = design.to_blender_python()
+  assert_true(out.contains(")\n    obj"))
+}

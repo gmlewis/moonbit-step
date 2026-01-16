@@ -69,6 +69,7 @@ fn emit_node_python(
       builder.write_string(
         (
           $|    \{obj_var} = finalize_object(create_cuboid_object(\{py_string(node.name)}, \{c.sx}, \{c.sy}, \{c.sz}, collection), get_material(\{py_color(node.color)}), (\{node.tx}, \{node.ty}, \{node.tz}), (\{node.rx}, \{node.ry}, \{node.rz}))
+          $|
         ),
       )
       (obj_var, next_idx)
@@ -78,6 +79,7 @@ fn emit_node_python(
       builder.write_string(
         (
           $|    \{obj_var} = finalize_object(create_chamfer_block_object(\{py_string(node.name)}, \{b.length_mm}, \{b.width_mm}, \{b.height_mm}, \{b.chamfer_size_mm}, \{b.fillet_radius_mm}, \{b.fillet_segments}, collection), get_material(\{py_color(node.color)}), (\{node.tx}, \{node.ty}, \{node.tz}), (\{node.rx}, \{node.ry}, \{node.rz}))
+          $|
         ),
       )
       (obj_var, next_idx)
@@ -88,6 +90,7 @@ fn emit_node_python(
       builder.write_string(
         (
           $|    \{obj_var} = finalize_object(create_extruded_profile_object(\{py_string(node.name)}, \{py_vec2_list_list(loops)}, \{e.height_mm}, collection), get_material(\{py_color(node.color)}), (\{node.tx}, \{node.ty}, \{node.tz}), (\{node.rx}, \{node.ry}, \{node.rz}))
+          $|
         ),
       )
       (obj_var, next_idx)
@@ -97,6 +100,7 @@ fn emit_node_python(
       builder.write_string(
         (
           $|    \{obj_var} = finalize_object(create_swept_profile_object(\{py_string(node.name)}, \{py_vec3_list(s.path.points)}, \{py_vec3_list(s.path.normals)}, \{py_vec3_list(s.path.tangents)}, \{py_vec3(s.profile.center)}, \{py_vec3_list(s.profile.vertices)}, \{py_vec3(s.profile.normal_dir)}, \{py_vec3(s.profile.right_dir)}, \{py_bool(s.make_start_cap)}, \{py_bool(s.make_end_cap)}, collection), get_material(\{py_color(node.color)}), (\{node.tx}, \{node.ty}, \{node.tz}), (\{node.rx}, \{node.ry}, \{node.rz}))
+          $|
         ),
       )
       (obj_var, next_idx)
@@ -113,12 +117,14 @@ fn emit_node_python(
       builder.write_string(
         (
           $|    \{list_var} = [\{child_vars.join(", ")}]
+          $|
         ),
       )
       let (obj_var, final_idx) = next_var("obj", next_idx)
       builder.write_string(
         (
           $|    \{obj_var} = finalize_object(join_objects(\{list_var}, \{py_string(node.name)}), get_material(\{py_color(node.color)}), (\{node.tx}, \{node.ty}, \{node.tz}), (\{node.rx}, \{node.ry}, \{node.rz}))
+          $|
         ),
       )
       (obj_var, final_idx)
