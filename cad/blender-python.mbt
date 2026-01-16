@@ -548,6 +548,11 @@ pub fn Design::to_blender_python(self : Design) -> String {
       $|    obj_count = len(collection.objects)
       $|    if obj_count == 0:
       $|        raise RuntimeError("No objects were created in the collection.")
+      $|    bpy.ops.object.select_all(action="DESELECT")
+      $|    for obj in collection.objects:
+      $|        obj.select_set(True)
+      $|    if collection.objects:
+      $|        bpy.context.view_layer.objects.active = collection.objects[0]
       $|    print("Done.")
       $|
       $|if __name__ == "__main__":

@@ -76,22 +76,23 @@ test "to_blender_python table-driven" {
       "cuboid",
       @cad.Design::new(name="cube-model").add(cube),
       [
-        "create_cuboid_object('cube', 1.25, 2.5, 3.75, collection)", "get_material((0.8, 0, 0, 1.0))",
-        "(10, 20, 30), (15, 25, 35)",
+        "create_cuboid_object('cube', 0.00125, 0.0025, 0.00375, collection)", "get_material((0.8, 0, 0, 1.0))",
+        "(0.01, 0.02, 0.03), (15, 25, 35)",
       ],
     ),
     (
       "chamfer_block",
       @cad.Design::new(name="block-model").add(chamfer_block),
       [
-        "create_chamfer_block_object('block', 20, 10, 5, 1, 0, 6, collection)", "get_material((0.2, 0.6, 1, 1.0))",
+        "create_chamfer_block_object('block', 0.02, 0.01, 0.005, 0.001, 0, 6, collection)",
+        "get_material((0.2, 0.6, 1, 1.0))",
       ],
     ),
     (
       "extruded_profile",
       @cad.Design::new(name="plate-model").add(extrude),
       [
-        "create_extruded_profile_object('plate', [[(0, 0), (10, 0), (10, 5), (0, 5)], [(2, 2), (3, 2), (3, 3), (2, 3)]], 4, collection)",
+        "create_extruded_profile_object('plate', [[(0, 0), (0.01, 0), (0.01, 0.005), (0, 0.005)], [(0.002, 0.002), (0.003, 0.002), (0.003, 0.003), (0.002, 0.003)]], 0.004, collection)",
         "get_material((0, 0.8, 0, 1.0))",
       ],
     ),
@@ -99,15 +100,15 @@ test "to_blender_python table-driven" {
       "swept_profile",
       @cad.Design::new(name="sweep-model").add(swept),
       [
-        "create_swept_profile_object('sweep', [(0, 0, 0), (0, 0, 10)], [(0, 1, 0), (0, 1, 0)], [(0, 0, 1), (0, 0, 1)], (0, 0, 0)",
-        "[(-1, -1, 0)", "(0, 1, 0), (1, 0, 0), True, False, collection)",
+        "create_swept_profile_object('sweep', [(0, 0, 0), (0, 0, 0.01)], [(0, 1, 0), (0, 1, 0)], [(0, 0, 1), (0, 0, 1)], (0, 0, 0)",
+        "[(-0.001, -0.001, 0)", "(0, 1, 0), (1, 0, 0), True, False, collection)",
       ],
     ),
     (
       "union",
       @cad.Design::new(name="union-model").add(union_node),
       [
-        "create_cuboid_object('a', 2, 2, 2, collection)", "create_cuboid_object('b', 1, 3, 1, collection)",
+        "create_cuboid_object('a', 0.002, 0.002, 0.002, collection)", "create_cuboid_object('b', 0.001, 0.003, 0.001, collection)",
         "join_objects(", "'combo'", "get_material((0, 0.8, 0.8, 1.0))",
       ],
     ),
