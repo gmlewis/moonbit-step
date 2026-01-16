@@ -28,6 +28,9 @@ async fn main {
       help="Inner hole diameter of standoffs (mm)",
       min=0.5,
     ),
+    "bpy": @cli.opt_string(
+      help="Write Blender 5.0 Python3 script to a file (instead of STEP)",
+    ),
     "out": @cli.opt_string(
       short='o',
       help="Write output to a file (default: stdout)",
@@ -46,6 +49,7 @@ async fn main {
   let standoff_height = args.double("standoffHeight")
   let standoff_od = args.double("standoffOD")
   let standoff_id = args.double("standoffID")
+  let bpy_path = args.string_opt("bpy")
   let out_path = args.string_opt("out")
   let (tx, ty, tz) = match args.translate_xyz() {
     Some(v) => v
@@ -64,7 +68,11 @@ async fn main {
       node.translate(x=tx - 68.6 / 2.0, y=ty - 53.3 / 2.0, z=tz),
     )
   }
-  design.write_step(out_path)
+  if bpy_path is Some(_) {
+    design.write_blender_python(bpy_path)
+  } else {
+    design.write_step(out_path)
+  }
 }
 
 ///|

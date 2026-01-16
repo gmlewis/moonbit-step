@@ -44,7 +44,7 @@ pub fn tube(Double, Double, Double, segments? : Int) -> Shape
 
 pub fn union_all(Array[SceneNode], name? : String) -> SceneNode
 
-pub async fn write_step_text(String, String?) -> Unit
+pub async fn write_text_file(String, String?) -> Unit
 
 // Errors
 pub suberror LoaderError {
@@ -90,9 +90,11 @@ pub fn Design::new(name? : String, description? : String, snapping? : Double) ->
 pub fn Design::rotate_x(Self, Double) -> Self
 pub fn Design::rotate_y(Self, Double) -> Self
 pub fn Design::rotate_z(Self, Double) -> Self
+pub fn Design::to_blender_python(Self) -> String
 pub fn Design::to_step_file(Self) -> String
 pub fn Design::to_string(Self) -> String
 pub fn Design::translate(Self, x? : Double, y? : Double, z? : Double) -> Self
+pub async fn Design::write_blender_python(Self, String?) -> Unit
 pub async fn Design::write_step(Self, String?) -> Unit
 pub async fn Design::write_step_file(Self, String?) -> Unit
 

@@ -34,6 +34,9 @@ async fn main {
       help="Depth of the rail mounting seat (mm)",
       min=0.0,
     ),
+    "bpy": @cli.opt_string(
+      help="Write Blender 5.0 Python3 script to a file (instead of STEP)",
+    ),
     "out": @cli.opt_string(
       short='o',
       help="Write output to a file (default: stdout)",
@@ -55,6 +58,7 @@ async fn main {
   let hook_depth = args.double("hookDepth")
   let seat_diameter = args.double("seatDiameter")
   let seat_depth = args.double("seatDepth")
+  let bpy_path = args.string_opt("bpy")
   let out_path = args.string_opt("out")
   let (tx, ty, tz) = match args.translate_xyz() {
     Some(v) => v
@@ -70,7 +74,12 @@ async fn main {
   for node in nodes {
     design = design.add(node.translate(x=tx, y=ty, z=tz))
   }
-  design.rotate_x(-90.0).write_step(out_path)
+  let rotated = design.rotate_x(-90.0)
+  if bpy_path is Some(_) {
+    rotated.write_blender_python(bpy_path)
+  } else {
+    rotated.write_step(out_path)
+  }
 }
 
 ///|

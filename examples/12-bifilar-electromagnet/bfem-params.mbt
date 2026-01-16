@@ -11,6 +11,7 @@ struct Params {
   num_pairs : Int
   num_segs : Int
   out_path : String?
+  bpy_path : String?
   export_centerlines_path : String?
   export_conductor_network_path : String?
   nostep : Bool

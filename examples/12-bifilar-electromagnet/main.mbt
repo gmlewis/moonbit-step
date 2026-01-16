@@ -65,7 +65,11 @@ async fn main {
     }
   }
   if !params.nostep {
-    design.write_step(params.out_path)
+    if params.bpy_path is Some(_) {
+      design.write_blender_python(params.bpy_path)
+    } else {
+      design.write_step(params.out_path)
+    }
   }
 }
 

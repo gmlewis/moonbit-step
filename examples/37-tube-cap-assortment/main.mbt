@@ -44,6 +44,9 @@ async fn main {
       short='t',
       help="Type of fitting: 'cap' (over tube) or 'plug' (inside tube)",
     ),
+    "bpy": @cli.opt_string(
+      help="Write Blender 5.0 Python3 script to a file (instead of STEP)",
+    ),
     "out": @cli.opt_string(
       short='o',
       help="Write output to a file (default: stdout)",
@@ -64,6 +67,7 @@ async fn main {
   let top_thickness = args.double("topThickness")
   let clearance = args.double("clearance")
   let is_plug = args.string_opt("type").unwrap_or("cap") == "plug"
+  let bpy_path = args.string_opt("bpy")
   let out_path = args.string_opt("out")
   let (tx, ty, tz) = match args.translate_xyz() {
     Some(v) => v
@@ -104,5 +108,9 @@ async fn main {
 
   //
   let design = @cad.Design::new(name="tube-cap").add(top).add(wall_part)
-  design.write_step(out_path)
+  if bpy_path is Some(_) {
+    design.write_blender_python(bpy_path)
+  } else {
+    design.write_step(out_path)
+  }
 }

@@ -39,6 +39,9 @@ async fn main {
       help="Thickness of the solid base plate (mm)",
       min=1.0,
     ),
+    "bpy": @cli.opt_string(
+      help="Write Blender 5.0 Python3 script to a file (instead of STEP)",
+    ),
     "out": @cli.opt_string(
       short='o',
       help="Write output to a file (default: stdout)",
@@ -60,6 +63,7 @@ async fn main {
   let spacing = args.double("spacing")
   let holder_height = args.double("height")
   let base_height = args.double("baseHeight")
+  let bpy_path = args.string_opt("bpy")
   let out_path = args.string_opt("out")
   let (tx, ty, tz) = match args.translate_xyz() {
     Some(v) => v
@@ -93,7 +97,11 @@ async fn main {
 
   //
   let design = @cad.Design::new(name="hex-bit-holder").add(base).add(holder)
-  design.write_step(out_path)
+  if bpy_path is Some(_) {
+    design.write_blender_python(bpy_path)
+  } else {
+    design.write_step(out_path)
+  }
 }
 
 ///|
