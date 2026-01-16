@@ -33,6 +33,34 @@ async fn main {
 }
 ```
 
+## Exporting to Blender (Python)
+
+This repo can generate Blender 5.0 Python scripts that recreate your model with correct physical scale. The generated script uses meters (Blender’s default), while your CAD dimensions remain in millimeters.
+
+### From your own model
+1. Implement your design in MoonBit (see the modeling example above).
+2. Emit Blender Python instead of STEP:
+
+```moonbit
+design.write_blender_python(Some("model.py"))
+```
+
+3. Open Blender and run the script from the Scripting workspace, or run Blender directly from the command line:
+
+```bash
+blender --background --factory-startup --python model.py
+```
+
+### From the included examples
+Generate Blender scripts and ".blend" files for all examples:
+
+```bash
+./scripts/manage_examples.py all --bpy
+```
+
+This produces `.py` and `.blend` files in [bpy-out](bpy-out).
+Each script removes the default cube (if present), recreates the model, and selects all created geometry.
+
 ## Quick Start (Parsing)
 
 Parsing from a string:
