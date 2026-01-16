@@ -496,10 +496,11 @@ pub fn Design::to_blender_python(self : Design) -> String {
       $|    # Create or reuse a named collection (based upon the name of this model).
       $|    # Delete all children of the collection in the case that it already exists.
       $|    collection_name = config.get('collectionName', '\{self.name} Collection')
-      $|    print(f"\nSetting up collection '{collection_name}'...")
+      $|    print(f"\\nSetting up collection '{collection_name}'...")
       $|    collection = set_up_collection(collection_name)
       $|
       $|    # Create model objects.
+      $|
     ),
   )
   let mut obj_index = 0
