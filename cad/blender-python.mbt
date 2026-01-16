@@ -598,7 +598,7 @@ pub fn Design::to_blender_python(self : Design) -> String {
       $|    return base_obj
       $|
       $|
-      $|def create_model_objects():
+      $|def create_model_objects(collection):
       $|
     ),
   )
@@ -629,7 +629,7 @@ pub fn Design::to_blender_python(self : Design) -> String {
       $|        print(f"\\nSetting up collection '{collection_name}'...")
       $|        collection = set_up_collection(collection_name)
       $|
-      $|        create_model_objects()
+      $|        create_model_objects(collection)
       $|
       $|        print("Done.")
       $|    except Exception as exc:
