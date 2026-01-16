@@ -25,9 +25,9 @@ test "to_blender_python table-driven" {
       20.0,
       10.0,
       5.0,
-      chamfer_size_mm?=1.0,
-      fillet_radius_mm?=0.0,
-      fillet_segments?=6,
+      chamfer_size_mm=1.0,
+      fillet_radius_mm=0.0,
+      fillet_segments=6,
     )
     .with_name("block")
     .with_color(@cad.Rgb::blue())
@@ -43,15 +43,15 @@ test "to_blender_python table-driven" {
   }
   let sweep_profile : @cad.SweepProfile = @cad.SweepProfile::new(
     [(-1.0, -1.0, 0.0), (1.0, -1.0, 0.0), (1.0, 1.0, 0.0), (-1.0, 1.0, 0.0)],
-    center?=(0.0, 0.0, 0.0),
-    normal_dir?=(0.0, 1.0, 0.0),
-    right_dir?=(1.0, 0.0, 0.0),
+    center=(0.0, 0.0, 0.0),
+    normal_dir=(0.0, 1.0, 0.0),
+    right_dir=(1.0, 0.0, 0.0),
   )
   let swept = @cad.SweptProfile::new(
       path=sweep_path,
       profile=sweep_profile,
-      make_start_cap?=true,
-      make_end_cap?=false,
+      make_start_cap=true,
+      make_end_cap=false,
     )
     .with_name("sweep")
     .with_color(@cad.Rgb::purple())
@@ -60,12 +60,12 @@ test "to_blender_python table-driven" {
       @cad.Cuboid::new(2.0, 2.0, 2.0).with_name("a"),
       @cad.Cuboid::new(1.0, 3.0, 1.0).with_name("b"),
     ],
-    name?="combo",
+    name="combo",
   ).with_color(@cad.Rgb::cyan())
   let cases : Array[(String, @cad.Design, Array[String])] = [
     (
       "header",
-      @cad.Design::new(name?="header-model"),
+      @cad.Design::new(name="header-model"),
       [
         "Blender 5.0 Python3 script generated", "def get_material(color):", "def create_cuboid_object(name, sx, sy, sz, collection):",
         "def create_extruded_profile_object(name, loops, height, collection):", "def create_swept_profile_object(name, path_points, path_normals, path_tangents",
@@ -74,7 +74,7 @@ test "to_blender_python table-driven" {
     ),
     (
       "cuboid",
-      @cad.Design::new(name?="cube-model").add(cube),
+      @cad.Design::new(name="cube-model").add(cube),
       [
         "create_cuboid_object('cube', 1.25, 2.5, 3.75, collection)", "get_material((0.8, 0, 0, 1.0))",
         "(10, 20, 30), (15, 25, 35)",
@@ -82,14 +82,14 @@ test "to_blender_python table-driven" {
     ),
     (
       "chamfer_block",
-      @cad.Design::new(name?="block-model").add(chamfer_block),
+      @cad.Design::new(name="block-model").add(chamfer_block),
       [
         "create_chamfer_block_object('block', 20, 10, 5, 1, 0, 6, collection)", "get_material((0.2, 0.6, 1, 1.0))",
       ],
     ),
     (
       "extruded_profile",
-      @cad.Design::new(name?="plate-model").add(extrude),
+      @cad.Design::new(name="plate-model").add(extrude),
       [
         "create_extruded_profile_object('plate', [[(0, 0), (10, 0), (10, 5), (0, 5)], [(2, 2), (3, 2), (3, 3), (2, 3)]], 4, collection)",
         "get_material((0, 0.8, 0, 1.0))",
@@ -97,7 +97,7 @@ test "to_blender_python table-driven" {
     ),
     (
       "swept_profile",
-      @cad.Design::new(name?="sweep-model").add(swept),
+      @cad.Design::new(name="sweep-model").add(swept),
       [
         "create_swept_profile_object('sweep', [(0, 0, 0), (0, 0, 10)], [(0, 1, 0), (0, 1, 0)], [(0, 0, 1), (0, 0, 1)], (0, 0, 0)",
         "[(-1, -1, 0)", "(0, 1, 0), (1, 0, 0), True, False, collection)",
@@ -105,7 +105,7 @@ test "to_blender_python table-driven" {
     ),
     (
       "union",
-      @cad.Design::new(name?="union-model").add(union_node),
+      @cad.Design::new(name="union-model").add(union_node),
       [
         "create_cuboid_object('a', 2, 2, 2, collection)", "create_cuboid_object('b', 1, 3, 1, collection)",
         "join_objects(", "'combo'", "get_material((0, 0.8, 0.8, 1.0))",

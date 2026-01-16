@@ -53,6 +53,80 @@ fn py_color(color : Rgb) -> String {
 }
 
 ///|
+fn next_var(prefix : String, idx : Int) -> (String, Int) {
+  (prefix + idx.to_string(), idx + 1)
+}
+
+///|
+fn emit_node_python(
+  builder : StringBuilder,
+  node : SceneNode,
+  idx : Int,
+) -> (String, Int) {
+  match node.shape {
+    Cuboid(c) => {
+      let (obj_var, next_idx) = next_var("obj", idx)
+      builder.write_string(
+        (
+          $|    \{obj_var} = finalize_object(create_cuboid_object(\{py_string(node.name)}, \{c.sx}, \{c.sy}, \{c.sz}, collection), get_material(\{py_color(node.color)}), (\{node.tx}, \{node.ty}, \{node.tz}), (\{node.rx}, \{node.ry}, \{node.rz}))
+        ),
+      )
+      (obj_var, next_idx)
+    }
+    CalibrationChamferBlock(b) => {
+      let (obj_var, next_idx) = next_var("obj", idx)
+      builder.write_string(
+        (
+          $|    \{obj_var} = finalize_object(create_chamfer_block_object(\{py_string(node.name)}, \{b.length_mm}, \{b.width_mm}, \{b.height_mm}, \{b.chamfer_size_mm}, \{b.fillet_radius_mm}, \{b.fillet_segments}, collection), get_material(\{py_color(node.color)}), (\{node.tx}, \{node.ty}, \{node.tz}), (\{node.rx}, \{node.ry}, \{node.rz}))
+        ),
+      )
+      (obj_var, next_idx)
+    }
+    ExtrudedProfile(e) => {
+      let (obj_var, next_idx) = next_var("obj", idx)
+      let loops = [e.profile.outer, ..e.profile.holes]
+      builder.write_string(
+        (
+          $|    \{obj_var} = finalize_object(create_extruded_profile_object(\{py_string(node.name)}, \{py_vec2_list_list(loops)}, \{e.height_mm}, collection), get_material(\{py_color(node.color)}), (\{node.tx}, \{node.ty}, \{node.tz}), (\{node.rx}, \{node.ry}, \{node.rz}))
+        ),
+      )
+      (obj_var, next_idx)
+    }
+    SweptProfile(s) => {
+      let (obj_var, next_idx) = next_var("obj", idx)
+      builder.write_string(
+        (
+          $|    \{obj_var} = finalize_object(create_swept_profile_object(\{py_string(node.name)}, \{py_vec3_list(s.path.points)}, \{py_vec3_list(s.path.normals)}, \{py_vec3_list(s.path.tangents)}, \{py_vec3(s.profile.center)}, \{py_vec3_list(s.profile.vertices)}, \{py_vec3(s.profile.normal_dir)}, \{py_vec3(s.profile.right_dir)}, \{py_bool(s.make_start_cap)}, \{py_bool(s.make_end_cap)}, collection), get_material(\{py_color(node.color)}), (\{node.tx}, \{node.ty}, \{node.tz}), (\{node.rx}, \{node.ry}, \{node.rz}))
+        ),
+      )
+      (obj_var, next_idx)
+    }
+    Union(u) => {
+      let child_vars : Array[String] = []
+      let mut cur_idx = idx
+      for child in u.nodes {
+        let (child_var, next_idx) = emit_node_python(builder, child, cur_idx)
+        child_vars.push(child_var)
+        cur_idx = next_idx
+      }
+      let (list_var, next_idx) = next_var("union_objs", cur_idx)
+      builder.write_string(
+        (
+          $|    \{list_var} = [\{child_vars.join(", ")}]
+        ),
+      )
+      let (obj_var, final_idx) = next_var("obj", next_idx)
+      builder.write_string(
+        (
+          $|    \{obj_var} = finalize_object(join_objects(\{list_var}, \{py_string(node.name)}), get_material(\{py_color(node.color)}), (\{node.tx}, \{node.ty}, \{node.tz}), (\{node.rx}, \{node.ry}, \{node.rz}))
+        ),
+      )
+      (obj_var, final_idx)
+    }
+  }
+}
+
+///|
 /// Convert the Design to a Blender 5 Python3 script that will recreate the model
 /// using the Blender Python3 API. This function keeps the STEP model as high-level
 /// as possible, allowing Blender to handle as many modifier operations itself
@@ -429,88 +503,9 @@ pub fn Design::to_blender_python(self : Design) -> String {
     ),
   )
   let mut obj_index = 0
-  let next_var = fn(prefix : String) -> String {
-    let name = prefix + obj_index.to_string()
-    obj_index = obj_index + 1
-    name
-  }
-  let rec emit_node = fn(node : SceneNode) -> String {
-    match node.shape {
-      Cuboid(c) => {
-        let obj_var = next_var("obj")
-        builder.write_string(
-          "    \{obj_var} = finalize_object("
-          + "create_cuboid_object(\{py_string(node.name)}, \{c.sx}, \{c.sy}, \{c.sz}, collection), "
-          + "get_material(\{py_color(node.color)}), "
-          + "(\{node.tx}, \{node.ty}, \{node.tz}), (\{node.rx}, \{node.ry}, \{node.rz})"
-          + ")\n",
-        )
-        obj_var
-      }
-      CalibrationChamferBlock(b) => {
-        let obj_var = next_var("obj")
-        builder.write_string(
-          "    \{obj_var} = finalize_object("
-          + "create_chamfer_block_object(\{py_string(node.name)}, \{b.length_mm}, \{b.width_mm}, \{b.height_mm}, \{b.chamfer_size_mm}, \{b.fillet_radius_mm}, \{b.fillet_segments}, collection), "
-          + "get_material(\{py_color(node.color)}), "
-          + "(\{node.tx}, \{node.ty}, \{node.tz}), (\{node.rx}, \{node.ry}, \{node.rz})"
-          + ")\n",
-        )
-        obj_var
-      }
-      ExtrudedProfile(e) => {
-        let obj_var = next_var("obj")
-        let loops = [e.profile.outer, ..e.profile.holes]
-        builder.write_string(
-          "    \{obj_var} = finalize_object("
-          + "create_extruded_profile_object(\{py_string(node.name)}, \{py_vec2_list_list(loops)}, \{e.height_mm}, collection), "
-          + "get_material(\{py_color(node.color)}), "
-          + "(\{node.tx}, \{node.ty}, \{node.tz}), (\{node.rx}, \{node.ry}, \{node.rz})"
-          + ")\n",
-        )
-        obj_var
-      }
-      SweptProfile(s) => {
-        let obj_var = next_var("obj")
-        builder.write_string(
-          "    \{obj_var} = finalize_object("
-          + "create_swept_profile_object("
-          + "\{py_string(node.name)}, "
-          + "\{py_vec3_list(s.path.points)}, "
-          + "\{py_vec3_list(s.path.normals)}, "
-          + "\{py_vec3_list(s.path.tangents)}, "
-          + "\{py_vec3(s.profile.center)}, "
-          + "\{py_vec3_list(s.profile.vertices)}, "
-          + "\{py_vec3(s.profile.normal_dir)}, "
-          + "\{py_vec3(s.profile.right_dir)}, "
-          + "\{py_bool(s.make_start_cap)}, \{py_bool(s.make_end_cap)}, "
-          + "collection), "
-          + "get_material(\{py_color(node.color)}), "
-          + "(\{node.tx}, \{node.ty}, \{node.tz}), (\{node.rx}, \{node.ry}, \{node.rz})"
-          + ")\n",
-        )
-        obj_var
-      }
-      Union(u) => {
-        let child_vars = u.nodes.map(emit_node)
-        let list_var = next_var("union_objs")
-        builder.write_string(
-          "    \{list_var} = [" + child_vars.join(", ") + "]\n",
-        )
-        let obj_var = next_var("obj")
-        builder.write_string(
-          "    \{obj_var} = finalize_object("
-          + "join_objects(\{list_var}, \{py_string(node.name)}), "
-          + "get_material(\{py_color(node.color)}), "
-          + "(\{node.tx}, \{node.ty}, \{node.tz}), (\{node.rx}, \{node.ry}, \{node.rz})"
-          + ")\n",
-        )
-        obj_var
-      }
-    }
-  }
   for node in self.nodes {
-    let _ = emit_node(node)
+    let (_, next_idx) = emit_node_python(builder, node, obj_index)
+    obj_index = next_idx
   }
   builder.write_string(
     (
