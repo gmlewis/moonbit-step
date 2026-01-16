@@ -251,7 +251,7 @@ pub fn Design::to_string(self : Design) -> String {
 
 ///|
 pub async fn Design::write_step_file(self : Design, out_path : String?) -> Unit {
-  write_step_text(self.to_step_file(), out_path)
+  write_text_file(self.to_step_file(), out_path)
 }
 
 ///|
@@ -333,13 +333,13 @@ pub fn Design::translate(
 }
 
 ///|
-pub async fn write_step_text(step_text : String, out_path : String?) -> Unit {
+pub async fn write_text_file(text : String, out_path : String?) -> Unit {
   match out_path {
-    None => println(step_text)
+    None => println(text)
     Some(path) =>
       @fs.write_file(
         path,
-        @encoding/utf8.encode(step_text),
+        @encoding/utf8.encode(text),
         create=0o644,
         truncate=true,
       ) catch {

@@ -24,6 +24,7 @@ async fn main {
       min=0.0,
       min_exclusive=true,
     ),
+    "bpy": @cli.opt_string(help="Write Blender 5 python to a file"),
     "out": @cli.opt_string(
       short='o',
       help="Write output to a file (default: stdout)",
@@ -39,6 +40,7 @@ async fn main {
     return
   }
   let edge_mm = args.double("edge")
+  let bpy_path = args.string_opt("bpy")
   let out_path = args.string_opt("out")
   let (tx, ty, tz) = match args.translate_xyz() {
     Some(v) => v
@@ -54,4 +56,7 @@ async fn main {
     .translate(x=tx, y=ty, z=tz),
   )
   design.write_step(out_path)
+  if bpy_path is Some(_) {
+    design.write_blender_python(bpy_path)
+  }
 }
