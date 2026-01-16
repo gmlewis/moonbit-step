@@ -9,7 +9,9 @@ pub async fn Design::write_blender_python(
 
 ///|
 /// Convert the Design to a Blender 5 Python3 script that will recreate the model
-/// using the Blender Python3 API.
+/// using the Blender Python3 API. This function keeps the STEP model as high-level
+/// as possible, allowing Blender to handle as many modifier operations itself
+/// as it can.
 pub fn Design::to_blender_python(self : Design) -> String {
   let builder = StringBuilder::new()
   builder.write_string(
