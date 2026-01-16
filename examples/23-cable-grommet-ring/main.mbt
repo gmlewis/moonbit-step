@@ -33,6 +33,9 @@ async fn main {
       min=0.5,
     ),
     "split": @cli.flag(help="Split the grommet into two halves"),
+    "bpy": @cli.opt_string(
+      help="Write Blender 5.0 Python3 script to a file (instead of STEP)",
+    ),
     "out": @cli.opt_string(
       short='o',
       help="Write output to a file (default: stdout)",
@@ -53,6 +56,7 @@ async fn main {
   let pt = args.double("panelThickness")
   let lt = args.double("lipThickness")
   let split = args.flag("split")
+  let bpy_path = args.string_opt("bpy")
   let out_path = args.string_opt("out")
   let (tx, ty, tz) = match args.translate_xyz() {
     Some(v) => v
@@ -74,7 +78,11 @@ async fn main {
   for node in nodes {
     design = design.add(node.translate(x=tx, y=ty, z=tz))
   }
-  design.write_step(out_path)
+  if bpy_path is Some(_) {
+    design.write_blender_python(bpy_path)
+  } else {
+    design.write_step(out_path)
+  }
 }
 
 ///|

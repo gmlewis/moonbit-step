@@ -15,6 +15,9 @@ async fn main {
     "clearance": @cli.opt_double(0.2, help="Clearance for the rail pocket (mm)"),
     "seatDiameter": @cli.opt_double(3.5, help="Fastener seat diameter (mm)"),
     "seatDepth": @cli.opt_double(5.0, help="Fastener seat depth (mm)"),
+    "bpy": @cli.opt_string(
+      help="Write Blender 5.0 Python3 script to a file (instead of STEP)",
+    ),
     "out": @cli.opt_string(short='o', help="Write output to a file"),
   }
   let args_spec = @cli.with_translate(base_args_spec)
@@ -26,6 +29,7 @@ async fn main {
   let thick = args.double("thickness")
   let clr = args.double("clearance")
   let sd = args.double("seatDiameter")
+  let bpy_path = args.string_opt("bpy")
   let out_path = args.string_opt("out")
   let (tx, ty, tz) = args.translate_xyz().unwrap_or((0.0, 0.0, 0.0))
 
@@ -100,5 +104,9 @@ async fn main {
       font_size=2.2,
       offset_y=label_y,
     )
-  design.write_step(out_path)
+  if bpy_path is Some(_) {
+    design.write_blender_python(bpy_path)
+  } else {
+    design.write_step(out_path)
+  }
 }

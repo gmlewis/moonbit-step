@@ -30,6 +30,9 @@ async fn main {
       help="Circle segments (smoothness)",
       min=3.0,
     ),
+    "bpy": @cli.opt_string(
+      help="Write Blender 5.0 Python3 script to a file (instead of STEP)",
+    ),
     "out": @cli.opt_string(
       short='o',
       help="Write output to a file (default: stdout)",
@@ -48,6 +51,7 @@ async fn main {
   let od = args.double("od")
   let thickness = args.double("thickness")
   let segments = args.double("segments").to_int()
+  let bpy_path = args.string_opt("bpy")
   let out_path = args.string_opt("out")
   let (tx, ty, tz) = match args.translate_xyz() {
     Some(v) => v
@@ -73,5 +77,9 @@ async fn main {
     .with_color(@cad.Rgb::blue())
     .translate(x=tx, y=ty, z=tz)
   let design = @cad.Design::new(name="parametric-washer").add(washer)
-  design.write_step(out_path)
+  if bpy_path is Some(_) {
+    design.write_blender_python(bpy_path)
+  } else {
+    design.write_step(out_path)
+  }
 }
