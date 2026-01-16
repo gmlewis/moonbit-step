@@ -198,6 +198,7 @@ pub fn Design::to_blender_python(self : Design) -> String {
       $|
       $|import bpy
       $|import math
+      $|import sys
       $|
       $|config = {}
       $|_material_cache = {}
@@ -551,10 +552,28 @@ pub fn Design::to_blender_python(self : Design) -> String {
       $|    obj.name = name
       $|    return obj
       $|
+      $|def ensure_mesh_object(obj):
+      $|    if obj is None:
+      $|        return None
+      $|    if obj.type == "MESH":
+      $|        return obj
+      $|    bpy.ops.object.select_all(action="DESELECT")
+      $|    obj.select_set(True)
+      $|    bpy.context.view_layer.objects.active = obj
+      $|    try:
+      $|        bpy.ops.object.convert(target="MESH")
+      $|    except Exception as exc:
+      $|        raise RuntimeError(f"Failed to convert '{obj.name}' to mesh: {exc}")
+      $|    new_obj = bpy.context.view_layer.objects.active
+      $|    if new_obj is None or new_obj.type != "MESH":
+      $|        raise RuntimeError(f"Conversion to mesh failed for '{obj.name}'.")
+      $|    return new_obj
+      $|
       $|def boolean_difference(base_obj, cutters, name):
       $|    if base_obj is None:
       $|        return None
-      $|    cutters = [c for c in cutters if c is not None]
+      $|    base_obj = ensure_mesh_object(base_obj)
+      $|    cutters = [ensure_mesh_object(c) for c in cutters if c is not None]
       $|    if not cutters:
       $|        base_obj.name = name
       $|        return base_obj
@@ -562,25 +581,24 @@ pub fn Design::to_blender_python(self : Design) -> String {
       $|    base_obj.select_set(True)
       $|    bpy.context.view_layer.objects.active = base_obj
       $|    for cutter in cutters:
+      $|        if cutter is None:
+      $|            continue
+      $|        if cutter.type != "MESH":
+      $|            raise RuntimeError(f"Cutter '{cutter.name}' is not a mesh after conversion.")
       $|        mod = base_obj.modifiers.new(name="Bool", type='BOOLEAN')
       $|        mod.operation = 'DIFFERENCE'
       $|        mod.object = cutter
-      $|        bpy.ops.object.modifier_apply(modifier=mod.name)
+      $|        try:
+      $|            bpy.ops.object.modifier_apply(modifier=mod.name)
+      $|        except Exception as exc:
+      $|            raise RuntimeError(f"Boolean difference failed for '{cutter.name}': {exc}")
       $|    for cutter in cutters:
       $|        bpy.data.objects.remove(cutter, do_unlink=True)
       $|    base_obj.name = name
       $|    return base_obj
       $|
       $|
-      $|def main():
-      $|    delete_default_cube()
-      $|    # Create or reuse a named collection (based upon the name of this model).
-      $|    # Delete all children of the collection in the case that it already exists.
-      $|    collection_name = config.get('collectionName', '\{self.name} Collection')
-      $|    print(f"\\nSetting up collection '{collection_name}'...")
-      $|    collection = set_up_collection(collection_name)
-      $|
-      $|    # Create model objects.
+      $|def create_model_objects():
       $|
     ),
   )
@@ -600,7 +618,24 @@ pub fn Design::to_blender_python(self : Design) -> String {
       $|        obj.select_set(True)
       $|    if collection.objects:
       $|        bpy.context.view_layer.objects.active = collection.objects[0]
-      $|    print("Done.")
+      $|
+      $|
+      $|def main():
+      $|    try:
+      $|        delete_default_cube()
+      $|        # Create or reuse a named collection (based upon the name of this model).
+      $|        # Delete all children of the collection in the case that it already exists.
+      $|        collection_name = config.get('collectionName', '\{self.name} Collection')
+      $|        print(f"\\nSetting up collection '{collection_name}'...")
+      $|        collection = set_up_collection(collection_name)
+      $|
+      $|        create_model_objects()
+      $|
+      $|        print("Done.")
+      $|    except Exception as exc:
+      $|        print(f"ERROR: {exc}", file=sys.stderr)
+      $|        sys.exit(1)
+      $|
       $|
       $|if __name__ == "__main__":
       $|    main()
