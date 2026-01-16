@@ -55,6 +55,17 @@ def main() -> int:
         print(f"Script not found: {script}", file=sys.stderr)
         return 2
 
+    try:
+        compile_result = subprocess.run(
+            [sys.executable, "-m", "py_compile", str(script)]
+        )
+    except Exception as exc:  # pragma: no cover - defensive
+        print(f"Failed to run Python syntax check: {exc}", file=sys.stderr)
+        return 2
+    if compile_result.returncode != 0:
+        print("Python syntax check failed.", file=sys.stderr)
+        return compile_result.returncode or 1
+
     cmd = build_command(script, args.blend)
     print("Running:", " ".join(cmd))
 

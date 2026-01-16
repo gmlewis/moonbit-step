@@ -511,6 +511,9 @@ pub fn Design::to_blender_python(self : Design) -> String {
   builder.write_string(
     (
       $|
+      $|    obj_count = len(collection.objects)
+      $|    if obj_count == 0:
+      $|        raise RuntimeError("No objects were created in the collection.")
       $|    print("Done.")
       $|
       $|if __name__ == "__main__":
