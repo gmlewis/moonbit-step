@@ -14,6 +14,11 @@ fn py_string(s : String) -> String {
 }
 
 ///|
+fn mm_to_m(x : Double) -> Double {
+  x * 0.001
+}
+
+///|
 fn py_bool(b : Bool) -> String {
   if b {
     "True"
@@ -23,18 +28,23 @@ fn py_bool(b : Bool) -> String {
 }
 
 ///|
-fn py_vec2(v : Vec2) -> String {
-  "(\{v.0}, \{v.1})"
-}
-
-///|
 fn py_vec3(v : Vec3) -> String {
   "(\{v.0}, \{v.1}, \{v.2})"
 }
 
 ///|
-fn py_vec2_list(pts : Array[Vec2]) -> String {
-  "[" + pts.map(py_vec2).join(", ") + "]"
+fn py_mm(x : Double) -> String {
+  "\{mm_to_m(x)}"
+}
+
+///|
+fn py_mm_vec2(v : Vec2) -> String {
+  "(\{mm_to_m(v.0)}, \{mm_to_m(v.1)})"
+}
+
+///|
+fn py_mm_vec3(v : Vec3) -> String {
+  "(\{mm_to_m(v.0)}, \{mm_to_m(v.1)}, \{mm_to_m(v.2)})"
 }
 
 ///|
@@ -43,8 +53,18 @@ fn py_vec3_list(pts : Array[Vec3]) -> String {
 }
 
 ///|
-fn py_vec2_list_list(loops : Array[Array[Vec2]]) -> String {
-  "[" + loops.map(py_vec2_list).join(", ") + "]"
+fn py_mm_vec2_list(pts : Array[Vec2]) -> String {
+  "[" + pts.map(py_mm_vec2).join(", ") + "]"
+}
+
+///|
+fn py_mm_vec3_list(pts : Array[Vec3]) -> String {
+  "[" + pts.map(py_mm_vec3).join(", ") + "]"
+}
+
+///|
+fn py_mm_vec2_list_list(loops : Array[Array[Vec2]]) -> String {
+  "[" + loops.map(py_mm_vec2_list).join(", ") + "]"
 }
 
 ///|
@@ -68,7 +88,7 @@ fn emit_node_python(
       let (obj_var, next_idx) = next_var("obj", idx)
       builder.write_string(
         (
-          $|    \{obj_var} = finalize_object(create_cuboid_object(\{py_string(node.name)}, \{c.sx}, \{c.sy}, \{c.sz}, collection), get_material(\{py_color(node.color)}), (\{node.tx}, \{node.ty}, \{node.tz}), (\{node.rx}, \{node.ry}, \{node.rz}))
+          $|    \{obj_var} = finalize_object(create_cuboid_object(\{py_string(node.name)}, \{py_mm(c.sx)}, \{py_mm(c.sy)}, \{py_mm(c.sz)}, collection), get_material(\{py_color(node.color)}), (\{py_mm(node.tx)}, \{py_mm(node.ty)}, \{py_mm(node.tz)}), (\{node.rx}, \{node.ry}, \{node.rz}))
           $|
         ),
       )
@@ -78,7 +98,7 @@ fn emit_node_python(
       let (obj_var, next_idx) = next_var("obj", idx)
       builder.write_string(
         (
-          $|    \{obj_var} = finalize_object(create_chamfer_block_object(\{py_string(node.name)}, \{b.length_mm}, \{b.width_mm}, \{b.height_mm}, \{b.chamfer_size_mm}, \{b.fillet_radius_mm}, \{b.fillet_segments}, collection), get_material(\{py_color(node.color)}), (\{node.tx}, \{node.ty}, \{node.tz}), (\{node.rx}, \{node.ry}, \{node.rz}))
+          $|    \{obj_var} = finalize_object(create_chamfer_block_object(\{py_string(node.name)}, \{py_mm(b.length_mm)}, \{py_mm(b.width_mm)}, \{py_mm(b.height_mm)}, \{py_mm(b.chamfer_size_mm)}, \{py_mm(b.fillet_radius_mm)}, \{b.fillet_segments}, collection), get_material(\{py_color(node.color)}), (\{py_mm(node.tx)}, \{py_mm(node.ty)}, \{py_mm(node.tz)}), (\{node.rx}, \{node.ry}, \{node.rz}))
           $|
         ),
       )
@@ -89,7 +109,7 @@ fn emit_node_python(
       let loops = [e.profile.outer, ..e.profile.holes]
       builder.write_string(
         (
-          $|    \{obj_var} = finalize_object(create_extruded_profile_object(\{py_string(node.name)}, \{py_vec2_list_list(loops)}, \{e.height_mm}, collection), get_material(\{py_color(node.color)}), (\{node.tx}, \{node.ty}, \{node.tz}), (\{node.rx}, \{node.ry}, \{node.rz}))
+          $|    \{obj_var} = finalize_object(create_extruded_profile_object(\{py_string(node.name)}, \{py_mm_vec2_list_list(loops)}, \{py_mm(e.height_mm)}, collection), get_material(\{py_color(node.color)}), (\{py_mm(node.tx)}, \{py_mm(node.ty)}, \{py_mm(node.tz)}), (\{node.rx}, \{node.ry}, \{node.rz}))
           $|
         ),
       )
@@ -99,7 +119,7 @@ fn emit_node_python(
       let (obj_var, next_idx) = next_var("obj", idx)
       builder.write_string(
         (
-          $|    \{obj_var} = finalize_object(create_swept_profile_object(\{py_string(node.name)}, \{py_vec3_list(s.path.points)}, \{py_vec3_list(s.path.normals)}, \{py_vec3_list(s.path.tangents)}, \{py_vec3(s.profile.center)}, \{py_vec3_list(s.profile.vertices)}, \{py_vec3(s.profile.normal_dir)}, \{py_vec3(s.profile.right_dir)}, \{py_bool(s.make_start_cap)}, \{py_bool(s.make_end_cap)}, collection), get_material(\{py_color(node.color)}), (\{node.tx}, \{node.ty}, \{node.tz}), (\{node.rx}, \{node.ry}, \{node.rz}))
+          $|    \{obj_var} = finalize_object(create_swept_profile_object(\{py_string(node.name)}, \{py_mm_vec3_list(s.path.points)}, \{py_vec3_list(s.path.normals)}, \{py_vec3_list(s.path.tangents)}, \{py_mm_vec3(s.profile.center)}, \{py_mm_vec3_list(s.profile.vertices)}, \{py_vec3(s.profile.normal_dir)}, \{py_vec3(s.profile.right_dir)}, \{py_bool(s.make_start_cap)}, \{py_bool(s.make_end_cap)}, collection), get_material(\{py_color(node.color)}), (\{py_mm(node.tx)}, \{py_mm(node.ty)}, \{py_mm(node.tz)}), (\{node.rx}, \{node.ry}, \{node.rz}))
           $|
         ),
       )
@@ -123,7 +143,7 @@ fn emit_node_python(
       let (obj_var, final_idx) = next_var("obj", next_idx)
       builder.write_string(
         (
-          $|    \{obj_var} = finalize_object(join_objects(\{list_var}, \{py_string(node.name)}), get_material(\{py_color(node.color)}), (\{node.tx}, \{node.ty}, \{node.tz}), (\{node.rx}, \{node.ry}, \{node.rz}))
+          $|    \{obj_var} = finalize_object(join_objects(\{list_var}, \{py_string(node.name)}), get_material(\{py_color(node.color)}), (\{py_mm(node.tx)}, \{py_mm(node.ty)}, \{py_mm(node.tz)}), (\{node.rx}, \{node.ry}, \{node.rz}))
           $|
         ),
       )
@@ -154,6 +174,13 @@ pub fn Design::to_blender_python(self : Design) -> String {
       $|
       $|config = {}
       $|_material_cache = {}
+      $|
+      $|
+      $|def delete_default_cube():
+      $|    obj = bpy.data.objects.get("Cube")
+      $|    if obj is not None:
+      $|        bpy.data.objects.remove(obj, do_unlink=True)
+      $|        print("Removed default cube.")
       $|
       $|
       $|def set_up_collection(collection_name):
@@ -499,6 +526,7 @@ pub fn Design::to_blender_python(self : Design) -> String {
       $|
       $|
       $|def main():
+      $|    delete_default_cube()
       $|    # Create or reuse a named collection (based upon the name of this model).
       $|    # Delete all children of the collection in the case that it already exists.
       $|    collection_name = config.get('collectionName', '\{self.name} Collection')

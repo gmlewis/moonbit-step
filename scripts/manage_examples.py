@@ -79,6 +79,27 @@ def generate_step(num, config, output_path):
         print(f"    FAILED: {e.stderr.strip()}")
         return False
 
+def generate_bpy(num, config, bpy_path):
+    root = Path(__file__).parent.parent
+    run_script = root / "run-example.sh"
+    cmd = [str(run_script), num] + config + ["--bpy", str(bpy_path)]
+    try:
+        subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=True)
+        return True
+    except subprocess.CalledProcessError as e:
+        print(f"    FAILED: {e.stderr.strip()}")
+        return False
+
+def validate_bpy(root, bpy_path, blend_path):
+    validator = root / "scripts" / "validate-bpy.py"
+    cmd = [str(validator), "--blend", str(blend_path), str(bpy_path)]
+    try:
+        subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=True)
+        return True
+    except subprocess.CalledProcessError as e:
+        print(f"    Blender validation FAILED: {e.stderr.strip()}")
+        return False
+
 def validate_step(occt_bin, step_path):
     draw_cmd = f"pload ALL; ReadStep D {step_path}; XGetOneShape s D; checkshape s;"
     try:
@@ -244,10 +265,11 @@ def main():
         sys.exit(1)
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("target", help="Example number or 'all'")
+    parser.add_argument("target", nargs="?", default="all", help="Example number or 'all'")
     parser.add_argument("--validate", action="store_true")
     parser.add_argument("--render", action="store_true")
     parser.add_argument("--readme", action="store_true")
+    parser.add_argument("--bpy", action="store_true")
     args = parser.parse_args()
 
     occt_bin = find_occt()
@@ -258,6 +280,9 @@ def main():
         sys.exit(1)
 
     targets = sorted(SUITE.keys()) if args.target == "all" else [args.target]
+    bpy_output_dir = root / "bpy-out"
+    if args.bpy:
+        bpy_output_dir.mkdir(parents=True, exist_ok=True)
 
     for num in targets:
         # Handle non-padded input (e.g., "3" -> "03")
@@ -282,29 +307,38 @@ def main():
 
         variants_processed = []
         for i, config in enumerate(SUITE[padded_num], 1):
-            print(f"  [Set {i}] Args: {" ".join(config)}")
-            step_file = Path(f"/tmp/example-{padded_num}-{i}.step")
+            print(f"  [Set {i}] Args: {' '.join(config)}")
+            if args.bpy:
+                bpy_file = bpy_output_dir / f"example-{padded_num}-{i}.py"
+                blend_file = bpy_output_dir / f"example-{padded_num}-{i}.blend"
+                if not generate_bpy(padded_num, config, bpy_file):
+                    sys.exit(1)
+                if not validate_bpy(root, bpy_file, blend_file):
+                    sys.exit(1)
+                variants_processed.append({"config": config, "preview": None})
+            else:
+                step_file = Path(f"/tmp/example-{padded_num}-{i}.step")
 
-            if not generate_step(padded_num, config, step_file):
-                sys.exit(1)
-
-            if args.validate:
-                if validate_step(occt_bin, step_file):
-                    print("    Topology: OK")
-                else:
-                    print("    Topology: FAILED")
+                if not generate_step(padded_num, config, step_file):
                     sys.exit(1)
 
-            preview = None
-            if args.render:
-                preview = render_variant(occt_bin, inkscape_bin, step_file, example_dir, i)
-                if preview:
-                    print(f"    Render: SUCCESS ({preview})")
-                else:
-                    print(f"    Render: FAILED")
-                    sys.exit(1)
+                if args.validate:
+                    if validate_step(occt_bin, step_file):
+                        print("    Topology: OK")
+                    else:
+                        print("    Topology: FAILED")
+                        sys.exit(1)
 
-            variants_processed.append({"config": config, "preview": preview})
+                preview = None
+                if args.render:
+                    preview = render_variant(occt_bin, inkscape_bin, step_file, example_dir, i)
+                    if preview:
+                        print(f"    Render: SUCCESS ({preview})")
+                    else:
+                        print(f"    Render: FAILED")
+                        sys.exit(1)
+
+                variants_processed.append({"config": config, "preview": preview})
 
         if args.readme:
             print(f"  Updating README.md...")
