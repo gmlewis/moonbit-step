@@ -109,12 +109,19 @@ pub struct BooleanUnion {
 }
 
 ///|
+pub struct BooleanDifference {
+  base : SceneNode
+  cutters : Array[SceneNode]
+}
+
+///|
 pub enum Shape {
   Cuboid(Cuboid)
   CalibrationChamferBlock(CalibrationChamferBlock)
   ExtrudedProfile(ExtrudedProfile)
   SweptProfile(SweptProfile)
   Union(BooleanUnion)
+  Difference(BooleanDifference)
 }
 
 ///|
@@ -199,6 +206,7 @@ pub fn Shape::bounding_box(
       }
       (x0, x1, y0, y1, 0.0, e.height_mm)
     }
+    Difference(d) => d.base.shape.bounding_box()
     SweptProfile(s) => {
       let mut x0 = @double.max_value
       let mut x1 = @double.min_value

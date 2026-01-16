@@ -78,11 +78,7 @@ fn add_node_to_ctx(
   product_defs : Array[@step.Ref],
   shape_reps : Array[@step.Ref],
 ) -> Unit {
-  let faces = compile_node_shape(ctx, node)
-  let shell = @topology.ClosedShell::new("", faces)
-  let shell_ref = ctx.add(@repository.any_entity_closed_shell(shell))
-  let brep = @topology.ManifoldSolidBrep::new("", shell_ref)
-  let brep_ref = ctx.add(@repository.any_entity_manifold_solid_brep(brep))
+  let brep_ref = compile_node_to_brep(ctx, node)
   compile_node_geometry_and_styling(ctx, node, brep_ref)
 
   // Product structure for this part
@@ -122,6 +118,15 @@ fn add_node_to_ctx(
   let sdr = @product.ShapeDefinitionRepresentation::new(pds_ref, shape_rep_ref)
   let _ = ctx.add(@repository.any_entity_shape_definition_representation(sdr))
 
+}
+
+///|
+fn compile_node_to_brep(ctx : StepContext, node : SceneNode) -> @step.Ref {
+  let faces = compile_node_shape(ctx, node)
+  let shell = @topology.ClosedShell::new("", faces)
+  let shell_ref = ctx.add(@repository.any_entity_closed_shell(shell))
+  let brep = @topology.ManifoldSolidBrep::new("", shell_ref)
+  ctx.add(@repository.any_entity_manifold_solid_brep(brep))
 }
 
 ///|
@@ -214,6 +219,62 @@ pub fn Design::compile(self : Design) -> @repository.Repository {
         )
 
       }
+      Difference(d) => {
+        let mut result_ref = compile_node_to_brep(ctx, d.base)
+        for cutter in d.cutters {
+          let cutter_ref = compile_node_to_brep(ctx, cutter)
+          let bool_result = @geometry.BooleanResult::new(
+            node.name,
+            @geometry.BooleanOperator::Difference,
+            result_ref,
+            cutter_ref,
+          )
+          result_ref = ctx.add(
+            @repository.any_entity_boolean_result(bool_result),
+          )
+        }
+        let csg = @geometry.CsgSolid::new(node.name, result_ref)
+        let csg_ref = ctx.add(@repository.any_entity_csg_solid(csg))
+        compile_node_geometry_and_styling(ctx, node, csg_ref)
+        let prod_def_ref = ctx.add_product_definition(node.name)
+        product_defs.push(prod_def_ref)
+        let origin = ctx.cartesian_point(node.tx, node.ty, node.tz)
+        let (dzx, dzy, dzz) = rotate_point(
+          (0.0, 0.0, 1.0),
+          node.rx,
+          node.ry,
+          node.rz,
+        )
+        let (dxx, dxy, dxz) = rotate_point(
+          (1.0, 0.0, 0.0),
+          node.rx,
+          node.ry,
+          node.rz,
+        )
+        let dz = ctx.direction(dzx, dzy, dzz)
+        let dx = ctx.direction(dxx, dxy, dxz)
+        let a2p_ref = ctx.axis2_placement_3d(origin, dz, dx)
+        let shape_rep = @product.ShapeRepresentation::new(
+          node.name + "-None",
+          [a2p_ref, csg_ref],
+          { id: ctx.repo_ctx_id },
+        )
+        let shape_rep_ref = ctx.add(
+          @repository.any_entity_shape_representation(shape_rep),
+        )
+        shape_reps.push(shape_rep_ref)
+        let pds = @product.ProductDefinitionShape::new("", "", prod_def_ref)
+        let pds_ref = ctx.add(
+          @repository.any_entity_product_definition_shape(pds),
+        )
+        let sdr = @product.ShapeDefinitionRepresentation::new(
+          pds_ref, shape_rep_ref,
+        )
+        let _ = ctx.add(
+          @repository.any_entity_shape_definition_representation(sdr),
+        )
+
+      }
       _ => add_node_to_ctx(ctx, node, product_defs, shape_reps)
     }
   }
@@ -232,6 +293,7 @@ fn compile_node_shape(ctx : StepContext, node : SceneNode) -> Array[@step.Ref] {
       compile_calibration_chamfer_block(ctx, node, b)
     ExtrudedProfile(e) => compile_extruded_profile(ctx, node, e)
     SweptProfile(s) => compile_swept_profile(ctx, node, s)
+    Difference(_) => []
     _ =>
       // This should not be reached for Union shapes as they are expanded in Design::compile
       []

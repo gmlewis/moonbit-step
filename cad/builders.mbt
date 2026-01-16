@@ -96,7 +96,6 @@ pub fn Profile2D::rounded_rect(
   let n = if segments < 4 { 4 } else { segments }
   let qn = n / 4
   let pts = []
-  // Bottom-right arc: 270 to 360 degrees
   pts.push_iter(
     Profile2D::arc(2.0 * r, 1.5 * @math.PI, 2.0 * @math.PI, segments=qn)
     .iter()
@@ -343,6 +342,17 @@ pub fn union_all(
 }
 
 ///|
+/// difference returns a new SceneNode representing a boolean difference
+/// between a base node and a set of cutter nodes.
+pub fn difference(
+  base : SceneNode,
+  cutters : Array[SceneNode],
+  name? : String = "difference",
+) -> SceneNode {
+  Shape::Difference({ base, cutters }).with_name(name)
+}
+
+///|
 pub fn Shape::with_name(self : Shape, name : String) -> SceneNode {
   SceneNode::{
     shape: self,
@@ -413,7 +423,157 @@ pub fn Design::add_text_on_face(
   rotation? : Double = 0.0,
   margin? : Double,
   color? : Rgb = Rgb::orange(),
+  emboss? : Bool = true,
 ) -> Design {
+  let color_val = color
+  let emboss_val = emboss
+  let final_nodes = match font_size {
+    Some(fs) =>
+      match emboss_depth {
+        Some(ed) =>
+          match margin {
+            Some(m) =>
+              text_nodes_on_face(
+                target,
+                text,
+                face,
+                font,
+                font_size=fs,
+                emboss_depth=ed,
+                offset_x~,
+                offset_y~,
+                rotation~,
+                margin=m,
+                color=color_val,
+                emboss=emboss_val,
+              )
+            None =>
+              text_nodes_on_face(
+                target,
+                text,
+                face,
+                font,
+                font_size=fs,
+                emboss_depth=ed,
+                offset_x~,
+                offset_y~,
+                rotation~,
+                color=color_val,
+                emboss=emboss_val,
+              )
+          }
+        None =>
+          match margin {
+            Some(m) =>
+              text_nodes_on_face(
+                target,
+                text,
+                face,
+                font,
+                font_size=fs,
+                offset_x~,
+                offset_y~,
+                rotation~,
+                margin=m,
+                color=color_val,
+                emboss=emboss_val,
+              )
+            None =>
+              text_nodes_on_face(
+                target,
+                text,
+                face,
+                font,
+                font_size=fs,
+                offset_x~,
+                offset_y~,
+                rotation~,
+                color=color_val,
+                emboss=emboss_val,
+              )
+          }
+      }
+    None =>
+      match emboss_depth {
+        Some(ed) =>
+          match margin {
+            Some(m) =>
+              text_nodes_on_face(
+                target,
+                text,
+                face,
+                font,
+                emboss_depth=ed,
+                offset_x~,
+                offset_y~,
+                rotation~,
+                margin=m,
+                color=color_val,
+                emboss=emboss_val,
+              )
+            None =>
+              text_nodes_on_face(
+                target,
+                text,
+                face,
+                font,
+                emboss_depth=ed,
+                offset_x~,
+                offset_y~,
+                rotation~,
+                color=color_val,
+                emboss=emboss_val,
+              )
+          }
+        None =>
+          match margin {
+            Some(m) =>
+              text_nodes_on_face(
+                target,
+                text,
+                face,
+                font,
+                offset_x~,
+                offset_y~,
+                rotation~,
+                margin=m,
+                color=color_val,
+                emboss=emboss_val,
+              )
+            None =>
+              text_nodes_on_face(
+                target,
+                text,
+                face,
+                font,
+                offset_x~,
+                offset_y~,
+                rotation~,
+                color=color_val,
+                emboss=emboss_val,
+              )
+          }
+      }
+  }
+  self.add_iter(final_nodes.iter())
+}
+
+///|
+/// text_nodes_on_face returns text nodes positioned on a face of the target.
+pub fn text_nodes_on_face(
+  target : SceneNode,
+  text : String,
+  face : Face,
+  font : @draw.Font,
+  font_size? : Double,
+  emboss_depth? : Double,
+  offset_x? : Double = 0.0,
+  offset_y? : Double = 0.0,
+  rotation? : Double = 0.0,
+  margin? : Double,
+  color? : Rgb = Rgb::orange(),
+  emboss? : Bool = true,
+) -> Array[SceneNode] {
   let (min_x, max_x, min_y, max_y, min_z, max_z) = target.shape.bounding_box()
   let mid_x = (min_x + max_x) / 2.0
   let mid_y = (min_y + max_y) / 2.0
@@ -431,53 +591,149 @@ pub fn Design::add_text_on_face(
   // and avoid Z-fighting.
   let (lx, ly, lz, lrx, lry, lrz, fw, fh) = match face {
     Top =>
-      (mid_x + offset_x, mid_y + offset_y, max_z - 0.01, 0.0, 0.0, 0.0, dx, dy)
+      if emboss {
+        (
+          mid_x + offset_x,
+          mid_y + offset_y,
+          max_z - 0.01,
+          0.0,
+          0.0,
+          0.0,
+          dx,
+          dy,
+        )
+      } else {
+        (
+          mid_x + offset_x,
+          mid_y + offset_y,
+          max_z + 0.01,
+          180.0,
+          0.0,
+          180.0,
+          dx,
+          dy,
+        )
+      }
     Bottom =>
-      (
-        mid_x + offset_x,
-        mid_y - offset_y,
-        min_z + 0.01,
-        180.0,
-        0.0,
-        180.0,
-        dx,
-        dy,
-      )
+      if emboss {
+        (
+          mid_x + offset_x,
+          mid_y - offset_y,
+          min_z + 0.01,
+          180.0,
+          0.0,
+          180.0,
+          dx,
+          dy,
+        )
+      } else {
+        (
+          mid_x + offset_x,
+          mid_y - offset_y,
+          min_z - 0.01,
+          0.0,
+          0.0,
+          0.0,
+          dx,
+          dy,
+        )
+      }
     Front =>
-      (
-        mid_x + offset_x,
-        max_y - 0.01,
-        mid_z + offset_y,
-        90.0,
-        0.0,
-        180.0,
-        dx,
-        dz,
-      )
+      if emboss {
+        (
+          mid_x + offset_x,
+          max_y - 0.01,
+          mid_z + offset_y,
+          90.0,
+          0.0,
+          180.0,
+          dx,
+          dz,
+        )
+      } else {
+        (
+          mid_x + offset_x,
+          max_y + 0.01,
+          mid_z + offset_y,
+          270.0,
+          0.0,
+          0.0,
+          dx,
+          dz,
+        )
+      }
     Back =>
-      (mid_x - offset_x, min_y + 0.01, mid_z + offset_y, 90.0, 0.0, 0.0, dx, dz)
+      if emboss {
+        (
+          mid_x - offset_x,
+          min_y + 0.01,
+          mid_z + offset_y,
+          90.0,
+          0.0,
+          0.0,
+          dx,
+          dz,
+        )
+      } else {
+        (
+          mid_x - offset_x,
+          min_y - 0.01,
+          mid_z + offset_y,
+          270.0,
+          0.0,
+          180.0,
+          dx,
+          dz,
+        )
+      }
     Left =>
-      (
-        min_x + 0.01,
-        mid_y + offset_x,
-        mid_z + offset_y,
-        90.0,
-        0.0,
-        -90.0,
-        dy,
-        dz,
-      )
+      if emboss {
+        (
+          min_x + 0.01,
+          mid_y + offset_x,
+          mid_z + offset_y,
+          90.0,
+          0.0,
+          -90.0,
+          dy,
+          dz,
+        )
+      } else {
+        (
+          min_x - 0.01,
+          mid_y + offset_x,
+          mid_z + offset_y,
+          270.0,
+          0.0,
+          90.0,
+          dy,
+          dz,
+        )
+      }
     Right =>
-      (
-        max_x - 0.01,
-        mid_y - offset_x,
-        mid_z + offset_y,
-        90.0,
-        0.0,
-        90.0,
-        dy,
-        dz,
-      )
+      if emboss {
+        (
+          max_x - 0.01,
+          mid_y - offset_x,
+          mid_z + offset_y,
+          90.0,
+          0.0,
+          90.0,
+          dy,
+          dz,
+        )
+      } else {
+        (
+          max_x + 0.01,
+          mid_y - offset_x,
+          mid_z + offset_y,
+          270.0,
+          0.0,
+          -90.0,
+          dy,
+          dz,
+        )
+      }
   }
   let fs = match font_size {
     Some(v) => v
@@ -510,7 +766,7 @@ pub fn Design::add_text_on_face(
     ry=fry,
     rz=frz,
   )
-  let final_nodes = text_nodes.map(fn(n) {
+  text_nodes.map(fn(n) {
     let n = n.with_color(color)
     // Apply target's own local-to-global transform
     // We compose the rotations: R_target * R_local
@@ -534,5 +790,4 @@ pub fn Design::add_text_on_face(
       rz: grz,
     }
   })
-  self.add_iter(final_nodes.iter())
 }

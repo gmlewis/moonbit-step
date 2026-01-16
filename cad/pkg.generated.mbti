@@ -16,6 +16,8 @@ pub fn compile_extruded_profile(StepContext, SceneNode, ExtrudedProfile) -> Arra
 
 pub fn cycle_area_3d(Array[(Double, Double, Double)], Array[Int]) -> (Double, Double, Double)
 
+pub fn difference(SceneNode, Array[SceneNode], name? : String) -> SceneNode
+
 pub fn fmt_double(Double, Double?) -> String
 
 pub fn force_ccw(Array[(Double, Double)]) -> Array[(Double, Double)]
@@ -38,6 +40,8 @@ pub fn snap_double(Double, Double?) -> Double
 
 pub fn text_at(String, Double, Double, Double, font~ : @fonts.Font, font_size? : Double, max_width? : Double, emboss_depth? : Double, rx? : Double, ry? : Double, rz? : Double) -> Array[SceneNode]
 
+pub fn text_nodes_on_face(SceneNode, String, Face, @fonts.Font, font_size? : Double, emboss_depth? : Double, offset_x? : Double, offset_y? : Double, rotation? : Double, margin? : Double, color? : Rgb, emboss? : Bool) -> Array[SceneNode]
+
 pub fn translate_pts(Array[(Double, Double)], Double, Double) -> Array[(Double, Double)]
 
 pub fn tube(Double, Double, Double, segments? : Int) -> Shape
@@ -54,6 +58,11 @@ pub impl Eq for LoaderError
 pub impl Show for LoaderError
 
 // Types and methods
+pub struct BooleanDifference {
+  base : SceneNode
+  cutters : Array[SceneNode]
+}
+
 pub struct BooleanUnion {
   nodes : Array[SceneNode]
 }
@@ -84,7 +93,7 @@ pub struct Design {
 }
 pub fn Design::add(Self, SceneNode) -> Self
 pub fn Design::add_iter(Self, Iter[SceneNode]) -> Self
-pub fn Design::add_text_on_face(Self, SceneNode, String, Face, @fonts.Font, font_size? : Double, emboss_depth? : Double, offset_x? : Double, offset_y? : Double, rotation? : Double, margin? : Double, color? : Rgb) -> Self
+pub fn Design::add_text_on_face(Self, SceneNode, String, Face, @fonts.Font, font_size? : Double, emboss_depth? : Double, offset_x? : Double, offset_y? : Double, rotation? : Double, margin? : Double, color? : Rgb, emboss? : Bool) -> Self
 pub fn Design::compile(Self) -> @repository.Repository
 pub fn Design::new(name? : String, description? : String, snapping? : Double) -> Self
 pub fn Design::rotate_x(Self, Double) -> Self
@@ -189,6 +198,7 @@ pub enum Shape {
   ExtrudedProfile(ExtrudedProfile)
   SweptProfile(SweptProfile)
   Union(BooleanUnion)
+  Difference(BooleanDifference)
 }
 pub fn Shape::bounding_box(Self) -> (Double, Double, Double, Double, Double, Double)
 pub fn Shape::with_color(Self, Rgb) -> SceneNode

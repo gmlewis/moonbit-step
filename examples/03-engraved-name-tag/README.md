@@ -27,13 +27,19 @@ The intent is that you can run the code here to emit a STEP file, open it in a C
 
 ### Variant 1
 
-Command line: `./run-example.sh 03 --name gmlewis`
+Command line: `./run-example.sh 03 --name gmlewis --emboss`
 
 ![](preview-1.png)
 
 ### Variant 2
 
-Command line: `./run-example.sh 03 --name MoonBit --embossDepth 2 --length 60`
+Command line: `./run-example.sh 03 --name MoonBit --embossDepth 2 --length 60 --emboss`
 
 ![](preview-2.png)
+
+### Variant 3
+
+Command line: `./run-example.sh 03 --name gmlewis`
+
+![](preview-3.png)
 

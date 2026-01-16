@@ -149,6 +149,33 @@ fn emit_node_python(
       )
       (obj_var, final_idx)
     }
+    Difference(d) => {
+      let (base_var, next_idx) = emit_node_python(builder, d.base, idx)
+      let cutter_vars : Array[String] = []
+      let mut cur_idx = next_idx
+      for cutter in d.cutters {
+        let (cutter_var, cutter_idx) = emit_node_python(
+          builder, cutter, cur_idx,
+        )
+        cutter_vars.push(cutter_var)
+        cur_idx = cutter_idx
+      }
+      let (list_var, next_idx) = next_var("diff_cutters", cur_idx)
+      builder.write_string(
+        (
+          $|    \{list_var} = [\{cutter_vars.join(", ")}]
+          $|
+        ),
+      )
+      let (obj_var, final_idx) = next_var("obj", next_idx)
+      builder.write_string(
+        (
+          $|    \{obj_var} = finalize_object(boolean_difference(\{base_var}, \{list_var}, \{py_string(node.name)}), get_material(\{py_color(node.color)}), (\{py_mm(node.tx)}, \{py_mm(node.ty)}, \{py_mm(node.tz)}), (\{node.rx}, \{node.ry}, \{node.rz}))
+          $|
+        ),
+      )
+      (obj_var, final_idx)
+    }
   }
 }
 
@@ -523,6 +550,26 @@ pub fn Design::to_blender_python(self : Design) -> String {
       $|    obj = bpy.context.view_layer.objects.active
       $|    obj.name = name
       $|    return obj
+      $|
+      $|def boolean_difference(base_obj, cutters, name):
+      $|    if base_obj is None:
+      $|        return None
+      $|    cutters = [c for c in cutters if c is not None]
+      $|    if not cutters:
+      $|        base_obj.name = name
+      $|        return base_obj
+      $|    bpy.ops.object.select_all(action="DESELECT")
+      $|    base_obj.select_set(True)
+      $|    bpy.context.view_layer.objects.active = base_obj
+      $|    for cutter in cutters:
+      $|        mod = base_obj.modifiers.new(name="Bool", type='BOOLEAN')
+      $|        mod.operation = 'DIFFERENCE'
+      $|        mod.object = cutter
+      $|        bpy.ops.object.modifier_apply(modifier=mod.name)
+      $|    for cutter in cutters:
+      $|        bpy.data.objects.remove(cutter, do_unlink=True)
+      $|    base_obj.name = name
+      $|    return base_obj
       $|
       $|
       $|def main():

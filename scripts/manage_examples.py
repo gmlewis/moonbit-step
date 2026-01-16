@@ -12,7 +12,11 @@ from pathlib import Path
 SUITE = {
     "01": [["--edge", "10"], ["--edge", "25", "--tx", "5", "--ty", "5", "--tz", "5"]],
     "02": [["--length", "20", "--width", "20", "--height", "5"], ["--chamferSize", "4"], ["--filletRadius", "1.5"]],
-    "03": [["--name", "gmlewis"], ["--name", "MoonBit", "--embossDepth", "2", "--length", "60"]],
+    "03": [
+        ["--name", "gmlewis", "--emboss"],
+        ["--name", "MoonBit", "--embossDepth", "2", "--length", "60", "--emboss"],
+        ["--name", "gmlewis"],
+    ],
     "04": [["--id", "5", "--od", "15", "--thickness", "2"], ["--id", "10", "--od", "12", "--thickness", "0.5", "--segments", "32"]],
     "05": [["--rows", "1", "--cols", "1", "--height", "20"], ["--rows", "2", "--cols", "1", "--text", "Gemini"]],
     "06": [["--count", "1"], ["--count", "3", "--height", "10", "--clickHeight", "1"]],
@@ -101,11 +105,17 @@ def validate_bpy(root, bpy_path, blend_path):
         return False
 
 def validate_step(occt_bin, step_path):
-    draw_cmd = f"pload ALL; ReadStep D {step_path}; XGetOneShape s D; checkshape s;"
+    draw_cmd = f"pload ALL; ReadStep D {step_path}; XGetOneShape s D; nbshapes s; checkshape s;"
     try:
         result = subprocess.run([occt_bin, "-b", "-c", draw_cmd], capture_output=True, text=True, check=True)
-        return "This shape seems to be valid" in result.stdout
-    except:
+        output = result.stdout
+        nb_line = next((line for line in output.splitlines() if "NbShapes" in line), "")
+        if nb_line:
+            digits = [int(token) for token in nb_line.replace("=", " ").split() if token.isdigit()]
+            if digits and sum(digits) == 0:
+                return False
+        return "This shape seems to be valid" in output
+    except Exception:
         return False
 
 def render_view(occt_bin, step_path, png_path, view_cmd):

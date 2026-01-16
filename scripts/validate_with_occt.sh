@@ -36,6 +36,15 @@ DRAW_CMD="pload ALL; testreadstep \"${STEP_PATH_ESCAPED}\" ${SHAPE_NAME}; nbshap
 OUTPUT="$($OCCT_BIN -b -c "$DRAW_CMD")"
 printf '%s\n' "$OUTPUT"
 
+NBSHAPES_LINE="$(grep -E "NbShapes" <<<"$OUTPUT" | head -n1 || true)"
+if [[ -n "$NBSHAPES_LINE" ]]; then
+  NBSHAPES_SUM="$(printf '%s' "$NBSHAPES_LINE" | tr -cd '0-9 ' | tr ' ' '\n' | awk '{s+=$1} END {print s+0}')"
+  if [[ "$NBSHAPES_SUM" -eq 0 ]]; then
+    echo "Validation failed: OCCT reported zero topology (nbshapes=0)." >&2
+    exit 1
+  fi
+fi
+
 if grep -q "This shape seems to be valid" <<<"$OUTPUT"; then
   exit 0
 fi

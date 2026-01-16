@@ -33,10 +33,11 @@ async fn main {
     "margin": @cli.opt_double(3.0, help="Font margin (mm)"),
     "embossDepth": @cli.opt_double(
       1.0,
-      help="Text emboss height above the tag top (mm)",
+      help="Text depth/height (mm)",
       min=0.0,
       min_exclusive=true,
     ),
+    "emboss": @cli.flag(help="Emboss text above the tag"),
     "name": @cli.opt_string(short='n', help="Name to engrave on the tag"),
     "bpy": @cli.opt_string(
       help="Write Blender 5.0 Python3 script to a file (instead of STEP)",
@@ -60,6 +61,7 @@ async fn main {
   let height_mm = args.double("height")
   let margin_mm = args.double("margin")
   let emboss_depth_mm = args.double("embossDepth")
+  let emboss = args.flag("emboss")
   guard args.string_opt("name") is Some(name) else {
     @cli.eprintln("--name is required")
     abort("")
@@ -86,20 +88,29 @@ async fn main {
     )
     .with_name("tag-base")
     .with_color(@cad.Rgb::new(0.5, 0.0, 0.5)) // purple
-
-  // Text solids using the new helper with auto-scaling
-  let design = @cad.Design::new(name="keychain-tag")
+  let text_nodes = @cad.text_nodes_on_face(
+    base,
+    name,
+    Top,
+    font,
+    margin=margin_mm,
+    emboss_depth=emboss_depth_mm,
+    color=@cad.Rgb::orange(),
+    emboss~,
+  )
+  let design = if emboss {
+    @cad.Design::new(name="keychain-tag")
     .add(base)
-    .add_text_on_face(
-      base,
-      name,
-      Top,
-      font,
-      margin=margin_mm,
-      emboss_depth=emboss_depth_mm,
-      color=@cad.Rgb::orange(),
-    )
+    .add_iter(text_nodes.iter())
     .translate(x=tx, y=ty, z=tz)
+  } else {
+    let engraved = @cad.difference(base, text_nodes, name="tag-engraved").with_color(
+      @cad.Rgb::new(0.5, 0.0, 0.5),
+    )
+    @cad.Design::new(name="keychain-tag")
+    .add(engraved)
+    .translate(x=tx, y=ty, z=tz)
+  }
   if bpy_path is Some(_) {
     design.write_blender_python(bpy_path)
   } else {
