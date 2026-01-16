@@ -322,36 +322,37 @@ def main():
                 base_name = f"example-{padded_num}-{i}"
                 bpy_file = bpy_output_dir / f"{base_name}.py"
                 blend_file = bpy_output_dir / f"{base_name}.blend"
-                print(f"  Generating {base_name}.py ...")
+                print(f"    Generating {base_name}.py ...")
                 if not generate_bpy(padded_num, config, bpy_file):
                     sys.exit(1)
-                print(f"  Validating {base_name}.py and generating {base_name}.blend ...")
+                print(f"    Validating {base_name}.py and generating {base_name}.blend ...")
                 if not validate_bpy(root, bpy_file, blend_file):
                     sys.exit(1)
                 variants_processed.append({"config": config, "preview": None})
-            else:
-                step_file = Path(f"/tmp/example-{padded_num}-{i}.step")
 
-                if not generate_step(padded_num, config, step_file):
+            # Generate and validate STEP files
+            step_file = Path(f"/tmp/example-{padded_num}-{i}.step")
+
+            if not generate_step(padded_num, config, step_file):
+                sys.exit(1)
+
+            if args.validate:
+                if validate_step(occt_bin, step_file):
+                    print("    Topology: OK")
+                else:
+                    print("    Topology: FAILED")
                     sys.exit(1)
 
-                if args.validate:
-                    if validate_step(occt_bin, step_file):
-                        print("    Topology: OK")
-                    else:
-                        print("    Topology: FAILED")
-                        sys.exit(1)
+            preview = None
+            if args.render:
+                preview = render_variant(occt_bin, inkscape_bin, step_file, example_dir, i)
+                if preview:
+                    print(f"    Render: SUCCESS ({preview})")
+                else:
+                    print(f"    Render: FAILED")
+                    sys.exit(1)
 
-                preview = None
-                if args.render:
-                    preview = render_variant(occt_bin, inkscape_bin, step_file, example_dir, i)
-                    if preview:
-                        print(f"    Render: SUCCESS ({preview})")
-                    else:
-                        print(f"    Render: FAILED")
-                        sys.exit(1)
-
-                variants_processed.append({"config": config, "preview": preview})
+            variants_processed.append({"config": config, "preview": preview})
 
         if args.readme:
             print(f"  Updating README.md...")
