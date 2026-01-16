@@ -104,18 +104,14 @@ def validate_bpy(root, bpy_path, blend_path):
         print(f"    Blender validation FAILED: {e.stderr.strip()}")
         return False
 
-def validate_step(occt_bin, step_path):
-    draw_cmd = f"pload ALL; ReadStep D {step_path}; XGetOneShape s D; nbshapes s; checkshape s;"
+def validate_step(step_path):
+    scripts_dir = Path(__file__).parent
+    validator = scripts_dir / "validate_with_occt.sh"
+    cmd = [str(validator), str(step_path)]
     try:
-        result = subprocess.run([occt_bin, "-b", "-c", draw_cmd], capture_output=True, text=True, check=True)
-        output = result.stdout
-        nb_line = next((line for line in output.splitlines() if "NbShapes" in line), "")
-        if nb_line:
-            digits = [int(token) for token in nb_line.replace("=", " ").split() if token.isdigit()]
-            if digits and sum(digits) == 0:
-                return False
-        return "This shape seems to be valid" in output
-    except Exception:
+        subprocess.run(cmd, capture_output=True, text=True, check=True)
+        return True
+    except subprocess.CalledProcessError:
         return False
 
 def render_view(occt_bin, step_path, png_path, view_cmd):
@@ -337,7 +333,7 @@ def main():
                 sys.exit(1)
 
             if args.validate:
-                if validate_step(occt_bin, step_file):
+                if validate_step(step_file):
                     print("    Topology: OK")
                 else:
                     print("    Topology: FAILED")
