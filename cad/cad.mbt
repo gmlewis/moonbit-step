@@ -197,36 +197,24 @@ pub fn Design::compile(self : Design) -> @repository.Repository {
         )
       }
       Difference(d) => {
-        if d.cutters.length() == 0 {
+        // Export base and cutters as separate products for manual boolean in CAD
+        // Modern CAD systems (Plasticity/Onshape) don't support CSG import well
+        add_node_to_ctx(
+          ctx,
+          { ..d.base, name: node.name + "-base" },
+          product_defs,
+          shape_reps,
+        )
+        let mut cutter_idx = 1
+        for cutter in d.cutters {
           add_node_to_ctx(
             ctx,
-            { ..d.base, name: node.name },
+            { ..cutter, name: node.name + "-cutter\{cutter_idx}" },
             product_defs,
             shape_reps,
           )
-          continue
+          cutter_idx = cutter_idx + 1
         }
-        let all_faces : Array[@step.Ref] = []
-        all_faces.push_iter(compile_node_shape(ctx, d.base).iter())
-        for cutter in d.cutters {
-          all_faces.push_iter(
-            compile_node_shape(ctx, cutter, reverse=true).iter(),
-          )
-        }
-        let shell = @topology.ClosedShell::new("", all_faces)
-        let shell_ref = ctx.add(@repository.any_entity_closed_shell(shell))
-        let brep = @topology.ManifoldSolidBrep::new("", shell_ref)
-        let solid_ref = ctx.add(
-          @repository.any_entity_manifold_solid_brep(brep),
-        )
-        add_solid_node_to_ctx(
-          ctx,
-          node,
-          solid_ref,
-          product_defs,
-          shape_reps,
-          is_csg=false,
-        )
       }
       _ => add_node_to_ctx(ctx, node, product_defs, shape_reps)
     }
