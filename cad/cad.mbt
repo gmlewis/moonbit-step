@@ -187,28 +187,23 @@ pub fn Design::compile(self : Design) -> @repository.Repository {
           )
           continue
         }
-        let mut result_ref = compile_node_to_brep(ctx, u.nodes[0])
-        for i in 1..<u.nodes.length() {
-          let child_ref = compile_node_to_brep(ctx, u.nodes[i])
-          let bool_result = @geometry.BooleanResult::new(
-            "",
-            @geometry.BooleanOperator::Union,
-            result_ref,
-            child_ref,
-          )
-          result_ref = ctx.add(
-            @repository.any_entity_boolean_result(bool_result),
-          )
+        let all_faces : Array[@step.Ref] = []
+        for child in u.nodes {
+          all_faces.push_iter(compile_node_shape(ctx, child).iter())
         }
-        let csg = @geometry.CsgSolid::new(node.name, result_ref)
-        let csg_ref = ctx.add(@repository.any_entity_csg_solid(csg))
+        let shell = @topology.ClosedShell::new("", all_faces)
+        let shell_ref = ctx.add(@repository.any_entity_closed_shell(shell))
+        let brep = @topology.ManifoldSolidBrep::new("", shell_ref)
+        let solid_ref = ctx.add(
+          @repository.any_entity_manifold_solid_brep(brep),
+        )
         add_solid_node_to_ctx(
           ctx,
           node,
-          csg_ref,
+          solid_ref,
           product_defs,
           shape_reps,
-          is_csg=true,
+          is_csg=false,
         )
       }
       Difference(d) => {
@@ -221,28 +216,26 @@ pub fn Design::compile(self : Design) -> @repository.Repository {
           )
           continue
         }
-        let mut result_ref = compile_node_to_brep(ctx, d.base)
+        let all_faces : Array[@step.Ref] = []
+        all_faces.push_iter(compile_node_shape(ctx, d.base).iter())
         for cutter in d.cutters {
-          let cutter_ref = compile_node_to_brep(ctx, cutter)
-          let bool_result = @geometry.BooleanResult::new(
-            "",
-            @geometry.BooleanOperator::Difference,
-            result_ref,
-            cutter_ref,
-          )
-          result_ref = ctx.add(
-            @repository.any_entity_boolean_result(bool_result),
+          all_faces.push_iter(
+            compile_node_shape(ctx, cutter, reverse=true).iter(),
           )
         }
-        let csg = @geometry.CsgSolid::new(node.name, result_ref)
-        let csg_ref = ctx.add(@repository.any_entity_csg_solid(csg))
+        let shell = @topology.ClosedShell::new("", all_faces)
+        let shell_ref = ctx.add(@repository.any_entity_closed_shell(shell))
+        let brep = @topology.ManifoldSolidBrep::new("", shell_ref)
+        let solid_ref = ctx.add(
+          @repository.any_entity_manifold_solid_brep(brep),
+        )
         add_solid_node_to_ctx(
           ctx,
           node,
-          csg_ref,
+          solid_ref,
           product_defs,
           shape_reps,
-          is_csg=true,
+          is_csg=false,
         )
       }
       _ => add_node_to_ctx(ctx, node, product_defs, shape_reps)
