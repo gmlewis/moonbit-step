@@ -118,27 +118,37 @@ fn add_solid_node_to_ctx(
   let dz = ctx.direction(dzx, dzy, dzz)
   let dx = ctx.direction(dxx, dxy, dxz)
   let a2p_ref = ctx.axis2_placement_3d(origin, dz, dx)
+  let shape_rep = @product.ShapeRepresentation::new(
+    node.name + "-None",
+    [a2p_ref],
+    { id: ctx.repo_ctx_id },
+  )
+  let shape_rep_ref = ctx.add(
+    @repository.any_entity_shape_representation(shape_rep),
+  )
+  shape_reps.push(shape_rep_ref)
   let specific_rep_ref = if is_csg {
     let csg_rep = @product.CsgShapeRepresentation::new(
       node.name + "-None",
-      [a2p_ref, solid_ref],
+      [solid_ref],
       { id: ctx.repo_ctx_id },
     )
     ctx.add(@repository.any_entity_csg_shape_representation(csg_rep))
   } else {
     let brep_rep = @product.AdvancedBrepShapeRepresentation::new(
       node.name + "-None",
-      [a2p_ref, solid_ref],
+      [solid_ref],
       { id: ctx.repo_ctx_id },
     )
     ctx.add(@repository.any_entity_advanced_brep_shape_representation(brep_rep))
   }
-  shape_reps.push(specific_rep_ref)
+  let rel = @product.ShapeRepresentationRelationship::new(
+    "None", "relationship", shape_rep_ref, specific_rep_ref,
+  )
+  let _ = ctx.add(@repository.any_entity_shape_representation_relationship(rel))
   let pds = @product.ProductDefinitionShape::new("", "", prod_def_ref)
   let pds_ref = ctx.add(@repository.any_entity_product_definition_shape(pds))
-  let sdr = @product.ShapeDefinitionRepresentation::new(
-    pds_ref, specific_rep_ref,
-  )
+  let sdr = @product.ShapeDefinitionRepresentation::new(pds_ref, shape_rep_ref)
   let _ = ctx.add(@repository.any_entity_shape_definition_representation(sdr))
 
 }
@@ -197,24 +207,36 @@ pub fn Design::compile(self : Design) -> @repository.Repository {
         )
       }
       Difference(d) => {
-        // Export base and cutters as separate products for manual boolean in CAD
-        // Modern CAD systems (Plasticity/Onshape) don't support CSG import well
-        add_node_to_ctx(
-          ctx,
-          { ..d.base, name: node.name + "-base" },
-          product_defs,
-          shape_reps,
-        )
-        let mut cutter_idx = 1
-        for cutter in d.cutters {
+        if d.cutters.length() == 0 {
           add_node_to_ctx(
             ctx,
-            { ..cutter, name: node.name + "-cutter\{cutter_idx}" },
+            { ..d.base, name: node.name },
             product_defs,
             shape_reps,
           )
-          cutter_idx = cutter_idx + 1
+          continue
         }
+        let all_faces : Array[@step.Ref] = []
+        all_faces.push_iter(compile_node_shape(ctx, d.base).iter())
+        for cutter in d.cutters {
+          all_faces.push_iter(
+            compile_node_shape(ctx, cutter, reverse=true).iter(),
+          )
+        }
+        let shell = @topology.ClosedShell::new("", all_faces)
+        let shell_ref = ctx.add(@repository.any_entity_closed_shell(shell))
+        let brep = @topology.ManifoldSolidBrep::new("", shell_ref)
+        let solid_ref = ctx.add(
+          @repository.any_entity_manifold_solid_brep(brep),
+        )
+        add_solid_node_to_ctx(
+          ctx,
+          node,
+          solid_ref,
+          product_defs,
+          shape_reps,
+          is_csg=false,
+        )
       }
       _ => add_node_to_ctx(ctx, node, product_defs, shape_reps)
     }
