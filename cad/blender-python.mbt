@@ -585,15 +585,11 @@ pub fn Design::to_blender_python(self : Design) -> String {
       $|            continue
       $|        if cutter.type != "MESH":
       $|            raise RuntimeError(f"Cutter '{cutter.name}' is not a mesh after conversion.")
-      $|        mod = base_obj.modifiers.new(name="Bool", type='BOOLEAN')
+      $|        mod = base_obj.modifiers.new(name=f"Bool_{cutter.name}", type='BOOLEAN')
       $|        mod.operation = 'DIFFERENCE'
       $|        mod.object = cutter
-      $|        try:
-      $|            bpy.ops.object.modifier_apply(modifier=mod.name)
-      $|        except Exception as exc:
-      $|            raise RuntimeError(f"Boolean difference failed for '{cutter.name}': {exc}")
-      $|    for cutter in cutters:
-      $|        bpy.data.objects.remove(cutter, do_unlink=True)
+      $|        cutter.hide_set(True)
+      $|        cutter.hide_render = True
       $|    base_obj.name = name
       $|    return base_obj
       $|
