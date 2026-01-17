@@ -17,10 +17,10 @@ async fn main {
     "beltThickness": @cli.opt_double(1.5, help="Belt thickness (mm)"),
     "toothPitch": @cli.opt_double(2.0, help="Belt tooth pitch (GT2 = 2mm)"),
     "boltDia": @cli.opt_double(4.2, help="Tensioning bolt diameter (mm)"),
+    "blend": @cli.opt_string(help="Create Blender 5.0 file (instead of STEP)"),
     "bpy": @cli.opt_string(
       help="Write Blender 5.0 Python3 script to a file (instead of STEP)",
     ),
-    "blend": @cli.opt_string(help="Create Blender 5.0 file (instead of STEP)"),
     "out": @cli.opt_string(short='o', help="Write output to a file"),
   }
   let args_spec = @cli.with_translate(base_args_spec)

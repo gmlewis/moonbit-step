@@ -13,10 +13,10 @@ async fn main {
     "length": @cli.opt_double(100.0, help="Length of the gauge (mm)", min=50.0),
     "width": @cli.opt_double(50.0, help="Width of the gauge (mm)", min=20.0),
     "height": @cli.opt_double(10.0, help="Height of the gauge (mm)", min=5.0),
+    "blend": @cli.opt_string(help="Create Blender 5.0 file (instead of STEP)"),
     "bpy": @cli.opt_string(
       help="Write Blender 5.0 Python3 script to a file (instead of STEP)",
     ),
-    "blend": @cli.opt_string(help="Create Blender 5.0 file (instead of STEP)"),
     "out": @cli.opt_string(
       short='o',
       help="Write output to a file (default: stdout)",

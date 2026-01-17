@@ -19,10 +19,10 @@ async fn main {
     ),
     "fontSize": @cli.opt_double(0.0, help="Font size", min=0.0),
     "depth": @cli.opt_double(0.5, help="Engraving depth (mm)", min=0.0),
+    "blend": @cli.opt_string(help="Create Blender 5.0 file (instead of STEP)"),
     "bpy": @cli.opt_string(
       help="Write Blender 5.0 Python3 script to a file (instead of STEP)",
     ),
-    "blend": @cli.opt_string(help="Create Blender 5.0 file (instead of STEP)"),
     "out": @cli.opt_string(
       short='o',
       help="Write output to a file (default: stdout)",
@@ -44,8 +44,8 @@ async fn main {
   let opening_deg = args.double("opening")
   let emboss_depth = args.double("depth")
   let font_size_opt = args.double("fontSize")
-  let bpy_path = args.string_opt("bpy")
   let blend_path = args.string_opt("blend")
+  let bpy_path = args.string_opt("bpy")
   let out_path = args.string_opt("out")
   let (tx, ty, tz) = match args.translate_xyz() {
     Some(v) => v

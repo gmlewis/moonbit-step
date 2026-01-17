@@ -28,10 +28,10 @@ async fn main {
       help="Inner hole diameter of standoffs (mm)",
       min=0.5,
     ),
+    "blend": @cli.opt_string(help="Create Blender 5.0 file (instead of STEP)"),
     "bpy": @cli.opt_string(
       help="Write Blender 5.0 Python3 script to a file (instead of STEP)",
     ),
-    "blend": @cli.opt_string(help="Create Blender 5.0 file (instead of STEP)"),
     "out": @cli.opt_string(
       short='o',
       help="Write output to a file (default: stdout)",

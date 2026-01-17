@@ -15,10 +15,10 @@ async fn main {
     "clearance": @cli.opt_double(0.2, help="Clearance for the rail pocket (mm)"),
     "seatDiameter": @cli.opt_double(3.5, help="Fastener seat diameter (mm)"),
     "seatDepth": @cli.opt_double(5.0, help="Fastener seat depth (mm)"),
+    "blend": @cli.opt_string(help="Create Blender 5.0 file (instead of STEP)"),
     "bpy": @cli.opt_string(
       help="Write Blender 5.0 Python3 script to a file (instead of STEP)",
     ),
-    "blend": @cli.opt_string(help="Create Blender 5.0 file (instead of STEP)"),
     "out": @cli.opt_string(short='o', help="Write output to a file"),
   }
   let args_spec = @cli.with_translate(base_args_spec)

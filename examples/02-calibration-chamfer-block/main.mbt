@@ -85,10 +85,10 @@ async fn main {
       help="Top-edge fillet radius (mm). When > 0, takes precedence over chamfer.",
       min=0.0,
     ),
+    "blend": @cli.opt_string(help="Create Blender 5.0 file (instead of STEP)"),
     "bpy": @cli.opt_string(
       help="Write Blender 5.0 Python3 script to a file (instead of STEP)",
     ),
-    "blend": @cli.opt_string(help="Create Blender 5.0 file (instead of STEP)"),
     "out": @cli.opt_string(
       short='o',
       help="Write output to a file (default: stdout)",
