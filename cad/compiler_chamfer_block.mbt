@@ -3,7 +3,6 @@ pub fn compile_calibration_chamfer_block(
   ctx : StepContext,
   node : SceneNode,
   block : CalibrationChamferBlock,
-  keep_curves~ : Bool,
   reverse? : Bool = false,
 ) -> Array[@step.Ref] {
   let l = block.length_mm

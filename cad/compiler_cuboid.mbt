@@ -3,7 +3,6 @@ pub fn compile_cuboid(
   ctx : StepContext,
   node : SceneNode,
   cuboid : Cuboid,
-  keep_curves~ : Bool,
   reverse? : Bool = false,
 ) -> Array[@step.Ref] {
   let sx = cuboid.sx

@@ -3,7 +3,6 @@ pub fn compile_extruded_profile(
   ctx : StepContext,
   node : SceneNode,
   extrusion : ExtrudedProfile,
-  keep_curves~ : Bool,
   reverse? : Bool = false,
 ) -> Array[@step.Ref] {
   let profile = extrusion.profile

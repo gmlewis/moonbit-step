@@ -38,7 +38,7 @@ async fn main {
       min_exclusive=true,
     ),
     "emboss": @cli.flag(help="Emboss text above the tag"),
-    "keep-curves": @cli.flag(help="Keep cubic Bezier curves in output files"),
+    "keep-curves": @cli.flag(help="Keep cubic Bezier curves in Blender output"),
     "keep-modifiers": @cli.flag(help="Keep boolean modifiers in Blender output"),
     "name": @cli.opt_string(short='n', help="Name to engrave on the tag"),
     "bpy": @cli.opt_string(
@@ -128,6 +128,6 @@ async fn main {
   } else if bpy_path is Some(_) {
     design.write_blender_python(bpy_path, keep_curves~, keep_modifiers~)
   } else {
-    design.write_step(out_path, keep_curves~)
+    design.write_step(out_path)
   }
 }

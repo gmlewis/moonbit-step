@@ -15,7 +15,6 @@ fn compile_swept_profile(
   ctx : StepContext,
   node : SceneNode,
   s : SweptProfile,
-  keep_curves~ : Bool,
   reverse? : Bool = false,
 ) -> Array[@step.Ref] {
   let path = s.path
