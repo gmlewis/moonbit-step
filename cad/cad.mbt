@@ -399,7 +399,7 @@ fn default_header(
       ),
     ),
     @header.HeaderEntity::FileSchema(
-      @header.FileSchema::new(["AUTOMOTIVE_DESIGN { 1 0 10303 214 3 1 1 1 }"]),
+      @header.FileSchema::new(["AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }"]),
     ),
   ])
 }
