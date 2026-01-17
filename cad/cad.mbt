@@ -111,7 +111,23 @@ fn add_solid_node_to_ctx(
   let dz = ctx.direction(dzx, dzy, dzz)
   let dx = ctx.direction(dxx, dxy, dxz)
   let _a2p_ref = ctx.axis2_placement_3d(origin, dz, dx)
-  let shape_rep_ref = if is_csg {
+  // Axis placement for the part
+  let origin = ctx.cartesian_point(node.tx, node.ty, node.tz)
+  let (dzx, dzy, dzz) = rotate_point((0.0, 0.0, 1.0), node.rx, node.ry, node.rz)
+  let (dxx, dxy, dxz) = rotate_point((1.0, 0.0, 0.0), node.rx, node.ry, node.rz)
+  let dz = ctx.direction(dzx, dzy, dzz)
+  let dx = ctx.direction(dxx, dxy, dxz)
+  let a2p_ref = ctx.axis2_placement_3d(origin, dz, dx)
+  let shape_rep = @product.ShapeRepresentation::new(
+    node.name + "-None",
+    [a2p_ref],
+    { id: ctx.repo_ctx_id },
+  )
+  let shape_rep_ref = ctx.add(
+    @repository.any_entity_shape_representation(shape_rep),
+  )
+  shape_reps.push(shape_rep_ref)
+  let specific_rep_ref = if is_csg {
     let csg_rep = @product.CsgShapeRepresentation::new(
       node.name + "-None",
       [solid_ref],
@@ -126,7 +142,10 @@ fn add_solid_node_to_ctx(
     )
     ctx.add(@repository.any_entity_advanced_brep_shape_representation(brep_rep))
   }
-  shape_reps.push(shape_rep_ref)
+  let rel = @product.ShapeRepresentationRelationship::new(
+    "None", "relationship", shape_rep_ref, specific_rep_ref,
+  )
+  let _ = ctx.add(@repository.any_entity_shape_representation_relationship(rel))
   let pds = @product.ProductDefinitionShape::new("", "", prod_def_ref)
   let pds_ref = ctx.add(@repository.any_entity_product_definition_shape(pds))
   let sdr = @product.ShapeDefinitionRepresentation::new(pds_ref, shape_rep_ref)
@@ -168,28 +187,23 @@ pub fn Design::compile(self : Design) -> @repository.Repository {
           )
           continue
         }
-        let mut result_ref = compile_node_to_brep(ctx, u.nodes[0])
-        for i in 1..<u.nodes.length() {
-          let child_ref = compile_node_to_brep(ctx, u.nodes[i])
-          let bool_result = @geometry.BooleanResult::new(
-            "",
-            @geometry.BooleanOperator::Union,
-            result_ref,
-            child_ref,
-          )
-          result_ref = ctx.add(
-            @repository.any_entity_boolean_result(bool_result),
-          )
+        let all_faces : Array[@step.Ref] = []
+        for child in u.nodes {
+          all_faces.push_iter(compile_node_shape(ctx, child).iter())
         }
-        let csg = @geometry.CsgSolid::new(node.name, result_ref)
-        let csg_ref = ctx.add(@repository.any_entity_csg_solid(csg))
+        let shell = @topology.ClosedShell::new("", all_faces)
+        let shell_ref = ctx.add(@repository.any_entity_closed_shell(shell))
+        let brep = @topology.ManifoldSolidBrep::new("", shell_ref)
+        let solid_ref = ctx.add(
+          @repository.any_entity_manifold_solid_brep(brep),
+        )
         add_solid_node_to_ctx(
           ctx,
           node,
-          csg_ref,
+          solid_ref,
           product_defs,
           shape_reps,
-          is_csg=true,
+          is_csg=false,
         )
       }
       Difference(d) => {
