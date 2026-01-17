@@ -31,17 +31,19 @@ async fn main {
       min_exclusive=true,
     ),
     "margin": @cli.opt_double(3.0, help="Font margin (mm)"),
-    "embossDepth": @cli.opt_double(
+    "depth": @cli.opt_double(
       1.0,
       help="Text depth/height (mm)",
       min=0.0,
       min_exclusive=true,
     ),
     "emboss": @cli.flag(help="Emboss text above the tag"),
+    "keep": @cli.flag(help="Keep boolean modifiers in Blender output"),
     "name": @cli.opt_string(short='n', help="Name to engrave on the tag"),
     "bpy": @cli.opt_string(
       help="Write Blender 5.0 Python3 script to a file (instead of STEP)",
     ),
+    "blend": @cli.opt_string(help="Create Blender 5.0 file (instead of STEP)"),
     "out": @cli.opt_string(
       short='o',
       help="Write output to a file (default: stdout)",
@@ -60,7 +62,7 @@ async fn main {
   let width_mm = args.double("width")
   let height_mm = args.double("height")
   let margin_mm = args.double("margin")
-  let emboss_depth_mm = args.double("embossDepth")
+  let depth_mm = args.double("depth")
   let emboss = args.flag("emboss")
   guard args.string_opt("name") is Some(name) else {
     @cli.eprintln("--name is required")
@@ -74,6 +76,7 @@ async fn main {
     }
   }
   let font = @cad.load_font("baloo")
+  let blend_path = args.string_opt("blend")
   let bpy_path = args.string_opt("bpy")
   let out_path = args.string_opt("out")
 
@@ -96,7 +99,7 @@ async fn main {
     Top,
     font,
     margin=margin_mm,
-    emboss_depth=emboss_depth_mm,
+    emboss_depth=depth_mm,
     color=@cad.Rgb::orange(),
     emboss~,
   )
@@ -116,8 +119,10 @@ async fn main {
     .add(engraved)
     .translate(x=tx, y=ty, z=tz)
   }
-  if bpy_path is Some(_) {
-    design.write_blender_python(bpy_path)
+  if blend_path is Some(blend_path) {
+    design.create_blender_file(blend_path, keep_modifiers=args.flag("keep"))
+  } else if bpy_path is Some(_) {
+    design.write_blender_python(bpy_path, keep_modifiers=args.flag("keep"))
   } else {
     design.write_step(out_path)
   }

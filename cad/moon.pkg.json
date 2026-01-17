@@ -17,6 +17,7 @@
     "gmlewis/step/repository",
     "moonbitlang/async",
     "moonbitlang/async/fs",
+    "moonbitlang/async/process",
     "moonbitlang/async/stdio",
     "moonbitlang/x/sys",
     "moonbitlang/x/time"
