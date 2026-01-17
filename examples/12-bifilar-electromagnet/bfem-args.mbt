@@ -34,6 +34,7 @@ async fn parse_params() -> Params? {
     "bpy": @cli.opt_string(
       help="Write Blender 5.0 Python3 script to a file (instead of STEP)",
     ),
+    "blend": @cli.opt_string(help="Create Blender 5.0 file (instead of STEP)"),
     "out": @cli.opt_string(
       short='o',
       help="Write output to a STEP file (default: stdout)",
@@ -143,6 +144,7 @@ async fn parse_params() -> Params? {
     num_segs: args.int("numSegs"),
     out_path: args.string_opt("out"),
     bpy_path: args.string_opt("bpy"),
+    blend_path: args.string_opt("blend"),
     export_centerlines_path: args.string_opt("export_centerlines"),
     export_conductor_network_path: args.string_opt("export_conductor_network"),
     nostep: args.flag("nostep"),

@@ -41,10 +41,10 @@ async fn main {
     "keep-curves": @cli.flag(help="Keep cubic Bezier curves in Blender output"),
     "keep-modifiers": @cli.flag(help="Keep boolean modifiers in Blender output"),
     "name": @cli.opt_string(short='n', help="Name to engrave on the tag"),
+    "blend": @cli.opt_string(help="Create Blender 5.0 file (instead of STEP)"),
     "bpy": @cli.opt_string(
       help="Write Blender 5.0 Python3 script to a file (instead of STEP)",
     ),
-    "blend": @cli.opt_string(help="Create Blender 5.0 file (instead of STEP)"),
     "out": @cli.opt_string(
       short='o',
       help="Write output to a file (default: stdout)",

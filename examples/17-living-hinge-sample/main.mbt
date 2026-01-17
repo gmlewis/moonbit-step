@@ -33,6 +33,7 @@ async fn main {
     "bpy": @cli.opt_string(
       help="Write Blender 5.0 Python3 script to a file (instead of STEP)",
     ),
+    "blend": @cli.opt_string(help="Create Blender 5.0 file (instead of STEP)"),
     "out": @cli.opt_string(
       short='o',
       help="Write output to a file (default: stdout)",
@@ -54,6 +55,7 @@ async fn main {
   let slot_width = args.double("slotWidth")
   let slot_length = args.double("slotLength")
   let num_rows = args.double("numRows").to_int()
+  let blend_path = args.string_opt("blend")
   let bpy_path = args.string_opt("bpy")
   let out_path = args.string_opt("out")
   let (tx, ty, tz) = match args.translate_xyz() {
@@ -70,7 +72,9 @@ async fn main {
     .with_color(@cad.Rgb::purple())
     .translate(x=tx, y=ty, z=tz)
   let design = @cad.Design::new(name="living-hinge-sample").add(hinge)
-  if bpy_path is Some(_) {
+  if blend_path is Some(blend_path) {
+    design.create_blender_file(blend_path)
+  } else if bpy_path is Some(_) {
     design.write_blender_python(bpy_path)
   } else {
     design.write_step(out_path)
