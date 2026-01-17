@@ -640,6 +640,8 @@ const BOOLEAN_DIFFERENCE_KEEP_MODIFIERS =
   #|        mod = base_obj.modifiers.new(name=f"Bool_{cutter.name}", type='BOOLEAN')
   #|        mod.operation = 'DIFFERENCE'
   #|        mod.object = cutter
+  #|        if hasattr(mod, "show_expanded"):
+  #|            mod.show_expanded = False
   #|        cutter.hide_set(True)
   #|        cutter.hide_render = True
   #|    base_obj.name = name
