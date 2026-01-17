@@ -14,7 +14,7 @@ SUITE = {
     "02": [["--length", "20", "--width", "20", "--height", "5"], ["--chamferSize", "4"], ["--filletRadius", "1.5"]],
     "03": [
         ["--name", "gmlewis", "--emboss"],
-        ["--name", "MoonBit", "--embossDepth", "2", "--length", "60", "--emboss"],
+        ["--name", "MoonBit", "--depth", "2", "--length", "60", "--emboss"],
         ["--name", "gmlewis"],
     ],
     "04": [["--id", "5", "--od", "15", "--thickness", "2"], ["--id", "10", "--od", "12", "--thickness", "0.5", "--segments", "32"]],
@@ -276,6 +276,7 @@ def main():
     parser.add_argument("--render", action="store_true")
     parser.add_argument("--readme", action="store_true")
     parser.add_argument("--bpy", action="store_true")
+    parser.add_argument("--blend", action="store_true")
     args = parser.parse_args()
 
     occt_bin = find_occt()
@@ -287,7 +288,7 @@ def main():
 
     targets = sorted(SUITE.keys()) if args.target == "all" else [args.target]
     bpy_output_dir = root / "bpy-out"
-    if args.bpy:
+    if args.bpy or args.blend:
         bpy_output_dir.mkdir(parents=True, exist_ok=True)
 
     for num in targets:
@@ -314,7 +315,7 @@ def main():
         variants_processed = []
         for i, config in enumerate(SUITE[padded_num], 1):
             print(f"  [Set {i}] Args: {' '.join(config)}")
-            if args.bpy:
+            if args.bpy or args.blend:
                 base_name = f"example-{padded_num}-{i}"
                 bpy_file = bpy_output_dir / f"{base_name}.py"
                 blend_file = bpy_output_dir / f"{base_name}.blend"

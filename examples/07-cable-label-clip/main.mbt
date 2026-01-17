@@ -18,7 +18,7 @@ async fn main {
       max=120.0,
     ),
     "fontSize": @cli.opt_double(0.0, help="Font size", min=0.0),
-    "embossDepth": @cli.opt_double(0.5, help="Engraving depth (mm)", min=0.0),
+    "depth": @cli.opt_double(0.5, help="Engraving depth (mm)", min=0.0),
     "bpy": @cli.opt_string(
       help="Write Blender 5.0 Python3 script to a file (instead of STEP)",
     ),
@@ -41,7 +41,7 @@ async fn main {
   let clip_length = args.double("length")
   let wall = args.double("thickness")
   let opening_deg = args.double("opening")
-  let emboss_depth = args.double("embossDepth")
+  let emboss_depth = args.double("depth")
   let font_size_opt = args.double("fontSize")
   let bpy_path = args.string_opt("bpy")
   let out_path = args.string_opt("out")

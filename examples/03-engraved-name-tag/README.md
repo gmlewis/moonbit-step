@@ -14,7 +14,7 @@ The intent is that you can run the code here to emit a STEP file, open it in a C
 ## Parameters to try
 - `text`
 - `fontSize`
-- `embossDepth`
+- `depth`
 - `toothCount`
 - `pitchOrModule`
 
@@ -33,7 +33,7 @@ Command line: `./run-example.sh 03 --name gmlewis --emboss`
 
 ### Variant 2
 
-Command line: `./run-example.sh 03 --name MoonBit --embossDepth 2 --length 60 --emboss`
+Command line: `./run-example.sh 03 --name MoonBit --depth 2 --length 60 --emboss`
 
 ![](preview-2.png)
 

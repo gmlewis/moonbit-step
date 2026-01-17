@@ -37,7 +37,7 @@ async fn main {
       help="Font size (mm), default is 60% of wall height",
       min=0.0,
     ),
-    "embossDepth": @cli.opt_double(
+    "depth": @cli.opt_double(
       0.5,
       help="Engraving depth (mm)",
       min=0.0,
@@ -65,7 +65,7 @@ async fn main {
   let height = args.double("height")
   let text_opt = args.string_opt("text")
   let font_size_opt = args.double("fontSize")
-  let emboss_depth = args.double("embossDepth")
+  let emboss_depth = args.double("depth")
   let bpy_path = args.string_opt("bpy")
   let out_path = args.string_opt("out")
   let (tx, ty, tz) = match args.translate_xyz() {

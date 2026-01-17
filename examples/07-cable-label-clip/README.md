@@ -13,7 +13,7 @@ The intent is that you can run the code here to emit a STEP file, open it in a C
 ## Parameters to try
 - `text`
 - `fontSize`
-- `embossDepth`
+- `depth`
 - `clearance`
 - `interference`
 
