@@ -73,20 +73,35 @@ def create_complex_example(filename="complex_boolean.step"):
     print("Creating BONUS complex example...")
     print("="*60)
 
-    result = (
+    # Create base cube
+    result = cq.Workplane("XY").box(100, 100, 100)
+
+    # Create center hole (Z-axis)
+    hole_z = (
         cq.Workplane("XY")
-        .box(100, 100, 100)  # Base cube
-        .faces(">Z").workplane()  # Top face
-        .hole(30)  # Center hole
-        .faces(">X").workplane()  # Side face
-        .workplane(offset=-50)
+        .workplane(offset=-10)
         .circle(15)
-        .extrude(100)  # Side hole
-        .faces(">Y").workplane()  # Another side
-        .workplane(offset=-50)
-        .circle(15)
-        .extrude(100)  # Another side hole
+        .extrude(120)
     )
+
+    # Create hole through X-axis
+    hole_x = (
+        cq.Workplane("YZ")
+        .workplane(offset=-10)
+        .circle(15)
+        .extrude(120)
+    )
+
+    # Create hole through Y-axis
+    hole_y = (
+        cq.Workplane("XZ")
+        .workplane(offset=-10)
+        .circle(15)
+        .extrude(120)
+    )
+
+    # Perform boolean subtractions
+    result = result.cut(hole_z).cut(hole_x).cut(hole_y)
 
     print(f"Writing to {filename}...")
     cq.exporters.export(result, filename)
