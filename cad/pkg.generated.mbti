@@ -38,7 +38,7 @@ pub fn rotate_point((Double, Double, Double), Double, Double, Double) -> (Double
 
 pub fn snap_double(Double, Double?) -> Double
 
-pub fn text_at(String, Double, Double, Double, font~ : @fonts.Font, font_size? : Double, max_width? : Double, emboss_depth? : Double, rx? : Double, ry? : Double, rz? : Double, keep_curves? : Bool) -> Array[SceneNode]
+pub fn text_at(String, Double, Double, Double, font~ : @fonts.Font, font_size? : Double, max_width? : Double, emboss_depth? : Double, rx? : Double, ry? : Double, rz? : Double, segments? : Int) -> Array[SceneNode]
 
 pub fn translate_pts(Array[(Double, Double)], Double, Double) -> Array[(Double, Double)]
 
@@ -103,18 +103,18 @@ pub struct Design {
 }
 pub fn Design::add(Self, SceneNode) -> Self
 pub fn Design::add_iter(Self, Iter[SceneNode]) -> Self
-pub fn Design::add_text_on_face(Self, SceneNode, String, Face, @fonts.Font, font_size? : Double, emboss_depth? : Double, offset_x? : Double, offset_y? : Double, rotation? : Double, margin? : Double, color? : Rgb, emboss? : Bool, keep_curves? : Bool) -> Self
+pub fn Design::add_text_on_face(Self, SceneNode, String, Face, @fonts.Font, font_size? : Double, emboss_depth? : Double, offset_x? : Double, offset_y? : Double, rotation? : Double, margin? : Double, color? : Rgb, emboss? : Bool, segments? : Int) -> Self
 pub fn Design::compile(Self) -> @repository.Repository
-pub async fn Design::create_blender_file(Self, String, keep_curves? : Bool, keep_modifiers? : Bool) -> Unit
+pub async fn Design::create_blender_file(Self, String, keep_modifiers? : Bool, segments? : Int) -> Unit
 pub fn Design::new(name? : String, description? : String, snapping? : Double) -> Self
 pub fn Design::rotate_x(Self, Double) -> Self
 pub fn Design::rotate_y(Self, Double) -> Self
 pub fn Design::rotate_z(Self, Double) -> Self
-pub fn Design::to_blender_python(Self, keep_curves? : Bool, keep_modifiers? : Bool) -> String
+pub fn Design::to_blender_python(Self, segments? : Int, keep_modifiers? : Bool) -> String
 pub fn Design::to_step_file(Self) -> String
 pub fn Design::to_string(Self) -> String
 pub fn Design::translate(Self, x? : Double, y? : Double, z? : Double) -> Self
-pub async fn Design::write_blender_python(Self, String?, keep_curves? : Bool, keep_modifiers? : Bool) -> Unit
+pub async fn Design::write_blender_python(Self, String?, segments? : Int, keep_modifiers? : Bool) -> Unit
 pub async fn Design::write_step(Self, String?) -> Unit
 pub async fn Design::write_step_file(Self, String?) -> Unit
 

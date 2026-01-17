@@ -185,9 +185,9 @@ pub fn text_at(
   rx? : Double = 0.0,
   ry? : Double = 0.0,
   rz? : Double = 0.0,
-  keep_curves? : Bool = false,
+  segments? : Int = 0, // <=0: retain cubic Beziers, >0: convert to polylines with this many segments
 ) -> Array[SceneNode] {
-  if keep_curves {
+  if segments <= 0 {
     return text_at_bezier(
       text,
       x,
@@ -214,7 +214,7 @@ pub fn text_at(
   let all_paths = text_graphic.all_paths_and_compound_paths()
   let nodes = []
   for g in all_paths {
-    let profiles = collect_profiles(g, 8)
+    let profiles = collect_profiles(g, segments)
     for profile in profiles {
       let (outer, holes) = profile
       if outer.length() < 3 {
@@ -525,7 +525,7 @@ pub fn Design::add_text_on_face(
   margin? : Double,
   color? : Rgb = Rgb::orange(),
   emboss? : Bool = true,
-  keep_curves? : Bool = false,
+  segments? : Int = 0, // <=0: retain cubic Beziers, >0: convert to polylines with this many segments
 ) -> Design {
   let (min_x, max_x, min_y, max_y, min_z, max_z) = target.shape.bounding_box()
   let mid_x = (min_x + max_x) / 2.0
@@ -600,7 +600,7 @@ pub fn Design::add_text_on_face(
     rx=frx,
     ry=fry,
     rz=frz,
-    keep_curves~,
+    segments~,
   )
   let final_nodes = text_nodes.map(fn(n) {
     let n = n.with_color(color)

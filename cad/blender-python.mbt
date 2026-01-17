@@ -2,10 +2,10 @@
 pub async fn Design::create_blender_file(
   self : Design,
   out_path : String,
-  keep_curves? : Bool,
   keep_modifiers? : Bool,
+  segments? : Int = 0, // <=0: retain cubic Beziers, >0: convert to polylines with this many segments
 ) -> Unit {
-  let bpy_code = self.to_blender_python(keep_curves?, keep_modifiers?)
+  let bpy_code = self.to_blender_python(segments~, keep_modifiers?)
   let temp_py_path = "/tmp/temp_blender_script.py"
   write_text_file(bpy_code, Some(temp_py_path))
   // Now run: ./scripts/validate-bpy.py {temp_py_path} --blend out_path
@@ -26,10 +26,10 @@ pub async fn Design::create_blender_file(
 pub async fn Design::write_blender_python(
   self : Design,
   out_path : String?,
-  keep_curves? : Bool,
+  segments? : Int = 0, // <=0: retain cubic Beziers, >0: convert to polylines with this many segments
   keep_modifiers? : Bool,
 ) -> Unit {
-  let bpy_code = self.to_blender_python(keep_curves?, keep_modifiers?)
+  let bpy_code = self.to_blender_python(segments~, keep_modifiers?)
   write_text_file(bpy_code, out_path)
 }
 
@@ -127,7 +127,7 @@ fn emit_node_python(
   builder : StringBuilder,
   node : SceneNode,
   idx : Int,
-  keep_curves~ : Bool,
+  segments~ : Int,
 ) -> (String, Int) {
   match node.shape {
     Cuboid(c) => {
@@ -190,7 +190,7 @@ fn emit_node_python(
           builder,
           child,
           cur_idx,
-          keep_curves~,
+          segments~,
         )
         child_vars.push(child_var)
         cur_idx = next_idx
@@ -216,7 +216,7 @@ fn emit_node_python(
         builder,
         d.base,
         idx,
-        keep_curves~,
+        segments~,
       )
       let cutter_vars : Array[String] = []
       let mut cur_idx = next_idx
@@ -225,7 +225,7 @@ fn emit_node_python(
           builder,
           cutter,
           cur_idx,
-          keep_curves~,
+          segments~,
         )
         cutter_vars.push(cutter_var)
         cur_idx = cutter_idx
@@ -256,18 +256,18 @@ fn emit_node_python(
 /// as it can.
 pub fn Design::to_blender_python(
   self : Design,
-  keep_curves? : Bool = false,
+  segments? : Int = 0, // <=0: retain cubic Beziers, >0: convert to polylines with this many segments
   keep_modifiers? : Bool = false,
 ) -> String {
   let builder = StringBuilder::new()
   builder.write_string(PREAMBLE)
   if keep_modifiers {
-    if keep_curves {
+    if segments <= 0 {
       builder.write_string(BOOLEAN_DIFFERENCE_KEEP_MODIFIERS_KEEP_CURVES)
     } else {
       builder.write_string(BOOLEAN_DIFFERENCE_KEEP_MODIFIERS)
     }
-  } else if keep_curves {
+  } else if segments <= 0 {
     builder.write_string(BOOLEAN_DIFFERENCE_APPLY_MODIFIERS_KEEP_CURVES)
   } else {
     builder.write_string(BOOLEAN_DIFFERENCE_APPLY_MODIFIERS)
@@ -281,7 +281,7 @@ pub fn Design::to_blender_python(
   )
   let mut obj_index = 0
   for node in self.nodes {
-    let (_, next_idx) = emit_node_python(builder, node, obj_index, keep_curves~)
+    let (_, next_idx) = emit_node_python(builder, node, obj_index, segments~)
     obj_index = next_idx
   }
   builder.write_string(postscript(self.name))
