@@ -40,7 +40,7 @@ async fn main {
     "emboss": @cli.flag(help="Emboss text above the tag"),
     "segments": @cli.opt_int(
       0,
-      help="Convert cubic Bezier curves in into segmented polylines in Blender output (default: off)",
+      help="Convert cubic Bezier curves into segmented polylines in Blender output (default: off)",
     ),
     "keep-modifiers": @cli.flag(help="Keep boolean modifiers in Blender output"),
     "name": @cli.opt_string(short='n', help="Name to engrave on the tag"),

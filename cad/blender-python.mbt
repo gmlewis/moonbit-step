@@ -262,13 +262,7 @@ pub fn Design::to_blender_python(
   let builder = StringBuilder::new()
   builder.write_string(PREAMBLE)
   if keep_modifiers {
-    if segments <= 0 {
-      builder.write_string(BOOLEAN_DIFFERENCE_KEEP_MODIFIERS_KEEP_CURVES)
-    } else {
-      builder.write_string(BOOLEAN_DIFFERENCE_KEEP_MODIFIERS)
-    }
-  } else if segments <= 0 {
-    builder.write_string(BOOLEAN_DIFFERENCE_APPLY_MODIFIERS_KEEP_CURVES)
+    builder.write_string(BOOLEAN_DIFFERENCE_KEEP_MODIFIERS)
   } else {
     builder.write_string(BOOLEAN_DIFFERENCE_APPLY_MODIFIERS)
   }
@@ -734,64 +728,6 @@ const BOOLEAN_DIFFERENCE_KEEP_MODIFIERS =
   #|
 
 ///|
-const BOOLEAN_DIFFERENCE_KEEP_MODIFIERS_KEEP_CURVES =
-  #|def convert_curve_to_mesh_copy(obj):
-  #|    """Convert a curve to mesh, returning a new mesh object. Original curve is preserved."""
-  #|    if obj is None or obj.type == "MESH":
-  #|        return obj
-  #|    if obj.type != "CURVE":
-  #|        return ensure_mesh_object(obj)
-  #|    # Create a copy of the curve object for conversion
-  #|    bpy.ops.object.select_all(action="DESELECT")
-  #|    obj.select_set(True)
-  #|    bpy.context.view_layer.objects.active = obj
-  #|    bpy.ops.object.duplicate()
-  #|    copy_obj = bpy.context.view_layer.objects.active
-  #|    copy_obj.name = obj.name + "_mesh"
-  #|    # Convert the copy to mesh
-  #|    try:
-  #|        bpy.ops.object.convert(target="MESH")
-  #|    except Exception as exc:
-  #|        bpy.data.objects.remove(copy_obj, do_unlink=True)
-  #|        raise RuntimeError(f"Failed to convert curve '{obj.name}' to mesh: {exc}")
-  #|    mesh_obj = bpy.context.view_layer.objects.active
-  #|    return mesh_obj
-  #|
-  #|def boolean_difference(base_obj, cutters, name):
-  #|    if base_obj is None:
-  #|        return None
-  #|    # Track original curve objects to preserve them
-  #|    original_curves = [c for c in cutters if c is not None and c.type == "CURVE"]
-  #|    # Convert base and cutters to mesh for boolean operations
-  #|    base_obj = ensure_mesh_object(base_obj)
-  #|    mesh_cutters = [convert_curve_to_mesh_copy(c) for c in cutters if c is not None]
-  #|    if not mesh_cutters:
-  #|        base_obj.name = name
-  #|        return base_obj
-  #|    bpy.ops.object.select_all(action="DESELECT")
-  #|    base_obj.select_set(True)
-  #|    bpy.context.view_layer.objects.active = base_obj
-  #|    for cutter in mesh_cutters:
-  #|        if cutter is None:
-  #|            continue
-  #|        if cutter.type != "MESH":
-  #|            raise RuntimeError(f"Cutter '{cutter.name}' is not a mesh after conversion.")
-  #|        mod = base_obj.modifiers.new(name=f"Bool_{cutter.name}", type='BOOLEAN')
-  #|        mod.operation = 'DIFFERENCE'
-  #|        mod.object = cutter
-  #|        if hasattr(mod, "show_expanded"):
-  #|            mod.show_expanded = False
-  #|        cutter.hide_set(True)
-  #|        cutter.hide_render = True
-  #|    # Also hide the original curves (they're preserved but not visible)
-  #|    for curve in original_curves:
-  #|        curve.hide_set(True)
-  #|        curve.hide_render = True
-  #|    base_obj.name = name
-  #|    return base_obj
-  #|
-
-///|
 const BOOLEAN_DIFFERENCE_APPLY_MODIFIERS =
   #|def boolean_difference(base_obj, cutters, name):
   #|    if base_obj is None:
@@ -818,61 +754,6 @@ const BOOLEAN_DIFFERENCE_APPLY_MODIFIERS =
   #|            raise RuntimeError(f"Boolean difference failed for '{cutter.name}': {exc}")
   #|    for cutter in cutters:
   #|        bpy.data.objects.remove(cutter, do_unlink=True)
-  #|    base_obj.name = name
-  #|    return base_obj
-  #|
-
-///|
-const BOOLEAN_DIFFERENCE_APPLY_MODIFIERS_KEEP_CURVES =
-  #|def boolean_difference(base_obj, cutters, name):
-  #|    if base_obj is None:
-  #|        return None
-  #|    # Track original curve objects to preserve them
-  #|    original_curves = [c for c in cutters if c is not None and c.type == "CURVE"]
-  #|    # Convert base to mesh
-  #|    base_obj = ensure_mesh_object(base_obj)
-  #|    # For curves, create mesh copies; for non-curves, convert in place
-  #|    mesh_cutters = []
-  #|    for c in cutters:
-  #|        if c is None:
-  #|            continue
-  #|        if c.type == "CURVE":
-  #|            # Create a mesh copy, preserving the original curve
-  #|            bpy.ops.object.select_all(action="DESELECT")
-  #|            c.select_set(True)
-  #|            bpy.context.view_layer.objects.active = c
-  #|            bpy.ops.object.duplicate()
-  #|            copy_obj = bpy.context.view_layer.objects.active
-  #|            copy_obj.name = c.name + "_mesh"
-  #|            bpy.ops.object.convert(target="MESH")
-  #|            mesh_cutters.append(bpy.context.view_layer.objects.active)
-  #|        else:
-  #|            mesh_cutters.append(ensure_mesh_object(c))
-  #|    if not mesh_cutters:
-  #|        base_obj.name = name
-  #|        return base_obj
-  #|    bpy.ops.object.select_all(action="DESELECT")
-  #|    base_obj.select_set(True)
-  #|    bpy.context.view_layer.objects.active = base_obj
-  #|    for cutter in mesh_cutters:
-  #|        if cutter is None:
-  #|            continue
-  #|        if cutter.type != "MESH":
-  #|            raise RuntimeError(f"Cutter '{cutter.name}' is not a mesh after conversion.")
-  #|        mod = base_obj.modifiers.new(name="Bool", type='BOOLEAN')
-  #|        mod.operation = 'DIFFERENCE'
-  #|        mod.object = cutter
-  #|        try:
-  #|            bpy.ops.object.modifier_apply(modifier=mod.name)
-  #|        except Exception as exc:
-  #|            raise RuntimeError(f"Boolean difference failed for '{cutter.name}': {exc}")
-  #|    # Remove mesh copies used for boolean
-  #|    for cutter in mesh_cutters:
-  #|        bpy.data.objects.remove(cutter, do_unlink=True)
-  #|    # Hide original curves (preserved in scene)
-  #|    for curve in original_curves:
-  #|        curve.hide_set(True)
-  #|        curve.hide_render = True
   #|    base_obj.name = name
   #|    return base_obj
   #|
