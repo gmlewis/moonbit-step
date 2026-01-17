@@ -2,9 +2,10 @@
 pub async fn Design::create_blender_file(
   self : Design,
   out_path : String,
+  keep_curves? : Bool,
   keep_modifiers? : Bool,
 ) -> Unit {
-  let bpy_code = self.to_blender_python(keep_modifiers?)
+  let bpy_code = self.to_blender_python(keep_curves?, keep_modifiers?)
   let temp_py_path = "/tmp/temp_blender_script.py"
   write_text_file(bpy_code, Some(temp_py_path))
   // Now run: ./scripts/validate-bpy.py {temp_py_path} --blend out_path
@@ -25,9 +26,10 @@ pub async fn Design::create_blender_file(
 pub async fn Design::write_blender_python(
   self : Design,
   out_path : String?,
+  keep_curves? : Bool,
   keep_modifiers? : Bool,
 ) -> Unit {
-  let bpy_code = self.to_blender_python(keep_modifiers?)
+  let bpy_code = self.to_blender_python(keep_curves?, keep_modifiers?)
   write_text_file(bpy_code, out_path)
 }
 
@@ -106,6 +108,7 @@ fn emit_node_python(
   builder : StringBuilder,
   node : SceneNode,
   idx : Int,
+  keep_curves~ : Bool,
 ) -> (String, Int) {
   match node.shape {
     Cuboid(c) => {
@@ -153,7 +156,12 @@ fn emit_node_python(
       let child_vars : Array[String] = []
       let mut cur_idx = idx
       for child in u.nodes {
-        let (child_var, next_idx) = emit_node_python(builder, child, cur_idx)
+        let (child_var, next_idx) = emit_node_python(
+          builder,
+          child,
+          cur_idx,
+          keep_curves~,
+        )
         child_vars.push(child_var)
         cur_idx = next_idx
       }
@@ -174,12 +182,20 @@ fn emit_node_python(
       (obj_var, final_idx)
     }
     Difference(d) => {
-      let (base_var, next_idx) = emit_node_python(builder, d.base, idx)
+      let (base_var, next_idx) = emit_node_python(
+        builder,
+        d.base,
+        idx,
+        keep_curves~,
+      )
       let cutter_vars : Array[String] = []
       let mut cur_idx = next_idx
       for cutter in d.cutters {
         let (cutter_var, cutter_idx) = emit_node_python(
-          builder, cutter, cur_idx,
+          builder,
+          cutter,
+          cur_idx,
+          keep_curves~,
         )
         cutter_vars.push(cutter_var)
         cur_idx = cutter_idx
@@ -210,6 +226,7 @@ fn emit_node_python(
 /// as it can.
 pub fn Design::to_blender_python(
   self : Design,
+  keep_curves? : Bool = false,
   keep_modifiers? : Bool = false,
 ) -> String {
   let builder = StringBuilder::new()
@@ -228,10 +245,10 @@ pub fn Design::to_blender_python(
   )
   let mut obj_index = 0
   for node in self.nodes {
-    let (_, next_idx) = emit_node_python(builder, node, obj_index)
+    let (_, next_idx) = emit_node_python(builder, node, obj_index, keep_curves~)
     obj_index = next_idx
   }
-  builder.write_string(postlude(self.name))
+  builder.write_string(postscript(self.name))
   builder.to_string()
 }
 
@@ -680,7 +697,7 @@ const BOOLEAN_DIFFERENCE_APPLY_MODIFIERS =
   #|
 
 ///|
-fn postlude(name : String) -> String {
+fn postscript(name : String) -> String {
   (
     $|
     $|    obj_count = len(collection.objects)

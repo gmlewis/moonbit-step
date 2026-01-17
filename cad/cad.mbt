@@ -27,6 +27,7 @@ fn compile_node_geometry_and_styling(
   ctx : StepContext,
   node : SceneNode,
   solid_ref : @step.Ref,
+  keep_curves~ : Bool,
 ) -> Unit {
   // Presentation styling
   let rgb = @presentation.ColorRgb::new(
@@ -77,14 +78,16 @@ fn add_node_to_ctx(
   node : SceneNode,
   product_defs : Array[@step.Ref],
   shape_reps : Array[@step.Ref],
+  keep_curves~ : Bool,
 ) -> Unit {
-  let brep_ref = compile_node_to_brep(ctx, node)
+  let brep_ref = compile_node_to_brep(ctx, node, keep_curves~)
   add_solid_node_to_ctx(
     ctx,
     node,
     brep_ref,
     product_defs,
     shape_reps,
+    keep_curves~,
     is_csg=false,
   )
 }
@@ -96,9 +99,10 @@ fn add_solid_node_to_ctx(
   solid_ref : @step.Ref,
   product_defs : Array[@step.Ref],
   shape_reps : Array[@step.Ref],
+  keep_curves~ : Bool,
   is_csg~ : Bool,
 ) -> Unit {
-  compile_node_geometry_and_styling(ctx, node, solid_ref)
+  compile_node_geometry_and_styling(ctx, node, solid_ref, keep_curves~)
 
   // Product structure for this part
   let prod_def_ref = ctx.add_product_definition(node.name)
@@ -157,9 +161,10 @@ fn add_solid_node_to_ctx(
 fn compile_node_to_brep(
   ctx : StepContext,
   node : SceneNode,
+  keep_curves~ : Bool,
   reverse? : Bool = false,
 ) -> @step.Ref {
-  let faces = compile_node_shape(ctx, node, reverse~)
+  let faces = compile_node_shape(ctx, node, keep_curves~, reverse~)
   let shell = @topology.ClosedShell::new("", faces)
   let shell_ref = ctx.add(@repository.any_entity_closed_shell(shell))
   let brep = @topology.ManifoldSolidBrep::new("", shell_ref)
@@ -167,7 +172,10 @@ fn compile_node_to_brep(
 }
 
 ///|
-pub fn Design::compile(self : Design) -> @repository.Repository {
+pub fn Design::compile(
+  self : Design,
+  keep_curves? : Bool = false,
+) -> @repository.Repository {
   let ctx = StepContext::new(snapping?=self.snapping)
   ctx.init_standard_context(self.name)
   let product_defs : Array[@step.Ref] = []
@@ -184,12 +192,15 @@ pub fn Design::compile(self : Design) -> @repository.Repository {
             { ..u.nodes[0], name: node.name },
             product_defs,
             shape_reps,
+            keep_curves~,
           )
           continue
         }
         let all_faces : Array[@step.Ref] = []
         for child in u.nodes {
-          all_faces.push_iter(compile_node_shape(ctx, child).iter())
+          all_faces.push_iter(
+            compile_node_shape(ctx, child, keep_curves~).iter(),
+          )
         }
         let shell = @topology.ClosedShell::new("", all_faces)
         let shell_ref = ctx.add(@repository.any_entity_closed_shell(shell))
@@ -203,6 +214,7 @@ pub fn Design::compile(self : Design) -> @repository.Repository {
           solid_ref,
           product_defs,
           shape_reps,
+          keep_curves~,
           is_csg=false,
         )
       }
@@ -213,14 +225,17 @@ pub fn Design::compile(self : Design) -> @repository.Repository {
             { ..d.base, name: node.name },
             product_defs,
             shape_reps,
+            keep_curves~,
           )
           continue
         }
         let all_faces : Array[@step.Ref] = []
-        all_faces.push_iter(compile_node_shape(ctx, d.base).iter())
+        all_faces.push_iter(
+          compile_node_shape(ctx, d.base, keep_curves~).iter(),
+        )
         for cutter in d.cutters {
           all_faces.push_iter(
-            compile_node_shape(ctx, cutter, reverse=true).iter(),
+            compile_node_shape(ctx, cutter, keep_curves~, reverse=true).iter(),
           )
         }
         let shell = @topology.ClosedShell::new("", all_faces)
@@ -235,10 +250,11 @@ pub fn Design::compile(self : Design) -> @repository.Repository {
           solid_ref,
           product_defs,
           shape_reps,
+          keep_curves~,
           is_csg=false,
         )
       }
-      _ => add_node_to_ctx(ctx, node, product_defs, shape_reps)
+      _ => add_node_to_ctx(ctx, node, product_defs, shape_reps, keep_curves~)
     }
   }
 
@@ -252,14 +268,17 @@ pub fn Design::compile(self : Design) -> @repository.Repository {
 fn compile_node_shape(
   ctx : StepContext,
   node : SceneNode,
+  keep_curves~ : Bool,
   reverse? : Bool = false,
 ) -> Array[@step.Ref] {
   match node.shape {
-    Cuboid(c) => compile_cuboid(ctx, node, c, reverse~)
+    Cuboid(c) => compile_cuboid(ctx, node, c, keep_curves~, reverse~)
     CalibrationChamferBlock(b) =>
-      compile_calibration_chamfer_block(ctx, node, b, reverse~)
-    ExtrudedProfile(e) => compile_extruded_profile(ctx, node, e, reverse~)
-    SweptProfile(s) => compile_swept_profile(ctx, node, s, reverse~)
+      compile_calibration_chamfer_block(ctx, node, b, keep_curves~, reverse~)
+    ExtrudedProfile(e) =>
+      compile_extruded_profile(ctx, node, e, keep_curves~, reverse~)
+    SweptProfile(s) =>
+      compile_swept_profile(ctx, node, s, keep_curves~, reverse~)
     Difference(_) => []
     _ =>
       // This should not be reached for Union shapes as they are expanded in Design::compile
@@ -268,25 +287,36 @@ fn compile_node_shape(
 }
 
 ///|
-pub fn Design::to_step_file(self : Design) -> String {
-  self.compile().to_step_file()
+pub fn Design::to_step_file(
+  self : Design,
+  keep_curves? : Bool = false,
+) -> String {
+  self.compile(keep_curves~).to_step_file()
 }
 
 ///|
 // Convenience alias for examples that want `println(design.to_string())`.
-pub fn Design::to_string(self : Design) -> String {
-  self.to_step_file()
+pub fn Design::to_string(self : Design, keep_curves? : Bool = false) -> String {
+  self.to_step_file(keep_curves~)
 }
 
 ///|
-pub async fn Design::write_step_file(self : Design, out_path : String?) -> Unit {
-  write_text_file(self.to_step_file(), out_path)
+pub async fn Design::write_step_file(
+  self : Design,
+  out_path : String?,
+  keep_curves? : Bool = false,
+) -> Unit {
+  write_text_file(self.to_step_file(keep_curves~), out_path)
 }
 
 ///|
 // Convenience alias: `design.write_step(...)`.
-pub async fn Design::write_step(self : Design, out_path : String?) -> Unit {
-  self.write_step_file(out_path)
+pub async fn Design::write_step(
+  self : Design,
+  out_path : String?,
+  keep_curves? : Bool = false,
+) -> Unit {
+  self.write_step_file(out_path, keep_curves~)
 }
 
 ///|

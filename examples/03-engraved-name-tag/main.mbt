@@ -38,7 +38,8 @@ async fn main {
       min_exclusive=true,
     ),
     "emboss": @cli.flag(help="Emboss text above the tag"),
-    "keep": @cli.flag(help="Keep boolean modifiers in Blender output"),
+    "keep-curves": @cli.flag(help="Keep cubic Bezier curves in output files"),
+    "keep-modifiers": @cli.flag(help="Keep boolean modifiers in Blender output"),
     "name": @cli.opt_string(short='n', help="Name to engrave on the tag"),
     "bpy": @cli.opt_string(
       help="Write Blender 5.0 Python3 script to a file (instead of STEP)",
@@ -64,6 +65,8 @@ async fn main {
   let margin_mm = args.double("margin")
   let depth_mm = args.double("depth")
   let emboss = args.flag("emboss")
+  let keep_curves = args.flag("keep-curves")
+  let keep_modifiers = args.flag("keep-modifiers")
   guard args.string_opt("name") is Some(name) else {
     @cli.eprintln("--name is required")
     abort("")
@@ -120,10 +123,10 @@ async fn main {
     .translate(x=tx, y=ty, z=tz)
   }
   if blend_path is Some(blend_path) {
-    design.create_blender_file(blend_path, keep_modifiers=args.flag("keep"))
+    design.create_blender_file(blend_path, keep_curves~, keep_modifiers~)
   } else if bpy_path is Some(_) {
-    design.write_blender_python(bpy_path, keep_modifiers=args.flag("keep"))
+    design.write_blender_python(bpy_path, keep_curves~, keep_modifiers~)
   } else {
-    design.write_step(out_path)
+    design.write_step(out_path, keep_curves~)
   }
 }

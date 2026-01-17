@@ -8,11 +8,11 @@ import(
 )
 
 // Values
-pub fn compile_calibration_chamfer_block(StepContext, SceneNode, CalibrationChamferBlock, reverse? : Bool) -> Array[@step.Ref]
+pub fn compile_calibration_chamfer_block(StepContext, SceneNode, CalibrationChamferBlock, keep_curves~ : Bool, reverse? : Bool) -> Array[@step.Ref]
 
-pub fn compile_cuboid(StepContext, SceneNode, Cuboid, reverse? : Bool) -> Array[@step.Ref]
+pub fn compile_cuboid(StepContext, SceneNode, Cuboid, keep_curves~ : Bool, reverse? : Bool) -> Array[@step.Ref]
 
-pub fn compile_extruded_profile(StepContext, SceneNode, ExtrudedProfile, reverse? : Bool) -> Array[@step.Ref]
+pub fn compile_extruded_profile(StepContext, SceneNode, ExtrudedProfile, keep_curves~ : Bool, reverse? : Bool) -> Array[@step.Ref]
 
 pub fn cycle_area_3d(Array[(Double, Double, Double)], Array[Int]) -> (Double, Double, Double)
 
@@ -92,19 +92,19 @@ pub struct Design {
 pub fn Design::add(Self, SceneNode) -> Self
 pub fn Design::add_iter(Self, Iter[SceneNode]) -> Self
 pub fn Design::add_text_on_face(Self, SceneNode, String, Face, @fonts.Font, font_size? : Double, emboss_depth? : Double, offset_x? : Double, offset_y? : Double, rotation? : Double, margin? : Double, color? : Rgb, emboss? : Bool) -> Self
-pub fn Design::compile(Self) -> @repository.Repository
-pub async fn Design::create_blender_file(Self, String, keep_modifiers? : Bool) -> Unit
+pub fn Design::compile(Self, keep_curves? : Bool) -> @repository.Repository
+pub async fn Design::create_blender_file(Self, String, keep_curves? : Bool, keep_modifiers? : Bool) -> Unit
 pub fn Design::new(name? : String, description? : String, snapping? : Double) -> Self
 pub fn Design::rotate_x(Self, Double) -> Self
 pub fn Design::rotate_y(Self, Double) -> Self
 pub fn Design::rotate_z(Self, Double) -> Self
-pub fn Design::to_blender_python(Self, keep_modifiers? : Bool) -> String
-pub fn Design::to_step_file(Self) -> String
-pub fn Design::to_string(Self) -> String
+pub fn Design::to_blender_python(Self, keep_curves? : Bool, keep_modifiers? : Bool) -> String
+pub fn Design::to_step_file(Self, keep_curves? : Bool) -> String
+pub fn Design::to_string(Self, keep_curves? : Bool) -> String
 pub fn Design::translate(Self, x? : Double, y? : Double, z? : Double) -> Self
-pub async fn Design::write_blender_python(Self, String?, keep_modifiers? : Bool) -> Unit
-pub async fn Design::write_step(Self, String?) -> Unit
-pub async fn Design::write_step_file(Self, String?) -> Unit
+pub async fn Design::write_blender_python(Self, String?, keep_curves? : Bool, keep_modifiers? : Bool) -> Unit
+pub async fn Design::write_step(Self, String?, keep_curves? : Bool) -> Unit
+pub async fn Design::write_step_file(Self, String?, keep_curves? : Bool) -> Unit
 
 pub(all) struct EdgeInfo {
   start : Int
