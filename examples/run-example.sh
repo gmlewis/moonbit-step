@@ -62,4 +62,6 @@ fi
 # so that output files (via -o) are created where the user expects.
 # We use 'moon run -C <ROOT_DIR>' to point MoonBit to the project root,
 # and then provide the relative path to the example package.
-moon run -C "$ROOT_DIR" --quiet --target native "$EXAMPLE_PATH_REL" -- "$@"
+MOONBIT_STEP_ROOT="$ROOT_DIR" \
+  MOONBIT_STEP_ROOT="$ROOT_DIR" \
+    moon run -C "$ROOT_DIR" --quiet --target native "$EXAMPLE_PATH_REL" -- "$@"

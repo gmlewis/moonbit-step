@@ -8,15 +8,19 @@ pub async fn Design::create_blender_file(
   let bpy_code = self.to_blender_python(segments~, keep_modifiers?)
   let temp_py_path = "/tmp/temp_blender_script.py"
   write_text_file(bpy_code, Some(temp_py_path))
+  let script_path = match @sys.get_env_var("MOONBIT_STEP_ROOT") {
+    Some(root) =>
+      if root.has_suffix("/") {
+        root + "scripts/validate-bpy.py"
+      } else {
+        root + "/scripts/validate-bpy.py"
+      }
+    None => "./scripts/validate-bpy.py"
+  }
   // Now run: ./scripts/validate-bpy.py {temp_py_path} --blend out_path
   let args = [temp_py_path, "--blend", out_path]
   match
-    @process.run(
-      "./scripts/validate-bpy.py",
-      args,
-      stdout=@stdio.stdout,
-      stderr=@stdio.stderr,
-    ) {
+    @process.run(script_path, args, stdout=@stdio.stdout, stderr=@stdio.stderr) {
     0 => ()
     _ => println("failed to write '\{out_path}'")
   }
