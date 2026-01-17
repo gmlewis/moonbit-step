@@ -38,7 +38,7 @@ async fn main {
       min_exclusive=true,
     ),
     "emboss": @cli.flag(help="Emboss text above the tag"),
-    "segments": @cli.opt_int(
+    "curve-segments": @cli.opt_int(
       0,
       help="Convert cubic Bezier curves into segmented polylines in Blender output (default: off)",
     ),
@@ -68,7 +68,7 @@ async fn main {
   let margin_mm = args.double("margin")
   let depth_mm = args.double("depth")
   let emboss = args.flag("emboss")
-  let segments = args.int("segments")
+  let segments = args.int("curve-segments")
   let keep_modifiers = args.flag("keep-modifiers")
   guard args.string_opt("name") is Some(name) else {
     @cli.eprintln("--name is required")
