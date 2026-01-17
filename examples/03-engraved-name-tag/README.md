@@ -29,33 +29,15 @@ The intent is that you can run the code here to emit a STEP file, open it in a C
 
 Command line: `./run-example.sh 03 --name gmlewis --emboss`
 
-_[Render Failed]_
-
-### Variant 2
-
-Command line: `./run-example.sh 03 --name gmlewis --emboss`
-
 ![](preview-1.png)
 
-### Variant 3
-
-Command line: `./run-example.sh 03 --name MoonBit --embossDepth 2 --length 60 --emboss`
-
-_[Render Failed]_
-
-### Variant 4
+### Variant 2
 
 Command line: `./run-example.sh 03 --name MoonBit --embossDepth 2 --length 60 --emboss`
 
 ![](preview-2.png)
 
-### Variant 5
-
-Command line: `./run-example.sh 03 --name gmlewis`
-
-_[Render Failed]_
-
-### Variant 6
+### Variant 3
 
 Command line: `./run-example.sh 03 --name gmlewis`
 

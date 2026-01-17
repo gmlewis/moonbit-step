@@ -48,6 +48,7 @@ pub enum AnyEntity {
   )
   ShapeRepresentationRelationship(@product.ShapeRepresentationRelationship)
   AdvancedBrepShapeRepresentation(@product.AdvancedBrepShapeRepresentation)
+  CsgShapeRepresentation(@product.CsgShapeRepresentation)
   ShapeRepresentation(@product.ShapeRepresentation)
   Representation(@product.Representation)
   ShapeDefinitionRepresentation(@product.ShapeDefinitionRepresentation)
@@ -98,6 +99,7 @@ pub enum AnyEntity {
   DatumFeature(@tolerancing.DatumFeature)
   DimensionalSize(@tolerancing.DimensionalSize)
   ManifoldSolidBrep(@topology.ManifoldSolidBrep)
+  BrepWithVoids(@topology.BrepWithVoids)
   ClosedShell(@topology.ClosedShell)
   OpenShell(@topology.OpenShell)
   ConnectedFaceSet(@topology.ConnectedFaceSet)
@@ -410,6 +412,13 @@ pub fn any_entity_advanced_brep_shape_representation(
 }
 
 ///|
+pub fn any_entity_csg_shape_representation(
+  r : @product.CsgShapeRepresentation,
+) -> AnyEntity {
+  AnyEntity::CsgShapeRepresentation(r)
+}
+
+///|
 pub fn any_entity_shape_representation(
   r : @product.ShapeRepresentation,
 ) -> AnyEntity {
@@ -691,6 +700,11 @@ pub fn any_entity_manifold_solid_brep(
   m : @topology.ManifoldSolidBrep,
 ) -> AnyEntity {
   AnyEntity::ManifoldSolidBrep(m)
+}
+
+///|
+pub fn any_entity_brep_with_voids(b : @topology.BrepWithVoids) -> AnyEntity {
+  AnyEntity::BrepWithVoids(b)
 }
 
 ///|
@@ -1043,6 +1057,7 @@ fn entity_to_step(entity : AnyEntity) -> String {
     RepresentationRelationshipWithTransformation(r) => @step.Entity::to_step(r)
     ShapeRepresentationRelationship(r) => @step.Entity::to_step(r)
     AdvancedBrepShapeRepresentation(r) => @step.Entity::to_step(r)
+    CsgShapeRepresentation(r) => @step.Entity::to_step(r)
     ShapeRepresentation(r) => @step.Entity::to_step(r)
     Representation(r) => @step.Entity::to_step(r)
     ShapeDefinitionRepresentation(r) => @step.Entity::to_step(r)
@@ -1089,6 +1104,7 @@ fn entity_to_step(entity : AnyEntity) -> String {
     DatumFeature(d) => @step.Entity::to_step(d)
     DimensionalSize(d) => @step.Entity::to_step(d)
     ManifoldSolidBrep(m) => @step.Entity::to_step(m)
+    BrepWithVoids(b) => @step.Entity::to_step(b)
     ClosedShell(c) => @step.Entity::to_step(c)
     OpenShell(o) => @step.Entity::to_step(o)
     ConnectedFaceSet(c) => @step.Entity::to_step(c)

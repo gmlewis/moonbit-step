@@ -19,6 +19,14 @@ pub struct AdvancedFace {
 pub fn AdvancedFace::new(String, Array[@step.Ref], @step.Ref, Bool) -> Self
 pub impl @step.Entity for AdvancedFace
 
+pub struct BrepWithVoids {
+  name : String
+  outer : @step.Ref
+  voids : Array[@step.Ref]
+}
+pub fn BrepWithVoids::new(String, @step.Ref, Array[@step.Ref]) -> Self
+pub impl @step.Entity for BrepWithVoids
+
 pub struct ClosedShell {
   name : String
   faces : Array[@step.Ref]

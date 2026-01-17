@@ -3,6 +3,7 @@ pub fn compile_extruded_profile(
   ctx : StepContext,
   node : SceneNode,
   extrusion : ExtrudedProfile,
+  reverse? : Bool = false,
 ) -> Array[@step.Ref] {
   let profile = extrusion.profile
   let height_mm = extrusion.height_mm
@@ -87,12 +88,26 @@ pub fn compile_extruded_profile(
   let up_raw = rotate_point((0.0, 0.0, 1.0), node.rx, node.ry, node.rz)
   face_refs.push(
     add_plane_face_with_holes_oriented(
-      ctx, edges, pts, cp_refs, outer_b, hole_bs, down_raw,
+      ctx,
+      edges,
+      pts,
+      cp_refs,
+      outer_b,
+      hole_bs,
+      down_raw,
+      reverse~,
     ),
   )
   face_refs.push(
     add_plane_face_with_holes_oriented(
-      ctx, edges, pts, cp_refs, outer_t, hole_ts, up_raw,
+      ctx,
+      edges,
+      pts,
+      cp_refs,
+      outer_t,
+      hole_ts,
+      up_raw,
+      reverse~,
     ),
   )
 
@@ -116,6 +131,7 @@ pub fn compile_extruded_profile(
           cp_refs,
           [b[i], b[j], t[j], t[i]],
           expected,
+          reverse~,
         ),
       )
     }

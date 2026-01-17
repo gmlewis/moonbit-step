@@ -3,6 +3,7 @@ pub fn compile_calibration_chamfer_block(
   ctx : StepContext,
   node : SceneNode,
   block : CalibrationChamferBlock,
+  reverse? : Bool = false,
 ) -> Array[@step.Ref] {
   let l = block.length_mm
   let w = block.width_mm
@@ -103,7 +104,15 @@ pub fn compile_calibration_chamfer_block(
   let down_raw = rotate_point((0.0, 0.0, -1.0), node.rx, node.ry, node.rz)
   let up_raw = rotate_point((0.0, 0.0, 1.0), node.rx, node.ry, node.rz)
   face_refs.push(
-    add_plane_face_oriented(ctx, edges, pts, cp_refs, [0, 3, 2, 1], down_raw),
+    add_plane_face_oriented(
+      ctx,
+      edges,
+      pts,
+      cp_refs,
+      [0, 3, 2, 1],
+      down_raw,
+      reverse~,
+    ),
   )
   let top_base = (rings.length() - 1) * 4
   face_refs.push(
@@ -114,6 +123,7 @@ pub fn compile_calibration_chamfer_block(
       cp_refs,
       [top_base + 0, top_base + 1, top_base + 2, top_base + 3],
       up_raw,
+      reverse~,
     ),
   )
 
@@ -144,6 +154,7 @@ pub fn compile_calibration_chamfer_block(
         cp_refs,
         [a + 0, a + 1, b + 1, b + 0],
         side_normals[0],
+        reverse~,
       ),
     )
     face_refs.push(
@@ -154,6 +165,7 @@ pub fn compile_calibration_chamfer_block(
         cp_refs,
         [a + 1, a + 2, b + 2, b + 1],
         side_normals[1],
+        reverse~,
       ),
     )
     face_refs.push(
@@ -164,6 +176,7 @@ pub fn compile_calibration_chamfer_block(
         cp_refs,
         [a + 2, a + 3, b + 3, b + 2],
         side_normals[2],
+        reverse~,
       ),
     )
     face_refs.push(
@@ -174,6 +187,7 @@ pub fn compile_calibration_chamfer_block(
         cp_refs,
         [a + 3, a + 0, b + 0, b + 3],
         side_normals[3],
+        reverse~,
       ),
     )
   }

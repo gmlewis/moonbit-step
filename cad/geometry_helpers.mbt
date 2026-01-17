@@ -245,13 +245,14 @@ fn add_plane_face(
   location_pt : @step.Ref,
   axis_dir : @step.Ref,
   ref_dir : @step.Ref,
+  reverse? : Bool = false,
 ) -> @step.Ref {
   let a2p_ref = ctx.axis2_placement_3d(location_pt, axis_dir, ref_dir)
   let plane = @geometry.Plane::new("", a2p_ref)
   let plane_ref = ctx.add(@repository.any_entity_plane(plane))
   let loop_ref = face_loop(ctx, edges, verts_cycle)
   let fob_ref = ctx.face_outer_bound(loop_ref, true)
-  ctx.advanced_face([fob_ref], plane_ref, true)
+  ctx.advanced_face([fob_ref], plane_ref, !reverse)
 }
 
 ///|
@@ -262,6 +263,7 @@ fn add_plane_face_oriented(
   cp_refs : Array[@step.Ref],
   verts_cycle : Array[Int],
   expected_out : Vec3,
+  reverse? : Bool = false,
 ) -> @step.Ref {
   let area_vec = cycle_area_3d(pts, verts_cycle)
   let cycle = if v_dot(area_vec, expected_out) < 0.0 {
@@ -274,7 +276,7 @@ fn add_plane_face_oriented(
   let refd_raw = v_norm(v_sub(pts[cycle[1]], pts[cycle[0]]))
   let axis_ref = ctx.direction(axis_raw.0, axis_raw.1, axis_raw.2)
   let ref_ref = ctx.direction(refd_raw.0, refd_raw.1, refd_raw.2)
-  add_plane_face(ctx, edges, cycle, cp_refs[b0], axis_ref, ref_ref)
+  add_plane_face(ctx, edges, cycle, cp_refs[b0], axis_ref, ref_ref, reverse~)
 }
 
 ///|
@@ -286,6 +288,7 @@ fn add_plane_face_with_holes_oriented(
   outer_cycle_in : Array[Int],
   hole_cycles_in : Array[Array[Int]],
   expected_out : Vec3,
+  reverse? : Bool = false,
 ) -> @step.Ref {
   let area_vec = cycle_area_3d(pts, outer_cycle_in)
   let outer_cycle = if v_dot(area_vec, expected_out) < 0.0 {
@@ -332,5 +335,5 @@ fn add_plane_face_with_holes_oriented(
       ctx.face_bound(loop_ref, true)
     }),
   )
-  ctx.advanced_face(bounds, plane_ref, true)
+  ctx.advanced_face(bounds, plane_ref, !reverse)
 }

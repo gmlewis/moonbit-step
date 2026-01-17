@@ -15,6 +15,7 @@ fn compile_swept_profile(
   ctx : StepContext,
   node : SceneNode,
   s : SweptProfile,
+  reverse? : Bool = false,
 ) -> Array[@step.Ref] {
   let path = s.path
   let profile = s.profile
@@ -144,6 +145,7 @@ fn compile_swept_profile(
           cp_refs,
           [b1, b2, t2, t1],
           expected,
+          reverse~,
         ),
       )
     }
@@ -160,7 +162,13 @@ fn compile_swept_profile(
     }
     face_refs.push(
       add_plane_face_oriented(
-        ctx, edges, pts, cp_refs, verts_cycle, expected_out,
+        ctx,
+        edges,
+        pts,
+        cp_refs,
+        verts_cycle,
+        expected_out,
+        reverse~,
       ),
     )
   }
@@ -177,7 +185,13 @@ fn compile_swept_profile(
     }
     face_refs.push(
       add_plane_face_oriented(
-        ctx, edges, pts, cp_refs, verts_cycle, expected_out,
+        ctx,
+        edges,
+        pts,
+        cp_refs,
+        verts_cycle,
+        expected_out,
+        reverse~,
       ),
     )
   }

@@ -8,11 +8,11 @@ import(
 )
 
 // Values
-pub fn compile_calibration_chamfer_block(StepContext, SceneNode, CalibrationChamferBlock) -> Array[@step.Ref]
+pub fn compile_calibration_chamfer_block(StepContext, SceneNode, CalibrationChamferBlock, reverse? : Bool) -> Array[@step.Ref]
 
-pub fn compile_cuboid(StepContext, SceneNode, Cuboid) -> Array[@step.Ref]
+pub fn compile_cuboid(StepContext, SceneNode, Cuboid, reverse? : Bool) -> Array[@step.Ref]
 
-pub fn compile_extruded_profile(StepContext, SceneNode, ExtrudedProfile) -> Array[@step.Ref]
+pub fn compile_extruded_profile(StepContext, SceneNode, ExtrudedProfile, reverse? : Bool) -> Array[@step.Ref]
 
 pub fn cycle_area_3d(Array[(Double, Double, Double)], Array[Int]) -> (Double, Double, Double)
 

@@ -51,6 +51,8 @@ pub fn any_entity_block(@geometry.Block) -> AnyEntity
 
 pub fn any_entity_boolean_result(@geometry.BooleanResult) -> AnyEntity
 
+pub fn any_entity_brep_with_voids(@topology.BrepWithVoids) -> AnyEntity
+
 pub fn any_entity_calendar_date(@product.CalendarDate) -> AnyEntity
 
 pub fn any_entity_cartesian_point(@geometry.CartesianPoint) -> AnyEntity
@@ -78,6 +80,8 @@ pub fn any_entity_connected_face_set(@topology.ConnectedFaceSet) -> AnyEntity
 pub fn any_entity_context_dependent_shape_representation(@product.ContextDependentShapeRepresentation) -> AnyEntity
 
 pub fn any_entity_coordinated_universal_time_offset(@product.CoordinatedUniversalTimeOffset) -> AnyEntity
+
+pub fn any_entity_csg_shape_representation(@product.CsgShapeRepresentation) -> AnyEntity
 
 pub fn any_entity_csg_solid(@geometry.CsgSolid) -> AnyEntity
 
@@ -325,6 +329,7 @@ pub enum AnyEntity {
   RepresentationRelationshipWithTransformation(@product.RepresentationRelationshipWithTransformation)
   ShapeRepresentationRelationship(@product.ShapeRepresentationRelationship)
   AdvancedBrepShapeRepresentation(@product.AdvancedBrepShapeRepresentation)
+  CsgShapeRepresentation(@product.CsgShapeRepresentation)
   ShapeRepresentation(@product.ShapeRepresentation)
   Representation(@product.Representation)
   ShapeDefinitionRepresentation(@product.ShapeDefinitionRepresentation)
@@ -371,6 +376,7 @@ pub enum AnyEntity {
   DatumFeature(@tolerancing.DatumFeature)
   DimensionalSize(@tolerancing.DimensionalSize)
   ManifoldSolidBrep(@topology.ManifoldSolidBrep)
+  BrepWithVoids(@topology.BrepWithVoids)
   ClosedShell(@topology.ClosedShell)
   OpenShell(@topology.OpenShell)
   ConnectedFaceSet(@topology.ConnectedFaceSet)

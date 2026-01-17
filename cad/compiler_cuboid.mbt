@@ -3,6 +3,7 @@ pub fn compile_cuboid(
   ctx : StepContext,
   node : SceneNode,
   cuboid : Cuboid,
+  reverse? : Bool = false,
 ) -> Array[@step.Ref] {
   let sx = cuboid.sx
   let sy = cuboid.sy
@@ -78,12 +79,12 @@ pub fn compile_cuboid(
 
   // Faces
   let face_refs : Array[@step.Ref] = [
-    add_plane_face(ctx, edges, [0, 3, 2, 1], cp_refs[0], ndz, dx),
-    add_plane_face(ctx, edges, [4, 5, 6, 7], cp_refs[4], dz, dx),
-    add_plane_face(ctx, edges, [0, 1, 5, 4], cp_refs[0], ndy, dx),
-    add_plane_face(ctx, edges, [3, 7, 6, 2], cp_refs[3], dy, dx),
-    add_plane_face(ctx, edges, [0, 4, 7, 3], cp_refs[0], ndx, dy),
-    add_plane_face(ctx, edges, [1, 2, 6, 5], cp_refs[1], dx, dy),
+    add_plane_face(ctx, edges, [0, 3, 2, 1], cp_refs[0], ndz, dx, reverse~),
+    add_plane_face(ctx, edges, [4, 5, 6, 7], cp_refs[4], dz, dx, reverse~),
+    add_plane_face(ctx, edges, [0, 1, 5, 4], cp_refs[0], ndy, dx, reverse~),
+    add_plane_face(ctx, edges, [3, 7, 6, 2], cp_refs[3], dy, dx, reverse~),
+    add_plane_face(ctx, edges, [0, 4, 7, 3], cp_refs[0], ndx, dy, reverse~),
+    add_plane_face(ctx, edges, [1, 2, 6, 5], cp_refs[1], dx, dy, reverse~),
   ]
   face_refs
 }

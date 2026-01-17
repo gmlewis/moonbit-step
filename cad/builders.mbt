@@ -437,34 +437,107 @@ pub fn Design::add_text_on_face(
     Some(v) => v
     None => 2.0
   }
+  let ed = emboss_depth.unwrap_or(0.5)
 
   // Local coordinates and rotations relative to shape origin (0,0,0)
   // We subtract 0.01 from the "outward" direction to embed the text slightly
   // and avoid Z-fighting.
-  let (lx, ly, lz, lrx, lry, lrz, fw, fh) = match face {
+  let (lx, ly, lz, lrx, lry, lrz, fw, fh, extra_h) = match face {
     Top => {
-      let new_max_z = if emboss { max_z - 0.01 } else { max_z + 0.01 }
-      (mid_x + offset_x, mid_y + offset_y, new_max_z, 0.0, 0.0, 0.0, dx, dy)
+      let lz_off = if emboss { -0.01 } else { -ed }
+      let extra = if emboss { 0.0 } else { 0.1 }
+      let start_lz = max_z + lz_off
+      (
+        mid_x + offset_x,
+        mid_y + offset_y,
+        start_lz,
+        0.0,
+        0.0,
+        0.0,
+        dx,
+        dy,
+        extra,
+      )
     }
     Bottom => {
-      let new_min_z = if emboss { min_z + 0.01 } else { min_z - 0.01 }
-      (mid_x + offset_x, mid_y - offset_y, new_min_z, 180.0, 0.0, 180.0, dx, dy)
+      let lz_off = if emboss { 0.01 } else { ed }
+      let extra = if emboss { 0.0 } else { 0.1 }
+      let start_lz = min_z + lz_off
+      (
+        mid_x + offset_x,
+        mid_y - offset_y,
+        start_lz,
+        180.0,
+        0.0,
+        180.0,
+        dx,
+        dy,
+        extra,
+      )
     }
     Front => {
-      let new_max_y = if emboss { max_y - 0.01 } else { max_y + 0.01 }
-      (mid_x + offset_x, new_max_y, mid_z + offset_y, 90.0, 0.0, 180.0, dx, dz)
+      let lz_off = if emboss { -0.01 } else { -ed }
+      let extra = if emboss { 0.0 } else { 0.1 }
+      let start_lz = max_y + lz_off
+      (
+        mid_x + offset_x,
+        start_lz,
+        mid_z + offset_y,
+        90.0,
+        0.0,
+        180.0,
+        dx,
+        dz,
+        extra,
+      )
     }
     Back => {
-      let new_min_y = if emboss { min_y + 0.01 } else { min_y - 0.01 }
-      (mid_x - offset_x, new_min_y, mid_z + offset_y, 90.0, 0.0, 0.0, dx, dz)
+      let lz_off = if emboss { 0.01 } else { ed }
+      let extra = if emboss { 0.0 } else { 0.1 }
+      let start_lz = min_y + lz_off
+      (
+        mid_x - offset_x,
+        start_lz,
+        mid_z + offset_y,
+        90.0,
+        0.0,
+        0.0,
+        dx,
+        dz,
+        extra,
+      )
     }
     Left => {
-      let new_min_x = if emboss { min_x + 0.01 } else { min_x - 0.01 }
-      (new_min_x, mid_y + offset_x, mid_z + offset_y, 90.0, 0.0, -90.0, dy, dz)
+      let lz_off = if emboss { 0.01 } else { ed }
+      let extra = if emboss { 0.0 } else { 0.1 }
+      let start_lz = min_x + lz_off
+      (
+        start_lz,
+        mid_y + offset_x,
+        mid_z + offset_y,
+        90.0,
+        0.0,
+        -90.0,
+        dy,
+        dz,
+        extra,
+      )
     }
     Right => {
-      let new_max_x = if emboss { max_x - 0.01 } else { max_x + 0.01 }
-      (new_max_x, mid_y - offset_x, mid_z + offset_y, 90.0, 0.0, 90.0, dy, dz)
+      let lz_off = if emboss { -0.01 } else { -ed }
+      let extra = if emboss { 0.0 } else { 0.1 }
+      let start_lz = max_x + lz_off
+      (
+        start_lz,
+        mid_y - offset_x,
+        mid_z + offset_y,
+        90.0,
+        0.0,
+        90.0,
+        dy,
+        dz,
+        extra,
+      )
     }
   }
 
@@ -480,7 +553,6 @@ pub fn Design::add_text_on_face(
     }
   }
   let mw = fw - 2.0 * m
-  let ed = emboss_depth.unwrap_or(0.5)
   let (frx, fry, frz) = matrix_to_euler(
     multiply_matrices(
       rotation_matrix(lrx, lry, lrz),
@@ -495,7 +567,7 @@ pub fn Design::add_text_on_face(
     font~,
     font_size=fs,
     max_width=mw,
-    emboss_depth=ed,
+    emboss_depth=ed + extra_h,
     rx=frx,
     ry=fry,
     rz=frz,

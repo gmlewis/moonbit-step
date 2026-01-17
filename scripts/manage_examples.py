@@ -324,7 +324,6 @@ def main():
                 print(f"    Validating {base_name}.py and generating {base_name}.blend ...")
                 if not validate_bpy(root, bpy_file, blend_file):
                     sys.exit(1)
-                variants_processed.append({"config": config, "preview": None})
 
             # Generate and validate STEP files
             step_file = Path(f"/tmp/example-{padded_num}-{i}.step")

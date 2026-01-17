@@ -98,6 +98,14 @@ pub struct CoordinatedUniversalTimeOffset {
 pub fn CoordinatedUniversalTimeOffset::new(Int, Int, String) -> Self
 pub impl @step.Entity for CoordinatedUniversalTimeOffset
 
+pub struct CsgShapeRepresentation {
+  name : String
+  items : Array[@step.Ref]
+  context_of_items : @step.Ref
+}
+pub fn CsgShapeRepresentation::new(String, Array[@step.Ref], @step.Ref) -> Self
+pub impl @step.Entity for CsgShapeRepresentation
+
 pub struct DateAndTime {
   date_component : @step.Ref
   time_component : @step.Ref

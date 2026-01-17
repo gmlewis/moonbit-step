@@ -2,6 +2,8 @@
 
 - Please read `AGENTS.md` and `README.md` in the root of this repo to get an
   overview of this repo and general rules.
+- Please read `.github/skills/moonbit/SKILLS.md` and `.github/skills/moonbit/ide.md`
+  so you will understand all the tools are your disposal.                       │
 
 ## Model Enforcement
 
