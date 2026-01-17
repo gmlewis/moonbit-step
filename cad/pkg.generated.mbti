@@ -38,7 +38,7 @@ pub fn rotate_point((Double, Double, Double), Double, Double, Double) -> (Double
 
 pub fn snap_double(Double, Double?) -> Double
 
-pub fn text_at(String, Double, Double, Double, font~ : @fonts.Font, font_size? : Double, max_width? : Double, emboss_depth? : Double, rx? : Double, ry? : Double, rz? : Double) -> Array[SceneNode]
+pub fn text_at(String, Double, Double, Double, font~ : @fonts.Font, font_size? : Double, max_width? : Double, emboss_depth? : Double, rx? : Double, ry? : Double, rz? : Double, keep_curves? : Bool) -> Array[SceneNode]
 
 pub fn translate_pts(Array[(Double, Double)], Double, Double) -> Array[(Double, Double)]
 
@@ -56,6 +56,18 @@ pub impl Eq for LoaderError
 pub impl Show for LoaderError
 
 // Types and methods
+pub struct BezierAnchor {
+  position : (Double, Double)
+  handle_in : (Double, Double)
+  handle_out : (Double, Double)
+}
+
+pub struct BezierPath {
+  anchors : Array[BezierAnchor]
+  closed : Bool
+  clear : Bool
+}
+
 pub struct BooleanDifference {
   base : SceneNode
   cutters : Array[SceneNode]
@@ -91,7 +103,7 @@ pub struct Design {
 }
 pub fn Design::add(Self, SceneNode) -> Self
 pub fn Design::add_iter(Self, Iter[SceneNode]) -> Self
-pub fn Design::add_text_on_face(Self, SceneNode, String, Face, @fonts.Font, font_size? : Double, emboss_depth? : Double, offset_x? : Double, offset_y? : Double, rotation? : Double, margin? : Double, color? : Rgb, emboss? : Bool) -> Self
+pub fn Design::add_text_on_face(Self, SceneNode, String, Face, @fonts.Font, font_size? : Double, emboss_depth? : Double, offset_x? : Double, offset_y? : Double, rotation? : Double, margin? : Double, color? : Rgb, emboss? : Bool, keep_curves? : Bool) -> Self
 pub fn Design::compile(Self, keep_curves? : Bool) -> @repository.Repository
 pub async fn Design::create_blender_file(Self, String, keep_curves? : Bool, keep_modifiers? : Bool) -> Unit
 pub fn Design::new(name? : String, description? : String, snapping? : Double) -> Self
@@ -111,6 +123,12 @@ pub(all) struct EdgeInfo {
   end : Int
   edge : @step.Ref
 }
+
+pub struct ExtrudedBezierProfile {
+  paths : Array[BezierPath]
+  height_mm : Double
+}
+pub fn ExtrudedBezierProfile::new(Array[BezierPath], Double) -> Shape
 
 pub struct ExtrudedProfile {
   profile : Profile2D
@@ -195,6 +213,7 @@ pub enum Shape {
   Cuboid(Cuboid)
   CalibrationChamferBlock(CalibrationChamferBlock)
   ExtrudedProfile(ExtrudedProfile)
+  ExtrudedBezierProfile(ExtrudedBezierProfile)
   SweptProfile(SweptProfile)
   Union(BooleanUnion)
   Difference(BooleanDifference)

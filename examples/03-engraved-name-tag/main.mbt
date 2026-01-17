@@ -105,6 +105,7 @@ async fn main {
     emboss_depth=depth_mm,
     color=@cad.Rgb::orange(),
     emboss~,
+    keep_curves~,
   )
   let text_nodes = text_design.nodes
 
