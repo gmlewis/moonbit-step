@@ -118,37 +118,27 @@ fn add_solid_node_to_ctx(
   let dz = ctx.direction(dzx, dzy, dzz)
   let dx = ctx.direction(dxx, dxy, dxz)
   let a2p_ref = ctx.axis2_placement_3d(origin, dz, dx)
-  let shape_rep = @product.ShapeRepresentation::new(
-    node.name + "-None",
-    [a2p_ref],
-    { id: ctx.repo_ctx_id },
-  )
-  let shape_rep_ref = ctx.add(
-    @repository.any_entity_shape_representation(shape_rep),
-  )
-  shape_reps.push(shape_rep_ref)
   let specific_rep_ref = if is_csg {
     let csg_rep = @product.CsgShapeRepresentation::new(
       node.name + "-None",
-      [solid_ref],
+      [a2p_ref, solid_ref],
       { id: ctx.repo_ctx_id },
     )
     ctx.add(@repository.any_entity_csg_shape_representation(csg_rep))
   } else {
     let brep_rep = @product.AdvancedBrepShapeRepresentation::new(
       node.name + "-None",
-      [solid_ref],
+      [a2p_ref, solid_ref],
       { id: ctx.repo_ctx_id },
     )
     ctx.add(@repository.any_entity_advanced_brep_shape_representation(brep_rep))
   }
-  let rel = @product.ShapeRepresentationRelationship::new(
-    "None", "relationship", shape_rep_ref, specific_rep_ref,
-  )
-  let _ = ctx.add(@repository.any_entity_shape_representation_relationship(rel))
+  shape_reps.push(specific_rep_ref)
   let pds = @product.ProductDefinitionShape::new("", "", prod_def_ref)
   let pds_ref = ctx.add(@repository.any_entity_product_definition_shape(pds))
-  let sdr = @product.ShapeDefinitionRepresentation::new(pds_ref, shape_rep_ref)
+  let sdr = @product.ShapeDefinitionRepresentation::new(
+    pds_ref, specific_rep_ref,
+  )
   let _ = ctx.add(@repository.any_entity_shape_definition_representation(sdr))
 
 }
