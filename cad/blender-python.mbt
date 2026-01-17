@@ -3,19 +3,24 @@ pub async fn Design::create_blender_file(
   self : Design,
   out_path : String,
   keep_modifiers? : Bool,
+  segments? : Int = 0, // <=0: retain cubic Beziers, >0: convert to polylines with this many segments
 ) -> Unit {
-  let bpy_code = self.to_blender_python(keep_modifiers?)
+  let bpy_code = self.to_blender_python(segments~, keep_modifiers?)
   let temp_py_path = "/tmp/temp_blender_script.py"
   write_text_file(bpy_code, Some(temp_py_path))
+  let script_path = match @sys.get_env_var("MOONBIT_STEP_ROOT") {
+    Some(root) =>
+      if root.has_suffix("/") {
+        root + "scripts/validate-bpy.py"
+      } else {
+        root + "/scripts/validate-bpy.py"
+      }
+    None => "./scripts/validate-bpy.py"
+  }
   // Now run: ./scripts/validate-bpy.py {temp_py_path} --blend out_path
   let args = [temp_py_path, "--blend", out_path]
   match
-    @process.run(
-      "./scripts/validate-bpy.py",
-      args,
-      stdout=@stdio.stdout,
-      stderr=@stdio.stderr,
-    ) {
+    @process.run(script_path, args, stdout=@stdio.stdout, stderr=@stdio.stderr) {
     0 => ()
     _ => println("failed to write '\{out_path}'")
   }
@@ -25,9 +30,10 @@ pub async fn Design::create_blender_file(
 pub async fn Design::write_blender_python(
   self : Design,
   out_path : String?,
+  segments? : Int = 0, // <=0: retain cubic Beziers, >0: convert to polylines with this many segments
   keep_modifiers? : Bool,
 ) -> Unit {
-  let bpy_code = self.to_blender_python(keep_modifiers?)
+  let bpy_code = self.to_blender_python(segments~, keep_modifiers?)
   write_text_file(bpy_code, out_path)
 }
 
@@ -92,6 +98,25 @@ fn py_mm_vec2_list_list(loops : Array[Array[Vec2]]) -> String {
 }
 
 ///|
+fn py_bezier_anchor(a : BezierAnchor) -> String {
+  let pos = py_mm_vec2(a.position)
+  let hi = py_mm_vec2(a.handle_in)
+  let ho = py_mm_vec2(a.handle_out)
+  "{'pos': \{pos}, 'hi': \{hi}, 'ho': \{ho}}"
+}
+
+///|
+fn py_bezier_path(path : BezierPath) -> String {
+  let anchors = "[" + path.anchors.map(py_bezier_anchor).join(", ") + "]"
+  "{'anchors': \{anchors}, 'closed': \{py_bool(path.closed)}, 'clear': \{py_bool(path.clear)}}"
+}
+
+///|
+fn py_bezier_paths(paths : Array[BezierPath]) -> String {
+  "[" + paths.map(py_bezier_path).join(", ") + "]"
+}
+
+///|
 fn py_color(color : Rgb) -> String {
   "(\{color.r}, \{color.g}, \{color.b}, 1.0)"
 }
@@ -106,6 +131,7 @@ fn emit_node_python(
   builder : StringBuilder,
   node : SceneNode,
   idx : Int,
+  segments~ : Int,
 ) -> (String, Int) {
   match node.shape {
     Cuboid(c) => {
@@ -139,6 +165,17 @@ fn emit_node_python(
       )
       (obj_var, next_idx)
     }
+    ExtrudedBezierProfile(e) => {
+      let (obj_var, next_idx) = next_var("obj", idx)
+      let paths_data = py_bezier_paths(e.paths)
+      builder.write_string(
+        (
+          $|    \{obj_var} = finalize_object(create_extruded_bezier_object(\{py_string(node.name)}, \{paths_data}, \{py_mm(e.height_mm)}, collection), get_material(\{py_color(node.color)}), (\{py_mm(node.tx)}, \{py_mm(node.ty)}, \{py_mm(node.tz)}), (\{node.rx}, \{node.ry}, \{node.rz}))
+          $|
+        ),
+      )
+      (obj_var, next_idx)
+    }
     SweptProfile(s) => {
       let (obj_var, next_idx) = next_var("obj", idx)
       builder.write_string(
@@ -153,7 +190,12 @@ fn emit_node_python(
       let child_vars : Array[String] = []
       let mut cur_idx = idx
       for child in u.nodes {
-        let (child_var, next_idx) = emit_node_python(builder, child, cur_idx)
+        let (child_var, next_idx) = emit_node_python(
+          builder,
+          child,
+          cur_idx,
+          segments~,
+        )
         child_vars.push(child_var)
         cur_idx = next_idx
       }
@@ -174,12 +216,20 @@ fn emit_node_python(
       (obj_var, final_idx)
     }
     Difference(d) => {
-      let (base_var, next_idx) = emit_node_python(builder, d.base, idx)
+      let (base_var, next_idx) = emit_node_python(
+        builder,
+        d.base,
+        idx,
+        segments~,
+      )
       let cutter_vars : Array[String] = []
       let mut cur_idx = next_idx
       for cutter in d.cutters {
         let (cutter_var, cutter_idx) = emit_node_python(
-          builder, cutter, cur_idx,
+          builder,
+          cutter,
+          cur_idx,
+          segments~,
         )
         cutter_vars.push(cutter_var)
         cur_idx = cutter_idx
@@ -210,6 +260,7 @@ fn emit_node_python(
 /// as it can.
 pub fn Design::to_blender_python(
   self : Design,
+  segments? : Int = 0, // <=0: retain cubic Beziers, >0: convert to polylines with this many segments
   keep_modifiers? : Bool = false,
 ) -> String {
   let builder = StringBuilder::new()
@@ -228,10 +279,10 @@ pub fn Design::to_blender_python(
   )
   let mut obj_index = 0
   for node in self.nodes {
-    let (_, next_idx) = emit_node_python(builder, node, obj_index)
+    let (_, next_idx) = emit_node_python(builder, node, obj_index, segments~)
     obj_index = next_idx
   }
-  builder.write_string(postlude(self.name))
+  builder.write_string(postscript(self.name))
   builder.to_string()
 }
 
@@ -373,6 +424,38 @@ const PREAMBLE =
   #|        for i, (x, y) in enumerate(loop):
   #|            spline.points[i].co = (x, y, 0.0, 1.0)
   #|        spline.use_cyclic_u = True
+  #|    obj = bpy.data.objects.new(name, curve)
+  #|    collection.objects.link(obj)
+  #|    return obj
+  #|
+  #|
+  #|def create_extruded_bezier_object(name, bezier_paths, height, collection):
+  #|    """Create an extruded object from native cubic Bezier paths."""
+  #|    if not bezier_paths:
+  #|        return None
+  #|    curve = bpy.data.curves.new(name + "_curve", type="CURVE")
+  #|    curve.dimensions = "2D"
+  #|    curve.fill_mode = "BOTH"
+  #|    curve.extrude = height
+  #|    for path_data in bezier_paths:
+  #|        anchors = path_data['anchors']
+  #|        closed = path_data['closed']
+  #|        # clear = path_data['clear']  # Used for holes, handled by winding order
+  #|        if len(anchors) < 2:
+  #|            continue
+  #|        spline = curve.splines.new("BEZIER")
+  #|        spline.bezier_points.add(len(anchors) - 1)
+  #|        for i, anchor in enumerate(anchors):
+  #|            bp = spline.bezier_points[i]
+  #|            px, py = anchor['pos']
+  #|            hix, hiy = anchor['hi']
+  #|            hox, hoy = anchor['ho']
+  #|            bp.co = (px, py, 0.0)
+  #|            bp.handle_left = (hix, hiy, 0.0)
+  #|            bp.handle_right = (hox, hoy, 0.0)
+  #|            bp.handle_left_type = 'FREE'
+  #|            bp.handle_right_type = 'FREE'
+  #|        spline.use_cyclic_u = closed
   #|    obj = bpy.data.objects.new(name, curve)
   #|    collection.objects.link(obj)
   #|    return obj
@@ -680,7 +763,7 @@ const BOOLEAN_DIFFERENCE_APPLY_MODIFIERS =
   #|
 
 ///|
-fn postlude(name : String) -> String {
+fn postscript(name : String) -> String {
   (
     $|
     $|    obj_count = len(collection.objects)

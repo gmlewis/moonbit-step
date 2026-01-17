@@ -65,7 +65,9 @@ async fn main {
     }
   }
   if !params.nostep {
-    if params.bpy_path is Some(_) {
+    if params.blend_path is Some(blend_path) {
+      design.create_blender_file(blend_path)
+    } else if params.bpy_path is Some(_) {
       design.write_blender_python(params.bpy_path)
     } else {
       design.write_step(params.out_path)

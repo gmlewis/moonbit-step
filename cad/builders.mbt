@@ -185,7 +185,23 @@ pub fn text_at(
   rx? : Double = 0.0,
   ry? : Double = 0.0,
   rz? : Double = 0.0,
+  segments? : Int = 0, // <=0: retain cubic Beziers, >0: convert to polylines with this many segments
 ) -> Array[SceneNode] {
+  if segments <= 0 {
+    return text_at_bezier(
+      text,
+      x,
+      y,
+      z,
+      font~,
+      font_size~,
+      max_width~,
+      emboss_depth~,
+      rx~,
+      ry~,
+      rz~,
+    )
+  }
   let fs = font_size
   let mw = max_width
   let bbox = @draw.bbox(-mw / 2.0, -fs / 2.0, mw / 2.0, fs / 2.0)
@@ -198,7 +214,7 @@ pub fn text_at(
   let all_paths = text_graphic.all_paths_and_compound_paths()
   let nodes = []
   for g in all_paths {
-    let profiles = collect_profiles(g, 8)
+    let profiles = collect_profiles(g, segments)
     for profile in profiles {
       let (outer, holes) = profile
       if outer.length() < 3 {
@@ -215,6 +231,90 @@ pub fn text_at(
     }
   }
   nodes
+}
+
+///|
+/// text_at_bezier returns text nodes with native cubic Bezier curves preserved.
+fn text_at_bezier(
+  text : String,
+  x : Double,
+  y : Double,
+  z : Double,
+  font~ : @draw.Font,
+  font_size? : Double = 5.0,
+  max_width? : Double = 1000.0,
+  emboss_depth? : Double = 0.5,
+  rx? : Double = 0.0,
+  ry? : Double = 0.0,
+  rz? : Double = 0.0,
+) -> Array[SceneNode] {
+  let fs = font_size
+  let mw = max_width
+  let bbox = @draw.bbox(-mw / 2.0, -fs / 2.0, mw / 2.0, fs / 2.0)
+  let text_graphic = @draw.to_graphic(font, text, alignment=Center, y_up=true).scale_to_fit(
+    bbox,
+    anchor=Center,
+  ) catch {
+    _ => return []
+  }
+  let all_paths = text_graphic.all_paths_and_compound_paths()
+  let nodes = []
+  for g in all_paths {
+    let bezier_paths = collect_bezier_paths(g)
+    if bezier_paths.is_empty() {
+      continue
+    }
+    let solid = ExtrudedBezierProfile::new(bezier_paths, emboss_depth)
+      .with_name("text")
+      .with_color(Rgb::orange())
+      .rotate_x(rx)
+      .rotate_y(ry)
+      .rotate_z(rz)
+      .translate(x~, y~, z~)
+    nodes.push(solid)
+  }
+  nodes
+}
+
+///|
+/// Convert a draw.Anchor to a cad.BezierAnchor with absolute handle positions.
+fn anchor_to_bezier_anchor(anchor : @draw.Anchor) -> BezierAnchor {
+  let pos = anchor.position
+  // Handles in @draw are relative offsets, convert to absolute positions
+  let handle_in = (pos.x + anchor.handle_in.x, pos.y + anchor.handle_in.y)
+  let handle_out = (pos.x + anchor.handle_out.x, pos.y + anchor.handle_out.y)
+  { position: (pos.x, pos.y), handle_in, handle_out }
+}
+
+///|
+/// Convert a draw.Path to a cad.BezierPath.
+fn path_to_bezier_path(path : @draw.Path) -> BezierPath {
+  let anchors = path.anchors.map(anchor_to_bezier_anchor)
+  { anchors, closed: path.closed, clear: path.clear }
+}
+
+///|
+/// Collect all BezierPaths from a Graphic, preserving the native cubic Bezier curves.
+fn collect_bezier_paths(g : @draw.Graphic) -> Array[BezierPath] {
+  match g {
+    CompoundPath(cp) => cp.paths.map(path_to_bezier_path)
+    Group(group) => {
+      let results = []
+      for item in group.items {
+        results.push_iter(collect_bezier_paths(item).iter())
+      }
+      results
+    }
+    Path(p) => [path_to_bezier_path(p)]
+  }
+}
+
+///|
+pub fn ExtrudedBezierProfile::new(
+  paths : Array[BezierPath],
+  height_mm : Double,
+) -> Shape {
+  Shape::ExtrudedBezierProfile({ paths, height_mm })
 }
 
 ///|
@@ -425,6 +525,7 @@ pub fn Design::add_text_on_face(
   margin? : Double,
   color? : Rgb = Rgb::orange(),
   emboss? : Bool = true,
+  segments? : Int = 0, // <=0: retain cubic Beziers, >0: convert to polylines with this many segments
 ) -> Design {
   let (min_x, max_x, min_y, max_y, min_z, max_z) = target.shape.bounding_box()
   let mid_x = (min_x + max_x) / 2.0
@@ -499,6 +600,7 @@ pub fn Design::add_text_on_face(
     rx=frx,
     ry=fry,
     rz=frz,
+    segments~,
   )
   let final_nodes = text_nodes.map(fn(n) {
     let n = n.with_color(color)

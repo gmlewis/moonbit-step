@@ -35,6 +35,7 @@ async fn main {
       min=0.5,
     ),
     "armWidth": @cli.opt_double(10.0, help="Snap arm width (mm)", min=2.0),
+    "blend": @cli.opt_string(help="Create Blender 5.0 file (instead of STEP)"),
     "bpy": @cli.opt_string(
       help="Write Blender 5.0 Python3 script to a file (instead of STEP)",
     ),
@@ -59,6 +60,7 @@ async fn main {
   let snap_clearance = args.double("snapClearance")
   let arm_thickness = args.double("armThickness")
   let arm_width = args.double("armWidth")
+  let blend_path = args.string_opt("blend")
   let bpy_path = args.string_opt("bpy")
   let out_path = args.string_opt("out")
   let (tx, ty, tz) = match args.translate_xyz() {
@@ -174,7 +176,9 @@ async fn main {
       )
     design = design.add(ledge)
   }
-  if bpy_path is Some(_) {
+  if blend_path is Some(blend_path) {
+    design.create_blender_file(blend_path)
+  } else if bpy_path is Some(_) {
     design.write_blender_python(bpy_path)
   } else {
     design.write_step(out_path)

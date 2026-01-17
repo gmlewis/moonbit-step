@@ -115,10 +115,35 @@ pub struct BooleanDifference {
 }
 
 ///|
+/// BezierAnchor represents a single anchor point in a Bezier curve.
+/// The handles are absolute positions (not relative offsets).
+pub struct BezierAnchor {
+  position : Vec2
+  handle_in : Vec2 // Absolute position of incoming handle
+  handle_out : Vec2 // Absolute position of outgoing handle
+}
+
+///|
+/// BezierPath represents a 2D path made of cubic Bezier curves.
+pub struct BezierPath {
+  anchors : Array[BezierAnchor]
+  closed : Bool
+  clear : Bool // True for holes (cut-outs)
+}
+
+///|
+/// ExtrudedBezierProfile represents an extruded shape from Bezier paths.
+pub struct ExtrudedBezierProfile {
+  paths : Array[BezierPath] // First non-clear path is outer, clear paths are holes
+  height_mm : Double
+}
+
+///|
 pub enum Shape {
   Cuboid(Cuboid)
   CalibrationChamferBlock(CalibrationChamferBlock)
   ExtrudedProfile(ExtrudedProfile)
+  ExtrudedBezierProfile(ExtrudedBezierProfile)
   SweptProfile(SweptProfile)
   Union(BooleanUnion)
   Difference(BooleanDifference)
@@ -202,6 +227,32 @@ pub fn Shape::bounding_box(
         }
         if pt.1 > y1 {
           y1 = pt.1
+        }
+      }
+      (x0, x1, y0, y1, 0.0, e.height_mm)
+    }
+    ExtrudedBezierProfile(e) => {
+      let mut x0 = @double.max_value
+      let mut x1 = @double.min_value
+      let mut y0 = @double.max_value
+      let mut y1 = @double.min_value
+      for path in e.paths {
+        for anchor in path.anchors {
+          // Check position and handles for bounding box
+          for pt in [anchor.position, anchor.handle_in, anchor.handle_out] {
+            if pt.0 < x0 {
+              x0 = pt.0
+            }
+            if pt.0 > x1 {
+              x1 = pt.0
+            }
+            if pt.1 < y0 {
+              y0 = pt.1
+            }
+            if pt.1 > y1 {
+              y1 = pt.1
+            }
+          }
         }
       }
       (x0, x1, y0, y1, 0.0, e.height_mm)

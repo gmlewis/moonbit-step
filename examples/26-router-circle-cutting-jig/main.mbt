@@ -48,6 +48,7 @@ async fn main {
       help="Thickness of the jig plate (mm)",
       min=3.0,
     ),
+    "blend": @cli.opt_string(help="Create Blender 5.0 file (instead of STEP)"),
     "bpy": @cli.opt_string(
       help="Write Blender 5.0 Python3 script to a file (instead of STEP)",
     ),
@@ -73,6 +74,7 @@ async fn main {
   let mount_dia = args.double("mountHoleDiameter")
   let slot_w = args.double("pivotSlotWidth")
   let thick = args.double("thickness")
+  let blend_path = args.string_opt("blend")
   let bpy_path = args.string_opt("bpy")
   let out_path = args.string_opt("out")
   let (tx, ty, tz) = match args.translate_xyz() {
@@ -138,7 +140,9 @@ async fn main {
       color=@cad.Rgb::white(),
     )
     .translate(x=tx, y=ty, z=tz)
-  if bpy_path is Some(_) {
+  if blend_path is Some(blend_path) {
+    design.create_blender_file(blend_path)
+  } else if bpy_path is Some(_) {
     design.write_blender_python(bpy_path)
   } else {
     design.write_step(out_path)
