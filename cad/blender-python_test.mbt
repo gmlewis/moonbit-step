@@ -93,7 +93,7 @@ test "to_blender_python table-driven" {
       @cad.Design::new(name="plate-model").add(extrude),
       [
         "create_extruded_profile_object('plate', [[(0, 0), (0.01, 0), (0.01, 0.005), (0, 0.005)], [(0.002, 0.002), (0.003, 0.002), (0.003, 0.003), (0.002, 0.003)]], 0.004, collection)",
-        "get_material((0, 0.8, 0, 1.0))",
+        "get_material((0, 0.8, 0, 1.0))", "curve.extrude = height / 2.0", "spline.points[i].co = (x, y, 0.0, 1.0)",
       ],
     ),
     (
@@ -118,6 +118,61 @@ test "to_blender_python table-driven" {
     let out = design.to_blender_python()
     assert_contains_all(label, out, needles)
   }
+}
+
+///|
+test "to_blender_python_coordinates" {
+  // Verify that world coordinates of an extrusion in Blender match STEP.
+  // STEP: Vertex_Bottom = Rotate( (px, py, 0), rot ) + Trans
+  //       Vertex_Top    = Rotate( (px, py, height), rot ) + Trans
+  // Blender (symmetric):
+  //       Vertex_Bottom = Rotate( (px, py, -height/2), rot ) + (Trans + Rotate( (0,0,height/2), rot ))
+  //                     = Rotate( (px, py, 0), rot ) + Trans
+  //       Vertex_Top    = Rotate( (px, py, +height/2), rot ) + (Trans + Rotate( (0,0,height/2), rot ))
+  //                     = Rotate( (px, py, height), rot ) + Trans
+
+  let px = 10.0
+  let py = 20.0
+  let height = 50.0
+  let tx = 100.0
+  let ty = 200.0
+  let tz = 300.0
+  let rx = 15.0
+  let ry = 25.0
+  let rz = 35.0
+
+  // 1. Calculate world STEP coordinates
+  let step_bottom = @cad.rotate_point((px, py, 0.0), rx, ry, rz)
+  let step_bottom = (step_bottom.0 + tx, step_bottom.1 + ty, step_bottom.2 + tz)
+  let step_top = @cad.rotate_point((px, py, height), rx, ry, rz)
+  let step_top = (step_top.0 + tx, step_top.1 + ty, step_top.2 + tz)
+
+  // 2. Calculate world Blender coordinates (with my fix)
+  let h2 = height / 2.0
+  let offset = @cad.rotate_point((0.0, 0.0, h2), rx, ry, rz)
+  let blender_trans = (tx + offset.0, ty + offset.1, tz + offset.2)
+  let blender_bottom_local = (px, py, -h2)
+  let blender_bottom_world = @cad.rotate_point(blender_bottom_local, rx, ry, rz)
+  let blender_bottom_world = (
+    blender_bottom_world.0 + blender_trans.0,
+    blender_bottom_world.1 + blender_trans.1,
+    blender_bottom_world.2 + blender_trans.2,
+  )
+  let blender_top_local = (px, py, h2)
+  let blender_top_world = @cad.rotate_point(blender_top_local, rx, ry, rz)
+  let blender_top_world = (
+    blender_top_world.0 + blender_trans.0,
+    blender_top_world.1 + blender_trans.1,
+    blender_top_world.2 + blender_trans.2,
+  )
+
+  // 3. Assert they are identical
+  assert_approx_eq(step_bottom.0, blender_bottom_world.0)
+  assert_approx_eq(step_bottom.1, blender_bottom_world.1)
+  assert_approx_eq(step_bottom.2, blender_bottom_world.2)
+  assert_approx_eq(step_top.0, blender_top_world.0)
+  assert_approx_eq(step_top.1, blender_top_world.1)
+  assert_approx_eq(step_top.2, blender_top_world.2)
 }
 
 ///|
