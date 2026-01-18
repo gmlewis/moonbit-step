@@ -13,7 +13,7 @@ test "add_text_on_face orientation" {
     (@cad.Face::Right, "Right"),
   ]
   for face_tuple in faces {
-    let (face, face_name) = face_tuple
+    let (face, _face_name) = face_tuple
     let d = @cad.Design::new()
       .add(cuboid)
       .add_text_on_face(cuboid, "A", face, font, font_size=2.0)
@@ -36,9 +36,9 @@ test "add_text_on_face orientation" {
       text_node.ry,
       text_node.rz,
     )
-    println(
-      "Face: \{face_name}, Normal: (\{nx}, \{ny}, \{nz}), Up: (\{ux}, \{uy}, \{uz})",
-    )
+    // println(
+    //   "Face: \{face_name}, Normal: (\{nx}, \{ny}, \{nz}), Up: (\{ux}, \{uy}, \{uz})",
+    // )
     match face {
       Top => {
         // Normal should be +Z, Up should be +Y

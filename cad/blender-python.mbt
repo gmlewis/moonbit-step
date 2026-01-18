@@ -157,9 +157,14 @@ fn emit_node_python(
     ExtrudedProfile(e) => {
       let (obj_var, next_idx) = next_var("obj", idx)
       let loops = [e.profile.outer, ..e.profile.holes]
+      let h2 = e.height_mm / 2.0
+      let (ox, oy, oz) = rotate_point((0.0, 0.0, h2), node.rx, node.ry, node.rz)
+      let tx = node.tx + ox
+      let ty = node.ty + oy
+      let tz = node.tz + oz
       builder.write_string(
         (
-          $|    \{obj_var} = finalize_object(create_extruded_profile_object(\{py_string(node.name)}, \{py_mm_vec2_list_list(loops)}, \{py_mm(e.height_mm)}, collection), get_material(\{py_color(node.color)}), (\{py_mm(node.tx)}, \{py_mm(node.ty)}, \{py_mm(node.tz)}), (\{node.rx}, \{node.ry}, \{node.rz}))
+          $|    \{obj_var} = finalize_object(create_extruded_profile_object(\{py_string(node.name)}, \{py_mm_vec2_list_list(loops)}, \{py_mm(e.height_mm)}, collection), get_material(\{py_color(node.color)}), (\{py_mm(tx)}, \{py_mm(ty)}, \{py_mm(tz)}), (\{node.rx}, \{node.ry}, \{node.rz}))
           $|
         ),
       )
@@ -168,9 +173,14 @@ fn emit_node_python(
     ExtrudedBezierProfile(e) => {
       let (obj_var, next_idx) = next_var("obj", idx)
       let paths_data = py_bezier_paths(e.paths)
+      let h2 = e.height_mm / 2.0
+      let (ox, oy, oz) = rotate_point((0.0, 0.0, h2), node.rx, node.ry, node.rz)
+      let tx = node.tx + ox
+      let ty = node.ty + oy
+      let tz = node.tz + oz
       builder.write_string(
         (
-          $|    \{obj_var} = finalize_object(create_extruded_bezier_object(\{py_string(node.name)}, \{paths_data}, \{py_mm(e.height_mm)}, collection), get_material(\{py_color(node.color)}), (\{py_mm(node.tx)}, \{py_mm(node.ty)}, \{py_mm(node.tz)}), (\{node.rx}, \{node.ry}, \{node.rz}))
+          $|    \{obj_var} = finalize_object(create_extruded_bezier_object(\{py_string(node.name)}, \{paths_data}, \{py_mm(e.height_mm)}, collection), get_material(\{py_color(node.color)}), (\{py_mm(tx)}, \{py_mm(ty)}, \{py_mm(tz)}), (\{node.rx}, \{node.ry}, \{node.rz}))
           $|
         ),
       )
@@ -343,6 +353,8 @@ const PREAMBLE =
   #|    if mat is None:
   #|        mat = bpy.data.materials.new(name=key)
   #|        mat.use_nodes = True
+  #|    # Set viewport color so it's visible without rendering
+  #|    mat.diffuse_color = color
   #|    bsdf = mat.node_tree.nodes.get("Principled BSDF")
   #|    if bsdf is not None:
   #|        bsdf.inputs["Base Color"].default_value = color
@@ -353,10 +365,13 @@ const PREAMBLE =
   #|def assign_material(obj, material):
   #|    if obj is None or material is None:
   #|        return
-  #|    if obj.data.materials:
-  #|        obj.data.materials[0] = material
-  #|    else:
-  #|        obj.data.materials.append(material)
+  #|    if obj.data is None:
+  #|        return
+  #|    if hasattr(obj.data, "materials"):
+  #|        if obj.data.materials:
+  #|            obj.data.materials[0] = material
+  #|        else:
+  #|            obj.data.materials.append(material)
   #|
   #|
   #|def apply_transform(obj, location, rotation_deg):
@@ -374,6 +389,9 @@ const PREAMBLE =
   #|    if obj is None:
   #|        return None
   #|    apply_transform(obj, location, rotation_deg)
+  #|    # Curve objects might need to be converted to mesh before boolean operations,
+  #|    # but material can be assigned either before or after.
+  #|    # We assign it here to the original object.
   #|    assign_material(obj, material)
   #|    return obj
   #|
@@ -417,7 +435,7 @@ const PREAMBLE =
   #|    curve = bpy.data.curves.new(name + "_curve", type="CURVE")
   #|    curve.dimensions = "2D"
   #|    curve.fill_mode = "BOTH"
-  #|    curve.extrude = height
+  #|    curve.extrude = height / 2.0
   #|    for loop in [outer] + holes:
   #|        spline = curve.splines.new("POLY")
   #|        spline.points.add(len(loop) - 1)
@@ -436,7 +454,7 @@ const PREAMBLE =
   #|    curve = bpy.data.curves.new(name + "_curve", type="CURVE")
   #|    curve.dimensions = "2D"
   #|    curve.fill_mode = "BOTH"
-  #|    curve.extrude = height
+  #|    curve.extrude = height / 2.0
   #|    for path_data in bezier_paths:
   #|        anchors = path_data['anchors']
   #|        closed = path_data['closed']
