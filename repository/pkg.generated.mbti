@@ -1,18 +1,18 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "gmlewis/step/repository"
 
-import(
-  "gmlewis/step"
-  "gmlewis/step/entities/context"
-  "gmlewis/step/entities/geometry"
-  "gmlewis/step/entities/kinematics"
-  "gmlewis/step/entities/presentation"
-  "gmlewis/step/entities/product"
-  "gmlewis/step/entities/tolerancing"
-  "gmlewis/step/entities/topology"
-  "gmlewis/step/entities/units"
-  "gmlewis/step/header"
-)
+import {
+  "gmlewis/step",
+  "gmlewis/step/entities/context",
+  "gmlewis/step/entities/geometry",
+  "gmlewis/step/entities/kinematics",
+  "gmlewis/step/entities/presentation",
+  "gmlewis/step/entities/product",
+  "gmlewis/step/entities/tolerancing",
+  "gmlewis/step/entities/topology",
+  "gmlewis/step/entities/units",
+  "gmlewis/step/header",
+}
 
 // Values
 pub fn any_entity_advanced_brep_shape_representation(@product.AdvancedBrepShapeRepresentation) -> AnyEntity

@@ -1,12 +1,12 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "gmlewis/step/entities/context"
 
-import(
-  "gmlewis/step"
-  "gmlewis/step/entities/geometry"
-  "gmlewis/step/entities/product"
-  "gmlewis/step/entities/units"
-)
+import {
+  "gmlewis/step",
+  "gmlewis/step/entities/geometry",
+  "gmlewis/step/entities/product",
+  "gmlewis/step/entities/units",
+}
 
 // Values
 

@@ -35,7 +35,7 @@ async fn main {
   let support_nodes = []
   // Add coil pairs if requested
   if !params.nocoil {
-    for pair_num in 1..=params.num_pairs {
+    for pair_num in 1..<=params.num_pairs {
       if params.debug {
         @cli.eprintln("Generating pair #\{pair_num} of \{params.num_pairs}")
       }

@@ -1,0 +1,13 @@
+import {
+  "gmlewis/step/cad",
+  "gmlewis/step/cli",
+  "moonbitlang/async",
+  "moonbitlang/async/fs",
+  "moonbitlang/core/builtin",
+  "moonbitlang/core/encoding/utf8" as @encoding/utf8,
+  "moonbitlang/core/math",
+}
+
+options(
+  "is-main": true,
+)

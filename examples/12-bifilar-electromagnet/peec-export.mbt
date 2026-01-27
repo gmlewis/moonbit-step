@@ -35,7 +35,7 @@ async fn export_helix_centerlines_json(
     (params.num_pairs.to_double() - 1)
   builder.write_string(",\"paths\":[")
   let mut first_path = true
-  for pair_num in 1..=params.num_pairs {
+  for pair_num in 1..<=params.num_pairs {
     let z_off = (pair_num - 1).to_double() * delta_z
     let local_pos = (params.pos.0, params.pos.1, params.pos.2 + z_off)
     let local_params = { ..params, pos: local_pos }

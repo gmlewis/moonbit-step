@@ -140,7 +140,7 @@ fn make_cylinder(
   name? : String = "bfem:cage:cylinder",
 ) -> VerticalCylinder {
   let points = []
-  for i in 1..=segments {
+  for i in 1..<=segments {
     let angle = -2.0 * @math.PI * i.to_double() / segments.to_double() // face downward
     let x = pos.0 + radius * @math.cos(angle)
     let y = pos.1 + radius * @math.sin(angle)
@@ -235,7 +235,7 @@ fn gen_inner_arc_points(
   inner_angle_delta : Double,
 ) -> Array[Vec2] {
   let points = Array::new(capacity=ctx.segments_per_rail + 1)
-  for j in 0..=ctx.segments_per_rail {
+  for j in 0..<=ctx.segments_per_rail {
     push_arc_point(
       ctx.center,
       inner_start_angle,
@@ -278,7 +278,7 @@ fn append_axial_connectors(
     //
     let polygon = Array::new(capacity=ctx.segments_per_rail * 2 + 2)
     // inner points:
-    for j in 0..=ctx.segments_per_rail {
+    for j in 0..<=ctx.segments_per_rail {
       push_arc_point(
         ctx.center,
         inner_start_angle,
@@ -289,7 +289,7 @@ fn append_axial_connectors(
       )
     }
     // outer points:
-    for j in 0..=ctx.segments_per_rail {
+    for j in 0..<=ctx.segments_per_rail {
       push_arc_point(
         ctx.center,
         outer_start_angle,

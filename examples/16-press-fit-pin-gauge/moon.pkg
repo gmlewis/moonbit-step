@@ -1,0 +1,11 @@
+import {
+  "gmlewis/step/cad",
+  "gmlewis/step/cli",
+  "moonbitlang/async",
+  "moonbitlang/core/builtin",
+  "moonbitlang/core/math",
+}
+
+options(
+  "is-main": true,
+)

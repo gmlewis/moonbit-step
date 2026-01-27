@@ -109,7 +109,7 @@ async fn main {
   }
 
   // 4. Add ruler markings
-  for i in 1..=(length.to_int() / 10 - 1) {
+  for i in 1..<=(length.to_int() / 10 - 1) {
     let pos_y = Double::from_int(i * 10)
     design = design.add_text_on_face(
       base,

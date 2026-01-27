@@ -1,11 +1,11 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "gmlewis/step/cad"
 
-import(
-  "gmlewis/fonts"
-  "gmlewis/step"
-  "gmlewis/step/repository"
-)
+import {
+  "gmlewis/fonts",
+  "gmlewis/step",
+  "gmlewis/step/repository",
+}
 
 // Values
 pub fn compile_calibration_chamfer_block(StepContext, SceneNode, CalibrationChamferBlock, reverse? : Bool) -> Array[@step.Ref]

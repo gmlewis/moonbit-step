@@ -412,7 +412,7 @@ pub fn Profile2D::arc(
   let n = if segments < 2 { 2 } else { segments }
   let angle_step = (end_angle - start_angle) / Double::from_int(n)
   let out = []
-  for i in 0..=n {
+  for i in 0..<=n {
     let phi = start_angle + Double::from_int(i) * angle_step
     out.push((radius * @math.cos(phi), radius * @math.sin(phi)))
   }

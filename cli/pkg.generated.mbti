@@ -1,9 +1,9 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "gmlewis/step/cli"
 
-import(
-  "TheWaWaR/clap"
-)
+import {
+  "TheWaWaR/clap",
+}
 
 // Values
 pub async fn eprintln(String) -> Unit

@@ -66,7 +66,7 @@ fn circle_polygon_area_mm2(radius : Double, segments : Int) -> Double {
     return 0.0
   }
   let pts = []
-  for i in 1..=segments {
+  for i in 1..<=segments {
     let angle = -2.0 * @math.PI * i.to_double() / segments.to_double()
     pts.push((radius * @math.cos(angle), radius * @math.sin(angle)))
   }
@@ -99,7 +99,7 @@ pub fn estimate_bfem_cage_conductors(
       abort("wire_gap too large with given num_pairs and size")
     }
     let polygon = Array::new(capacity=ctx.segments_per_rail * 2 + 2)
-    for j in 0..=ctx.segments_per_rail {
+    for j in 0..<=ctx.segments_per_rail {
       push_arc_point(
         ctx.center,
         inner_start_angle,
@@ -109,7 +109,7 @@ pub fn estimate_bfem_cage_conductors(
         polygon,
       )
     }
-    for j in 0..=ctx.segments_per_rail {
+    for j in 0..<=ctx.segments_per_rail {
       push_arc_point(
         ctx.center,
         outer_start_angle,

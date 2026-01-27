@@ -59,7 +59,7 @@ fn total_bifilar_helix_centerline_length_mm(params : Params) -> Double {
   // For length purposes, start angle doesn’t matter, so total length is twice
   // the sum of per-pair helix centerline lengths.
   let mut sum = 0.0
-  for pair_num in 1..=params.num_pairs {
+  for pair_num in 1..<=params.num_pairs {
     sum = sum + coil_helix_centerline_length_mm(pair_num, params)
   }
   2.0 * sum
