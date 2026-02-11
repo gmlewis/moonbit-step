@@ -305,7 +305,6 @@ test "fuzz_tokenizer_never_aborts" {
     }
     try {
       let _ = @parse.tokenize_step_data_section(builder.to_string())
-
     } catch {
       @parse.StepParseError(_info) =>
         // expected sometimes

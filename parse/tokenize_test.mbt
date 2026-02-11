@@ -53,7 +53,6 @@ test "tokenize_errors_include_position_and_stmt" {
   let mut got_error = false
   try {
     let _ = tokenize_step_data_section(data)
-
   } catch {
     @parse.StepParseError(info) => {
       got_error = true
@@ -101,7 +100,6 @@ test "split_statements_with_pos_reports_unterminated_string_at_quote" {
   let mut got_error = false
   try {
     let _ = split_statements_with_pos(data)
-
   } catch {
     @parse.StepParseError(info) => {
       got_error = true

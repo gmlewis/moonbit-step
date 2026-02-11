@@ -263,9 +263,11 @@ fn normalize_negative_number_values(
   args : Map[String, Arg],
 ) -> Array[String] {
   let short_to_name : Map[Char, String] = Map::new()
-  args.each((name, spec) => match spec.clap.short() {
-    Some(ch) => short_to_name.set(ch, name)
-    None => ()
+  args.each((name, spec) => {
+    match spec.clap.short() {
+      Some(ch) => short_to_name.set(ch, name)
+      None => ()
+    }
   })
   let out : Array[String] = []
   let n = argv.length()
@@ -594,52 +596,54 @@ pub async fn parse(
       None => {
         // Validate any opt_double ranges declared via @cli.opt_double(min=..., max=...).
         let mut validation_error : String? = None
-        args.each((name, spec) => if validation_error is None {
-          if !is_nan(spec.min) || !is_nan(spec.max) {
-            let v : Double = try {
-              let raw : String = @clap.SimpleValue::get_one(value, name)
-              parse_cli_double(raw)
-            } catch {
-              err => {
-                validation_error = Some(err.to_string())
-                0.0
-              }
-            }
-            if validation_error is None {
-              if !is_nan(spec.min) {
-                let min_bad = if spec.min_exclusive {
-                  v <= spec.min
-                } else {
-                  v < spec.min
-                }
-                if min_bad {
-                  let op = if spec.min_exclusive { ">" } else { ">=" }
-                  validation_error = Some(
-                    "error: --" +
-                    name +
-                    " must be " +
-                    op +
-                    " " +
-                    spec.min.to_string(),
-                  )
+        args.each((name, spec) => {
+          if validation_error is None {
+            if !is_nan(spec.min) || !is_nan(spec.max) {
+              let v : Double = try {
+                let raw : String = @clap.SimpleValue::get_one(value, name)
+                parse_cli_double(raw)
+              } catch {
+                err => {
+                  validation_error = Some(err.to_string())
+                  0.0
                 }
               }
-              if validation_error is None && !is_nan(spec.max) {
-                let max_bad = if spec.max_exclusive {
-                  v >= spec.max
-                } else {
-                  v > spec.max
+              if validation_error is None {
+                if !is_nan(spec.min) {
+                  let min_bad = if spec.min_exclusive {
+                    v <= spec.min
+                  } else {
+                    v < spec.min
+                  }
+                  if min_bad {
+                    let op = if spec.min_exclusive { ">" } else { ">=" }
+                    validation_error = Some(
+                      "error: --" +
+                      name +
+                      " must be " +
+                      op +
+                      " " +
+                      spec.min.to_string(),
+                    )
+                  }
                 }
-                if max_bad {
-                  let op = if spec.max_exclusive { "<" } else { "<=" }
-                  validation_error = Some(
-                    "error: --" +
-                    name +
-                    " must be " +
-                    op +
-                    " " +
-                    spec.max.to_string(),
-                  )
+                if validation_error is None && !is_nan(spec.max) {
+                  let max_bad = if spec.max_exclusive {
+                    v >= spec.max
+                  } else {
+                    v > spec.max
+                  }
+                  if max_bad {
+                    let op = if spec.max_exclusive { "<" } else { "<=" }
+                    validation_error = Some(
+                      "error: --" +
+                      name +
+                      " must be " +
+                      op +
+                      " " +
+                      spec.max.to_string(),
+                    )
+                  }
                 }
               }
             }

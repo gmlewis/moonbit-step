@@ -1,6 +1,6 @@
 {
   "name": "gmlewis/step",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "deps": {
     "gmlewis/base64": "0.16.2",
     "gmlewis/flate": "0.36.2",

@@ -68,7 +68,6 @@ fn compile_node_geometry_and_styling(
       md,
     ),
   )
-
 }
 
 ///|
@@ -150,7 +149,6 @@ fn add_solid_node_to_ctx(
   let pds_ref = ctx.add(@repository.any_entity_product_definition_shape(pds))
   let sdr = @product.ShapeDefinitionRepresentation::new(pds_ref, shape_rep_ref)
   let _ = ctx.add(@repository.any_entity_shape_definition_representation(sdr))
-
 }
 
 ///|
