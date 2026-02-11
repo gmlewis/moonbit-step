@@ -1,5 +1,5 @@
 import {
-  "gmlewis/step" as @step,
-  "gmlewis/step/entities/units" as @units,
+  "gmlewis/step" @step,
+  "gmlewis/step/entities/units" @units,
   "moonbitlang/core/builtin",
 }

@@ -800,7 +800,7 @@ fn postscript(name : String) -> String {
     $|        # Create or reuse a named collection (based upon the name of this model).
     $|        # Delete all children of the collection in the case that it already exists.
     $|        collection_name = config.get('collectionName', '\{name} Collection')
-    $|        print(f"\\nSetting up collection '{collection_name}'...")
+    $|        print(f"\{'\\'}nSetting up collection '{collection_name}'...")
     $|        collection = set_up_collection(collection_name)
     $|
     $|        create_model_objects(collection)

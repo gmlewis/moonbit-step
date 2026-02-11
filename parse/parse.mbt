@@ -955,7 +955,7 @@ fn parse_b_spline_surface(
   let u_degree = parse_int_dec(parts[0])
   let v_degree = parse_int_dec(parts[1])
   let row_parts = split_args(parts[2])
-  let control_points_list = row_parts.map(fn(row_part) {
+  let control_points_list = row_parts.map(row_part => {
     parse_ref_ids(row_part).map(fn(id) { @step.Ref::{ id, } })
   })
   let surface_form = parts[3].trim().to_string()

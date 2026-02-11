@@ -399,7 +399,7 @@ pub fn tokenize_step_data_section_with_base(
       })
     }
   }
-  let rows = stmts.map(fn(span) {
+  let rows = stmts.map(span => {
     let (abs_line, abs_col) = apply_base(
       span.line,
       span.col,

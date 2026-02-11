@@ -20,7 +20,7 @@ import {
   "moonbitlang/async/stdio",
   "moonbitlang/core/builtin",
   "moonbitlang/core/double",
-  "moonbitlang/core/encoding/utf8" as @encoding/utf8,
+  "moonbitlang/core/encoding/utf8" @encoding/utf8,
   "moonbitlang/core/json",
   "moonbitlang/core/math",
   "moonbitlang/x/sys",
