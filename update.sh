@@ -1,6 +1,6 @@
 #!/bin/bash -ex
-find . -depth -name target -type d -exec rm -rf {} \;
-find . -depth -name .mooncakes -type d -exec rm -rf {} \;
+rm -rf ./{_build,.mooncakes} \
+    examples/*/{_build,.mooncakes}
 moon add --no-update moonbitlang/async
 moon add --no-update moonbitlang/x
 moon add --no-update TheWaWaR/clap
