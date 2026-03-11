@@ -250,7 +250,7 @@ fn wrap_as_step_file(data_section : String) -> String {
 test "fuzz_parse_never_aborts_and_roundtrips_when_ok" {
   let mut state = 1234567
   // Bound runtime: small corpus, small statements.
-  for iter in 0..<120 {
+  for _ in 0..<120 {
     let (stmt_count0, s1) = rand_range(state, 25)
     state = s1
     let stmt_count = 1 + stmt_count0

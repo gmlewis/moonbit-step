@@ -34,7 +34,7 @@ pub fn solve_for_t(d : Double, f : (Double) -> Double) -> Double {
   }
   let mut t = 0.5
   let mut dt = 0.25
-  for {
+  for ;; {
     let err = f(t) - d
     if err.abs() < 0.005 {
       return t

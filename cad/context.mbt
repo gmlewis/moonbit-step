@@ -57,7 +57,7 @@ pub fn fmt_double(v : Double, snapping : Double?) -> String {
         prec = prec + 1
       }
       let mut multiplier = 1
-      for i in 0..<prec {
+      for _ in 0..<prec {
         multiplier = multiplier * 10
       }
       let scaled = (abs_snapped * multiplier.to_double() + 0.5).to_int()

@@ -1,13 +1,13 @@
 {
   "name": "gmlewis/step",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "deps": {
     "gmlewis/base64": "0.16.2",
-    "gmlewis/flate": "0.36.2",
-    "gmlewis/fonts": "0.19.4",
-    "gmlewis/gzip": "0.34.2",
-    "gmlewis/io": "0.23.2",
-    "moonbitlang/async": "0.16.6",
+    "gmlewis/flate": "0.36.3",
+    "gmlewis/fonts": "0.19.6",
+    "gmlewis/gzip": "0.34.3",
+    "gmlewis/io": "0.23.3",
+    "moonbitlang/async": "0.16.7",
     "moonbitlang/x": "0.4.40",
     "TheWaWaR/clap": "0.2.6"
   },
