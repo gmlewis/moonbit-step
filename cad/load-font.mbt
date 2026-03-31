@@ -32,12 +32,12 @@ pub async fn load_font(font_name : String) -> Font raise LoaderError {
   let mut font_path = local_font_path
   let mut exists = @fs.exists(font_path) catch { _ => false }
   //
-  if not(exists) && env_font_path != "" {
+  if !exists && env_font_path != "" {
     font_path = env_font_path
     exists = @fs.exists(font_path) catch { _ => false }
   }
   //
-  if not(exists) {
+  if !exists {
     let env_msg = if env_font_path != "" {
       env_font_path
     } else {

@@ -51,9 +51,7 @@ pub async fn write_text_file(String, String?) -> Unit
 // Errors
 pub suberror LoaderError {
   LoaderError(String)
-}
-pub impl Eq for LoaderError
-pub impl Show for LoaderError
+} derive(Eq, Show)
 
 // Types and methods
 pub struct BezierAnchor {

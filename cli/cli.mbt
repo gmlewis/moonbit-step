@@ -32,8 +32,8 @@ fn decode_cli_minus(s : String) -> String {
 }
 
 ///|
-fn parse_cli_double(s : String) -> Double raise @strconv.StrConvError {
-  @strconv.parse_double(decode_cli_minus(s.trim().to_string()))
+fn parse_cli_double(s : String) -> Double raise {
+  @string.parse_double(decode_cli_minus(s.trim().to_string()))
 }
 
 ///|
@@ -371,7 +371,7 @@ pub async fn Args::int(self : Args, name : String) -> Int {
   try {
     let raw : String = @clap.SimpleValue::get_one(self.value, name)
     let s = decode_cli_minus(raw.trim().to_string())
-    try @strconv.parse_int(s) catch {
+    try @string.parse_int(s) catch {
       err => {
         eprintln(err.to_string())
         abort("")

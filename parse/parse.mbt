@@ -505,7 +505,7 @@ fn init {
 fn parse_double(s : String) -> Double raise StepParseError {
   let t = s.trim().to_string()
   // Use core string->double parsing for correct rounding and stable roundtrips.
-  @strconv.parse_double(t) catch {
+  @string.parse_double(t) catch {
     _ => fail_parse()
   }
 }

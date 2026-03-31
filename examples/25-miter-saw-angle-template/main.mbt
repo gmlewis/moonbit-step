@@ -79,7 +79,7 @@ fn parse_angles(s : String) -> Array[Double] {
   let parts = s.split(",")
   let out = []
   for p in parts {
-    let val = @strconv.parse_double(p.trim().to_string()) catch { _ => 0.0 }
+    let val = @string.parse_double(p.trim().to_string()) catch { _ => 0.0 }
     if val > 0.0 && val < 90.0 {
       out.push(val)
     }
