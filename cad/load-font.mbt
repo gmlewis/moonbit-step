@@ -4,7 +4,17 @@ pub using @fonts {type Font}
 ///|
 pub suberror LoaderError {
   LoaderError(String)
-} derive(Show, Eq)
+} derive(Eq)
+
+///|
+pub impl Show for LoaderError with output(self, logger) {
+  let LoaderError(msg) = self
+  logger.write_string(
+    (
+      $|LoaderError(\{msg.escape(quote=true)})
+    ),
+  )
+}
 
 ///|
 /// `load_font` attempts to load a font by its name from the `all-fonts` directory.
