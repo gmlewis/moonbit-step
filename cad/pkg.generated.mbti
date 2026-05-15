@@ -5,6 +5,7 @@ import {
   "gmlewis/fonts",
   "gmlewis/step",
   "gmlewis/step/repository",
+  "moonbitlang/core/debug",
 }
 
 // Values
@@ -175,7 +176,7 @@ pub struct Rgb {
   r : Double
   g : Double
   b : Double
-}
+} derive(@debug.Debug)
 pub fn Rgb::black() -> Self
 pub fn Rgb::blue() -> Self
 pub fn Rgb::cyan() -> Self

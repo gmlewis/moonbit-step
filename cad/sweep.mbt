@@ -85,7 +85,7 @@ fn compile_swept_profile(
   let cp_refs = pts.map(fn(pt) { ctx.cartesian_point(pt.0, pt.1, pt.2) })
   let vp_refs = cp_refs.map(fn(cp_ref) { ctx.vertex_point(cp_ref) })
   let edges : Array[EdgeInfo] = []
-  let seen : Map[String, Bool] = Map::new()
+  let seen : Map[String, Bool] = Map([])
   let add_edge = fn(a : Int, b : Int) -> Unit {
     let key = if a < b { "\{a}:\{b}" } else { "\{b}:\{a}" }
     if seen.get(key).unwrap_or(false) {

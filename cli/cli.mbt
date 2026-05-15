@@ -33,7 +33,7 @@ fn decode_cli_minus(s : String) -> String {
 
 ///|
 fn parse_cli_double(s : String) -> Double raise {
-  @string.parse_double(decode_cli_minus(s.trim().to_string()))
+  @string.parse_double(decode_cli_minus(s.trim().to_owned()))
 }
 
 ///|
@@ -191,7 +191,7 @@ fn is_space_cu(ci : Int) -> Bool {
 
 ///|
 fn split_whitespace(s : String) -> Array[String] {
-  let t = s.trim().to_string()
+  let t = s.trim().to_owned()
   let out : Array[String] = []
   let n = t.length()
   let mut i = 0
@@ -262,7 +262,7 @@ fn normalize_negative_number_values(
   argv : Array[String],
   args : Map[String, Arg],
 ) -> Array[String] {
-  let short_to_name : Map[Char, String] = Map::new()
+  let short_to_name : Map[Char, String] = Map([])
   args.each((name, spec) => {
     match spec.clap.short() {
       Some(ch) => short_to_name.set(ch, name)
@@ -370,7 +370,7 @@ pub async fn Args::double(self : Args, name : String) -> Double {
 pub async fn Args::int(self : Args, name : String) -> Int {
   try {
     let raw : String = @clap.SimpleValue::get_one(self.value, name)
-    let s = decode_cli_minus(raw.trim().to_string())
+    let s = decode_cli_minus(raw.trim().to_owned())
     try @string.parse_int(s) catch {
       err => {
         eprintln(err.to_string())
@@ -576,7 +576,7 @@ pub async fn parse(
   cli_args? : Array[String] = [],
   raise_on_error? : Bool = true,
 ) -> Args? {
-  let clap_args : Map[String, @clap.Arg] = Map::new()
+  let clap_args : Map[String, @clap.Arg] = Map([])
   args.each((name, spec) => clap_args.set(name, spec.clap))
   let parser = @clap.Parser::new(prog~, args=clap_args, description~)
   let value = @clap.SimpleValue::new(parser.prog)

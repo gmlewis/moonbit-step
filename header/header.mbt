@@ -152,7 +152,7 @@ fn header_entity_to_step(e : HeaderEntity) -> String {
     FileDescription(fd) => file_description_to_step(fd)
     FileName(fn_) => file_name_to_step(fn_)
     FileSchema(fs) => file_schema_to_step(fs)
-    Raw(s) => s.trim().to_string()
+    Raw(s) => s.trim().to_owned()
   }
 }
 

@@ -4,6 +4,7 @@ import {
   "moonbitlang/async",
   "moonbitlang/async/fs",
   "moonbitlang/core/builtin",
+  "moonbitlang/core/debug",
   "moonbitlang/core/encoding/utf8" @encoding/utf8,
   "moonbitlang/core/math",
 }

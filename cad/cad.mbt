@@ -367,8 +367,8 @@ pub async fn write_text_file(text : String, out_path : String?) -> Unit {
       @fs.write_file(
         path,
         @encoding/utf8.encode(text),
-        create=0o644,
-        truncate=true,
+        permission=0o644,
+        create_mode=@fs.CreateMode::CreateNew,
       ) catch {
         err => println("failed to write output: \{err}")
       }

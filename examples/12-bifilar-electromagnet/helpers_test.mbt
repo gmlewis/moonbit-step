@@ -6,12 +6,15 @@
 ///|
 test "vertex_at_cardinal_angles" {
   let center = (0.0, 0.0)
-  inspect(vertex_at(center~, radius=2.0, angle=0.0), content="(2, 0)")
-  inspect(
+  @debug.debug_inspect(
+    vertex_at(center~, radius=2.0, angle=0.0),
+    content="(2, 0)",
+  )
+  @debug.debug_inspect(
     vertex_at(center~, radius=2.0, angle=@math.PI / 2),
     content="(1.2246467991473532e-16, 2)",
   )
-  inspect(
+  @debug.debug_inspect(
     vertex_at(center~, radius=2.0, angle=@math.PI),
     content="(-2, 2.4492935982947064e-16)",
   )
@@ -25,7 +28,7 @@ test "vector_length_3_4_5" {
 ///|
 test "center_of_face_square" {
   let pts = [(-1.0, -1.0), (1.0, -1.0), (1.0, 1.0), (-1.0, 1.0)]
-  inspect(center_of_face(pts), content="(0, 0)")
+  @debug.debug_inspect(center_of_face(pts), content="(0, 0)")
 }
 
 ///|

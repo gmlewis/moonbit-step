@@ -9,7 +9,7 @@ pub struct Rgb {
   r : Double
   g : Double
   b : Double
-}
+} derive(Debug)
 
 ///|
 pub fn Rgb::new(r : Double, g : Double, b : Double) -> Rgb {

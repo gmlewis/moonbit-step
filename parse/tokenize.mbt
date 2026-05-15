@@ -130,7 +130,7 @@ fn cu_at(s : String, i : Int) -> Int {
 
 ///|
 fn parse_int_dec(s : String) -> Int {
-  let t = s.trim().to_string()
+  let t = s.trim().to_owned()
   let mut sign = 1
   let start_i = if t.length() > 0 && cu_at(t, 0) == Char::to_int('-') {
     sign = -1
@@ -182,7 +182,7 @@ pub fn split_statements(data_section : String) -> Array[String] {
       continue
     }
     if !in_str && ci == Char::to_int(';') {
-      let stmt = builder.to_string().trim().to_string()
+      let stmt = builder.to_string().trim().to_owned()
       if stmt.length() > 0 {
         out.push(stmt)
       }
@@ -195,7 +195,7 @@ pub fn split_statements(data_section : String) -> Array[String] {
   }
 
   // trailing (if no ending ';')
-  let trailing = builder.to_string().trim().to_string()
+  let trailing = builder.to_string().trim().to_owned()
   if trailing.length() > 0 {
     out.push(trailing)
   }
@@ -267,7 +267,7 @@ pub fn split_statements_with_pos(
       continue
     }
     if !in_str && ci == Char::to_int(';') {
-      let stmt = builder.to_string().trim().to_string()
+      let stmt = builder.to_string().trim().to_owned()
       if stmt.length() > 0 {
         out.push(StatementSpan::{ stmt, line: stmt_line, col: stmt_col })
       }
@@ -286,7 +286,7 @@ pub fn split_statements_with_pos(
     }
     i = i + 1
   }
-  let trailing = builder.to_string().trim().to_string()
+  let trailing = builder.to_string().trim().to_owned()
   if trailing.length() > 0 {
     out.push(StatementSpan::{ stmt: trailing, line: stmt_line, col: stmt_col })
   }
@@ -329,7 +329,7 @@ fn parse_row(span : StatementSpan) -> RawEntityRow raise StepParseError {
         stmt,
       )
   }
-  let id_part = substr(stmt, 0, eq_idx).trim().to_string()
+  let id_part = substr(stmt, 0, eq_idx).trim().to_owned()
   if id_part.length() < 2 || cu_at(id_part, 0) != Char::to_int('#') {
     fail_parse_at(
       "invalid entity id (expected '#<int>')",
@@ -341,7 +341,7 @@ fn parse_row(span : StatementSpan) -> RawEntityRow raise StepParseError {
   let id_digits = substr(id_part, 1, id_part.length())
   let id_val = parse_int_dec(id_digits)
   let id = @step.EntityId::{ value: id_val }
-  let rhs = substr(stmt, eq_idx + 1, stmt.length()).trim().to_string()
+  let rhs = substr(stmt, eq_idx + 1, stmt.length()).trim().to_owned()
 
   // Complex entity instance form: #<id>=( <ENTITY1> ... <ENTITYN> );
   // This has no leading NAME before the opening paren.
@@ -364,8 +364,8 @@ fn parse_row(span : StatementSpan) -> RawEntityRow raise StepParseError {
         stmt,
       )
   }
-  let name = substr(rhs, 0, lp_idx).trim().to_string()
-  let args = substr(rhs, lp_idx, rhs.length()).trim().to_string()
+  let name = substr(rhs, 0, lp_idx).trim().to_owned()
+  let args = substr(rhs, lp_idx, rhs.length()).trim().to_owned()
   RawEntityRow::{ id, name, args, line: span.line, col: span.col }
 }
 
@@ -415,7 +415,7 @@ pub fn tokenize_step_data_section_with_base(
 // Split a comma-separated arg list, respecting parentheses and strings.
 // Input may include surrounding parentheses.
 pub fn split_args(args : String) -> Array[String] {
-  let s = args.trim().to_string()
+  let s = args.trim().to_owned()
   let mut inner_start = 0
   let mut inner_end = s.length()
   if inner_end >= 2 &&
@@ -451,14 +451,14 @@ pub fn split_args(args : String) -> Array[String] {
           depth = depth - 1
         }
       } else if ci == Char::to_int(',') && depth == 0 {
-        let part = substr(s, start, i).trim().to_string()
+        let part = substr(s, start, i).trim().to_owned()
         out.push(part)
         start = i + 1
       }
     }
   }
   if start <= inner_end {
-    let part = substr(s, start, inner_end).trim().to_string()
+    let part = substr(s, start, inner_end).trim().to_owned()
     if part.length() > 0 {
       out.push(part)
     }
