@@ -31,7 +31,7 @@ pub fn NextAssemblyUsageOccurrence::new(
 }
 
 ///|
-pub impl @step.Entity for NextAssemblyUsageOccurrence with to_step(self) {
+pub impl @step.Entity for NextAssemblyUsageOccurrence with fn to_step(self) {
   let relating_str = "#\{self.relating_product_definition.id.value}"
   let related_str = "#\{self.related_product_definition.id.value}"
   "NEXT_ASSEMBLY_USAGE_OCCURRENCE(\{@step.step_str(self.id)},\{@step.step_str(self.name)},\{step_str_or_dollar(self.description)},\{relating_str},\{related_str},\{step_str_or_dollar(self.reference_designator)})"

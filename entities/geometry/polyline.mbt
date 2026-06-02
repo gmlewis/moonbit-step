@@ -13,7 +13,7 @@ pub fn Polyline::new(name : String, points : Array[@step.Ref]) -> Polyline {
 }
 
 ///|
-pub impl @step.Entity for Polyline with to_step(self) {
+pub impl @step.Entity for Polyline with fn to_step(self) {
   let pts_str = self.points.map(fn(r) { "#\{r.id.value}" }).join(",")
   "POLYLINE(\{@step.step_str(self.name)},(\{pts_str}))"
 }

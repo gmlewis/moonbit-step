@@ -16,7 +16,7 @@ pub fn ConversionBasedUnit::new(
 }
 
 ///|
-pub impl @step.Entity for ConversionBasedUnit with to_step(self) {
+pub impl @step.Entity for ConversionBasedUnit with fn to_step(self) {
   let factor_str = "#\{self.conversion_factor.id.value}"
   "CONVERSION_BASED_UNIT(\{@step.step_str(self.name)},\{factor_str})"
 }

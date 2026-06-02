@@ -20,7 +20,7 @@ pub fn AdvancedFace::new(
 }
 
 ///|
-pub impl @step.Entity for AdvancedFace with to_step(self) {
+pub impl @step.Entity for AdvancedFace with fn to_step(self) {
   let bounds_str = self.bounds.map(fn(r) { "#\{r.id.value}" }).join(",")
   let surface_str = "#\{self.surface.id.value}"
   let ss_str = bool_to_step(self.same_sense)

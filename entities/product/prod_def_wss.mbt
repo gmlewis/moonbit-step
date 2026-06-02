@@ -25,7 +25,7 @@ pub fn ProductDefinitionFormationWithSpecifiedSource::new(
 }
 
 ///|
-pub impl @step.Entity for ProductDefinitionFormationWithSpecifiedSource with to_step(
+pub impl @step.Entity for ProductDefinitionFormationWithSpecifiedSource with fn to_step(
   self,
 ) {
   let product_str = "#\{self.of_product.id.value}"

@@ -25,7 +25,7 @@ pub fn ToroidalSurface::new(
 }
 
 ///|
-pub impl @step.Entity for ToroidalSurface with to_step(self) {
+pub impl @step.Entity for ToroidalSurface with fn to_step(self) {
   let pos_str = "#\{self.position.id.value}"
   "TOROIDAL_SURFACE(\{step_str_or_dollar(self.name)},\{pos_str},\{self.major_radius_literal},\{self.minor_radius_literal})"
 }

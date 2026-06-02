@@ -16,7 +16,7 @@ pub fn StyledItem::new(
 }
 
 ///|
-pub impl @step.Entity for StyledItem with to_step(self) {
+pub impl @step.Entity for StyledItem with fn to_step(self) {
   let styles_str = self.styles.map(fn(r) { "#\{r.id.value}" }).join(",")
   let item = "#\{self.item.id.value}"
   "STYLED_ITEM(\{@step.step_str(self.name)},(\{styles_str}),\{item})"

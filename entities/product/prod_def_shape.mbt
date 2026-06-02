@@ -18,7 +18,7 @@ pub fn ProductDefinitionShape::new(
 }
 
 ///|
-pub impl @step.Entity for ProductDefinitionShape with to_step(self) {
+pub impl @step.Entity for ProductDefinitionShape with fn to_step(self) {
   let def_str = "#\{self.definition.id.value}"
   "PRODUCT_DEFINITION_SHAPE(\{step_str_or_dollar(self.name)},\{step_str_or_dollar(self.description)},\{def_str})"
 }

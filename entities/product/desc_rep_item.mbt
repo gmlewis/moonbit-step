@@ -16,6 +16,6 @@ pub fn DescriptiveRepresentationItem::new(
 }
 
 ///|
-pub impl @step.Entity for DescriptiveRepresentationItem with to_step(self) {
+pub impl @step.Entity for DescriptiveRepresentationItem with fn to_step(self) {
   "DESCRIPTIVE_REPRESENTATION_ITEM(\{@step.step_str(self.name)},\{@step.step_str(self.description)})"
 }

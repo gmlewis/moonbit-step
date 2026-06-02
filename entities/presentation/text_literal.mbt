@@ -8,7 +8,7 @@ pub(all) enum TextPath {
 }
 
 ///|
-pub impl @step.Entity for TextPath with to_step(self) {
+pub impl @step.Entity for TextPath with fn to_step(self) {
   match self {
     Left => ".LEFT."
     Right => ".RIGHT."
@@ -54,7 +54,7 @@ pub fn TextLiteral::new(
 }
 
 ///|
-pub impl @step.Entity for TextLiteral with to_step(self) {
+pub impl @step.Entity for TextLiteral with fn to_step(self) {
   let placement_str = "#\{self.placement.id.value}"
   let path_str = @step.Entity::to_step(self.path)
   let font_str = "#\{self.font.id.value}"

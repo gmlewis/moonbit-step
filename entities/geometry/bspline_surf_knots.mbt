@@ -33,7 +33,7 @@ pub fn BSplineSurfaceWithKnots::new(
 }
 
 ///|
-pub impl @step.Entity for BSplineSurfaceWithKnots with to_step(self) {
+pub impl @step.Entity for BSplineSurfaceWithKnots with fn to_step(self) {
   let u_mults_str = self.u_multiplicities.map(fn(i) { "\{i}" }).join(",")
   let v_mults_str = self.v_multiplicities.map(fn(i) { "\{i}" }).join(",")
   let u_knots_str = self.u_knots.join(",")

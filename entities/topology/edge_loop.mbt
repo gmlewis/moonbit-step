@@ -13,7 +13,7 @@ pub fn EdgeLoop::new(name : String, edges : Array[@step.Ref]) -> EdgeLoop {
 }
 
 ///|
-pub impl @step.Entity for EdgeLoop with to_step(self) {
+pub impl @step.Entity for EdgeLoop with fn to_step(self) {
   let edges_str = self.edges.map(fn(r) { "#\{r.id.value}" }).join(",")
   "EDGE_LOOP(\{step_str_or_dollar(self.name)},(\{edges_str}))"
 }

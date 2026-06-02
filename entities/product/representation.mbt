@@ -18,7 +18,7 @@ pub fn Representation::new(
 }
 
 ///|
-pub impl @step.Entity for Representation with to_step(self) {
+pub impl @step.Entity for Representation with fn to_step(self) {
   let items_str = self.items.map(fn(r) { "#\{r.id.value}" }).join(",")
   let ctx_str = "#\{self.context_of_items.id.value}"
   "REPRESENTATION(\{step_str_or_dollar(self.name)},(\{items_str}),\{ctx_str})"

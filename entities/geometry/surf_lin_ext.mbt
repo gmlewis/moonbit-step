@@ -18,7 +18,7 @@ pub fn SurfaceOfLinearExtrusion::new(
 }
 
 ///|
-pub impl @step.Entity for SurfaceOfLinearExtrusion with to_step(self) {
+pub impl @step.Entity for SurfaceOfLinearExtrusion with fn to_step(self) {
   let curve_str = "#\{self.swept_curve.id.value}"
   let axis_str = "#\{self.extrusion_axis.id.value}"
   "SURFACE_OF_LINEAR_EXTRUSION(\{@step.step_str(self.name)},\{curve_str},\{axis_str})"

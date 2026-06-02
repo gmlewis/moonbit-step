@@ -18,6 +18,6 @@ pub fn CoordinatedUniversalTimeOffset::new(
 }
 
 ///|
-pub impl @step.Entity for CoordinatedUniversalTimeOffset with to_step(self) {
+pub impl @step.Entity for CoordinatedUniversalTimeOffset with fn to_step(self) {
   "COORDINATED_UNIVERSAL_TIME_OFFSET(\{self.hour_offset},\{self.minute_offset},\{self.sense})"
 }

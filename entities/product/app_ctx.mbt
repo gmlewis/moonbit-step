@@ -12,6 +12,6 @@ pub fn ApplicationContext::new(application : String) -> ApplicationContext {
 }
 
 ///|
-pub impl @step.Entity for ApplicationContext with to_step(self) {
+pub impl @step.Entity for ApplicationContext with fn to_step(self) {
   "APPLICATION_CONTEXT(\{step_str_or_dollar(self.application)})"
 }

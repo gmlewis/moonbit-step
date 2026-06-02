@@ -14,7 +14,7 @@ pub fn GlobalUncertaintyAssignedContext::new(
 }
 
 ///|
-pub impl @step.Entity for GlobalUncertaintyAssignedContext with to_step(self) {
+pub impl @step.Entity for GlobalUncertaintyAssignedContext with fn to_step(self) {
   let refs = self.uncertainties.map(fn(id) { "#\{id.value}" }).join(",")
   "GLOBAL_UNCERTAINTY_ASSIGNED_CONTEXT((\{refs}))"
 }

@@ -12,6 +12,6 @@ pub fn GeometricRepresentationContext::new(
 }
 
 ///|
-pub impl @step.Entity for GeometricRepresentationContext with to_step(self) {
+pub impl @step.Entity for GeometricRepresentationContext with fn to_step(self) {
   "GEOMETRIC_REPRESENTATION_CONTEXT(\{self.dimension})"
 }

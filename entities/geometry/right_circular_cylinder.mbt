@@ -20,7 +20,7 @@ pub fn RightCircularCylinder::new(
 }
 
 ///|
-pub impl @step.Entity for RightCircularCylinder with to_step(self) {
+pub impl @step.Entity for RightCircularCylinder with fn to_step(self) {
   let pos_str = "#\{self.position.id.value}"
   "RIGHT_CIRCULAR_CYLINDER(\{@step.step_str(self.name)},\{pos_str},\{@step.fmt_num(self.height)},\{@step.fmt_num(self.radius)})"
 }

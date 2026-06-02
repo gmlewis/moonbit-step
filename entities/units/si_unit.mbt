@@ -14,6 +14,6 @@ pub fn SiUnit::new(prefix : String, name : String) -> SiUnit {
 }
 
 ///|
-pub impl @step.Entity for SiUnit with to_step(self) {
+pub impl @step.Entity for SiUnit with fn to_step(self) {
   "SI_UNIT(\{self.prefix},\{self.name})"
 }

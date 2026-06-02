@@ -16,6 +16,6 @@ pub fn RawEntity::new(name : String, args : String) -> RawEntity {
 }
 
 ///|
-pub impl Entity for RawEntity with to_step(self) {
+pub impl Entity for RawEntity with fn to_step(self) {
   "\{self.name}\{self.args}"
 }

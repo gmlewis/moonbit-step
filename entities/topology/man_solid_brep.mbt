@@ -16,7 +16,7 @@ pub fn ManifoldSolidBrep::new(
 }
 
 ///|
-pub impl @step.Entity for ManifoldSolidBrep with to_step(self) {
+pub impl @step.Entity for ManifoldSolidBrep with fn to_step(self) {
   let outer_str = "#\{self.outer.id.value}"
   "MANIFOLD_SOLID_BREP(\{step_str_or_dollar(self.name)},\{outer_str})"
 }

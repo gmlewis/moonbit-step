@@ -15,7 +15,7 @@ pub fn RepresentationRelationshipWithTransformation::new(
 }
 
 ///|
-pub impl @step.Entity for RepresentationRelationshipWithTransformation with to_step(
+pub impl @step.Entity for RepresentationRelationshipWithTransformation with fn to_step(
   self,
 ) {
   let t_str = "#\{self.transformation.id.value}"

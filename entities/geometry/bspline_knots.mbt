@@ -44,7 +44,7 @@ pub fn BSplineCurveWithKnots::new(
 }
 
 ///|
-pub impl @step.Entity for BSplineCurveWithKnots with to_step(self) {
+pub impl @step.Entity for BSplineCurveWithKnots with fn to_step(self) {
   let cps_str = self.control_points.map(fn(r) { "#\{r.id.value}" }).join(",")
   let mults_str = self.knot_multiplicities.map(fn(i) { "\{i}" }).join(",")
   let knots_str = self.knots.join(",")

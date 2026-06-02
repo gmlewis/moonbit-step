@@ -17,7 +17,7 @@ pub fn RationalBSplineCurve::new(
 }
 
 ///|
-pub impl @step.Entity for RationalBSplineCurve with to_step(self) {
+pub impl @step.Entity for RationalBSplineCurve with fn to_step(self) {
   let weights_str = self.weights.join(",")
   "RATIONAL_B_SPLINE_CURVE((\{weights_str}))"
 }

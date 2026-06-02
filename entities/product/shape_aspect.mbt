@@ -21,7 +21,7 @@ pub fn ShapeAspect::new(
 }
 
 ///|
-pub impl @step.Entity for ShapeAspect with to_step(self) {
+pub impl @step.Entity for ShapeAspect with fn to_step(self) {
   let shape_str = "#\{self.of_shape.id.value}"
   "SHAPE_ASPECT(\{@step.step_str(self.name)},\{@step.step_str(self.description)},\{shape_str},\{self.product_definitional})"
 }

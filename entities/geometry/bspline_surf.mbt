@@ -37,7 +37,7 @@ pub fn BSplineSurface::new(
 }
 
 ///|
-pub impl @step.Entity for BSplineSurface with to_step(self) {
+pub impl @step.Entity for BSplineSurface with fn to_step(self) {
   let row_strs = self.control_points_list
     .map(fn(row) {
       let cps_str = row.map(fn(r) { "#\{r.id.value}" }).join(",")

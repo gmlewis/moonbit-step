@@ -25,7 +25,7 @@ fn ref_to_step(r : @step.Ref) -> String {
 
 ///|
 // Implement the core trait.
-pub impl @step.Entity for Axis2Placement3D with to_step(self) {
+pub impl @step.Entity for Axis2Placement3D with fn to_step(self) {
   let loc = ref_to_step(self.location)
   let ax = ref_to_step(self.axis)
   let ref_dir = ref_to_step(self.ref_direction)

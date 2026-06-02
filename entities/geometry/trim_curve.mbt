@@ -32,7 +32,7 @@ pub fn TrimmedCurve::new(
 }
 
 ///|
-pub impl @step.Entity for TrimmedCurve with to_step(self) {
+pub impl @step.Entity for TrimmedCurve with fn to_step(self) {
   let basis_str = "#\{self.basis_curve.id.value}"
   let sense_str = bool_to_step(self.sense_agreement)
   "TRIMMED_CURVE(\{step_str_or_dollar(self.name)},\{basis_str},\{self.trim_1},\{self.trim_2},\{sense_str},\{self.master_representation})"

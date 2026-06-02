@@ -17,7 +17,7 @@ pub fn SweptSurface::new(
 }
 
 ///|
-pub impl @step.Entity for SweptSurface with to_step(self) {
+pub impl @step.Entity for SweptSurface with fn to_step(self) {
   let curve_str = "#\{self.swept_curve.id.value}"
   "SWEPT_SURFACE(\{@step.step_str(self.name)},\{curve_str})"
 }

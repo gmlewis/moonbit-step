@@ -18,7 +18,7 @@ pub fn HalfSpaceSolid::new(
 }
 
 ///|
-pub impl @step.Entity for HalfSpaceSolid with to_step(self) {
+pub impl @step.Entity for HalfSpaceSolid with fn to_step(self) {
   let surf_str = "#\{self.base_surface.id.value}"
   let flag_str = bool_to_step(self.agreement_flag)
   "HALF_SPACE_SOLID(\{@step.step_str(self.name)},\{surf_str},\{flag_str})"

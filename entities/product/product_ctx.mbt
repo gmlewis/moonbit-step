@@ -18,7 +18,7 @@ pub fn ProductContext::new(
 }
 
 ///|
-pub impl @step.Entity for ProductContext with to_step(self) {
+pub impl @step.Entity for ProductContext with fn to_step(self) {
   let frame_str = "#\{self.frame_of_reference.id.value}"
   "PRODUCT_CONTEXT(\{step_str_or_dollar(self.name)},\{frame_str},\{step_str_or_dollar(self.discipline_type)})"
 }

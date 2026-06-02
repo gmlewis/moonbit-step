@@ -18,6 +18,6 @@ pub fn Organization::new(
 }
 
 ///|
-pub impl @step.Entity for Organization with to_step(self) {
+pub impl @step.Entity for Organization with fn to_step(self) {
   "ORGANIZATION(\{@step.step_str(self.id)},\{@step.step_str(self.name)},\{@step.step_str(self.description)})"
 }

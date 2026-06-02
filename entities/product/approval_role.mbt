@@ -12,6 +12,6 @@ pub fn ApprovalRole::new(role : String) -> ApprovalRole {
 }
 
 ///|
-pub impl @step.Entity for ApprovalRole with to_step(self) {
+pub impl @step.Entity for ApprovalRole with fn to_step(self) {
   "APPROVAL_ROLE(\{@step.step_str(self.role)})"
 }

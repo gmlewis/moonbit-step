@@ -11,7 +11,7 @@ pub fn Plane::new(name : String, position : @step.Ref) -> Plane {
 }
 
 ///|
-pub impl @step.Entity for Plane with to_step(self) {
+pub impl @step.Entity for Plane with fn to_step(self) {
   let pos = "#\{self.position.id.value}"
   "PLANE(\{@step.step_str(self.name)},\{pos})"
 }

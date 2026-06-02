@@ -13,7 +13,7 @@ pub fn ClosedShell::new(name : String, faces : Array[@step.Ref]) -> ClosedShell 
 }
 
 ///|
-pub impl @step.Entity for ClosedShell with to_step(self) {
+pub impl @step.Entity for ClosedShell with fn to_step(self) {
   let faces_str = self.faces.map(fn(r) { "#\{r.id.value}" }).join(",")
   "CLOSED_SHELL(\{step_str_or_dollar(self.name)},(\{faces_str}))"
 }

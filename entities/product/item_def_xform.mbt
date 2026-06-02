@@ -25,7 +25,7 @@ pub fn ItemDefinedTransformation::new(
 }
 
 ///|
-pub impl @step.Entity for ItemDefinedTransformation with to_step(self) {
+pub impl @step.Entity for ItemDefinedTransformation with fn to_step(self) {
   let i1_str = "#\{self.transform_item_1.id.value}"
   let i2_str = "#\{self.transform_item_2.id.value}"
   "ITEM_DEFINED_TRANSFORMATION(\{step_str_or_dollar(self.name)},\{step_str_or_dollar(self.description)},\{i1_str},\{i2_str})"

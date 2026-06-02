@@ -19,7 +19,7 @@ pub fn SecurityClassification::new(
 }
 
 ///|
-pub impl @step.Entity for SecurityClassification with to_step(self) {
+pub impl @step.Entity for SecurityClassification with fn to_step(self) {
   let level_str = "#\{self.security_level.id.value}"
   "SECURITY_CLASSIFICATION(\{@step.step_str(self.name)},\{@step.step_str(self.purpose)},\{level_str})"
 }

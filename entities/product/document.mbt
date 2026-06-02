@@ -21,7 +21,7 @@ pub fn Document::new(
 }
 
 ///|
-pub impl @step.Entity for Document with to_step(self) {
+pub impl @step.Entity for Document with fn to_step(self) {
   let kind_str = "#\{self.kind.id.value}"
   "DOCUMENT(\{@step.step_str(self.id)},\{@step.step_str(self.name)},\{@step.step_str(self.description)},\{kind_str})"
 }

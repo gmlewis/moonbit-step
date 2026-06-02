@@ -20,7 +20,7 @@ pub fn ShapeRepresentationRelationship::new(
 }
 
 ///|
-pub impl @step.Entity for ShapeRepresentationRelationship with to_step(self) {
+pub impl @step.Entity for ShapeRepresentationRelationship with fn to_step(self) {
   let rep_1_str = "#\{self.rep_1.id.value}"
   let rep_2_str = "#\{self.rep_2.id.value}"
   "SHAPE_REPRESENTATION_RELATIONSHIP(\{step_str_or_dollar(self.name)},\{step_str_or_dollar(self.description)},\{rep_1_str},\{rep_2_str})"

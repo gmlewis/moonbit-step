@@ -12,6 +12,6 @@ pub fn KinematicLink::new(name : String) -> KinematicLink {
 }
 
 ///|
-pub impl @step.Entity for KinematicLink with to_step(self) {
+pub impl @step.Entity for KinematicLink with fn to_step(self) {
   "KINEMATIC_LINK(\{@step.step_str(self.name)})"
 }

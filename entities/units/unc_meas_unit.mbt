@@ -25,7 +25,7 @@ pub fn UncertaintyMeasureWithUnit::new(
 }
 
 ///|
-pub impl @step.Entity for UncertaintyMeasureWithUnit with to_step(self) {
+pub impl @step.Entity for UncertaintyMeasureWithUnit with fn to_step(self) {
   let unit_str = "#\{self.unit.id.value}"
   "UNCERTAINTY_MEASURE_WITH_UNIT(LENGTH_MEASURE(\{self.length_measure_literal}),\{unit_str},\{@step.step_str(self.name)},\{@step.step_str(self.description)})"
 }

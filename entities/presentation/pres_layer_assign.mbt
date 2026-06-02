@@ -17,7 +17,7 @@ pub fn PresentationLayerAssignment::new(
 }
 
 ///|
-pub impl @step.Entity for PresentationLayerAssignment with to_step(self) {
+pub impl @step.Entity for PresentationLayerAssignment with fn to_step(self) {
   let items_str = self.items.map(fn(r) { "#\{r.id.value}" }).join(",")
   "PRESENTATION_LAYER_ASSIGNMENT(\{@step.step_str(self.name)},\{@step.step_str(self.description)},(\{items_str}))"
 }

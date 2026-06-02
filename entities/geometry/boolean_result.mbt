@@ -7,7 +7,7 @@ pub(all) enum BooleanOperator {
 }
 
 ///|
-pub impl @step.Entity for BooleanOperator with to_step(self) {
+pub impl @step.Entity for BooleanOperator with fn to_step(self) {
   match self {
     Union => ".UNION."
     Intersection => ".INTERSECTION."
@@ -47,7 +47,7 @@ pub fn BooleanResult::new(
 }
 
 ///|
-pub impl @step.Entity for BooleanResult with to_step(self) {
+pub impl @step.Entity for BooleanResult with fn to_step(self) {
   let op_str = @step.Entity::to_step(self.operator)
   let op1_str = "#\{self.first_operand.id.value}"
   let op2_str = "#\{self.second_operand.id.value}"

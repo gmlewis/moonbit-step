@@ -19,7 +19,7 @@ pub fn Axis2Placement2D::new(
 }
 
 ///|
-pub impl @step.Entity for Axis2Placement2D with to_step(self) {
+pub impl @step.Entity for Axis2Placement2D with fn to_step(self) {
   let loc_str = "#\{self.location.id.value}"
   let dir_str = match self.ref_direction {
     Some(r) => "#\{r.id.value}"

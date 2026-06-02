@@ -8,6 +8,6 @@ pub fn SolidAngleUnit::new() -> SolidAngleUnit {
 }
 
 ///|
-pub impl @step.Entity for SolidAngleUnit with to_step(_) {
+pub impl @step.Entity for SolidAngleUnit with fn to_step(_) {
   "SOLID_ANGLE_UNIT()"
 }

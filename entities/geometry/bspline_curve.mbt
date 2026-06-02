@@ -31,7 +31,7 @@ pub fn BSplineCurve::new(
 }
 
 ///|
-pub impl @step.Entity for BSplineCurve with to_step(self) {
+pub impl @step.Entity for BSplineCurve with fn to_step(self) {
   let cps_str = self.control_points.map(fn(r) { "#\{r.id.value}" }).join(",")
   let closed_str = bool_to_step(self.closed_curve)
   let si_str = bool_to_step(self.self_intersect)

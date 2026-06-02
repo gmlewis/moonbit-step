@@ -20,7 +20,7 @@ pub fn Ellipse::new(
 }
 
 ///|
-pub impl @step.Entity for Ellipse with to_step(self) {
+pub impl @step.Entity for Ellipse with fn to_step(self) {
   let pos_str = "#\{self.position.id.value}"
   "ELLIPSE(\{step_str_or_dollar(self.name)},\{pos_str},\{self.semi_axis_1_literal},\{self.semi_axis_2_literal})"
 }

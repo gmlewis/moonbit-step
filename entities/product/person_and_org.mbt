@@ -17,7 +17,7 @@ pub fn PersonAndOrganization::new(
 }
 
 ///|
-pub impl @step.Entity for PersonAndOrganization with to_step(self) {
+pub impl @step.Entity for PersonAndOrganization with fn to_step(self) {
   let person_str = "#\{self.the_person.id.value}"
   let org_str = "#\{self.the_organization.id.value}"
   "PERSON_AND_ORGANIZATION(\{person_str},\{org_str})"

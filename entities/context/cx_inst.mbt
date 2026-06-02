@@ -42,7 +42,7 @@ pub fn ComplexInstance::new(parts : Array[ComplexPart]) -> ComplexInstance {
 }
 
 ///|
-pub impl @step.Entity for ComplexInstance with to_step(self) {
+pub impl @step.Entity for ComplexInstance with fn to_step(self) {
   let lines = self.parts
     .map(fn(p) {
       match p {

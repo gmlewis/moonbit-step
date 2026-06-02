@@ -23,7 +23,7 @@ struct VerticalCylinder {
 /// If the solution can't be found, returns:
 /// - `2` when `d > f(1)`
 /// - `-1` when `d < f(0)`
-pub fn solve_for_t(d : Double, f : (Double) -> Double) -> Double {
+fn solve_for_t(d : Double, f : (Double) -> Double) -> Double {
   let d1 = f(1)
   if d > d1 {
     return 2
@@ -50,13 +50,13 @@ pub fn solve_for_t(d : Double, f : (Double) -> Double) -> Double {
 
 ///|
 /// vertex_at returns a 2D point given polar coordinates around `center`.
-pub fn vertex_at(center~ : Vec2, radius~ : Double, angle~ : Double) -> Vec2 {
+fn vertex_at(center~ : Vec2, radius~ : Double, angle~ : Double) -> Vec2 {
   (center.0 + radius * @math.cos(angle), center.1 + radius * @math.sin(angle))
 }
 
 ///|
 /// center_of_face returns the centroid of a polygon (simple average of vertices).
-pub fn center_of_face(points : Array[Vec2]) -> Vec2 {
+fn center_of_face(points : Array[Vec2]) -> Vec2 {
   let mut sum = (0.0, 0.0)
   for pt in points {
     sum = (sum.0 + pt.0, sum.1 + pt.1)
@@ -821,7 +821,7 @@ fn add_support(
 }
 
 ///|
-pub fn vector_length(a : Vec2, b : Vec2) -> Double {
+fn vector_length(a : Vec2, b : Vec2) -> Double {
   let dx = b.0 - a.0
   let dy = b.1 - a.1
   (dx * dx + dy * dy).sqrt()

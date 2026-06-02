@@ -8,6 +8,6 @@ pub fn LengthUnit::new() -> LengthUnit {
 }
 
 ///|
-pub impl @step.Entity for LengthUnit with to_step(_) {
+pub impl @step.Entity for LengthUnit with fn to_step(_) {
   "LENGTH_UNIT()"
 }

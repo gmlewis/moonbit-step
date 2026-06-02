@@ -19,7 +19,7 @@ pub fn KinematicPair::new(
 }
 
 ///|
-pub impl @step.Entity for KinematicPair with to_step(self) {
+pub impl @step.Entity for KinematicPair with fn to_step(self) {
   let joint_str = "#\{self.joint.id.value}"
   "KINEMATIC_PAIR(\{@step.step_str(self.name)},\{@step.step_str(self.description)},\{joint_str})"
 }

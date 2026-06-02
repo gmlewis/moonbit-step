@@ -20,7 +20,7 @@ pub fn OffsetCurve3D::new(
 }
 
 ///|
-pub impl @step.Entity for OffsetCurve3D with to_step(self) {
+pub impl @step.Entity for OffsetCurve3D with fn to_step(self) {
   let basis_str = "#\{self.basis_curve.id.value}"
   let dir_str = "#\{self.ref_direction.id.value}"
   "OFFSET_CURVE_3D(\{@step.step_str(self.name)},\{basis_str},\{@step.fmt_num(self.distance)},\{dir_str})"

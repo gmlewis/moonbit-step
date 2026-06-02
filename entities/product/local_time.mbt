@@ -21,7 +21,7 @@ pub fn LocalTime::new(
 }
 
 ///|
-pub impl @step.Entity for LocalTime with to_step(self) {
+pub impl @step.Entity for LocalTime with fn to_step(self) {
   let zone_str = "#\{self.zone.id.value}"
   "LOCAL_TIME(\{self.hour_component},\{self.minute_component},\{@step.fmt_num(self.second_component)},\{zone_str})"
 }

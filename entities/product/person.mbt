@@ -31,7 +31,7 @@ pub fn Person::new(
 }
 
 ///|
-pub impl @step.Entity for Person with to_step(self) {
+pub impl @step.Entity for Person with fn to_step(self) {
   let middles = "(" + self.middle_names.map(@step.step_str).join(",") + ")"
   let prefixes = "(" + self.prefix_titles.map(@step.step_str).join(",") + ")"
   let suffixes = "(" + self.suffix_titles.map(@step.step_str).join(",") + ")"

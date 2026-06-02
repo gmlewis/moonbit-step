@@ -21,7 +21,7 @@ pub fn GeometricTolerance::new(
 }
 
 ///|
-pub impl @step.Entity for GeometricTolerance with to_step(self) {
+pub impl @step.Entity for GeometricTolerance with fn to_step(self) {
   let mag_str = "#\{self.magnitude.id.value}"
   let shape_str = "#\{self.toleranced_shape_aspect.id.value}"
   "GEOMETRIC_TOLERANCE(\{@step.step_str(self.name)},\{@step.step_str(self.description)},\{mag_str},\{shape_str})"

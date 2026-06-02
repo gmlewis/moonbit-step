@@ -18,7 +18,7 @@ pub fn FaceOuterBound::new(
 }
 
 ///|
-pub impl @step.Entity for FaceOuterBound with to_step(self) {
+pub impl @step.Entity for FaceOuterBound with fn to_step(self) {
   let bound_str = "#\{self.bound.id.value}"
   let ori_str = bool_to_step(self.orientation)
   "FACE_OUTER_BOUND(\{step_str_or_dollar(self.name)},\{bound_str},\{ori_str})"

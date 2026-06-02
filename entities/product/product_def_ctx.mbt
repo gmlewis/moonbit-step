@@ -18,7 +18,7 @@ pub fn ProductDefinitionContext::new(
 }
 
 ///|
-pub impl @step.Entity for ProductDefinitionContext with to_step(self) {
+pub impl @step.Entity for ProductDefinitionContext with fn to_step(self) {
   let app_str = "#\{self.application.id.value}"
   "PRODUCT_DEFINITION_CONTEXT(\{step_str_or_dollar(self.name)},\{app_str},\{step_str_or_dollar(self.life_cycle_stage)})"
 }

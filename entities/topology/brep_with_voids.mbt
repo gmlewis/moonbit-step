@@ -19,7 +19,7 @@ pub fn BrepWithVoids::new(
 }
 
 ///|
-pub impl @step.Entity for BrepWithVoids with to_step(self) {
+pub impl @step.Entity for BrepWithVoids with fn to_step(self) {
   let outer_str = "#\{self.outer.id.value}"
   let voids_str = self.voids.map(fn(r) { "#\{r.id.value}" }).join(",")
   "BREP_WITH_VOIDS(\{step_str_or_dollar(self.name)},\{outer_str},(\{voids_str}))"

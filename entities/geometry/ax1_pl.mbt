@@ -19,7 +19,7 @@ pub fn Axis1Placement::new(
 }
 
 ///|
-pub impl @step.Entity for Axis1Placement with to_step(self) {
+pub impl @step.Entity for Axis1Placement with fn to_step(self) {
   let loc_str = "#\{self.location.id.value}"
   let axis_str = match self.axis {
     Some(r) => "#\{r.id.value}"

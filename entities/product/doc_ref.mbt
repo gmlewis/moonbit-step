@@ -21,7 +21,7 @@ pub fn DocumentReference::new(
 }
 
 ///|
-pub impl @step.Entity for DocumentReference with to_step(self) {
+pub impl @step.Entity for DocumentReference with fn to_step(self) {
   let doc_str = "#\{self.assigned_document.id.value}"
   "DOCUMENT_REFERENCE(\{@step.step_str(self.id)},\{@step.step_str(self.name)},\{@step.step_str(self.description)},\{doc_str})"
 }

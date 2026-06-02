@@ -20,7 +20,7 @@ pub fn FaceSurface::new(
 }
 
 ///|
-pub impl @step.Entity for FaceSurface with to_step(self) {
+pub impl @step.Entity for FaceSurface with fn to_step(self) {
   let bounds_str = self.bounds.map(fn(r) { "#\{r.id.value}" }).join(",")
   let geom_str = "#\{self.face_geometry.id.value}"
   let ss_str = bool_to_step(self.same_sense)

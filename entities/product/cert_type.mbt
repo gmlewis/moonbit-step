@@ -12,6 +12,6 @@ pub fn CertificationType::new(description : String) -> CertificationType {
 }
 
 ///|
-pub impl @step.Entity for CertificationType with to_step(self) {
+pub impl @step.Entity for CertificationType with fn to_step(self) {
   "CERTIFICATION_TYPE(\{@step.step_str(self.description)})"
 }

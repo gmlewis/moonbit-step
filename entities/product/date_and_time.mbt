@@ -17,7 +17,7 @@ pub fn DateAndTime::new(
 }
 
 ///|
-pub impl @step.Entity for DateAndTime with to_step(self) {
+pub impl @step.Entity for DateAndTime with fn to_step(self) {
   let date_str = "#\{self.date_component.id.value}"
   let time_str = "#\{self.time_component.id.value}"
   "DATE_AND_TIME(\{date_str},\{time_str})"

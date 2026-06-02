@@ -18,6 +18,6 @@ pub fn ColorRgb::new(
 }
 
 ///|
-pub impl @step.Entity for ColorRgb with to_step(self) {
+pub impl @step.Entity for ColorRgb with fn to_step(self) {
   "COLOUR_RGB(\{@step.step_str(self.name)},\{@step.fmt_num(self.red)},\{@step.fmt_num(self.green)},\{@step.fmt_num(self.blue)})"
 }

@@ -16,7 +16,7 @@ pub fn ShapeDefinitionRepresentation::new(
 }
 
 ///|
-pub impl @step.Entity for ShapeDefinitionRepresentation with to_step(self) {
+pub impl @step.Entity for ShapeDefinitionRepresentation with fn to_step(self) {
   let def_str = "#\{self.definition.id.value}"
   let rep_str = "#\{self.used_representation.id.value}"
   "SHAPE_DEFINITION_REPRESENTATION(\{def_str},\{rep_str})"

@@ -20,6 +20,6 @@ pub fn CtxWrap::new(raw : String) -> CtxWrap {
 }
 
 ///|
-pub impl @step.Entity for CtxWrap with to_step(self) {
+pub impl @step.Entity for CtxWrap with fn to_step(self) {
   self.raw
 }

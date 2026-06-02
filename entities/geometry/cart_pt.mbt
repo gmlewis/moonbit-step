@@ -16,7 +16,7 @@ pub fn CartesianPoint::new(
 
 ///|
 // Implement the core trait.
-pub impl @step.Entity for CartesianPoint with to_step(self) {
+pub impl @step.Entity for CartesianPoint with fn to_step(self) {
   let coords_str = self.coordinates.map(@step.fmt_num).join(",")
   "CARTESIAN_POINT(\{@step.step_str(self.name)},(\{coords_str}))"
 }

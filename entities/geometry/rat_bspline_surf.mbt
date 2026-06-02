@@ -17,7 +17,7 @@ pub fn RationalBSplineSurface::new(
 }
 
 ///|
-pub impl @step.Entity for RationalBSplineSurface with to_step(self) {
+pub impl @step.Entity for RationalBSplineSurface with fn to_step(self) {
   let row_strs = self.weights
     .map(fn(row) {
       let r = row.join(",")

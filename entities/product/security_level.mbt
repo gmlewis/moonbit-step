@@ -14,6 +14,6 @@ pub fn SecurityClassificationLevel::new(
 }
 
 ///|
-pub impl @step.Entity for SecurityClassificationLevel with to_step(self) {
+pub impl @step.Entity for SecurityClassificationLevel with fn to_step(self) {
   "SECURITY_CLASSIFICATION_LEVEL(\{@step.step_str(self.name)})"
 }

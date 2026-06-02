@@ -23,7 +23,7 @@ pub fn OrientedEdge::new(
 }
 
 ///|
-pub impl @step.Entity for OrientedEdge with to_step(self) {
+pub impl @step.Entity for OrientedEdge with fn to_step(self) {
   let edge_element_str = "#\{self.edge_element.id.value}"
   let ori_str = bool_to_step(self.orientation)
   "ORIENTED_EDGE(\{step_str_or_dollar(self.name)},\{self.edge_start},\{self.edge_end},\{edge_element_str},\{ori_str})"

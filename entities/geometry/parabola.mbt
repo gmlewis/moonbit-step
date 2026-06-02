@@ -18,7 +18,7 @@ pub fn Parabola::new(
 }
 
 ///|
-pub impl @step.Entity for Parabola with to_step(self) {
+pub impl @step.Entity for Parabola with fn to_step(self) {
   let pos_str = "#\{self.position.id.value}"
   "PARABOLA(\{@step.step_str(self.name)},\{pos_str},\{@step.fmt_num(self.focal_dist)})"
 }

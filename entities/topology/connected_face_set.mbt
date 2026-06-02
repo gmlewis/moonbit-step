@@ -16,7 +16,7 @@ pub fn ConnectedFaceSet::new(
 }
 
 ///|
-pub impl @step.Entity for ConnectedFaceSet with to_step(self) {
+pub impl @step.Entity for ConnectedFaceSet with fn to_step(self) {
   let faces_str = self.cfs_faces.map(fn(r) { "#\{r.id.value}" }).join(",")
   "CONNECTED_FACE_SET(\{@step.step_str(self.name)},(\{faces_str}))"
 }

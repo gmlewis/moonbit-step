@@ -14,7 +14,7 @@ pub fn FillAreaStyle::new(
 }
 
 ///|
-pub impl @step.Entity for FillAreaStyle with to_step(self) {
+pub impl @step.Entity for FillAreaStyle with fn to_step(self) {
   let styles_str = self.styles.map(fn(r) { "#\{r.id.value}" }).join(",")
   "FILL_AREA_STYLE(\{@step.step_str(self.name)},(\{styles_str}))"
 }

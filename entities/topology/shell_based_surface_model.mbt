@@ -17,7 +17,7 @@ pub fn ShellBasedSurfaceModel::new(
 }
 
 ///|
-pub impl @step.Entity for ShellBasedSurfaceModel with to_step(self) {
+pub impl @step.Entity for ShellBasedSurfaceModel with fn to_step(self) {
   let bounds_str = self.sbsm_boundary.map(fn(r) { "#\{r.id.value}" }).join(",")
   "SHELL_BASED_SURFACE_MODEL(\{@step.step_str(self.name)},(\{bounds_str}))"
 }

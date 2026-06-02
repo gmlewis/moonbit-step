@@ -18,7 +18,7 @@ pub fn ProductDefinitionFormation::new(
 }
 
 ///|
-pub impl @step.Entity for ProductDefinitionFormation with to_step(self) {
+pub impl @step.Entity for ProductDefinitionFormation with fn to_step(self) {
   let product_str = "#\{self.of_product.id.value}"
   "PRODUCT_DEFINITION_FORMATION(\{step_str_or_dollar(self.id)},\{step_str_or_dollar(self.description)},\{product_str})"
 }

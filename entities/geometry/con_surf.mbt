@@ -20,7 +20,7 @@ pub fn ConicalSurface::new(
 }
 
 ///|
-pub impl @step.Entity for ConicalSurface with to_step(self) {
+pub impl @step.Entity for ConicalSurface with fn to_step(self) {
   let pos_str = "#\{self.position.id.value}"
   "CONICAL_SURFACE(\{step_str_or_dollar(self.name)},\{pos_str},\{self.radius_literal},\{self.semi_angle_literal})"
 }

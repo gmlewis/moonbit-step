@@ -11,6 +11,6 @@ pub fn NamedUnit::new(dimensions : String) -> NamedUnit {
 }
 
 ///|
-pub impl @step.Entity for NamedUnit with to_step(self) {
+pub impl @step.Entity for NamedUnit with fn to_step(self) {
   "NAMED_UNIT(\{self.dimensions})"
 }

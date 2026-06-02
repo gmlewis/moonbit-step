@@ -24,7 +24,7 @@ pub fn MeasureRepresentationItem::new(
 }
 
 ///|
-pub impl @step.Entity for MeasureRepresentationItem with to_step(self) {
+pub impl @step.Entity for MeasureRepresentationItem with fn to_step(self) {
   let unit_str = "#\{self.unit_component.id.value}"
   let value_str = match self.value_component {
     PositiveRatioMeasure(m) => @step.Entity::to_step(m)

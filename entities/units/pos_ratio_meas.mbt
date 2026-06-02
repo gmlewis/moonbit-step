@@ -16,6 +16,6 @@ pub fn PositiveRatioMeasure::new(value : String) -> PositiveRatioMeasure {
 }
 
 ///|
-pub impl @step.Entity for PositiveRatioMeasure with to_step(self) {
+pub impl @step.Entity for PositiveRatioMeasure with fn to_step(self) {
   "POSITIVE_RATIO_MEASURE(\{self.value})"
 }

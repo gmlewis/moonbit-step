@@ -22,7 +22,7 @@ pub fn RightCircularCone::new(
 }
 
 ///|
-pub impl @step.Entity for RightCircularCone with to_step(self) {
+pub impl @step.Entity for RightCircularCone with fn to_step(self) {
   let pos_str = "#\{self.position.id.value}"
   "RIGHT_CIRCULAR_CONE(\{@step.step_str(self.name)},\{pos_str},\{@step.fmt_num(self.height)},\{@step.fmt_num(self.radius)},\{@step.fmt_num(self.semi_angle)})"
 }

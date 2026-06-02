@@ -14,6 +14,6 @@ pub fn DraughtingPreDefinedColour::new(
 }
 
 ///|
-pub impl @step.Entity for DraughtingPreDefinedColour with to_step(self) {
+pub impl @step.Entity for DraughtingPreDefinedColour with fn to_step(self) {
   "DRAUGHTING_PRE_DEFINED_COLOUR(\{@step.step_str(self.name)})"
 }

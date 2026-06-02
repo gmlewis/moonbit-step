@@ -20,7 +20,7 @@ pub fn Product::new(
 }
 
 ///|
-pub impl @step.Entity for Product with to_step(self) {
+pub impl @step.Entity for Product with fn to_step(self) {
   let refs_str = self.frame_of_reference
     .map(fn(r) { "#\{r.id.value}" })
     .join(",")

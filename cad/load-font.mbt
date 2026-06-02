@@ -7,7 +7,7 @@ pub suberror LoaderError {
 } derive(Eq)
 
 ///|
-pub impl Show for LoaderError with output(self, logger) {
+pub impl Show for LoaderError with fn output(self, logger) {
   let LoaderError(msg) = self
   logger.write_string(
     (

@@ -18,7 +18,7 @@ pub fn PropertyDefinition::new(
 }
 
 ///|
-pub impl @step.Entity for PropertyDefinition with to_step(self) {
+pub impl @step.Entity for PropertyDefinition with fn to_step(self) {
   let def_str = "#\{self.definition.id.value}"
   "PROPERTY_DEFINITION(\{step_str_or_dollar(self.name)},\{step_str_or_dollar(self.description)},\{def_str})"
 }

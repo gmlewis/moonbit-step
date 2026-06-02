@@ -16,7 +16,7 @@ pub fn VertexPoint::new(
 }
 
 ///|
-pub impl @step.Entity for VertexPoint with to_step(self) {
+pub impl @step.Entity for VertexPoint with fn to_step(self) {
   let geom_str = "#\{self.vertex_geometry.id.value}"
   "VERTEX_POINT(\{step_str_or_dollar(self.name)},\{geom_str})"
 }

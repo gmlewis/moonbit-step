@@ -1,4 +1,4 @@
 ///|
 pub(open) trait Entity {
-  to_step(Self) -> String
+  fn to_step(Self) -> String
 }

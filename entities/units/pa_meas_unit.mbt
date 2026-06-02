@@ -16,7 +16,7 @@ pub fn PlaneAngleMeasureWithUnit::new(
 }
 
 ///|
-pub impl @step.Entity for PlaneAngleMeasureWithUnit with to_step(self) {
+pub impl @step.Entity for PlaneAngleMeasureWithUnit with fn to_step(self) {
   let unit_str = "#\{self.unit.id.value}"
   "PLANE_ANGLE_MEASURE_WITH_UNIT(PLANE_ANGLE_MEASURE(\{self.plane_angle_measure_literal}),\{unit_str})"
 }

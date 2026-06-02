@@ -19,7 +19,9 @@ pub fn ContextDependentShapeRepresentation::new(
 }
 
 ///|
-pub impl @step.Entity for ContextDependentShapeRepresentation with to_step(self) {
+pub impl @step.Entity for ContextDependentShapeRepresentation with fn to_step(
+  self,
+) {
   let rr_str = "#\{self.representation_relation.id.value}"
   let rpr_str = "#\{self.represented_product_relation.id.value}"
   "CONTEXT_DEPENDENT_SHAPE_REPRESENTATION(\{rr_str},\{rpr_str})"

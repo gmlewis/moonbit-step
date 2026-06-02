@@ -12,7 +12,7 @@ pub fn PresentationStyleAssignment::new(
 }
 
 ///|
-pub impl @step.Entity for PresentationStyleAssignment with to_step(self) {
+pub impl @step.Entity for PresentationStyleAssignment with fn to_step(self) {
   let styles_str = self.styles.map(fn(r) { "#\{r.id.value}" }).join(",")
   "PRESENTATION_STYLE_ASSIGNMENT((\{styles_str}))"
 }

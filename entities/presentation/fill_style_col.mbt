@@ -15,7 +15,7 @@ pub fn FillAreaStyleColor::new(
 }
 
 ///|
-pub impl @step.Entity for FillAreaStyleColor with to_step(self) {
+pub impl @step.Entity for FillAreaStyleColor with fn to_step(self) {
   let c = "#\{self.color.id.value}"
   "FILL_AREA_STYLE_COLOUR(\{@step.step_str(self.name)},\{c})"
 }

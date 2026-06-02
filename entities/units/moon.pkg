@@ -1,4 +1,4 @@
 import {
-  "gmlewis/step" @step,
+  "gmlewis/step",
   "moonbitlang/core/builtin",
 }

@@ -8,7 +8,7 @@ pub(all) enum TransitionCode {
 }
 
 ///|
-pub impl @step.Entity for TransitionCode with to_step(self) {
+pub impl @step.Entity for TransitionCode with fn to_step(self) {
   match self {
     Discontinuous => ".DISCONTINUOUS."
     Continuous => ".CONTINUOUS."
@@ -49,7 +49,7 @@ pub fn CompositeCurveSegment::new(
 }
 
 ///|
-pub impl @step.Entity for CompositeCurveSegment with to_step(self) {
+pub impl @step.Entity for CompositeCurveSegment with fn to_step(self) {
   let trans_str = @step.Entity::to_step(self.transition)
   let sense_str = bool_to_step(self.same_sense)
   let curve_str = "#\{self.parent_curve.id.value}"
@@ -77,7 +77,7 @@ pub fn CompositeCurve::new(
 }
 
 ///|
-pub impl @step.Entity for CompositeCurve with to_step(self) {
+pub impl @step.Entity for CompositeCurve with fn to_step(self) {
   let segments_str = self.segments.map(fn(r) { "#\{r.id.value}" }).join(",")
   let si_str = bool_to_step(self.self_intersect)
   "COMPOSITE_CURVE(\{@step.step_str(self.name)},(\{segments_str}),\{si_str})"

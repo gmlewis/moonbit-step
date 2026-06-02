@@ -18,7 +18,7 @@ pub fn ProductRelatedProductCategory::new(
 }
 
 ///|
-pub impl @step.Entity for ProductRelatedProductCategory with to_step(self) {
+pub impl @step.Entity for ProductRelatedProductCategory with fn to_step(self) {
   let products_str = self.products.map(fn(p) { "#\{p.id.value}" }).join(",")
   "PRODUCT_RELATED_PRODUCT_CATEGORY(\{step_str_or_dollar(self.name)},\{step_str_or_dollar(self.description)},(\{products_str}))"
 }

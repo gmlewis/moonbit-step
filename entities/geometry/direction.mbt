@@ -12,7 +12,7 @@ pub fn Direction::new(name : String, ratios : Array[Double]) -> Direction {
 
 ///|
 // Implement the core trait.
-pub impl @step.Entity for Direction with to_step(self) {
+pub impl @step.Entity for Direction with fn to_step(self) {
   let ratios_str = self.ratios.map(@step.fmt_num).join(",")
   "DIRECTION(\{@step.step_str(self.name)},(\{ratios_str}))"
 }

@@ -12,7 +12,7 @@ pub fn DerivedUnit::new(elements : Array[@step.Ref]) -> DerivedUnit {
 }
 
 ///|
-pub impl @step.Entity for DerivedUnit with to_step(self) {
+pub impl @step.Entity for DerivedUnit with fn to_step(self) {
   let elems_str = self.elements.map(fn(r) { "#\{r.id.value}" }).join(",")
   "DERIVED_UNIT((\{elems_str}))"
 }

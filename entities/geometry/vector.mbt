@@ -16,7 +16,7 @@ pub fn Vector::new(
 }
 
 ///|
-pub impl @step.Entity for Vector with to_step(self) {
+pub impl @step.Entity for Vector with fn to_step(self) {
   let dir = "#\{self.orientation.id.value}"
   "VECTOR(\{@step.step_str(self.name)},\{dir},\{@step.fmt_num(self.magnitude)})"
 }

@@ -10,7 +10,7 @@ pub fn SurfaceStyleFillArea::new(fill_area : @step.Ref) -> SurfaceStyleFillArea 
 }
 
 ///|
-pub impl @step.Entity for SurfaceStyleFillArea with to_step(self) {
+pub impl @step.Entity for SurfaceStyleFillArea with fn to_step(self) {
   let fa = "#\{self.fill_area.id.value}"
   "SURFACE_STYLE_FILL_AREA(\{fa})"
 }

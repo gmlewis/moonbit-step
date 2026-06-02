@@ -22,7 +22,7 @@ pub fn EdgeCurve::new(
 }
 
 ///|
-pub impl @step.Entity for EdgeCurve with to_step(self) {
+pub impl @step.Entity for EdgeCurve with fn to_step(self) {
   let start_str = "#\{self.edge_start.id.value}"
   let end_str = "#\{self.edge_end.id.value}"
   let geom_str = "#\{self.edge_geometry.id.value}"

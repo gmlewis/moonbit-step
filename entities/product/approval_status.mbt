@@ -12,6 +12,6 @@ pub fn ApprovalStatus::new(name : String) -> ApprovalStatus {
 }
 
 ///|
-pub impl @step.Entity for ApprovalStatus with to_step(self) {
+pub impl @step.Entity for ApprovalStatus with fn to_step(self) {
   "APPROVAL_STATUS(\{@step.step_str(self.name)})"
 }

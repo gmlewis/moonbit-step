@@ -17,7 +17,7 @@ pub fn DimensionalSize::new(
 }
 
 ///|
-pub impl @step.Entity for DimensionalSize with to_step(self) {
+pub impl @step.Entity for DimensionalSize with fn to_step(self) {
   let applies_to_str = "#\{self.applies_to.id.value}"
   "DIMENSIONAL_SIZE(\{applies_to_str},\{@step.step_str(self.name)})"
 }

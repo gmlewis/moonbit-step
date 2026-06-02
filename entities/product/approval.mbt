@@ -14,7 +14,7 @@ pub fn Approval::new(status : @step.Ref, level : String) -> Approval {
 }
 
 ///|
-pub impl @step.Entity for Approval with to_step(self) {
+pub impl @step.Entity for Approval with fn to_step(self) {
   let status_str = "#\{self.status.id.value}"
   "APPROVAL(\{status_str},\{@step.step_str(self.level)})"
 }

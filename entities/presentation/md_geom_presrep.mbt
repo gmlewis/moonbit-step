@@ -17,7 +17,7 @@ pub fn MechanicalDesignGeometricPresentationRepresentation::new(
 }
 
 ///|
-pub impl @step.Entity for MechanicalDesignGeometricPresentationRepresentation with to_step(
+pub impl @step.Entity for MechanicalDesignGeometricPresentationRepresentation with fn to_step(
   self,
 ) {
   let items_str = self.items.map(fn(r) { "#\{r.id.value}" }).join(",")

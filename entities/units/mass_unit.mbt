@@ -9,6 +9,6 @@ pub fn MassUnit::new() -> MassUnit {
 }
 
 ///|
-pub impl @step.Entity for MassUnit with to_step(_) {
+pub impl @step.Entity for MassUnit with fn to_step(_) {
   "MASS_UNIT()"
 }

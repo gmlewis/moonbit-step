@@ -22,7 +22,7 @@ pub fn Block::new(
 }
 
 ///|
-pub impl @step.Entity for Block with to_step(self) {
+pub impl @step.Entity for Block with fn to_step(self) {
   let pos_str = "#\{self.position.id.value}"
   "BLOCK(\{@step.step_str(self.name)},\{pos_str},\{@step.fmt_num(self.x)},\{@step.fmt_num(self.y)},\{@step.fmt_num(self.z)})"
 }

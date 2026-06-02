@@ -14,7 +14,7 @@ pub fn SurfaceSideStyle::new(
 }
 
 ///|
-pub impl @step.Entity for SurfaceSideStyle with to_step(self) {
+pub impl @step.Entity for SurfaceSideStyle with fn to_step(self) {
   let styles_str = self.styles.map(fn(r) { "#\{r.id.value}" }).join(",")
   "SURFACE_SIDE_STYLE(\{@step.step_str(self.name)},(\{styles_str}))"
 }

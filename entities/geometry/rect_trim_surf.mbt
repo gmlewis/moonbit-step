@@ -37,7 +37,7 @@ pub fn RectangularTrimmedSurface::new(
 }
 
 ///|
-pub impl @step.Entity for RectangularTrimmedSurface with to_step(self) {
+pub impl @step.Entity for RectangularTrimmedSurface with fn to_step(self) {
   let basis_str = "#\{self.basis_surface.id.value}"
   let usense_str = bool_to_step(self.usense)
   let vsense_str = bool_to_step(self.vsense)

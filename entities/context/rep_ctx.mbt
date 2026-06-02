@@ -14,6 +14,6 @@ pub fn RepresentationContext::new(
 }
 
 ///|
-pub impl @step.Entity for RepresentationContext with to_step(self) {
+pub impl @step.Entity for RepresentationContext with fn to_step(self) {
   "REPRESENTATION_CONTEXT(\{@step.step_str(self.context_identifier)},\{@step.step_str(self.context_type)})"
 }

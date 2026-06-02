@@ -19,7 +19,7 @@ pub fn SurfaceOfRevolution::new(
 }
 
 ///|
-pub impl @step.Entity for SurfaceOfRevolution with to_step(self) {
+pub impl @step.Entity for SurfaceOfRevolution with fn to_step(self) {
   let curve_str = "#\{self.swept_curve.id.value}"
   let axis_str = "#\{self.axis_position.id.value}"
   "SURFACE_OF_REVOLUTION(\{@step.step_str(self.name)},\{curve_str},\{axis_str})"

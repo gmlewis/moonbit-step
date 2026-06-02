@@ -16,7 +16,7 @@ pub fn DerivedUnitElement::new(
 }
 
 ///|
-pub impl @step.Entity for DerivedUnitElement with to_step(self) {
+pub impl @step.Entity for DerivedUnitElement with fn to_step(self) {
   let unit_str = "#\{self.unit.id.value}"
   "DERIVED_UNIT_ELEMENT(\{unit_str},\{@step.fmt_num(self.exponent)})"
 }

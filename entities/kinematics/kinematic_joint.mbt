@@ -19,7 +19,7 @@ pub fn KinematicJoint::new(
 }
 
 ///|
-pub impl @step.Entity for KinematicJoint with to_step(self) {
+pub impl @step.Entity for KinematicJoint with fn to_step(self) {
   let l1 = "#\{self.first_link.id.value}"
   let l2 = "#\{self.second_link.id.value}"
   "KINEMATIC_JOINT(\{@step.step_str(self.name)},\{l1},\{l2})"

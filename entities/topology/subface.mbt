@@ -19,7 +19,7 @@ pub fn Subface::new(
 }
 
 ///|
-pub impl @step.Entity for Subface with to_step(self) {
+pub impl @step.Entity for Subface with fn to_step(self) {
   let bounds_str = self.bounds.map(fn(r) { "#\{r.id.value}" }).join(",")
   let parent_str = "#\{self.parent_face.id.value}"
   "SUBFACE(\{@step.step_str(self.name)},(\{bounds_str}),\{parent_str})"

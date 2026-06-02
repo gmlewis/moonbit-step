@@ -16,7 +16,7 @@ pub fn MeasureWithUnit::new(
 }
 
 ///|
-pub impl @step.Entity for MeasureWithUnit with to_step(self) {
+pub impl @step.Entity for MeasureWithUnit with fn to_step(self) {
   let unit_str = "#\{self.unit_component.id.value}"
   "MEASURE_WITH_UNIT(\{self.value_component},\{unit_str})"
 }

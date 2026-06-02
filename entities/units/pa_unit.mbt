@@ -8,6 +8,6 @@ pub fn PlaneAngleUnit::new() -> PlaneAngleUnit {
 }
 
 ///|
-pub impl @step.Entity for PlaneAngleUnit with to_step(_) {
+pub impl @step.Entity for PlaneAngleUnit with fn to_step(_) {
   "PLANE_ANGLE_UNIT()"
 }

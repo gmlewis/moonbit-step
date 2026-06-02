@@ -18,7 +18,7 @@ pub fn CylindricalSurface::new(
 }
 
 ///|
-pub impl @step.Entity for CylindricalSurface with to_step(self) {
+pub impl @step.Entity for CylindricalSurface with fn to_step(self) {
   let pos_str = "#\{self.position.id.value}"
   "CYLINDRICAL_SURFACE(\{step_str_or_dollar(self.name)},\{pos_str},\{self.radius_literal})"
 }

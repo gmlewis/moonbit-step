@@ -19,7 +19,7 @@ pub fn AnnotationOccurrence::new(
 }
 
 ///|
-pub impl @step.Entity for AnnotationOccurrence with to_step(self) {
+pub impl @step.Entity for AnnotationOccurrence with fn to_step(self) {
   let styles_str = self.styles.map(fn(r) { "#\{r.id.value}" }).join(",")
   let item_str = "#\{self.item.id.value}"
   "ANNOTATION_OCCURRENCE(\{@step.step_str(self.name)},(\{styles_str}),\{item_str})"

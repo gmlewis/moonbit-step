@@ -20,7 +20,7 @@ pub fn OffsetSurface::new(
 }
 
 ///|
-pub impl @step.Entity for OffsetSurface with to_step(self) {
+pub impl @step.Entity for OffsetSurface with fn to_step(self) {
   let basis_str = "#\{self.basis_surface.id.value}"
   let si_str = bool_to_step(self.self_intersect)
   "OFFSET_SURFACE(\{@step.step_str(self.name)},\{basis_str},\{@step.fmt_num(self.distance)},\{si_str})"

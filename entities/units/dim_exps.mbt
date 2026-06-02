@@ -32,7 +32,7 @@ pub fn DimensionalExponents::new(
 }
 
 ///|
-pub impl @step.Entity for DimensionalExponents with to_step(self) {
+pub impl @step.Entity for DimensionalExponents with fn to_step(self) {
   let l = @step.fmt_num(self.length_exponent)
   let m = @step.fmt_num(self.mass_exponent)
   let t = @step.fmt_num(self.time_exponent)

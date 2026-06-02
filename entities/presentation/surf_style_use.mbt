@@ -15,7 +15,7 @@ pub fn SurfaceStyleUsage::new(
 }
 
 ///|
-pub impl @step.Entity for SurfaceStyleUsage with to_step(self) {
+pub impl @step.Entity for SurfaceStyleUsage with fn to_step(self) {
   let style = "#\{self.style.id.value}"
   "SURFACE_STYLE_USAGE(\{self.side},\{style})"
 }

@@ -18,7 +18,7 @@ pub fn Sphere::new(
 }
 
 ///|
-pub impl @step.Entity for Sphere with to_step(self) {
+pub impl @step.Entity for Sphere with fn to_step(self) {
   let pos_str = "#\{self.position.id.value}"
   "SPHERE(\{@step.step_str(self.name)},\{pos_str},\{@step.fmt_num(self.radius)})"
 }

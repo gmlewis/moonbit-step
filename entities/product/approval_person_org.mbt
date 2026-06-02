@@ -20,7 +20,7 @@ pub fn ApprovalPersonOrganization::new(
 }
 
 ///|
-pub impl @step.Entity for ApprovalPersonOrganization with to_step(self) {
+pub impl @step.Entity for ApprovalPersonOrganization with fn to_step(self) {
   let po_str = "#\{self.person_organization.id.value}"
   let approval_str = "#\{self.approval.id.value}"
   let role_str = "#\{self.role.id.value}"

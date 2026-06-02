@@ -18,6 +18,6 @@ pub fn CalendarDate::new(
 }
 
 ///|
-pub impl @step.Entity for CalendarDate with to_step(self) {
+pub impl @step.Entity for CalendarDate with fn to_step(self) {
   "CALENDAR_DATE(\{self.year_component},\{self.day_component},\{self.month_component})"
 }

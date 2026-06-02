@@ -12,7 +12,7 @@ pub fn Line::new(name : String, pnt : @step.Ref, dir : @step.Ref) -> Line {
 }
 
 ///|
-pub impl @step.Entity for Line with to_step(self) {
+pub impl @step.Entity for Line with fn to_step(self) {
   let pnt = "#\{self.pnt.id.value}"
   let dir = "#\{self.dir.id.value}"
   "LINE(\{@step.step_str(self.name)},\{pnt},\{dir})"

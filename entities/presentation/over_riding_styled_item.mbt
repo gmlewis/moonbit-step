@@ -21,7 +21,7 @@ pub fn OverRidingStyledItem::new(
 }
 
 ///|
-pub impl @step.Entity for OverRidingStyledItem with to_step(self) {
+pub impl @step.Entity for OverRidingStyledItem with fn to_step(self) {
   let styles_str = self.styles.map(fn(r) { "#\{r.id.value}" }).join(",")
   let item_str = "#\{self.item.id.value}"
   let over_str = "#\{self.over_ridden_styled_item.id.value}"

@@ -19,7 +19,7 @@ pub fn Certification::new(
 }
 
 ///|
-pub impl @step.Entity for Certification with to_step(self) {
+pub impl @step.Entity for Certification with fn to_step(self) {
   let kind_str = "#\{self.kind.id.value}"
   "CERTIFICATION(\{@step.step_str(self.name)},\{@step.step_str(self.purpose)},\{kind_str})"
 }

@@ -13,7 +13,7 @@ pub fn OpenShell::new(name : String, faces : Array[@step.Ref]) -> OpenShell {
 }
 
 ///|
-pub impl @step.Entity for OpenShell with to_step(self) {
+pub impl @step.Entity for OpenShell with fn to_step(self) {
   let faces_str = self.faces.map(fn(r) { "#\{r.id.value}" }).join(",")
   "OPEN_SHELL(\{@step.step_str(self.name)},(\{faces_str}))"
 }

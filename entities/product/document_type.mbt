@@ -12,6 +12,6 @@ pub fn DocumentType::new(product_data_type : String) -> DocumentType {
 }
 
 ///|
-pub impl @step.Entity for DocumentType with to_step(self) {
+pub impl @step.Entity for DocumentType with fn to_step(self) {
   "DOCUMENT_TYPE(\{@step.step_str(self.product_data_type)})"
 }

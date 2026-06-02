@@ -18,7 +18,7 @@ pub fn Circle::new(
 }
 
 ///|
-pub impl @step.Entity for Circle with to_step(self) {
+pub impl @step.Entity for Circle with fn to_step(self) {
   let pos_str = "#\{self.position.id.value}"
   "CIRCLE(\{step_str_or_dollar(self.name)},\{pos_str},\{self.radius_literal})"
 }

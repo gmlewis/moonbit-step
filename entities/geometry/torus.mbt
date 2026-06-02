@@ -21,7 +21,7 @@ pub fn Torus::new(
 }
 
 ///|
-pub impl @step.Entity for Torus with to_step(self) {
+pub impl @step.Entity for Torus with fn to_step(self) {
   let pos_str = "#\{self.position.id.value}"
   "TORUS(\{@step.step_str(self.name)},\{pos_str},\{@step.fmt_num(self.major_radius)},\{@step.fmt_num(self.minor_radius)})"
 }

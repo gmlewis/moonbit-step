@@ -18,7 +18,7 @@ pub fn AdvancedBrepShapeRepresentation::new(
 }
 
 ///|
-pub impl @step.Entity for AdvancedBrepShapeRepresentation with to_step(self) {
+pub impl @step.Entity for AdvancedBrepShapeRepresentation with fn to_step(self) {
   let items_str = self.items.map(fn(r) { "#\{r.id.value}" }).join(",")
   let ctx_str = "#\{self.context_of_items.id.value}"
   "ADVANCED_BREP_SHAPE_REPRESENTATION(\{@step.step_str(self.name)},(\{items_str}),\{ctx_str})"

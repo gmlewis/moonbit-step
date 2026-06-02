@@ -14,7 +14,7 @@ pub fn GlobalUnitAssignedContext::new(
 }
 
 ///|
-pub impl @step.Entity for GlobalUnitAssignedContext with to_step(self) {
+pub impl @step.Entity for GlobalUnitAssignedContext with fn to_step(self) {
   let refs = self.units.map(fn(id) { "#\{id.value}" }).join(",")
   "GLOBAL_UNIT_ASSIGNED_CONTEXT((\{refs}))"
 }
