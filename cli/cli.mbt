@@ -651,7 +651,7 @@ pub async fn parse(
         })
         match validation_error {
           Some(msg) => {
-            let help = parser.gen_help_message([parser.prog], {})
+            let help = parser.gen_help_message([parser.prog], Map([]))
             if raise_on_error {
               eprintln(msg + "\n" + help)
               abort("")
@@ -666,7 +666,7 @@ pub async fn parse(
     }
   } catch {
     err => {
-      let help = parser.gen_help_message([parser.prog], {})
+      let help = parser.gen_help_message([parser.prog], Map([]))
       if raise_on_error {
         eprintln(err.to_string() + "\n" + help)
         abort("")

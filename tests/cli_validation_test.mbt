@@ -40,7 +40,7 @@ async test "cli_opt_double_exclusive_min" {
 
 ///|
 async test "cli_negative_numbers_work" {
-  let spec = @cli.with_translate({})
+  let spec = @cli.with_translate(Map([]))
 
   // Negative numeric values should be accepted for named args.
   match @cli.parse(spec, prog="t", cli_args=["--tx", "-1"]) {

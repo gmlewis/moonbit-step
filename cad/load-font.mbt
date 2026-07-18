@@ -55,16 +55,16 @@ pub async fn load_font(font_name : String) -> Font raise LoaderError {
     }
     let msg =
       $|Font '\{font_name}' not found.
-      #|Checked paths:
+      $|Checked paths:
       $|- \{local_font_path}
       $|- \{env_msg}
-      #|
-      #|To generate this font, follow these steps:
-      #|1. Navigate to the 'gmlewis/fonts' repo directory.
+      $|
+      $|To generate this font, follow these steps:
+      $|1. Navigate to the 'gmlewis/fonts' repo directory.
       $|2. Ensure you have the 'all-fonts.txt' file containing '\{font_name}'.
-      #|3. Run the generation script:
+      $|3. Run the generation script:
       $|   python3 scripts/compress-all-fonts.py --force --font \{font_name}
-      #|4. Rerun your program.
+      $|4. Rerun your program.
     try! @stdio.stderr.write(msg + "\n")
     raise LoaderError(
       "Font '\{font_name}' not found. See above for instructions.",

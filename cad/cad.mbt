@@ -404,8 +404,8 @@ fn default_header(
 
 ///|
 fn now_iso_timestamp() -> String {
-  let ms = @async.now()
-  let seconds = ms / 1000L
+  let ms = @env.now()
+  let seconds = (ms / 1000UL).reinterpret_as_int64()
   try
     @time.PlainDateTime::from_unix_second(seconds, 0, @time.utc_offset)
   catch {

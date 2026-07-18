@@ -5,14 +5,14 @@ This is a [MoonBit](https://docs.moonbitlang.com) project.
 ## Project Structure
 
 - MoonBit packages are organized per directory, for each directory, there is a
-  `moon.pkg.json` file listing its dependencies. Each package has its files and
+  `moon.pkg` file listing its dependencies. Each package has its files and
   blackbox test files (common, ending in `_test.mbt`) and whitebox test files
   (ending in `_wbtest.mbt`).
 
-- In the toplevel directory, this is a `moon.mod.json` file listing about the
+- In the toplevel directory, this is a `moon.mod` file listing about the
   module and some meta information.
 
-- **Workspace Preference**: Avoid creating separate `moon.mod.json` files for
+- **Workspace Preference**: Avoid creating separate `moon.mod` files for
   new examples unless absolutely necessary (e.g., when requiring a large
   dependency like a specific font data package that shouldn't be in the root).
   If an example can run using only root dependencies, keep it as part of the
@@ -59,7 +59,7 @@ The `cad` package follows an **intent-based architecture**. Do not revert to eag
 - Please keep `using` statement contents lexicographically sorted for fast
   visual recognition.
 
-- Please keep imports within `moon.pkg.json` and dependencies within `moon.mod.json`
+- Please keep imports within `moon.pkg` and dependencies within `moon.mod`
   lexicographically sorted.
 
 ## Tooling & Verification
