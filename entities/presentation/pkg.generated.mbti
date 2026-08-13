@@ -138,4 +138,3 @@ pub impl @step.Entity for TextPath
 // Type aliases
 
 // Traits
-

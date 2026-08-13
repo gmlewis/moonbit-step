@@ -367,4 +367,3 @@ pub impl @step.Entity for ShapeRepresentationRelationship
 // Type aliases
 
 // Traits
-

@@ -288,4 +288,3 @@ pub type Vec2 = (Double, Double)
 pub type Vec3 = (Double, Double, Double)
 
 // Traits
-

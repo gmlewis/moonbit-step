@@ -56,4 +56,3 @@ pub(all) enum StringOrDollar {
 // Type aliases
 
 // Traits
-

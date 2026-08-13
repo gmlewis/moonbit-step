@@ -47,4 +47,3 @@ pub async fn Args::translate_xyz(Self, translate_name? : String, tx_name? : Stri
 // Type aliases
 
 // Traits
-

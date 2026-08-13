@@ -35,4 +35,3 @@ pub impl @step.Entity for KinematicPair
 // Type aliases
 
 // Traits
-

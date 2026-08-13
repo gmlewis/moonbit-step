@@ -79,4 +79,3 @@ pub impl @step.Entity for RepresentationContext
 // Type aliases
 
 // Traits
-

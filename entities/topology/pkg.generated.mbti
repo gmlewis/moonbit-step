@@ -132,4 +132,3 @@ pub impl @step.Entity for VertexPoint
 // Type aliases
 
 // Traits
-
