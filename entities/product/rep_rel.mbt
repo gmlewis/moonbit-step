@@ -17,7 +17,7 @@ pub fn RepresentationRelationship::new(
   rep_1 : @step.Ref,
   rep_2 : @step.Ref,
 ) -> RepresentationRelationship {
-  RepresentationRelationship::{ name, description, rep_1, rep_2 }
+  RepresentationRelationship::{ name, description, rep_1, rep_2, }
 }
 
 ///|

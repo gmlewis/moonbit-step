@@ -16,7 +16,7 @@ pub fn ConicalSurface::new(
   radius_literal : String,
   semi_angle_literal : String,
 ) -> ConicalSurface {
-  ConicalSurface::{ name, position, radius_literal, semi_angle_literal }
+  ConicalSurface::{ name, position, radius_literal, semi_angle_literal, }
 }
 
 ///|

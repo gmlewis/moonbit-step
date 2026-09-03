@@ -16,7 +16,7 @@ pub fn ApprovalPersonOrganization::new(
   approval : @step.Ref,
   role : @step.Ref,
 ) -> ApprovalPersonOrganization {
-  ApprovalPersonOrganization::{ person_organization, approval, role }
+  ApprovalPersonOrganization::{ person_organization, approval, role, }
 }
 
 ///|

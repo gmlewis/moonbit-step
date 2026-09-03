@@ -14,7 +14,7 @@ pub fn CalendarDate::new(
   day_component : Int,
   month_component : Int,
 ) -> CalendarDate {
-  CalendarDate::{ year_component, day_component, month_component }
+  CalendarDate::{ year_component, day_component, month_component, }
 }
 
 ///|

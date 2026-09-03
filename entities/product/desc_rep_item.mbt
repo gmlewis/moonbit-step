@@ -12,7 +12,7 @@ pub fn DescriptiveRepresentationItem::new(
   name : String,
   description : String,
 ) -> DescriptiveRepresentationItem {
-  DescriptiveRepresentationItem::{ name, description }
+  DescriptiveRepresentationItem::{ name, description, }
 }
 
 ///|

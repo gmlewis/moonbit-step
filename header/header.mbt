@@ -31,7 +31,7 @@ pub fn FileDescription::new(
   description : Array[String],
   implementation_level : String,
 ) -> FileDescription {
-  FileDescription::{ description, implementation_level }
+  FileDescription::{ description, implementation_level, }
 }
 
 ///|
@@ -91,7 +91,7 @@ pub struct HeaderSection {
 
 ///|
 pub fn HeaderSection::empty() -> HeaderSection {
-  HeaderSection::{ entities: [] }
+  HeaderSection::{ entities: [], }
 }
 
 ///|

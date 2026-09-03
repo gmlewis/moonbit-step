@@ -12,7 +12,7 @@ pub fn ManifoldSolidBrep::new(
   name : String,
   outer : @step.Ref,
 ) -> ManifoldSolidBrep {
-  ManifoldSolidBrep::{ name, outer }
+  ManifoldSolidBrep::{ name, outer, }
 }
 
 ///|

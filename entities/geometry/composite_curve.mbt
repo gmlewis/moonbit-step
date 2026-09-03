@@ -45,7 +45,7 @@ pub fn CompositeCurveSegment::new(
   same_sense : Bool,
   parent_curve : @step.Ref,
 ) -> CompositeCurveSegment {
-  CompositeCurveSegment::{ transition, same_sense, parent_curve }
+  CompositeCurveSegment::{ transition, same_sense, parent_curve, }
 }
 
 ///|
@@ -73,7 +73,7 @@ pub fn CompositeCurve::new(
   segments : Array[@step.Ref],
   self_intersect : Bool,
 ) -> CompositeCurve {
-  CompositeCurve::{ name, segments, self_intersect }
+  CompositeCurve::{ name, segments, self_intersect, }
 }
 
 ///|

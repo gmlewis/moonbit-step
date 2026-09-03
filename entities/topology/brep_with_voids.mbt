@@ -15,7 +15,7 @@ pub fn BrepWithVoids::new(
   outer : @step.Ref,
   voids : Array[@step.Ref],
 ) -> BrepWithVoids {
-  BrepWithVoids::{ name, outer, voids }
+  BrepWithVoids::{ name, outer, voids, }
 }
 
 ///|

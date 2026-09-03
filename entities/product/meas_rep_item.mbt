@@ -20,7 +20,7 @@ pub fn MeasureRepresentationItem::new(
   value_component : MeasureValueComponent,
   unit_component : @step.Ref,
 ) -> MeasureRepresentationItem {
-  MeasureRepresentationItem::{ name, value_component, unit_component }
+  MeasureRepresentationItem::{ name, value_component, unit_component, }
 }
 
 ///|

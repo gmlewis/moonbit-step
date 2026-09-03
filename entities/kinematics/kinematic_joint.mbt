@@ -15,7 +15,7 @@ pub fn KinematicJoint::new(
   first_link : @step.Ref,
   second_link : @step.Ref,
 ) -> KinematicJoint {
-  KinematicJoint::{ name, first_link, second_link }
+  KinematicJoint::{ name, first_link, second_link, }
 }
 
 ///|

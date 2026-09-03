@@ -16,7 +16,7 @@ pub fn FaceSurface::new(
   face_geometry : @step.Ref,
   same_sense : Bool,
 ) -> FaceSurface {
-  FaceSurface::{ name, bounds, face_geometry, same_sense }
+  FaceSurface::{ name, bounds, face_geometry, same_sense, }
 }
 
 ///|

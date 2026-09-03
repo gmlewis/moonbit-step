@@ -12,7 +12,7 @@ pub fn Vector::new(
   orientation : @step.Ref,
   magnitude : Double,
 ) -> Vector {
-  Vector::{ name, orientation, magnitude }
+  Vector::{ name, orientation, magnitude, }
 }
 
 ///|

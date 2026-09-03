@@ -81,11 +81,11 @@ pub fn fmt_double(v : Double, snapping : Double?) -> String {
 pub fn StepContext::new(snapping? : Double) -> StepContext {
   {
     repo: @repository.new(),
-    length_unit_id: { value: 0 },
-    plane_angle_unit_id: { value: 0 },
-    solid_angle_unit_id: { value: 0 },
-    uncertainty_id: { value: 0 },
-    repo_ctx_id: { value: 0 },
+    length_unit_id: { value: 0, },
+    plane_angle_unit_id: { value: 0, },
+    solid_angle_unit_id: { value: 0, },
+    uncertainty_id: { value: 0, },
+    repo_ctx_id: { value: 0, },
     snapping,
     directions: Map([]),
     vectors: Map([]),

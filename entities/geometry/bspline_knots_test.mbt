@@ -1,9 +1,9 @@
 ///|
 test "b_spline_curve_with_knots to_step" {
-  let cp1 = @step.Ref::{ id: @step.EntityId::{ value: 10 } }
-  let cp2 = @step.Ref::{ id: @step.EntityId::{ value: 11 } }
-  let cp3 = @step.Ref::{ id: @step.EntityId::{ value: 12 } }
-  let cp4 = @step.Ref::{ id: @step.EntityId::{ value: 13 } }
+  let cp1 = @step.Ref::{ id: @step.EntityId::{ value: 10, }, }
+  let cp2 = @step.Ref::{ id: @step.EntityId::{ value: 11, }, }
+  let cp3 = @step.Ref::{ id: @step.EntityId::{ value: 12, }, }
+  let cp4 = @step.Ref::{ id: @step.EntityId::{ value: 13, }, }
   let entity = BSplineCurveWithKnots::new(
     "",
     3,

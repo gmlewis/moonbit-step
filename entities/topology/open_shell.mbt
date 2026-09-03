@@ -9,7 +9,7 @@ pub struct OpenShell {
 
 ///|
 pub fn OpenShell::new(name : String, faces : Array[@step.Ref]) -> OpenShell {
-  OpenShell::{ name, faces }
+  OpenShell::{ name, faces, }
 }
 
 ///|

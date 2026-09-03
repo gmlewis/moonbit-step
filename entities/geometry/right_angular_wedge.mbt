@@ -20,7 +20,7 @@ pub fn RightAngularWedge::new(
   z : Double,
   ltx : Double,
 ) -> RightAngularWedge {
-  RightAngularWedge::{ name, position, x, y, z, ltx }
+  RightAngularWedge::{ name, position, x, y, z, ltx, }
 }
 
 ///|

@@ -14,7 +14,7 @@ pub fn AdvancedBrepShapeRepresentation::new(
   items : Array[@step.Ref],
   context_of_items : @step.Ref,
 ) -> AdvancedBrepShapeRepresentation {
-  AdvancedBrepShapeRepresentation::{ name, items, context_of_items }
+  AdvancedBrepShapeRepresentation::{ name, items, context_of_items, }
 }
 
 ///|

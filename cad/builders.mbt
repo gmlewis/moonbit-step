@@ -1,6 +1,6 @@
 ///|
 pub fn Profile2D::new(outer : Array[Vec2]) -> Profile2D {
-  { outer, holes: [] }
+  { outer, holes: [], }
 }
 
 ///|
@@ -42,7 +42,7 @@ pub fn SceneNode::repeat_at(
 
 ///|
 pub fn Cuboid::new(sx : Double, sy : Double, sz : Double) -> Shape {
-  Shape::Cuboid({ sx, sy, sz })
+  Shape::Cuboid({ sx, sy, sz, })
 }
 
 ///|
@@ -283,14 +283,14 @@ fn anchor_to_bezier_anchor(anchor : @draw.Anchor) -> BezierAnchor {
   // Handles in @draw are relative offsets, convert to absolute positions
   let handle_in = (pos.x + anchor.handle_in.x, pos.y + anchor.handle_in.y)
   let handle_out = (pos.x + anchor.handle_out.x, pos.y + anchor.handle_out.y)
-  { position: (pos.x, pos.y), handle_in, handle_out }
+  { position: (pos.x, pos.y), handle_in, handle_out, }
 }
 
 ///|
 /// Convert a draw.Path to a cad.BezierPath.
 fn path_to_bezier_path(path : @draw.Path) -> BezierPath {
   let anchors = path.anchors.map(anchor_to_bezier_anchor)
-  { anchors, closed: path.closed, clear: path.clear }
+  { anchors, closed: path.closed, clear: path.clear, }
 }
 
 ///|
@@ -314,7 +314,7 @@ pub fn ExtrudedBezierProfile::new(
   paths : Array[BezierPath],
   height_mm : Double,
 ) -> Shape {
-  Shape::ExtrudedBezierProfile({ paths, height_mm })
+  Shape::ExtrudedBezierProfile({ paths, height_mm, })
 }
 
 ///|
@@ -425,7 +425,7 @@ pub fn ExtrudedProfile::new(
   height_mm : Double,
   holes? : Array[Array[Vec2]] = [],
 ) -> Shape {
-  Shape::ExtrudedProfile({ profile: { outer, holes }, height_mm })
+  Shape::ExtrudedProfile({ profile: { outer, holes, }, height_mm, })
 }
 
 ///|
@@ -449,7 +449,7 @@ pub fn difference(
   cutters : Array[SceneNode],
   name? : String = "difference",
 ) -> SceneNode {
-  Shape::Difference({ base, cutters }).with_name(name)
+  Shape::Difference({ base, cutters, }).with_name(name)
 }
 
 ///|
@@ -489,24 +489,24 @@ pub fn SceneNode::translate(
   y? : Double = 0.0,
   z? : Double = 0.0,
 ) -> SceneNode {
-  { ..self, tx: self.tx + x, ty: self.ty + y, tz: self.tz + z }
+  { ..self, tx: self.tx + x, ty: self.ty + y, tz: self.tz + z, }
 }
 
 ///|
 pub fn SceneNode::rotate_x(self : SceneNode, angle : Double) -> SceneNode {
-  { ..self, rx: self.rx + angle }
+  { ..self, rx: self.rx + angle, }
 }
 
 ///|
 pub fn SceneNode::rotate_y(self : SceneNode, angle : Double) -> SceneNode {
-  { ..self, ry: self.ry + angle }
+  { ..self, ry: self.ry + angle, }
 }
 
 ///|
 /// rotate_z adds the given angle in degrees to the SceneNode's rotation around
 /// the Z-axis.
 pub fn SceneNode::rotate_z(self : SceneNode, angle : Double) -> SceneNode {
-  { ..self, rz: self.rz + angle }
+  { ..self, rz: self.rz + angle, }
 }
 
 ///|

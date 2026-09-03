@@ -986,9 +986,9 @@ pub fn Repository::add(
   entity : AnyEntity,
 ) -> (Repository, @step.EntityId) {
   let repo = self
-  let id = @step.EntityId::{ value: repo.next_id }
+  let id = @step.EntityId::{ value: repo.next_id, }
   repo.next_id = repo.next_id + 1
-  repo.entities.push(Entry::{ id, entity })
+  repo.entities.push(Entry::{ id, entity, })
   repo.order.push(id)
   (repo, id)
 }
@@ -1000,7 +1000,7 @@ pub fn Repository::insert_with_id(
   entity : AnyEntity,
 ) -> Repository {
   let repo = self
-  repo.entities.push(Entry::{ id, entity })
+  repo.entities.push(Entry::{ id, entity, })
   repo.order.push(id)
   if id.value >= repo.next_id {
     repo.next_id = id.value + 1
@@ -1171,7 +1171,7 @@ pub fn Repository::to_step_file(self : Repository) -> String {
     "ISO-10303-21;\n\{header_section}\nDATA;\n\{data_section}\nENDSEC;\nEND-ISO-10303-21;"
   }
   // Normalize Windows CRLF (or stray CR) so output is stable/idempotent.
-  let builder = StringBuilder::new()
+  let builder = StringBuilder()
   for c in out {
     if c != '\r' {
       builder.write_char(c)

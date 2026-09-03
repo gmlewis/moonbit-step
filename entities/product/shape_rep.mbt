@@ -14,7 +14,7 @@ pub fn ShapeRepresentation::new(
   items : Array[@step.Ref],
   context_of_items : @step.Ref,
 ) -> ShapeRepresentation {
-  ShapeRepresentation::{ name, items, context_of_items }
+  ShapeRepresentation::{ name, items, context_of_items, }
 }
 
 ///|

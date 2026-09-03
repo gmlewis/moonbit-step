@@ -11,7 +11,7 @@ pub fn FillAreaStyleColor::new(
   name : String,
   color : @step.Ref,
 ) -> FillAreaStyleColor {
-  FillAreaStyleColor::{ name, color }
+  FillAreaStyleColor::{ name, color, }
 }
 
 ///|

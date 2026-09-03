@@ -17,7 +17,7 @@ pub fn Document::new(
   description : String,
   kind : @step.Ref,
 ) -> Document {
-  Document::{ id, name, description, kind }
+  Document::{ id, name, description, kind, }
 }
 
 ///|

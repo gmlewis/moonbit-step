@@ -14,7 +14,7 @@ pub fn ProductDefinitionFormation::new(
   description : String,
   of_product : @step.Ref,
 ) -> ProductDefinitionFormation {
-  ProductDefinitionFormation::{ id, description, of_product }
+  ProductDefinitionFormation::{ id, description, of_product, }
 }
 
 ///|

@@ -7,7 +7,7 @@ pub fn SweptProfile::new(
   make_start_cap? : Bool = true,
   make_end_cap? : Bool = true,
 ) -> Shape {
-  Shape::SweptProfile({ path, profile, make_start_cap, make_end_cap })
+  Shape::SweptProfile({ path, profile, make_start_cap, make_end_cap, })
 }
 
 ///|
@@ -99,7 +99,7 @@ fn compile_swept_profile(
     let vec_ref = ctx.vector(dir_ref, 1.0)
     let line_ref = ctx.line(cp_refs[start], vec_ref)
     let ec_ref = ctx.edge_curve(vp_refs[start], vp_refs[end], line_ref, true)
-    edges.push(EdgeInfo::{ start, end, edge: ec_ref })
+    edges.push(EdgeInfo::{ start, end, edge: ec_ref, })
   }
 
   // Profile edges (at each path point)

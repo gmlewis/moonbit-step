@@ -15,7 +15,7 @@ pub fn Axis1Placement::new(
   location : @step.Ref,
   axis? : @step.Ref? = None,
 ) -> Axis1Placement {
-  Axis1Placement::{ name, location, axis }
+  Axis1Placement::{ name, location, axis, }
 }
 
 ///|

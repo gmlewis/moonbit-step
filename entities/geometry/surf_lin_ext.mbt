@@ -14,7 +14,7 @@ pub fn SurfaceOfLinearExtrusion::new(
   swept_curve : @step.Ref,
   extrusion_axis : @step.Ref,
 ) -> SurfaceOfLinearExtrusion {
-  SurfaceOfLinearExtrusion::{ name, swept_curve, extrusion_axis }
+  SurfaceOfLinearExtrusion::{ name, swept_curve, extrusion_axis, }
 }
 
 ///|

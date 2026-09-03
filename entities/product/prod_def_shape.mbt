@@ -14,7 +14,7 @@ pub fn ProductDefinitionShape::new(
   description : String,
   definition : @step.Ref,
 ) -> ProductDefinitionShape {
-  ProductDefinitionShape::{ name, description, definition }
+  ProductDefinitionShape::{ name, description, definition, }
 }
 
 ///|

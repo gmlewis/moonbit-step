@@ -18,7 +18,7 @@ pub fn RightCircularCone::new(
   radius : Double,
   semi_angle : Double,
 ) -> RightCircularCone {
-  RightCircularCone::{ name, position, height, radius, semi_angle }
+  RightCircularCone::{ name, position, height, radius, semi_angle, }
 }
 
 ///|

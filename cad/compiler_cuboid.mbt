@@ -74,7 +74,7 @@ pub fn compile_cuboid(
     let (a, b, vec) = def
     let line_ref = ctx.line(cp_refs[a], vec)
     let ec_ref = ctx.edge_curve(vp_refs[a], vp_refs[b], line_ref, true)
-    EdgeInfo::{ start: a, end: b, edge: ec_ref }
+    EdgeInfo::{ start: a, end: b, edge: ec_ref, }
   })
 
   // Faces

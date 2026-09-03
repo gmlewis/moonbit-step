@@ -13,7 +13,7 @@ pub fn DimensionalSize::new(
   applies_to : @step.Ref,
   name : String,
 ) -> DimensionalSize {
-  DimensionalSize::{ applies_to, name }
+  DimensionalSize::{ applies_to, name, }
 }
 
 ///|

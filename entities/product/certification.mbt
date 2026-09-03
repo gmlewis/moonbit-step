@@ -15,7 +15,7 @@ pub fn Certification::new(
   purpose : String,
   kind : @step.Ref,
 ) -> Certification {
-  Certification::{ name, purpose, kind }
+  Certification::{ name, purpose, kind, }
 }
 
 ///|

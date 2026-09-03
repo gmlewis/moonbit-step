@@ -532,7 +532,7 @@ fn parse_step_string_literal_unescaped(s : String) -> String? {
     cu_at(t, 0) == Char::to_int('\'') &&
     cu_at(t, t.length() - 1) == Char::to_int('\'') {
     let inner = substr(t, 1, t.length() - 1)
-    let builder = StringBuilder::new()
+    let builder = StringBuilder()
     let n = inner.length()
     let mut i = 0
     while i < n {
@@ -573,7 +573,7 @@ fn parse_ref_int(s : String) -> @step.EntityId raise StepParseError {
     fail_parse()
   }
   let v = parse_int_dec(substr(t, 1, t.length()))
-  @step.EntityId::{ value: v }
+  @step.EntityId::{ value: v, }
 }
 
 ///|
@@ -616,9 +616,9 @@ fn parse_axis2_placement_3d(
   let ref_dir_id = parse_ref_int(parts[3])
   @geometry.Axis2Placement3D::new(
     name,
-    @step.Ref::{ id: location_id },
-    @step.Ref::{ id: axis_id },
-    @step.Ref::{ id: ref_dir_id },
+    @step.Ref::{ id: location_id, },
+    @step.Ref::{ id: axis_id, },
+    @step.Ref::{ id: ref_dir_id, },
   )
 }
 
@@ -636,9 +636,9 @@ fn parse_axis1_placement(
   let axis = if axis_id_str == "$" {
     None
   } else {
-    Some(@step.Ref::{ id: parse_ref_int(axis_id_str) })
+    Some(@step.Ref::{ id: parse_ref_int(axis_id_str), })
   }
-  @geometry.Axis1Placement::new(name, @step.Ref::{ id: location_id }, axis~)
+  @geometry.Axis1Placement::new(name, @step.Ref::{ id: location_id, }, axis~)
 }
 
 ///|
@@ -655,11 +655,11 @@ fn parse_axis2_placement_2d(
   let ref_direction = if dir_id_str == "$" {
     None
   } else {
-    Some(@step.Ref::{ id: parse_ref_int(dir_id_str) })
+    Some(@step.Ref::{ id: parse_ref_int(dir_id_str), })
   }
   @geometry.Axis2Placement2D::new(
     name,
-    @step.Ref::{ id: location_id },
+    @step.Ref::{ id: location_id, },
     ref_direction~,
   )
 }
@@ -673,7 +673,7 @@ fn parse_vector(args : String) -> @geometry.Vector raise StepParseError {
   let name = strip_quotes(parts[0])
   let dir_id = parse_ref_int(parts[1])
   let magnitude = parse_double(parts[2])
-  @geometry.Vector::new(name, @step.Ref::{ id: dir_id }, magnitude)
+  @geometry.Vector::new(name, @step.Ref::{ id: dir_id, }, magnitude)
 }
 
 ///|
@@ -685,7 +685,9 @@ fn parse_line(args : String) -> @geometry.Line raise StepParseError {
   let name = strip_quotes(parts[0])
   let pnt_id = parse_ref_int(parts[1])
   let vec_id = parse_ref_int(parts[2])
-  @geometry.Line::new(name, @step.Ref::{ id: pnt_id }, @step.Ref::{ id: vec_id })
+  @geometry.Line::new(name, @step.Ref::{ id: pnt_id, }, @step.Ref::{
+    id: vec_id,
+  })
 }
 
 ///|
@@ -697,7 +699,7 @@ fn parse_circle(args : String) -> @geometry.Circle raise StepParseError {
   let name = strip_quotes(parts[0])
   let pos_id = parse_ref_int(parts[1])
   let radius_literal = parts[2].trim().to_owned()
-  @geometry.Circle::new(name, @step.Ref::{ id: pos_id }, radius_literal)
+  @geometry.Circle::new(name, @step.Ref::{ id: pos_id, }, radius_literal)
 }
 
 ///|
@@ -712,7 +714,7 @@ fn parse_ellipse(args : String) -> @geometry.Ellipse raise StepParseError {
   let semi_axis_2_literal = parts[3].trim().to_owned()
   @geometry.Ellipse::new(
     name,
-    @step.Ref::{ id: pos_id },
+    @step.Ref::{ id: pos_id, },
     semi_axis_1_literal,
     semi_axis_2_literal,
   )
@@ -727,7 +729,7 @@ fn parse_parabola(args : String) -> @geometry.Parabola raise StepParseError {
   let name = strip_quotes(parts[0])
   let pos_id = parse_ref_int(parts[1])
   let focal_dist = parse_double(parts[2])
-  @geometry.Parabola::new(name, @step.Ref::{ id: pos_id }, focal_dist)
+  @geometry.Parabola::new(name, @step.Ref::{ id: pos_id, }, focal_dist)
 }
 
 ///|
@@ -740,7 +742,7 @@ fn parse_hyperbola(args : String) -> @geometry.Hyperbola raise StepParseError {
   let pos_id = parse_ref_int(parts[1])
   let semi = parse_double(parts[2])
   let semi_imag = parse_double(parts[3])
-  @geometry.Hyperbola::new(name, @step.Ref::{ id: pos_id }, semi, semi_imag)
+  @geometry.Hyperbola::new(name, @step.Ref::{ id: pos_id, }, semi, semi_imag)
 }
 
 ///|
@@ -756,7 +758,7 @@ fn parse_cylindrical_surface(
   let radius_literal = parts[2].trim().to_owned()
   @geometry.CylindricalSurface::new(
     name,
-    @step.Ref::{ id: pos_id },
+    @step.Ref::{ id: pos_id, },
     radius_literal,
   )
 }
@@ -775,7 +777,7 @@ fn parse_conical_surface(
   let semi_angle_literal = parts[3].trim().to_owned()
   @geometry.ConicalSurface::new(
     name,
-    @step.Ref::{ id: pos_id },
+    @step.Ref::{ id: pos_id, },
     radius_literal,
     semi_angle_literal,
   )
@@ -795,7 +797,7 @@ fn parse_toroidal_surface(
   let minor_radius_literal = parts[3].trim().to_owned()
   @geometry.ToroidalSurface::new(
     name,
-    @step.Ref::{ id: pos_id },
+    @step.Ref::{ id: pos_id, },
     major_radius_literal,
     minor_radius_literal,
   )
@@ -1043,7 +1045,7 @@ fn parse_trimmed_curve(
   let master_rep = parts[5].trim().to_owned()
   @geometry.TrimmedCurve::new(
     name,
-    @step.Ref::{ id: basis_id },
+    @step.Ref::{ id: basis_id, },
     trim_1,
     trim_2,
     sense,
@@ -1063,7 +1065,7 @@ fn parse_offset_curve_3d(
   let basis_id = parse_ref_int(parts[1])
   let distance = parse_double(parts[2])
   let dir_id = parse_ref_int(parts[3])
-  @geometry.OffsetCurve3D::new(name, @step.Ref::{ id: basis_id }, distance, @step.Ref::{
+  @geometry.OffsetCurve3D::new(name, @step.Ref::{ id: basis_id, }, distance, @step.Ref::{
     id: dir_id,
   })
 }
@@ -1089,7 +1091,7 @@ fn parse_offset_surface(
   }
   @geometry.OffsetSurface::new(
     name,
-    @step.Ref::{ id: basis_id },
+    @step.Ref::{ id: basis_id, },
     distance,
     self_intersect,
   )
@@ -1106,7 +1108,7 @@ fn parse_surface_of_linear_extrusion(
   let name = strip_quotes(parts[0])
   let curve_id = parse_ref_int(parts[1])
   let axis_id = parse_ref_int(parts[2])
-  @geometry.SurfaceOfLinearExtrusion::new(name, @step.Ref::{ id: curve_id }, @step.Ref::{
+  @geometry.SurfaceOfLinearExtrusion::new(name, @step.Ref::{ id: curve_id, }, @step.Ref::{
     id: axis_id,
   })
 }
@@ -1122,7 +1124,7 @@ fn parse_surface_of_revolution(
   let name = strip_quotes(parts[0])
   let curve_id = parse_ref_int(parts[1])
   let axis_id = parse_ref_int(parts[2])
-  @geometry.SurfaceOfRevolution::new(name, @step.Ref::{ id: curve_id }, @step.Ref::{
+  @geometry.SurfaceOfRevolution::new(name, @step.Ref::{ id: curve_id, }, @step.Ref::{
     id: axis_id,
   })
 }
@@ -1137,7 +1139,7 @@ fn parse_swept_surface(
   }
   let name = strip_quotes(parts[0])
   let curve_id = parse_ref_int(parts[1])
-  @geometry.SweptSurface::new(name, @step.Ref::{ id: curve_id })
+  @geometry.SweptSurface::new(name, @step.Ref::{ id: curve_id, })
 }
 
 ///|
@@ -1172,7 +1174,7 @@ fn parse_rectangular_trimmed_surface(
   }
   @geometry.RectangularTrimmedSurface::new(
     name,
-    @step.Ref::{ id: basis_id },
+    @step.Ref::{ id: basis_id, },
     u1,
     u2,
     v1,
@@ -1210,7 +1212,7 @@ fn parse_boolean_result(
   }
   let op1_id = parse_ref_int(parts[2])
   let op2_id = parse_ref_int(parts[3])
-  @geometry.BooleanResult::new(name, operator, @step.Ref::{ id: op1_id }, @step.Ref::{
+  @geometry.BooleanResult::new(name, operator, @step.Ref::{ id: op1_id, }, @step.Ref::{
     id: op2_id,
   })
 }
@@ -1223,7 +1225,7 @@ fn parse_csg_solid(args : String) -> @geometry.CsgSolid raise StepParseError {
   }
   let name = strip_quotes(parts[0])
   let root_id = parse_ref_int(parts[1])
-  @geometry.CsgSolid::new(name, @step.Ref::{ id: root_id })
+  @geometry.CsgSolid::new(name, @step.Ref::{ id: root_id, })
 }
 
 ///|
@@ -1237,7 +1239,7 @@ fn parse_block(args : String) -> @geometry.Block raise StepParseError {
   let x = parse_double(parts[2])
   let y = parse_double(parts[3])
   let z = parse_double(parts[4])
-  @geometry.Block::new(name, @step.Ref::{ id: pos_id }, x, y, z)
+  @geometry.Block::new(name, @step.Ref::{ id: pos_id, }, x, y, z)
 }
 
 ///|
@@ -1249,7 +1251,7 @@ fn parse_sphere(args : String) -> @geometry.Sphere raise StepParseError {
   let name = strip_quotes(parts[0])
   let pos_id = parse_ref_int(parts[1])
   let radius = parse_double(parts[2])
-  @geometry.Sphere::new(name, @step.Ref::{ id: pos_id }, radius)
+  @geometry.Sphere::new(name, @step.Ref::{ id: pos_id, }, radius)
 }
 
 ///|
@@ -1266,7 +1268,7 @@ fn parse_right_circular_cylinder(
   let radius = parse_double(parts[3])
   @geometry.RightCircularCylinder::new(
     name,
-    @step.Ref::{ id: pos_id },
+    @step.Ref::{ id: pos_id, },
     height,
     radius,
   )
@@ -1287,7 +1289,7 @@ fn parse_right_circular_cone(
   let semi_angle = parse_double(parts[4])
   @geometry.RightCircularCone::new(
     name,
-    @step.Ref::{ id: pos_id },
+    @step.Ref::{ id: pos_id, },
     height,
     radius,
     semi_angle,
@@ -1304,7 +1306,7 @@ fn parse_torus(args : String) -> @geometry.Torus raise StepParseError {
   let pos_id = parse_ref_int(parts[1])
   let major = parse_double(parts[2])
   let minor = parse_double(parts[3])
-  @geometry.Torus::new(name, @step.Ref::{ id: pos_id }, major, minor)
+  @geometry.Torus::new(name, @step.Ref::{ id: pos_id, }, major, minor)
 }
 
 ///|
@@ -1322,7 +1324,7 @@ fn parse_rectangular_pyramid(
   let height = parse_double(parts[4])
   @geometry.RectangularPyramid::new(
     name,
-    @step.Ref::{ id: pos_id },
+    @step.Ref::{ id: pos_id, },
     x,
     y,
     height,
@@ -1345,7 +1347,7 @@ fn parse_right_angular_wedge(
   let ltx = parse_double(parts[5])
   @geometry.RightAngularWedge::new(
     name,
-    @step.Ref::{ id: pos_id },
+    @step.Ref::{ id: pos_id, },
     x,
     y,
     z,
@@ -1371,7 +1373,7 @@ fn parse_half_space_solid(
   } else {
     fail_parse()
   }
-  @geometry.HalfSpaceSolid::new(name, @step.Ref::{ id: surf_id }, flag)
+  @geometry.HalfSpaceSolid::new(name, @step.Ref::{ id: surf_id, }, flag)
 }
 
 ///|
@@ -1382,7 +1384,7 @@ fn parse_plane(args : String) -> @geometry.Plane raise StepParseError {
   }
   let name = strip_quotes(parts[0])
   let pos_id = parse_ref_int(parts[1])
-  @geometry.Plane::new(name, @step.Ref::{ id: pos_id })
+  @geometry.Plane::new(name, @step.Ref::{ id: pos_id, })
 }
 
 ///|
@@ -1400,8 +1402,8 @@ fn parse_representation_relationship(
   @product.RepresentationRelationship::new(
     name,
     description,
-    @step.Ref::{ id: rep_1_id },
-    @step.Ref::{ id: rep_2_id },
+    @step.Ref::{ id: rep_1_id, },
+    @step.Ref::{ id: rep_2_id, },
   )
 }
 
@@ -1434,8 +1436,8 @@ fn parse_shape_representation_relationship(
   @product.ShapeRepresentationRelationship::new(
     name,
     description,
-    @step.Ref::{ id: rep_1_id },
-    @step.Ref::{ id: rep_2_id },
+    @step.Ref::{ id: rep_1_id, },
+    @step.Ref::{ id: rep_2_id, },
   )
 }
 
@@ -1466,7 +1468,7 @@ fn parse_shape_definition_representation(
   }
   let def_id = parse_ref_int(parts[0])
   let rep_id = parse_ref_int(parts[1])
-  @product.ShapeDefinitionRepresentation::new(@step.Ref::{ id: def_id }, @step.Ref::{
+  @product.ShapeDefinitionRepresentation::new(@step.Ref::{ id: def_id, }, @step.Ref::{
     id: rep_id,
   })
 }
@@ -1483,7 +1485,7 @@ fn parse_shape_representation(
   let item_ids = parse_ref_ids(parts[1])
   let items = item_ids.map(fn(id) { @step.Ref::{ id, } })
   let ctx_id = parse_ref_int(parts[2])
-  @product.ShapeRepresentation::new(name, items, @step.Ref::{ id: ctx_id })
+  @product.ShapeRepresentation::new(name, items, @step.Ref::{ id: ctx_id, })
 }
 
 ///|
@@ -1498,7 +1500,7 @@ fn parse_representation(
   let item_ids = parse_ref_ids(parts[1])
   let items = item_ids.map(fn(id) { @step.Ref::{ id, } })
   let ctx_id = parse_ref_int(parts[2])
-  @product.Representation::new(name, items, @step.Ref::{ id: ctx_id })
+  @product.Representation::new(name, items, @step.Ref::{ id: ctx_id, })
 }
 
 ///|
@@ -1564,7 +1566,7 @@ fn parse_context_dependent_shape_representation(
   }
   let rr_id = parse_ref_int(parts[0])
   let rpr_id = parse_ref_int(parts[1])
-  @product.ContextDependentShapeRepresentation::new(@step.Ref::{ id: rr_id }, @step.Ref::{
+  @product.ContextDependentShapeRepresentation::new(@step.Ref::{ id: rr_id, }, @step.Ref::{
     id: rpr_id,
   })
 }
@@ -1584,8 +1586,8 @@ fn parse_item_defined_transformation(
   @product.ItemDefinedTransformation::new(
     name,
     description,
-    @step.Ref::{ id: i1_id },
-    @step.Ref::{ id: i2_id },
+    @step.Ref::{ id: i1_id, },
+    @step.Ref::{ id: i2_id, },
   )
 }
 
@@ -1607,8 +1609,8 @@ fn parse_next_assembly_usage_occurrence(
     id,
     name,
     description,
-    @step.Ref::{ id: relating_id },
-    @step.Ref::{ id: related_id },
+    @step.Ref::{ id: relating_id, },
+    @step.Ref::{ id: related_id, },
     designator,
   )
 }
@@ -1644,8 +1646,8 @@ fn parse_product_definition(
   @product.ProductDefinition::new(
     id,
     description,
-    @step.Ref::{ id: formation_id },
-    @step.Ref::{ id: ctx_id },
+    @step.Ref::{ id: formation_id, },
+    @step.Ref::{ id: ctx_id, },
   )
 }
 
@@ -1662,7 +1664,7 @@ fn parse_product_definition_context(
   let life_cycle_stage = strip_quotes(parts[2])
   @product.ProductDefinitionContext::new(
     name,
-    @step.Ref::{ id: app_id },
+    @step.Ref::{ id: app_id, },
     life_cycle_stage,
   )
 }
@@ -1694,7 +1696,7 @@ fn parse_property_definition(
   let name = strip_quotes(parts[0])
   let description = strip_quotes(parts[1])
   let def_id = parse_ref_int(parts[2])
-  @product.PropertyDefinition::new(name, description, @step.Ref::{ id: def_id })
+  @product.PropertyDefinition::new(name, description, @step.Ref::{ id: def_id, })
 }
 
 ///|
@@ -1707,7 +1709,7 @@ fn parse_property_definition_representation(
   }
   let def_id = parse_ref_int(parts[0])
   let rep_id = parse_ref_int(parts[1])
-  @product.PropertyDefinitionRepresentation::new(@step.Ref::{ id: def_id }, @step.Ref::{
+  @product.PropertyDefinitionRepresentation::new(@step.Ref::{ id: def_id, }, @step.Ref::{
     id: rep_id,
   })
 }
@@ -1733,7 +1735,7 @@ fn parse_product_definition_formation_with_specified_source(
   @product.ProductDefinitionFormationWithSpecifiedSource::new(
     id,
     description,
-    @step.Ref::{ id: product_id },
+    @step.Ref::{ id: product_id, },
     make_or_buy,
   )
 }
@@ -1780,7 +1782,7 @@ fn parse_product_context(
   let discipline_type = strip_quotes(parts[2])
   @product.ProductContext::new(
     name,
-    @step.Ref::{ id: frame_id },
+    @step.Ref::{ id: frame_id, },
     discipline_type,
   )
 }
@@ -1822,7 +1824,7 @@ fn parse_approval(args : String) -> @product.Approval raise StepParseError {
   }
   let status_id = parse_ref_int(parts[0])
   let level = strip_quotes(parts[1])
-  @product.Approval::new(@step.Ref::{ id: status_id }, level)
+  @product.Approval::new(@step.Ref::{ id: status_id, }, level)
 }
 
 ///|
@@ -1861,9 +1863,9 @@ fn parse_approval_person_organization(
   let approval_id = parse_ref_int(parts[1])
   let role_id = parse_ref_int(parts[2])
   @product.ApprovalPersonOrganization::new(
-    @step.Ref::{ id: po_id },
-    @step.Ref::{ id: approval_id },
-    @step.Ref::{ id: role_id },
+    @step.Ref::{ id: po_id, },
+    @step.Ref::{ id: approval_id, },
+    @step.Ref::{ id: role_id, },
   )
 }
 
@@ -1906,7 +1908,7 @@ fn parse_person_and_organization(
   }
   let person_id = parse_ref_int(parts[0])
   let org_id = parse_ref_int(parts[1])
-  @product.PersonAndOrganization::new(@step.Ref::{ id: person_id }, @step.Ref::{
+  @product.PersonAndOrganization::new(@step.Ref::{ id: person_id, }, @step.Ref::{
     id: org_id,
   })
 }
@@ -1921,7 +1923,7 @@ fn parse_date_and_time(
   }
   let date_id = parse_ref_int(parts[0])
   let time_id = parse_ref_int(parts[1])
-  @product.DateAndTime::new(@step.Ref::{ id: date_id }, @step.Ref::{
+  @product.DateAndTime::new(@step.Ref::{ id: date_id, }, @step.Ref::{
     id: time_id,
   })
 }
@@ -1936,7 +1938,7 @@ fn parse_local_time(args : String) -> @product.LocalTime raise StepParseError {
   let minute = parse_int_dec(parts[1])
   let second = parse_double(parts[2])
   let zone_id = parse_ref_int(parts[3])
-  @product.LocalTime::new(hour, minute, second, @step.Ref::{ id: zone_id })
+  @product.LocalTime::new(hour, minute, second, @step.Ref::{ id: zone_id, })
 }
 
 ///|
@@ -2006,7 +2008,7 @@ fn parse_certification(
   let name = strip_quotes(parts[0])
   let purpose = strip_quotes(parts[1])
   let kind_id = parse_ref_int(parts[2])
-  @product.Certification::new(name, purpose, @step.Ref::{ id: kind_id })
+  @product.Certification::new(name, purpose, @step.Ref::{ id: kind_id, })
 }
 
 ///|
@@ -2031,7 +2033,7 @@ fn parse_document(args : String) -> @product.Document raise StepParseError {
   let name = strip_quotes(parts[1])
   let description = strip_quotes(parts[2])
   let kind_id = parse_ref_int(parts[3])
-  @product.Document::new(id, name, description, @step.Ref::{ id: kind_id })
+  @product.Document::new(id, name, description, @step.Ref::{ id: kind_id, })
 }
 
 ///|
@@ -2086,7 +2088,7 @@ fn parse_kinematic_joint(
   let name = strip_quotes(parts[0])
   let l1_id = parse_ref_int(parts[1])
   let l2_id = parse_ref_int(parts[2])
-  @kinematics.KinematicJoint::new(name, @step.Ref::{ id: l1_id }, @step.Ref::{
+  @kinematics.KinematicJoint::new(name, @step.Ref::{ id: l1_id, }, @step.Ref::{
     id: l2_id,
   })
 }
@@ -2102,7 +2104,7 @@ fn parse_kinematic_pair(
   let name = strip_quotes(parts[0])
   let desc = strip_quotes(parts[1])
   let joint_id = parse_ref_int(parts[2])
-  @kinematics.KinematicPair::new(name, desc, @step.Ref::{ id: joint_id })
+  @kinematics.KinematicPair::new(name, desc, @step.Ref::{ id: joint_id, })
 }
 
 ///|
@@ -2117,7 +2119,7 @@ fn parse_geometric_tolerance(
   let desc = strip_quotes(parts[1])
   let mag_id = parse_ref_int(parts[2])
   let shape_id = parse_ref_int(parts[3])
-  @tolerancing.GeometricTolerance::new(name, desc, @step.Ref::{ id: mag_id }, @step.Ref::{
+  @tolerancing.GeometricTolerance::new(name, desc, @step.Ref::{ id: mag_id, }, @step.Ref::{
     id: shape_id,
   })
 }
@@ -2136,7 +2138,7 @@ fn parse_datum(args : String) -> @tolerancing.Datum raise StepParseError {
   @tolerancing.Datum::new(
     name,
     desc,
-    @step.Ref::{ id: shape_id },
+    @step.Ref::{ id: shape_id, },
     definitional,
     identification,
   )
@@ -2157,7 +2159,7 @@ fn parse_datum_feature(
   @tolerancing.DatumFeature::new(
     name,
     desc,
-    @step.Ref::{ id: shape_id },
+    @step.Ref::{ id: shape_id, },
     definitional,
   )
 }
@@ -2172,7 +2174,7 @@ fn parse_dimensional_size(
   }
   let shape_id = parse_ref_int(parts[0])
   let name = strip_quotes(parts[1])
-  @tolerancing.DimensionalSize::new(@step.Ref::{ id: shape_id }, name)
+  @tolerancing.DimensionalSize::new(@step.Ref::{ id: shape_id, }, name)
 }
 
 ///|
@@ -2185,7 +2187,7 @@ fn parse_manifold_solid_brep(
   }
   let name = strip_quotes(parts[0])
   let outer_id = parse_ref_int(parts[1])
-  @topology.ManifoldSolidBrep::new(name, @step.Ref::{ id: outer_id })
+  @topology.ManifoldSolidBrep::new(name, @step.Ref::{ id: outer_id, })
 }
 
 ///|
@@ -2251,7 +2253,7 @@ fn parse_face_surface(
   @topology.FaceSurface::new(
     name,
     bounds,
-    @step.Ref::{ id: geom_id },
+    @step.Ref::{ id: geom_id, },
     same_sense,
   )
 }
@@ -2266,7 +2268,7 @@ fn parse_subface(args : String) -> @topology.Subface raise StepParseError {
   let bound_ids = parse_ref_ids(parts[1])
   let bounds = bound_ids.map(fn(id) { @step.Ref::{ id, } })
   let parent_id = parse_ref_int(parts[2])
-  @topology.Subface::new(name, bounds, @step.Ref::{ id: parent_id })
+  @topology.Subface::new(name, bounds, @step.Ref::{ id: parent_id, })
 }
 
 ///|
@@ -2284,7 +2286,7 @@ fn parse_shape_aspect(
   @product.ShapeAspect::new(
     name,
     desc,
-    @step.Ref::{ id: shape_id },
+    @step.Ref::{ id: shape_id, },
     definitional,
   )
 }
@@ -2326,7 +2328,7 @@ fn parse_advanced_face(
   @topology.AdvancedFace::new(
     name,
     bounds,
-    @step.Ref::{ id: surface_id },
+    @step.Ref::{ id: surface_id, },
     same_sense,
   )
 }
@@ -2349,7 +2351,7 @@ fn parse_face_outer_bound(
   } else {
     fail_parse()
   }
-  @topology.FaceOuterBound::new(name, @step.Ref::{ id: bound_id }, orientation)
+  @topology.FaceOuterBound::new(name, @step.Ref::{ id: bound_id, }, orientation)
 }
 
 ///|
@@ -2368,7 +2370,7 @@ fn parse_face_bound(args : String) -> @topology.FaceBound raise StepParseError {
   } else {
     fail_parse()
   }
-  @topology.FaceBound::new(name, @step.Ref::{ id: bound_id }, orientation)
+  @topology.FaceBound::new(name, @step.Ref::{ id: bound_id, }, orientation)
 }
 
 ///|
@@ -2407,7 +2409,7 @@ fn parse_oriented_edge(
     name,
     edge_start,
     edge_end,
-    @step.Ref::{ id: edge_element_id },
+    @step.Ref::{ id: edge_element_id, },
     orientation,
   )
 }
@@ -2432,9 +2434,9 @@ fn parse_edge_curve(args : String) -> @topology.EdgeCurve raise StepParseError {
   }
   @topology.EdgeCurve::new(
     name,
-    @step.Ref::{ id: start_id },
-    @step.Ref::{ id: end_id },
-    @step.Ref::{ id: geom_id },
+    @step.Ref::{ id: start_id, },
+    @step.Ref::{ id: end_id, },
+    @step.Ref::{ id: geom_id, },
     same_sense,
   )
 }
@@ -2449,7 +2451,7 @@ fn parse_vertex_point(
   }
   let name = strip_quotes(parts[0])
   let geom_id = parse_ref_int(parts[1])
-  @topology.VertexPoint::new(name, @step.Ref::{ id: geom_id })
+  @topology.VertexPoint::new(name, @step.Ref::{ id: geom_id, })
 }
 
 ///|
@@ -2508,7 +2510,7 @@ fn parse_fill_area_style_color(
   }
   let name = strip_quotes(parts[0])
   let color_id = parse_ref_int(parts[1])
-  @presentation.FillAreaStyleColor::new(name, @step.Ref::{ id: color_id })
+  @presentation.FillAreaStyleColor::new(name, @step.Ref::{ id: color_id, })
 }
 
 ///|
@@ -2534,7 +2536,7 @@ fn parse_surface_style_fill_area(
     fail_parse()
   }
   let fa_id = parse_ref_int(parts[0])
-  @presentation.SurfaceStyleFillArea::new(@step.Ref::{ id: fa_id })
+  @presentation.SurfaceStyleFillArea::new(@step.Ref::{ id: fa_id, })
 }
 
 ///|
@@ -2561,7 +2563,7 @@ fn parse_surface_style_usage(
   }
   let side = parse_surface_side(parts[0])
   let style_id = parse_ref_int(parts[1])
-  @presentation.SurfaceStyleUsage::new(side, @step.Ref::{ id: style_id })
+  @presentation.SurfaceStyleUsage::new(side, @step.Ref::{ id: style_id, })
 }
 
 ///|
@@ -2613,10 +2615,10 @@ fn parse_text_literal(
   @presentation.TextLiteral::new(
     name,
     literal,
-    @step.Ref::{ id: placement_id },
+    @step.Ref::{ id: placement_id, },
     alignment,
     path,
-    @step.Ref::{ id: font_id },
+    @step.Ref::{ id: font_id, },
   )
 }
 
@@ -2635,7 +2637,7 @@ fn parse_mechanical_design_geometric_presentation_representation(
   @presentation.MechanicalDesignGeometricPresentationRepresentation::new(
     name,
     items,
-    @step.Ref::{ id: ctx_id },
+    @step.Ref::{ id: ctx_id, },
   )
 }
 
@@ -2651,7 +2653,7 @@ fn parse_styled_item(
   let style_ids = parse_ref_ids(parts[1])
   let styles = style_ids.map(fn(id) { @step.Ref::{ id, } })
   let item_id = parse_ref_int(parts[2])
-  @presentation.StyledItem::new(name, styles, @step.Ref::{ id: item_id })
+  @presentation.StyledItem::new(name, styles, @step.Ref::{ id: item_id, })
 }
 
 ///|
@@ -2670,8 +2672,8 @@ fn parse_over_riding_styled_item(
   @presentation.OverRidingStyledItem::new(
     name,
     styles,
-    @step.Ref::{ id: item_id },
-    @step.Ref::{ id: over_id },
+    @step.Ref::{ id: item_id, },
+    @step.Ref::{ id: over_id, },
   )
 }
 
@@ -2691,8 +2693,8 @@ fn parse_hidden_element_over_riding_styled_item(
   @presentation.HiddenElementOverRidingStyledItem::new(
     name,
     styles,
-    @step.Ref::{ id: item_id },
-    @step.Ref::{ id: over_id },
+    @step.Ref::{ id: item_id, },
+    @step.Ref::{ id: over_id, },
   )
 }
 
@@ -2760,7 +2762,7 @@ fn parse_uncertainty_measure_with_unit(
   let description = strip_quotes(parts[3])
   @units.UncertaintyMeasureWithUnit::new(
     length_measure_literal,
-    @step.Ref::{ id: unit_id },
+    @step.Ref::{ id: unit_id, },
     name,
     description,
   )
@@ -2807,7 +2809,7 @@ fn parse_derived_unit_element(
   }
   let unit_id = parse_ref_int(parts[0])
   let exponent = parse_double(parts[1])
-  @units.DerivedUnitElement::new(@step.Ref::{ id: unit_id }, exponent)
+  @units.DerivedUnitElement::new(@step.Ref::{ id: unit_id, }, exponent)
 }
 
 ///|
@@ -2831,7 +2833,7 @@ fn parse_measure_with_unit(
   }
   let val = parts[0].trim().to_owned()
   let unit_id = parse_ref_int(parts[1])
-  @units.MeasureWithUnit::new(val, @step.Ref::{ id: unit_id })
+  @units.MeasureWithUnit::new(val, @step.Ref::{ id: unit_id, })
 }
 
 ///|
@@ -2983,7 +2985,7 @@ fn parse_complex_instance(
       let unit_name = strip_quotes(args_parts[0])
       let factor_id = parse_ref_int(args_parts[1])
       @context.ComplexPart::ConversionBasedUnit(
-        @units.ConversionBasedUnit::new(unit_name, @step.Ref::{ id: factor_id }),
+        @units.ConversionBasedUnit::new(unit_name, @step.Ref::{ id: factor_id, }),
       )
     } else if name == "LENGTH_UNIT" {
       expect_empty_parens(a)
@@ -3022,8 +3024,8 @@ fn parse_complex_instance(
         @product.RepresentationRelationship::new(
           rr_name,
           rr_desc,
-          @step.Ref::{ id: rep_1_id },
-          @step.Ref::{ id: rep_2_id },
+          @step.Ref::{ id: rep_1_id, },
+          @step.Ref::{ id: rep_2_id, },
         ),
       )
     } else if name == "REPRESENTATION_RELATIONSHIP_WITH_TRANSFORMATION" {
@@ -3240,7 +3242,7 @@ fn parse_step_string_literal(s : String) -> String? {
     cu_at(t, 0) == Char::to_int('\'') &&
     cu_at(t, t.length() - 1) == Char::to_int('\'') {
     let inner = substr(t, 1, t.length() - 1)
-    let builder = StringBuilder::new()
+    let builder = StringBuilder()
     let n = inner.length()
     let mut i = 0
     while i < n {
@@ -3382,7 +3384,7 @@ fn parse_header_section(header_section : String) -> @header.HeaderSection {
 
 ///|
 fn bytes_ascii_to_string_preserve(ascii : Bytes) -> String {
-  let builder = StringBuilder::new()
+  let builder = StringBuilder()
   for byte in ascii {
     // STEP files are typically ASCII; preserve CR/LF/tab literally.
     builder.write_char(byte.to_int().unsafe_to_char())

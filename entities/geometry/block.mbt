@@ -18,7 +18,7 @@ pub fn Block::new(
   y : Double,
   z : Double,
 ) -> Block {
-  Block::{ name, position, x, y, z }
+  Block::{ name, position, x, y, z, }
 }
 
 ///|

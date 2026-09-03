@@ -16,7 +16,7 @@ pub fn ProductDefinition::new(
   formation : @step.Ref,
   frame_of_reference : @step.Ref,
 ) -> ProductDefinition {
-  ProductDefinition::{ id, description, formation, frame_of_reference }
+  ProductDefinition::{ id, description, formation, frame_of_reference, }
 }
 
 ///|

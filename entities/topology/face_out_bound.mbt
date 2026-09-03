@@ -14,7 +14,7 @@ pub fn FaceOuterBound::new(
   bound : @step.Ref,
   orientation : Bool,
 ) -> FaceOuterBound {
-  FaceOuterBound::{ name, bound, orientation }
+  FaceOuterBound::{ name, bound, orientation, }
 }
 
 ///|

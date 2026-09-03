@@ -16,7 +16,7 @@ pub fn AdvancedFace::new(
   surface : @step.Ref,
   same_sense : Bool,
 ) -> AdvancedFace {
-  AdvancedFace::{ name, bounds, surface, same_sense }
+  AdvancedFace::{ name, bounds, surface, same_sense, }
 }
 
 ///|

@@ -13,7 +13,7 @@ pub fn MechanicalDesignGeometricPresentationRepresentation::new(
   items : Array[@step.Ref],
   context : @step.Ref,
 ) -> MechanicalDesignGeometricPresentationRepresentation {
-  MechanicalDesignGeometricPresentationRepresentation::{ name, items, context }
+  MechanicalDesignGeometricPresentationRepresentation::{ name, items, context, }
 }
 
 ///|

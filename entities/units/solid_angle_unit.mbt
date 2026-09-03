@@ -4,7 +4,7 @@ pub struct SolidAngleUnit {}
 
 ///|
 pub fn SolidAngleUnit::new() -> SolidAngleUnit {
-  SolidAngleUnit::{  }
+  SolidAngleUnit::{ }
 }
 
 ///|

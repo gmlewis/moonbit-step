@@ -14,7 +14,7 @@ pub fn HalfSpaceSolid::new(
   base_surface : @step.Ref,
   agreement_flag : Bool,
 ) -> HalfSpaceSolid {
-  HalfSpaceSolid::{ name, base_surface, agreement_flag }
+  HalfSpaceSolid::{ name, base_surface, agreement_flag, }
 }
 
 ///|

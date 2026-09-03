@@ -5,7 +5,7 @@ pub struct MassUnit {}
 
 ///|
 pub fn MassUnit::new() -> MassUnit {
-  MassUnit::{  }
+  MassUnit::{ }
 }
 
 ///|

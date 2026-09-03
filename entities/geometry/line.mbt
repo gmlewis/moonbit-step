@@ -8,7 +8,7 @@ pub struct Line {
 
 ///|
 pub fn Line::new(name : String, pnt : @step.Ref, dir : @step.Ref) -> Line {
-  Line::{ name, pnt, dir }
+  Line::{ name, pnt, dir, }
 }
 
 ///|

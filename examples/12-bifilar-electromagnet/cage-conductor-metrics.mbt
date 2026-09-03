@@ -26,7 +26,7 @@ struct CageConductorMetrics {
 
 ///|
 fn totals_zero() -> ConductorTotals {
-  { length_mm: 0.0, volume_mm3: 0.0, mm_over_mm2: 0.0, segments: 0 }
+  { length_mm: 0.0, volume_mm3: 0.0, mm_over_mm2: 0.0, segments: 0, }
 }
 
 ///|
@@ -340,5 +340,5 @@ pub fn estimate_bfem_cage_conductors(
       cage = totals_add_prism(cage, area, params.wire_width)
     }
   }
-  { cage, exit_wires }
+  { cage, exit_wires, }
 }

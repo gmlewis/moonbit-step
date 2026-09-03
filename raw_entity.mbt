@@ -12,7 +12,7 @@ pub struct RawEntity {
 
 ///|
 pub fn RawEntity::new(name : String, args : String) -> RawEntity {
-  RawEntity::{ name, args }
+  RawEntity::{ name, args, }
 }
 
 ///|

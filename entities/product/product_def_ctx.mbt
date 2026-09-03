@@ -14,7 +14,7 @@ pub fn ProductDefinitionContext::new(
   application : @step.Ref,
   life_cycle_stage : String,
 ) -> ProductDefinitionContext {
-  ProductDefinitionContext::{ name, application, life_cycle_stage }
+  ProductDefinitionContext::{ name, application, life_cycle_stage, }
 }
 
 ///|

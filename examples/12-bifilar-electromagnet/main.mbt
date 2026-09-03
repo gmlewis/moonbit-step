@@ -87,7 +87,7 @@ fn make_coil_pair(
     params.pos.1,
     params.pos.2 + (pair_num - 1).to_double() * delta_z,
   )
-  let params = { ..params, pos: new_pos }
+  let params = { ..params, pos: new_pos, }
 
   //
   let start_angle = 180.0 *

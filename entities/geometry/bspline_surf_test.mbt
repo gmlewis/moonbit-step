@@ -5,12 +5,12 @@ test "b_spline_surface_to_step" {
     2,
     [
       [
-        @step.Ref::{ id: @step.EntityId::{ value: 1 } },
-        @step.Ref::{ id: @step.EntityId::{ value: 2 } },
+        @step.Ref::{ id: @step.EntityId::{ value: 1, }, },
+        @step.Ref::{ id: @step.EntityId::{ value: 2, }, },
       ],
       [
-        @step.Ref::{ id: @step.EntityId::{ value: 3 } },
-        @step.Ref::{ id: @step.EntityId::{ value: 4 } },
+        @step.Ref::{ id: @step.EntityId::{ value: 3, }, },
+        @step.Ref::{ id: @step.EntityId::{ value: 4, }, },
       ],
     ],
     ".UNSPECIFIED.",

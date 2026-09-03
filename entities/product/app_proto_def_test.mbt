@@ -4,7 +4,7 @@ test "ApplicationProtocolDefinition to_step" {
     "international standard",
     "automotive_design",
     2010,
-    @step.Ref::{ id: @step.EntityId::{ value: 21 } },
+    @step.Ref::{ id: @step.EntityId::{ value: 21, }, },
   )
   inspect(
     @step.Entity::to_step(e),

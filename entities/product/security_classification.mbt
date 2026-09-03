@@ -15,7 +15,7 @@ pub fn SecurityClassification::new(
   purpose : String,
   security_level : @step.Ref,
 ) -> SecurityClassification {
-  SecurityClassification::{ name, purpose, security_level }
+  SecurityClassification::{ name, purpose, security_level, }
 }
 
 ///|

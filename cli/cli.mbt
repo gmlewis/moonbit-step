@@ -71,7 +71,7 @@ pub fn opt_int(
     Some(v) => v.to_double()
     None => nan()
   }
-  Arg::{ clap, min, max, min_exclusive: false, max_exclusive: false }
+  Arg::{ clap, min, max, min_exclusive: false, max_exclusive: false, }
 }
 
 ///|
@@ -90,7 +90,7 @@ pub fn opt_double(
     defaults=[default.to_string()],
     help~,
   )
-  Arg::{ clap, min, max, min_exclusive, max_exclusive }
+  Arg::{ clap, min, max, min_exclusive, max_exclusive, }
 }
 
 ///|

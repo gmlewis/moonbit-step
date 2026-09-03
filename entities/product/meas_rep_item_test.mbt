@@ -1,6 +1,6 @@
 ///|
 test "measure_representation_item to_step" {
-  let unit = @step.Ref::{ id: @step.EntityId::{ value: 589 } }
+  let unit = @step.Ref::{ id: @step.EntityId::{ value: 589, }, }
   let entity = MeasureRepresentationItem::new(
     "density measure",
     MeasureValueComponent::PositiveRatioMeasure(

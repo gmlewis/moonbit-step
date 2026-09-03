@@ -10,7 +10,7 @@ pub struct SiUnit {
 
 ///|
 pub fn SiUnit::new(prefix : String, name : String) -> SiUnit {
-  SiUnit::{ prefix, name }
+  SiUnit::{ prefix, name, }
 }
 
 ///|

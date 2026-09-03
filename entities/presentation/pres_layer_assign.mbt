@@ -13,7 +13,7 @@ pub fn PresentationLayerAssignment::new(
   description : String,
   items : Array[@step.Ref],
 ) -> PresentationLayerAssignment {
-  PresentationLayerAssignment::{ name, description, items }
+  PresentationLayerAssignment::{ name, description, items, }
 }
 
 ///|

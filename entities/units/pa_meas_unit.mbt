@@ -12,7 +12,7 @@ pub fn PlaneAngleMeasureWithUnit::new(
   plane_angle_measure_literal : String,
   unit : @step.Ref,
 ) -> PlaneAngleMeasureWithUnit {
-  PlaneAngleMeasureWithUnit::{ plane_angle_measure_literal, unit }
+  PlaneAngleMeasureWithUnit::{ plane_angle_measure_literal, unit, }
 }
 
 ///|

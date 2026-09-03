@@ -10,7 +10,7 @@ pub fn FillAreaStyle::new(
   name : String,
   styles : Array[@step.Ref],
 ) -> FillAreaStyle {
-  FillAreaStyle::{ name, styles }
+  FillAreaStyle::{ name, styles, }
 }
 
 ///|

@@ -10,7 +10,7 @@ pub fn helix_path(
   let max_angle = 2.0 * @math.PI * num_turns
   let total_segments = @math.ceil(num_turns * num_segs_per_turn.to_double())
   if total_segments < 1 {
-    return { points: [], normals: [], tangents: [] }
+    return { points: [], normals: [], tangents: [], }
   }
   let capacity = 1 + total_segments.to_int()
   let points = Array::new(capacity~)
@@ -43,7 +43,7 @@ pub fn helix_path(
     let normal = normalize(cross(normal, tangent))
     normals.push(normal)
   }
-  { points, normals, tangents }
+  { points, normals, tangents, }
 }
 
 ///|

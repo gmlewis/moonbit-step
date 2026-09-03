@@ -14,7 +14,7 @@ pub fn Axis2Placement3D::new(
   axis : @step.Ref,
   ref_direction : @step.Ref,
 ) -> Axis2Placement3D {
-  Axis2Placement3D::{ name, location, axis, ref_direction }
+  Axis2Placement3D::{ name, location, axis, ref_direction, }
 }
 
 ///|

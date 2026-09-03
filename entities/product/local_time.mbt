@@ -17,7 +17,7 @@ pub fn LocalTime::new(
   second_component : Double,
   zone : @step.Ref,
 ) -> LocalTime {
-  LocalTime::{ hour_component, minute_component, second_component, zone }
+  LocalTime::{ hour_component, minute_component, second_component, zone, }
 }
 
 ///|

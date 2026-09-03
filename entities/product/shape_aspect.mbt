@@ -17,7 +17,7 @@ pub fn ShapeAspect::new(
   of_shape : @step.Ref,
   product_definitional : String,
 ) -> ShapeAspect {
-  ShapeAspect::{ name, description, of_shape, product_definitional }
+  ShapeAspect::{ name, description, of_shape, product_definitional, }
 }
 
 ///|

@@ -13,7 +13,7 @@ pub fn CsgSolid::new(
   name : String,
   tree_root_expression : @step.Ref,
 ) -> CsgSolid {
-  CsgSolid::{ name, tree_root_expression }
+  CsgSolid::{ name, tree_root_expression, }
 }
 
 ///|

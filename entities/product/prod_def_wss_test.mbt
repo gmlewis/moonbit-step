@@ -3,7 +3,7 @@ test "ProductDefinitionFormationWithSpecifiedSource to_step" {
   let e = ProductDefinitionFormationWithSpecifiedSource::new(
     " ",
     " ",
-    @step.Ref::{ id: @step.EntityId::{ value: 18 } },
+    @step.Ref::{ id: @step.EntityId::{ value: 18, }, },
     ".NOT_KNOWN.",
   )
   inspect(

@@ -1,6 +1,6 @@
 ///|
 test "CSG primitives to_step" {
-  let pos = @step.Ref::{ id: { value: 10 } }
+  let pos = @step.Ref::{ id: { value: 10, }, }
   let block = Block::new("b", pos, 1.0, 2.0, 3.0)
   inspect(@step.Entity::to_step(block), content="BLOCK('b',#10,1.0,2.0,3.0)")
   let sphere = Sphere::new("s", pos, 5.0)

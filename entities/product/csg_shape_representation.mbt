@@ -15,7 +15,7 @@ pub fn CsgShapeRepresentation::new(
   items : Array[@step.Ref],
   context_of_items : @step.Ref,
 ) -> CsgShapeRepresentation {
-  CsgShapeRepresentation::{ name, items, context_of_items }
+  CsgShapeRepresentation::{ name, items, context_of_items, }
 }
 
 ///|

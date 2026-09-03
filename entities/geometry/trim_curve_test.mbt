@@ -2,7 +2,7 @@
 test "trim_curve to_step" {
   let e = TrimmedCurve::new(
     "",
-    @step.Ref::{ id: @step.EntityId::{ value: 12 } },
+    @step.Ref::{ id: @step.EntityId::{ value: 12, }, },
     "(PARAMETER_VALUE(0.0))",
     "(PARAMETER_VALUE(1.0))",
     true,

@@ -18,7 +18,7 @@ pub fn RectangularPyramid::new(
   y : Double,
   height : Double,
 ) -> RectangularPyramid {
-  RectangularPyramid::{ name, position, x, y, height }
+  RectangularPyramid::{ name, position, x, y, height, }
 }
 
 ///|

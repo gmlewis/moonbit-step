@@ -171,7 +171,7 @@ test "parse_repository_from_string_complex_rel_parts" {
   let content = "ISO-10303-21;\nDATA;\n#187=(\nREPRESENTATION_RELATIONSHIP('','',#40,#10)\nREPRESENTATION_RELATIONSHIP_WITH_TRANSFORMATION(#435)\nSHAPE_REPRESENTATION_RELATIONSHIP()\n);\nENDSEC;\nEND-ISO-10303-21;\n"
   let repo = parse_repository_from_string(content)
   inspect(repo.len(), content="1")
-  let e = repo.get(@step.EntityId::{ value: 187 })
+  let e = repo.get(@step.EntityId::{ value: 187, })
   match e {
     Some(@repository.AnyEntity::ComplexInstance(ci)) => {
       inspect(ci.parts.length(), content="3")
@@ -677,7 +677,7 @@ test "parse_repository_from_string_complex_b_spline_surface_with_knots_part" {
   let content = "ISO-10303-21;\nDATA;\n#52=(\nB_SPLINE_SURFACE_WITH_KNOTS((3,3),(3,2,3),(-0.1,0.2),(-3.14159,0.0,3.14159),.UNSPECIFIED.)\n);\nENDSEC;\nEND-ISO-10303-21;\n"
   let repo = parse_repository_from_string(content)
   inspect(repo.len(), content="1")
-  let e = repo.get(@step.EntityId::{ value: 52 })
+  let e = repo.get(@step.EntityId::{ value: 52, })
   match e {
     Some(@repository.AnyEntity::ComplexInstance(ci)) => {
       inspect(ci.parts.length(), content="1")
@@ -706,7 +706,7 @@ test "parse_repository_from_string_complex_rational_b_spline_surface_part" {
   let content = "ISO-10303-21;\nDATA;\n#54=(\nRATIONAL_B_SPLINE_SURFACE(((1.,0.5,2.),(0.25,1.,0.25)))\n);\nENDSEC;\nEND-ISO-10303-21;\n"
   let repo = parse_repository_from_string(content)
   inspect(repo.len(), content="1")
-  let e = repo.get(@step.EntityId::{ value: 54 })
+  let e = repo.get(@step.EntityId::{ value: 54, })
   match e {
     Some(@repository.AnyEntity::ComplexInstance(ci)) => {
       inspect(ci.parts.length(), content="1")
@@ -737,7 +737,7 @@ test "parse_repository_from_string_complex_b_spline_surface_part" {
   let content = "ISO-10303-21;\nDATA;\n#56=(\nB_SPLINE_SURFACE(2,2,((#1,#2),(#3,#4)),.UNSPECIFIED.,.F.,.F.,.F.)\n);\nENDSEC;\nEND-ISO-10303-21;\n"
   let repo = parse_repository_from_string(content)
   inspect(repo.len(), content="1")
-  let e = repo.get(@step.EntityId::{ value: 56 })
+  let e = repo.get(@step.EntityId::{ value: 56, })
   match e {
     Some(@repository.AnyEntity::ComplexInstance(ci)) => {
       inspect(ci.parts.length(), content="1")
@@ -755,7 +755,7 @@ test "parse_repository_from_string_complex_marker_surface_chain_parts" {
   let content = "ISO-10303-21;\nDATA;\n#57=(\nREPRESENTATION_ITEM('')\nGEOMETRIC_REPRESENTATION_ITEM()\nSURFACE()\nBOUNDED_SURFACE()\n);\nENDSEC;\nEND-ISO-10303-21;\n"
   let repo = parse_repository_from_string(content)
   inspect(repo.len(), content="1")
-  let e = repo.get(@step.EntityId::{ value: 57 })
+  let e = repo.get(@step.EntityId::{ value: 57, })
   match e {
     Some(@repository.AnyEntity::ComplexInstance(ci)) => {
       inspect(ci.parts.length(), content="4")
@@ -794,7 +794,7 @@ test "parse_repository_from_string_complex_rational_b_spline_curve_part" {
   let content = "ISO-10303-21;\nDATA;\n#60=(\nRATIONAL_B_SPLINE_CURVE((1.,1.,1.))\n);\nENDSEC;\nEND-ISO-10303-21;\n"
   let repo = parse_repository_from_string(content)
   inspect(repo.len(), content="1")
-  let e = repo.get(@step.EntityId::{ value: 60 })
+  let e = repo.get(@step.EntityId::{ value: 60, })
   match e {
     Some(@repository.AnyEntity::ComplexInstance(ci)) => {
       inspect(ci.parts.length(), content="1")
@@ -979,7 +979,7 @@ test "parse_repository_from_string_measure_representation_item" {
 test "parse_repository_from_string_measure_representation_item_typed_value" {
   let content = "ISO-10303-21;\nDATA;\n#590=MEASURE_REPRESENTATION_ITEM('density measure',POSITIVE_RATIO_MEASURE(7850.),#589);\nENDSEC;\nEND-ISO-10303-21;\n"
   let repo = parse_repository_from_string(content)
-  let e = repo.get(@step.EntityId::{ value: 590 })
+  let e = repo.get(@step.EntityId::{ value: 590, })
   match e {
     Some(@repository.AnyEntity::MeasureRepresentationItem(mri)) =>
       match mri.value_component {

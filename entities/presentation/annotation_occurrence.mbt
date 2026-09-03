@@ -15,7 +15,7 @@ pub fn AnnotationOccurrence::new(
   styles : Array[@step.Ref],
   item : @step.Ref,
 ) -> AnnotationOccurrence {
-  AnnotationOccurrence::{ name, styles, item }
+  AnnotationOccurrence::{ name, styles, item, }
 }
 
 ///|

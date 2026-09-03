@@ -17,7 +17,7 @@ pub fn OverRidingStyledItem::new(
   item : @step.Ref,
   over_ridden_styled_item : @step.Ref,
 ) -> OverRidingStyledItem {
-  OverRidingStyledItem::{ name, styles, item, over_ridden_styled_item }
+  OverRidingStyledItem::{ name, styles, item, over_ridden_styled_item, }
 }
 
 ///|

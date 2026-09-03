@@ -11,7 +11,7 @@ pub fn CartesianPoint::new(
   name : String,
   coordinates : Array[Double],
 ) -> CartesianPoint {
-  CartesianPoint::{ name, coordinates }
+  CartesianPoint::{ name, coordinates, }
 }
 
 ///|

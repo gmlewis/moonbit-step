@@ -13,7 +13,7 @@ pub fn DateAndTime::new(
   date_component : @step.Ref,
   time_component : @step.Ref,
 ) -> DateAndTime {
-  DateAndTime::{ date_component, time_component }
+  DateAndTime::{ date_component, time_component, }
 }
 
 ///|

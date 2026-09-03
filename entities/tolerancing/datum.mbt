@@ -19,7 +19,7 @@ pub fn Datum::new(
   product_definitional : String,
   identification : String,
 ) -> Datum {
-  Datum::{ name, description, of_shape, product_definitional, identification }
+  Datum::{ name, description, of_shape, product_definitional, identification, }
 }
 
 ///|

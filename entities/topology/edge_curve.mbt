@@ -18,7 +18,7 @@ pub fn EdgeCurve::new(
   edge_geometry : @step.Ref,
   same_sense : Bool,
 ) -> EdgeCurve {
-  EdgeCurve::{ name, edge_start, edge_end, edge_geometry, same_sense }
+  EdgeCurve::{ name, edge_start, edge_end, edge_geometry, same_sense, }
 }
 
 ///|

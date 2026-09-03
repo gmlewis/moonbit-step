@@ -14,7 +14,7 @@ pub fn ProductContext::new(
   frame_of_reference : @step.Ref,
   discipline_type : String,
 ) -> ProductContext {
-  ProductContext::{ name, frame_of_reference, discipline_type }
+  ProductContext::{ name, frame_of_reference, discipline_type, }
 }
 
 ///|

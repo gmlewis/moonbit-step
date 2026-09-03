@@ -12,7 +12,7 @@ pub fn MeasureWithUnit::new(
   value_component : String,
   unit_component : @step.Ref,
 ) -> MeasureWithUnit {
-  MeasureWithUnit::{ value_component, unit_component }
+  MeasureWithUnit::{ value_component, unit_component, }
 }
 
 ///|

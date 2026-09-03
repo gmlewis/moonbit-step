@@ -21,7 +21,7 @@ pub struct StatementSpan {
 // We insert a single space where the comment started to avoid accidentally
 // merging adjacent tokens.
 fn strip_step_comments(input : String) -> String raise StepParseError {
-  let builder = StringBuilder::new()
+  let builder = StringBuilder()
   let n = input.length()
   let mut in_str = false
   let mut in_comment = false
@@ -157,7 +157,7 @@ fn parse_int_dec(s : String) -> Int {
 pub fn split_statements(data_section : String) -> Array[String] {
   let out : Array[String] = []
   let mut in_str = false
-  let mut builder = StringBuilder::new()
+  let mut builder = StringBuilder()
   let n = data_section.length()
   let mut i = 0
   while i < n {
@@ -186,7 +186,7 @@ pub fn split_statements(data_section : String) -> Array[String] {
       if stmt.length() > 0 {
         out.push(stmt)
       }
-      builder = StringBuilder::new()
+      builder = StringBuilder()
       i = i + 1
       continue
     }
@@ -210,7 +210,7 @@ pub fn split_statements_with_pos(
 ) -> Array[StatementSpan] raise StepParseError {
   let out : Array[StatementSpan] = []
   let mut in_str = false
-  let mut builder = StringBuilder::new()
+  let mut builder = StringBuilder()
   let mut line = 1
   let mut col = 1
   let mut stmt_line = 1
@@ -269,9 +269,9 @@ pub fn split_statements_with_pos(
     if !in_str && ci == Char::to_int(';') {
       let stmt = builder.to_string().trim().to_owned()
       if stmt.length() > 0 {
-        out.push(StatementSpan::{ stmt, line: stmt_line, col: stmt_col })
+        out.push(StatementSpan::{ stmt, line: stmt_line, col: stmt_col, })
       }
-      builder = StringBuilder::new()
+      builder = StringBuilder()
       seen_non_ws = false
       i = i + 1
       col = col + 1
@@ -288,7 +288,7 @@ pub fn split_statements_with_pos(
   }
   let trailing = builder.to_string().trim().to_owned()
   if trailing.length() > 0 {
-    out.push(StatementSpan::{ stmt: trailing, line: stmt_line, col: stmt_col })
+    out.push(StatementSpan::{ stmt: trailing, line: stmt_line, col: stmt_col, })
   }
   if in_str {
     fail_parse_at(
@@ -340,7 +340,7 @@ fn parse_row(span : StatementSpan) -> RawEntityRow raise StepParseError {
   }
   let id_digits = substr(id_part, 1, id_part.length())
   let id_val = parse_int_dec(id_digits)
-  let id = @step.EntityId::{ value: id_val }
+  let id = @step.EntityId::{ value: id_val, }
   let rhs = substr(stmt, eq_idx + 1, stmt.length()).trim().to_owned()
 
   // Complex entity instance form: #<id>=( <ENTITY1> ... <ENTITYN> );
@@ -366,7 +366,7 @@ fn parse_row(span : StatementSpan) -> RawEntityRow raise StepParseError {
   }
   let name = substr(rhs, 0, lp_idx).trim().to_owned()
   let args = substr(rhs, lp_idx, rhs.length()).trim().to_owned()
-  RawEntityRow::{ id, name, args, line: span.line, col: span.col }
+  RawEntityRow::{ id, name, args, line: span.line, col: span.col, }
 }
 
 ///|
@@ -406,7 +406,7 @@ pub fn tokenize_step_data_section_with_base(
       base_line,
       base_col,
     )
-    parse_row(StatementSpan::{ stmt: span.stmt, line: abs_line, col: abs_col })
+    parse_row(StatementSpan::{ stmt: span.stmt, line: abs_line, col: abs_col, })
   })
   rows
 }

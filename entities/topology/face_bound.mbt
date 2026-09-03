@@ -14,7 +14,7 @@ pub fn FaceBound::new(
   bound : @step.Ref,
   orientation : Bool,
 ) -> FaceBound {
-  FaceBound::{ name, bound, orientation }
+  FaceBound::{ name, bound, orientation, }
 }
 
 ///|

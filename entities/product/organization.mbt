@@ -14,7 +14,7 @@ pub fn Organization::new(
   name : String,
   description : String,
 ) -> Organization {
-  Organization::{ id, name, description }
+  Organization::{ id, name, description, }
 }
 
 ///|

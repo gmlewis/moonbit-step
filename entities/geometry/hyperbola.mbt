@@ -16,7 +16,7 @@ pub fn Hyperbola::new(
   semi_axis : Double,
   semi_imag_axis : Double,
 ) -> Hyperbola {
-  Hyperbola::{ name, position, semi_axis, semi_imag_axis }
+  Hyperbola::{ name, position, semi_axis, semi_imag_axis, }
 }
 
 ///|

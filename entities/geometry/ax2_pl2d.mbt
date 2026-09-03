@@ -15,7 +15,7 @@ pub fn Axis2Placement2D::new(
   location : @step.Ref,
   ref_direction? : @step.Ref? = None,
 ) -> Axis2Placement2D {
-  Axis2Placement2D::{ name, location, ref_direction }
+  Axis2Placement2D::{ name, location, ref_direction, }
 }
 
 ///|

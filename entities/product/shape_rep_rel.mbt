@@ -16,7 +16,7 @@ pub fn ShapeRepresentationRelationship::new(
   rep_1 : @step.Ref,
   rep_2 : @step.Ref,
 ) -> ShapeRepresentationRelationship {
-  ShapeRepresentationRelationship::{ name, description, rep_1, rep_2 }
+  ShapeRepresentationRelationship::{ name, description, rep_1, rep_2, }
 }
 
 ///|

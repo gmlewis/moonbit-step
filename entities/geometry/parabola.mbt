@@ -14,7 +14,7 @@ pub fn Parabola::new(
   position : @step.Ref,
   focal_dist : Double,
 ) -> Parabola {
-  Parabola::{ name, position, focal_dist }
+  Parabola::{ name, position, focal_dist, }
 }
 
 ///|

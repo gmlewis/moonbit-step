@@ -2,7 +2,7 @@
 test "ProductDefinitionContext to_step" {
   let e = ProductDefinitionContext::new(
     "part definition",
-    @step.Ref::{ id: @step.EntityId::{ value: 21 } },
+    @step.Ref::{ id: @step.EntityId::{ value: 21, }, },
     "design",
   )
   inspect(

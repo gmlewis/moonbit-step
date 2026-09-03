@@ -10,7 +10,7 @@ pub fn RepresentationContext::new(
   context_identifier : String,
   context_type : String,
 ) -> RepresentationContext {
-  RepresentationContext::{ context_identifier, context_type }
+  RepresentationContext::{ context_identifier, context_type, }
 }
 
 ///|

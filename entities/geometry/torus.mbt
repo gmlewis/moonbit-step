@@ -17,7 +17,7 @@ pub fn Torus::new(
   major_radius : Double,
   minor_radius : Double,
 ) -> Torus {
-  Torus::{ name, position, major_radius, minor_radius }
+  Torus::{ name, position, major_radius, minor_radius, }
 }
 
 ///|

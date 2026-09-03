@@ -15,7 +15,7 @@ pub fn KinematicPair::new(
   description : String,
   joint : @step.Ref,
 ) -> KinematicPair {
-  KinematicPair::{ name, description, joint }
+  KinematicPair::{ name, description, joint, }
 }
 
 ///|

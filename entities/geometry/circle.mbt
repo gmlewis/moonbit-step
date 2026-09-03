@@ -14,7 +14,7 @@ pub fn Circle::new(
   position : @step.Ref,
   radius_literal : String,
 ) -> Circle {
-  Circle::{ name, position, radius_literal }
+  Circle::{ name, position, radius_literal, }
 }
 
 ///|

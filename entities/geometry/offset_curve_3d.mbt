@@ -16,7 +16,7 @@ pub fn OffsetCurve3D::new(
   distance : Double,
   ref_direction : @step.Ref,
 ) -> OffsetCurve3D {
-  OffsetCurve3D::{ name, basis_curve, distance, ref_direction }
+  OffsetCurve3D::{ name, basis_curve, distance, ref_direction, }
 }
 
 ///|

@@ -16,7 +16,7 @@ pub fn RightCircularCylinder::new(
   height : Double,
   radius : Double,
 ) -> RightCircularCylinder {
-  RightCircularCylinder::{ name, position, height, radius }
+  RightCircularCylinder::{ name, position, height, radius, }
 }
 
 ///|

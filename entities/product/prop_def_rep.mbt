@@ -12,7 +12,7 @@ pub fn PropertyDefinitionRepresentation::new(
   definition : @step.Ref,
   used_representation : @step.Ref,
 ) -> PropertyDefinitionRepresentation {
-  PropertyDefinitionRepresentation::{ definition, used_representation }
+  PropertyDefinitionRepresentation::{ definition, used_representation, }
 }
 
 ///|

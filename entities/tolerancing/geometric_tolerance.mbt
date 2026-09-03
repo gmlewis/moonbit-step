@@ -17,7 +17,7 @@ pub fn GeometricTolerance::new(
   magnitude : @step.Ref,
   toleranced_shape_aspect : @step.Ref,
 ) -> GeometricTolerance {
-  GeometricTolerance::{ name, description, magnitude, toleranced_shape_aspect }
+  GeometricTolerance::{ name, description, magnitude, toleranced_shape_aspect, }
 }
 
 ///|

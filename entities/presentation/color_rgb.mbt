@@ -14,7 +14,7 @@ pub fn ColorRgb::new(
   green : Double,
   blue : Double,
 ) -> ColorRgb {
-  ColorRgb::{ name, red, green, blue }
+  ColorRgb::{ name, red, green, blue, }
 }
 
 ///|

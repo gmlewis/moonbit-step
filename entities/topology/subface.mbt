@@ -15,7 +15,7 @@ pub fn Subface::new(
   bounds : Array[@step.Ref],
   parent_face : @step.Ref,
 ) -> Subface {
-  Subface::{ name, bounds, parent_face }
+  Subface::{ name, bounds, parent_face, }
 }
 
 ///|

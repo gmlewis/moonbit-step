@@ -9,7 +9,7 @@ pub struct EdgeLoop {
 
 ///|
 pub fn EdgeLoop::new(name : String, edges : Array[@step.Ref]) -> EdgeLoop {
-  EdgeLoop::{ name, edges }
+  EdgeLoop::{ name, edges, }
 }
 
 ///|

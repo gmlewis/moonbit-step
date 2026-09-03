@@ -16,7 +16,7 @@ pub fn Ellipse::new(
   semi_axis_1_literal : String,
   semi_axis_2_literal : String,
 ) -> Ellipse {
-  Ellipse::{ name, position, semi_axis_1_literal, semi_axis_2_literal }
+  Ellipse::{ name, position, semi_axis_1_literal, semi_axis_2_literal, }
 }
 
 ///|

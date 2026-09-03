@@ -10,7 +10,7 @@ pub struct Approval {
 
 ///|
 pub fn Approval::new(status : @step.Ref, level : String) -> Approval {
-  Approval::{ status, level }
+  Approval::{ status, level, }
 }
 
 ///|

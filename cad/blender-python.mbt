@@ -273,7 +273,7 @@ pub fn Design::to_blender_python(
   segments? : Int = 0, // <=0: retain cubic Beziers, >0: convert to polylines with this many segments
   keep_modifiers? : Bool = false,
 ) -> String {
-  let builder = StringBuilder::new()
+  let builder = StringBuilder()
   builder.write_string(PREAMBLE)
   if keep_modifiers {
     builder.write_string(BOOLEAN_DIFFERENCE_KEEP_MODIFIERS)

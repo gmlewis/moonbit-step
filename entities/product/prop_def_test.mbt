@@ -1,6 +1,6 @@
 ///|
 test "property_definition to_step" {
-  let def = @step.Ref::{ id: @step.EntityId::{ value: 1652 } }
+  let def = @step.Ref::{ id: @step.EntityId::{ value: 1652, }, }
   let entity = PropertyDefinition::new(
     "material property", "material name", def,
   )

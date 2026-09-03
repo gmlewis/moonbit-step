@@ -12,7 +12,7 @@ pub fn ConnectedFaceSet::new(
   name : String,
   cfs_faces : Array[@step.Ref],
 ) -> ConnectedFaceSet {
-  ConnectedFaceSet::{ name, cfs_faces }
+  ConnectedFaceSet::{ name, cfs_faces, }
 }
 
 ///|

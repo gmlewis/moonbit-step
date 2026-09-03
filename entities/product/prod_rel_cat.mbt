@@ -14,7 +14,7 @@ pub fn ProductRelatedProductCategory::new(
   description : String,
   products : Array[@step.Ref],
 ) -> ProductRelatedProductCategory {
-  ProductRelatedProductCategory::{ name, description, products }
+  ProductRelatedProductCategory::{ name, description, products, }
 }
 
 ///|

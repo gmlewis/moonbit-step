@@ -7,7 +7,7 @@ test "CertificationType::to_step" {
 
 ///|
 test "Certification::to_step" {
-  let kind = @step.Ref::{ id: { value: 10 } }
+  let kind = @step.Ref::{ id: { value: 10, }, }
   let c = Certification::new("name", "purpose", kind)
   let s = @step.Entity::to_step(c)
   inspect(s, content="CERTIFICATION('name','purpose',#10)")

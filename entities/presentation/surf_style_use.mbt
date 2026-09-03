@@ -11,7 +11,7 @@ pub fn SurfaceStyleUsage::new(
   side : String,
   style : @step.Ref,
 ) -> SurfaceStyleUsage {
-  SurfaceStyleUsage::{ side, style }
+  SurfaceStyleUsage::{ side, style, }
 }
 
 ///|

@@ -16,7 +16,7 @@ test "draughting_pre_defined_colour_to_step" {
 ///|
 test "fill_area_style_color_to_step" {
   let c = FillAreaStyleColor::new("", @step.Ref::{
-    id: @step.EntityId::{ value: 31 },
+    id: @step.EntityId::{ value: 31, },
   })
   inspect(@step.Entity::to_step(c), content="FILL_AREA_STYLE_COLOUR('',#31)")
 }
@@ -24,7 +24,7 @@ test "fill_area_style_color_to_step" {
 ///|
 test "fill_area_style_to_step" {
   let s = FillAreaStyle::new("", [
-    @step.Ref::{ id: @step.EntityId::{ value: 30 } },
+    @step.Ref::{ id: @step.EntityId::{ value: 30, }, },
   ])
   inspect(@step.Entity::to_step(s), content="FILL_AREA_STYLE('',(#30))")
 }
@@ -32,7 +32,7 @@ test "fill_area_style_to_step" {
 ///|
 test "surface_style_fill_area_to_step" {
   let s = SurfaceStyleFillArea::new(@step.Ref::{
-    id: @step.EntityId::{ value: 29 },
+    id: @step.EntityId::{ value: 29, },
   })
   inspect(@step.Entity::to_step(s), content="SURFACE_STYLE_FILL_AREA(#29)")
 }
@@ -40,7 +40,7 @@ test "surface_style_fill_area_to_step" {
 ///|
 test "surface_side_style_to_step" {
   let s = SurfaceSideStyle::new("", [
-    @step.Ref::{ id: @step.EntityId::{ value: 28 } },
+    @step.Ref::{ id: @step.EntityId::{ value: 28, }, },
   ])
   inspect(@step.Entity::to_step(s), content="SURFACE_SIDE_STYLE('',(#28))")
 }
@@ -48,7 +48,7 @@ test "surface_side_style_to_step" {
 ///|
 test "surface_style_usage_to_step" {
   let s = SurfaceStyleUsage::new(".BOTH.", @step.Ref::{
-    id: @step.EntityId::{ value: 27 },
+    id: @step.EntityId::{ value: 27, },
   })
   inspect(@step.Entity::to_step(s), content="SURFACE_STYLE_USAGE(.BOTH.,#27)")
 }
@@ -56,7 +56,7 @@ test "surface_style_usage_to_step" {
 ///|
 test "presentation_style_assignment_to_step" {
   let p = PresentationStyleAssignment::new([
-    @step.Ref::{ id: @step.EntityId::{ value: 26 } },
+    @step.Ref::{ id: @step.EntityId::{ value: 26, }, },
   ])
   inspect(
     @step.Entity::to_step(p),
@@ -68,8 +68,8 @@ test "presentation_style_assignment_to_step" {
 test "styled_item_to_step" {
   let s = StyledItem::new(
     "",
-    [@step.Ref::{ id: @step.EntityId::{ value: 25 } }],
-    @step.Ref::{ id: @step.EntityId::{ value: 32 } },
+    [@step.Ref::{ id: @step.EntityId::{ value: 25, }, }],
+    @step.Ref::{ id: @step.EntityId::{ value: 32, }, },
   )
   inspect(@step.Entity::to_step(s), content="STYLED_ITEM('',(#25),#32)")
 }
@@ -78,9 +78,9 @@ test "styled_item_to_step" {
 test "over_riding_styled_item_to_step" {
   let s = OverRidingStyledItem::new(
     "",
-    [@step.Ref::{ id: @step.EntityId::{ value: 25 } }],
-    @step.Ref::{ id: @step.EntityId::{ value: 32 } },
-    @step.Ref::{ id: @step.EntityId::{ value: 33 } },
+    [@step.Ref::{ id: @step.EntityId::{ value: 25, }, }],
+    @step.Ref::{ id: @step.EntityId::{ value: 32, }, },
+    @step.Ref::{ id: @step.EntityId::{ value: 33, }, },
   )
   inspect(
     @step.Entity::to_step(s),
@@ -92,9 +92,9 @@ test "over_riding_styled_item_to_step" {
 test "hidden_element_over_riding_styled_item_to_step" {
   let s = HiddenElementOverRidingStyledItem::new(
     "",
-    [@step.Ref::{ id: @step.EntityId::{ value: 25 } }],
-    @step.Ref::{ id: @step.EntityId::{ value: 32 } },
-    @step.Ref::{ id: @step.EntityId::{ value: 33 } },
+    [@step.Ref::{ id: @step.EntityId::{ value: 25, }, }],
+    @step.Ref::{ id: @step.EntityId::{ value: 32, }, },
+    @step.Ref::{ id: @step.EntityId::{ value: 33, }, },
   )
   inspect(
     @step.Entity::to_step(s),
@@ -106,8 +106,8 @@ test "hidden_element_over_riding_styled_item_to_step" {
 test "annotation_occurrence_to_step" {
   let s = AnnotationOccurrence::new(
     "",
-    [@step.Ref::{ id: @step.EntityId::{ value: 25 } }],
-    @step.Ref::{ id: @step.EntityId::{ value: 32 } },
+    [@step.Ref::{ id: @step.EntityId::{ value: 25, }, }],
+    @step.Ref::{ id: @step.EntityId::{ value: 32, }, },
   )
   inspect(
     @step.Entity::to_step(s),
@@ -118,7 +118,7 @@ test "annotation_occurrence_to_step" {
 ///|
 test "presentation_layer_assignment_to_step" {
   let p = PresentationLayerAssignment::new("1", "Layer 1", [
-    @step.Ref::{ id: @step.EntityId::{ value: 32 } },
+    @step.Ref::{ id: @step.EntityId::{ value: 32, }, },
   ])
   inspect(
     @step.Entity::to_step(p),
@@ -130,8 +130,8 @@ test "presentation_layer_assignment_to_step" {
 test "md_geom_presrep_to_step" {
   let r = MechanicalDesignGeometricPresentationRepresentation::new(
     "",
-    [@step.Ref::{ id: @step.EntityId::{ value: 24 } }],
-    @step.Ref::{ id: @step.EntityId::{ value: 187 } },
+    [@step.Ref::{ id: @step.EntityId::{ value: 24, }, }],
+    @step.Ref::{ id: @step.EntityId::{ value: 187, }, },
   )
   inspect(
     @step.Entity::to_step(r),

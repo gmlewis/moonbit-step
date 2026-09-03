@@ -14,7 +14,7 @@ pub fn PropertyDefinition::new(
   description : String,
   definition : @step.Ref,
 ) -> PropertyDefinition {
-  PropertyDefinition::{ name, description, definition }
+  PropertyDefinition::{ name, description, definition, }
 }
 
 ///|

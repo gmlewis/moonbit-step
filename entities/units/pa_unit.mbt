@@ -4,7 +4,7 @@ pub struct PlaneAngleUnit {}
 
 ///|
 pub fn PlaneAngleUnit::new() -> PlaneAngleUnit {
-  PlaneAngleUnit::{  }
+  PlaneAngleUnit::{ }
 }
 
 ///|

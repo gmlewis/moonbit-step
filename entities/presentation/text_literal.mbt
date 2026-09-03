@@ -50,7 +50,7 @@ pub fn TextLiteral::new(
   path : TextPath,
   font : @step.Ref,
 ) -> TextLiteral {
-  TextLiteral::{ name, literal, placement, alignment, path, font }
+  TextLiteral::{ name, literal, placement, alignment, path, font, }
 }
 
 ///|

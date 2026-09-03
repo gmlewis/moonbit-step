@@ -12,7 +12,7 @@ pub fn StyledItem::new(
   styles : Array[@step.Ref],
   item : @step.Ref,
 ) -> StyledItem {
-  StyledItem::{ name, styles, item }
+  StyledItem::{ name, styles, item, }
 }
 
 ///|

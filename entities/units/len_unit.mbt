@@ -4,7 +4,7 @@ pub struct LengthUnit {}
 
 ///|
 pub fn LengthUnit::new() -> LengthUnit {
-  LengthUnit::{  }
+  LengthUnit::{ }
 }
 
 ///|

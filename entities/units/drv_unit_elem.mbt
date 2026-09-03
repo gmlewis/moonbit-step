@@ -12,7 +12,7 @@ pub fn DerivedUnitElement::new(
   unit : @step.Ref,
   exponent : Double,
 ) -> DerivedUnitElement {
-  DerivedUnitElement::{ unit, exponent }
+  DerivedUnitElement::{ unit, exponent, }
 }
 
 ///|

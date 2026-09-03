@@ -14,7 +14,7 @@ pub fn CoordinatedUniversalTimeOffset::new(
   minute_offset : Int,
   sense : String,
 ) -> CoordinatedUniversalTimeOffset {
-  CoordinatedUniversalTimeOffset::{ hour_offset, minute_offset, sense }
+  CoordinatedUniversalTimeOffset::{ hour_offset, minute_offset, sense, }
 }
 
 ///|

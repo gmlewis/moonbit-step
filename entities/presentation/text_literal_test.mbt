@@ -1,7 +1,7 @@
 ///|
 test "TextLiteral::to_step" {
-  let placement = @step.Ref::{ id: { value: 10 } }
-  let font = @step.Ref::{ id: { value: 20 } }
+  let placement = @step.Ref::{ id: { value: 10, }, }
+  let font = @step.Ref::{ id: { value: 20, }, }
   let tl = TextLiteral::new(
     "name",
     "literal",

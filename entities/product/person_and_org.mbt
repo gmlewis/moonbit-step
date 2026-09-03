@@ -13,7 +13,7 @@ pub fn PersonAndOrganization::new(
   the_person : @step.Ref,
   the_organization : @step.Ref,
 ) -> PersonAndOrganization {
-  PersonAndOrganization::{ the_person, the_organization }
+  PersonAndOrganization::{ the_person, the_organization, }
 }
 
 ///|

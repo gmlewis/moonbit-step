@@ -12,7 +12,7 @@ pub struct PositiveRatioMeasure {
 ///|
 pub fn PositiveRatioMeasure::new(value : String) -> PositiveRatioMeasure {
   let trimmed = value.trim().to_owned()
-  PositiveRatioMeasure::{ value: trimmed }
+  PositiveRatioMeasure::{ value: trimmed, }
 }
 
 ///|

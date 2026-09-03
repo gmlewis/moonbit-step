@@ -16,7 +16,7 @@ pub fn Product::new(
   description : String,
   frame_of_reference : Array[@step.Ref],
 ) -> Product {
-  Product::{ name, id, description, frame_of_reference }
+  Product::{ name, id, description, frame_of_reference, }
 }
 
 ///|

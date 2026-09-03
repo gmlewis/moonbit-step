@@ -1,6 +1,6 @@
 ///|
 test "CompositeCurveSegment::to_step" {
-  let curve = @step.Ref::{ id: { value: 10 } }
+  let curve = @step.Ref::{ id: { value: 10, }, }
   let seg = CompositeCurveSegment::new(Continuous, true, curve)
   inspect(
     @step.Entity::to_step(seg),
@@ -11,8 +11,8 @@ test "CompositeCurveSegment::to_step" {
 ///|
 test "CompositeCurve::to_step" {
   let segs = [
-    @step.Ref::{ id: { value: 10 } },
-    @step.Ref::{ id: { value: 20 } },
+    @step.Ref::{ id: { value: 10, }, },
+    @step.Ref::{ id: { value: 20, }, },
   ]
   let curve = CompositeCurve::new("test", segs, false)
   inspect(

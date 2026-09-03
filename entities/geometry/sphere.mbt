@@ -14,7 +14,7 @@ pub fn Sphere::new(
   position : @step.Ref,
   radius : Double,
 ) -> Sphere {
-  Sphere::{ name, position, radius }
+  Sphere::{ name, position, radius, }
 }
 
 ///|

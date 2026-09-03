@@ -15,7 +15,7 @@ pub fn SurfaceOfRevolution::new(
   swept_curve : @step.Ref,
   axis_position : @step.Ref,
 ) -> SurfaceOfRevolution {
-  SurfaceOfRevolution::{ name, swept_curve, axis_position }
+  SurfaceOfRevolution::{ name, swept_curve, axis_position, }
 }
 
 ///|

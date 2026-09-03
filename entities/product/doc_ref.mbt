@@ -17,7 +17,7 @@ pub fn DocumentReference::new(
   description : String,
   assigned_document : @step.Ref,
 ) -> DocumentReference {
-  DocumentReference::{ id, name, description, assigned_document }
+  DocumentReference::{ id, name, description, assigned_document, }
 }
 
 ///|

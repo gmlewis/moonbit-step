@@ -17,7 +17,7 @@ pub fn DatumFeature::new(
   of_shape : @step.Ref,
   product_definitional : String,
 ) -> DatumFeature {
-  DatumFeature::{ name, description, of_shape, product_definitional }
+  DatumFeature::{ name, description, of_shape, product_definitional, }
 }
 
 ///|

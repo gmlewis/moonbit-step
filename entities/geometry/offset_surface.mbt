@@ -16,7 +16,7 @@ pub fn OffsetSurface::new(
   distance : Double,
   self_intersect : Bool,
 ) -> OffsetSurface {
-  OffsetSurface::{ name, basis_surface, distance, self_intersect }
+  OffsetSurface::{ name, basis_surface, distance, self_intersect, }
 }
 
 ///|

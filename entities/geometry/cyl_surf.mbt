@@ -14,7 +14,7 @@ pub fn CylindricalSurface::new(
   position : @step.Ref,
   radius_literal : String,
 ) -> CylindricalSurface {
-  CylindricalSurface::{ name, position, radius_literal }
+  CylindricalSurface::{ name, position, radius_literal, }
 }
 
 ///|

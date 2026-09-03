@@ -9,7 +9,7 @@ pub struct ClosedShell {
 
 ///|
 pub fn ClosedShell::new(name : String, faces : Array[@step.Ref]) -> ClosedShell {
-  ClosedShell::{ name, faces }
+  ClosedShell::{ name, faces, }
 }
 
 ///|

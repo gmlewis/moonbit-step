@@ -43,7 +43,7 @@ pub fn BooleanResult::new(
   first_operand : @step.Ref,
   second_operand : @step.Ref,
 ) -> BooleanResult {
-  BooleanResult::{ name, operator, first_operand, second_operand }
+  BooleanResult::{ name, operator, first_operand, second_operand, }
 }
 
 ///|

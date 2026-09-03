@@ -13,7 +13,7 @@ pub fn ShellBasedSurfaceModel::new(
   name : String,
   sbsm_boundary : Array[@step.Ref],
 ) -> ShellBasedSurfaceModel {
-  ShellBasedSurfaceModel::{ name, sbsm_boundary }
+  ShellBasedSurfaceModel::{ name, sbsm_boundary, }
 }
 
 ///|

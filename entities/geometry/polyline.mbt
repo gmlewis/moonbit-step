@@ -9,7 +9,7 @@ pub struct Polyline {
 
 ///|
 pub fn Polyline::new(name : String, points : Array[@step.Ref]) -> Polyline {
-  Polyline::{ name, points }
+  Polyline::{ name, points, }
 }
 
 ///|

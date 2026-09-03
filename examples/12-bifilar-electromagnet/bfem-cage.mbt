@@ -91,7 +91,7 @@ fn make_vertical_post_wedge(
     .with_name("bfem:cage:post-wedge:r\{inner_radius}:a\{start_angle}")
     .with_color(color)
     .translate(z=pos.2)
-  { post, top_p0: (sx2, sy2), top_p1: (sx3, sy3) }
+  { post, top_p0: (sx2, sy2), top_p1: (sx3, sy3), }
 }
 
 ///|

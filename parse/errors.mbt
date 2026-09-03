@@ -35,7 +35,7 @@ pub fn[T] fail_parse() -> T raise StepParseError {
 ///|
 // Raise a parse error with a message.
 pub fn[T] fail_parse_msg(msg : String) -> T raise StepParseError {
-  raise StepParseError({ message: msg, line: None, col: None, stmt: None })
+  raise StepParseError({ message: msg, line: None, col: None, stmt: None, })
 }
 
 ///|
@@ -44,7 +44,12 @@ pub fn[T] fail_parse_stmt(
   msg : String,
   stmt : String,
 ) -> T raise StepParseError {
-  raise StepParseError({ message: msg, line: None, col: None, stmt: Some(stmt) })
+  raise StepParseError({
+    message: msg,
+    line: None,
+    col: None,
+    stmt: Some(stmt),
+  })
 }
 
 ///|
@@ -113,7 +118,7 @@ fn cu_at_err(s : String, i : Int) -> Int {
 
 ///|
 fn render_spaces(n : Int) -> String {
-  let builder = StringBuilder::new()
+  let builder = StringBuilder()
   for _ in 0..<n {
     builder.write_char(' ')
   }

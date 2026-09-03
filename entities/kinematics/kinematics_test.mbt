@@ -6,8 +6,8 @@ test "KinematicLink::to_step" {
 
 ///|
 test "KinematicJoint::to_step" {
-  let l1 = @step.Ref::{ id: { value: 10 } }
-  let l2 = @step.Ref::{ id: { value: 20 } }
+  let l1 = @step.Ref::{ id: { value: 10, }, }
+  let l2 = @step.Ref::{ id: { value: 20, }, }
   let joint = KinematicJoint::new("test joint", l1, l2)
   inspect(
     @step.Entity::to_step(joint),
@@ -17,7 +17,7 @@ test "KinematicJoint::to_step" {
 
 ///|
 test "KinematicPair::to_step" {
-  let joint = @step.Ref::{ id: { value: 10 } }
+  let joint = @step.Ref::{ id: { value: 10, }, }
   let pair = KinematicPair::new("test pair", "desc", joint)
   inspect(
     @step.Entity::to_step(pair),

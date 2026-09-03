@@ -12,7 +12,7 @@ pub fn ConversionBasedUnit::new(
   name : String,
   conversion_factor : @step.Ref,
 ) -> ConversionBasedUnit {
-  ConversionBasedUnit::{ name, conversion_factor }
+  ConversionBasedUnit::{ name, conversion_factor, }
 }
 
 ///|

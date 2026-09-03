@@ -19,7 +19,7 @@ pub fn OrientedEdge::new(
   edge_element : @step.Ref,
   orientation : Bool,
 ) -> OrientedEdge {
-  OrientedEdge::{ name, edge_start, edge_end, edge_element, orientation }
+  OrientedEdge::{ name, edge_start, edge_end, edge_element, orientation, }
 }
 
 ///|

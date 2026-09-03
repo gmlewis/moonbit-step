@@ -14,7 +14,7 @@ async fn export_helix_centerlines_json(
   // try to convert STEP/STL into a solver-specific discretization.
   //
   // Units: millimeters.
-  let builder = StringBuilder::new()
+  let builder = StringBuilder()
   builder.write_string("{\"schema\":\"bfem:centerlines:v1\"")
   builder.write_string(",\"units\":\"mm\"")
   builder.write_string(",\"params\":{")
@@ -38,7 +38,7 @@ async fn export_helix_centerlines_json(
   for pair_num in 1..<=params.num_pairs {
     let z_off = (pair_num - 1).to_double() * delta_z
     let local_pos = (params.pos.0, params.pos.1, params.pos.2 + z_off)
-    let local_params = { ..params, pos: local_pos }
+    let local_params = { ..params, pos: local_pos, }
     let start_angle = 180.0 *
       (pair_num.to_double() - 1) /
       params.num_pairs.to_double()
@@ -129,7 +129,7 @@ async fn export_conductor_network_json(
     let pair_num = params.num_pairs - i
     let z_off = (pair_num - 1).to_double() * delta_z
     let local_pos = (params.pos.0, params.pos.1, params.pos.2 + z_off)
-    let local_params = { ..params, pos: local_pos }
+    let local_params = { ..params, pos: local_pos, }
     let start_angle = 180.0 *
       (pair_num.to_double() - 1) /
       params.num_pairs.to_double()
@@ -174,7 +174,7 @@ async fn export_conductor_network_json(
   push_point(series, out_term)
 
   // Emit JSON.
-  let builder = StringBuilder::new()
+  let builder = StringBuilder()
   builder.write_string("{\"schema\":\"bfem:conductor-network:v1\"")
   builder.write_string(",\"units\":\"mm\"")
   builder.write_string(",\"params\":{")

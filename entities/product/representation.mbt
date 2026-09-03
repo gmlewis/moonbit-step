@@ -14,7 +14,7 @@ pub fn Representation::new(
   items : Array[@step.Ref],
   context_of_items : @step.Ref,
 ) -> Representation {
-  Representation::{ name, items, context_of_items }
+  Representation::{ name, items, context_of_items, }
 }
 
 ///|

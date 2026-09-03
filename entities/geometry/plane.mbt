@@ -7,7 +7,7 @@ pub struct Plane {
 
 ///|
 pub fn Plane::new(name : String, position : @step.Ref) -> Plane {
-  Plane::{ name, position }
+  Plane::{ name, position, }
 }
 
 ///|

@@ -12,7 +12,7 @@ pub fn VertexPoint::new(
   name : String,
   vertex_geometry : @step.Ref,
 ) -> VertexPoint {
-  VertexPoint::{ name, vertex_geometry }
+  VertexPoint::{ name, vertex_geometry, }
 }
 
 ///|

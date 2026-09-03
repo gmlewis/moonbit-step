@@ -12,7 +12,7 @@ pub fn ShapeDefinitionRepresentation::new(
   definition : @step.Ref,
   used_representation : @step.Ref,
 ) -> ShapeDefinitionRepresentation {
-  ShapeDefinitionRepresentation::{ definition, used_representation }
+  ShapeDefinitionRepresentation::{ definition, used_representation, }
 }
 
 ///|

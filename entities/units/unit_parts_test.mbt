@@ -37,7 +37,7 @@ test "MassUnit to_step" {
 ///|
 test "ConversionBasedUnit to_step" {
   let u = ConversionBasedUnit::new("DEGREE", @step.Ref::{
-    id: @step.EntityId::{ value: 192 },
+    id: @step.EntityId::{ value: 192, },
   })
   inspect(
     @step.Entity::to_step(u),

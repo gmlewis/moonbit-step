@@ -7,7 +7,7 @@ pub struct Direction {
 
 ///|
 pub fn Direction::new(name : String, ratios : Array[Double]) -> Direction {
-  Direction::{ name, ratios }
+  Direction::{ name, ratios, }
 }
 
 ///|

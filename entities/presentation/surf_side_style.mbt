@@ -10,7 +10,7 @@ pub fn SurfaceSideStyle::new(
   name : String,
   styles : Array[@step.Ref],
 ) -> SurfaceSideStyle {
-  SurfaceSideStyle::{ name, styles }
+  SurfaceSideStyle::{ name, styles, }
 }
 
 ///|

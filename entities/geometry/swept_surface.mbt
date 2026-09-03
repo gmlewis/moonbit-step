@@ -13,7 +13,7 @@ pub fn SweptSurface::new(
   name : String,
   swept_curve : @step.Ref,
 ) -> SweptSurface {
-  SweptSurface::{ name, swept_curve }
+  SweptSurface::{ name, swept_curve, }
 }
 
 ///|
