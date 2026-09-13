@@ -98,7 +98,7 @@ pub fn estimate_bfem_cage_conductors(
     if inner_angle_delta <= 0 || outer_angle_delta <= 0 {
       abort("wire_gap too large with given num_pairs and size")
     }
-    let polygon = Array::new(capacity=ctx.segments_per_rail * 2 + 2)
+    let polygon = Array(capacity=ctx.segments_per_rail * 2 + 2)
     for j in 0..<=ctx.segments_per_rail {
       push_arc_point(
         ctx.center,
@@ -135,9 +135,9 @@ pub fn estimate_bfem_cage_conductors(
   }
 
   // connector pre-calcs (same as make_bfem_cage)
-  let rotations = Array::new(capacity=ctx.npairs)
-  let line_lengths = Array::new(capacity=ctx.npairs)
-  let zs = Array::new(capacity=ctx.npairs)
+  let rotations = Array(capacity=ctx.npairs)
+  let line_lengths = Array(capacity=ctx.npairs)
+  let zs = Array(capacity=ctx.npairs)
   for i in 0..<ctx.npairs {
     let i_d = i.to_double()
     zs.push(ctx.lower_z + i_d * ctx.delta_z)

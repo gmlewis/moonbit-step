@@ -13,9 +13,9 @@ pub fn helix_path(
     return { points: [], normals: [], tangents: [], }
   }
   let capacity = 1 + total_segments.to_int()
-  let points = Array::new(capacity~)
-  let normals = Array::new(capacity~)
-  let tangents = Array::new(capacity~)
+  let points = Array(capacity~)
+  let normals = Array(capacity~)
+  let tangents = Array(capacity~)
 
   //
   let angle_delta = max_angle / total_segments

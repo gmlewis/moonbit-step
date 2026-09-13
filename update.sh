@@ -16,7 +16,6 @@ find . -type d \( -name .mooncakes -o -name _build \) -not -path './.git/*' -exe
 echo "Setting up root package..."
 moon add --upgrade moonbitlang/async || true
 moon add --upgrade moonbitlang/x || true
-moon add --upgrade TheWaWaR/clap || true
 moon add --upgrade gmlewis/fonts || true
 
 moon fmt || true

@@ -109,7 +109,7 @@ async fn export_conductor_network_json(
 
   // Build a single polyline by stitching together helix centerlines with
   // explicit straight-line jump segments.
-  let series = Array::new()
+  let series = Array()
 
   // Start at IN terminal (top of the green exit wire) then go down to the base.
   push_point(series, in_term)
@@ -294,7 +294,7 @@ fn orient_bifilar_pair(
 
 ///|
 fn reverse_points(points : Array[Vec3]) -> Array[Vec3] {
-  let out = Array::new(capacity=points.length())
+  let out = Array(capacity=points.length())
   let n = points.length()
   for i in 0..<n {
     out.push(points[n - 1 - i])

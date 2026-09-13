@@ -234,7 +234,7 @@ fn gen_inner_arc_points(
   inner_start_angle : Double,
   inner_angle_delta : Double,
 ) -> Array[Vec2] {
-  let points = Array::new(capacity=ctx.segments_per_rail + 1)
+  let points = Array(capacity=ctx.segments_per_rail + 1)
   for j in 0..<=ctx.segments_per_rail {
     push_arc_point(
       ctx.center,
@@ -276,7 +276,7 @@ fn append_axial_connectors(
     let z = ctx.lower_z + (ctx.num_pairs - i) % ctx.num_pairs * ctx.delta_z
     axial_connector_top_zs.push(z + ctx.extrude_height)
     //
-    let polygon = Array::new(capacity=ctx.segments_per_rail * 2 + 2)
+    let polygon = Array(capacity=ctx.segments_per_rail * 2 + 2)
     // inner points:
     for j in 0..<=ctx.segments_per_rail {
       push_arc_point(
@@ -744,9 +744,9 @@ fn make_bfem_cage(
   params~ : Params,
 ) -> (Array[@cad.SceneNode], Array[@cad.SceneNode]) {
   let ctx = make_cage_context(size, params)
-  let red_cage_wire_support_info = Array::new(capacity=ctx.npairs)
-  let green_cage_wire_support_info = Array::new(capacity=ctx.npairs)
-  let axial_connector_top_zs = Array::new(capacity=2 * ctx.npairs)
+  let red_cage_wire_support_info = Array(capacity=ctx.npairs)
+  let green_cage_wire_support_info = Array(capacity=ctx.npairs)
+  let axial_connector_top_zs = Array(capacity=2 * ctx.npairs)
   let wire_nodes = []
   let support_nodes = []
 
@@ -755,9 +755,9 @@ fn make_bfem_cage(
 
   // Pre-calculate important values for all coil connectors
   // rotations represents the angle around the coil where the connector starts
-  let rotations = Array::new(capacity=ctx.npairs)
-  let line_lengths = Array::new(capacity=ctx.npairs)
-  let zs = Array::new(capacity=ctx.npairs)
+  let rotations = Array(capacity=ctx.npairs)
+  let line_lengths = Array(capacity=ctx.npairs)
+  let zs = Array(capacity=ctx.npairs)
   for i in 0..<ctx.npairs {
     let i = i.to_double()
     zs.push(ctx.lower_z + i * ctx.delta_z)
