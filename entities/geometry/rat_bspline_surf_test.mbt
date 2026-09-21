@@ -1,6 +1,6 @@
 ///|
 test "rational_b_spline_surface_to_step" {
-  let s = RationalBSplineSurface::new([
+  let s = @geometry.RationalBSplineSurface::new([
     ["1.", "0.5", "2."],
     ["0.25", "1.", "0.25"],
   ])

@@ -1,6 +1,6 @@
 ///|
 test "ApplicationContext to_step" {
-  let e = ApplicationContext::new(
+  let e = @product.ApplicationContext::new(
     "core data for automotive mechanical design processes",
   )
   inspect(

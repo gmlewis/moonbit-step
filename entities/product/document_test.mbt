@@ -1,6 +1,6 @@
 ///|
 test "DocumentType::to_step" {
-  let dt = DocumentType::new("standard")
+  let dt = @product.DocumentType::new("standard")
   let s = @step.Entity::to_step(dt)
   inspect(s, content="DOCUMENT_TYPE('standard')")
 }
@@ -8,7 +8,7 @@ test "DocumentType::to_step" {
 ///|
 test "Document::to_step" {
   let kind = @step.Ref::{ id: { value: 10, }, }
-  let d = Document::new("d1", "name", "desc", kind)
+  let d = @product.Document::new("d1", "name", "desc", kind)
   let s = @step.Entity::to_step(d)
   inspect(s, content="DOCUMENT('d1','name','desc',#10)")
 }

@@ -1,6 +1,6 @@
 ///|
 test "ProductDefinitionFormationWithSpecifiedSource to_step" {
-  let e = ProductDefinitionFormationWithSpecifiedSource::new(
+  let e = @product.ProductDefinitionFormationWithSpecifiedSource::new(
     " ",
     " ",
     @step.Ref::{ id: @step.EntityId::{ value: 18, }, },

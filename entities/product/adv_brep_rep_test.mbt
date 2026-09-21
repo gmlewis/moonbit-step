@@ -1,6 +1,6 @@
 ///|
 test "AdvancedBrepShapeRepresentation to_step" {
-  let e = AdvancedBrepShapeRepresentation::new(
+  let e = @product.AdvancedBrepShapeRepresentation::new(
     "cube-None",
     [@step.Ref::{ id: @step.EntityId::{ value: 32, }, }],
     @step.Ref::{ id: @step.EntityId::{ value: 187, }, },

@@ -1,6 +1,6 @@
 ///|
 test "b_spline_surface_with_knots_to_step" {
-  let s = BSplineSurfaceWithKnots::new(
+  let s = @geometry.BSplineSurfaceWithKnots::new(
     [3, 3],
     [3, 2, 3],
     ["-0.1", "0.2"],

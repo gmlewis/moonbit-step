@@ -4,7 +4,7 @@ test "b_spline_curve_with_knots to_step" {
   let cp2 = @step.Ref::{ id: @step.EntityId::{ value: 11, }, }
   let cp3 = @step.Ref::{ id: @step.EntityId::{ value: 12, }, }
   let cp4 = @step.Ref::{ id: @step.EntityId::{ value: 13, }, }
-  let entity = BSplineCurveWithKnots::new(
+  let entity = @geometry.BSplineCurveWithKnots::new(
     "",
     3,
     [cp1, cp2, cp3, cp4],

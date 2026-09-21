@@ -15,12 +15,14 @@ pub struct ConversionBasedUnit {
   conversion_factor : @step.Ref
 }
 pub fn ConversionBasedUnit::new(String, @step.Ref) -> Self
+pub fn ConversionBasedUnit::to_step(Self) -> String
 pub impl @step.Entity for ConversionBasedUnit
 
 pub struct DerivedUnit {
   elements : Array[@step.Ref]
 }
 pub fn DerivedUnit::new(Array[@step.Ref]) -> Self
+pub fn DerivedUnit::to_step(Self) -> String
 pub impl @step.Entity for DerivedUnit
 
 pub struct DerivedUnitElement {
@@ -28,6 +30,7 @@ pub struct DerivedUnitElement {
   exponent : Double
 }
 pub fn DerivedUnitElement::new(@step.Ref, Double) -> Self
+pub fn DerivedUnitElement::to_step(Self) -> String
 pub impl @step.Entity for DerivedUnitElement
 
 pub struct DimensionalExponents {
@@ -40,16 +43,19 @@ pub struct DimensionalExponents {
   luminous_intensity_exponent : Double
 }
 pub fn DimensionalExponents::new(Double, Double, Double, Double, Double, Double, Double) -> Self
+pub fn DimensionalExponents::to_step(Self) -> String
 pub impl @step.Entity for DimensionalExponents
 
 pub struct LengthUnit {
 }
 pub fn LengthUnit::new() -> Self
+pub fn LengthUnit::to_step(Self) -> String
 pub impl @step.Entity for LengthUnit
 
 pub struct MassUnit {
 }
 pub fn MassUnit::new() -> Self
+pub fn MassUnit::to_step(Self) -> String
 pub impl @step.Entity for MassUnit
 
 pub struct MeasureWithUnit {
@@ -57,12 +63,14 @@ pub struct MeasureWithUnit {
   unit_component : @step.Ref
 }
 pub fn MeasureWithUnit::new(String, @step.Ref) -> Self
+pub fn MeasureWithUnit::to_step(Self) -> String
 pub impl @step.Entity for MeasureWithUnit
 
 pub struct NamedUnit {
   dimensions : String
 }
 pub fn NamedUnit::new(String) -> Self
+pub fn NamedUnit::to_step(Self) -> String
 pub impl @step.Entity for NamedUnit
 
 pub struct PlaneAngleMeasureWithUnit {
@@ -70,17 +78,20 @@ pub struct PlaneAngleMeasureWithUnit {
   unit : @step.Ref
 }
 pub fn PlaneAngleMeasureWithUnit::new(String, @step.Ref) -> Self
+pub fn PlaneAngleMeasureWithUnit::to_step(Self) -> String
 pub impl @step.Entity for PlaneAngleMeasureWithUnit
 
 pub struct PlaneAngleUnit {
 }
 pub fn PlaneAngleUnit::new() -> Self
+pub fn PlaneAngleUnit::to_step(Self) -> String
 pub impl @step.Entity for PlaneAngleUnit
 
 pub struct PositiveRatioMeasure {
   value : String
 }
 pub fn PositiveRatioMeasure::new(String) -> Self
+pub fn PositiveRatioMeasure::to_step(Self) -> String
 pub impl @step.Entity for PositiveRatioMeasure
 
 pub struct SiUnit {
@@ -88,11 +99,13 @@ pub struct SiUnit {
   name : String
 }
 pub fn SiUnit::new(String, String) -> Self
+pub fn SiUnit::to_step(Self) -> String
 pub impl @step.Entity for SiUnit
 
 pub struct SolidAngleUnit {
 }
 pub fn SolidAngleUnit::new() -> Self
+pub fn SolidAngleUnit::to_step(Self) -> String
 pub impl @step.Entity for SolidAngleUnit
 
 pub struct UncertaintyMeasureWithUnit {
@@ -102,6 +115,7 @@ pub struct UncertaintyMeasureWithUnit {
   description : String
 }
 pub fn UncertaintyMeasureWithUnit::new(String, @step.Ref, String, String) -> Self
+pub fn UncertaintyMeasureWithUnit::to_step(Self) -> String
 pub impl @step.Entity for UncertaintyMeasureWithUnit
 
 // Type aliases

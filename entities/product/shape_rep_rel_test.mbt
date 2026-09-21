@@ -1,6 +1,6 @@
 ///|
 test "ShapeRepresentationRelationship to_step" {
-  let e = ShapeRepresentationRelationship::new(
+  let e = @product.ShapeRepresentationRelationship::new(
     "None",
     "relationship between cube-None and cube-None",
     @step.Ref::{ id: @step.EntityId::{ value: 22, }, },

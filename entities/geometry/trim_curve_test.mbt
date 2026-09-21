@@ -1,6 +1,6 @@
 ///|
 test "trim_curve to_step" {
-  let e = TrimmedCurve::new(
+  let e = @geometry.TrimmedCurve::new(
     "",
     @step.Ref::{ id: @step.EntityId::{ value: 12, }, },
     "(PARAMETER_VALUE(0.0))",

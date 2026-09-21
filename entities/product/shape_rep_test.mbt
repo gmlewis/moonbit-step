@@ -1,6 +1,6 @@
 ///|
 test "ShapeRepresentation to_step" {
-  let e = ShapeRepresentation::new(
+  let e = @product.ShapeRepresentation::new(
     "cube-None",
     [@step.Ref::{ id: @step.EntityId::{ value: 126, }, }],
     @step.Ref::{ id: @step.EntityId::{ value: 187, }, },

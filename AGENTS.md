@@ -41,6 +41,8 @@ The `cad` package follows an **intent-based architecture**. Do not revert to eag
 
 ## Coding convention
 
+- All source code and markdown files should end in a newline.
+
 - MoonBit code is organized in block style, each block is separated by `///|`,
   the order of each block is irrelevant. In some refactorings, you can process
   block by block independently.

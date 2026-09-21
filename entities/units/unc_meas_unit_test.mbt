@@ -1,6 +1,6 @@
 ///|
 test "uncertainty_measure_with_unit_to_step" {
-  let u = UncertaintyMeasureWithUnit::new(
+  let u = @units.UncertaintyMeasureWithUnit::new(
     "2.E-005",
     @step.Ref::{ id: @step.EntityId::{ value: 194, }, },
     "DISTANCE_ACCURACY_VALUE",

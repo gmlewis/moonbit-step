@@ -1,6 +1,6 @@
 ///|
 test "rectangular_trimmed_surface_to_step" {
-  let s = RectangularTrimmedSurface::new(
+  let s = @geometry.RectangularTrimmedSurface::new(
     "",
     @step.Ref::{ id: @step.EntityId::{ value: 12, }, },
     "0.0",

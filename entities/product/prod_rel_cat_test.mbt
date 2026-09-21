@@ -1,6 +1,6 @@
 ///|
 test "ProductRelatedProductCategory to_step" {
-  let e = ProductRelatedProductCategory::new("part", "", [
+  let e = @product.ProductRelatedProductCategory::new("part", "", [
     @step.Ref::{ id: @step.EntityId::{ value: 18, }, },
   ])
   inspect(

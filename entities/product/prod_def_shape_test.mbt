@@ -1,6 +1,6 @@
 ///|
 test "ProductDefinitionShape to_step" {
-  let e = ProductDefinitionShape::new("", "", @step.Ref::{
+  let e = @product.ProductDefinitionShape::new("", "", @step.Ref::{
     id: @step.EntityId::{ value: 14, },
   })
   inspect(

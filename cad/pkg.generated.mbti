@@ -53,6 +53,8 @@ pub async fn write_text_file(String, String?) -> Unit
 pub suberror LoaderError {
   LoaderError(String)
 } derive(Eq)
+pub fn LoaderError::equal(Self, Self) -> Bool
+pub fn LoaderError::to_string(Self) -> String
 pub impl Show for LoaderError
 
 // Types and methods
@@ -187,6 +189,7 @@ pub fn Rgb::new(Double, Double, Double) -> Self
 pub fn Rgb::orange() -> Self
 pub fn Rgb::purple() -> Self
 pub fn Rgb::red() -> Self
+pub fn Rgb::to_repr(Self) -> @debug.Repr
 pub fn Rgb::white() -> Self
 
 pub struct SceneNode {

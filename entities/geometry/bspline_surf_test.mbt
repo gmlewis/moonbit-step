@@ -1,6 +1,6 @@
 ///|
 test "b_spline_surface_to_step" {
-  let s = BSplineSurface::new(
+  let s = @geometry.BSplineSurface::new(
     2,
     2,
     [

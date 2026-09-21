@@ -20,6 +20,7 @@ pub struct RawEntity {
   args : String
 }
 pub fn RawEntity::new(String, String) -> Self
+pub fn RawEntity::to_step(Self) -> String
 pub impl Entity for RawEntity
 
 pub(all) struct Ref {

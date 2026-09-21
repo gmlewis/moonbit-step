@@ -17,6 +17,7 @@ pub struct ComplexInstance {
   parts : Array[ComplexPart]
 }
 pub fn ComplexInstance::new(Array[ComplexPart]) -> Self
+pub fn ComplexInstance::to_step(Self) -> String
 pub impl @step.Entity for ComplexInstance
 
 pub(all) enum ComplexPart {
@@ -49,24 +50,28 @@ pub struct CtxWrap {
   raw : String
 }
 pub fn CtxWrap::new(String) -> Self
+pub fn CtxWrap::to_step(Self) -> String
 pub impl @step.Entity for CtxWrap
 
 pub struct GeometricRepresentationContext {
   dimension : Int
 }
 pub fn GeometricRepresentationContext::new(Int) -> Self
+pub fn GeometricRepresentationContext::to_step(Self) -> String
 pub impl @step.Entity for GeometricRepresentationContext
 
 pub struct GlobalUncertaintyAssignedContext {
   uncertainties : Array[@step.EntityId]
 }
 pub fn GlobalUncertaintyAssignedContext::new(Array[@step.EntityId]) -> Self
+pub fn GlobalUncertaintyAssignedContext::to_step(Self) -> String
 pub impl @step.Entity for GlobalUncertaintyAssignedContext
 
 pub struct GlobalUnitAssignedContext {
   units : Array[@step.EntityId]
 }
 pub fn GlobalUnitAssignedContext::new(Array[@step.EntityId]) -> Self
+pub fn GlobalUnitAssignedContext::to_step(Self) -> String
 pub impl @step.Entity for GlobalUnitAssignedContext
 
 pub struct RepresentationContext {
@@ -74,6 +79,7 @@ pub struct RepresentationContext {
   context_type : String
 }
 pub fn RepresentationContext::new(String, String) -> Self
+pub fn RepresentationContext::to_step(Self) -> String
 pub impl @step.Entity for RepresentationContext
 
 // Type aliases

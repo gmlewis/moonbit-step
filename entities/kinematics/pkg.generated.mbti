@@ -16,12 +16,14 @@ pub struct KinematicJoint {
   second_link : @step.Ref
 }
 pub fn KinematicJoint::new(String, @step.Ref, @step.Ref) -> Self
+pub fn KinematicJoint::to_step(Self) -> String
 pub impl @step.Entity for KinematicJoint
 
 pub struct KinematicLink {
   name : String
 }
 pub fn KinematicLink::new(String) -> Self
+pub fn KinematicLink::to_step(Self) -> String
 pub impl @step.Entity for KinematicLink
 
 pub struct KinematicPair {
@@ -30,6 +32,7 @@ pub struct KinematicPair {
   joint : @step.Ref
 }
 pub fn KinematicPair::new(String, String, @step.Ref) -> Self
+pub fn KinematicPair::to_step(Self) -> String
 pub impl @step.Entity for KinematicPair
 
 // Type aliases

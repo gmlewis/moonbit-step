@@ -18,6 +18,7 @@ pub struct Datum {
   identification : String
 }
 pub fn Datum::new(String, String, @step.Ref, String, String) -> Self
+pub fn Datum::to_step(Self) -> String
 pub impl @step.Entity for Datum
 
 pub struct DatumFeature {
@@ -27,6 +28,7 @@ pub struct DatumFeature {
   product_definitional : String
 }
 pub fn DatumFeature::new(String, String, @step.Ref, String) -> Self
+pub fn DatumFeature::to_step(Self) -> String
 pub impl @step.Entity for DatumFeature
 
 pub struct DimensionalSize {
@@ -34,6 +36,7 @@ pub struct DimensionalSize {
   name : String
 }
 pub fn DimensionalSize::new(@step.Ref, String) -> Self
+pub fn DimensionalSize::to_step(Self) -> String
 pub impl @step.Entity for DimensionalSize
 
 pub struct GeometricTolerance {
@@ -43,6 +46,7 @@ pub struct GeometricTolerance {
   toleranced_shape_aspect : @step.Ref
 }
 pub fn GeometricTolerance::new(String, String, @step.Ref, @step.Ref) -> Self
+pub fn GeometricTolerance::to_step(Self) -> String
 pub impl @step.Entity for GeometricTolerance
 
 // Type aliases

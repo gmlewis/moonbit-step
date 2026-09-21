@@ -1,6 +1,6 @@
 ///|
 test "GlobalUncertaintyAssignedContext to_step" {
-  let e = GlobalUncertaintyAssignedContext::new([
+  let e = @context.GlobalUncertaintyAssignedContext::new([
     @step.EntityId::{ value: 188, },
   ])
   inspect(
@@ -11,7 +11,7 @@ test "GlobalUncertaintyAssignedContext to_step" {
 
 ///|
 test "GlobalUnitAssignedContext to_step" {
-  let e = GlobalUnitAssignedContext::new([
+  let e = @context.GlobalUnitAssignedContext::new([
     @step.EntityId::{ value: 194, },
     @step.EntityId::{ value: 190, },
     @step.EntityId::{ value: 189, },

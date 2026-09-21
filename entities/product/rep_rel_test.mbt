@@ -1,6 +1,6 @@
 ///|
 test "RepresentationRelationship to_step" {
-  let e = RepresentationRelationship::new(
+  let e = @product.RepresentationRelationship::new(
     "",
     "",
     @step.Ref::{ id: @step.EntityId::{ value: 40, }, },

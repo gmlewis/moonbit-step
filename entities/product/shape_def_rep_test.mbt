@@ -1,6 +1,6 @@
 ///|
 test "ShapeDefinitionRepresentation to_step" {
-  let e = ShapeDefinitionRepresentation::new(
+  let e = @product.ShapeDefinitionRepresentation::new(
     @step.Ref::{ id: @step.EntityId::{ value: 13, }, },
     @step.Ref::{ id: @step.EntityId::{ value: 22, }, },
   )

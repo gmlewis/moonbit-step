@@ -1,6 +1,6 @@
 ///|
 test "ClosedShell to_step" {
-  let e = ClosedShell::new("", [
+  let e = @topology.ClosedShell::new("", [
     @step.Ref::{ id: @step.EntityId::{ value: 34, }, },
     @step.Ref::{ id: @step.EntityId::{ value: 35, }, },
     @step.Ref::{ id: @step.EntityId::{ value: 36, }, },

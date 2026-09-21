@@ -1,6 +1,6 @@
 ///|
 test "ApplicationProtocolDefinition to_step" {
-  let e = ApplicationProtocolDefinition::new(
+  let e = @product.ApplicationProtocolDefinition::new(
     "international standard",
     "automotive_design",
     2010,

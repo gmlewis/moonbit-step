@@ -1,6 +1,6 @@
 ///|
 test "AdvancedFace to_step" {
-  let e = AdvancedFace::new(
+  let e = @topology.AdvancedFace::new(
     "",
     [@step.Ref::{ id: @step.EntityId::{ value: 46, }, }],
     @step.Ref::{ id: @step.EntityId::{ value: 40, }, },

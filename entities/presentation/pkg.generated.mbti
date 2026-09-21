@@ -16,6 +16,7 @@ pub struct AnnotationOccurrence {
   item : @step.Ref
 }
 pub fn AnnotationOccurrence::new(String, Array[@step.Ref], @step.Ref) -> Self
+pub fn AnnotationOccurrence::to_step(Self) -> String
 pub impl @step.Entity for AnnotationOccurrence
 
 pub struct ColorRgb {
@@ -25,12 +26,14 @@ pub struct ColorRgb {
   blue : Double
 }
 pub fn ColorRgb::new(String, Double, Double, Double) -> Self
+pub fn ColorRgb::to_step(Self) -> String
 pub impl @step.Entity for ColorRgb
 
 pub struct DraughtingPreDefinedColour {
   name : String
 }
 pub fn DraughtingPreDefinedColour::new(String) -> Self
+pub fn DraughtingPreDefinedColour::to_step(Self) -> String
 pub impl @step.Entity for DraughtingPreDefinedColour
 
 pub struct FillAreaStyle {
@@ -38,6 +41,7 @@ pub struct FillAreaStyle {
   styles : Array[@step.Ref]
 }
 pub fn FillAreaStyle::new(String, Array[@step.Ref]) -> Self
+pub fn FillAreaStyle::to_step(Self) -> String
 pub impl @step.Entity for FillAreaStyle
 
 pub struct FillAreaStyleColor {
@@ -45,6 +49,7 @@ pub struct FillAreaStyleColor {
   color : @step.Ref
 }
 pub fn FillAreaStyleColor::new(String, @step.Ref) -> Self
+pub fn FillAreaStyleColor::to_step(Self) -> String
 pub impl @step.Entity for FillAreaStyleColor
 
 pub struct HiddenElementOverRidingStyledItem {
@@ -54,6 +59,7 @@ pub struct HiddenElementOverRidingStyledItem {
   over_ridden_styled_item : @step.Ref
 }
 pub fn HiddenElementOverRidingStyledItem::new(String, Array[@step.Ref], @step.Ref, @step.Ref) -> Self
+pub fn HiddenElementOverRidingStyledItem::to_step(Self) -> String
 pub impl @step.Entity for HiddenElementOverRidingStyledItem
 
 pub struct MechanicalDesignGeometricPresentationRepresentation {
@@ -62,6 +68,7 @@ pub struct MechanicalDesignGeometricPresentationRepresentation {
   context : @step.Ref
 }
 pub fn MechanicalDesignGeometricPresentationRepresentation::new(String, Array[@step.Ref], @step.Ref) -> Self
+pub fn MechanicalDesignGeometricPresentationRepresentation::to_step(Self) -> String
 pub impl @step.Entity for MechanicalDesignGeometricPresentationRepresentation
 
 pub struct OverRidingStyledItem {
@@ -71,6 +78,7 @@ pub struct OverRidingStyledItem {
   over_ridden_styled_item : @step.Ref
 }
 pub fn OverRidingStyledItem::new(String, Array[@step.Ref], @step.Ref, @step.Ref) -> Self
+pub fn OverRidingStyledItem::to_step(Self) -> String
 pub impl @step.Entity for OverRidingStyledItem
 
 pub struct PresentationLayerAssignment {
@@ -79,12 +87,14 @@ pub struct PresentationLayerAssignment {
   items : Array[@step.Ref]
 }
 pub fn PresentationLayerAssignment::new(String, String, Array[@step.Ref]) -> Self
+pub fn PresentationLayerAssignment::to_step(Self) -> String
 pub impl @step.Entity for PresentationLayerAssignment
 
 pub struct PresentationStyleAssignment {
   styles : Array[@step.Ref]
 }
 pub fn PresentationStyleAssignment::new(Array[@step.Ref]) -> Self
+pub fn PresentationStyleAssignment::to_step(Self) -> String
 pub impl @step.Entity for PresentationStyleAssignment
 
 pub struct StyledItem {
@@ -93,6 +103,7 @@ pub struct StyledItem {
   item : @step.Ref
 }
 pub fn StyledItem::new(String, Array[@step.Ref], @step.Ref) -> Self
+pub fn StyledItem::to_step(Self) -> String
 pub impl @step.Entity for StyledItem
 
 pub struct SurfaceSideStyle {
@@ -100,12 +111,14 @@ pub struct SurfaceSideStyle {
   styles : Array[@step.Ref]
 }
 pub fn SurfaceSideStyle::new(String, Array[@step.Ref]) -> Self
+pub fn SurfaceSideStyle::to_step(Self) -> String
 pub impl @step.Entity for SurfaceSideStyle
 
 pub struct SurfaceStyleFillArea {
   fill_area : @step.Ref
 }
 pub fn SurfaceStyleFillArea::new(@step.Ref) -> Self
+pub fn SurfaceStyleFillArea::to_step(Self) -> String
 pub impl @step.Entity for SurfaceStyleFillArea
 
 pub struct SurfaceStyleUsage {
@@ -113,6 +126,7 @@ pub struct SurfaceStyleUsage {
   style : @step.Ref
 }
 pub fn SurfaceStyleUsage::new(String, @step.Ref) -> Self
+pub fn SurfaceStyleUsage::to_step(Self) -> String
 pub impl @step.Entity for SurfaceStyleUsage
 
 pub struct TextLiteral {
@@ -124,6 +138,7 @@ pub struct TextLiteral {
   font : @step.Ref
 }
 pub fn TextLiteral::new(String, String, @step.Ref, String, TextPath, @step.Ref) -> Self
+pub fn TextLiteral::to_step(Self) -> String
 pub impl @step.Entity for TextLiteral
 
 pub(all) enum TextPath {
@@ -133,6 +148,7 @@ pub(all) enum TextPath {
   Down
 }
 pub fn TextPath::from_string(String) -> Self?
+pub fn TextPath::to_step(Self) -> String
 pub impl @step.Entity for TextPath
 
 // Type aliases

@@ -1,6 +1,6 @@
 ///|
 test "ProductDefinition to_step" {
-  let e = ProductDefinition::new(
+  let e = @product.ProductDefinition::new(
     " ",
     "",
     @step.Ref::{ id: @step.EntityId::{ value: 16, }, },

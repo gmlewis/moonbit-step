@@ -17,6 +17,7 @@ pub struct AdvancedFace {
   same_sense : Bool
 }
 pub fn AdvancedFace::new(String, Array[@step.Ref], @step.Ref, Bool) -> Self
+pub fn AdvancedFace::to_step(Self) -> String
 pub impl @step.Entity for AdvancedFace
 
 pub struct BrepWithVoids {
@@ -25,6 +26,7 @@ pub struct BrepWithVoids {
   voids : Array[@step.Ref]
 }
 pub fn BrepWithVoids::new(String, @step.Ref, Array[@step.Ref]) -> Self
+pub fn BrepWithVoids::to_step(Self) -> String
 pub impl @step.Entity for BrepWithVoids
 
 pub struct ClosedShell {
@@ -32,6 +34,7 @@ pub struct ClosedShell {
   faces : Array[@step.Ref]
 }
 pub fn ClosedShell::new(String, Array[@step.Ref]) -> Self
+pub fn ClosedShell::to_step(Self) -> String
 pub impl @step.Entity for ClosedShell
 
 pub struct ConnectedFaceSet {
@@ -39,6 +42,7 @@ pub struct ConnectedFaceSet {
   cfs_faces : Array[@step.Ref]
 }
 pub fn ConnectedFaceSet::new(String, Array[@step.Ref]) -> Self
+pub fn ConnectedFaceSet::to_step(Self) -> String
 pub impl @step.Entity for ConnectedFaceSet
 
 pub struct EdgeCurve {
@@ -49,6 +53,7 @@ pub struct EdgeCurve {
   same_sense : Bool
 }
 pub fn EdgeCurve::new(String, @step.Ref, @step.Ref, @step.Ref, Bool) -> Self
+pub fn EdgeCurve::to_step(Self) -> String
 pub impl @step.Entity for EdgeCurve
 
 pub struct EdgeLoop {
@@ -56,6 +61,7 @@ pub struct EdgeLoop {
   edges : Array[@step.Ref]
 }
 pub fn EdgeLoop::new(String, Array[@step.Ref]) -> Self
+pub fn EdgeLoop::to_step(Self) -> String
 pub impl @step.Entity for EdgeLoop
 
 pub struct FaceBound {
@@ -64,6 +70,7 @@ pub struct FaceBound {
   orientation : Bool
 }
 pub fn FaceBound::new(String, @step.Ref, Bool) -> Self
+pub fn FaceBound::to_step(Self) -> String
 pub impl @step.Entity for FaceBound
 
 pub struct FaceOuterBound {
@@ -72,6 +79,7 @@ pub struct FaceOuterBound {
   orientation : Bool
 }
 pub fn FaceOuterBound::new(String, @step.Ref, Bool) -> Self
+pub fn FaceOuterBound::to_step(Self) -> String
 pub impl @step.Entity for FaceOuterBound
 
 pub struct FaceSurface {
@@ -81,6 +89,7 @@ pub struct FaceSurface {
   same_sense : Bool
 }
 pub fn FaceSurface::new(String, Array[@step.Ref], @step.Ref, Bool) -> Self
+pub fn FaceSurface::to_step(Self) -> String
 pub impl @step.Entity for FaceSurface
 
 pub struct ManifoldSolidBrep {
@@ -88,6 +97,7 @@ pub struct ManifoldSolidBrep {
   outer : @step.Ref
 }
 pub fn ManifoldSolidBrep::new(String, @step.Ref) -> Self
+pub fn ManifoldSolidBrep::to_step(Self) -> String
 pub impl @step.Entity for ManifoldSolidBrep
 
 pub struct OpenShell {
@@ -95,6 +105,7 @@ pub struct OpenShell {
   faces : Array[@step.Ref]
 }
 pub fn OpenShell::new(String, Array[@step.Ref]) -> Self
+pub fn OpenShell::to_step(Self) -> String
 pub impl @step.Entity for OpenShell
 
 pub struct OrientedEdge {
@@ -105,6 +116,7 @@ pub struct OrientedEdge {
   orientation : Bool
 }
 pub fn OrientedEdge::new(String, String, String, @step.Ref, Bool) -> Self
+pub fn OrientedEdge::to_step(Self) -> String
 pub impl @step.Entity for OrientedEdge
 
 pub struct ShellBasedSurfaceModel {
@@ -112,6 +124,7 @@ pub struct ShellBasedSurfaceModel {
   sbsm_boundary : Array[@step.Ref]
 }
 pub fn ShellBasedSurfaceModel::new(String, Array[@step.Ref]) -> Self
+pub fn ShellBasedSurfaceModel::to_step(Self) -> String
 pub impl @step.Entity for ShellBasedSurfaceModel
 
 pub struct Subface {
@@ -120,6 +133,7 @@ pub struct Subface {
   parent_face : @step.Ref
 }
 pub fn Subface::new(String, Array[@step.Ref], @step.Ref) -> Self
+pub fn Subface::to_step(Self) -> String
 pub impl @step.Entity for Subface
 
 pub struct VertexPoint {
@@ -127,6 +141,7 @@ pub struct VertexPoint {
   vertex_geometry : @step.Ref
 }
 pub fn VertexPoint::new(String, @step.Ref) -> Self
+pub fn VertexPoint::to_step(Self) -> String
 pub impl @step.Entity for VertexPoint
 
 // Type aliases

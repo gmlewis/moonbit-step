@@ -1,6 +1,5 @@
 import {
   "gmlewis/base64",
-  "gmlewis/flate",
   "gmlewis/fonts",
   "gmlewis/fonts/draw",
   "gmlewis/gzip",
@@ -24,6 +23,5 @@ import {
   "moonbitlang/core/encoding/utf8" @encoding/utf8,
   "moonbitlang/core/json",
   "moonbitlang/core/math",
-  "moonbitlang/core/string",
   "moonbitlang/x/time",
 }

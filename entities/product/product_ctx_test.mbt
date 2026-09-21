@@ -1,6 +1,6 @@
 ///|
 test "ProductContext to_step" {
-  let e = ProductContext::new(
+  let e = @product.ProductContext::new(
     " ",
     @step.Ref::{ id: @step.EntityId::{ value: 21, }, },
     "mechanical",

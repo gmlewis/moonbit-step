@@ -17,12 +17,14 @@ pub struct AdvancedBrepShapeRepresentation {
   context_of_items : @step.Ref
 }
 pub fn AdvancedBrepShapeRepresentation::new(String, Array[@step.Ref], @step.Ref) -> Self
+pub fn AdvancedBrepShapeRepresentation::to_step(Self) -> String
 pub impl @step.Entity for AdvancedBrepShapeRepresentation
 
 pub struct ApplicationContext {
   application : String
 }
 pub fn ApplicationContext::new(String) -> Self
+pub fn ApplicationContext::to_step(Self) -> String
 pub impl @step.Entity for ApplicationContext
 
 pub struct ApplicationProtocolDefinition {
@@ -32,6 +34,7 @@ pub struct ApplicationProtocolDefinition {
   application : @step.Ref
 }
 pub fn ApplicationProtocolDefinition::new(String, String, Int, @step.Ref) -> Self
+pub fn ApplicationProtocolDefinition::to_step(Self) -> String
 pub impl @step.Entity for ApplicationProtocolDefinition
 
 pub struct Approval {
@@ -39,6 +42,7 @@ pub struct Approval {
   level : String
 }
 pub fn Approval::new(@step.Ref, String) -> Self
+pub fn Approval::to_step(Self) -> String
 pub impl @step.Entity for Approval
 
 pub struct ApprovalPersonOrganization {
@@ -47,18 +51,21 @@ pub struct ApprovalPersonOrganization {
   role : @step.Ref
 }
 pub fn ApprovalPersonOrganization::new(@step.Ref, @step.Ref, @step.Ref) -> Self
+pub fn ApprovalPersonOrganization::to_step(Self) -> String
 pub impl @step.Entity for ApprovalPersonOrganization
 
 pub struct ApprovalRole {
   role : String
 }
 pub fn ApprovalRole::new(String) -> Self
+pub fn ApprovalRole::to_step(Self) -> String
 pub impl @step.Entity for ApprovalRole
 
 pub struct ApprovalStatus {
   name : String
 }
 pub fn ApprovalStatus::new(String) -> Self
+pub fn ApprovalStatus::to_step(Self) -> String
 pub impl @step.Entity for ApprovalStatus
 
 pub struct CalendarDate {
@@ -67,6 +74,7 @@ pub struct CalendarDate {
   month_component : Int
 }
 pub fn CalendarDate::new(Int, Int, Int) -> Self
+pub fn CalendarDate::to_step(Self) -> String
 pub impl @step.Entity for CalendarDate
 
 pub struct Certification {
@@ -75,12 +83,14 @@ pub struct Certification {
   kind : @step.Ref
 }
 pub fn Certification::new(String, String, @step.Ref) -> Self
+pub fn Certification::to_step(Self) -> String
 pub impl @step.Entity for Certification
 
 pub struct CertificationType {
   description : String
 }
 pub fn CertificationType::new(String) -> Self
+pub fn CertificationType::to_step(Self) -> String
 pub impl @step.Entity for CertificationType
 
 pub struct ContextDependentShapeRepresentation {
@@ -88,6 +98,7 @@ pub struct ContextDependentShapeRepresentation {
   represented_product_relation : @step.Ref
 }
 pub fn ContextDependentShapeRepresentation::new(@step.Ref, @step.Ref) -> Self
+pub fn ContextDependentShapeRepresentation::to_step(Self) -> String
 pub impl @step.Entity for ContextDependentShapeRepresentation
 
 pub struct CoordinatedUniversalTimeOffset {
@@ -96,6 +107,7 @@ pub struct CoordinatedUniversalTimeOffset {
   sense : String
 }
 pub fn CoordinatedUniversalTimeOffset::new(Int, Int, String) -> Self
+pub fn CoordinatedUniversalTimeOffset::to_step(Self) -> String
 pub impl @step.Entity for CoordinatedUniversalTimeOffset
 
 pub struct CsgShapeRepresentation {
@@ -104,6 +116,7 @@ pub struct CsgShapeRepresentation {
   context_of_items : @step.Ref
 }
 pub fn CsgShapeRepresentation::new(String, Array[@step.Ref], @step.Ref) -> Self
+pub fn CsgShapeRepresentation::to_step(Self) -> String
 pub impl @step.Entity for CsgShapeRepresentation
 
 pub struct DateAndTime {
@@ -111,6 +124,7 @@ pub struct DateAndTime {
   time_component : @step.Ref
 }
 pub fn DateAndTime::new(@step.Ref, @step.Ref) -> Self
+pub fn DateAndTime::to_step(Self) -> String
 pub impl @step.Entity for DateAndTime
 
 pub struct DescriptiveRepresentationItem {
@@ -118,6 +132,7 @@ pub struct DescriptiveRepresentationItem {
   description : String
 }
 pub fn DescriptiveRepresentationItem::new(String, String) -> Self
+pub fn DescriptiveRepresentationItem::to_step(Self) -> String
 pub impl @step.Entity for DescriptiveRepresentationItem
 
 pub struct Document {
@@ -127,6 +142,7 @@ pub struct Document {
   kind : @step.Ref
 }
 pub fn Document::new(String, String, String, @step.Ref) -> Self
+pub fn Document::to_step(Self) -> String
 pub impl @step.Entity for Document
 
 pub struct DocumentReference {
@@ -136,12 +152,14 @@ pub struct DocumentReference {
   assigned_document : @step.Ref
 }
 pub fn DocumentReference::new(String, String, String, @step.Ref) -> Self
+pub fn DocumentReference::to_step(Self) -> String
 pub impl @step.Entity for DocumentReference
 
 pub struct DocumentType {
   product_data_type : String
 }
 pub fn DocumentType::new(String) -> Self
+pub fn DocumentType::to_step(Self) -> String
 pub impl @step.Entity for DocumentType
 
 pub struct ItemDefinedTransformation {
@@ -151,6 +169,7 @@ pub struct ItemDefinedTransformation {
   transform_item_2 : @step.Ref
 }
 pub fn ItemDefinedTransformation::new(String, String, @step.Ref, @step.Ref) -> Self
+pub fn ItemDefinedTransformation::to_step(Self) -> String
 pub impl @step.Entity for ItemDefinedTransformation
 
 pub struct LocalTime {
@@ -160,6 +179,7 @@ pub struct LocalTime {
   zone : @step.Ref
 }
 pub fn LocalTime::new(Int, Int, Double, @step.Ref) -> Self
+pub fn LocalTime::to_step(Self) -> String
 pub impl @step.Entity for LocalTime
 
 pub struct MeasureRepresentationItem {
@@ -168,6 +188,7 @@ pub struct MeasureRepresentationItem {
   unit_component : @step.Ref
 }
 pub fn MeasureRepresentationItem::new(String, MeasureValueComponent, @step.Ref) -> Self
+pub fn MeasureRepresentationItem::to_step(Self) -> String
 pub impl @step.Entity for MeasureRepresentationItem
 
 pub(all) enum MeasureValueComponent {
@@ -184,6 +205,7 @@ pub struct NextAssemblyUsageOccurrence {
   reference_designator : String
 }
 pub fn NextAssemblyUsageOccurrence::new(String, String, String, @step.Ref, @step.Ref, String) -> Self
+pub fn NextAssemblyUsageOccurrence::to_step(Self) -> String
 pub impl @step.Entity for NextAssemblyUsageOccurrence
 
 pub struct Organization {
@@ -192,6 +214,7 @@ pub struct Organization {
   description : String
 }
 pub fn Organization::new(String, String, String) -> Self
+pub fn Organization::to_step(Self) -> String
 pub impl @step.Entity for Organization
 
 pub struct Person {
@@ -203,6 +226,7 @@ pub struct Person {
   suffix_titles : Array[String]
 }
 pub fn Person::new(String, String, String, Array[String], Array[String], Array[String]) -> Self
+pub fn Person::to_step(Self) -> String
 pub impl @step.Entity for Person
 
 pub struct PersonAndOrganization {
@@ -210,6 +234,7 @@ pub struct PersonAndOrganization {
   the_organization : @step.Ref
 }
 pub fn PersonAndOrganization::new(@step.Ref, @step.Ref) -> Self
+pub fn PersonAndOrganization::to_step(Self) -> String
 pub impl @step.Entity for PersonAndOrganization
 
 pub struct Product {
@@ -219,6 +244,7 @@ pub struct Product {
   frame_of_reference : Array[@step.Ref]
 }
 pub fn Product::new(String, String, String, Array[@step.Ref]) -> Self
+pub fn Product::to_step(Self) -> String
 pub impl @step.Entity for Product
 
 pub struct ProductContext {
@@ -227,6 +253,7 @@ pub struct ProductContext {
   discipline_type : String
 }
 pub fn ProductContext::new(String, @step.Ref, String) -> Self
+pub fn ProductContext::to_step(Self) -> String
 pub impl @step.Entity for ProductContext
 
 pub struct ProductDefinition {
@@ -236,6 +263,7 @@ pub struct ProductDefinition {
   frame_of_reference : @step.Ref
 }
 pub fn ProductDefinition::new(String, String, @step.Ref, @step.Ref) -> Self
+pub fn ProductDefinition::to_step(Self) -> String
 pub impl @step.Entity for ProductDefinition
 
 pub struct ProductDefinitionContext {
@@ -244,6 +272,7 @@ pub struct ProductDefinitionContext {
   life_cycle_stage : String
 }
 pub fn ProductDefinitionContext::new(String, @step.Ref, String) -> Self
+pub fn ProductDefinitionContext::to_step(Self) -> String
 pub impl @step.Entity for ProductDefinitionContext
 
 pub struct ProductDefinitionFormation {
@@ -252,6 +281,7 @@ pub struct ProductDefinitionFormation {
   of_product : @step.Ref
 }
 pub fn ProductDefinitionFormation::new(String, String, @step.Ref) -> Self
+pub fn ProductDefinitionFormation::to_step(Self) -> String
 pub impl @step.Entity for ProductDefinitionFormation
 
 pub struct ProductDefinitionFormationWithSpecifiedSource {
@@ -261,6 +291,7 @@ pub struct ProductDefinitionFormationWithSpecifiedSource {
   make_or_buy : String
 }
 pub fn ProductDefinitionFormationWithSpecifiedSource::new(String, String, @step.Ref, String) -> Self
+pub fn ProductDefinitionFormationWithSpecifiedSource::to_step(Self) -> String
 pub impl @step.Entity for ProductDefinitionFormationWithSpecifiedSource
 
 pub struct ProductDefinitionShape {
@@ -269,6 +300,7 @@ pub struct ProductDefinitionShape {
   definition : @step.Ref
 }
 pub fn ProductDefinitionShape::new(String, String, @step.Ref) -> Self
+pub fn ProductDefinitionShape::to_step(Self) -> String
 pub impl @step.Entity for ProductDefinitionShape
 
 pub struct ProductRelatedProductCategory {
@@ -277,6 +309,7 @@ pub struct ProductRelatedProductCategory {
   products : Array[@step.Ref]
 }
 pub fn ProductRelatedProductCategory::new(String, String, Array[@step.Ref]) -> Self
+pub fn ProductRelatedProductCategory::to_step(Self) -> String
 pub impl @step.Entity for ProductRelatedProductCategory
 
 pub struct PropertyDefinition {
@@ -285,6 +318,7 @@ pub struct PropertyDefinition {
   definition : @step.Ref
 }
 pub fn PropertyDefinition::new(String, String, @step.Ref) -> Self
+pub fn PropertyDefinition::to_step(Self) -> String
 pub impl @step.Entity for PropertyDefinition
 
 pub struct PropertyDefinitionRepresentation {
@@ -292,6 +326,7 @@ pub struct PropertyDefinitionRepresentation {
   used_representation : @step.Ref
 }
 pub fn PropertyDefinitionRepresentation::new(@step.Ref, @step.Ref) -> Self
+pub fn PropertyDefinitionRepresentation::to_step(Self) -> String
 pub impl @step.Entity for PropertyDefinitionRepresentation
 
 pub struct Representation {
@@ -300,6 +335,7 @@ pub struct Representation {
   context_of_items : @step.Ref
 }
 pub fn Representation::new(String, Array[@step.Ref], @step.Ref) -> Self
+pub fn Representation::to_step(Self) -> String
 pub impl @step.Entity for Representation
 
 pub struct RepresentationRelationship {
@@ -309,12 +345,14 @@ pub struct RepresentationRelationship {
   rep_2 : @step.Ref
 }
 pub fn RepresentationRelationship::new(String, String, @step.Ref, @step.Ref) -> Self
+pub fn RepresentationRelationship::to_step(Self) -> String
 pub impl @step.Entity for RepresentationRelationship
 
 pub struct RepresentationRelationshipWithTransformation {
   transformation : @step.Ref
 }
 pub fn RepresentationRelationshipWithTransformation::new(@step.Ref) -> Self
+pub fn RepresentationRelationshipWithTransformation::to_step(Self) -> String
 pub impl @step.Entity for RepresentationRelationshipWithTransformation
 
 pub struct SecurityClassification {
@@ -323,12 +361,14 @@ pub struct SecurityClassification {
   security_level : @step.Ref
 }
 pub fn SecurityClassification::new(String, String, @step.Ref) -> Self
+pub fn SecurityClassification::to_step(Self) -> String
 pub impl @step.Entity for SecurityClassification
 
 pub struct SecurityClassificationLevel {
   name : String
 }
 pub fn SecurityClassificationLevel::new(String) -> Self
+pub fn SecurityClassificationLevel::to_step(Self) -> String
 pub impl @step.Entity for SecurityClassificationLevel
 
 pub struct ShapeAspect {
@@ -338,6 +378,7 @@ pub struct ShapeAspect {
   product_definitional : String
 }
 pub fn ShapeAspect::new(String, String, @step.Ref, String) -> Self
+pub fn ShapeAspect::to_step(Self) -> String
 pub impl @step.Entity for ShapeAspect
 
 pub struct ShapeDefinitionRepresentation {
@@ -345,6 +386,7 @@ pub struct ShapeDefinitionRepresentation {
   used_representation : @step.Ref
 }
 pub fn ShapeDefinitionRepresentation::new(@step.Ref, @step.Ref) -> Self
+pub fn ShapeDefinitionRepresentation::to_step(Self) -> String
 pub impl @step.Entity for ShapeDefinitionRepresentation
 
 pub struct ShapeRepresentation {
@@ -353,6 +395,7 @@ pub struct ShapeRepresentation {
   context_of_items : @step.Ref
 }
 pub fn ShapeRepresentation::new(String, Array[@step.Ref], @step.Ref) -> Self
+pub fn ShapeRepresentation::to_step(Self) -> String
 pub impl @step.Entity for ShapeRepresentation
 
 pub struct ShapeRepresentationRelationship {
@@ -362,6 +405,7 @@ pub struct ShapeRepresentationRelationship {
   rep_2 : @step.Ref
 }
 pub fn ShapeRepresentationRelationship::new(String, String, @step.Ref, @step.Ref) -> Self
+pub fn ShapeRepresentationRelationship::to_step(Self) -> String
 pub impl @step.Entity for ShapeRepresentationRelationship
 
 // Type aliases

@@ -1,7 +1,7 @@
 ///|
 test "conical_surface to_step" {
   let pos = @step.Ref::{ id: @step.EntityId::{ value: 611, }, }
-  let entity = ConicalSurface::new(
+  let entity = @geometry.ConicalSurface::new(
     "", pos, "0.3500599520011", "0.140686945962564",
   )
   inspect(
