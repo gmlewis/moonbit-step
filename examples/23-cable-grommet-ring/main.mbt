@@ -96,7 +96,7 @@ fn cable_grommet(
   ld : Double,
   pt : Double,
   lt : Double,
-  split? : Bool = false,
+  split~ : Bool = false,
 ) -> Array[@cad.SceneNode] {
   if !split {
     // Single part

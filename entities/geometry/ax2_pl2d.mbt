@@ -13,7 +13,7 @@ pub struct Axis2Placement2D {
 pub fn Axis2Placement2D::new(
   name : String,
   location : @step.Ref,
-  ref_direction? : @step.Ref? = None,
+  ref_direction~ : @step.Ref? = None,
 ) -> Axis2Placement2D {
   Axis2Placement2D::{ name, location, ref_direction, }
 }

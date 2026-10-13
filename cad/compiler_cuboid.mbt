@@ -3,7 +3,7 @@ pub fn compile_cuboid(
   ctx : StepContext,
   node : SceneNode,
   cuboid : Cuboid,
-  reverse? : Bool = false,
+  reverse~ : Bool = false,
 ) -> Array[@step.Ref] {
   let sx = cuboid.sx
   let sy = cuboid.sy
@@ -56,7 +56,7 @@ pub fn compile_cuboid(
   let vny = ctx.vector(ndy, 1.0)
 
   // Edge definitions: (start_idx, end_idx, vector_ref)
-  let edge_defs : Array[(Int, Int, @step.Ref)] = [
+  let edge_defs : Array[(Int32, Int32, @step.Ref)] = [
     (0, 1, vx),
     (1, 2, vy),
     (2, 3, vnx),

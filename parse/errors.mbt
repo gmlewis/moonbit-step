@@ -11,8 +11,8 @@
 // `line`/`col` are 1-based when present.
 pub struct StepParseErrorInfo {
   message : String
-  line : Int?
-  col : Int?
+  line : Int32?
+  col : Int32?
   stmt : String?
 }
 
@@ -56,8 +56,8 @@ pub fn[T] fail_parse_stmt(
 // Raise a parse error with position + statement context.
 pub fn[T] fail_parse_at(
   msg : String,
-  line : Int,
-  col : Int,
+  line : Int32,
+  col : Int32,
   stmt : String,
 ) -> T raise StepParseError {
   raise StepParseError({
@@ -73,7 +73,7 @@ pub fn[T] fail_parse_at(
 pub fn format_step_parse_error(info : StepParseErrorInfo) -> String {
   let pos_prefix = match (info.line, info.col) {
     (Some(l), Some(c)) =>
-      "@" + Int::to_string(l) + ":" + Int::to_string(c) + ": "
+      "@" + Int32::to_string(l) + ":" + Int32::to_string(c) + ": "
     _ => ""
   }
   let header = pos_prefix + info.message
@@ -112,12 +112,12 @@ pub fn format_step_parse_error(info : StepParseErrorInfo) -> String {
 }
 
 ///|
-fn cu_at_err(s : String, i : Int) -> Int {
+fn cu_at_err(s : String, i : Int32) -> Int32 {
   UInt16::to_int(String::code_unit_at(s, i))
 }
 
 ///|
-fn render_spaces(n : Int) -> String {
+fn render_spaces(n : Int32) -> String {
   let builder = StringBuilder()
   for _ in 0..<n {
     builder.write_char(' ')
@@ -128,7 +128,7 @@ fn render_spaces(n : Int) -> String {
 ///|
 // Render a caret line aligned with the statement shown under "Statement:".
 // `col1` is 1-based column in the statement.
-fn render_caret_line(col1 : Int) -> String {
+fn render_caret_line(col1 : Int32) -> String {
   let col0 = if col1 <= 1 { 0 } else { col1 - 1 }
   // Statement lines are prefixed with two spaces in format_step_parse_error.
   "  " + render_spaces(col0) + "^"
@@ -138,7 +138,7 @@ fn render_caret_line(col1 : Int) -> String {
 // Heuristically choose a useful caret position inside the statement.
 // This is intentionally conservative: only return a caret position when we're
 // reasonably sure where the user should look.
-fn caret_col_in_stmt(msg : String, stmt_first_line : String) -> Int? {
+fn caret_col_in_stmt(msg : String, stmt_first_line : String) -> Int32? {
   if stmt_first_line.length() == 0 {
     return None
   }

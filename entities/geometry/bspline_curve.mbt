@@ -4,7 +4,7 @@
 //   B_SPLINE_CURVE('name', 3, (#10, #11, #12, #13), .UNSPECIFIED., .F., .F.)
 pub struct BSplineCurve {
   name : String
-  degree : Int
+  degree : Int32
   control_points : Array[@step.Ref]
   curve_form : String
   closed_curve : Bool
@@ -14,7 +14,7 @@ pub struct BSplineCurve {
 ///|
 pub fn BSplineCurve::new(
   name : String,
-  degree : Int,
+  degree : Int32,
   control_points : Array[@step.Ref],
   curve_form : String,
   closed_curve : Bool,

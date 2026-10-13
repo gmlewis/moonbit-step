@@ -418,7 +418,7 @@ fn emit_centerline_path_json(
   builder : StringBuilder,
   first_path : Bool,
   name : String,
-  pair_num : Int,
+  pair_num : Int32,
   start_angle_deg : Double,
   points : Array[Vec3],
 ) -> Bool {

@@ -26,11 +26,11 @@ async test "machine_contact_medium_roundtrip_is_idempotent" {
       }
       i = i + 1
     }
-    fn substr(s : String, start : Int, end : Int) -> String {
+    fn substr(s : String, start : Int32, end : Int32) -> String {
       String::unsafe_substring(s, start~, end~)
     }
 
-    fn get_line(s : String, target_line : Int) -> String {
+    fn get_line(s : String, target_line : Int32) -> String {
       let mut line = 1
       let mut start = 0
       for j in 0..<s.length() {

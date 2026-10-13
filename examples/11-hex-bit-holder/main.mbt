@@ -110,8 +110,8 @@ async fn main {
 
 ///|
 fn hex_bit_holder(
-  rows : Int,
-  cols : Int,
+  rows : Int32,
+  cols : Int32,
   bit_diameter_across_flats : Double,
   spacing : Double,
   height : Double,

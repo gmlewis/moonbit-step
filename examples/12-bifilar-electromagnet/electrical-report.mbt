@@ -66,7 +66,7 @@ fn total_bifilar_helix_centerline_length_mm(params : Params) -> Double {
 }
 
 ///|
-fn coil_helix_centerline_length_mm(pair_num : Int, params : Params) -> Double {
+fn coil_helix_centerline_length_mm(pair_num : Int32, params : Params) -> Double {
   let (radius, height_per_turn) = coil_turn_dimensions(pair_num, params)
   let start_angle = 180.0 *
     (pair_num.to_double() - 1) /

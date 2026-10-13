@@ -3,16 +3,16 @@
 // Example:
 //   CALENDAR_DATE(2025, 22, 12)
 pub struct CalendarDate {
-  year_component : Int
-  day_component : Int
-  month_component : Int
+  year_component : Int32
+  day_component : Int32
+  month_component : Int32
 }
 
 ///|
 pub fn CalendarDate::new(
-  year_component : Int,
-  day_component : Int,
-  month_component : Int,
+  year_component : Int32,
+  day_component : Int32,
+  month_component : Int32,
 ) -> CalendarDate {
   CalendarDate::{ year_component, day_component, month_component, }
 }

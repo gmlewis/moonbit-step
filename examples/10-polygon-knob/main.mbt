@@ -106,12 +106,12 @@ async fn main {
 
 ///|
 fn polygon_knob(
-  sides : Int,
+  sides : Int32,
   diameter : Double,
   height : Double,
-  hole_sides : Int,
+  hole_sides : Int32,
   hole_diameter : Double,
-  hole_rotation? : Double = 0.0,
+  hole_rotation~ : Double = 0.0,
 ) -> @cad.Shape {
   let outer = @cad.Profile2D::polygon(sides, diameter)
   let hole = @cad.Profile2D::polygon(

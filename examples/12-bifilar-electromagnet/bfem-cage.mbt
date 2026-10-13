@@ -76,7 +76,7 @@ fn make_vertical_post_wedge(
   normal_angle~ : Double,
   post_height~ : Double,
   wire_width~ : Double,
-  color? : @cad.Rgb = @cad.Rgb::red(),
+  color~ : @cad.Rgb = @cad.Rgb::red(),
 ) -> VerticalPostWedge {
   let sx4 = pos.0 + inner_radius * @math.cos(start_angle)
   let sy4 = pos.1 + inner_radius * @math.sin(start_angle)
@@ -103,10 +103,10 @@ fn make_wedge(
   end_angle~ : Double,
   radial_length~ : Double,
   height~ : Double,
-  color? : @cad.Rgb = @cad.Rgb::red(),
-  name? : String = "vertical-wedge-r\{inner_radius}-a\{start_angle}",
-  trim_last_edge? : Bool = false,
-  wire_gap? : Double = 0.0, // only used if trim_last_edge is true
+  color~ : @cad.Rgb = @cad.Rgb::red(),
+  name~ : String = "vertical-wedge-r\{inner_radius}-a\{start_angle}",
+  trim_last_edge~ : Bool = false,
+  wire_gap~ : Double = 0.0, // only used if trim_last_edge is true
 ) -> VerticalWedge {
   let mut sx4 = pos.0 + inner_radius * @math.cos(start_angle)
   let mut sy4 = pos.1 + inner_radius * @math.sin(start_angle)
@@ -134,10 +134,10 @@ fn make_wedge(
 fn make_cylinder(
   pos~ : Vec3,
   radius~ : Double,
-  segments~ : Int,
+  segments~ : Int32,
   height~ : Double,
-  color? : @cad.Rgb = @cad.Rgb::red(),
-  name? : String = "bfem:cage:cylinder",
+  color~ : @cad.Rgb = @cad.Rgb::red(),
+  name~ : String = "bfem:cage:cylinder",
 ) -> VerticalCylinder {
   let points = []
   for i in 1..<=segments {
@@ -159,7 +159,7 @@ fn push_arc_point(
   start_angle : Double,
   angle_delta : Double,
   radius : Double,
-  j : Int,
+  j : Int32,
   points : Array[Vec2],
 ) -> Unit {
   let angle = start_angle + j.to_double() * angle_delta
@@ -169,9 +169,9 @@ fn push_arc_point(
 ///|
 struct CageContext {
   center : Vec2
-  npairs : Int
+  npairs : Int32
   num_pairs : Double
-  segments_per_rail : Int
+  segments_per_rail : Int32
   lower_z : Double
   coil_height : Double
   extrude_height : Double
@@ -795,7 +795,7 @@ struct SupportInfo {
 
 ///|
 fn add_support(
-  idx : Int,
+  idx : Int32,
   name : String,
   info : SupportInfo,
   shaft_pos~ : Vec3,

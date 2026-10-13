@@ -1,12 +1,12 @@
 ///|
 // Represents a GEOMETRIC_REPRESENTATION_CONTEXT entity.
 pub struct GeometricRepresentationContext {
-  dimension : Int
+  dimension : Int32
 }
 
 ///|
 pub fn GeometricRepresentationContext::new(
-  dimension : Int,
+  dimension : Int32,
 ) -> GeometricRepresentationContext {
   GeometricRepresentationContext::{ dimension, }
 }

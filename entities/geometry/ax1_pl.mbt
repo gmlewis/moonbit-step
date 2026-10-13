@@ -13,7 +13,7 @@ pub struct Axis1Placement {
 pub fn Axis1Placement::new(
   name : String,
   location : @step.Ref,
-  axis? : @step.Ref? = None,
+  axis~ : @step.Ref? = None,
 ) -> Axis1Placement {
   Axis1Placement::{ name, location, axis, }
 }

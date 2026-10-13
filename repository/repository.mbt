@@ -937,7 +937,7 @@ pub struct Repository {
   entities : Array[Entry]
   order : Array[@step.EntityId]
   mut header : @header.HeaderSection
-  mut next_id : Int
+  mut next_id : Int32
 }
 
 ///|
@@ -966,7 +966,7 @@ pub fn Repository::set_header(
 }
 
 ///|
-pub fn Repository::len(self : Repository) -> Int {
+pub fn Repository::len(self : Repository) -> Int32 {
   self.order.length()
 }
 

@@ -77,7 +77,7 @@ async fn main {
 
 ///|
 fn make_coil_pair(
-  pair_num~ : Int,
+  pair_num~ : Int32,
   params~ : Params,
 ) -> (@cad.SceneNode, @cad.SceneNode) {
   let delta_z = (params.wire_gap + params.wire_width) /
@@ -108,7 +108,7 @@ fn make_coil_pair(
 ///|
 /// coil_turn_dimensions returns the helix path X/Y radius and Z rise per turn
 /// for the given coil pair index (1-based).
-fn coil_turn_dimensions(pair_num : Int, params : Params) -> (Double, Double) {
+fn coil_turn_dimensions(pair_num : Int32, params : Params) -> (Double, Double) {
   let hw = params.wire_width / 2.0
   let radius = params.inner_diam / 2.0 +
     hw +
@@ -131,9 +131,9 @@ fn square_wire_profile(hw : Double) -> @cad.SweepProfile {
 ///|
 fn make_coil(
   start_angle : Double,
-  pair_num~ : Int,
+  pair_num~ : Int32,
   params~ : Params,
-  color? : @cad.Rgb = @cad.Rgb::red(),
+  color~ : @cad.Rgb = @cad.Rgb::red(),
 ) -> @cad.SceneNode {
   let hw = params.wire_width / 2.0
   let (radius, height) = coil_turn_dimensions(pair_num, params)

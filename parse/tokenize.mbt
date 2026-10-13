@@ -3,15 +3,15 @@ pub struct RawEntityRow {
   id : @step.EntityId
   name : String
   args : String
-  line : Int
-  col : Int
+  line : Int32
+  col : Int32
 }
 
 ///|
 pub struct StatementSpan {
   stmt : String
-  line : Int
-  col : Int
+  line : Int32
+  col : Int32
 }
 
 ///|
@@ -119,17 +119,17 @@ fn strip_step_comments(input : String) -> String raise StepParseError {
 }
 
 ///|
-fn substr(s : String, start : Int, end : Int) -> String {
+fn substr(s : String, start : Int32, end : Int32) -> String {
   String::unsafe_substring(s, start~, end~)
 }
 
 ///|
-fn cu_at(s : String, i : Int) -> Int {
+fn cu_at(s : String, i : Int32) -> Int32 {
   UInt16::to_int(String::code_unit_at(s, i))
 }
 
 ///|
-fn parse_int_dec(s : String) -> Int {
+fn parse_int_dec(s : String) -> Int32 {
   let t = s.trim().to_owned()
   let mut sign = 1
   let start_i = if t.length() > 0 && cu_at(t, 0) == Char::to_int('-') {
@@ -303,11 +303,11 @@ pub fn split_statements_with_pos(
 
 ///|
 fn apply_base(
-  line : Int,
-  col : Int,
-  base_line : Int,
-  base_col : Int,
-) -> (Int, Int) {
+  line : Int32,
+  col : Int32,
+  base_line : Int32,
+  base_col : Int32,
+) -> (Int32, Int32) {
   if line == 1 {
     (base_line, base_col + col - 1)
   } else {
@@ -382,8 +382,8 @@ pub fn tokenize_step_data_section(
 // `data_section` within the full (comment-stripped) file.
 pub fn tokenize_step_data_section_with_base(
   data_section : String,
-  base_line : Int,
-  base_col : Int,
+  base_line : Int32,
+  base_col : Int32,
 ) -> Array[RawEntityRow] raise StepParseError {
   let stmts = split_statements_with_pos(data_section) catch {
     StepParseError(info) => {

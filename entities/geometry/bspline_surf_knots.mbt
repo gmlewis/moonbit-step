@@ -8,8 +8,8 @@
 // Notes:
 // - We store knot values as raw strings to preserve STEP formatting.
 pub struct BSplineSurfaceWithKnots {
-  u_multiplicities : Array[Int]
-  v_multiplicities : Array[Int]
+  u_multiplicities : Array[Int32]
+  v_multiplicities : Array[Int32]
   u_knots : Array[String]
   v_knots : Array[String]
   knot_spec : String
@@ -17,8 +17,8 @@ pub struct BSplineSurfaceWithKnots {
 
 ///|
 pub fn BSplineSurfaceWithKnots::new(
-  u_multiplicities : Array[Int],
-  v_multiplicities : Array[Int],
+  u_multiplicities : Array[Int32],
+  v_multiplicities : Array[Int32],
   u_knots : Array[String],
   v_knots : Array[String],
   knot_spec : String,

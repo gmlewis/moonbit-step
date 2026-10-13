@@ -15,7 +15,7 @@ struct ConductorTotals {
   length_mm : Double
   volume_mm3 : Double
   mm_over_mm2 : Double
-  segments : Int
+  segments : Int32
 }
 
 ///|
@@ -61,7 +61,7 @@ fn polygon_area_mm2(points : Array[Vec2]) -> Double {
 }
 
 ///|
-fn circle_polygon_area_mm2(radius : Double, segments : Int) -> Double {
+fn circle_polygon_area_mm2(radius : Double, segments : Int32) -> Double {
   if radius <= 0.0 || segments < 3 {
     return 0.0
   }

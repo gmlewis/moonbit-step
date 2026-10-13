@@ -3,7 +3,7 @@ pub async fn Design::create_blender_file(
   self : Design,
   out_path : String,
   keep_modifiers? : Bool,
-  segments? : Int = 0, // <=0: retain cubic Beziers, >0: convert to polylines with this many segments
+  segments~ : Int32 = 0, // <=0: retain cubic Beziers, >0: convert to polylines with this many segments
 ) -> Unit {
   let bpy_code = self.to_blender_python(segments~, keep_modifiers?)
   let temp_py_path = "/tmp/temp_blender_script.py"
@@ -30,7 +30,7 @@ pub async fn Design::create_blender_file(
 pub async fn Design::write_blender_python(
   self : Design,
   out_path : String?,
-  segments? : Int = 0, // <=0: retain cubic Beziers, >0: convert to polylines with this many segments
+  segments~ : Int32 = 0, // <=0: retain cubic Beziers, >0: convert to polylines with this many segments
   keep_modifiers? : Bool,
 ) -> Unit {
   let bpy_code = self.to_blender_python(segments~, keep_modifiers?)
@@ -122,7 +122,7 @@ fn py_color(color : Rgb) -> String {
 }
 
 ///|
-fn next_var(prefix : String, idx : Int) -> (String, Int) {
+fn next_var(prefix : String, idx : Int32) -> (String, Int32) {
   (prefix + idx.to_string(), idx + 1)
 }
 
@@ -130,9 +130,9 @@ fn next_var(prefix : String, idx : Int) -> (String, Int) {
 fn emit_node_python(
   builder : StringBuilder,
   node : SceneNode,
-  idx : Int,
-  segments~ : Int,
-) -> (String, Int) {
+  idx : Int32,
+  segments~ : Int32,
+) -> (String, Int32) {
   match node.shape {
     Cuboid(c) => {
       let (obj_var, next_idx) = next_var("obj", idx)
@@ -270,8 +270,8 @@ fn emit_node_python(
 /// as it can.
 pub fn Design::to_blender_python(
   self : Design,
-  segments? : Int = 0, // <=0: retain cubic Beziers, >0: convert to polylines with this many segments
-  keep_modifiers? : Bool = false,
+  segments~ : Int32 = 0, // <=0: retain cubic Beziers, >0: convert to polylines with this many segments
+  keep_modifiers~ : Bool = false,
 ) -> String {
   let builder = StringBuilder()
   builder.write_string(PREAMBLE)

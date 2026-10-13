@@ -50,9 +50,9 @@ pub fn CalibrationChamferBlock::new(
   length_mm : Double,
   width_mm : Double,
   height_mm : Double,
-  chamfer_size_mm? : Double = 1.0,
-  fillet_radius_mm? : Double = 0.0,
-  fillet_segments? : Int = 8,
+  chamfer_size_mm~ : Double = 1.0,
+  fillet_radius_mm~ : Double = 0.0,
+  fillet_segments~ : Int32 = 8,
 ) -> Shape {
   Shape::CalibrationChamferBlock({
     length_mm,
@@ -81,7 +81,7 @@ pub fn Profile2D::rounded_rect(
   width : Double,
   height : Double,
   radius : Double,
-  segments? : Int = 32,
+  segments~ : Int32 = 32,
 ) -> Array[Vec2] {
   if radius <= 0.0 {
     return Profile2D::rect(width, height)
@@ -126,9 +126,9 @@ pub fn Profile2D::rounded_rect(
 /// Profile2D::polygon returns a regular polygon with the given number of sides,
 /// diameter, and optional rotation in degrees.
 pub fn Profile2D::polygon(
-  sides : Int,
+  sides : Int32,
   diameter : Double,
-  rotation? : Double = 0.0,
+  rotation~ : Double = 0.0,
 ) -> Array[Vec2] {
   let n = if sides < 3 { 3 } else { sides }
   let radius = diameter / 2.0
@@ -149,7 +149,7 @@ pub fn tube(
   outer_diameter : Double,
   inner_diameter : Double,
   height : Double,
-  segments? : Int = 64,
+  segments~ : Int32 = 64,
 ) -> Shape {
   let outer = Profile2D::circle(outer_diameter, segments~)
   if inner_diameter <= 0.0 {
@@ -179,13 +179,13 @@ pub fn text_at(
   y : Double,
   z : Double,
   font~ : @draw.Font,
-  font_size? : Double = 5.0,
-  max_width? : Double = 1000.0,
-  emboss_depth? : Double = 0.5,
-  rx? : Double = 0.0,
-  ry? : Double = 0.0,
-  rz? : Double = 0.0,
-  segments? : Int = 0, // <=0: retain cubic Beziers, >0: convert to polylines with this many segments
+  font_size~ : Double = 5.0,
+  max_width~ : Double = 1000.0,
+  emboss_depth~ : Double = 0.5,
+  rx~ : Double = 0.0,
+  ry~ : Double = 0.0,
+  rz~ : Double = 0.0,
+  segments~ : Int32 = 0, // <=0: retain cubic Beziers, >0: convert to polylines with this many segments
 ) -> Array[SceneNode] {
   if segments <= 0 {
     return text_at_bezier(
@@ -241,12 +241,12 @@ fn text_at_bezier(
   y : Double,
   z : Double,
   font~ : @draw.Font,
-  font_size? : Double = 5.0,
-  max_width? : Double = 1000.0,
-  emboss_depth? : Double = 0.5,
-  rx? : Double = 0.0,
-  ry? : Double = 0.0,
-  rz? : Double = 0.0,
+  font_size~ : Double = 5.0,
+  max_width~ : Double = 1000.0,
+  emboss_depth~ : Double = 0.5,
+  rx~ : Double = 0.0,
+  ry~ : Double = 0.0,
+  rz~ : Double = 0.0,
 ) -> Array[SceneNode] {
   let fs = font_size
   let mw = max_width
@@ -320,7 +320,7 @@ pub fn ExtrudedBezierProfile::new(
 ///|
 fn collect_profiles(
   g : @draw.Graphic,
-  segments : Int,
+  segments : Int32,
 ) -> Array[(Array[Vec2], Array[Array[Vec2]])] {
   match g {
     CompoundPath(cp) => {
@@ -371,7 +371,7 @@ fn collect_profiles(
 pub fn Profile2D::ellipse(
   width : Double,
   height : Double,
-  segments? : Int = 64,
+  segments~ : Int32 = 64,
 ) -> Array[Vec2] {
   let rx = width / 2.0
   let ry = height / 2.0
@@ -388,7 +388,7 @@ pub fn Profile2D::ellipse(
 ///|
 pub fn Profile2D::circle(
   diameter : Double,
-  segments? : Int = 64,
+  segments~ : Int32 = 64,
 ) -> Array[Vec2] {
   let radius = diameter / 2.0
   let n = if segments < 3 { 3 } else { segments }
@@ -406,7 +406,7 @@ pub fn Profile2D::arc(
   diameter : Double,
   start_angle : Double,
   end_angle : Double,
-  segments? : Int = 32,
+  segments~ : Int32 = 32,
 ) -> Array[Vec2] {
   let radius = diameter / 2.0
   let n = if segments < 2 { 2 } else { segments }
@@ -423,7 +423,7 @@ pub fn Profile2D::arc(
 pub fn ExtrudedProfile::new(
   outer : Array[Vec2],
   height_mm : Double,
-  holes? : Array[Array[Vec2]] = [],
+  holes~ : Array[Array[Vec2]] = [],
 ) -> Shape {
   Shape::ExtrudedProfile({ profile: { outer, holes, }, height_mm, })
 }
@@ -436,7 +436,7 @@ pub fn ExtrudedProfile::new(
 /// the solids together in the same design.
 pub fn union_all(
   nodes : Array[SceneNode],
-  name? : String = "union",
+  name~ : String = "union",
 ) -> SceneNode {
   Shape::Union({ nodes, }).with_name(name)
 }
@@ -447,7 +447,7 @@ pub fn union_all(
 pub fn difference(
   base : SceneNode,
   cutters : Array[SceneNode],
-  name? : String = "difference",
+  name~ : String = "difference",
 ) -> SceneNode {
   Shape::Difference({ base, cutters, }).with_name(name)
 }
@@ -485,9 +485,9 @@ pub fn SceneNode::with_name(self : SceneNode, name : String) -> SceneNode {
 ///|
 pub fn SceneNode::translate(
   self : SceneNode,
-  x? : Double = 0.0,
-  y? : Double = 0.0,
-  z? : Double = 0.0,
+  x~ : Double = 0.0,
+  y~ : Double = 0.0,
+  z~ : Double = 0.0,
 ) -> SceneNode {
   { ..self, tx: self.tx + x, ty: self.ty + y, tz: self.tz + z, }
 }
@@ -519,13 +519,13 @@ pub fn Design::add_text_on_face(
   font : @draw.Font,
   font_size? : Double,
   emboss_depth? : Double,
-  offset_x? : Double = 0.0,
-  offset_y? : Double = 0.0,
-  rotation? : Double = 0.0,
+  offset_x~ : Double = 0.0,
+  offset_y~ : Double = 0.0,
+  rotation~ : Double = 0.0,
   margin? : Double,
-  color? : Rgb = Rgb::orange(),
-  emboss? : Bool = true,
-  segments? : Int = 0, // <=0: retain cubic Beziers, >0: convert to polylines with this many segments
+  color~ : Rgb = Rgb::orange(),
+  emboss~ : Bool = true,
+  segments~ : Int32 = 0, // <=0: retain cubic Beziers, >0: convert to polylines with this many segments
 ) -> Design {
   let (min_x, max_x, min_y, max_y, min_z, max_z) = target.shape.bounding_box()
   let mid_x = (min_x + max_x) / 2.0

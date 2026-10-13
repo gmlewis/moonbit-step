@@ -104,7 +104,7 @@ fn metric_nut_test_strip(
   bolt_diameter : Double,
   base_clearance : Double,
   base_interference : Double,
-  step_count : Int,
+  step_count : Int32,
   clearance_step : Double,
   hole_spacing : Double,
   mount_thickness : Double,

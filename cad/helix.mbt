@@ -1,11 +1,11 @@
 ///|
 pub fn helix_path(
-  pos? : Vec3 = (0.0, 0.0, 0.0),
-  size_per_turn? : Vec3 = (1.0, 1.0, 1.0),
-  num_turns? : Double = 1.0,
-  num_segs_per_turn? : Int = 36,
-  start_angle? : Double = 0.0,
-  clockwise? : Bool = true,
+  pos~ : Vec3 = (0.0, 0.0, 0.0),
+  size_per_turn~ : Vec3 = (1.0, 1.0, 1.0),
+  num_turns~ : Double = 1.0,
+  num_segs_per_turn~ : Int32 = 36,
+  start_angle~ : Double = 0.0,
+  clockwise~ : Bool = true,
 ) -> SweepPath {
   let max_angle = 2.0 * @math.PI * num_turns
   let total_segments = @math.ceil(num_turns * num_segs_per_turn.to_double())

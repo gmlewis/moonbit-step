@@ -1,7 +1,7 @@
 ///|
 // A distinct type for entity IDs, preventing mix-ups with regular Ints.
 pub(all) struct EntityId {
-  value : Int
+  value : Int32
 }
 
 ///|

@@ -8,12 +8,12 @@
 // - Control points are currently typed as UnknownEntity refs.
 pub struct BSplineCurveWithKnots {
   name : String
-  degree : Int
+  degree : Int32
   control_points : Array[@step.Ref]
   curve_form : String
   closed_curve : Bool
   self_intersect : Bool
-  knot_multiplicities : Array[Int]
+  knot_multiplicities : Array[Int32]
   knots : Array[String]
   knot_spec : String
 }
@@ -21,12 +21,12 @@ pub struct BSplineCurveWithKnots {
 ///|
 pub fn BSplineCurveWithKnots::new(
   name : String,
-  degree : Int,
+  degree : Int32,
   control_points : Array[@step.Ref],
   curve_form : String,
   closed_curve : Bool,
   self_intersect : Bool,
-  knot_multiplicities : Array[Int],
+  knot_multiplicities : Array[Int32],
   knots : Array[String],
   knot_spec : String,
 ) -> BSplineCurveWithKnots {

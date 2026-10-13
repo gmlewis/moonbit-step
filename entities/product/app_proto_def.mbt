@@ -5,7 +5,7 @@
 pub struct ApplicationProtocolDefinition {
   status : String
   application_interpreted_model_schema_name : String
-  application_protocol_year : Int
+  application_protocol_year : Int32
   application : @step.Ref
 }
 
@@ -13,7 +13,7 @@ pub struct ApplicationProtocolDefinition {
 pub fn ApplicationProtocolDefinition::new(
   status : String,
   application_interpreted_model_schema_name : String,
-  application_protocol_year : Int,
+  application_protocol_year : Int32,
   application : @step.Ref,
 ) -> ApplicationProtocolDefinition {
   ApplicationProtocolDefinition::{
@@ -26,7 +26,7 @@ pub fn ApplicationProtocolDefinition::new(
 
 ///|
 pub impl @step.Entity for ApplicationProtocolDefinition with fn to_step(self) {
-  let year_str = Int::to_string(self.application_protocol_year)
+  let year_str = Int32::to_string(self.application_protocol_year)
   let app_str = "#\{self.application.id.value}"
   "APPLICATION_PROTOCOL_DEFINITION(\{step_str_or_dollar(self.status)},\{step_str_or_dollar(self.application_interpreted_model_schema_name)},\{year_str},\{app_str})"
 }

@@ -177,7 +177,7 @@ fn dovetail_slider(
   height : Double,
   length : Double,
   angle : Double,
-  clearance? : Double = 0.0,
+  clearance~ : Double = 0.0,
 ) -> @cad.Shape {
   // Apply clearance: narrow the width and shorten the height.
   let c = clearance

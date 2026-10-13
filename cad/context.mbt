@@ -14,7 +14,7 @@ pub struct StepContext {
   directions : Map[String, @step.Ref]
   vectors : Map[String, @step.Ref]
   cartesian_points : Map[String, @step.Ref]
-  vertex_points : Map[Int, @step.Ref]
+  vertex_points : Map[Int32, @step.Ref]
   lines : Map[String, @step.Ref]
   edge_curves : Map[String, @step.Ref]
   axis2_placements : Map[String, @step.Ref]

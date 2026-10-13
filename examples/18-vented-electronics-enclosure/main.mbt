@@ -125,8 +125,8 @@ fn vented_enclosure(
   boss_diameter : Double,
   boss_hole_diameter : Double,
   lid_thickness : Double,
-  vent_slot_width? : Double = 2.0,
-  vent_slot_spacing? : Double = 4.0,
+  vent_slot_width~ : Double = 2.0,
+  vent_slot_spacing~ : Double = 4.0,
 ) -> Array[@cad.SceneNode] {
   let outer = @cad.Profile2D::rounded_rect(width, length, fillet_radius)
   let inner_r = if fillet_radius > wall_thickness {

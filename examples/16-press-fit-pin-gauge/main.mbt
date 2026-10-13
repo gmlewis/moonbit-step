@@ -89,7 +89,7 @@ fn pin_gauge(
   pin_diameter : Double,
   base_clearance : Double,
   base_interference : Double,
-  step_count : Int,
+  step_count : Int32,
   clearance_step : Double,
   spacing : Double,
   base_height : Double,

@@ -86,7 +86,7 @@ pub struct CalibrationChamferBlock {
   height_mm : Double
   chamfer_size_mm : Double
   fillet_radius_mm : Double
-  fillet_segments : Int
+  fillet_segments : Int32
 }
 
 ///|
@@ -195,9 +195,9 @@ pub(all) struct SweepProfile {
 /// SweepProfile::new returns a new SweepProfile.
 pub fn SweepProfile::new(
   vertices : Array[Vec3],
-  center? : Vec3 = (0.0, 0.0, 0.0),
-  normal_dir? : Vec3 = (0.0, 1.0, 0.0),
-  right_dir? : Vec3 = (1.0, 0.0, 0.0),
+  center~ : Vec3 = (0.0, 0.0, 0.0),
+  normal_dir~ : Vec3 = (0.0, 1.0, 0.0),
+  right_dir~ : Vec3 = (1.0, 0.0, 0.0),
 ) -> SweepProfile {
   { center, vertices, normal_dir, right_dir, }
 }

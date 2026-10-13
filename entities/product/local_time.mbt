@@ -4,16 +4,16 @@
 //   LOCAL_TIME(12, 30, 0.0, #10)
 // where #10 is a COORDINATED_UNIVERSAL_TIME_OFFSET.
 pub struct LocalTime {
-  hour_component : Int
-  minute_component : Int
+  hour_component : Int32
+  minute_component : Int32
   second_component : Double
   zone : @step.Ref
 }
 
 ///|
 pub fn LocalTime::new(
-  hour_component : Int,
-  minute_component : Int,
+  hour_component : Int32,
+  minute_component : Int32,
   second_component : Double,
   zone : @step.Ref,
 ) -> LocalTime {

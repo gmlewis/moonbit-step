@@ -838,7 +838,7 @@ fn parse_b_spline_curve(
 }
 
 ///|
-fn parse_int_list(arg : String) -> Array[Int] {
+fn parse_int_list(arg : String) -> Array[Int32] {
   split_args(arg).map(parse_int_dec)
 }
 
@@ -1511,7 +1511,7 @@ fn parse_descriptive_representation_item(
   if parts.length() != 2 {
     fail_parse_msg(
       "DESCRIPTIVE_REPRESENTATION_ITEM expected 2 args, got " +
-      Int::to_string(parts.length()) +
+      Int32::to_string(parts.length()) +
       ": " +
       args,
     )
@@ -3083,7 +3083,7 @@ fn parse_complex_instance(
 fn find_literal_outside_step_strings_with_state(
   haystack : String,
   needle : String,
-) -> (Int?, Int?) {
+) -> (Int32?, Int32?) {
   let n = haystack.length()
   let m = needle.length()
   if m == 0 {
@@ -3138,7 +3138,7 @@ fn find_literal_outside_step_strings_with_state(
 }
 
 ///|
-fn line_slice_at(s : String, idx : Int) -> String {
+fn line_slice_at(s : String, idx : Int32) -> String {
   let n = s.length()
   let mut start = if idx < 0 { 0 } else { idx }
   if start > n {
@@ -3165,7 +3165,7 @@ fn line_slice_at(s : String, idx : Int) -> String {
 ///|
 fn[T] raise_unterminated_string_in_source(
   content : String,
-  quote_idx : Int,
+  quote_idx : Int32,
 ) -> T raise StepParseError {
   let (line, col) = index_to_line_col(content, quote_idx)
   let stmt = line_slice_at(content, quote_idx)
@@ -3173,7 +3173,7 @@ fn[T] raise_unterminated_string_in_source(
 }
 
 ///|
-fn index_to_line_col(s : String, idx : Int) -> (Int, Int) {
+fn index_to_line_col(s : String, idx : Int32) -> (Int32, Int32) {
   let mut line = 1
   let mut col = 1
   let mut i = 0
@@ -3193,7 +3193,7 @@ fn index_to_line_col(s : String, idx : Int) -> (Int, Int) {
 ///|
 fn extract_data_section_with_pos(
   content : String,
-) -> (String, Int, Int) raise StepParseError {
+) -> (String, Int32, Int32) raise StepParseError {
   let data_idx = match
     find_literal_outside_step_strings_with_state(content, "DATA;") {
     (Some(i), _) => i

@@ -3,15 +3,15 @@
 // Example:
 //   COORDINATED_UNIVERSAL_TIME_OFFSET(8, 0, .AHEAD.)
 pub struct CoordinatedUniversalTimeOffset {
-  hour_offset : Int
-  minute_offset : Int
+  hour_offset : Int32
+  minute_offset : Int32
   sense : String // .AHEAD., .BEHIND., .EXACT.
 }
 
 ///|
 pub fn CoordinatedUniversalTimeOffset::new(
-  hour_offset : Int,
-  minute_offset : Int,
+  hour_offset : Int32,
+  minute_offset : Int32,
   sense : String,
 ) -> CoordinatedUniversalTimeOffset {
   CoordinatedUniversalTimeOffset::{ hour_offset, minute_offset, sense, }

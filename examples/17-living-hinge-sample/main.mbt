@@ -89,7 +89,7 @@ fn living_hinge(
   hinge_width : Double,
   slot_width : Double,
   slot_length : Double,
-  num_rows : Int,
+  num_rows : Int32,
 ) -> @cad.Shape {
   let total_length = 2.0 * plate_length + hinge_width
   let outer = @cad.Profile2D::rect(total_length, total_width)

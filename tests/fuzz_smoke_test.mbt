@@ -8,7 +8,7 @@
 // These are intentionally time/size-bounded and deterministic (fixed seed),
 // so they can run in CI without flakes.
 
-fn pm_next(state : Int) -> Int {
+fn pm_next(state : Int32) -> Int32 {
   // Park-Miller RNG (minimal standard): state = (state * 48271) mod 2147483647
   // Requires state in 1..2147483646.
   let m = 2147483647
@@ -22,7 +22,7 @@ fn pm_next(state : Int) -> Int {
 }
 
 ///|
-fn rand_range(state : Int, hi_exclusive : Int) -> (Int, Int) {
+fn rand_range(state : Int32, hi_exclusive : Int32) -> (Int32, Int32) {
   let s2 = pm_next(state)
   if hi_exclusive <= 1 {
     (0, s2)
@@ -32,13 +32,13 @@ fn rand_range(state : Int, hi_exclusive : Int) -> (Int, Int) {
 }
 
 ///|
-fn rand_bool(state : Int, numerator : Int, denom : Int) -> (Bool, Int) {
+fn rand_bool(state : Int32, numerator : Int32, denom : Int32) -> (Bool, Int32) {
   let (v, s2) = rand_range(state, denom)
   (v < numerator, s2)
 }
 
 ///|
-fn rand_upper_name(state : Int) -> (String, Int) {
+fn rand_upper_name(state : Int32) -> (String, Int32) {
   let mut s = state
   let (len0, s1) = rand_range(s, 10)
   s = s1
@@ -57,7 +57,11 @@ fn rand_upper_name(state : Int) -> (String, Int) {
 }
 
 ///|
-fn rand_digits(state : Int, min_len : Int, max_len : Int) -> (String, Int) {
+fn rand_digits(
+  state : Int32,
+  min_len : Int32,
+  max_len : Int32,
+) -> (String, Int32) {
   let mut s = state
   let span = if max_len <= min_len { 1 } else { max_len - min_len + 1 }
   let (d0, s1) = rand_range(s, span)
@@ -79,7 +83,7 @@ fn rand_digits(state : Int, min_len : Int, max_len : Int) -> (String, Int) {
 }
 
 ///|
-fn rand_step_string(state : Int) -> (String, Int) {
+fn rand_step_string(state : Int32) -> (String, Int32) {
   let mut s = state
   let (len0, s1) = rand_range(s, 30)
   s = s1
@@ -115,7 +119,7 @@ fn rand_step_string(state : Int) -> (String, Int) {
 }
 
 ///|
-fn rand_comment(state : Int) -> (String, Int) {
+fn rand_comment(state : Int32) -> (String, Int32) {
   let mut s = state
   let (len0, s1) = rand_range(s, 25)
   s = s1
@@ -144,7 +148,7 @@ fn rand_comment(state : Int) -> (String, Int) {
 }
 
 ///|
-fn rand_value(state : Int, depth : Int) -> (String, Int) {
+fn rand_value(state : Int32, depth : Int32) -> (String, Int32) {
   let mut s = state
   let (choice, s1) = rand_range(s, 8)
   s = s1
@@ -195,7 +199,7 @@ fn rand_value(state : Int, depth : Int) -> (String, Int) {
 }
 
 ///|
-fn rand_args(state : Int) -> (String, Int) {
+fn rand_args(state : Int32) -> (String, Int32) {
   let mut s = state
   let (count0, s1) = rand_range(s, 6)
   s = s1
@@ -223,13 +227,13 @@ fn rand_args(state : Int) -> (String, Int) {
 }
 
 ///|
-fn rand_data_statement(state : Int, id : Int) -> (String, Int) {
+fn rand_data_statement(state : Int32, id : Int32) -> (String, Int32) {
   let mut s = state
   let (name, s1) = rand_upper_name(s)
   s = s1
   let (args, s2) = rand_args(s)
   s = s2
-  let stmt = "#" + Int::to_string(id) + "=" + name + args + ";"
+  let stmt = "#" + Int32::to_string(id) + "=" + name + args + ";"
   (stmt, s)
 }
 

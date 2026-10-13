@@ -6,8 +6,8 @@
 // Notes:
 // - Control points are stored as UnknownEntity refs.
 pub struct BSplineSurface {
-  u_degree : Int
-  v_degree : Int
+  u_degree : Int32
+  v_degree : Int32
   control_points_list : Array[Array[@step.Ref]]
   surface_form : String
   u_closed : Bool
@@ -17,8 +17,8 @@ pub struct BSplineSurface {
 
 ///|
 pub fn BSplineSurface::new(
-  u_degree : Int,
-  v_degree : Int,
+  u_degree : Int32,
+  v_degree : Int32,
   control_points_list : Array[Array[@step.Ref]],
   surface_form : String,
   u_closed : Bool,

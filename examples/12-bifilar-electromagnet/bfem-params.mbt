@@ -8,8 +8,8 @@
 struct Params {
   pos : Vec3
   inner_diam : Double
-  num_pairs : Int
-  num_segs : Int
+  num_pairs : Int32
+  num_segs : Int32
   out_path : String?
   bpy_path : String?
   blend_path : String?

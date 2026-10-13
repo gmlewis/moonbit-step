@@ -52,7 +52,7 @@ pub fn is_point_in_polygon(p : Vec2, poly : Array[Vec2]) -> Bool {
 }
 
 ///|
-pub fn cycle_area_3d(pts : Array[Vec3], cycle : Array[Int]) -> Vec3 {
+pub fn cycle_area_3d(pts : Array[Vec3], cycle : Array[Int32]) -> Vec3 {
   let n = cycle.length()
   if n < 3 {
     return (0.0, 0.0, 0.0)
@@ -110,7 +110,7 @@ fn v_norm(a : Vec3) -> Vec3 {
 }
 
 ///|
-fn reverse_cycle(verts : Array[Int]) -> Array[Int] {
+fn reverse_cycle(verts : Array[Int32]) -> Array[Int32] {
   verts.rev()
 }
 
@@ -202,13 +202,17 @@ pub fn matrix_to_euler(m : Matrix3x3) -> Vec3 {
 
 ///|
 pub(all) struct EdgeInfo {
-  start : Int
-  end : Int
+  start : Int32
+  end : Int32
   edge : @step.Ref
 }
 
 ///|
-fn find_edge(edges : Array[EdgeInfo], a : Int, b : Int) -> (@step.Ref, Bool) {
+fn find_edge(
+  edges : Array[EdgeInfo],
+  a : Int32,
+  b : Int32,
+) -> (@step.Ref, Bool) {
   for e in edges {
     if e.start == a && e.end == b {
       return (e.edge, true)
@@ -224,7 +228,7 @@ fn find_edge(edges : Array[EdgeInfo], a : Int, b : Int) -> (@step.Ref, Bool) {
 fn face_loop(
   ctx : StepContext,
   edges : Array[EdgeInfo],
-  verts : Array[Int],
+  verts : Array[Int32],
 ) -> @step.Ref {
   let oe_refs : Array[@step.Ref] = []
   let n = verts.length()
@@ -241,11 +245,11 @@ fn face_loop(
 fn add_plane_face(
   ctx : StepContext,
   edges : Array[EdgeInfo],
-  verts_cycle : Array[Int],
+  verts_cycle : Array[Int32],
   location_pt : @step.Ref,
   axis_dir : @step.Ref,
   ref_dir : @step.Ref,
-  reverse? : Bool = false,
+  reverse~ : Bool = false,
 ) -> @step.Ref {
   let a2p_ref = ctx.axis2_placement_3d(location_pt, axis_dir, ref_dir)
   let plane = @geometry.Plane::new("", a2p_ref)
@@ -261,9 +265,9 @@ fn add_plane_face_oriented(
   edges : Array[EdgeInfo],
   pts : Array[Vec3],
   cp_refs : Array[@step.Ref],
-  verts_cycle : Array[Int],
+  verts_cycle : Array[Int32],
   expected_out : Vec3,
-  reverse? : Bool = false,
+  reverse~ : Bool = false,
 ) -> @step.Ref {
   let area_vec = cycle_area_3d(pts, verts_cycle)
   let cycle = if v_dot(area_vec, expected_out) < 0.0 {
@@ -285,10 +289,10 @@ fn add_plane_face_with_holes_oriented(
   edges : Array[EdgeInfo],
   pts : Array[Vec3],
   cp_refs : Array[@step.Ref],
-  outer_cycle_in : Array[Int],
-  hole_cycles_in : Array[Array[Int]],
+  outer_cycle_in : Array[Int32],
+  hole_cycles_in : Array[Array[Int32]],
   expected_out : Vec3,
-  reverse? : Bool = false,
+  reverse~ : Bool = false,
 ) -> @step.Ref {
   let area_vec = cycle_area_3d(pts, outer_cycle_in)
   let outer_cycle = if v_dot(area_vec, expected_out) < 0.0 {
