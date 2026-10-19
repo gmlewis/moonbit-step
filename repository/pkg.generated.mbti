@@ -422,13 +422,13 @@ pub struct Repository {
   entities : Array[Entry]
   order : Array[@step.EntityId]
   mut header : @header.HeaderSection
-  mut next_id : Int
+  mut next_id : Int32
 }
 pub fn Repository::add(Self, AnyEntity) -> (Self, @step.EntityId)
 pub fn Repository::get(Self, @step.EntityId) -> AnyEntity?
 pub fn Repository::get_header(Self) -> @header.HeaderSection
 pub fn Repository::insert_with_id(Self, @step.EntityId, AnyEntity) -> Self
-pub fn Repository::len(Self) -> Int
+pub fn Repository::len(Self) -> Int32
 pub fn Repository::set_header(Self, @header.HeaderSection) -> Self
 pub fn Repository::to_step_data_section(Self) -> String
 pub fn Repository::to_step_file(Self) -> String

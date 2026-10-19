@@ -54,9 +54,9 @@ pub fn CtxWrap::to_step(Self) -> String
 pub impl @step.Entity for CtxWrap
 
 pub struct GeometricRepresentationContext {
-  dimension : Int
+  dimension : Int32
 }
-pub fn GeometricRepresentationContext::new(Int) -> Self
+pub fn GeometricRepresentationContext::new(Int32) -> Self
 pub fn GeometricRepresentationContext::to_step(Self) -> String
 pub impl @step.Entity for GeometricRepresentationContext
 

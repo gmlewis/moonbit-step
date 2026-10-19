@@ -15,7 +15,7 @@ pub fn compile_cuboid(StepContext, SceneNode, Cuboid, reverse? : Bool) -> Array[
 
 pub fn compile_extruded_profile(StepContext, SceneNode, ExtrudedProfile, reverse? : Bool) -> Array[@step.Ref]
 
-pub fn cycle_area_3d(Array[(Double, Double, Double)], Array[Int]) -> (Double, Double, Double)
+pub fn cycle_area_3d(Array[(Double, Double, Double)], Array[Int32]) -> (Double, Double, Double)
 
 pub fn difference(SceneNode, Array[SceneNode], name? : String) -> SceneNode
 
@@ -25,7 +25,7 @@ pub fn force_ccw(Array[(Double, Double)]) -> Array[(Double, Double)]
 
 pub fn force_cw(Array[(Double, Double)]) -> Array[(Double, Double)]
 
-pub fn helix_path(pos? : (Double, Double, Double), size_per_turn? : (Double, Double, Double), num_turns? : Double, num_segs_per_turn? : Int, start_angle? : Double, clockwise? : Bool) -> SweepPath
+pub fn helix_path(pos? : (Double, Double, Double), size_per_turn? : (Double, Double, Double), num_turns? : Double, num_segs_per_turn? : Int32, start_angle? : Double, clockwise? : Bool) -> SweepPath
 
 pub fn is_point_in_polygon((Double, Double), Array[(Double, Double)]) -> Bool
 
@@ -39,11 +39,11 @@ pub fn rotate_point((Double, Double, Double), Double, Double, Double) -> (Double
 
 pub fn snap_double(Double, Double?) -> Double
 
-pub fn text_at(String, Double, Double, Double, font~ : @fonts.Font, font_size? : Double, max_width? : Double, emboss_depth? : Double, rx? : Double, ry? : Double, rz? : Double, segments? : Int) -> Array[SceneNode]
+pub fn text_at(String, Double, Double, Double, font~ : @fonts.Font, font_size? : Double, max_width? : Double, emboss_depth? : Double, rx? : Double, ry? : Double, rz? : Double, segments? : Int32) -> Array[SceneNode]
 
 pub fn translate_pts(Array[(Double, Double)], Double, Double) -> Array[(Double, Double)]
 
-pub fn tube(Double, Double, Double, segments? : Int) -> Shape
+pub fn tube(Double, Double, Double, segments? : Int32) -> Shape
 
 pub fn union_all(Array[SceneNode], name? : String) -> SceneNode
 
@@ -85,9 +85,9 @@ pub struct CalibrationChamferBlock {
   height_mm : Double
   chamfer_size_mm : Double
   fillet_radius_mm : Double
-  fillet_segments : Int
+  fillet_segments : Int32
 }
-pub fn CalibrationChamferBlock::new(Double, Double, Double, chamfer_size_mm? : Double, fillet_radius_mm? : Double, fillet_segments? : Int) -> Shape
+pub fn CalibrationChamferBlock::new(Double, Double, Double, chamfer_size_mm? : Double, fillet_radius_mm? : Double, fillet_segments? : Int32) -> Shape
 
 pub struct Cuboid {
   sx : Double
@@ -98,31 +98,31 @@ pub fn Cuboid::new(Double, Double, Double) -> Shape
 
 pub struct Design {
   nodes : Array[SceneNode]
-  next_solid_id : Int
+  next_solid_id : Int32
   name : String
   description : String
   snapping : Double?
 }
 pub fn Design::add(Self, SceneNode) -> Self
 pub fn Design::add_iter(Self, Iter[SceneNode]) -> Self
-pub fn Design::add_text_on_face(Self, SceneNode, String, Face, @fonts.Font, font_size? : Double, emboss_depth? : Double, offset_x? : Double, offset_y? : Double, rotation? : Double, margin? : Double, color? : Rgb, emboss? : Bool, segments? : Int) -> Self
+pub fn Design::add_text_on_face(Self, SceneNode, String, Face, @fonts.Font, font_size? : Double, emboss_depth? : Double, offset_x? : Double, offset_y? : Double, rotation? : Double, margin? : Double, color? : Rgb, emboss? : Bool, segments? : Int32) -> Self
 pub fn Design::compile(Self) -> @repository.Repository
-pub async fn Design::create_blender_file(Self, String, keep_modifiers? : Bool, segments? : Int) -> Unit
+pub async fn Design::create_blender_file(Self, String, keep_modifiers? : Bool, segments? : Int32) -> Unit
 pub fn Design::new(name? : String, description? : String, snapping? : Double) -> Self
 pub fn Design::rotate_x(Self, Double) -> Self
 pub fn Design::rotate_y(Self, Double) -> Self
 pub fn Design::rotate_z(Self, Double) -> Self
-pub fn Design::to_blender_python(Self, segments? : Int, keep_modifiers? : Bool) -> String
+pub fn Design::to_blender_python(Self, segments? : Int32, keep_modifiers? : Bool) -> String
 pub fn Design::to_step_file(Self) -> String
 pub fn Design::to_string(Self) -> String
 pub fn Design::translate(Self, x? : Double, y? : Double, z? : Double) -> Self
-pub async fn Design::write_blender_python(Self, String?, segments? : Int, keep_modifiers? : Bool) -> Unit
+pub async fn Design::write_blender_python(Self, String?, segments? : Int32, keep_modifiers? : Bool) -> Unit
 pub async fn Design::write_step(Self, String?) -> Unit
 pub async fn Design::write_step_file(Self, String?) -> Unit
 
 pub(all) struct EdgeInfo {
-  start : Int
-  end : Int
+  start : Int32
+  end : Int32
   edge : @step.Ref
 }
 
@@ -165,14 +165,14 @@ pub struct Profile2D {
 }
 pub fn Profile2D::add_hole(Self, Array[(Double, Double)]) -> Self
 pub fn Profile2D::add_holes_at(Self, Array[(Double, Double)], Array[(Double, Double)]) -> Self
-pub fn Profile2D::arc(Double, Double, Double, segments? : Int) -> Array[(Double, Double)]
+pub fn Profile2D::arc(Double, Double, Double, segments? : Int32) -> Array[(Double, Double)]
 pub fn Profile2D::centered_rect(Double, Double) -> Array[(Double, Double)]
-pub fn Profile2D::circle(Double, segments? : Int) -> Array[(Double, Double)]
-pub fn Profile2D::ellipse(Double, Double, segments? : Int) -> Array[(Double, Double)]
+pub fn Profile2D::circle(Double, segments? : Int32) -> Array[(Double, Double)]
+pub fn Profile2D::ellipse(Double, Double, segments? : Int32) -> Array[(Double, Double)]
 pub fn Profile2D::new(Array[(Double, Double)]) -> Self
-pub fn Profile2D::polygon(Int, Double, rotation? : Double) -> Array[(Double, Double)]
+pub fn Profile2D::polygon(Int32, Double, rotation? : Double) -> Array[(Double, Double)]
 pub fn Profile2D::rect(Double, Double) -> Array[(Double, Double)]
-pub fn Profile2D::rounded_rect(Double, Double, Double, segments? : Int) -> Array[(Double, Double)]
+pub fn Profile2D::rounded_rect(Double, Double, Double, segments? : Int32) -> Array[(Double, Double)]
 
 pub struct Rgb {
   r : Double
@@ -236,7 +236,7 @@ pub struct StepContext {
   directions : Map[String, @step.Ref]
   vectors : Map[String, @step.Ref]
   cartesian_points : Map[String, @step.Ref]
-  vertex_points : Map[Int, @step.Ref]
+  vertex_points : Map[Int32, @step.Ref]
   lines : Map[String, @step.Ref]
   edge_curves : Map[String, @step.Ref]
   axis2_placements : Map[String, @step.Ref]

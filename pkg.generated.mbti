@@ -12,7 +12,7 @@ pub let unknown_entity_witness : UnknownEntity
 
 // Types and methods
 pub(all) struct EntityId {
-  value : Int
+  value : Int32
 }
 
 pub struct RawEntity {

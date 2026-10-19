@@ -40,52 +40,52 @@ pub impl @step.Entity for Axis2Placement3D
 
 pub struct BSplineCurve {
   name : String
-  degree : Int
+  degree : Int32
   control_points : Array[@step.Ref]
   curve_form : String
   closed_curve : Bool
   self_intersect : Bool
 }
-pub fn BSplineCurve::new(String, Int, Array[@step.Ref], String, Bool, Bool) -> Self
+pub fn BSplineCurve::new(String, Int32, Array[@step.Ref], String, Bool, Bool) -> Self
 pub fn BSplineCurve::to_step(Self) -> String
 pub impl @step.Entity for BSplineCurve
 
 pub struct BSplineCurveWithKnots {
   name : String
-  degree : Int
+  degree : Int32
   control_points : Array[@step.Ref]
   curve_form : String
   closed_curve : Bool
   self_intersect : Bool
-  knot_multiplicities : Array[Int]
+  knot_multiplicities : Array[Int32]
   knots : Array[String]
   knot_spec : String
 }
-pub fn BSplineCurveWithKnots::new(String, Int, Array[@step.Ref], String, Bool, Bool, Array[Int], Array[String], String) -> Self
+pub fn BSplineCurveWithKnots::new(String, Int32, Array[@step.Ref], String, Bool, Bool, Array[Int32], Array[String], String) -> Self
 pub fn BSplineCurveWithKnots::to_step(Self) -> String
 pub impl @step.Entity for BSplineCurveWithKnots
 
 pub struct BSplineSurface {
-  u_degree : Int
-  v_degree : Int
+  u_degree : Int32
+  v_degree : Int32
   control_points_list : Array[Array[@step.Ref]]
   surface_form : String
   u_closed : Bool
   v_closed : Bool
   self_intersect : Bool
 }
-pub fn BSplineSurface::new(Int, Int, Array[Array[@step.Ref]], String, Bool, Bool, Bool) -> Self
+pub fn BSplineSurface::new(Int32, Int32, Array[Array[@step.Ref]], String, Bool, Bool, Bool) -> Self
 pub fn BSplineSurface::to_step(Self) -> String
 pub impl @step.Entity for BSplineSurface
 
 pub struct BSplineSurfaceWithKnots {
-  u_multiplicities : Array[Int]
-  v_multiplicities : Array[Int]
+  u_multiplicities : Array[Int32]
+  v_multiplicities : Array[Int32]
   u_knots : Array[String]
   v_knots : Array[String]
   knot_spec : String
 }
-pub fn BSplineSurfaceWithKnots::new(Array[Int], Array[Int], Array[String], Array[String], String) -> Self
+pub fn BSplineSurfaceWithKnots::new(Array[Int32], Array[Int32], Array[String], Array[String], String) -> Self
 pub fn BSplineSurfaceWithKnots::to_step(Self) -> String
 pub impl @step.Entity for BSplineSurfaceWithKnots
 
