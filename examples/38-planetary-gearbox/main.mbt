@@ -34,7 +34,10 @@
 /// extrusions - only the elbow vertices are needed as cross-sections, so the
 /// model is much smaller than the equivalent STL. Non-coplanar swept bands are
 /// split into planar triangles so every STEP face is planar and the model
-/// tessellates without gaps.
+/// tessellates without gaps. The exported design is Z-up (the gears are built
+/// with their axes along +Y and rotated +90° about X), so it sits flat on a
+/// build plate: 30 mm tall with a 136 mm footprint. Pass `--yUp` to keep the
+/// native Y-up frame.
 ///
 /// Usage (stdout):
 ///   moon run --target native examples/38-planetary-gearbox -- > gearbox.step
@@ -214,6 +217,9 @@ async fn main {
       short='o',
       help="Write output to a file (default: stdout)",
     ),
+    "yUp": @cli.flag(
+      help="Keep the native Y-up orientation (gear axes along +Y) instead of rotating the design flat for printing",
+    ),
   }
   guard @cli.parse(
       args_spec,
@@ -241,8 +247,9 @@ async fn main {
     resolution: args.int("resolution"),
   }
   let out_path = args.string_opt("out")
+  let y_up = args.flag("yUp")
   let cfg = compute_config(params)
-  let design = build_design(cfg, args.documentation())
+  let design = build_design(cfg, args.documentation(), y_up~)
   if out_path is Some(_) {
     print_config(cfg)
   }
@@ -472,7 +479,11 @@ fn suggest_planet_teeth(sun_teeth : Int32, planets : Int32) -> Int32 {
 // ---------------------------------------------------------------------------
 
 ///|
-fn build_design(cfg : GearboxConfig, documentation : String) -> @cad.Design {
+fn build_design(
+  cfg : GearboxConfig,
+  documentation : String,
+  y_up~ : Bool = false,
+) -> @cad.Design {
   let mut design = @cad.Design::new(
     name="planetary-gearbox",
     description="Print-in-place herringbone planetary gearbox",
@@ -484,7 +495,8 @@ fn build_design(cfg : GearboxConfig, documentation : String) -> @cad.Design {
   // Fabrication sites and most slicers treat +Z as up, while the gear axes here
   // run along +Y. Rotate the whole design +90 deg about X to lay it flat on the
   // build plate: Rx(90) maps (x, y, z) -> (x, -z, y), so the 30 mm gear length
-  // becomes the print height instead of the 136 mm ring diameter.
+  // becomes the print height instead of the 136 mm ring diameter. `--yUp`
+  // keeps the native orientation.
   let sun_outline = gear_outline(
     cfg.gear_module,
     cfg.pressure_angle,
@@ -506,7 +518,7 @@ fn build_design(cfg : GearboxConfig, documentation : String) -> @cad.Design {
     )
     .with_name("sun")
     .with_color(@cad.Rgb::orange())
-    .rotate_x(90.0)
+  let sun_node = if y_up { sun_node } else { sun_node.rotate_x(90.0) }
 
   // Planets.
   let planet_outline = gear_outline(
@@ -536,9 +548,12 @@ fn build_design(cfg : GearboxConfig, documentation : String) -> @cad.Design {
     // The Lua rotates about +Y as (x,z) -> (x cos t - z sin t, x sin t + z cos t),
     // which is the CAD rotate_y by -t. Under the global Rx(90) above that
     // becomes Rz(-t)*Rx(90), and the placement (x, 0, z) becomes (x, -z, 0).
-    planet_nodes.push(
-      node.rotate_x(90.0).rotate_z(-p.phi_deg).translate(x=p.x, y=-p.z),
-    )
+    let placed = if y_up {
+      node.rotate_y(-p.phi_deg).translate(x=p.x, z=p.z)
+    } else {
+      node.rotate_x(90.0).rotate_z(-p.phi_deg).translate(x=p.x, y=-p.z)
+    }
+    planet_nodes.push(placed)
   }
 
   // Ring gear: a smooth outer cylinder with the inward-facing toothed profile
@@ -556,7 +571,7 @@ fn build_design(cfg : GearboxConfig, documentation : String) -> @cad.Design {
     )
     .with_name("ring")
     .with_color(@cad.Rgb::grey())
-    .rotate_x(90.0)
+  let ring_node = if y_up { ring_node } else { ring_node.rotate_x(90.0) }
 
   design = design.add(sun_node)
   for node in planet_nodes {

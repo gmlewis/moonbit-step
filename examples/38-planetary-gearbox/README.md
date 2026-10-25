@@ -23,7 +23,7 @@ Blackjack evaluates a herringbone gear as a triangle mesh in
 `(numElbows + 1) * 2 * resolution` horizontal slices. This example builds the
 2D outline a single time and only instantiates the `numElbows + 1` elbow
 cross-sections, so the STEP output is smaller than the equivalent STL
-(about 32 MB vs 64 MB for the default parameters).
+(about 36 MB vs 64 MB for the default parameters).
 
 The number of cross-sections adapts to the twist: each elbow is subdivided so
 that adjacent cross-sections differ by at most 24° of profile rotation. Bands
@@ -32,6 +32,13 @@ every face in the STEP file is planar and the mesh tessellates watertight. The
 default parameters need only the elbow boundaries; small modules with a long
 gear are subdivided automatically (`--module 0.5 --gearLength 30` twists 142°
 per elbow and is subdivided 6x).
+
+## Orientation
+
+The STEP is written Z-up, with the gear axes vertical, so it sits flat on the
+build plate: 30 mm print height and a 136 mm footprint. The gears are built
+with their axes along +Y and the whole design is rotated +90° about X at
+export time. Pass `--yUp` to keep the native Y-up orientation.
 
 ## Scaling the design
 
