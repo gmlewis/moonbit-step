@@ -70,21 +70,33 @@ async fn main {
 
   // Design constants
   let lip_h = 20.0
-  let base_l = phone_t + t * 3.0 // space for phone + lip + back support
+  // The back support leans back by `angle` from vertical. Its front face
+  // meets the base at y = t (1 - sin a) / cos a, so reserve that plus the
+  // phone thickness and the front lip.
+  let alpha = angle * @math.PI / 180.0
+  let sin_a = @math.sin(alpha)
+  let cos_a = @math.cos(alpha)
+  let plate_y = t * cos_a // shift the tilted plate into the base
+  let plate_z = t * sin_a
+  let base_l = phone_t + t + t * (1.0 - sin_a) / cos_a
 
-  // Create side supports
-  let side_spacing = width - t
+  // Create side supports. The cuboids start at x = 0 and are t wide, so the
+  // left one starts at -width/2 and the right one ends at +width/2.
+  let left_x = -width / 2.0
+  let right_x = width / 2.0 - t
   let left_side = side_support(base_l, lip_h, height, angle, t).map(fn(node) {
-    node.translate(x=-side_spacing / 2.0)
+    node.translate(x=left_x)
   })
   let right_side = side_support(base_l, lip_h, height, angle, t).map(fn(node) {
-    node.translate(x=side_spacing / 2.0)
+    node.translate(x=right_x)
   })
 
-  // Back plate connecting them
+  // Back plate connecting them, leaning backwards from vertical.
   let inner_w = width - 2.0 * t
-  let rot = 90.0 - angle
-  let back_plate = back_plate(inner_w, height, t, 25.0).rotate_x(rot)
+  let rot = 90.0 + angle
+  let back_plate = back_plate(inner_w, height, t, 25.0)
+    .rotate_x(rot)
+    .translate(y=plate_y, z=plate_z)
 
   // Front lip plate
   let front_lip = @cad.Cuboid::new(inner_w, t, lip_h)
@@ -131,7 +143,8 @@ fn side_support(
   t : Double,
 ) -> Array[@cad.SceneNode] {
   let color = @cad.Rgb::new(0.2, 0.4, 0.8)
-  let rot = 90.0 - angle_deg
+  let alpha = angle_deg * @math.PI / 180.0
+  let rot = 90.0 + angle_deg
   let base = @cad.Cuboid::new(t, base_l, t)
     .with_name("side-base")
     .with_color(color)
@@ -139,10 +152,12 @@ fn side_support(
     .with_name("side-lip")
     .with_color(color)
     .translate(y=base_l - t)
-  let back = @cad.Cuboid::new(t, t, back_h)
+  // Match the back plate: height along local Y, thickness along local Z.
+  let back = @cad.Cuboid::new(t, back_h, t)
     .with_name("side-back")
     .with_color(color)
     .rotate_x(rot)
+    .translate(y=t * @math.cos(alpha), z=t * @math.sin(alpha))
   [base, lip, back]
 }
 

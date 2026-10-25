@@ -3,6 +3,7 @@ import {
   "gmlewis/step/cli",
   "moonbitlang/async",
   "moonbitlang/core/builtin",
+  "moonbitlang/core/math",
 }
 
 pkgtype(kind: "executable")

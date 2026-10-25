@@ -182,6 +182,9 @@ fn compile_node_to_brep(
   reverse~ : Bool = false,
 ) -> @step.Ref {
   let faces = compile_node_shape(ctx, node, reverse~)
+  if faces.is_empty() {
+    abort("shape '\{node.name}' produced no faces")
+  }
   let shell = @topology.ClosedShell::new("", faces)
   let shell_ref = ctx.add(@repository.any_entity_closed_shell(shell))
   let brep = @topology.ManifoldSolidBrep::new("", shell_ref)
@@ -212,6 +215,9 @@ pub fn Design::compile(self : Design) -> @repository.Repository {
         let all_faces : Array[@step.Ref] = []
         for child in u.nodes {
           all_faces.push_iter(compile_node_shape(ctx, child).iter())
+        }
+        if all_faces.is_empty() {
+          abort("shape '\{node.name}' produced no faces")
         }
         let shell = @topology.ClosedShell::new("", all_faces)
         let shell_ref = ctx.add(@repository.any_entity_closed_shell(shell))
@@ -244,6 +250,9 @@ pub fn Design::compile(self : Design) -> @repository.Repository {
           all_faces.push_iter(
             compile_node_shape(ctx, cutter, reverse=true).iter(),
           )
+        }
+        if all_faces.is_empty() {
+          abort("shape '\{node.name}' produced no faces")
         }
         let shell = @topology.ClosedShell::new("", all_faces)
         let shell_ref = ctx.add(@repository.any_entity_closed_shell(shell))
@@ -283,6 +292,8 @@ fn compile_node_shape(
     CalibrationChamferBlock(b) =>
       compile_calibration_chamfer_block(ctx, node, b, reverse~)
     ExtrudedProfile(e) => compile_extruded_profile(ctx, node, e, reverse~)
+    ExtrudedBezierProfile(e) =>
+      compile_extruded_bezier_profile(ctx, node, e, reverse~)
     SweptProfile(s) => compile_swept_profile(ctx, node, s, reverse~)
     Difference(_) => []
     _ =>

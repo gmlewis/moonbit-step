@@ -261,17 +261,18 @@ fn text_at_bezier(
   let nodes = []
   for g in all_paths {
     let bezier_paths = collect_bezier_paths(g)
-    if bezier_paths.is_empty() {
-      continue
+    // Emit one solid per disconnected glyph component so each closed shell
+    // belongs to exactly one MANIFOLD_SOLID_BREP.
+    for group in bezier_path_groups(bezier_paths) {
+      let solid = ExtrudedBezierProfile::new(group, emboss_depth)
+        .with_name("text")
+        .with_color(Rgb::orange())
+        .rotate_x(rx)
+        .rotate_y(ry)
+        .rotate_z(rz)
+        .translate(x~, y~, z~)
+      nodes.push(solid)
     }
-    let solid = ExtrudedBezierProfile::new(bezier_paths, emboss_depth)
-      .with_name("text")
-      .with_color(Rgb::orange())
-      .rotate_x(rx)
-      .rotate_y(ry)
-      .rotate_z(rz)
-      .translate(x~, y~, z~)
-    nodes.push(solid)
   }
   nodes
 }
@@ -511,6 +512,12 @@ pub fn SceneNode::rotate_z(self : SceneNode, angle : Double) -> SceneNode {
 
 ///|
 /// add_text_on_face returns text nodes positioned on a face of the target.
+///
+/// With the default `segments=0` the glyphs are kept as native cubic Beziers
+/// (`ExtrudedBezierProfile`); the STEP compiler flattens those curves when it
+/// emits B-Rep entities, while the Blender exporter can still emit true Bezier
+/// splines. A positive `segments` value converts the glyphs to polylines up
+/// front with that many segments per curve span.
 pub fn Design::add_text_on_face(
   self : Design,
   target : SceneNode,
@@ -525,7 +532,7 @@ pub fn Design::add_text_on_face(
   margin? : Double,
   color~ : Rgb = Rgb::orange(),
   emboss~ : Bool = true,
-  segments~ : Int32 = 0, // <=0: retain cubic Beziers, >0: convert to polylines with this many segments
+  segments~ : Int32 = 0, // <=0: native cubic Beziers (flattened for STEP), >0: polylines with this many segments per span
 ) -> Design {
   let (min_x, max_x, min_y, max_y, min_z, max_z) = target.shape.bounding_box()
   let mid_x = (min_x + max_x) / 2.0
