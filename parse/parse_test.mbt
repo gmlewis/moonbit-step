@@ -448,7 +448,7 @@ test "parse_repository_from_string_dimensional_size" {
 }
 
 ///|
-test "parse_repository_from_string_draughting_pre_defined_colour" {
+test "parse_repository_from_string_draughting_pre_defined_color" {
   let content = "ISO-10303-21;\nDATA;\n#1=DRAUGHTING_PRE_DEFINED_COLOUR('red');\nENDSEC;\nEND-ISO-10303-21;\n"
   let repo = @parse.parse_repository_from_string(content)
   inspect(repo.len(), content="1")

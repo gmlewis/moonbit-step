@@ -787,7 +787,7 @@ pub fn any_entity_color_rgb(c : @presentation.ColorRgb) -> AnyEntity {
 }
 
 ///|
-pub fn any_entity_draughting_pre_defined_colour(
+pub fn any_entity_draughting_pre_defined_color(
   c : @presentation.DraughtingPreDefinedColour,
 ) -> AnyEntity {
   AnyEntity::DraughtingPreDefinedColour(c)

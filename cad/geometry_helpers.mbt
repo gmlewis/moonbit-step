@@ -300,13 +300,19 @@ fn add_plane_face_with_holes_oriented(
   } else {
     outer_cycle_in
   }
+  // Use the oriented outer loop's area vector. After the reversal above it
+  // always points along expected_out; using the original area_vec instead
+  // inverted every hole whenever the outer loop had to be reversed, so the
+  // cap traversed its hole edges in the same direction as the adjacent
+  // (twisted) side faces. That leaves the shell with inconsistently oriented
+  // edges, which some STEP tessellators report as mesh gaps.
+  let outer_area = v_dot(cycle_area_3d(pts, outer_cycle), expected_out)
 
   // Holes must be oriented opposite to the outer boundary for STEP faces.
-  // We use the 3D area vector to ensure robustness regardless of orientation.
   let hole_cycles = hole_cycles_in.map(fn(hc) {
     let ha_vec = cycle_area_3d(pts, hc)
     // If hole has same orientation as outer (relative to expected_out), reverse it.
-    if v_dot(ha_vec, expected_out) * v_dot(area_vec, expected_out) > 0.0 {
+    if v_dot(ha_vec, expected_out) * outer_area > 0.0 {
       reverse_cycle(hc)
     } else {
       hc

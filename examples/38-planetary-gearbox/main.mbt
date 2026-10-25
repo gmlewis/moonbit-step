@@ -480,6 +480,11 @@ fn build_design(cfg : GearboxConfig, documentation : String) -> @cad.Design {
   )
 
   // Sun gear.
+  //
+  // Fabrication sites and most slicers treat +Z as up, while the gear axes here
+  // run along +Y. Rotate the whole design +90 deg about X to lay it flat on the
+  // build plate: Rx(90) maps (x, y, z) -> (x, -z, y), so the 30 mm gear length
+  // becomes the print height instead of the 136 mm ring diameter.
   let sun_outline = gear_outline(
     cfg.gear_module,
     cfg.pressure_angle,
@@ -501,6 +506,7 @@ fn build_design(cfg : GearboxConfig, documentation : String) -> @cad.Design {
     )
     .with_name("sun")
     .with_color(@cad.Rgb::orange())
+    .rotate_x(90.0)
 
   // Planets.
   let planet_outline = gear_outline(
@@ -528,8 +534,11 @@ fn build_design(cfg : GearboxConfig, documentation : String) -> @cad.Design {
       .with_name("planet-\{j}")
       .with_color(@cad.Rgb::blue())
     // The Lua rotates about +Y as (x,z) -> (x cos t - z sin t, x sin t + z cos t),
-    // which is the CAD rotate_y by -t.
-    planet_nodes.push(node.rotate_y(-p.phi_deg).translate(x=p.x, z=p.z))
+    // which is the CAD rotate_y by -t. Under the global Rx(90) above that
+    // becomes Rz(-t)*Rx(90), and the placement (x, 0, z) becomes (x, -z, 0).
+    planet_nodes.push(
+      node.rotate_x(90.0).rotate_z(-p.phi_deg).translate(x=p.x, y=-p.z),
+    )
   }
 
   // Ring gear: a smooth outer cylinder with the inward-facing toothed profile
@@ -547,6 +556,7 @@ fn build_design(cfg : GearboxConfig, documentation : String) -> @cad.Design {
     )
     .with_name("ring")
     .with_color(@cad.Rgb::grey())
+    .rotate_x(90.0)
 
   design = design.add(sun_node)
   for node in planet_nodes {

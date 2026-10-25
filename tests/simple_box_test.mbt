@@ -75,12 +75,12 @@ async test "can_parse_simple_box_from_file" {
 
   // STYLED_ITEM chain (presentation) from tests/testdata/simple-box.step:
   //   #30=FILL_AREA_STYLE_COLOUR('',#31);
-  let has_fill_area_style_colour_30 = match
+  let has_fill_area_style_color_30 = match
     String::find(data_section, "#30=FILL_AREA_STYLE_COLOUR('',#31);") {
     Some(_) => true
     None => false
   }
-  inspect(has_fill_area_style_colour_30, content="true")
+  inspect(has_fill_area_style_color_30, content="true")
 
   //   #29=FILL_AREA_STYLE('',(#30));
   let has_fill_area_style_29 = match

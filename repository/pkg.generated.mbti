@@ -113,7 +113,7 @@ pub fn any_entity_document_reference(@product.DocumentReference) -> AnyEntity
 
 pub fn any_entity_document_type(@product.DocumentType) -> AnyEntity
 
-pub fn any_entity_draughting_pre_defined_colour(@presentation.DraughtingPreDefinedColour) -> AnyEntity
+pub fn any_entity_draughting_pre_defined_color(@presentation.DraughtingPreDefinedColour) -> AnyEntity
 
 pub fn any_entity_edge_curve(@topology.EdgeCurve) -> AnyEntity
 
