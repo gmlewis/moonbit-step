@@ -242,7 +242,8 @@ fn metric_nut(
     start_angle=0.0,
     clockwise=false,
   )
-  let thread = @cad.SweptProfile::new(path~, profile~)
+  // The thread ridge must follow the helical path.
+  let thread = @cad.SweptProfile::new(path~, profile~, straight_outline=false)
     .with_name(name_prefix + "-thread")
     .with_color(@cad.Rgb::red())
   [body, thread]

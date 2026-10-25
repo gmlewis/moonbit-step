@@ -32,7 +32,9 @@
 /// regenerating every tooth facet per slice. Here each gear's 2D outline is
 /// built exactly once and then swept through `num_elbows + 1` linearly twisted
 /// extrusions - only the elbow vertices are needed as cross-sections, so the
-/// model is orders of magnitude smaller than the equivalent STL.
+/// model is much smaller than the equivalent STL. Non-coplanar swept bands are
+/// split into planar triangles so every STEP face is planar and the model
+/// tessellates without gaps.
 ///
 /// Usage (stdout):
 ///   moon run --target native examples/38-planetary-gearbox -- > gearbox.step
@@ -495,6 +497,7 @@ fn build_design(cfg : GearboxConfig, documentation : String) -> @cad.Design {
       sun_max_rot,
       cfg.sun_direction,
       straight_holes=true,
+      straight_outline=false,
     )
     .with_name("sun")
     .with_color(@cad.Rgb::orange())
@@ -520,6 +523,7 @@ fn build_design(cfg : GearboxConfig, documentation : String) -> @cad.Design {
         planet_max_rot,
         cfg.planet_direction,
         straight_holes=true,
+        straight_outline=false,
       )
       .with_name("planet-\{j}")
       .with_color(@cad.Rgb::blue())
@@ -559,6 +563,11 @@ fn build_design(cfg : GearboxConfig, documentation : String) -> @cad.Design {
 /// rotation at an elbow vertex (radians); the first cross-section is at
 /// rotation 0 and each following elbow alternates between 0 and max_rotation,
 /// which reproduces the HerringboneGear's zig-zag.
+///
+/// `straight_outline` and `straight_holes` keep the corresponding loop aligned
+/// with the first cross-section. External gears twist their outline and keep
+/// their bore straight; the ring gear twists its toothed hole and keeps the
+/// outer wall straight.
 fn make_gear_shape(
   outline : Array[(Double, Double)],
   holes : Array[Array[(Double, Double)]],
@@ -567,6 +576,7 @@ fn make_gear_shape(
   max_rotation : Double,
   direction : Double,
   straight_holes~ : Bool = false,
+  straight_outline~ : Bool = true,
 ) -> @cad.Shape {
   let path = gear_sweep_path(gear_length, num_elbows, max_rotation, direction)
   let profile = @cad.SweepProfile::new(
@@ -575,7 +585,7 @@ fn make_gear_shape(
     normal_dir=(0.0, 0.0, 1.0),
     right_dir=(1.0, 0.0, 0.0),
   )
-  @cad.SweptProfile::new(path~, profile~, straight_holes~)
+  @cad.SweptProfile::new(path~, profile~, straight_holes~, straight_outline~)
 }
 
 ///|

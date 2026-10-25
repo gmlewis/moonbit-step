@@ -102,6 +102,7 @@ pub struct SweptProfile {
   make_start_cap : Bool
   make_end_cap : Bool
   straight_holes : Bool
+  straight_outline : Bool
 }
 
 ///|

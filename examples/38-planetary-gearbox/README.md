@@ -22,14 +22,16 @@ CAD viewer, and/or import it into your slicer to 3D print and iterate.
 Blackjack evaluates a herringbone gear as a triangle mesh in
 `(numElbows + 1) * 2 * resolution` horizontal slices. This example builds the
 2D outline a single time and only instantiates the `numElbows + 1` elbow
-cross-sections, so the STEP output is far more compact than the equivalent STL
-(about 21 MB vs 64 MB for the default parameters).
+cross-sections, so the STEP output is smaller than the equivalent STL
+(about 32 MB vs 64 MB for the default parameters).
 
 The number of cross-sections adapts to the twist: each elbow is subdivided so
-that adjacent cross-sections differ by at most 24° of profile rotation, which
-keeps every swept quad close to planar. The default parameters need only the
-elbow boundaries; small modules with a long gear are subdivided automatically
-(`--module 0.5 --gearLength 30` twists 142° per elbow and is subdivided 6x).
+that adjacent cross-sections differ by at most 24° of profile rotation. Bands
+whose four corners are not coplanar are split into two planar triangles, so
+every face in the STEP file is planar and the mesh tessellates watertight. The
+default parameters need only the elbow boundaries; small modules with a long
+gear are subdivided automatically (`--module 0.5 --gearLength 30` twists 142°
+per elbow and is subdivided 6x).
 
 ## Scaling the design
 

@@ -286,8 +286,9 @@ pub struct SweptProfile {
   make_start_cap : Bool
   make_end_cap : Bool
   straight_holes : Bool
+  straight_outline : Bool
 }
-pub fn SweptProfile::new(path~ : SweepPath, profile~ : SweepProfile, make_start_cap? : Bool, make_end_cap? : Bool, straight_holes? : Bool) -> Shape
+pub fn SweptProfile::new(path~ : SweepPath, profile~ : SweepProfile, make_start_cap? : Bool, make_end_cap? : Bool, straight_holes? : Bool, straight_outline? : Bool) -> Shape
 
 // Type aliases
 pub using @fonts {type Font}

@@ -5,12 +5,19 @@
 /// When `straight_holes` is true the profile's holes keep the orientation of the
 /// first path point instead of following the path frame, which gives straight
 /// bores through twisted sweeps (e.g. a hex socket in a herringbone gear).
+///
+/// When `straight_outline` is true (the default) the outer boundary keeps the
+/// orientation of the first path point, which gives a straight outer wall while
+/// the holes twist with the path (e.g. a smooth cylindrical shell around a
+/// herringbone ring gear). Set it to false when the outer boundary itself must
+/// follow the path, such as a thread or a coil wire.
 pub fn SweptProfile::new(
   path~ : SweepPath,
   profile~ : SweepProfile,
   make_start_cap~ : Bool = true,
   make_end_cap~ : Bool = true,
   straight_holes~ : Bool = false,
+  straight_outline~ : Bool = true,
 ) -> Shape {
   Shape::SweptProfile({
     path,
@@ -18,6 +25,7 @@ pub fn SweptProfile::new(
     make_start_cap,
     make_end_cap,
     straight_holes,
+    straight_outline,
   })
 }
 
@@ -80,8 +88,9 @@ fn compile_swept_profile(
   }
   let num_prof_verts = local_verts.length()
 
-  // Holes can optionally stay parallel to the sweep axis instead of rotating
-  // with the path frame. They then use the frame at the first path point.
+  // Holes and/or the outer boundary can optionally stay parallel to the sweep
+  // axis instead of rotating with the path frame. Each then uses the frame at
+  // the first path point.
   let t0 = v_norm(path.tangents[0])
   let n0 = v_norm(path.normals[0])
   let r0 = v_norm(v_cross(t0, n0))
@@ -119,7 +128,12 @@ fn compile_swept_profile(
       m22: t0.2,
     }
     for j, v in local_verts {
-      let gv = if s.straight_holes && is_hole[j] {
+      let keep_straight = if is_hole[j] {
+        s.straight_holes
+      } else {
+        s.straight_outline
+      }
+      let gv = if keep_straight {
         apply_matrix(m_start_to_global, v)
       } else {
         apply_matrix(m_path_to_global, v)
@@ -182,6 +196,13 @@ fn compile_swept_profile(
   }
 
   // 5. Create side faces
+  //
+  // The four corners of a swept band are generally not coplanar: the surface
+  // between two rotated cross-sections is a patch of a helicoid. A STEP PLANE
+  // face requires a coplanar boundary, so declaring the quad as a plane lets
+  // downstream tessellators tear the shared edges apart (the "mesh has gaps"
+  // warning some online fabricators report). Split such bands along their
+  // diagonal into two exactly planar triangles; keep exactly planar quads.
   let face_refs : Array[@step.Ref] = []
   for i in 0..<(num_path_pts - 1) {
     let offset1 = i * num_prof_verts
@@ -198,20 +219,48 @@ fn compile_swept_profile(
         let p0 = pts[b1]
         let p1 = pts[b2]
         let p2 = pts[t1]
-        let v1 = v_sub(p1, p0)
-        let v2 = v_sub(p2, p0)
-        let expected = v_norm(v_cross(v1, v2))
-        face_refs.push(
-          add_plane_face_oriented(
-            ctx,
-            edges,
-            pts,
-            cp_refs,
-            [b1, b2, t2, t1],
-            expected,
-            reverse~,
-          ),
-        )
+        let p3 = pts[t2]
+        let expected = v_norm(v_cross(v_sub(p1, p0), v_sub(p2, p0)))
+        let off_plane = Double::abs(v_dot(v_sub(p3, p0), expected))
+        if off_plane <= 1.0e-6 {
+          face_refs.push(
+            add_plane_face_oriented(
+              ctx,
+              edges,
+              pts,
+              cp_refs,
+              [b1, b2, t2, t1],
+              expected,
+              reverse~,
+            ),
+          )
+        } else {
+          add_edge(b1, t2)
+          let n1 = v_norm(v_cross(v_sub(p1, p0), v_sub(p3, p0)))
+          let n2 = v_norm(v_cross(v_sub(p3, p0), v_sub(p2, p0)))
+          face_refs.push(
+            add_plane_face_oriented(
+              ctx,
+              edges,
+              pts,
+              cp_refs,
+              [b1, b2, t2],
+              n1,
+              reverse~,
+            ),
+          )
+          face_refs.push(
+            add_plane_face_oriented(
+              ctx,
+              edges,
+              pts,
+              cp_refs,
+              [b1, t2, t1],
+              n2,
+              reverse~,
+            ),
+          )
+        }
       }
     }
   }

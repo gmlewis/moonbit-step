@@ -146,8 +146,11 @@ fn make_coil(
     start_angle~,
   )
   let wire_profile = square_wire_profile(hw)
-  let coil_shape = @cad.SweptProfile::new(path=helix_path, profile=wire_profile).with_color(
-    color,
-  )
+  // The wire cross-section must follow the helical path.
+  let coil_shape = @cad.SweptProfile::new(
+    path=helix_path,
+    profile=wire_profile,
+    straight_outline=false,
+  ).with_color(color)
   coil_shape
 }

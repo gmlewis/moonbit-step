@@ -3,6 +3,7 @@ _build/
 target
 .mooncakes/
 .moonagent/
+/.vscode
 /bpy-out
-/__pycache__
+__pycache__
 *.blend*
