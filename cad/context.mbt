@@ -27,7 +27,7 @@ pub struct StepContext {
 ///|
 pub fn snap_double(v : Double, snapping : Double?) -> Double {
   match snapping {
-    None => v
+    None => if v.abs() < 1.0e-12 { 0.0 } else { v }
     Some(eps) => {
       if eps <= 0.0 {
         return v
