@@ -25,6 +25,27 @@ Blackjack evaluates a herringbone gear as a triangle mesh in
 cross-sections, so the STEP output is far more compact than the equivalent STL
 (about 21 MB vs 64 MB for the default parameters).
 
+The number of cross-sections adapts to the twist: each elbow is subdivided so
+that adjacent cross-sections differ by at most 24° of profile rotation, which
+keeps every swept quad close to planar. The default parameters need only the
+elbow boundaries; small modules with a long gear are subdivided automatically
+(`--module 0.5 --gearLength 30` twists 142° per elbow and is subdivided 6x).
+
+## Scaling the design
+
+Every length parameter is in millimetres. To get a uniformly scaled copy of a
+model, scale `gearLength`, `outerThickness`, `tolerance` and `holeRadius` by the
+same factor as `module`; angles and counts stay unchanged. For example, a 6x
+smaller copy of the default gearbox:
+
+```
+./run-example.sh 38 --module 0.5 --gearLength 5 --outerThickness 1.6667 \
+  --tolerance 0.041667 --holeRadius 1.6667
+```
+
+Note that `-gl` is not a flag here (the short form is `-g`); use the long
+options above.
+
 ## Parameters
 The parameters mirror the Go program:
 

@@ -60,6 +60,14 @@ let points_in_involute : Int32 = 20
 let two_pi : Double = 2.0 * @math.PI
 
 ///|
+/// Maximum profile rotation (degrees) between adjacent swept cross-sections.
+/// Each adjacent pair becomes a ring of planar quads approximating the twisted
+/// surface, so this bounds how far a quad can cut inside the true helix.
+/// 24 deg keeps the chord sagitta below ~2% of the gear radius, which is about
+/// the faceting the Blackjack mesh uses at its default settings.
+let max_sweep_step_deg : Double = 24.0
+
+///|
 struct GearDims {
   num_teeth : Int32
   pitch_radius : Double
@@ -573,7 +581,16 @@ fn make_gear_shape(
 ///|
 /// gear_sweep_path returns the zig-zag cross-section path through the gear
 /// length. Each of the `num_elbows + 1` chunks twists linearly from its start
-/// rotation to its end rotation, and the path only needs the chunk boundaries.
+/// rotation to its end rotation.
+///
+/// A chunk is subdivided into enough steps that each ring of swept side faces
+/// spans at most `max_sweep_step_deg` of profile rotation. A ring of planar
+/// quads approximates the twisted (helical) surface; when a single quad spans
+/// a large rotation its corners are far from coplanar and the face folds
+/// through itself. That is harmless for typical gears (one step at module 3),
+/// but a small module with a long gear twists hundreds of degrees per chunk -
+/// module 0.5 with gearLength 30 rotates 141.8 deg per elbow - and needs
+/// subdivision to stay valid.
 fn gear_sweep_path(
   gear_length : Double,
   num_elbows : Int32,
@@ -581,12 +598,33 @@ fn gear_sweep_path(
   direction : Double,
 ) -> @cad.SweepPath {
   let chunks = num_elbows + 1
+  let max_step = max_sweep_step_deg * deg
+  let steps = if max_rotation <= max_step {
+    1
+  } else {
+    let n = @math.ceil(max_rotation / max_step).to_int()
+    if n < 1 {
+      1
+    } else {
+      n
+    }
+  }
+  let total = chunks * steps
   let points : Array[@cad.Vec3] = []
   let normals : Array[@cad.Vec3] = []
   let tangents : Array[@cad.Vec3] = []
-  for k in 0..<(chunks + 1) {
-    let y = gear_length * k.to_double() / chunks.to_double()
-    let helix_rotation = if k % 2 == 1 { max_rotation } else { 0.0 }
+  for i in 0..<(total + 1) {
+    let y = gear_length * i.to_double() / total.to_double()
+    let chunk = if i == total { chunks - 1 } else { i / steps }
+    let within = if i == total {
+      1.0
+    } else {
+      (i % steps).to_double() / steps.to_double()
+    }
+    let start_rotation = if chunk % 2 == 0 { 0.0 } else { max_rotation }
+    let end_rotation = if chunk % 2 == 0 { max_rotation } else { 0.0 }
+    let helix_rotation = start_rotation +
+      (end_rotation - start_rotation) * within
     let angle = -direction * helix_rotation
     points.push((0.0, y, 0.0))
     normals.push((@math.cos(angle), 0.0, @math.sin(angle)))
