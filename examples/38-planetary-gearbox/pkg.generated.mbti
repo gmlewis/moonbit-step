@@ -1,0 +1,21 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "gmlewis/step/examples/38-planetary-gearbox"
+
+// Values
+
+// Errors
+
+// Types and methods
+type GearDims
+
+type GearParams
+
+type GearboxConfig
+
+type PlanetPlacement
+
+type RingGeometry
+
+// Type aliases
+
+// Traits

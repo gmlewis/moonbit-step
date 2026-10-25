@@ -53,6 +53,7 @@ SUITE = {
     "35": [["--railWidth", "12", "--railHeight", "8"], ["--railWidth", "15", "--railHeight", "10", "--thickness", "15"]],
     "36": [["--petals", "12"], ["--petals", "8", "--tx", "50"]],
     "37": [["--diameter", "25.4", "--type", "cap"], ["--diameter", "25.4", "--type", "plug", "--topThickness", "5"], ["--diameter", "50", "--wall", "1.2", "--height", "20"]],
+    "38": [["--numTeeth", "12"], ["--numTeeth", "13", "--planetTeeth", "11", "--numElbows", "2"]],
 }
 
 # --- Utils ---

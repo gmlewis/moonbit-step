@@ -101,6 +101,7 @@ pub struct SweptProfile {
   profile : SweepProfile
   make_start_cap : Bool
   make_end_cap : Bool
+  straight_holes : Bool
 }
 
 ///|
@@ -182,9 +183,16 @@ pub(all) struct SweepPath {
 
 ///|
 /// SweepProfile represents a 2D profile to be swept along a path.
+///
+/// `vertices` is the outer boundary of the profile; `holes` holds optional
+/// inner boundaries (e.g. the bore of a ring gear). All loops are given in the
+/// same coordinate system as `vertices`. Loops must be wound so that the outer
+/// boundary and every hole have opposite orientation; with the default
+/// `normal_dir`/`right_dir` the swept side faces then point out of the solid.
 pub(all) struct SweepProfile {
   center : Vec3
   vertices : Array[Vec3]
+  holes : Array[Array[Vec3]]
   // normal_dir points in the direction of extrusion
   normal_dir : Vec3
   // right_dir points to the "right" side of the profile when looking along normal_dir
@@ -196,10 +204,11 @@ pub(all) struct SweepProfile {
 pub fn SweepProfile::new(
   vertices : Array[Vec3],
   center~ : Vec3 = (0.0, 0.0, 0.0),
+  holes~ : Array[Array[Vec3]] = [],
   normal_dir~ : Vec3 = (0.0, 1.0, 0.0),
   right_dir~ : Vec3 = (1.0, 0.0, 0.0),
 ) -> SweepProfile {
-  { center, vertices, normal_dir, right_dir, }
+  { center, vertices, holes, normal_dir, right_dir, }
 }
 
 ///|

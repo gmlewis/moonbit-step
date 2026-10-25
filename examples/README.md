@@ -56,3 +56,4 @@ Each entry below links to a subfolder containing a **working example**: code tha
 - [35-linear-rail-endcap](./35-linear-rail-endcap) - Endcaps that fit common rail profiles, with optional wipers and covers.
 - [36-chronos-gear-flower](./36-chronos-gear-flower) - A parametric design with colors and complex symmetry.
 - [37-tube-cap-assortment](./37-tube-cap-assortment) - Endcaps for common tubes (PVC/aluminum) with configurable wall thickness and ribs.
+- [38-planetary-gearbox](./38-planetary-gearbox) - A print-in-place herringbone planetary gearbox (sun, planets, and internal ring gear).
