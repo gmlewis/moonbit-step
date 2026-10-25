@@ -86,7 +86,10 @@ async fn main {
     mount_thickness,
     nut_height?,
   )
-  let mut design = @cad.Design::new(name="metric-threaded-rod-nut")
+  let mut design = @cad.Design::new(
+    name="metric-threaded-rod-nut",
+    documentation=args.documentation(),
+  )
   for node in nodes {
     design = design.add(node.translate(x=tx, y=ty, z=tz))
   }

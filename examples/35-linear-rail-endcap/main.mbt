@@ -96,7 +96,10 @@ async fn main {
   let hole_top = seat_y + sd / 2.0
   let edge_top = body_h / 2.0
   let label_y = (hole_top + edge_top) / 2.0
-  let design = @cad.Design::new(name="linear-rail-endcap")
+  let design = @cad.Design::new(
+      name="linear-rail-endcap",
+      documentation=args.documentation(),
+    )
     .add(endcap)
     .add_text_on_face(
       endcap,

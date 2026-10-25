@@ -87,7 +87,10 @@ async fn main {
   let base = @cad.ExtrudedProfile::new(outer, height, holes~)
     .with_name("gauge-base")
     .with_color(@cad.Rgb::purple())
-  let mut design = @cad.Design::new(name="bolt-length-gauge").add(base)
+  let mut design = @cad.Design::new(
+    name="bolt-length-gauge",
+    documentation=args.documentation(),
+  ).add(base)
 
   // 3. Add labels
   for i in 0..<bolt_sizes.length() {

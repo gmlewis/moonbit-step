@@ -100,7 +100,10 @@ async fn main {
     vent_slot_width=vent_width,
     vent_slot_spacing=vent_spacing,
   )
-  let mut design = @cad.Design::new(name="vented-enclosure")
+  let mut design = @cad.Design::new(
+    name="vented-enclosure",
+    documentation=args.documentation(),
+  )
   for node in nodes {
     design = design.add(
       node.translate(x=tx - width / 2.0, y=ty - length / 2.0, z=tz),

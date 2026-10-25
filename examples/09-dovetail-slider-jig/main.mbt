@@ -130,7 +130,10 @@ async fn main {
     .with_name("dovetail-slider")
     .with_color(@cad.Rgb::orange())
     .translate(x=tx, y=ty + base_height / 2.0, z=tz + slider_pos)
-  let design = @cad.Design::new(name="dovetail-slider-jig")
+  let design = @cad.Design::new(
+      name="dovetail-slider-jig",
+      documentation=args.documentation(),
+    )
     .add(base)
     .add(slider)
   if blend_path is Some(blend_path) {

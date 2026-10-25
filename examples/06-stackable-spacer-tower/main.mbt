@@ -83,7 +83,10 @@ async fn main {
     )
     abort("")
   }
-  let mut design = @cad.Design::new(name="spacer-tower")
+  let mut design = @cad.Design::new(
+    name="spacer-tower",
+    documentation=args.documentation(),
+  )
 
   // Generate profiles
   let outer_circle = @cad.Profile2D::circle(od, segments=resolution)

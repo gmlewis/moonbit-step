@@ -98,7 +98,12 @@ async fn main {
     .translate(x=tx, y=ty, z=tz + base_height)
 
   //
-  let design = @cad.Design::new(name="hex-bit-holder").add(base).add(holder)
+  let design = @cad.Design::new(
+      name="hex-bit-holder",
+      documentation=args.documentation(),
+    )
+    .add(base)
+    .add(holder)
   if blend_path is Some(blend_path) {
     design.create_blender_file(blend_path)
   } else if bpy_path is Some(_) {

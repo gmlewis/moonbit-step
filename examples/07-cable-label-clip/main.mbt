@@ -8,7 +8,7 @@
 async fn main {
   let base_args_spec = {
     "diameter": @cli.opt_double(6.0, help="Cable diameter (mm)", min=1.0),
-    "text": @cli.opt_string(short='t', help="Label text"),
+    "text": @cli.opt_string(help="Label text"),
     "length": @cli.opt_double(20.0, help="Clip length (mm)", min=5.0),
     "thickness": @cli.opt_double(1.5, help="Clip wall thickness (mm)", min=0.5),
     "opening": @cli.opt_double(
@@ -54,7 +54,10 @@ async fn main {
       return
     }
   }
-  let mut design = @cad.Design::new(name="cable-label")
+  let mut design = @cad.Design::new(
+    name="cable-label",
+    documentation=args.documentation(),
+  )
 
   //
   let open_rad = opening_deg * @math.PI / 180.0

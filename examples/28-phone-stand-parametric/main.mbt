@@ -94,7 +94,10 @@ async fn main {
 
   // Add branding text on the back plate
   let font = @cad.load_font("baloo")
-  let design = @cad.Design::new(name="phone-stand")
+  let design = @cad.Design::new(
+      name="phone-stand",
+      documentation=args.documentation(),
+    )
     .add_iter(left_side.iter())
     .add_iter(right_side.iter())
     .add(back_plate)

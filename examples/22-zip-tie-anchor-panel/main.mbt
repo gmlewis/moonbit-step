@@ -115,7 +115,10 @@ async fn main {
   }
 
   // 4. Assemble the design
-  let design = @cad.Design::new(name="zip-tie-anchor-panel")
+  let design = @cad.Design::new(
+      name="zip-tie-anchor-panel",
+      documentation=args.documentation(),
+    )
     .add(base.translate(x=tx - panel_w / 2.0, y=ty - panel_l / 2.0, z=tz))
     .add_iter(
       left_wall

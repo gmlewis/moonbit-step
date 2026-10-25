@@ -78,7 +78,10 @@ async fn main {
     .with_name("washer")
     .with_color(@cad.Rgb::blue())
     .translate(x=tx, y=ty, z=tz)
-  let design = @cad.Design::new(name="parametric-washer").add(washer)
+  let design = @cad.Design::new(
+    name="parametric-washer",
+    documentation=args.documentation(),
+  ).add(washer)
   if blend_path is Some(blend_path) {
     design.create_blender_file(blend_path)
   } else if bpy_path is Some(_) {

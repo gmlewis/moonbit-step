@@ -168,7 +168,10 @@ async fn main {
 
   // 4. Design and Labels
   let font = @cad.load_font("baloo")
-  let design = @cad.Design::new(name="filament-runout-sensor")
+  let design = @cad.Design::new(
+      name="filament-runout-sensor",
+      documentation=args.documentation(),
+    )
     .add(housing)
     .add(flange)
     .add(switch)

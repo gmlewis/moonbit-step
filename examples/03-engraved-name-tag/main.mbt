@@ -99,7 +99,10 @@ async fn main {
     .with_color(@cad.Rgb::new(0.5, 0.0, 0.5)) // purple
 
   //
-  let text_design = @cad.Design::new(name="text-only").add_text_on_face(
+  let text_design = @cad.Design::new(
+    name="text-only",
+    documentation=args.documentation(),
+  ).add_text_on_face(
     base,
     name,
     Top,
@@ -114,7 +117,7 @@ async fn main {
 
   //
   let design = if emboss {
-    @cad.Design::new(name="keychain-tag")
+    @cad.Design::new(name="keychain-tag", documentation=args.documentation())
     .add(base)
     .add_iter(text_nodes.iter())
     .translate(x=tx, y=ty, z=tz)
@@ -122,7 +125,7 @@ async fn main {
     let engraved = @cad.difference(base, text_nodes, name="tag-engraved").with_color(
       @cad.Rgb::new(0.5, 0.0, 0.5),
     )
-    @cad.Design::new(name="keychain-tag")
+    @cad.Design::new(name="keychain-tag", documentation=args.documentation())
     .add(engraved)
     .translate(x=tx, y=ty, z=tz)
   }

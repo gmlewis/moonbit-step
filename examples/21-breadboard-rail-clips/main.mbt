@@ -72,7 +72,10 @@ async fn main {
   let nodes = breadboard_rail_clip(
     width, height, arm_thickness, snap_clearance, hook_depth, seat_diameter, seat_depth,
   )
-  let mut design = @cad.Design::new(name="breadboard-rail-clip")
+  let mut design = @cad.Design::new(
+    name="breadboard-rail-clip",
+    documentation=args.documentation(),
+  )
   for node in nodes {
     design = design.add(node.translate(x=tx, y=ty, z=tz))
   }

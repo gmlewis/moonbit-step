@@ -76,7 +76,10 @@ async fn main {
     return
   }
   let nodes = cable_grommet(id, pd, ld, pt, lt, split~)
-  let mut design = @cad.Design::new(name="cable-grommet")
+  let mut design = @cad.Design::new(
+    name="cable-grommet",
+    documentation=args.documentation(),
+  )
   for node in nodes {
     design = design.add(node.translate(x=tx, y=ty, z=tz))
   }

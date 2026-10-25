@@ -71,7 +71,10 @@ async fn main {
     pin_diameter, clearance, interference, step_count, clearance_step, spacing, base_height,
     pin_height,
   )
-  let mut design = @cad.Design::new(name="press-fit-pin-gauge")
+  let mut design = @cad.Design::new(
+    name="press-fit-pin-gauge",
+    documentation=args.documentation(),
+  )
   for node in nodes {
     design = design.add(node.translate(x=tx, y=ty, z=tz))
   }

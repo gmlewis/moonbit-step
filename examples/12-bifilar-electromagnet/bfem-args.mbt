@@ -167,5 +167,6 @@ async fn parse_params() -> Params? {
     nosupport: args.flag("nosupport"),
     union: args.flag("union"),
     snapping: args.double("snapping"),
+    documentation: args.documentation(),
   })
 }

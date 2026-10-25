@@ -39,7 +39,10 @@ async fn main {
     Some(v) => v
     None => (0.0, 0.0, 0.0)
   }
-  let design = @cad.Design::new(name="chronos-gear-flower")
+  let design = @cad.Design::new(
+    name="chronos-gear-flower",
+    documentation=args.documentation(),
+  )
 
   // 1. Central Hub - Tiered "Reactor Core"
   // Outer Ring (lowest)

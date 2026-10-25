@@ -93,7 +93,10 @@ async fn main {
   let nodes = drill_guide(
     angle, hole_dia, outer_dia, height, seat_dia, seat_depth, base_w, base_l, base_t,
   )
-  let mut design = @cad.Design::new(name="angled-drill-guide")
+  let mut design = @cad.Design::new(
+    name="angled-drill-guide",
+    documentation=args.documentation(),
+  )
   for node in nodes {
     design = design.add(node.translate(x=tx, y=ty, z=tz))
   }

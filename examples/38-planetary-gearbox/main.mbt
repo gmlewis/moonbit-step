@@ -232,7 +232,7 @@ async fn main {
   }
   let out_path = args.string_opt("out")
   let cfg = compute_config(params)
-  let design = build_design(cfg)
+  let design = build_design(cfg, args.documentation())
   if out_path is Some(_) {
     print_config(cfg)
   }
@@ -462,10 +462,11 @@ fn suggest_planet_teeth(sun_teeth : Int32, planets : Int32) -> Int32 {
 // ---------------------------------------------------------------------------
 
 ///|
-fn build_design(cfg : GearboxConfig) -> @cad.Design {
+fn build_design(cfg : GearboxConfig, documentation : String) -> @cad.Design {
   let mut design = @cad.Design::new(
     name="planetary-gearbox",
     description="Print-in-place herringbone planetary gearbox",
+    documentation~,
   )
 
   // Sun gear.

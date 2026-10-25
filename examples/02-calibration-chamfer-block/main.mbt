@@ -135,7 +135,10 @@ async fn main {
     )
     .with_name("calibration-block")
     .translate(x=tx, y=ty, z=tz)
-  let design = @cad.Design::new(name="calibration-chamfer-block").add(block)
+  let design = @cad.Design::new(
+    name="calibration-chamfer-block",
+    documentation=args.documentation(),
+  ).add(block)
   if blend_path is Some(blend_path) {
     design.create_blender_file(blend_path)
   } else if bpy_path is Some(_) {

@@ -60,11 +60,13 @@ async fn main {
     }
   }
   let angles = parse_angles(angles_str)
-  let design = miter_templates(angles, size, thickness, hole_dia).translate(
-    x=tx,
-    y=ty,
-    z=tz,
-  )
+  let design = miter_templates(
+    angles,
+    size,
+    thickness,
+    hole_dia,
+    args.documentation(),
+  ).translate(x=tx, y=ty, z=tz)
   if blend_path is Some(blend_path) {
     design.create_blender_file(blend_path)
   } else if bpy_path is Some(_) {
@@ -97,8 +99,9 @@ async fn miter_templates(
   size : Double,
   thickness : Double,
   hole_dia : Double,
+  documentation : String,
 ) -> @cad.Design {
-  let mut design = @cad.Design::new(name="miter-templates")
+  let mut design = @cad.Design::new(name="miter-templates", documentation~)
   let spacing = size + 10.0
   let font = @cad.load_font("baloo")
   for i, angle in angles {

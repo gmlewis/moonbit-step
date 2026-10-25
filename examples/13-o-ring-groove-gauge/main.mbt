@@ -104,7 +104,10 @@ async fn main {
     .translate(x=tx, y=ty, z=tz)
 
   //
-  let design = @cad.Design::new(name="o-ring-groove-gauge").add(gauge)
+  let design = @cad.Design::new(
+    name="o-ring-groove-gauge",
+    documentation=args.documentation(),
+  ).add(gauge)
   if blend_path is Some(blend_path) {
     design.create_blender_file(blend_path)
   } else if bpy_path is Some(_) {

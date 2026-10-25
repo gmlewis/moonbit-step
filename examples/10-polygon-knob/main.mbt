@@ -94,7 +94,10 @@ async fn main {
     .translate(x=tx, y=ty, z=tz)
 
   //
-  let design = @cad.Design::new(name="polygon-knob").add(knob)
+  let design = @cad.Design::new(
+    name="polygon-knob",
+    documentation=args.documentation(),
+  ).add(knob)
   if blend_path is Some(blend_path) {
     design.create_blender_file(blend_path)
   } else if bpy_path is Some(_) {

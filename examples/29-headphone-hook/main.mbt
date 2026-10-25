@@ -84,7 +84,10 @@ async fn main {
 
   // Add branding text on the side face
   let font = @cad.load_font("baloo")
-  let design = @cad.Design::new(name="headphone-hook")
+  let design = @cad.Design::new(
+      name="headphone-hook",
+      documentation=args.documentation(),
+    )
     .add(hook)
     .add(rib)
     .add_text_on_face(

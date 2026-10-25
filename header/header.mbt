@@ -81,6 +81,8 @@ pub(all) enum HeaderEntity {
   FileDescription(FileDescription)
   FileName(FileName)
   FileSchema(FileSchema)
+  // Comment is emitted as a Part 21 /* ... */ comment block.
+  Comment(String)
   Raw(String)
 }
 
@@ -147,11 +149,21 @@ fn file_schema_to_step(fs : FileSchema) -> String {
 }
 
 ///|
+// Format a Part 21 comment block. STEP comments are delimited by /* and */
+// and may span multiple lines, but may not themselves contain "*/".
+fn comment_to_step(text : String) -> String {
+  let safe = text.replace(old="*/", new="* /")
+  let body = safe.split("\n").map(fn(line) { "  \{line}" }).join("\n")
+  "/*\n\{body}\n*/"
+}
+
+///|
 fn header_entity_to_step(e : HeaderEntity) -> String {
   match e {
     FileDescription(fd) => file_description_to_step(fd)
     FileName(fn_) => file_name_to_step(fn_)
     FileSchema(fs) => file_schema_to_step(fs)
+    Comment(text) => comment_to_step(text)
     Raw(s) => s.trim().to_owned()
   }
 }
@@ -159,8 +171,16 @@ fn header_entity_to_step(e : HeaderEntity) -> String {
 ///|
 // Serialize only the statements inside HEADER...ENDSEC.
 // Each statement is terminated with a semicolon and separated by newlines.
+// Comments are emitted without a trailing semicolon.
 pub fn HeaderSection::to_step_statements(self : HeaderSection) -> String {
-  self.entities.map(fn(e) { "\{header_entity_to_step(e)};" }).join("\n")
+  self.entities
+  .map(fn(e) {
+    match e {
+      Comment(_) => header_entity_to_step(e)
+      _ => "\{header_entity_to_step(e)};"
+    }
+  })
+  .join("\n")
 }
 
 ///|

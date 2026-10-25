@@ -108,7 +108,10 @@ async fn main {
 
   // 4. Labels
   let font = @cad.load_font("baloo")
-  let design = @cad.Design::new(name="desk-cable-tray")
+  let design = @cad.Design::new(
+      name="desk-cable-tray",
+      documentation=args.documentation(),
+    )
     .add(back_wall)
     .add(bottom)
     .add(front_lip)

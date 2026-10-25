@@ -32,6 +32,7 @@ pub(all) enum HeaderEntity {
   FileDescription(FileDescription)
   FileName(FileName)
   FileSchema(FileSchema)
+  Comment(String)
   Raw(String)
 }
 

@@ -53,7 +53,10 @@ async fn main {
       abort("")
     }
   }
-  let design = @cad.Design::new(name="hello-cube").add(
+  let design = @cad.Design::new(
+    name="hello-cube",
+    documentation=args.documentation(),
+  ).add(
     @cad.Cuboid::new(edge_mm, edge_mm, edge_mm)
     .with_name("cube")
     .with_color(@cad.Rgb::green())

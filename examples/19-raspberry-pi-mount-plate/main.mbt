@@ -70,7 +70,10 @@ async fn main {
     .with_name("rpi-mount-plate")
     .with_color(@cad.Rgb::green())
     .translate(x=tx - width / 2.0, y=ty - length / 2.0, z=tz)
-  let design = @cad.Design::new(name="raspberry-pi-mount-plate").add(plate)
+  let design = @cad.Design::new(
+    name="raspberry-pi-mount-plate",
+    documentation=args.documentation(),
+  ).add(plate)
   if blend_path is Some(blend_path) {
     design.create_blender_file(blend_path)
   } else if bpy_path is Some(_) {

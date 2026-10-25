@@ -41,7 +41,6 @@ async fn main {
       min=0.0,
     ),
     "type": @cli.opt_string(
-      short='t',
       help="Type of fitting: 'cap' (over tube) or 'plug' (inside tube)",
     ),
     "blend": @cli.opt_string(help="Create Blender 5.0 file (instead of STEP)"),
@@ -56,7 +55,7 @@ async fn main {
   let args_spec = @cli.with_translate(base_args_spec)
   guard @cli.parse(
       args_spec,
-      prog="12-tube-cap-assortment",
+      prog="37-tube-cap-assortment",
       description="Generate a parametric tube cap or plug.",
     )
     is Some(args) else {
@@ -109,7 +108,12 @@ async fn main {
     .translate(x=tx, y=ty, z=tz)
 
   //
-  let design = @cad.Design::new(name="tube-cap").add(top).add(wall_part)
+  let design = @cad.Design::new(
+      name="tube-cap",
+      documentation=args.documentation(),
+    )
+    .add(top)
+    .add(wall_part)
   if blend_path is Some(blend_path) {
     design.create_blender_file(blend_path)
   } else if bpy_path is Some(_) {

@@ -31,6 +31,8 @@ pub struct Args {
   // private fields
 }
 pub fn Args::bool_opt(Self, String) -> Bool
+pub fn Args::command_line(Self) -> String
+pub fn Args::documentation(Self) -> String
 pub async fn Args::double(Self, String) -> Double
 pub async fn Args::doubles(Self, String) -> Array[Double]
 pub fn Args::flag(Self, String) -> Bool

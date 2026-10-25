@@ -63,7 +63,10 @@ async fn main {
   let nodes = arduino_uno_standoff_frame(
     frame_thickness, standoff_height, standoff_od, standoff_id,
   )
-  let mut design = @cad.Design::new(name="arduino-standoff-frame")
+  let mut design = @cad.Design::new(
+    name="arduino-standoff-frame",
+    documentation=args.documentation(),
+  )
   for node in nodes {
     // Center the board area approximately
     design = design.add(

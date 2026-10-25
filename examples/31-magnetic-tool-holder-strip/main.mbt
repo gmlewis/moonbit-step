@@ -92,7 +92,10 @@ async fn main {
   }
   let total_width = Double::from_int(cols) * cell_size
   let total_height = Double::from_int(rows) * cell_size
-  let mut design = @cad.Design::new(name="magnetic-tool-strip")
+  let mut design = @cad.Design::new(
+    name="magnetic-tool-strip",
+    documentation=args.documentation(),
+  )
 
   // Generate magnet locations
   let centers = []

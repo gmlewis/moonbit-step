@@ -35,4 +35,5 @@ struct Params {
   nosupport : Bool
   union : Bool
   snapping : Double
+  documentation : String
 }

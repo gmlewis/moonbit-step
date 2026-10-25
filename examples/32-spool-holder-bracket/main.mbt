@@ -154,7 +154,12 @@ async fn main {
     .with_color(@cad.Rgb::new(0.2, 0.8, 0.8)) // Beautiful cyan
     .rotate_x(90.0)
     .translate(x=tx, y=ty + arm_width / 2.0, z=tz) // center it on base
-  let design = @cad.Design::new(name="spool-holder-bracket").add(base).add(arm)
+  let design = @cad.Design::new(
+      name="spool-holder-bracket",
+      documentation=args.documentation(),
+    )
+    .add(base)
+    .add(arm)
   if blend_path is Some(blend_path) {
     design.create_blender_file(blend_path)
   } else if bpy_path is Some(_) {

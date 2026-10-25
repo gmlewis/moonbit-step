@@ -31,7 +31,7 @@ async fn main {
       help="Total bin height (mm)",
       min=BASE_THICKNESS + 1.0,
     ),
-    "text": @cli.opt_string(short='t', help="Label text to engrave"),
+    "text": @cli.opt_string(help="Label text to engrave"),
     "fontSize": @cli.opt_double(
       0.0,
       help="Font size (mm), default is 60% of wall height",
@@ -79,7 +79,10 @@ async fn main {
   }
   let total_width = Double::from_int(cols) * GRID_UNIT
   let total_length = Double::from_int(rows) * GRID_UNIT
-  let mut design = @cad.Design::new(name="gridfinity-bin")
+  let mut design = @cad.Design::new(
+    name="gridfinity-bin",
+    documentation=args.documentation(),
+  )
 
   // 1. The Base
   let base = @cad.Cuboid::new(total_width, total_length, BASE_THICKNESS)

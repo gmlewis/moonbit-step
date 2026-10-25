@@ -127,7 +127,10 @@ async fn main {
 
   // 4. Add some labels
   let font = @cad.load_font("baloo")
-  let design = @cad.Design::new(name="router-circle-jig")
+  let design = @cad.Design::new(
+      name="router-circle-jig",
+      documentation=args.documentation(),
+    )
     .add(jig)
     .add_text_on_face(
       jig,

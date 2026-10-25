@@ -30,6 +30,7 @@ async fn main {
   let mut design = @cad.Design::new(
     name="bifilar-electromagnet",
     snapping=params.snapping,
+    documentation=params.documentation,
   )
   let wire_nodes = []
   let support_nodes = []

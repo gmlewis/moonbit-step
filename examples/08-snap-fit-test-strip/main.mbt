@@ -77,7 +77,10 @@ async fn main {
   let step_spacing = arm_width + 10.0
   let receiver_length = 15.0
   let hook_height = 3.0
-  let mut design = @cad.Design::new(name="snap-fit-test")
+  let mut design = @cad.Design::new(
+    name="snap-fit-test",
+    documentation=args.documentation(),
+  )
 
   // 1. Generate the test strip (Arms)
   let strip_length = Double::from_int(step_count) * step_spacing

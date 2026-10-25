@@ -85,7 +85,10 @@ async fn main {
 
   // Add some text branding on top
   let font = @cad.load_font("baloo")
-  let design = @cad.Design::new(name="camera-tripod-adapter")
+  let design = @cad.Design::new(
+      name="camera-tripod-adapter",
+      documentation=args.documentation(),
+    )
     .add(plate)
     .add(left_pad)
     .add(right_pad)

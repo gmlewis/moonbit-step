@@ -71,7 +71,10 @@ async fn main {
     .with_name("living-hinge")
     .with_color(@cad.Rgb::purple())
     .translate(x=tx, y=ty, z=tz)
-  let design = @cad.Design::new(name="living-hinge-sample").add(hinge)
+  let design = @cad.Design::new(
+    name="living-hinge-sample",
+    documentation=args.documentation(),
+  ).add(hinge)
   if blend_path is Some(blend_path) {
     design.create_blender_file(blend_path)
   } else if bpy_path is Some(_) {
