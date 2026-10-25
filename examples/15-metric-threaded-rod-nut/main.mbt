@@ -2,7 +2,7 @@
 /// 15-metric-threaded-rod-nut
 ///
 /// A working example that generates a STEP model for a nut-like coupler body
-/// with correct clearances.
+/// with modeled internal threads and correct clearances.
 ///
 /// Usage (stdout):
 ///   moon run --target native examples/15-metric-threaded-rod-nut -- --boltDiameter 8 --clearance 0.1 > nut-strip.step
@@ -127,11 +127,15 @@ fn metric_nut_test_strip(
       Double::from_int(i) * clearance_step +
       base_clearance
     let x = Double::from_int(i) * hole_spacing + hole_spacing / 2.0
-    let nut = metric_nut(bolt_diameter, current_clearance, height=nut_h)
-      .with_name("nut-\{i}")
-      .with_color(@cad.Rgb::orange())
-      .translate(x~, y=0.0, z=mount_thickness)
-    nodes.push(nut)
+    let nut_nodes = metric_nut(
+      bolt_diameter,
+      current_clearance,
+      height=nut_h,
+      name_prefix="nut-\{i}",
+    )
+    for node in nut_nodes {
+      nodes.push(node.translate(x~, y=0.0, z=mount_thickness))
+    }
   }
   nodes
 }
@@ -159,15 +163,87 @@ fn metric_nut_dimensions(bolt_diameter : Double) -> (Double, Double) {
 }
 
 ///|
+/// metric_thread_pitch returns the coarse metric pitch for a nominal diameter.
+fn metric_thread_pitch(bolt_diameter : Double) -> Double {
+  if bolt_diameter <= 3.0 {
+    0.5
+  } else if bolt_diameter <= 4.0 {
+    0.7
+  } else if bolt_diameter <= 5.0 {
+    0.8
+  } else if bolt_diameter <= 6.0 {
+    1.0
+  } else if bolt_diameter <= 8.0 {
+    1.25
+  } else if bolt_diameter <= 10.0 {
+    1.5
+  } else if bolt_diameter <= 12.0 {
+    1.75
+  } else if bolt_diameter <= 16.0 {
+    2.0
+  } else {
+    bolt_diameter * 0.125
+  }
+}
+
+///|
+/// metric_nut returns the hex body plus a helical internal-thread ridge.
+///
+/// The bore is at the thread root (major diameter). The ridge is a solid swept
+/// along a right-hand helix: its crest sits at the minor diameter and its root
+/// is embedded `embed` into the bore wall, so the two bodies fuse when printed.
 fn metric_nut(
   bolt_diameter : Double,
   clearance : Double,
   height? : Double,
-) -> @cad.Shape {
+  name_prefix~ : String = "nut",
+) -> Array[@cad.SceneNode] {
   let (s, h) = metric_nut_dimensions(bolt_diameter)
   let height = height.unwrap_or(h)
+  let pitch = metric_thread_pitch(bolt_diameter)
+  let major_d = bolt_diameter + clearance
+  // ISO 68-1 basic profile: 60-degree flanks and an internal radial thread
+  // depth of H1 = 0.54125 * pitch. The ridge is a trapezoid whose crest is
+  // P/4 wide at the minor diameter and whose root is 7P/8 wide at the major
+  // diameter, leaving the standard P/8 groove at the root.
+  let depth = 0.54125 * pitch
+  let half_depth = depth / 2.0
+  let crest_half = 0.125 * pitch
+  let root_half = 0.4375 * pitch
+  let minor_d = major_d - 2.0 * depth
   let d = s / @math.cos(30.0 * @math.PI / 180.0)
   let outer = @cad.Profile2D::polygon(6, d, rotation=30.0)
-  let hole = @cad.Profile2D::circle(bolt_diameter + clearance).rev()
-  @cad.ExtrudedProfile::new(outer, height, holes=[hole])
+  let hole = @cad.Profile2D::circle(major_d).rev()
+  let body = @cad.ExtrudedProfile::new(outer, height, holes=[hole])
+    .with_name(name_prefix)
+    .with_color(@cad.Rgb::orange())
+  // Thread ridge cross-section in the radial-axial plane: a trapezoid with the
+  // crest (inner radius) on the left and the root (outer radius) on the right.
+  let r_major = major_d / 2.0
+  let r_minor = minor_d / 2.0
+  let r_mid = (r_major + r_minor) / 2.0
+  let embed = 0.1
+  let profile = @cad.SweepProfile::new([
+    (-half_depth, 0.0, -crest_half),
+    (half_depth + embed, 0.0, -root_half),
+    (half_depth + embed, 0.0, root_half),
+    (-half_depth, 0.0, crest_half),
+  ])
+  // Leave half a pitch at each end so the ridge does not stick out of the nut.
+  let thread_turns = (height - pitch) / pitch
+  if thread_turns <= 0.0 {
+    return [body]
+  }
+  let path = @cad.helix_path(
+    pos=(0.0, 0.0, pitch / 2.0),
+    size_per_turn=(r_mid, r_mid, pitch),
+    num_turns=thread_turns,
+    num_segs_per_turn=32,
+    start_angle=0.0,
+    clockwise=false,
+  )
+  let thread = @cad.SweptProfile::new(path~, profile~)
+    .with_name(name_prefix + "-thread")
+    .with_color(@cad.Rgb::red())
+  [body, thread]
 }
