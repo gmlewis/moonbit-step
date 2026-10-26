@@ -7,6 +7,12 @@ import argparse
 import tempfile
 from pathlib import Path
 
+# The STEP validator lives next to this script.
+_scripts_dir = str(Path(__file__).resolve().parent)
+if _scripts_dir not in sys.path:
+    sys.path.insert(0, _scripts_dir)
+from validate_step import validate_step_file  # noqa: E402
+
 # --- Configuration ---
 
 SUITE = {
@@ -34,7 +40,7 @@ SUITE = {
     "16": [["--pinDiameter", "5", "--clearance", "0.05"], ["--pinDiameter", "10", "--interference", "0.1", "--clearanceStep", "0.05", "--stepCount", "4"]],
     "17": [["--thickness", "2", "--hingeWidth", "15"], ["--width", "30", "--slotLength", "5", "--numRows", "10"]],
     "18": [["--width", "60", "--length", "80", "--height", "30"], ["--wallThickness", "3", "--filletRadius", "10", "--bossOD", "10"]],
-    "19": [["--width", "85", "--length", "75"], ["--width", "100", "--length", "60", "--slotLength", "20"]],
+    "19": [["--width", "85", "--length", "75"], ["--width", "100", "--length", "60", "--slotLength", "18"]],
     "20": [["--standoffHeight", "6"], ["--standoffHeight", "12", "--standoffOD", "8", "--frameThickness", "5"]],
     "21": [["--width", "54.5", "--height", "8"], ["--width", "35", "--height", "6", "--armThickness", "2"]],
     "22": [["--rows", "2", "--cols", "2"], ["--rows", "1", "--cols", "4", "--spacing", "20", "--anchorWidth", "8"]],
@@ -105,15 +111,18 @@ def validate_bpy(root, bpy_path, blend_path):
         print(f"    Blender validation FAILED: {e.stderr.strip()}")
         return False
 
-def validate_step(step_path):
-    scripts_dir = Path(__file__).parent
-    validator = scripts_dir / "validate_with_occt.sh"
-    cmd = [str(validator), str(step_path)]
-    try:
-        subprocess.run(cmd, capture_output=True, text=True, check=True)
-        return True
-    except subprocess.CalledProcessError:
-        return False
+def validate_step(step_path, *, mesh=True, gmsh=False, planarity_tol=0.01):
+    result = validate_step_file(
+        step_path,
+        tessellate=mesh,
+        gmsh=gmsh,
+        planarity_tol=planarity_tol,
+    )
+    if not result.ok:
+        for check in result.checks:
+            if not check.ok and not check.skipped:
+                print(f"      {check.name}: {check.detail}")
+    return result.ok
 
 def render_view(occt_bin, step_path, png_path, view_cmd):
     # Renders a single view to a PNG
@@ -274,6 +283,22 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("target", nargs="?", default="all", help="Example number or 'all'")
     parser.add_argument("--validate", action="store_true")
+    parser.add_argument(
+        "--no-mesh",
+        action="store_true",
+        help="skip OCCT tessellation watertightness checks",
+    )
+    parser.add_argument(
+        "--gmsh",
+        action="store_true",
+        help="also tessellate with gmsh (requires gmsh)",
+    )
+    parser.add_argument(
+        "--planarity-tol",
+        type=float,
+        default=0.01,
+        help="maximum PLANE-face deviation in mm (default: 0.01)",
+    )
     parser.add_argument("--render", action="store_true")
     parser.add_argument("--readme", action="store_true")
     parser.add_argument("--bpy", action="store_true")
@@ -334,7 +359,12 @@ def main():
                 sys.exit(1)
 
             if args.validate:
-                if validate_step(step_file):
+                if validate_step(
+                    step_file,
+                    mesh=not args.no_mesh,
+                    gmsh=args.gmsh,
+                    planarity_tol=args.planarity_tol,
+                ):
                     print("    Topology: OK")
                 else:
                     print("    Topology: FAILED")

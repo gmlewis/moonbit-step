@@ -32,7 +32,7 @@ Command line: `./run-example.sh 19 --width 85 --length 75`
 
 ### Variant 2
 
-Command line: `./run-example.sh 19 --width 100 --length 60 --slotLength 20`
+Command line: `./run-example.sh 19 --width 100 --length 60 --slotLength 18`
 
 ![](preview-2.png)
 

@@ -11,10 +11,27 @@ pub fn compile_extruded_profile(
     return []
   }
 
+  // Normalize the winding: outer counter-clockwise, holes clockwise. Side-face
+  // normals are derived from the loop direction, while the caps are oriented
+  // from their expected outward normal; a clockwise outer loop made the two
+  // disagree and left shared edges traversed in the same direction.
+  let outer = if signed_area_2d(profile.outer) < 0.0 {
+    profile.outer.rev()
+  } else {
+    profile.outer
+  }
+  let holes = profile.holes.map(fn(h) {
+    if signed_area_2d(h) > 0.0 {
+      h.rev()
+    } else {
+      h
+    }
+  })
+
   // Flatten loops (outer first, then holes).
   let loops : Array[Array[Vec2]] = [
-    profile.outer,
-    ..profile.holes.filter(fn(h) { h.length() >= 3 }),
+    outer,
+    ..holes.filter(fn(h) { h.length() >= 3 }),
   ]
 
   // Build 3D points (bottom then top per loop).
@@ -137,4 +154,21 @@ pub fn compile_extruded_profile(
     }
   }
   face_refs
+}
+
+///|
+/// signed_area_2d returns the signed area of a polygon: positive when wound
+/// counter-clockwise in the XY plane.
+fn signed_area_2d(poly : Array[Vec2]) -> Double {
+  let n = poly.length()
+  if n < 3 {
+    return 0.0
+  }
+  let mut area = 0.0
+  for i in 0..<n {
+    let (x0, y0) = poly[i]
+    let (x1, y1) = poly[(i + 1) % n]
+    area = area + x0 * y1 - x1 * y0
+  }
+  area / 2.0
 }

@@ -92,6 +92,21 @@ fn parse_example(step_text : String) -> Unit {
 Run the unit tests and formatters:
 - `./test-all.sh`
 
+### STEP validation
+`scripts/validate_step.py` is the compatibility gate. It checks ISO 10303-21
+syntax (including the real-number grammar: upper-case `E`, mandatory decimal
+point, no lower-case `e`), `#id` reference integrity, per-shell edge
+usage/orientation, `PLANE`-face planarity, OCCT `checkshape`, and watertight
+tessellation:
+
+- `python3 scripts/validate_step.py part.step`
+- `python3 scripts/validate_step.py --no-mesh part.step` (syntax/topology only)
+- `python3 scripts/validate_step.py --gmsh part.step` (adds a second mesher)
+
+`manage_examples.py --validate` runs the same gate for every generated
+example. CI runs `manage_examples.py all --validate --no-mesh` on every push
+and the tessellation gate daily.
+
 ### Geometric Validation & Rendering
 We use Open CASCADE (`occt-draw` or `DRAWEXE`) to ensure topological validity and generate previews:
 - `./scripts/manage_examples.py all --validate --render --readme`

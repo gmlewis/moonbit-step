@@ -69,9 +69,10 @@ async fn main {
     abort("")
   }
 
-  // Generate circular profiles.
+  // Generate circular profiles. The hole is wound opposite to the outer
+  // boundary so the extruded caps and side faces share edges consistently.
   let outer = @cad.Profile2D::circle(od, segments~)
-  let hole = @cad.Profile2D::circle(id, segments~)
+  let hole = @cad.Profile2D::circle(id, segments~).rev()
 
   // Create the washer as an extruded profile with a hole.
   let washer = @cad.ExtrudedProfile::new(outer, thickness, holes=[hole])

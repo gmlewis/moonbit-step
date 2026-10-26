@@ -25,9 +25,19 @@ pub struct StepContext {
 }
 
 ///|
+/// near_zero_double clears floating-point residue without grid-snapping.
+fn near_zero_double(v : Double) -> Double {
+  if v.abs() < 1.0e-12 {
+    0.0
+  } else {
+    v
+  }
+}
+
+///|
 pub fn snap_double(v : Double, snapping : Double?) -> Double {
   match snapping {
-    None => if v.abs() < 1.0e-12 { 0.0 } else { v }
+    None => near_zero_double(v)
     Some(eps) => {
       if eps <= 0.0 {
         return v
@@ -118,16 +128,20 @@ pub fn StepContext::direction(
   y : Double,
   z : Double,
 ) -> @step.Ref {
-  let sx = snap_double(x, self.snapping)
-  let sy = snap_double(y, self.snapping)
-  let sz = snap_double(z, self.snapping)
-  let key = "DIR:\{fmt_double(sx, self.snapping)},\{fmt_double(sy, self.snapping)},\{fmt_double(sz, self.snapping)}"
+  // Direction cosines define plane normals and line directions. Grid-snapping
+  // them (to the coordinate snapping tolerance) tilts a PLANE away from its
+  // snapped boundary and makes an otherwise flat face non-planar, so only
+  // clear floating-point residue and deduplicate on the exact value.
+  let nx = near_zero_double(x)
+  let ny = near_zero_double(y)
+  let nz = near_zero_double(z)
+  let key = "DIR:\{@step.fmt_num(nx)},\{@step.fmt_num(ny)},\{@step.fmt_num(nz)}"
   match self.directions.get(key) {
     Some(r) => r
     None => {
       let r = self.add(
         @repository.any_entity_direction(
-          @geometry.Direction::new("", [sx, sy, sz]),
+          @geometry.Direction::new("", [nx, ny, nz]),
         ),
       )
       self.directions.set(key, r)

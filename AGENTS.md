@@ -68,8 +68,14 @@ The `cad` package follows an **intent-based architecture**. Do not revert to eag
 
 - `moon fmt` is used to format your code properly.
 - `./test-all.sh`: Blazing fast unit tests and format checks. Run this frequently.
+- `scripts/validate_step.py <file.step>`: STEP syntax/reference checks, per-shell
+  edge topology and orientation, PLANE planarity, OCCT checkshape, and
+  watertight tessellation (`--no-mesh` skips tessellation; `--gmsh` adds a
+  second mesher).
 - `scripts/manage_examples.py`: Comprehensive suite for validation, rendering, and README generation.
-  - **Validation**: Uses OCCT to check topological integrity.
+  - **Validation**: `scripts/validate_step.py` checks STEP syntax, references,
+    per-shell topology/orientation, PLANE planarity, OCCT checkshape, and
+    watertight tessellation.
   - **Rendering**: Uses OCCT's `DRAWEXE`. On macOS, this requires a Cocoa/OpenGL context.
   - **macOS Rendering Quirk**: `DRAWEXE` must be called via a STDIN pipe (not script file or `-c`) to properly initialize the Cocoa event loop. It often falls back to `.ppm` files; the script uses `sips` to convert to `.png`.
 - Note that an agent should _NEVER_ have to call `./update.sh` as that is used

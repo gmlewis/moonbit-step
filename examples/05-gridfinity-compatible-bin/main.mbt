@@ -98,12 +98,13 @@ async fn main {
     (total_width, total_length),
     (0.0, total_length),
   ]
+  // The hole is wound opposite to the outer boundary.
   let inner_poly = [
     (WALL_THICKNESS, WALL_THICKNESS),
     (total_width - WALL_THICKNESS, WALL_THICKNESS),
     (total_width - WALL_THICKNESS, total_length - WALL_THICKNESS),
     (WALL_THICKNESS, total_length - WALL_THICKNESS),
-  ]
+  ].rev()
   let wall_height = height - BASE_THICKNESS
   let walls = @cad.ExtrudedProfile::new(outer_poly, wall_height, holes=[
       inner_poly,

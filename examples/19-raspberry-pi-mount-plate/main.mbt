@@ -54,6 +54,14 @@ async fn main {
   let hole_diameter = args.double("holeDiameter")
   let slot_length = args.double("slotLength")
   let slot_width = args.double("slotWidth")
+  // Adjacent slots are 20 mm apart; longer slots would touch and merge into
+  // one non-manifold hole.
+  if slot_length >= 20.0 {
+    @cli.eprintln(
+      "error: --slotLength must be less than 20 (the slot spacing) so adjacent slots do not merge",
+    )
+    abort("")
+  }
   let blend_path = args.string_opt("blend")
   let bpy_path = args.string_opt("bpy")
   let out_path = args.string_opt("out")

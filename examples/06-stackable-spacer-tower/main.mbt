@@ -154,7 +154,8 @@ fn stack_spacer(
   let body_steps : Int32 = 8
   let click_steps : Int32 = 4
   let outer_circle = @cad.Profile2D::circle(od, segments=resolution)
-  let inner_circle = @cad.Profile2D::circle(id, segments=resolution)
+  // Holes are wound opposite to the outer boundary.
+  let inner_circle = @cad.Profile2D::circle(id, segments=resolution).rev()
   let nodes : Array[@cad.SceneNode] = []
 
   // Female bore: largest at the bottom, narrowing to mid + fit_clear at the
@@ -166,7 +167,7 @@ fn stack_spacer(
     let bore = mid + fit_clear + taper_d * (1.0 - zm / height)
     nodes.push(
       @cad.ExtrudedProfile::new(outer_circle, body_step_h, holes=[
-        @cad.Profile2D::circle(bore, segments=resolution),
+        @cad.Profile2D::circle(bore, segments=resolution).rev(),
       ])
       .with_name("spacer-body-\{index}-\{k}")
       .with_color(color)
