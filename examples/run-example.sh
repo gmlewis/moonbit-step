@@ -130,6 +130,17 @@ if (( STL_REQUESTED )); then
     STL_OUT="$EXAMPLE_NAME.stl"
   fi
 
+  # Compare normalized paths so `./cube.stl` and `cube.stl` are recognized.
+  stl_cmp="$STL_OUT"
+  step_cmp="$STEP_OUT"
+  while [[ "$stl_cmp" == ./* ]]; do stl_cmp="${stl_cmp#./}"; done
+  while [[ "$step_cmp" == ./* ]]; do step_cmp="${step_cmp#./}"; done
+  if [[ -n "$STEP_OUT" && "$stl_cmp" == "$step_cmp" ]]; then
+    echo "Error: STL path must differ from the STEP path: $STL_OUT" >&2
+    echo "       Pass the STL path explicitly with -stl=<path>." >&2
+    exit 1
+  fi
+
   if [[ ! -d "$(dirname "$STL_OUT")" ]]; then
     echo "Error: STL output directory does not exist: $(dirname "$STL_OUT")" >&2
     exit 1
