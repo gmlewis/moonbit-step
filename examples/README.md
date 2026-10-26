@@ -15,6 +15,21 @@ You can use this package as:
 - A **replacement** for traditional CAD for projects where programmability and repeatability matter.
 - A **helper** alongside CAD tools: generate tricky geometry (patterns, adapters, fixtures), export STEP, then import into your slicer/CAD tool for finishing touches.
 
+## Running an example
+
+Run an example with `./run-example.sh <number|name> [args...]`. Add `-o file.step`
+to write the STEP file (otherwise it goes to stdout), and add `-stl` to also
+tessellate the generated STEP file into an STL using OpenCASCADE:
+
+```sh
+./run-example.sh 01 -o cube.step -stl              # writes cube.step and cube.stl
+./run-example.sh 01 -stl=my-cube.stl               # names the STL explicitly
+./run-example.sh 38 -o gearbox.step -stl           # prints the STL path and triangle count
+```
+
+`STL_DEFLECTION=<mm>` sets the tessellation tolerance (default `0.05`). The
+`-stl` option needs either `occt-draw` or `DRAWEXE` on `PATH`.
+
 ## Working examples
 
 Each entry below links to a subfolder containing a **working example**: code that generates a STEP model you can open in a CAD viewer or import into a slicer for 3D printing, plus notes on what to tweak and why.
