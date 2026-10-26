@@ -111,6 +111,23 @@ and the tessellation gate daily.
 We use Open CASCADE (`occt-draw` or `DRAWEXE`) to ensure topological validity and generate previews:
 - `./scripts/manage_examples.py all --validate --render --readme`
 
+### Fonts
+Text examples use the `baloo` font from `gmlewis/fonts-b/baloo`. Its data is
+vendored in `assets/fonts/baloo.json.gz` (SIL Open Font License 1.1; see
+[assets/fonts/LICENSE-baloo.txt](assets/fonts/LICENSE-baloo.txt)), so the
+examples work in a fresh checkout without any setup.
+
+`@cad.load_font("name")` checks these paths in order:
+
+1. `./assets/fonts/name.json.gz`
+2. `./all-fonts/name.json.gz`
+3. `$MOONBIT_STEP_ROOT/assets/fonts/name.json.gz`
+4. `$MOONBIT_FONTS_DIR/all-fonts/name.json.gz`
+
+To use another font, set `MOONBIT_FONTS_DIR` to a
+[gmlewis/fonts](https://github.com/gmlewis/moonbit-fonts) checkout containing an
+`all-fonts/` directory.
+
 ## Goals
 
 - Provide a pleasant authoring UX for 3D models in MoonBit.

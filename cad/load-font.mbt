@@ -17,54 +17,63 @@ pub impl Show for LoaderError with fn output(self, logger) {
 }
 
 ///|
-/// `load_font` attempts to load a font by its name from the `all-fonts` directory.
-/// It first looks in the current directory's `all-fonts/` subdirectory.
-/// If not found, it checks the `MOONBIT_FONTS_DIR` environment variable and,
-/// `load_font` attempts to load a font by its simple name from the `all-fonts` directory.
-/// It expects the font to be in a compressed JSON format (e.g., `font_name.json.gz`),
-/// where `font_name` is the short font name (for example, `"baloo"`), not the full
-/// package path. For the `baloo` font from package `gmlewis/fonts-b/baloo`, use
-/// `load_font("baloo")`. If the font is not found, it raises a `LoaderError` with
-/// instructions on how to generate the font.
+/// `load_font` loads a font by its simple name in the compressed JSON format
+/// produced by `gmlewis/fonts` (for example, `baloo.json.gz`).
+///
+/// `font_name` is the short font name (for example, `"baloo"`), not the full
+/// package path. For the `baloo` font from package `gmlewis/fonts-b/baloo`,
+/// use `load_font("baloo")`. The examples' `baloo` font is vendored in
+/// `assets/fonts/`, so a normal checkout needs no environment variable.
+///
+/// Paths are checked in this order:
+///
+/// 1. `./assets/fonts/{font_name}.json.gz`
+/// 2. `./all-fonts/{font_name}.json.gz` (legacy working-directory layout)
+/// 3. `$MOONBIT_STEP_ROOT/assets/fonts/{font_name}.json.gz`
+/// 4. `$MOONBIT_FONTS_DIR/all-fonts/{font_name}.json.gz`
+///
+/// If the font is not found, it raises a `LoaderError` listing every path that
+/// was checked, along with instructions on how to generate the font.
 pub async fn load_font(font_name : String) -> Font raise LoaderError {
-  let local_font_path = "all-fonts/\{font_name}.json.gz"
+  let file_name = "\{font_name}.json.gz"
+  let candidates : Array[String] = [
+    "./assets/fonts/\{file_name}",
+    "./all-fonts/\{file_name}",
+  ]
+  if @env.get_env_var("MOONBIT_STEP_ROOT") is Some(root) {
+    let dir = if root.has_suffix("/") { root } else { "\{root}/" }
+    candidates.push("\{dir}assets/fonts/\{file_name}")
+  }
   let env_dir = @env.get_env_var("MOONBIT_FONTS_DIR")
-  let env_font_path = match env_dir {
-    Some(dir) =>
-      if dir.has_suffix("/") {
-        "\{dir}all-fonts/\{font_name}.json.gz"
-      } else {
-        "\{dir}/all-fonts/\{font_name}.json.gz"
+  if env_dir is Some(dir) {
+    let base = if dir.has_suffix("/") { dir } else { "\{dir}/" }
+    candidates.push("\{base}all-fonts/\{file_name}")
+  }
+  //
+  let mut font_path : String? = None
+  for path in candidates {
+    if font_path is None {
+      let exists = @fs.exists(path) catch { _ => false }
+      if exists {
+        font_path = Some(path)
       }
-    None => ""
-  }
-  //
-  let mut font_path = local_font_path
-  let mut exists = @fs.exists(font_path) catch { _ => false }
-  //
-  if !exists && env_font_path != "" {
-    font_path = env_font_path
-    exists = @fs.exists(font_path) catch { _ => false }
-  }
-  //
-  if !exists {
-    let env_msg = if env_font_path != "" {
-      env_font_path
-    } else {
-      "MOONBIT_FONTS_DIR not set"
     }
+  }
+  //
+  guard font_path is Some(font_path) else {
+    let checked_paths = candidates.map(fn(path) { "- \{path}" }).join("\n")
     let msg =
       $|Font '\{font_name}' not found.
       $|Checked paths:
-      $|- \{local_font_path}
-      $|- \{env_msg}
+      $|\{checked_paths}
       $|
       $|To generate this font, follow these steps:
       $|1. Navigate to the 'gmlewis/fonts' repo directory.
       $|2. Ensure you have the 'all-fonts.txt' file containing '\{font_name}'.
       $|3. Run the generation script:
       $|   python3 scripts/compress-all-fonts.py --force --font \{font_name}
-      $|4. Rerun your program.
+      $|4. Copy 'all-fonts/\{file_name}' to 'assets/fonts/\{file_name}' or set
+      $|   MOONBIT_FONTS_DIR to the fonts repo, then rerun your program.
     try! @stdio.stderr.write(msg + "\n")
     raise LoaderError(
       "Font '\{font_name}' not found. See above for instructions.",

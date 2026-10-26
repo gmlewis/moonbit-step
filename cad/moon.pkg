@@ -25,3 +25,7 @@ import {
   "moonbitlang/core/math",
   "moonbitlang/x/time",
 }
+
+import {
+  "moonbitlang/async",
+} for "test"
