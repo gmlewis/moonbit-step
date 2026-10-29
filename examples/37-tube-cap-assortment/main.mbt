@@ -96,7 +96,7 @@ async fn main {
   }
 
   // 1. The Top Plate (solid disk)
-  let top = @cad.tube(top_dia, 0.0, top_thickness)
+  let top = @cad.Cylinder::new(top_dia, top_thickness)
     .with_name("cap-top")
     .with_color(@cad.Rgb::orange())
     .translate(x=tx, y=ty, z=tz + fitting_height)

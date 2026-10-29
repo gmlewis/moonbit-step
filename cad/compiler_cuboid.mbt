@@ -4,7 +4,9 @@ pub fn compile_cuboid(
   node : SceneNode,
   cuboid : Cuboid,
   reverse~ : Bool = false,
+  parent~ : Transform? = None,
 ) -> Array[@step.Ref] {
+  let xform = node_transform(node, parent)
   let sx = cuboid.sx
   let sy = cuboid.sy
   let sz = cuboid.sz
@@ -21,11 +23,8 @@ pub fn compile_cuboid(
     (0.0, sy, sz),
   ]
 
-  // Transform points: Rotate then Translate
-  let pts = pts_raw.map(fn(pt) {
-    let (rx, ry, rz) = rotate_point(pt, node.rx, node.ry, node.rz)
-    (rx + node.tx, ry + node.ty, rz + node.tz)
-  })
+  // Transform points: Rotate then Translate (parent applied last)
+  let pts = pts_raw.map(fn(pt) { xform.apply(pt) })
   let cp_refs = pts.map(fn(pt) {
     let (px, py, pz) = pt
     ctx.cartesian_point(px, py, pz)
@@ -35,12 +34,12 @@ pub fn compile_cuboid(
   let vp_refs = cp_refs.map(fn(cp_ref) { ctx.vertex_point(cp_ref) })
 
   // Common directions
-  let dx_v = rotate_point((1.0, 0.0, 0.0), node.rx, node.ry, node.rz)
-  let dy_v = rotate_point((0.0, 1.0, 0.0), node.rx, node.ry, node.rz)
-  let dz_v = rotate_point((0.0, 0.0, 1.0), node.rx, node.ry, node.rz)
-  let ndx_v = rotate_point((-1.0, 0.0, 0.0), node.rx, node.ry, node.rz)
-  let ndy_v = rotate_point((0.0, -1.0, 0.0), node.rx, node.ry, node.rz)
-  let ndz_v = rotate_point((0.0, 0.0, -1.0), node.rx, node.ry, node.rz)
+  let dx_v = xform.apply_dir((1.0, 0.0, 0.0))
+  let dy_v = xform.apply_dir((0.0, 1.0, 0.0))
+  let dz_v = xform.apply_dir((0.0, 0.0, 1.0))
+  let ndx_v = xform.apply_dir((-1.0, 0.0, 0.0))
+  let ndy_v = xform.apply_dir((0.0, -1.0, 0.0))
+  let ndz_v = xform.apply_dir((0.0, 0.0, -1.0))
   let dx = ctx.direction(dx_v.0, dx_v.1, dx_v.2)
   let dy = ctx.direction(dy_v.0, dy_v.1, dy_v.2)
   let dz = ctx.direction(dz_v.0, dz_v.1, dz_v.2)

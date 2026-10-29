@@ -144,6 +144,23 @@ fn emit_node_python(
       )
       (obj_var, next_idx)
     }
+    Cylinder(c) => {
+      // Blender has no analytic cylinder path here; approximate with the
+      // faceted extrusion used by `tube()`.
+      let ext = ExtrudedProfile::{
+        profile: {
+          outer: Profile2D::circle(c.diameter, segments=64),
+          holes: [],
+        },
+        height_mm: c.height,
+      }
+      emit_node_python(
+        builder,
+        { ..node, shape: Shape::ExtrudedProfile(ext), },
+        idx,
+        segments~,
+      )
+    }
     CalibrationChamferBlock(b) => {
       let (obj_var, next_idx) = next_var("obj", idx)
       builder.write_string(

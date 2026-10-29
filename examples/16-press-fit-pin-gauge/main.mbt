@@ -123,7 +123,7 @@ fn pin_gauge(
   for i in 0..<step_count {
     let x = Double::from_int(i) * spacing + spacing / 2.0
     let y = -base_width
-    let pin = @cad.tube(pin_diameter, 0.0, pin_height)
+    let pin = @cad.Cylinder::new(pin_diameter, pin_height)
       .with_name("pin-\{i}")
       .with_color(@cad.Rgb::magenta())
       .translate(x~, y~, z=0.0)

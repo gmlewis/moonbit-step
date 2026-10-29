@@ -452,10 +452,20 @@ def check_topology(model: Model) -> list[Check]:
                 edge_uses[edge_id].append((face_id, sense))
         for edge_id, uses in edge_uses.items():
             total_edges += 1
-            if len(uses) != 2 or uses[0][0] == uses[1][0]:
+            if len(uses) != 2:
                 if len(bad_edges) < 5:
                     bad_edges.append(f"#{edge_id} used {len(uses)}x")
-            elif uses[0][1] == uses[1][1]:
+                continue
+            first_face, first_sense = uses[0]
+            second_face, second_sense = uses[1]
+            if first_face == second_face:
+                # A seam edge is used twice by the same face (once in each
+                # direction) to close a periodic surface such as a cylinder.
+                # It is valid only when the two uses have opposite sense.
+                if first_sense == second_sense:
+                    if len(same_edges) < 5:
+                        same_edges.append(f"#{edge_id}")
+            elif first_sense == second_sense:
                 if len(same_edges) < 5:
                     same_edges.append(f"#{edge_id}")
 

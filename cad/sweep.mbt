@@ -35,7 +35,9 @@ fn compile_swept_profile(
   node : SceneNode,
   s : SweptProfile,
   reverse~ : Bool = false,
+  parent~ : Transform? = None,
 ) -> Array[@step.Ref] {
+  let xform = node_transform(node, parent)
   let path = s.path
   let profile = s.profile
   if path.points.length() < 2 || profile.vertices.length() < 3 {
@@ -142,11 +144,8 @@ fn compile_swept_profile(
     }
   }
 
-  // 3. Apply Node transform (Rotate then Translate)
-  let pts = pts_raw.map(fn(pt) {
-    let (rx, ry, rz) = rotate_point(pt, node.rx, node.ry, node.rz)
-    (rx + node.tx, ry + node.ty, rz + node.tz)
-  })
+  // 3. Apply Node transform (Rotate then Translate, parent applied last)
+  let pts = pts_raw.map(fn(pt) { xform.apply(pt) })
 
   // 4. Create STEP entities
   let cp_refs = pts.map(fn(pt) { ctx.cartesian_point(pt.0, pt.1, pt.2) })
@@ -279,7 +278,7 @@ fn compile_swept_profile(
   // Start cap
   if s.make_start_cap {
     let tangent = path.tangents[0]
-    let (tx, ty, tz) = rotate_point(tangent, node.rx, node.ry, node.rz)
+    let (tx, ty, tz) = xform.apply_dir(tangent)
     let expected_out = (-tx, -ty, -tz)
     let hole_cycles : Array[Array[Int32]] = []
     for li in 1..<num_loops {
@@ -302,7 +301,7 @@ fn compile_swept_profile(
   // End cap
   if s.make_end_cap {
     let tangent = path.tangents[num_path_pts - 1]
-    let (tx, ty, tz) = rotate_point(tangent, node.rx, node.ry, node.rz)
+    let (tx, ty, tz) = xform.apply_dir(tangent)
     let expected_out = (tx, ty, tz)
     let offset = (num_path_pts - 1) * num_prof_verts
     let hole_cycles : Array[Array[Int32]] = []

@@ -9,13 +9,15 @@ import {
 }
 
 // Values
-pub fn compile_calibration_chamfer_block(StepContext, SceneNode, CalibrationChamferBlock, reverse? : Bool) -> Array[@step.Ref]
+pub fn compile_calibration_chamfer_block(StepContext, SceneNode, CalibrationChamferBlock, reverse? : Bool, parent? : Transform?) -> Array[@step.Ref]
 
-pub fn compile_cuboid(StepContext, SceneNode, Cuboid, reverse? : Bool) -> Array[@step.Ref]
+pub fn compile_cuboid(StepContext, SceneNode, Cuboid, reverse? : Bool, parent? : Transform?) -> Array[@step.Ref]
 
-pub fn compile_extruded_bezier_profile(StepContext, SceneNode, ExtrudedBezierProfile, reverse? : Bool) -> Array[@step.Ref]
+pub fn compile_cylinder(StepContext, SceneNode, Cylinder, reverse? : Bool, parent? : Transform?) -> Array[@step.Ref]
 
-pub fn compile_extruded_profile(StepContext, SceneNode, ExtrudedProfile, reverse? : Bool) -> Array[@step.Ref]
+pub fn compile_extruded_bezier_profile(StepContext, SceneNode, ExtrudedBezierProfile, reverse? : Bool, parent? : Transform?) -> Array[@step.Ref]
+
+pub fn compile_extruded_profile(StepContext, SceneNode, ExtrudedProfile, reverse? : Bool, parent? : Transform?) -> Array[@step.Ref]
 
 pub fn cycle_area_3d(Array[(Double, Double, Double)], Array[Int32]) -> (Double, Double, Double)
 
@@ -47,6 +49,8 @@ pub fn translate_pts(Array[(Double, Double)], Double, Double) -> Array[(Double, 
 
 pub fn tube(Double, Double, Double, segments? : Int32) -> Shape
 
+pub fn tube_with_fit(Double, Double, Double, fit? : Fit, segments? : Int32) -> Shape
+
 pub fn union_all(Array[SceneNode], name? : String) -> SceneNode
 
 pub async fn write_text_file(String, String?) -> Unit
@@ -60,6 +64,14 @@ pub fn LoaderError::to_string(Self) -> String
 pub impl Show for LoaderError
 
 // Types and methods
+pub struct Angle {
+  // private fields
+}
+pub fn Angle::deg(Double) -> Self
+pub fn Angle::rad(Double) -> Self
+pub fn Angle::to_deg(Self) -> Double
+pub fn Angle::to_rad(Self) -> Double
+
 pub struct BezierAnchor {
   position : (Double, Double)
   handle_in : (Double, Double)
@@ -96,7 +108,14 @@ pub struct Cuboid {
   sy : Double
   sz : Double
 }
+pub fn Cuboid::from_lengths(lx~ : Length, ly~ : Length, lz~ : Length) -> Shape
 pub fn Cuboid::new(Double, Double, Double) -> Shape
+
+pub struct Cylinder {
+  diameter : Double
+  height : Double
+}
+pub fn Cylinder::new(Double, Double) -> Shape
 
 pub struct Design {
   nodes : Array[SceneNode]
@@ -111,18 +130,32 @@ pub fn Design::add_iter(Self, Iter[SceneNode]) -> Self
 pub fn Design::add_text_on_face(Self, SceneNode, String, Face, @fonts.Font, font_size? : Double, emboss_depth? : Double, offset_x? : Double, offset_y? : Double, rotation? : Double, margin? : Double, color? : Rgb, emboss? : Bool, segments? : Int32) -> Self
 pub fn Design::compile(Self) -> @repository.Repository
 pub async fn Design::create_blender_file(Self, String, keep_modifiers? : Bool, segments? : Int32) -> Unit
+pub fn Design::diagnostics(Self) -> Array[Diagnostic]
+pub fn Design::has_errors(Self) -> Bool
 pub fn Design::new(name? : String, description? : String, documentation? : String, snapping? : Double) -> Self
 pub fn Design::rotate_x(Self, Double) -> Self
 pub fn Design::rotate_y(Self, Double) -> Self
 pub fn Design::rotate_z(Self, Double) -> Self
+pub fn Design::to_assembly_step(Self, assembly_name~ : String) -> String
 pub fn Design::to_blender_python(Self, segments? : Int32, keep_modifiers? : Bool) -> String
 pub fn Design::to_step_file(Self) -> String
+pub fn Design::to_step_file_checked(Self) -> String
 pub fn Design::to_string(Self) -> String
 pub fn Design::translate(Self, x? : Double, y? : Double, z? : Double) -> Self
 pub fn Design::with_documentation(Self, String) -> Self
 pub async fn Design::write_blender_python(Self, String?, segments? : Int32, keep_modifiers? : Bool) -> Unit
-pub async fn Design::write_step(Self, String?) -> Unit
-pub async fn Design::write_step_file(Self, String?) -> Unit
+pub async fn Design::write_step(Self, String?, checked? : Bool) -> Unit
+pub async fn Design::write_step_file(Self, String?, checked? : Bool) -> Unit
+
+pub enum Diagnostic {
+  NominalUnion(String)
+  NominalDifference(String)
+  DroppedNestedBoolean(String)
+  EmptySolid(String)
+}
+pub fn Diagnostic::is_nominal(Self) -> Bool
+pub fn Diagnostic::message(Self) -> String
+pub fn Diagnostic::severity(Self) -> Severity
 
 pub(all) struct EdgeInfo {
   start : Int32
@@ -151,6 +184,30 @@ pub(all) enum Face {
   Right
 }
 
+pub(all) enum Fit {
+  Nominal
+  Close
+  Free
+  Press
+}
+pub fn Fit::per_face_mm(Self) -> Double
+
+pub struct Length {
+  // private fields
+}
+pub fn Length::add(Self, Self) -> Self
+pub fn Length::cm(Double) -> Self
+pub fn Length::inches(Double) -> Self
+pub fn Length::m(Double) -> Self
+pub fn Length::mm(Double) -> Self
+pub fn Length::neg(Self) -> Self
+pub fn Length::scale(Self, Double) -> Self
+pub fn Length::sub(Self, Self) -> Self
+pub fn Length::to_mm(Self) -> Double
+pub impl Add for Length
+pub impl Neg for Length
+pub impl Sub for Length
+
 pub(all) struct Matrix3x3 {
   m00 : Double
   m01 : Double
@@ -172,7 +229,9 @@ pub fn Profile2D::add_holes_at(Self, Array[(Double, Double)], Array[(Double, Dou
 pub fn Profile2D::arc(Double, Double, Double, segments? : Int32) -> Array[(Double, Double)]
 pub fn Profile2D::centered_rect(Double, Double) -> Array[(Double, Double)]
 pub fn Profile2D::circle(Double, segments? : Int32) -> Array[(Double, Double)]
+pub fn Profile2D::circle_with_fit(Double, fit~ : Fit, segments? : Int32) -> Array[(Double, Double)]
 pub fn Profile2D::ellipse(Double, Double, segments? : Int32) -> Array[(Double, Double)]
+pub fn Profile2D::hole_with_fit(Double, fit~ : Fit, segments? : Int32) -> Array[(Double, Double)]
 pub fn Profile2D::new(Array[(Double, Double)]) -> Self
 pub fn Profile2D::polygon(Int32, Double, rotation? : Double) -> Array[(Double, Double)]
 pub fn Profile2D::rect(Double, Double) -> Array[(Double, Double)]
@@ -216,8 +275,17 @@ pub fn SceneNode::translate(Self, x? : Double, y? : Double, z? : Double) -> Self
 pub fn SceneNode::with_color(Self, Rgb) -> Self
 pub fn SceneNode::with_name(Self, String) -> Self
 
+pub enum Severity {
+  Info
+  Warning
+  Error
+}
+pub fn Severity::all() -> Array[Self]
+pub fn Severity::is_error(Self) -> Bool
+
 pub enum Shape {
   Cuboid(Cuboid)
+  Cylinder(Cylinder)
   CalibrationChamferBlock(CalibrationChamferBlock)
   ExtrudedProfile(ExtrudedProfile)
   ExtrudedBezierProfile(ExtrudedBezierProfile)
@@ -289,6 +357,16 @@ pub struct SweptProfile {
   straight_outline : Bool
 }
 pub fn SweptProfile::new(path~ : SweepPath, profile~ : SweepProfile, make_start_cap? : Bool, make_end_cap? : Bool, straight_holes? : Bool, straight_outline? : Bool) -> Shape
+
+pub(all) struct Transform {
+  rot : Matrix3x3
+  trans : (Double, Double, Double)
+}
+pub fn Transform::apply(Self, (Double, Double, Double)) -> (Double, Double, Double)
+pub fn Transform::apply_dir(Self, (Double, Double, Double)) -> (Double, Double, Double)
+pub fn Transform::compose(Self, Self) -> Self
+pub fn Transform::from_node(SceneNode) -> Self
+pub fn Transform::identity() -> Self
 
 // Type aliases
 pub using @fonts {type Font}

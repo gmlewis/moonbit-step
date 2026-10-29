@@ -46,6 +46,24 @@ pub fn Cuboid::new(sx : Double, sy : Double, sz : Double) -> Shape {
 }
 
 ///|
+/// Cylinder::new returns a solid right circular cylinder with analytic STEP
+/// geometry (a `CYLINDRICAL_SURFACE` plus two circular `PLANE` caps), centred
+/// on the local Z axis with its base at Z = 0.
+///
+/// Unlike `tube()`, which emits a faceted polyhedron, this emits a three-face
+/// B-Rep that downstream consumers recognise as a true cylinder.
+pub fn Cylinder::new(diameter : Double, height : Double) -> Shape {
+  Shape::Cylinder({ diameter, height, })
+}
+
+///|
+/// Cuboid::from_lengths is `Cuboid::new` with typed dimensions. Mixing a
+/// `Length` with a bare `Double` is a compile-time error.
+pub fn Cuboid::from_lengths(lx~ : Length, ly~ : Length, lz~ : Length) -> Shape {
+  Cuboid::new(lx.to_mm(), ly.to_mm(), lz.to_mm())
+}
+
+///|
 pub fn CalibrationChamferBlock::new(
   length_mm : Double,
   width_mm : Double,
@@ -156,6 +174,26 @@ pub fn tube(
     ExtrudedProfile::new(outer, height)
   } else {
     let hole = Profile2D::circle(inner_diameter, segments~).rev()
+    ExtrudedProfile::new(outer, height, holes=[hole])
+  }
+}
+
+///|
+/// tube_with_fit is `tube()` with the bore's clearance captured as a `Fit`.
+/// Only the void grows: the outer diameter is unchanged. Like `tube()`, it
+/// emits a faceted extrusion; use `Cylinder` for analytic geometry.
+pub fn tube_with_fit(
+  outer_diameter : Double,
+  inner_diameter : Double,
+  height : Double,
+  fit~ : Fit = Nominal,
+  segments~ : Int32 = 64,
+) -> Shape {
+  let outer = Profile2D::circle(outer_diameter, segments~)
+  if inner_diameter <= 0.0 {
+    ExtrudedProfile::new(outer, height)
+  } else {
+    let hole = Profile2D::hole_with_fit(inner_diameter, fit~, segments~)
     ExtrudedProfile::new(outer, height, holes=[hole])
   }
 }

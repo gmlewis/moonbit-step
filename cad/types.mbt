@@ -80,6 +80,14 @@ pub struct Cuboid {
 }
 
 ///|
+/// Cylinder is a solid right circular cylinder whose base lies on the local
+/// Z = 0 plane and whose axis follows +Z through the origin.
+pub struct Cylinder {
+  diameter : Double
+  height : Double
+}
+
+///|
 pub struct CalibrationChamferBlock {
   length_mm : Double
   width_mm : Double
@@ -143,6 +151,7 @@ pub struct ExtrudedBezierProfile {
 ///|
 pub enum Shape {
   Cuboid(Cuboid)
+  Cylinder(Cylinder)
   CalibrationChamferBlock(CalibrationChamferBlock)
   ExtrudedProfile(ExtrudedProfile)
   ExtrudedBezierProfile(ExtrudedBezierProfile)
@@ -218,6 +227,10 @@ pub fn Shape::bounding_box(
 ) -> (Double, Double, Double, Double, Double, Double) {
   match self {
     Cuboid(c) => (0.0, c.sx, 0.0, c.sy, 0.0, c.sz)
+    Cylinder(c) => {
+      let r = c.diameter / 2.0
+      (-r, r, -r, r, 0.0, c.height)
+    }
     CalibrationChamferBlock(b) =>
       (0.0, b.length_mm, 0.0, b.width_mm, 0.0, b.height_mm)
     ExtrudedProfile(e) => {

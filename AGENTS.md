@@ -39,6 +39,15 @@ The `cad` package follows an **intent-based architecture**. Do not revert to eag
    - Maintain the builder pattern (`Shape::new().with_name().translate()`).
    - All transformations should return a new `SceneNode` or `Shape` intent, never mutate the repository directly.
 
+5. **Booleans are nominal in the STEP backend**:
+   - `difference()`/`union_all()` concatenate child faces; they do not trim or
+     subtract. Do not "fix" this by attempting real CSG in the kernel-free
+     writer. Real booleans live in the Blender backend.
+   - A boolean nested inside another boolean contributes no faces and is
+     reported as an error by `Design::diagnostics()`.
+   - Designs containing a nominal boolean carry a one-line notice in the STEP
+     header; `Design::to_step_file_checked()` refuses error designs.
+
 ## Coding convention
 
 - All source code and markdown files should end in a newline.

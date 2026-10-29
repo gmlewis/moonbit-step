@@ -1,15 +1,64 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+usage() {
+  cat <<'EOF'
+run-example.sh — run an example and optionally export a mesh or preview image.
+
+Usage:
+  ./examples/run-example.sh <example> [options...]
+  ./examples/run-example.sh <number>  [options...]     e.g. 01, 1, 39
+
+Wrapper options:
+  -h, --help             Show this help and exit.
+  -stl[=<path>]         Also write a binary STL (default: <step>.stl).
+  --png[=<path>]        Also render a four-view PNG preview (default: <step>.png).
+  -o, --out <path>      Write the STEP file to <path> (default: stdout).
+  --                     Optional separator (ignored).
+
+Output formats for quick previewing:
+  STEP (.step, .stp)     Default. Exact B-Rep; opens in CAD viewers and slicers.
+  STL  (.stl)            Triangulated mesh for slicers/printers. Tessellated by
+                         OCCT; set STL_DEFLECTION=<mm> (default 0.05).
+  PNG  (.png)            Four views (iso/top/front/side) composited so you can
+                         look without a CAD viewer. Requires OCCT DRAWEXE,
+                         macOS 'sips', and Inkscape (falls back to one view
+                         without Inkscape).
+  Blender (.blend)       Editable Blender scene with real booleans. Pass
+                         --blend <path> to the example (when supported).
+  Python (.py)           Blender Python script instead of a .blend. Pass
+                         --bpy <path> to the example (when supported).
+  glTF (.gltf, .glb)     NOT implemented yet; planned as Task 2 in
+                         perfect-prompt.md.
+
+Examples:
+  ./examples/run-example.sh 01 -o cube.step
+  ./examples/run-example.sh 39 -o fits.step -stl
+  ./examples/run-example.sh 39 -o fits.step --png=preview.png
+  ./examples/run-example.sh 03 --name Susan --emboss -o tag.step
+  ./examples/run-example.sh 01 -- --help      # example-specific options
+  ./examples/run-example.sh 01 > cube.step    # STEP to stdout
+
+Notes:
+  - Options other than the wrapper options above are forwarded to the example.
+  - --blend, --bpy, and --nostep suppress STEP output, so they cannot be
+    combined with -stl or --png.
+  - -stl and --png may be used together; both derive from the same STEP file.
+  - STL/PNG previews need OCCT ('occt-draw' or 'DRAWEXE') on PATH.
+EOF
+}
+
+if [[ $# -gt 0 ]]; then
+  case "$1" in
+    -h | --help | help)
+      usage
+      exit 0
+      ;;
+  esac
+fi
+
 if [[ $# -lt 1 ]]; then
-  echo "Usage: $(basename "$0") <example-folder> [args...]" >&2
-  echo "Example: ./examples/$(basename "$0") examples/01-hello-cube --size 20" >&2
-  echo "Example (stdout redirect): ./examples/$(basename "$0") examples/01-hello-cube > my-file.stp" >&2
-  echo "  (Tip: redirections like '> my-file.stp' write to a file in your current directory.)" >&2
-  echo "Example (STL output): ./examples/$(basename "$0") 01 -o cube.step -stl" >&2
-  echo "  (-stl converts the generated STEP file to STL with OCCT; use" >&2
-  echo "   '-stl=<path>' to choose the STL path, or STL_DEFLECTION=<mm> to set" >&2
-  echo "   the tessellation tolerance, default 0.05.)" >&2
+  usage >&2
   exit 2
 fi
 
@@ -65,12 +114,40 @@ fi
 # The resolved folder name (e.g. "01-hello-cube"), used for default file names.
 EXAMPLE_NAME="$(basename "$EXAMPLE_PATH_REL")"
 
+# Strip a leading "./" so a user-provided path and a derived path compare equal.
+normalize_path() {
+  local p="$1"
+  while [[ "$p" == ./* ]]; do p="${p#./}"; done
+  printf '%s' "$p"
+}
+
+# Derive "<step basename>.<ext>" next to the STEP output, or fall back to the
+# example name in the current directory.
+sibling_output() {
+  local ext="$1"
+  if [[ -n "$STEP_OUT" ]]; then
+    local dir base
+    dir="$(dirname "$STEP_OUT")"
+    base="$(basename "$STEP_OUT")"
+    case "$base" in
+      *.*) base="${base%.*}" ;;
+    esac
+    printf '%s/%s.%s' "$dir" "$base" "$ext"
+  else
+    printf '%s.%s' "$EXAMPLE_NAME" "$ext"
+  fi
+}
+
 # --- Forwarded arguments ----------------------------------------------------
-# `-stl` is handled by this wrapper; every other argument is forwarded to the
-# example. `-o`/`--out` is picked out only to locate the generated STEP file.
+# `-stl`, `--png`, and `-h`/`--help` are handled by this wrapper; every other
+# argument is forwarded to the example. `-o`/`--out` is picked out only to
+# locate the generated STEP file.
 STL_REQUESTED=0
 STL_OUT_ARG=""
 STL_OUT=""
+PNG_REQUESTED=0
+PNG_OUT_ARG=""
+PNG_OUT=""
 STEP_OUT=""
 NO_STEP_OUTPUT=0
 FORWARD_ARGS=()
@@ -85,6 +162,13 @@ while (( i < ${#ARGS[@]} )); do
     -stl=* | --stl=*)
       STL_REQUESTED=1
       STL_OUT_ARG="${arg#*=}"
+      ;;
+    -png | --png)
+      PNG_REQUESTED=1
+      ;;
+    -png=* | --png=*)
+      PNG_REQUESTED=1
+      PNG_OUT_ARG="${arg#*=}"
       ;;
     -o | --out)
       FORWARD_ARGS+=("$arg")
@@ -110,46 +194,60 @@ while (( i < ${#ARGS[@]} )); do
   i=$((i + 1))
 done
 
-if (( STL_REQUESTED )); then
+# --- Checked derived outputs ------------------------------------------------
+if (( STL_REQUESTED || PNG_REQUESTED )); then
   if (( NO_STEP_OUTPUT )); then
-    echo "Error: -stl cannot be combined with --blend, --bpy, or --nostep" >&2
+    echo "Error: -stl and --png cannot be combined with --blend, --bpy, or --nostep" >&2
     echo "       because those options suppress the STEP output." >&2
     exit 1
   fi
 
-  if [[ -n "$STL_OUT_ARG" ]]; then
-    STL_OUT="$STL_OUT_ARG"
-  elif [[ -n "$STEP_OUT" ]]; then
-    step_dir="$(dirname "$STEP_OUT")"
-    step_base="$(basename "$STEP_OUT")"
-    case "$step_base" in
-      *.*) step_base="${step_base%.*}" ;;
-    esac
-    STL_OUT="$step_dir/$step_base.stl"
-  else
-    STL_OUT="$EXAMPLE_NAME.stl"
+  if (( STL_REQUESTED )); then
+    if [[ -n "$STL_OUT_ARG" ]]; then
+      STL_OUT="$STL_OUT_ARG"
+    else
+      STL_OUT="$(sibling_output stl)"
+    fi
+  fi
+  if (( PNG_REQUESTED )); then
+    if [[ -n "$PNG_OUT_ARG" ]]; then
+      PNG_OUT="$PNG_OUT_ARG"
+    else
+      PNG_OUT="$(sibling_output png)"
+    fi
   fi
 
-  # Compare normalized paths so `./cube.stl` and `cube.stl` are recognized.
-  stl_cmp="$STL_OUT"
-  step_cmp="$STEP_OUT"
-  while [[ "$stl_cmp" == ./* ]]; do stl_cmp="${stl_cmp#./}"; done
-  while [[ "$step_cmp" == ./* ]]; do step_cmp="${step_cmp#./}"; done
-  if [[ -n "$STEP_OUT" && "$stl_cmp" == "$step_cmp" ]]; then
-    echo "Error: STL path must differ from the STEP path: $STL_OUT" >&2
-    echo "       Pass the STL path explicitly with -stl=<path>." >&2
+  step_cmp="$(normalize_path "$STEP_OUT")"
+  if [[ -n "$STEP_OUT" ]]; then
+    if (( STL_REQUESTED )) && [[ "$(normalize_path "$STL_OUT")" == "$step_cmp" ]]; then
+      echo "Error: STL path must differ from the STEP path: $STL_OUT" >&2
+      echo "       Pass the STL path explicitly with -stl=<path>." >&2
+      exit 1
+    fi
+    if (( PNG_REQUESTED )) && [[ "$(normalize_path "$PNG_OUT")" == "$step_cmp" ]]; then
+      echo "Error: PNG path must differ from the STEP path: $PNG_OUT" >&2
+      echo "       Pass the PNG path explicitly with --png=<path>." >&2
+      exit 1
+    fi
+  fi
+  if (( STL_REQUESTED )) && (( PNG_REQUESTED )) &&
+    [[ "$(normalize_path "$STL_OUT")" == "$(normalize_path "$PNG_OUT")" ]]; then
+    echo "Error: STL and PNG outputs must use different paths." >&2
     exit 1
   fi
-
-  if [[ ! -d "$(dirname "$STL_OUT")" ]]; then
+  if (( STL_REQUESTED )) && [[ ! -d "$(dirname "$STL_OUT")" ]]; then
     echo "Error: STL output directory does not exist: $(dirname "$STL_OUT")" >&2
+    exit 1
+  fi
+  if (( PNG_REQUESTED )) && [[ ! -d "$(dirname "$PNG_OUT")" ]]; then
+    echo "Error: PNG output directory does not exist: $(dirname "$PNG_OUT")" >&2
     exit 1
   fi
 
   # Without -o the example writes STEP to stdout. Capture it in a temporary
-  # file so it does not end up in the terminal or mixed with STL output.
+  # file so it does not end up in the terminal or mixed with the derived output.
   if [[ -z "$STEP_OUT" ]]; then
-    STEP_TMP_DIR="$(mktemp -d "${TMPDIR:-/tmp}/step-stl.XXXXXX")"
+    STEP_TMP_DIR="$(mktemp -d "${TMPDIR:-/tmp}/step-out.XXXXXX")"
     trap 'rm -rf "$STEP_TMP_DIR"' EXIT
     STEP_OUT="$STEP_TMP_DIR/$EXAMPLE_NAME.step"
     FORWARD_ARGS+=(-o "$STEP_OUT")
@@ -224,4 +322,12 @@ if (( STL_REQUESTED )); then
   else
     echo "Wrote $STL_OUT" >&2
   fi
+fi
+
+if (( PNG_REQUESTED )); then
+  if ! python3 "$ROOT_DIR/scripts/render_step.py" "$STEP_OUT" "$PNG_OUT"; then
+    echo "Error: failed to render a PNG preview of $STEP_OUT." >&2
+    exit 1
+  fi
+  echo "Wrote $PNG_OUT" >&2
 fi

@@ -33,6 +33,21 @@ async fn main {
 }
 ```
 
+## Quick previews (no built-in viewer)
+
+The library writes files; it has no embedded viewer. For a fast look:
+
+| Format | How | Notes |
+|---|---|---|
+| STEP | `./examples/run-example.sh 39 -o fits.step` | Exact B-Rep; opens in any CAD viewer or slicer. |
+| STL | `./examples/run-example.sh 39 -o fits.step -stl` | OCCT tessellation; set `STL_DEFLECTION=<mm>` (default 0.05). |
+| PNG | `./examples/run-example.sh 39 -o fits.step --png=preview.png` | Four views (iso/top/front/side); needs OCCT, macOS `sips`, and Inkscape (one view without it). |
+| Blender | `./examples/run-example.sh 39 --blend model.blend` | Real booleans and an editable scene; see below. |
+| glTF | planned | Not implemented yet; see Task 2 in `perfect-prompt.md`. |
+
+Run `./examples/run-example.sh --help` for all wrapper options, or
+`./examples/run-example.sh 39 -- --help` for an example's own parameters.
+
 ## Exporting to Blender (Python)
 
 This repo can generate Blender 5.0 Python scripts that recreate your model with correct physical scale. The generated script uses meters (Blender’s default), while your CAD dimensions remain in millimeters.
@@ -85,6 +100,53 @@ fn parse_example(step_text : String) -> Unit {
 - **Lossless Roundtrips**: Unknown/unmodeled entities are preserved during parse/serialize cycles.
 - **Robust CLI**: Built-in validation, proper `stderr` reporting, and short-circuiting exit codes.
 - **Deterministic**: Serializer output is stable (parse → serialize → parse is idempotent).
+
+### Booleans are nominal
+
+In the STEP backend, `difference()` and `union_all()` are **nominal**: they
+concatenate the faces of their children; they do not trim or subtract. The
+resulting file still describes valid closed shells, but overlapping geometry is
+not resolved. The Blender backend (`create_blender_file` /
+`write_blender_python`) performs real boolean operations instead.
+
+Use `Design::to_step_file_checked()` (or `write_step(..., checked=true)`) as the
+recommended export entry point: it refuses to write a file when the design has
+an error diagnostic, such as a boolean nested inside another boolean (those
+children contribute no faces). `Design::diagnostics()` reports every nominal or
+dropped boolean, and designs containing a nominal boolean carry a one-line
+notice in the STEP header. `to_step_file()` and `write_step()` remain
+unchecked for backward compatibility.
+
+**The toolkit is not limited by this.** The STEP entity layer models real
+boolean and CSG constructs — `BOOLEAN_RESULT` (`.UNION.`, `.INTERSECTION.`,
+`.DIFFERENCE.`), `CSG_SOLID`, `CSG_SHAPE_REPRESENTATION`, `HALF_SPACE_SOLID`, and
+the CSG primitives (`BLOCK`, `SPHERE`, `RIGHT_CIRCULAR_CYLINDER`,
+`RIGHT_CIRCULAR_CONE`, `TORUS`, `RECTANGULAR_PYRAMID`, `RIGHT_ANGULAR_WEDGE`) —
+and any data entity it does not recognize is preserved verbatim as `RawEntity`
+through parse/serialize. So a file containing true booleans, complex surfaces,
+or constructs the DSL does not model can still be represented and handed to a
+full CAD kernel. The nominal caveat applies only to the convenience builders
+`difference()` and `union_all()` in the `@cad` DSL.
+
+### Fits and clearances
+
+`Fit` captures printed-hole clearance as intent instead of a hand-computed
+number: `Nominal` (0.00 mm per face), `Close` (0.10), `Free` (0.25), and
+`Press` (-0.05, interference). Clearance is per face, so the hole diameter
+changes by `2 * per_face_mm()`; only voids grow.
+
+```moonbit
+let hole = @cad.Profile2D::hole_with_fit(5.0, fit=@cad.Fit::Free)
+let plate = @cad.ExtrudedProfile::new(
+  @cad.Profile2D::rect(40.0, 20.0),
+  5.0,
+  holes=[hole],
+)
+```
+
+STEP export stays nominal: a fit changes the modelled void, not a printer
+compensation layer. The values are a starting point for FDM printing, not a
+universal standard.
 
 ## Development & Validation
 

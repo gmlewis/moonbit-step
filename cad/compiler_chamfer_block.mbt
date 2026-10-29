@@ -4,7 +4,9 @@ pub fn compile_calibration_chamfer_block(
   node : SceneNode,
   block : CalibrationChamferBlock,
   reverse~ : Bool = false,
+  parent~ : Transform? = None,
 ) -> Array[@step.Ref] {
+  let xform = node_transform(node, parent)
   let l = block.length_mm
   let w = block.width_mm
   let h = block.height_mm
@@ -47,11 +49,8 @@ pub fn compile_calibration_chamfer_block(
     })
     .collect()
 
-  // Transform all points: Rotate then Translate
-  let pts = pts_raw.map(fn(pt) {
-    let (rx, ry, rz) = rotate_point(pt, node.rx, node.ry, node.rz)
-    (rx + node.tx, ry + node.ty, rz + node.tz)
-  })
+  // Transform all points: Rotate then Translate (parent applied last)
+  let pts = pts_raw.map(fn(pt) { xform.apply(pt) })
 
   // Cartesian points
   let cp_refs = pts.map(fn(pt) {
@@ -101,8 +100,8 @@ pub fn compile_calibration_chamfer_block(
 
   // Faces
   let face_refs : Array[@step.Ref] = []
-  let down_raw = rotate_point((0.0, 0.0, -1.0), node.rx, node.ry, node.rz)
-  let up_raw = rotate_point((0.0, 0.0, 1.0), node.rx, node.ry, node.rz)
+  let down_raw = xform.apply_dir((0.0, 0.0, -1.0))
+  let up_raw = xform.apply_dir((0.0, 0.0, 1.0))
   face_refs.push(
     add_plane_face_oriented(
       ctx,

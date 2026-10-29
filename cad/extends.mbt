@@ -28,3 +28,12 @@ pub extend LoaderError with Show::{output}
 
 ///|
 pub extend Rgb with Debug::{to_repr}
+
+///|
+pub extend Length with Add::{add}
+
+///|
+pub extend Length with Sub::{sub}
+
+///|
+pub extend Length with Neg::{neg}

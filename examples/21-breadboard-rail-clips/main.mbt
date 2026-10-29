@@ -131,7 +131,7 @@ fn breadboard_rail_clip(
     let seat_locs = [(-seat_dist, 0.0), (seat_dist, 0.0)]
     for i, loc in seat_locs {
       let (sy, _) = loc // Centered along World Y (clip length)
-      let seat = @cad.tube(rail_seat_diameter, 0.0, rail_seat_depth)
+      let seat = @cad.Cylinder::new(rail_seat_diameter, rail_seat_depth)
         .with_name("rail-seat-\{i}")
         .with_color(@cad.Rgb::blue())
         .translate(x=0.0, y=sy, z=-arm_thickness - rail_seat_depth)

@@ -29,3 +29,7 @@ import {
 import {
   "moonbitlang/async",
 } for "test"
+
+import {
+  "moonbitlang/core/string",
+} for "wbtest"

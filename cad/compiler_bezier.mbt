@@ -166,6 +166,7 @@ pub fn compile_extruded_bezier_profile(
   node : SceneNode,
   extrusion : ExtrudedBezierProfile,
   reverse~ : Bool = false,
+  parent~ : Transform? = None,
 ) -> Array[@step.Ref] {
   if extrusion.height_mm == 0.0 {
     return []
@@ -176,7 +177,9 @@ pub fn compile_extruded_bezier_profile(
       continue
     }
     let ext = ExtrudedProfile::{ profile, height_mm: extrusion.height_mm, }
-    faces.push_iter(compile_extruded_profile(ctx, node, ext, reverse~).iter())
+    faces.push_iter(
+      compile_extruded_profile(ctx, node, ext, reverse~, parent~).iter(),
+    )
   }
   faces
 }

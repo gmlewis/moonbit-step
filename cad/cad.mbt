@@ -9,6 +9,11 @@
 let step_repo_url : String = "https://github.com/gmlewis/moonbit-step"
 
 ///|
+/// Notice appended to the STEP file description when a design contains a
+/// nominal boolean (one whose faces are concatenated rather than trimmed).
+let nominal_boolean_notice : String = "NOMINAL BOOLEANS: difference()/union_all() concatenate faces; they do not trim or subtract."
+
+///|
 pub struct Design {
   nodes : Array[SceneNode]
   next_solid_id : Int32
@@ -100,8 +105,9 @@ fn add_node_to_ctx(
   node : SceneNode,
   product_defs : Array[@step.Ref],
   shape_reps : Array[@step.Ref],
+  parent~ : Transform? = None,
 ) -> Unit {
-  let brep_ref = compile_node_to_brep(ctx, node)
+  let brep_ref = compile_node_to_brep(ctx, node, parent~)
   add_solid_node_to_ctx(
     ctx,
     node,
@@ -180,8 +186,9 @@ fn compile_node_to_brep(
   ctx : StepContext,
   node : SceneNode,
   reverse~ : Bool = false,
+  parent~ : Transform? = None,
 ) -> @step.Ref {
-  let faces = compile_node_shape(ctx, node, reverse~)
+  let faces = compile_node_shape(ctx, node, reverse~, parent~)
   if faces.is_empty() {
     abort("shape '\{node.name}' produced no faces")
   }
@@ -203,18 +210,22 @@ pub fn Design::compile(self : Design) -> @repository.Repository {
         if u.nodes.length() == 0 {
           continue
         }
+        let parent = Transform::from_node(node)
         if u.nodes.length() == 1 {
           add_node_to_ctx(
             ctx,
             { ..u.nodes[0], name: node.name, },
             product_defs,
             shape_reps,
+            parent=Some(parent),
           )
           continue
         }
         let all_faces : Array[@step.Ref] = []
         for child in u.nodes {
-          all_faces.push_iter(compile_node_shape(ctx, child).iter())
+          all_faces.push_iter(
+            compile_node_shape(ctx, child, parent=Some(parent)).iter(),
+          )
         }
         if all_faces.is_empty() {
           abort("shape '\{node.name}' produced no faces")
@@ -235,20 +246,24 @@ pub fn Design::compile(self : Design) -> @repository.Repository {
         )
       }
       Difference(d) => {
+        let parent = Transform::from_node(node)
         if d.cutters.length() == 0 {
           add_node_to_ctx(
             ctx,
             { ..d.base, name: node.name, },
             product_defs,
             shape_reps,
+            parent=Some(parent),
           )
           continue
         }
         let all_faces : Array[@step.Ref] = []
-        all_faces.push_iter(compile_node_shape(ctx, d.base).iter())
+        all_faces.push_iter(
+          compile_node_shape(ctx, d.base, parent=Some(parent)).iter(),
+        )
         for cutter in d.cutters {
           all_faces.push_iter(
-            compile_node_shape(ctx, cutter, reverse=true).iter(),
+            compile_node_shape(ctx, cutter, reverse=true, parent=Some(parent)).iter(),
           )
         }
         if all_faces.is_empty() {
@@ -275,8 +290,14 @@ pub fn Design::compile(self : Design) -> @repository.Repository {
 
   // Set the header
   let file_name = self.name + ".step"
+  let has_nominal_boolean = self.diagnostics().any(fn(d) { d.is_nominal() })
   ctx.repo = ctx.repo.set_header(
-    default_header(file_name, self.description, self.documentation),
+    default_header(
+      file_name,
+      self.description,
+      self.documentation,
+      nominal=has_nominal_boolean,
+    ),
   )
   ctx.repo
 }
@@ -286,15 +307,18 @@ fn compile_node_shape(
   ctx : StepContext,
   node : SceneNode,
   reverse~ : Bool = false,
+  parent~ : Transform? = None,
 ) -> Array[@step.Ref] {
   match node.shape {
-    Cuboid(c) => compile_cuboid(ctx, node, c, reverse~)
+    Cuboid(c) => compile_cuboid(ctx, node, c, reverse~, parent~)
+    Cylinder(c) => compile_cylinder(ctx, node, c, reverse~, parent~)
     CalibrationChamferBlock(b) =>
-      compile_calibration_chamfer_block(ctx, node, b, reverse~)
-    ExtrudedProfile(e) => compile_extruded_profile(ctx, node, e, reverse~)
+      compile_calibration_chamfer_block(ctx, node, b, reverse~, parent~)
+    ExtrudedProfile(e) =>
+      compile_extruded_profile(ctx, node, e, reverse~, parent~)
     ExtrudedBezierProfile(e) =>
-      compile_extruded_bezier_profile(ctx, node, e, reverse~)
-    SweptProfile(s) => compile_swept_profile(ctx, node, s, reverse~)
+      compile_extruded_bezier_profile(ctx, node, e, reverse~, parent~)
+    SweptProfile(s) => compile_swept_profile(ctx, node, s, reverse~, parent~)
     Difference(_) => []
     _ =>
       // This should not be reached for Union shapes as they are expanded in Design::compile
@@ -303,6 +327,11 @@ fn compile_node_shape(
 }
 
 ///|
+/// Design::to_step_file compiles the design to ISO 10303-21 text.
+///
+/// Booleans are nominal: `difference()`/`union_all()` concatenate faces rather
+/// than trimming or subtracting. Use `to_step_file_checked()` to refuse
+/// designs with error diagnostics.
 pub fn Design::to_step_file(self : Design) -> String {
   self.compile().to_step_file()
 }
@@ -314,14 +343,50 @@ pub fn Design::to_string(self : Design) -> String {
 }
 
 ///|
-pub async fn Design::write_step_file(self : Design, out_path : String?) -> Unit {
-  write_text_file(self.to_step_file(), out_path)
+/// Design::has_errors reports whether the design has any diagnostic that
+/// blocks checked export (nested booleans, empty solids).
+pub fn Design::has_errors(self : Design) -> Bool {
+  self.diagnostics().any(fn(d) { d.severity().is_error() })
 }
 
 ///|
-// Convenience alias: `design.write_step(...)`.
-pub async fn Design::write_step(self : Design, out_path : String?) -> Unit {
-  self.write_step_file(out_path)
+/// Design::to_step_file_checked compiles the design, aborting with the first
+/// error diagnostic instead of emitting plausible-but-wrong geometry.
+pub fn Design::to_step_file_checked(self : Design) -> String {
+  for d in self.diagnostics() {
+    if d.severity().is_error() {
+      abort(d.message())
+    }
+  }
+  self.to_step_file()
+}
+
+///|
+/// Design::write_step_file writes the design as STEP. It is unchecked by
+/// default (booleans stay nominal); pass `checked=true` to abort on error
+/// diagnostics instead.
+pub async fn Design::write_step_file(
+  self : Design,
+  out_path : String?,
+  checked~ : Bool = false,
+) -> Unit {
+  let step = if checked {
+    self.to_step_file_checked()
+  } else {
+    self.to_step_file()
+  }
+  write_text_file(step, out_path)
+}
+
+///|
+/// Convenience alias: `design.write_step(...)`. Unchecked by default; pass
+/// `checked=true` to refuse error designs.
+pub async fn Design::write_step(
+  self : Design,
+  out_path : String?,
+  checked~ : Bool = false,
+) -> Unit {
+  self.write_step_file(out_path, checked~)
 }
 
 ///|
@@ -417,15 +482,21 @@ fn default_header(
   file_name : String,
   description : String,
   documentation : String,
+  nominal~ : Bool = false,
 ) -> @header.HeaderSection {
   let timestamp = now_iso_timestamp()
   let entities : Array[@header.HeaderEntity] = []
   if documentation != "" {
     entities.push(@header.HeaderEntity::Comment(documentation))
   }
+  let description_strings = if nominal {
+    [description, nominal_boolean_notice]
+  } else {
+    [description]
+  }
   entities.push(
     @header.HeaderEntity::FileDescription(
-      @header.FileDescription::new([description], "2;1"),
+      @header.FileDescription::new(description_strings, "2;1"),
     ),
   )
   entities.push(
