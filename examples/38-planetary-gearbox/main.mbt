@@ -217,6 +217,9 @@ async fn main {
       short='o',
       help="Write output to a file (default: stdout)",
     ),
+    "gltf": @cli.opt_string(
+      help="Write a glTF 2.0 (.gltf) preview file (instead of STEP)",
+    ),
     "yUp": @cli.flag(
       help="Keep the native Y-up orientation (gear axes along +Y) instead of rotating the design flat for printing",
     ),
@@ -247,13 +250,18 @@ async fn main {
     resolution: args.int("resolution"),
   }
   let out_path = args.string_opt("out")
+  let gltf_path = args.string_opt("gltf")
   let y_up = args.flag("yUp")
   let cfg = compute_config(params)
   let design = build_design(cfg, args.documentation(), y_up~)
   if out_path is Some(_) {
     print_config(cfg)
   }
-  design.write_step(out_path)
+  if gltf_path is Some(_) {
+    design.to_gltf_file(gltf_path)
+  } else {
+    design.write_step(out_path)
+  }
 }
 
 ///|

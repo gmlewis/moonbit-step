@@ -28,21 +28,23 @@ Output formats for quick previewing:
                          --blend <path> to the example (when supported).
   Python (.py)           Blender Python script instead of a .blend. Pass
                          --bpy <path> to the example (when supported).
-  glTF (.gltf, .glb)     NOT implemented yet; planned as Task 2 in
-                         perfect-prompt.md.
+  glTF (.gltf)           Preview mesh for web/three.js glTF viewers, written by
+                         the example itself. Pass --gltf <path> to the example
+                         (when supported). Coordinates are Z-up.
 
 Examples:
   ./examples/run-example.sh 01 -o cube.step
   ./examples/run-example.sh 39 -o fits.step -stl
   ./examples/run-example.sh 39 -o fits.step --png=preview.png
   ./examples/run-example.sh 03 --name Susan --emboss -o tag.step
+  ./examples/run-example.sh 39 --gltf fits.gltf
   ./examples/run-example.sh 01 -- --help      # example-specific options
   ./examples/run-example.sh 01 > cube.step    # STEP to stdout
 
 Notes:
   - Options other than the wrapper options above are forwarded to the example.
-  - --blend, --bpy, and --nostep suppress STEP output, so they cannot be
-    combined with -stl or --png.
+  - --blend, --bpy, --gltf, and --nostep suppress STEP output, so they cannot
+    be combined with -stl or --png.
   - -stl and --png may be used together; both derive from the same STEP file.
   - STL/PNG previews need OCCT ('occt-draw' or 'DRAWEXE') on PATH.
 EOF
@@ -182,7 +184,7 @@ while (( i < ${#ARGS[@]} )); do
       STEP_OUT="${arg#*=}"
       FORWARD_ARGS+=("$arg")
       ;;
-    --blend | --blend=* | --bpy | --bpy=* | --nostep)
+    --blend | --blend=* | --bpy | --bpy=* | --gltf | --gltf=* | --nostep)
       # These options make the example skip STEP output entirely.
       NO_STEP_OUTPUT=1
       FORWARD_ARGS+=("$arg")
@@ -197,7 +199,7 @@ done
 # --- Checked derived outputs ------------------------------------------------
 if (( STL_REQUESTED || PNG_REQUESTED )); then
   if (( NO_STEP_OUTPUT )); then
-    echo "Error: -stl and --png cannot be combined with --blend, --bpy, or --nostep" >&2
+    echo "Error: -stl and --png cannot be combined with --blend, --bpy, --gltf, or --nostep" >&2
     echo "       because those options suppress the STEP output." >&2
     exit 1
   fi

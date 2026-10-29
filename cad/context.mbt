@@ -10,6 +10,9 @@ pub struct StepContext {
   mut repo_ctx_id : @step.EntityId
   snapping : Double?
 
+  // Entity index for O(1) read-back (glTF/CSG exporters).
+  entities : Map[Int32, @repository.AnyEntity]
+
   // Deduplication caches
   directions : Map[String, @step.Ref]
   vectors : Map[String, @step.Ref]
@@ -97,6 +100,7 @@ pub fn StepContext::new(snapping? : Double) -> StepContext {
     uncertainty_id: { value: 0, },
     repo_ctx_id: { value: 0, },
     snapping,
+    entities: Map([]),
     directions: Map([]),
     vectors: Map([]),
     cartesian_points: Map([]),
@@ -118,6 +122,7 @@ fn StepContext::add(
 ) -> @step.Ref {
   let (repo, id) = self.repo.add(entity)
   self.repo = repo
+  self.entities.set(id.value, entity)
   @step.Ref::{ id, }
 }
 

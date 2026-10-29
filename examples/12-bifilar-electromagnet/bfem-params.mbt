@@ -13,6 +13,7 @@ struct Params {
   out_path : String?
   bpy_path : String?
   blend_path : String?
+  gltf_path : String?
   export_centerlines_path : String?
   export_conductor_network_path : String?
   nostep : Bool

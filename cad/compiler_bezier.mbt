@@ -141,26 +141,28 @@ fn bezier_path_groups(paths : Array[BezierPath]) -> Array[Array[BezierPath]] {
 }
 
 ///|
-/// bezier_profiles groups flattened `BezierPath`s into outer loops and holes.
+/// flatten_group_profile flattens one (outer, holes) group into a `Profile2D`.
 ///
 /// Outers are wound counter-clockwise and holes clockwise, matching
 /// `collect_profiles`.
-fn bezier_profiles(paths : Array[BezierPath]) -> Array[Profile2D] {
-  bezier_path_groups(paths).map(fn(group) {
-    let outer = force_ccw(flatten_bezier_path(group[0]))
-    let holes = group
-      .iter()
-      .drop(1)
-      .map(fn(path) { force_cw(flatten_bezier_path(path)) })
-      .collect()
-    Profile2D::{ outer, holes, }
-  })
+fn flatten_group_profile(group : Array[BezierPath]) -> Profile2D {
+  let outer = force_ccw(flatten_bezier_path(group[0]))
+  let holes = group
+    .iter()
+    .drop(1)
+    .map(fn(path) { force_cw(flatten_bezier_path(path)) })
+    .collect()
+  Profile2D::{ outer, holes, }
 }
 
 ///|
 /// compile_extruded_bezier_profile writes a B-Rep for an
-/// `ExtrudedBezierProfile` by flattening its cubic Beziers into polylines and
-/// delegating each outer/hole group to `compile_extruded_profile`.
+/// `ExtrudedBezierProfile`.
+///
+/// Contours with only straight spans keep the cheap polyline/line path used by
+/// `compile_extruded_profile`. A group with any curved span is emitted with
+/// exact B-spline geometry: one closed cubic `B_SPLINE_CURVE_WITH_KNOTS` per
+/// contour, two planar caps, and a `SURFACE_OF_LINEAR_EXTRUSION` lateral face.
 pub fn compile_extruded_bezier_profile(
   ctx : StepContext,
   node : SceneNode,
@@ -172,14 +174,31 @@ pub fn compile_extruded_bezier_profile(
     return []
   }
   let faces : Array[@step.Ref] = []
-  for profile in bezier_profiles(extrusion.paths) {
-    if profile.outer.length() < 3 {
+  for group in bezier_path_groups(extrusion.paths) {
+    if group.is_empty() {
       continue
     }
-    let ext = ExtrudedProfile::{ profile, height_mm: extrusion.height_mm, }
-    faces.push_iter(
-      compile_extruded_profile(ctx, node, ext, reverse~, parent~).iter(),
-    )
+    if group.any(fn(path) { path_has_curved_span(path) }) {
+      faces.push_iter(
+        compile_curved_bezier_group(
+          ctx,
+          node,
+          group,
+          extrusion.height_mm,
+          reverse~,
+          parent~,
+        ).iter(),
+      )
+    } else {
+      let profile = flatten_group_profile(group)
+      if profile.outer.length() < 3 {
+        continue
+      }
+      let ext = ExtrudedProfile::{ profile, height_mm: extrusion.height_mm, }
+      faces.push_iter(
+        compile_extruded_profile(ctx, node, ext, reverse~, parent~).iter(),
+      )
+    }
   }
   faces
 }

@@ -138,12 +138,16 @@ pub fn Design::rotate_y(Self, Double) -> Self
 pub fn Design::rotate_z(Self, Double) -> Self
 pub fn Design::to_assembly_step(Self, assembly_name~ : String) -> String
 pub fn Design::to_blender_python(Self, segments? : Int32, keep_modifiers? : Bool) -> String
+pub fn Design::to_csg_step(Self) -> String
+pub fn Design::to_gltf(Self) -> String
+pub async fn Design::to_gltf_file(Self, String?) -> Unit
 pub fn Design::to_step_file(Self) -> String
 pub fn Design::to_step_file_checked(Self) -> String
 pub fn Design::to_string(Self) -> String
 pub fn Design::translate(Self, x? : Double, y? : Double, z? : Double) -> Self
 pub fn Design::with_documentation(Self, String) -> Self
 pub async fn Design::write_blender_python(Self, String?, segments? : Int32, keep_modifiers? : Bool) -> Unit
+pub async fn Design::write_csg_step(Self, String?) -> Unit
 pub async fn Design::write_step(Self, String?, checked? : Bool) -> Unit
 pub async fn Design::write_step_file(Self, String?, checked? : Bool) -> Unit
 
@@ -305,6 +309,7 @@ pub struct StepContext {
   mut uncertainty_id : @step.EntityId
   mut repo_ctx_id : @step.EntityId
   snapping : Double?
+  entities : Map[Int32, @repository.AnyEntity]
   directions : Map[String, @step.Ref]
   vectors : Map[String, @step.Ref]
   cartesian_points : Map[String, @step.Ref]

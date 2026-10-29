@@ -70,6 +70,8 @@ async fn main {
       design.create_blender_file(blend_path)
     } else if params.bpy_path is Some(_) {
       design.write_blender_python(params.bpy_path)
+    } else if params.gltf_path is Some(_) {
+      design.to_gltf_file(params.gltf_path)
     } else {
       design.write_step(params.out_path)
     }

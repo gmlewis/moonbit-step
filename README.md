@@ -43,7 +43,7 @@ The library writes files; it has no embedded viewer. For a fast look:
 | STL | `./examples/run-example.sh 39 -o fits.step -stl` | OCCT tessellation; set `STL_DEFLECTION=<mm>` (default 0.05). |
 | PNG | `./examples/run-example.sh 39 -o fits.step --png=preview.png` | Four views (iso/top/front/side); needs OCCT, macOS `sips`, and Inkscape (one view without it). |
 | Blender | `./examples/run-example.sh 39 --blend model.blend` | Real booleans and an editable scene; see below. |
-| glTF | planned | Not implemented yet; see Task 2 in `perfect-prompt.md`. |
+| glTF | `./examples/run-example.sh 39 --gltf fits.gltf` | Z-up JSON with an embedded buffer; opens in web/three.js glTF viewers. Written by the example itself. |
 
 Run `./examples/run-example.sh --help` for all wrapper options, or
 `./examples/run-example.sh 39 -- --help` for an example's own parameters.
@@ -75,6 +75,29 @@ Generate Blender scripts and ".blend" files for all examples:
 
 This produces `.py` and `.blend` files in [bpy-out](bpy-out).
 Each script removes the default cube (if present), recreates the model, and selects all created geometry.
+
+## Exporting to glTF
+
+`Design::to_gltf()` writes a self-contained glTF 2.0 document (embedded base64
+buffer) from the compiled B-Rep, with one mesh/primitive and material per
+`SceneNode`. Coordinates are **Z-up** (the STEP convention); rotate the root
+node by -90 degrees about X if your viewer assumes Y-up. Circular and
+swept-curve bands are tessellated at 64 segments.
+
+```moonbit
+design.to_gltf_file(Some("model.gltf"))
+```
+
+From the included examples, pass `--gltf` (it replaces STEP output, like
+`--blend`/`--bpy`):
+
+```bash
+./examples/run-example.sh 39 --gltf fits.gltf
+```
+
+The exporter tessellates `PLANE`, `CYLINDRICAL_SURFACE`, and
+`SURFACE_OF_LINEAR_EXTRUSION` faces; any other surface aborts with an explicit
+error rather than emitting an invalid mesh.
 
 ## Quick Start (Parsing)
 

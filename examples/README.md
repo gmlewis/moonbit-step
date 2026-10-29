@@ -30,6 +30,16 @@ tessellate the generated STEP file into an STL using OpenCASCADE:
 `STL_DEFLECTION=<mm>` sets the tessellation tolerance (default `0.05`). The
 `-stl` option needs either `occt-draw` or `DRAWEXE` on `PATH`.
 
+To produce a glTF 2.0 preview mesh instead of STEP, pass `--gltf <path>` to the
+example (like `--blend`/`--bpy`, it replaces the STEP output):
+
+```sh
+./run-example.sh 39 --gltf fits.gltf               # Z-up, opens in glTF viewers
+```
+
+Note that glTF is generated from the design in MoonBit, so the wrapper forwards
+`--gltf` to the example rather than deriving it from a STEP file.
+
 ## Working examples
 
 Each entry below links to a subfolder containing a **working example**: code that generates a STEP model you can open in a CAD viewer or import into a slicer for 3D printing, plus notes on what to tweak and why.

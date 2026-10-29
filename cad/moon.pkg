@@ -17,12 +17,14 @@ import {
   "moonbitlang/async/fs",
   "moonbitlang/async/process",
   "moonbitlang/async/stdio",
+  "moonbitlang/core/buffer",
   "moonbitlang/core/builtin",
   "moonbitlang/core/debug",
   "moonbitlang/core/double",
   "moonbitlang/core/encoding/utf8" @encoding/utf8,
   "moonbitlang/core/json",
   "moonbitlang/core/math",
+  "moonbitlang/core/string",
   "moonbitlang/x/time",
 }
 
@@ -31,5 +33,5 @@ import {
 } for "test"
 
 import {
-  "moonbitlang/core/string",
+  "gmlewis/step/parse",
 } for "wbtest"
