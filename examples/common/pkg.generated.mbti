@@ -1,0 +1,39 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "gmlewis/step/examples/common"
+
+import {
+  "gmlewis/step/cad",
+  "gmlewis/step/cli",
+}
+
+// Values
+pub fn output_paths(@cli.Args, nostep? : Bool) -> OutputPaths
+
+pub fn select_output(OutputPaths) -> OutputTarget
+
+pub fn with_output_args(Map[String, @cli.Arg], blend? : Bool, bpy? : Bool, gltf? : Bool, nostep? : Bool, out_help? : String, nostep_help? : String) -> Map[String, @cli.Arg]
+
+pub async fn write_output(@cad.Design, OutputPaths, blender_segments? : Int32, blender_keep_modifiers? : Bool, checked? : Bool) -> Unit
+
+// Errors
+
+// Types and methods
+pub struct OutputPaths {
+  step : String?
+  blend : String?
+  bpy : String?
+  gltf : String?
+  nostep : Bool
+}
+
+pub enum OutputTarget {
+  WriteStep
+  WriteBlend
+  WriteBpy
+  WriteGltf
+  WriteNothing
+}
+
+// Type aliases
+
+// Traits

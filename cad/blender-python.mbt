@@ -6,7 +6,11 @@ pub async fn Design::create_blender_file(
   segments~ : Int32 = 0, // <=0: retain cubic Beziers, >0: convert to polylines with this many segments
 ) -> Unit {
   let bpy_code = self.to_blender_python(segments~, keep_modifiers?)
-  let temp_py_path = "/tmp/temp_blender_script.py"
+  // Use a unique directory: concurrent examples/tests must not race on a
+  // fixed /tmp script path (write_text_file creates the file exclusively).
+  let temp_dir = @fs.tmpdir(prefix="moonbit-blender-")
+  defer @fs.rmdir(temp_dir, recursive=true)
+  let temp_py_path = temp_dir + "/script.py"
   write_text_file(bpy_code, Some(temp_py_path))
   let script_path = match @env.get_env_var("MOONBIT_STEP_ROOT") {
     Some(root) =>

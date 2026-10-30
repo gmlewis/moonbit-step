@@ -40,6 +40,12 @@ example (like `--blend`/`--bpy`, it replaces the STEP output):
 Note that glTF is generated from the design in MoonBit, so the wrapper forwards
 `--gltf` to the example rather than deriving it from a STEP file.
 
+All examples share those output options (`--out`, `--blend`, `--bpy`, `--gltf`,
+and `--nostep` where supported) through the `examples/common` package, so an
+example's `main.mbt` only declares its own geometry parameters. Adding a new
+output format means extending `examples/common/output.mbt` once instead of
+editing every example.
+
 ## Working examples
 
 Each entry below links to a subfolder containing a **working example**: code that generates a STEP model you can open in a CAD viewer or import into a slicer for 3D printing, plus notes on what to tweak and why.

@@ -147,7 +147,7 @@ struct RingGeometry {
 
 ///|
 async fn main {
-  let args_spec = {
+  let base_args_spec = {
     "module": @cli.opt_double(
       3.0,
       short='m',
@@ -213,17 +213,15 @@ async fn main {
       short='s',
       help="Number of points in each curved section of the tooth outline",
     ),
-    "out": @cli.opt_string(
-      short='o',
-      help="Write output to a file (default: stdout)",
-    ),
-    "gltf": @cli.opt_string(
-      help="Write a glTF 2.0 (.gltf) preview file (instead of STEP)",
-    ),
     "yUp": @cli.flag(
       help="Keep the native Y-up orientation (gear axes along +Y) instead of rotating the design flat for printing",
     ),
   }
+  let args_spec = @common.with_output_args(
+    base_args_spec,
+    blend=false,
+    bpy=false,
+  )
   guard @cli.parse(
       args_spec,
       prog="38-planetary-gearbox",
@@ -249,19 +247,14 @@ async fn main {
     outer_thickness: args.double("outerThickness"),
     resolution: args.int("resolution"),
   }
-  let out_path = args.string_opt("out")
-  let gltf_path = args.string_opt("gltf")
+  let output = @common.output_paths(args)
   let y_up = args.flag("yUp")
   let cfg = compute_config(params)
   let design = build_design(cfg, args.documentation(), y_up~)
-  if out_path is Some(_) {
+  if output.step is Some(_) {
     print_config(cfg)
   }
-  if gltf_path is Some(_) {
-    design.to_gltf_file(gltf_path)
-  } else {
-    design.write_step(out_path)
-  }
+  @common.write_output(design, output)
 }
 
 ///|

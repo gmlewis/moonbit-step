@@ -151,6 +151,16 @@ or constructs the DSL does not model can still be represented and handed to a
 full CAD kernel. The nominal caveat applies only to the convenience builders
 `difference()` and `union_all()` in the `@cad` DSL.
 
+`Design::to_csg_step()` / `write_csg_step()` emit the real boolean tree
+(`CSG_SOLID` wrapping `BOOLEAN_RESULT` nodes) instead. OCCT's STEP reader cannot
+consume that tree directly, so `scripts/csg_eval.py` evaluates it as a
+development-time step: it extracts each leaf B-Rep, folds the tree with OCCT's
+`bfuse`/`bcut`/`bcommon`, and writes a flat B-Rep that passes the full
+validator. The library stays kernel-free; the script only needs `DRAWEXE` or
+`occt-draw` installed:
+
+- `python3 scripts/csg_eval.py part-csg.step -o part.step`
+
 ### Fits and clearances
 
 `Fit` captures printed-hole clearance as intent instead of a hand-computed

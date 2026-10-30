@@ -31,20 +31,6 @@ async fn parse_params() -> Params? {
       help="Number of segments per 360-degree turn of helix",
       min=3,
     ),
-    "bpy": @cli.opt_string(
-      help="Write Blender 5.0 Python3 script to a file (instead of STEP)",
-    ),
-    "gltf": @cli.opt_string(
-      help="Write a glTF 2.0 (.gltf) preview file (instead of STEP)",
-    ),
-    "blend": @cli.opt_string(help="Create Blender 5.0 file (instead of STEP)"),
-    "out": @cli.opt_string(
-      short='o',
-      help="Write output to a STEP file (default: stdout)",
-    ),
-    "nostep": @cli.flag(
-      help="Do not write STEP output (neither stdout nor file); useful for pure export/report runs",
-    ),
     "export_centerlines": @cli.opt_string(
       help="Write discretized helix centerlines as JSON (for PEEC/FastHenry workflows); does not affect STEP output",
     ),
@@ -124,7 +110,14 @@ async fn parse_params() -> Params? {
       min_exclusive=true,
     ),
   }
-  let args_spec = @cli.with_translate(base_args_spec)
+  let args_spec = @cli.with_translate(
+    @common.with_output_args(
+      base_args_spec,
+      nostep=true,
+      out_help="Write output to a STEP file (default: stdout)",
+      nostep_help="Do not write STEP output (neither stdout nor file); useful for pure export/report runs",
+    ),
+  )
   guard @cli.parse(
       args_spec,
       prog="12-bifilar-electromagnet",
@@ -145,13 +138,9 @@ async fn parse_params() -> Params? {
     inner_diam: args.double("innerDiam"),
     num_pairs: args.int("numPairs"),
     num_segs: args.int("numSegs"),
-    out_path: args.string_opt("out"),
-    bpy_path: args.string_opt("bpy"),
-    gltf_path: args.string_opt("gltf"),
-    blend_path: args.string_opt("blend"),
+    output: @common.output_paths(args),
     export_centerlines_path: args.string_opt("export_centerlines"),
     export_conductor_network_path: args.string_opt("export_conductor_network"),
-    nostep: args.flag("nostep"),
     wire_width: args.double("wireWidth"),
     wire_gap: args.double("wireGap"),
     tolerance: args.double("tolerance"),

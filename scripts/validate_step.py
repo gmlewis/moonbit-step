@@ -256,6 +256,8 @@ class Model:
     oriented_edges: dict[int, tuple[int, bool]] = field(default_factory=dict)
     edge_loops: dict[int, list[int]] = field(default_factory=dict)
     face_bounds: dict[int, int] = field(default_factory=dict)
+    # FACE_BOUND(...,.T.) keeps the loop direction; .F. reverses it.
+    face_bound_orientation: dict[int, bool] = field(default_factory=dict)
     advanced_faces: dict[int, tuple[list[int], int]] = field(default_factory=dict)
     planes: dict[int, int] = field(default_factory=dict)
     axis2: dict[int, tuple[int, int, int]] = field(default_factory=dict)
@@ -308,6 +310,7 @@ def parse_entities(text: str) -> Model:
         m = RE_FACE_BOUND.match(body)
         if m:
             model.face_bounds[eid] = int(m.group(1))
+            model.face_bound_orientation[eid] = m.group(2) == "T"
             continue
         m = RE_ADVANCED_FACE.match(body)
         if m:
@@ -429,12 +432,15 @@ def check_topology(model: Model) -> list[Check]:
             if loop_id is None or loop_id not in model.edge_loops:
                 ok = False
                 break
+            # A reversed bound reverses every use in its loop.
+            reversed_bound = not model.face_bound_orientation.get(bound_id, True)
             for oe_id in model.edge_loops[loop_id]:
                 oe = model.oriented_edges.get(oe_id)
                 if oe is None:
                     ok = False
                     break
-                uses.append(oe)
+                edge_id, sense = oe
+                uses.append((edge_id, sense != reversed_bound))
         if not ok:
             checks.append(
                 Check("topology", False, f"face #{face_id} has an unparsable bound")

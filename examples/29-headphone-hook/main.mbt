@@ -38,19 +38,8 @@ async fn main {
       help="Radius of the inner fillets (mm)",
       min=0.0,
     ),
-    "blend": @cli.opt_string(help="Create Blender 5.0 file (instead of STEP)"),
-    "bpy": @cli.opt_string(
-      help="Write Blender 5.0 Python3 script to a file (instead of STEP)",
-    ),
-    "gltf": @cli.opt_string(
-      help="Write a glTF 2.0 (.gltf) preview file (instead of STEP)",
-    ),
-    "out": @cli.opt_string(
-      short='o',
-      help="Write output to a file (default: stdout)",
-    ),
   }
-  let args_spec = @cli.with_translate(base_args_spec)
+  let args_spec = @cli.with_translate(@common.with_output_args(base_args_spec))
   guard @cli.parse(
       args_spec,
       prog="29-headphone-hook",
@@ -65,10 +54,7 @@ async fn main {
   let mount_h = args.double("mountHeight")
   let t = args.double("thickness")
   let r = args.double("filletRadius")
-  let blend_path = args.string_opt("blend")
-  let bpy_path = args.string_opt("bpy")
-  let gltf_path = args.string_opt("gltf")
-  let out_path = args.string_opt("out")
+  let output = @common.output_paths(args)
   let (tx, ty, tz) = match args.translate_xyz() {
     Some(v) => v
     None => {
@@ -105,15 +91,7 @@ async fn main {
       color=@cad.Rgb::orange(),
     )
     .translate(x=tx, y=ty, z=tz)
-  if blend_path is Some(blend_path) {
-    design.create_blender_file(blend_path)
-  } else if bpy_path is Some(_) {
-    design.write_blender_python(bpy_path)
-  } else if gltf_path is Some(_) {
-    design.to_gltf_file(gltf_path)
-  } else {
-    design.write_step(out_path)
-  }
+  @common.write_output(design, output)
 }
 
 ///|

@@ -124,6 +124,25 @@ class TopologyTests(unittest.TestCase):
         self.assertTrue(failing, "same-direction uses must fail")
         self.assertTrue(any(c.name == "orientation" for c in failing))
 
+    def test_reversed_face_bound_flips_loop_direction(self):
+        # Reversing a FACE_BOUND reverses the loop, so the oriented edges must
+        # be flipped too for the shell to stay consistent. A validator that
+        # ignores the bound orientation would wrongly report a same-direction
+        # shared edge.
+        text = self.cylinder()
+        replacements = [
+            ("#50=FACE_OUTER_BOUND('',#40,.T.);", "#50=FACE_OUTER_BOUND('',#40,.F.);"),
+            ("#30=ORIENTED_EDGE('',*,*,#20,.T.);", "#30=ORIENTED_EDGE('',*,*,#20,.F.);"),
+            ("#31=ORIENTED_EDGE('',*,*,#22,.F.);", "#31=ORIENTED_EDGE('',*,*,#22,.T.);"),
+            ("#32=ORIENTED_EDGE('',*,*,#20,.F.);", "#32=ORIENTED_EDGE('',*,*,#20,.T.);"),
+            ("#33=ORIENTED_EDGE('',*,*,#21,.T.);", "#33=ORIENTED_EDGE('',*,*,#21,.F.);"),
+        ]
+        for old, new in replacements:
+            self.assertIn(old, text)
+            text = text.replace(old, new)
+        checks = v.check_topology(v.parse_entities(text))
+        self.assertTrue(all(c.ok for c in checks), [c.detail for c in checks])
+
 
 if __name__ == "__main__":
     sys.exit(unittest.main())

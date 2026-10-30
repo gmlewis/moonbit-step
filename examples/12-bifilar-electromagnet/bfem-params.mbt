@@ -10,13 +10,9 @@ struct Params {
   inner_diam : Double
   num_pairs : Int32
   num_segs : Int32
-  out_path : String?
-  bpy_path : String?
-  blend_path : String?
-  gltf_path : String?
+  output : @common.OutputPaths
   export_centerlines_path : String?
   export_conductor_network_path : String?
-  nostep : Bool
   wire_width : Double
   wire_gap : Double
   tolerance : Double

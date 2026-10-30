@@ -1,0 +1,12 @@
+import {
+  "gmlewis/step/cad",
+  "gmlewis/step/cli",
+}
+
+import {
+  "moonbitlang/async",
+  "moonbitlang/async/fs",
+  "moonbitlang/core/builtin",
+  "moonbitlang/core/env",
+  "moonbitlang/core/json",
+} for "wbtest"
