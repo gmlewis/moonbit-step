@@ -133,6 +133,18 @@ async test "write_output writes step" {
 }
 
 ///|
+async test "write_output overwrites an existing file" {
+  let dir = @fs.tmpdir(prefix="output-overwrite")
+  defer @fs.rmdir(dir, recursive=true)
+  let path = dir + "/out.step"
+  // Repeated runs must replace the old output rather than leave it stale.
+  @fs.write_file(path, b"stale", permission=0o644)
+  write_output(sample_design(), make_paths(step=path))
+  let text = @fs.read_file(path).text()
+  assert_true(text.has_prefix("ISO-10303-21;"))
+}
+
+///|
 async test "write_output writes gltf" {
   let dir = @fs.tmpdir(prefix="output-gltf")
   defer @fs.rmdir(dir, recursive=true)

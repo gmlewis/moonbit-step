@@ -7,7 +7,7 @@ pub async fn Design::create_blender_file(
 ) -> Unit {
   let bpy_code = self.to_blender_python(segments~, keep_modifiers?)
   // Use a unique directory: concurrent examples/tests must not race on a
-  // fixed /tmp script path (write_text_file creates the file exclusively).
+  // fixed /tmp script path.
   let temp_dir = @fs.tmpdir(prefix="moonbit-blender-")
   defer @fs.rmdir(temp_dir, recursive=true)
   let temp_py_path = temp_dir + "/script.py"
@@ -26,7 +26,8 @@ pub async fn Design::create_blender_file(
   match
     @process.run(script_path, args, stdout=@stdio.stdout, stderr=@stdio.stderr) {
     0 => ()
-    _ => println("failed to write '\{out_path}'")
+    code =>
+      abort("failed to write '\{out_path}': blender exited with status \{code}")
   }
 }
 

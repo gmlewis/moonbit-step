@@ -462,6 +462,10 @@ pub fn Design::translate(
 }
 
 ///|
+/// Writes `text` to `out_path`, or to stdout when `out_path` is `None`.
+///
+/// Existing files are overwritten. I/O errors propagate, so callers (and the
+/// process exit code) see a failed write instead of a stale output file.
 pub async fn write_text_file(text : String, out_path : String?) -> Unit {
   match out_path {
     None => println(text)
@@ -470,10 +474,8 @@ pub async fn write_text_file(text : String, out_path : String?) -> Unit {
         path,
         @encoding/utf8.encode(text),
         permission=0o644,
-        create_mode=@fs.CreateMode::CreateNew,
-      ) catch {
-        err => println("failed to write output: \{err}")
-      }
+        create_mode=@fs.CreateMode::CreateOrTruncate,
+      )
   }
 }
 

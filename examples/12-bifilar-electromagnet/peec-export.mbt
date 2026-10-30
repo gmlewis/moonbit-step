@@ -81,7 +81,7 @@ async fn export_helix_centerlines_json(
     out_path,
     @encoding/utf8.encode(builder.to_string()),
     permission=0o644,
-    create_mode=@fs.CreateMode::CreateNew,
+    create_mode=@fs.CreateMode::CreateOrTruncate,
   ) catch {
     err => {
       @cli.eprintln("error: failed to write centerlines JSON: \{err}")
@@ -211,7 +211,7 @@ async fn export_conductor_network_json(
     out_path,
     @encoding/utf8.encode(builder.to_string()),
     permission=0o644,
-    create_mode=@fs.CreateMode::CreateNew,
+    create_mode=@fs.CreateMode::CreateOrTruncate,
   ) catch {
     err => {
       @cli.eprintln("error: failed to write conductor network JSON: \{err}")
