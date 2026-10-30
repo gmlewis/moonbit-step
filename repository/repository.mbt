@@ -971,6 +971,17 @@ pub fn Repository::len(self : Repository) -> Int32 {
 }
 
 ///|
+/// Repository::each visits every entity in insertion order.
+///
+/// Unlike scanning ids through `get`, this is linear in the entity count and
+/// allocates nothing, so read-back walks (e.g. face discovery) stay cheap.
+pub fn Repository::each(self : Repository, f : (AnyEntity) -> Unit) -> Unit {
+  for entry in self.entities {
+    f(entry.entity)
+  }
+}
+
+///|
 pub fn Repository::get(self : Repository, id : @step.EntityId) -> AnyEntity? {
   for entry in self.entities {
     if entry.id.value == id.value {

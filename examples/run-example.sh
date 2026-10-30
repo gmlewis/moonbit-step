@@ -14,6 +14,9 @@ Wrapper options:
   -stl[=<path>]         Also write a binary STL (default: <step>.stl).
   --png[=<path>]        Also render a four-view PNG preview (default: <step>.png).
   -o, --out <path>      Write the STEP file to <path> (default: stdout).
+  --eval[=<path>]       Evaluate booleans with OCCT and write a real, trimmed
+                        STEP file (default: <example>.step). Requires
+                        occt-draw or DRAWEXE; overrides nominal STEP output.
   --                     Optional separator (ignored).
 
 Output formats for quick previewing:
@@ -151,6 +154,7 @@ PNG_REQUESTED=0
 PNG_OUT_ARG=""
 PNG_OUT=""
 STEP_OUT=""
+EVAL_OUT=""
 NO_STEP_OUTPUT=0
 FORWARD_ARGS=()
 ARGS=("$@")
@@ -184,6 +188,18 @@ while (( i < ${#ARGS[@]} )); do
       STEP_OUT="${arg#*=}"
       FORWARD_ARGS+=("$arg")
       ;;
+    -eval | --eval)
+      FORWARD_ARGS+=("$arg")
+      if (( i + 1 < ${#ARGS[@]} )); then
+        EVAL_OUT="${ARGS[$((i + 1))]}"
+        FORWARD_ARGS+=("$EVAL_OUT")
+        i=$((i + 1))
+      fi
+      ;;
+    -eval=* | --eval=*)
+      EVAL_OUT="${arg#*=}"
+      FORWARD_ARGS+=("$arg")
+      ;;
     --blend | --blend=* | --bpy | --bpy=* | --gltf | --gltf=* | --nostep)
       # These options make the example skip STEP output entirely.
       NO_STEP_OUTPUT=1
@@ -195,6 +211,11 @@ while (( i < ${#ARGS[@]} )); do
   esac
   i=$((i + 1))
 done
+
+# An evaluated export replaces the nominal STEP file, so derive previews from it.
+if [[ -n "$EVAL_OUT" ]]; then
+  STEP_OUT="$EVAL_OUT"
+fi
 
 # --- Checked derived outputs ------------------------------------------------
 if (( STL_REQUESTED || PNG_REQUESTED )); then

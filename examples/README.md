@@ -108,3 +108,5 @@ HEADER;
 - [36-chronos-gear-flower](./36-chronos-gear-flower) - A parametric design with colors and complex symmetry.
 - [37-tube-cap-assortment](./37-tube-cap-assortment) - Endcaps for common tubes (PVC/aluminum) with configurable wall thickness and ribs.
 - [38-planetary-gearbox](./38-planetary-gearbox) - A print-in-place herringbone planetary gearbox (sun, planets, and internal ring gear).
+- [40-face-query-hole](./40-face-query-hole) - Query a compiled block's planar faces and cut a hole into the top face; `--eval` produces a real trimmed solid.
+- [41-flange-bolt-circle](./41-flange-bolt-circle) - A flange with a central bore and bolt circle built from deterministic `Profile2D` constraint helpers.

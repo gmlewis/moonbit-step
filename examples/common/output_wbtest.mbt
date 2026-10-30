@@ -14,13 +14,21 @@ fn make_paths(
   blend? : String,
   bpy? : String,
   gltf? : String,
+  eval? : String,
   nostep? : Bool,
 ) -> OutputPaths {
-  OutputPaths::{ step, blend, bpy, gltf, nostep: nostep.unwrap_or(false), }
+  OutputPaths::{
+    step,
+    blend,
+    bpy,
+    gltf,
+    eval,
+    nostep: nostep.unwrap_or(false),
+  }
 }
 
 ///|
-test "output priority is blend > bpy > gltf > step" {
+test "output priority is blend > bpy > gltf > eval > step" {
   // Nothing requested: the default is STEP on stdout.
   assert_true(select_output(make_paths()) is WriteStep)
 
@@ -28,20 +36,24 @@ test "output priority is blend > bpy > gltf > step" {
   assert_true(select_output(make_paths(blend="a.blend")) is WriteBlend)
   assert_true(select_output(make_paths(bpy="a.py")) is WriteBpy)
   assert_true(select_output(make_paths(gltf="a.gltf")) is WriteGltf)
+  assert_true(select_output(make_paths(eval="a.step")) is WriteStepEvaluated)
   assert_true(select_output(make_paths(step="a.step")) is WriteStep)
 
-  // Priority order is blend > bpy > gltf > step.
+  // Priority order is blend > bpy > gltf > eval > step.
   let all = make_paths(
     step="a.step",
     blend="a.blend",
     bpy="a.py",
     gltf="a.gltf",
+    eval="e.step",
   )
   assert_true(select_output(all) is WriteBlend)
   let bpy_and_gltf = make_paths(step="a.step", bpy="a.py", gltf="a.gltf")
   assert_true(select_output(bpy_and_gltf) is WriteBpy)
-  let gltf_and_step = make_paths(step="a.step", gltf="a.gltf")
-  assert_true(select_output(gltf_and_step) is WriteGltf)
+  let gltf_and_eval = make_paths(step="a.step", gltf="a.gltf", eval="e.step")
+  assert_true(select_output(gltf_and_eval) is WriteGltf)
+  let eval_and_step = make_paths(step="a.step", eval="e.step")
+  assert_true(select_output(eval_and_step) is WriteStepEvaluated)
 
   // --nostep overrides everything.
   let none = make_paths(
@@ -49,6 +61,7 @@ test "output priority is blend > bpy > gltf > step" {
     blend="a.blend",
     bpy="a.py",
     gltf="a.gltf",
+    eval="e.step",
     nostep=true,
   )
   assert_true(select_output(none) is WriteNothing)
@@ -58,23 +71,30 @@ test "output priority is blend > bpy > gltf > step" {
 ///|
 test "with_output_args adds only requested options" {
   let all = with_output_args(Map([]))
-  inspect(all.length(), content="4")
+  inspect(all.length(), content="5")
   assert_true(all.get("blend") is Some(_))
   assert_true(all.get("bpy") is Some(_))
   assert_true(all.get("gltf") is Some(_))
+  assert_true(all.get("eval") is Some(_))
   assert_true(all.get("out") is Some(_))
   assert_true(all.get("nostep") is None)
 
-  let step_only = with_output_args(Map([]), blend=false, bpy=false, gltf=false)
+  let step_only = with_output_args(
+    Map([]),
+    blend=false,
+    bpy=false,
+    gltf=false,
+    eval=false,
+  )
   inspect(step_only.length(), content="1")
   assert_true(step_only.get("out") is Some(_))
 
   let no_gltf = with_output_args(Map([]), gltf=false)
-  inspect(no_gltf.length(), content="3")
+  inspect(no_gltf.length(), content="4")
   assert_true(no_gltf.get("gltf") is None)
 
   let with_nostep = with_output_args(Map([]), nostep=true)
-  inspect(with_nostep.length(), content="5")
+  inspect(with_nostep.length(), content="6")
   assert_true(with_nostep.get("nostep") is Some(_))
 
   // Existing options are preserved.
@@ -83,6 +103,7 @@ test "with_output_args adds only requested options" {
     blend=false,
     bpy=false,
     gltf=false,
+    eval=false,
   )
   inspect(existing.length(), content="2")
   assert_true(existing.get("edge") is Some(_))
@@ -92,7 +113,7 @@ test "with_output_args adds only requested options" {
 async test "output_paths reads parsed args" {
   let spec = with_output_args(Map([]), nostep=true)
   guard @cli.parse(spec, prog="t", cli_args=[
-      "--out", "a.step", "--gltf", "b.gltf", "--nostep",
+      "--out", "a.step", "--gltf", "b.gltf", "--eval", "e.step", "--nostep",
     ])
     is Some(args) else {
     fail("failed to parse args")
@@ -100,6 +121,7 @@ async test "output_paths reads parsed args" {
   let paths = output_paths(args)
   assert_true(paths.step == Some("a.step"))
   assert_true(paths.gltf == Some("b.gltf"))
+  assert_true(paths.eval == Some("e.step"))
   assert_true(paths.blend is None)
   assert_true(paths.bpy is None)
   assert_true(paths.nostep)
@@ -118,8 +140,49 @@ async test "output_paths defaults to step on stdout" {
   assert_true(paths.blend is None)
   assert_true(paths.bpy is None)
   assert_true(paths.gltf is None)
+  assert_true(paths.eval is None)
   assert_true(!paths.nostep)
   assert_true(select_output(paths) is WriteStep)
+}
+
+///|
+async fn command_in_path(name : String) -> Bool {
+  let path = @env.get_env_var("PATH").unwrap_or("")
+  for dir in path.split(":").collect() {
+    let dir = dir.to_owned()
+    if !dir.is_empty() && @fs.exists(dir + "/" + name) {
+      return true
+    }
+  }
+  false
+}
+
+///|
+async test "write_output evaluates booleans when OCCT is available" {
+  // Skipped (no assertion) when OCCT or python3 is not installed.
+  if !command_in_path("python3") ||
+    !(command_in_path("DRAWEXE") || command_in_path("occt-draw")) {
+    return
+  }
+  let dir = @fs.tmpdir(prefix="output-eval")
+  defer @fs.rmdir(dir, recursive=true)
+  let path = dir + "/out.step"
+  let design = @cad.Design::new(name="cut").add(
+    @cad.difference(
+      @cad.Cuboid::new(20.0, 20.0, 5.0).with_name("base"),
+      [
+        @cad.Cylinder::new(6.0, 10.0)
+        .with_name("hole")
+        .translate(x=10.0, y=10.0, z=-2.0),
+      ],
+      name="cut",
+    ),
+  )
+  write_output(design, make_paths(eval=path))
+  let text = @fs.read_file(path).text()
+  assert_true(text.contains("MANIFOLD_SOLID_BREP"))
+  assert_false(text.contains("BOOLEAN_RESULT("))
+  assert_false(text.contains("CSG_SOLID("))
 }
 
 ///|

@@ -10,6 +10,9 @@ pub struct OutputPaths {
   blend : String?
   bpy : String?
   gltf : String?
+  /// Write an OCCT-evaluated STEP file (real trimmed booleans) instead of the
+  /// nominal STEP output.
+  eval : String?
   nostep : Bool
 }
 
@@ -20,6 +23,7 @@ pub enum OutputTarget {
   WriteBlend
   WriteBpy
   WriteGltf
+  WriteStepEvaluated
   WriteNothing
 }
 
@@ -33,9 +37,11 @@ pub fn with_output_args(
   blend~ : Bool = true,
   bpy~ : Bool = true,
   gltf~ : Bool = true,
+  eval~ : Bool = true,
   nostep~ : Bool = false,
   out_help~ : String = "Write output to a file (default: stdout)",
   nostep_help~ : String = "Do not write STEP output (neither stdout nor file); useful for pure export/report runs",
+  eval_help~ : String = "Evaluate booleans with OCCT and write a trimmed STEP file (requires occt-draw or DRAWEXE)",
 ) -> Map[String, @cli.Arg] {
   if blend {
     spec.set(
@@ -59,6 +65,9 @@ pub fn with_output_args(
       ),
     )
   }
+  if eval {
+    spec.set("eval", @cli.opt_string(help=eval_help))
+  }
   spec.set("out", @cli.opt_string(short='o', help=out_help))
   if nostep {
     spec.set("nostep", @cli.flag(help=nostep_help))
@@ -74,12 +83,14 @@ pub fn output_paths(args : @cli.Args, nostep~ : Bool = false) -> OutputPaths {
     blend: args.string_opt("blend"),
     bpy: args.string_opt("bpy"),
     gltf: args.string_opt("gltf"),
+    eval: args.string_opt("eval"),
     nostep: nostep || args.bool_opt("nostep"),
   }
 }
 
 ///|
-/// Selects the exporter. Priority: nostep, then blend > bpy > gltf > step.
+/// Selects the exporter. Priority: nostep, then blend > bpy > gltf > eval >
+/// step.
 pub fn select_output(paths : OutputPaths) -> OutputTarget {
   if paths.nostep {
     WriteNothing
@@ -89,6 +100,8 @@ pub fn select_output(paths : OutputPaths) -> OutputTarget {
     WriteBpy
   } else if paths.gltf is Some(_) {
     WriteGltf
+  } else if paths.eval is Some(_) {
+    WriteStepEvaluated
   } else {
     WriteStep
   }
@@ -125,6 +138,11 @@ pub async fn write_output(
         keep_modifiers?=blender_keep_modifiers,
       )
     WriteGltf => design.to_gltf_file(paths.gltf)
+    WriteStepEvaluated =>
+      match paths.eval {
+        Some(path) => design.write_step_evaluated(Some(path))
+        None => ()
+      }
     WriteNothing => ()
   }
 }

@@ -11,7 +11,7 @@ pub fn output_paths(@cli.Args, nostep? : Bool) -> OutputPaths
 
 pub fn select_output(OutputPaths) -> OutputTarget
 
-pub fn with_output_args(Map[String, @cli.Arg], blend? : Bool, bpy? : Bool, gltf? : Bool, nostep? : Bool, out_help? : String, nostep_help? : String) -> Map[String, @cli.Arg]
+pub fn with_output_args(Map[String, @cli.Arg], blend? : Bool, bpy? : Bool, gltf? : Bool, eval? : Bool, nostep? : Bool, out_help? : String, nostep_help? : String, eval_help? : String) -> Map[String, @cli.Arg]
 
 pub async fn write_output(@cad.Design, OutputPaths, blender_segments? : Int32, blender_keep_modifiers? : Bool, checked? : Bool) -> Unit
 
@@ -23,6 +23,7 @@ pub struct OutputPaths {
   blend : String?
   bpy : String?
   gltf : String?
+  eval : String?
   nostep : Bool
 }
 
@@ -31,6 +32,7 @@ pub enum OutputTarget {
   WriteBlend
   WriteBpy
   WriteGltf
+  WriteStepEvaluated
   WriteNothing
 }
 

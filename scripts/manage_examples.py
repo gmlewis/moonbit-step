@@ -61,6 +61,8 @@ SUITE = {
     "37": [["--diameter", "25.4", "--type", "cap"], ["--diameter", "25.4", "--type", "plug", "--topThickness", "5"], ["--diameter", "50", "--wall", "1.2", "--height", "20"]],
     "38": [["--numTeeth", "12"], ["--numTeeth", "13", "--planetTeeth", "11", "--numElbows", "2"]],
     "39": [["--diameter", "10"], ["--diameter", "6", "--thickness", "3", "--pinHeight", "6", "--spacing", "15"]],
+    "40": [[], ["--hole", "12", "--length", "60", "--width", "50"]],
+    "41": [[], ["--diameter", "80", "--bolts", "8", "--bolt-circle", "30", "--thickness", "10"]],
 }
 
 # --- Utils ---

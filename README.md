@@ -161,6 +161,84 @@ validator. The library stays kernel-free; the script only needs `DRAWEXE` or
 
 - `python3 scripts/csg_eval.py part-csg.step -o part.step`
 
+`Design::write_step_evaluated()` wires that evaluation into the export flow.
+It writes the CSG tree to a temp file, runs `scripts/csg_eval.py` (resolved via
+`$MOONBIT_STEP_ROOT`, falling back to `./scripts/csg_eval.py`), and writes the
+evaluated flat B-Rep. The method is async and aborts with an explicit message
+when the script or OCCT is missing; the nominal paths are unchanged.
+
+```moonbit
+design.write_step_evaluated(Some("part.step"))
+```
+
+Every example accepts `--eval <path>`, and `run-example.sh` supports
+`--eval[=<path>]` (it also derives `-stl`/`--png` previews from the evaluated
+file):
+
+```bash
+./examples/run-example.sh 40 --eval=hole.step --png=hole.png
+```
+
+### Face queries and sketch-on-face
+
+`Design::planar_faces()` compiles the design and walks
+`MANIFOLD_SOLID_BREP -> CLOSED_SHELL -> ADVANCED_FACE -> PLANE`, returning a
+`FaceSet` of planar faces in world coordinates. Each `FaceInfo` carries the
+plane normal, a point on the face, its area, the outer boundary, and a
+right-handed frame (`u`, `v`, `normal`, with `u x v = normal`) so a 2D profile
+can be mapped onto the face. Cylindrical/conical/B-spline faces are skipped.
+
+The query API mirrors MakerCad's `Faces().AlignedWith(...).SortByZ(...)`:
+
+```moonbit
+let block = @cad.Cuboid::new(40.0, 30.0, 10.0).with_name("block")
+let top = @cad.Design::new(name="probe")
+  .add(block)
+  .planar_faces()
+  .aligned_with((0.0, 0.0, 1.0))   // normal parallel to +Z
+  .sort_by_z(ascending=false)      // highest first
+  .first_matching(fn(_f) { true }) // -> FaceInfo?
+
+let profile = @cad.Profile2D::new(@cad.Profile2D::circle(8.0, segments=48))
+let design = @cad.Design::new(name="hole").add(
+  @cad.cut_on_face(
+    block,
+    profile,
+    top,                            // FaceInfo
+    10.0,                           // cut depth
+    center=top.local_xy(top.center()),
+  ),
+)
+```
+
+`Profile2D::on_face` / `ExtrudedProfile::on_face` place a profile in the face
+frame (`into=true` grows inward for a cutter), and `Design::add_profile_on_face`
+adds it as a node. In the flat STEP backend the cut is still **nominal** face
+concatenation; use `write_step_evaluated()` (below) or the Blender backend for
+a real trimmed cut. See `examples/40-face-query-hole`.
+
+### Deterministic profile helpers
+
+`Profile2D` construction helpers compute exact coordinates — no solver runs at
+export time, so the STEP text depends only on your numbers and stays diffable:
+
+```moonbit
+@cad.bolt_circle(6, 22.0)                 // hole centers on a bolt circle
+@cad.grid_of_holes(3, 2, 20.0, 15.0)      // centered, row-major centers
+@cad.point_on_circle(10.0, 90.0)          // one point at an angle
+@cad.midpoint(a, b)
+@cad.project_point_to_line(p, a, b)       // perpendicular foot
+
+let profile = @cad.Profile2D::new(@cad.Profile2D::centered_circle(60.0))
+  .with_hole_at(0.0, 0.0, 20.0)                       // central bore
+  .with_bolt_circle(6, 22.0, 5.0, fit=@cad.Fit::Free) // holes grow by the fit
+let plate = @cad.ExtrudedProfile::new(profile.outer, 8.0, holes=profile.holes)
+```
+
+`with_holes_at` and `with_grid_of_holes` bulk-add holes; every helper returns
+concrete `Array[Vec2]`. `centered_circle` and `tangent_rect` are named aliases
+of `circle` and `rounded_rect`. See `examples/41-flange-bolt-circle`.
+
 ### Fits and clearances
 
 `Fit` captures printed-hole clearance as intent instead of a hand-computed

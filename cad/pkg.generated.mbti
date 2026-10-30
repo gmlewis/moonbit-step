@@ -9,6 +9,8 @@ import {
 }
 
 // Values
+pub fn bolt_circle(Int32, Double, start_angle_deg? : Double) -> Array[(Double, Double)]
+
 pub fn compile_calibration_chamfer_block(StepContext, SceneNode, CalibrationChamferBlock, reverse? : Bool, parent? : Transform?) -> Array[@step.Ref]
 
 pub fn compile_cuboid(StepContext, SceneNode, Cuboid, reverse? : Bool, parent? : Transform?) -> Array[@step.Ref]
@@ -19,15 +21,23 @@ pub fn compile_extruded_bezier_profile(StepContext, SceneNode, ExtrudedBezierPro
 
 pub fn compile_extruded_profile(StepContext, SceneNode, ExtrudedProfile, reverse? : Bool, parent? : Transform?) -> Array[@step.Ref]
 
+pub fn csg_eval_script_path(String?) -> String
+
+pub fn cut_on_face(SceneNode, Profile2D, FaceInfo, Double, name? : String, overshoot? : Double, center? : (Double, Double), color? : Rgb) -> SceneNode
+
 pub fn cycle_area_3d(Array[(Double, Double, Double)], Array[Int32]) -> (Double, Double, Double)
 
 pub fn difference(SceneNode, Array[SceneNode], name? : String) -> SceneNode
+
+pub async fn find_csg_eval_script(String?) -> String?
 
 pub fn fmt_double(Double, Double?) -> String
 
 pub fn force_ccw(Array[(Double, Double)]) -> Array[(Double, Double)]
 
 pub fn force_cw(Array[(Double, Double)]) -> Array[(Double, Double)]
+
+pub fn grid_of_holes(Int32, Int32, Double, Double, center? : (Double, Double)) -> Array[(Double, Double)]
 
 pub fn helix_path(pos? : (Double, Double, Double), size_per_turn? : (Double, Double, Double), num_turns? : Double, num_segs_per_turn? : Int32, start_angle? : Double, clockwise? : Bool) -> SweepPath
 
@@ -37,7 +47,15 @@ pub async fn load_font(String) -> @fonts.Font raise LoaderError
 
 pub fn matrix_to_euler(Matrix3x3) -> (Double, Double, Double)
 
+pub fn midpoint((Double, Double), (Double, Double)) -> (Double, Double)
+
+pub fn planar_faces_of(@repository.Repository) -> Array[FaceInfo]
+
+pub fn point_on_circle(Double, Double) -> (Double, Double)
+
 pub fn polygon_area_2d(Array[(Double, Double)]) -> Double
+
+pub fn project_point_to_line((Double, Double), (Double, Double), (Double, Double)) -> (Double, Double)
 
 pub fn rotate_point((Double, Double, Double), Double, Double, Double) -> (Double, Double, Double)
 
@@ -56,6 +74,10 @@ pub fn union_all(Array[SceneNode], name? : String) -> SceneNode
 pub async fn write_text_file(String, String?) -> Unit
 
 // Errors
+pub suberror CsgEvalError {
+  CsgEvalError(String)
+}
+
 pub suberror LoaderError {
   LoaderError(String)
 } derive(Eq)
@@ -127,12 +149,14 @@ pub struct Design {
 }
 pub fn Design::add(Self, SceneNode) -> Self
 pub fn Design::add_iter(Self, Iter[SceneNode]) -> Self
+pub fn Design::add_profile_on_face(Self, Profile2D, FaceInfo, Double, into? : Bool, offset? : Double, center? : (Double, Double), name? : String, color? : Rgb) -> Self
 pub fn Design::add_text_on_face(Self, SceneNode, String, Face, @fonts.Font, font_size? : Double, emboss_depth? : Double, offset_x? : Double, offset_y? : Double, rotation? : Double, margin? : Double, color? : Rgb, emboss? : Bool, segments? : Int32) -> Self
 pub fn Design::compile(Self) -> @repository.Repository
 pub async fn Design::create_blender_file(Self, String, keep_modifiers? : Bool, segments? : Int32) -> Unit
 pub fn Design::diagnostics(Self) -> Array[Diagnostic]
 pub fn Design::has_errors(Self) -> Bool
 pub fn Design::new(name? : String, description? : String, documentation? : String, snapping? : Double) -> Self
+pub fn Design::planar_faces(Self) -> FaceSet
 pub fn Design::rotate_x(Self, Double) -> Self
 pub fn Design::rotate_y(Self, Double) -> Self
 pub fn Design::rotate_z(Self, Double) -> Self
@@ -141,6 +165,7 @@ pub fn Design::to_blender_python(Self, segments? : Int32, keep_modifiers? : Bool
 pub fn Design::to_csg_step(Self) -> String
 pub fn Design::to_gltf(Self) -> String
 pub async fn Design::to_gltf_file(Self, String?) -> Unit
+pub async fn Design::to_step_evaluated(Self, root? : String?) -> String
 pub fn Design::to_step_file(Self) -> String
 pub fn Design::to_step_file_checked(Self) -> String
 pub fn Design::to_string(Self) -> String
@@ -149,6 +174,7 @@ pub fn Design::with_documentation(Self, String) -> Self
 pub async fn Design::write_blender_python(Self, String?, segments? : Int32, keep_modifiers? : Bool) -> Unit
 pub async fn Design::write_csg_step(Self, String?) -> Unit
 pub async fn Design::write_step(Self, String?, checked? : Bool) -> Unit
+pub async fn Design::write_step_evaluated(Self, String?, root? : String?) -> Unit
 pub async fn Design::write_step_file(Self, String?, checked? : Bool) -> Unit
 
 pub enum Diagnostic {
@@ -178,6 +204,7 @@ pub struct ExtrudedProfile {
   height_mm : Double
 }
 pub fn ExtrudedProfile::new(Array[(Double, Double)], Double, holes? : Array[Array[(Double, Double)]]) -> Shape
+pub fn ExtrudedProfile::on_face(Self, FaceInfo, into? : Bool, offset? : Double, center? : (Double, Double), name? : String, color? : Rgb) -> SceneNode
 
 pub(all) enum Face {
   Top
@@ -187,6 +214,29 @@ pub(all) enum Face {
   Left
   Right
 }
+
+pub struct FaceInfo {
+  normal : (Double, Double, Double)
+  point : (Double, Double, Double)
+  area : Double
+  u : (Double, Double, Double)
+  v : (Double, Double, Double)
+  boundary : Array[(Double, Double, Double)]
+  face_id : Int32
+  surface_id : Int32
+}
+pub fn FaceInfo::center(Self) -> (Double, Double, Double)
+pub fn FaceInfo::local_xy(Self, (Double, Double, Double)) -> (Double, Double)
+
+pub struct FaceSet {
+  faces : Array[FaceInfo]
+}
+pub fn FaceSet::aligned_with(Self, (Double, Double, Double), tol? : Double) -> Self
+pub fn FaceSet::first_matching(Self, (FaceInfo) -> Bool) -> FaceInfo?
+pub fn FaceSet::is_empty(Self) -> Bool
+pub fn FaceSet::length(Self) -> Int32
+pub fn FaceSet::sort_by_z(Self, ascending? : Bool) -> Self
+pub fn FaceSet::to_array(Self) -> Array[FaceInfo]
 
 pub(all) enum Fit {
   Nominal
@@ -231,15 +281,22 @@ pub struct Profile2D {
 pub fn Profile2D::add_hole(Self, Array[(Double, Double)]) -> Self
 pub fn Profile2D::add_holes_at(Self, Array[(Double, Double)], Array[(Double, Double)]) -> Self
 pub fn Profile2D::arc(Double, Double, Double, segments? : Int32) -> Array[(Double, Double)]
+pub fn Profile2D::centered_circle(Double, segments? : Int32) -> Array[(Double, Double)]
 pub fn Profile2D::centered_rect(Double, Double) -> Array[(Double, Double)]
 pub fn Profile2D::circle(Double, segments? : Int32) -> Array[(Double, Double)]
 pub fn Profile2D::circle_with_fit(Double, fit~ : Fit, segments? : Int32) -> Array[(Double, Double)]
 pub fn Profile2D::ellipse(Double, Double, segments? : Int32) -> Array[(Double, Double)]
 pub fn Profile2D::hole_with_fit(Double, fit~ : Fit, segments? : Int32) -> Array[(Double, Double)]
 pub fn Profile2D::new(Array[(Double, Double)]) -> Self
+pub fn Profile2D::on_face(Self, FaceInfo, Double, into? : Bool, offset? : Double, center? : (Double, Double), name? : String, color? : Rgb) -> SceneNode
 pub fn Profile2D::polygon(Int32, Double, rotation? : Double) -> Array[(Double, Double)]
 pub fn Profile2D::rect(Double, Double) -> Array[(Double, Double)]
 pub fn Profile2D::rounded_rect(Double, Double, Double, segments? : Int32) -> Array[(Double, Double)]
+pub fn Profile2D::tangent_rect(Double, Double, Double, segments? : Int32) -> Array[(Double, Double)]
+pub fn Profile2D::with_bolt_circle(Self, Int32, Double, Double, start_angle_deg? : Double, fit? : Fit, segments? : Int32) -> Self
+pub fn Profile2D::with_grid_of_holes(Self, Int32, Int32, Double, Double, Double, center? : (Double, Double), fit? : Fit, segments? : Int32) -> Self
+pub fn Profile2D::with_hole_at(Self, Double, Double, Double, fit? : Fit, segments? : Int32) -> Self
+pub fn Profile2D::with_holes_at(Self, Array[(Double, Double)], Double, fit? : Fit, segments? : Int32) -> Self
 
 pub struct Rgb {
   r : Double
