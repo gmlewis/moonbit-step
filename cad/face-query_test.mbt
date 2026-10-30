@@ -221,11 +221,8 @@ async test "a face-query cut evaluates to a real trimmed solid" {
   assert_false(text.contains("BOOLEAN_RESULT("))
   // Trimming produces many more faces than the six-faced block.
   assert_true(text.split("ADVANCED_FACE(").count() - 1 >= 10)
-  let code = @process.run(
-    "python3",
-    ["./scripts/validate_step.py", "--no-mesh", out],
-    stdout=@stdio.stdout,
-    stderr=@stdio.stderr,
-  )
-  inspect(code, content="0")
+  let (code, output) = run_validator([
+    "./scripts/validate_step.py", "--no-mesh", out,
+  ])
+  assert_validator_ok(code, output)
 }

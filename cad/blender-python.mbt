@@ -21,13 +21,15 @@ pub async fn Design::create_blender_file(
       }
     None => "./scripts/validate-bpy.py"
   }
-  // Now run: ./scripts/validate-bpy.py {temp_py_path} --blend out_path
+  // Now run: ./scripts/validate-bpy.py {temp_py_path} --blend out_path.
+  // Capture the output instead of inheriting stdout: callers may be tests
+  // that talk a structured protocol on stdout.
   let args = [temp_py_path, "--blend", out_path]
-  match
-    @process.run(script_path, args, stdout=@stdio.stdout, stderr=@stdio.stderr) {
-    0 => ()
-    code =>
-      abort("failed to write '\{out_path}': blender exited with status \{code}")
+  let (code, output) = @process.collect_output_merged(script_path, args)
+  if code != 0 {
+    abort(
+      "failed to write '\{out_path}': blender exited with status \{code}:\n\{output.text()}",
+    )
   }
 }
 

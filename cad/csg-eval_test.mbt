@@ -136,11 +136,10 @@ async test "evaluated export writes a real trimmed brep" {
   assert_false(text.contains("BOOLEAN_RESULT("))
   assert_false(text.contains("CSG_SOLID("))
   // The evaluated file must pass the structural validator.
-  let code = @process.run(
-    "python3",
-    [root + "/scripts/validate_step.py", "--no-mesh", out],
-    stdout=@stdio.stdout,
-    stderr=@stdio.stderr,
-  )
-  inspect(code, content="0")
+  let (code, output) = run_validator([
+    root + "/scripts/validate_step.py",
+    "--no-mesh",
+    out,
+  ])
+  assert_validator_ok(code, output)
 }

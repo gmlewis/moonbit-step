@@ -74,15 +74,14 @@ pub async fn Design::to_step_evaluated(
   let input_path = temp_dir + "/input.step"
   let output_path = temp_dir + "/evaluated.step"
   write_text_file(self.to_csg_step(), Some(input_path))
-  let code = @process.run(
-    "python3",
-    [script, input_path, "-o", output_path],
-    stdout=@stdio.stdout,
-    stderr=@stdio.stderr,
-  )
+  // Capture the evaluator's output instead of inheriting stdout: callers may
+  // be tests that talk a structured protocol on stdout.
+  let (code, output) = @process.collect_output_merged("python3", [
+    script, input_path, "-o", output_path,
+  ])
   if code != 0 {
     raise CsgEvalError(
-      "CSG evaluation failed (scripts/csg_eval.py exited with status \{code}); see the error above. Evaluating booleans requires Open CASCADE ('occt-draw' or 'DRAWEXE' on PATH) and a design with a boolean tree.",
+      "CSG evaluation failed (scripts/csg_eval.py exited with status \{code}): \{output.text()}. Evaluating booleans requires Open CASCADE ('occt-draw' or 'DRAWEXE' on PATH) and a design with a boolean tree.",
     )
   }
   if !@fs.exists(output_path) {

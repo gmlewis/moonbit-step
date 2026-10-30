@@ -175,11 +175,8 @@ async test "a flange plate with a bolt circle passes the validator" {
     @encoding/utf8.encode(design.to_step_file()),
     permission=0o644,
   )
-  let code = @process.run(
-    "python3",
-    ["./scripts/validate_step.py", "--no-mesh", out],
-    stdout=@stdio.stdout,
-    stderr=@stdio.stderr,
-  )
-  inspect(code, content="0")
+  let (code, output) = run_validator([
+    "./scripts/validate_step.py", "--no-mesh", out,
+  ])
+  assert_validator_ok(code, output)
 }
