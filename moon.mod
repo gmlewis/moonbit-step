@@ -1,15 +1,15 @@
 name = "gmlewis/step"
 
-version = "0.1.25"
+version = "0.1.26"
 
 import {
   "gmlewis/base64@0.16.14",
-  "gmlewis/flate@0.36.17",
-  "gmlewis/fonts@0.19.19",
-  "gmlewis/gzip@0.34.17",
-  "gmlewis/io@0.23.20",
-  "moonbitlang/async@0.22.5",
-  "moonbitlang/x@0.5.6",
+  "gmlewis/flate@0.36.18",
+  "gmlewis/fonts@0.19.20",
+  "gmlewis/gzip@0.34.18",
+  "gmlewis/io@0.23.21",
+  "moonbitlang/async@0.22.7",
+  "moonbitlang/x@0.5.7",
 }
 
 readme = "README.md"

@@ -2,9 +2,10 @@
 pub using @fonts {type Font}
 
 ///|
+#derive(Eq)
 pub suberror LoaderError {
   LoaderError(String)
-} derive(Eq)
+}
 
 ///|
 pub impl Show for LoaderError with fn output(self, logger) {

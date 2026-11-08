@@ -78,9 +78,10 @@ pub suberror CsgEvalError {
   CsgEvalError(String)
 }
 
+#derive(Eq)
 pub suberror LoaderError {
   LoaderError(String)
-} derive(Eq)
+}
 pub fn LoaderError::equal(Self, Self) -> Bool
 pub fn LoaderError::to_string(Self) -> String
 pub impl Show for LoaderError
@@ -298,11 +299,12 @@ pub fn Profile2D::with_grid_of_holes(Self, Int32, Int32, Double, Double, Double,
 pub fn Profile2D::with_hole_at(Self, Double, Double, Double, fit? : Fit, segments? : Int32) -> Self
 pub fn Profile2D::with_holes_at(Self, Array[(Double, Double)], Double, fit? : Fit, segments? : Int32) -> Self
 
+#derive(@debug.Debug)
 pub struct Rgb {
   r : Double
   g : Double
   b : Double
-} derive(@debug.Debug)
+}
 pub fn Rgb::black() -> Self
 pub fn Rgb::blue() -> Self
 pub fn Rgb::cyan() -> Self

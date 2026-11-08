@@ -5,11 +5,12 @@ pub type Vec2 = (Double, Double)
 pub type Vec3 = (Double, Double, Double)
 
 ///|
+#derive(Debug)
 pub struct Rgb {
   r : Double
   g : Double
   b : Double
-} derive(Debug)
+}
 
 ///|
 pub fn Rgb::new(r : Double, g : Double, b : Double) -> Rgb {
