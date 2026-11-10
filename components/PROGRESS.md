@@ -209,7 +209,17 @@ The full core corpus was downloaded and verified locally (167/167 files).
 
 ## Next tasks (priority order)
 
-1. Add button-head (ISO 7380) and countersunk (ISO 10642) screw builders after
+1. Add an optional exact/arc-capable B-slot6 2020 reference profile. The
+   step.parts `profile_2020_b_slot6_a_l50` has a measured solid section area of
+   about 174.336 mm^2 (volume 8716.82 mm^3 / 50 mm), rounded outer corners, and
+   a lobed core with 2.75 mm-radius arc/cylindrical surfaces. The generic
+   `generic-2020` envelope is 192.345108 mm^2 with sharp corners, a 4.2 mm bore,
+   and simple T-slots; it must not be described as an exact B-slot6 section.
+   Implementing this needs an arc-capable 2D section representation, a named
+   preset with provenance, and a boundary/area comparison against the golden.
+   Verify the reference's per-file license before committing a preset derived
+   from it; otherwise keep the profile generic and label the discrepancy.
+2. Add button-head (ISO 7380) and countersunk (ISO 10642) screw builders after
    verifying the exact dimensional tables.
 2. Replace the approximate internal ring gear with an exact internal involute
    envelope and verify tooth contact in the planetary set.

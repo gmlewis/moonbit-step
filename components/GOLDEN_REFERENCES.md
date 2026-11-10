@@ -157,8 +157,19 @@ parametric values are in `components/testdata/golden/manifest.json`.
 | `fasteners/iso4032-m4` | ISO 4032 M4 | 7.66 x 7.66 x 3.2027 | 7.0 x 8.0829 x 3.2 | height accepted; across-flats not confirmable from bbox |
 | `fasteners/iso7089-m4` | ISO 7089 M4 | 9.0 x 9.0 x 1.8 | 9.0 x 9.0 x 0.8 | **rejected** — thickness contradicts ISO 7089 h = 0.8 |
 | `bearings/608zz` | 608ZZ | 22.0 x 22.0 x 7.0 | 22.0 x 22.0 x 7.0 | accepted (envelope) |
-| `profiles/b-slot6-2020-l50` | 20 x 20 B-type slot-6, 50 mm | 20.0 x 50.0 x 20.0 | 20 x 20 section | envelope accepted; section is manufacturer-specific |
+| `profiles/b-slot6-2020-l50` | 20 x 20 B-type slot-6, 50 mm | 20.0 x 50.0 x 20.0 | generic 20 x 20 section | **section differs materially**; envelope only, exact B-slot6 profile deferred |
 | `gears/spur-m2-z20-bore8` | m2.0, z20, width 16, bore 8 | 44.0 x 44.0 x 16.0 | 44.0 x 44.0 x 16.0 | accepted (envelope) |
+
+The 2020 profile reference is an important known discrepancy, not an accepted
+section match. `profile_2020_b_slot6_a_l50` is a manufacturer-specific B-type
+slot-6 section with a measured volume of 8716.82 mm^3 over 50 mm, so its solid
+section area is about 174.336 mm^2. It has rounded outer corners and a lobed
+core region built from 2.75 mm-radius cylindrical/arc surfaces. The generic
+2020 envelope is 192.345108 mm^2 with sharp corners, a 4.2 mm bore, and simple
+T-slots. The 20 x 20 x 50 envelope matches, but the section does not. Exact
+B-slot6 support is deferred to the next session because it requires an
+arc-capable 2D section representation and verification of the reference's
+provenance/license. See `KNOWN_ISSUES.md` and `perfect-prompt-03.md`.
 
 The two rejected models are the reason for the "verify the golden models
 themselves" rule: a catalog designation is not proof that the model follows

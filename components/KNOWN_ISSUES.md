@@ -61,6 +61,17 @@ and independent validation. See `AUDIT.md` and `PROGRESS.md` for the evidence.
     post inner faces; members no longer interpenetrate. Corner brackets, end
     taps, T-nuts, and fasteners are not modeled. The profile is a generic
     envelope, not a manufacturer-compatible section.
+15. **The generic 2020 profile is not the step.parts B-slot6 profile.** The
+    reference `profile_2020_b_slot6_a_l50` is a manufacturer-specific B-type
+    slot-6 section: 20 x 20 x 50 mm, volume 8716.82 mm^3, so its solid section
+    area is about 174.336 mm^2. It has rounded outer corners and a lobed core
+    region built from 2.75 mm-radius cylindrical/arc surfaces. The generic
+    `generic-2020` envelope is 192.345108 mm^2 with sharp corners, a 4.2 mm
+    bore, and simple T-slots. The two must not be described as equivalent.
+    Exact B-slot6 support is deferred to the next session because it requires
+    an arc-capable 2D section representation and verification of the
+    reference's provenance/license. See `GOLDEN_REFERENCES.md` and
+    `perfect-prompt-03.md`.
 
 ## API / packaging
 
