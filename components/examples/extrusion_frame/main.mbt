@@ -37,7 +37,7 @@ async fn main {
     ),
     "out": @cli.opt_string(short='o', help="Write STEP to this path"),
     "views": @cli.opt_string(
-      help="Write top/front/side/isometric SVG diagnostics to this directory",
+      help="Write top/front/side/isometric/section SVG diagnostics to this directory",
     ),
     "bbox": @cli.flag(help="Print the frame bounding box to stderr"),
   }
@@ -102,8 +102,12 @@ async fn main {
         )
         @cad.write_text_file(svg, Some(dir + "/" + view.file_name()))
       }
+      @cad.write_text_file(
+        profile_section_svg(profile),
+        Some(dir + "/frame-section.svg"),
+      )
       @cli.eprintln(
-        "wrote 4 frame views to " +
+        "wrote frame views (top/front/side/iso/section) to " +
         dir +
         " (" +
         collisions.length().to_string() +

@@ -39,11 +39,11 @@ from pathlib import Path
 
 PROFILES = {
     # name: (width, height, slot_width, neck_depth, slot_depth,
-    #        cavity_width, bore_diameter)
-    "2020": (20.0, 20.0, 6.0, 2.5, 6.0, 11.0, 4.2),
-    "2040": (20.0, 40.0, 6.0, 2.5, 6.0, 11.0, 4.2),
-    "3030": (30.0, 30.0, 8.0, 3.0, 8.0, 14.0, 6.0),
-    "4040": (40.0, 40.0, 8.0, 3.0, 8.0, 14.0, 6.5),
+    #        cavity_width, bore_diameter, wall)
+    "2020": (20.0, 20.0, 6.0, 2.5, 6.0, 11.0, 4.2, 1.8),
+    "2040": (20.0, 40.0, 6.0, 2.5, 6.0, 11.0, 4.2, 1.8),
+    "3030": (30.0, 30.0, 8.0, 3.0, 8.0, 14.0, 6.0, 2.0),
+    "4040": (40.0, 40.0, 8.0, 3.0, 8.0, 14.0, 6.5, 2.5),
 }
 
 # profiles.extrusion() floors the circular resolution at 24 and the
@@ -67,11 +67,27 @@ class SolidMeasurement:
 
 
 def section_area(series: str) -> float:
-    pw, ph, slot_w, neck, depth, cavity, bore = PROFILES[series]
-    # The section is a rectangle with one rectangular T-slot notch on each of
-    # its four sides, minus a regular-polygon approximation of the core bore.
+    pw, ph, slot_w, neck, depth, cavity, bore, wall = PROFILES[series]
+    # The section is a rectangle with one T-slot notch on each of its four
+    # sides. If a rectangular cavity would reach the core corner, the cavity
+    # back is tapered to leave a corner web (matching slot_taper() in
+    # components/profiles/tslot.mbt).
+    rect_half = cavity / 2.0
+    core_x = pw / 2.0 - depth
+    core_y = ph / 2.0 - depth
+    web = wall / 2.0
+    taper = rect_half > core_x - web and rect_half > core_y - web
+    if taper:
+        back_half = min(core_x, core_y) - web
+        shoulder = neck + 0.4 * (depth - neck)
+        notch = (
+            slot_w * neck
+            + cavity * (shoulder - neck)
+            + (cavity + 2.0 * back_half) / 2.0 * (depth - shoulder)
+        )
+    else:
+        notch = slot_w * neck + cavity * (depth - neck)
     base = pw * ph
-    notch = slot_w * neck + cavity * (depth - neck)
     bore_radius = bore / 2.0
     polygon_area = (
         0.5

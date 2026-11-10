@@ -9,6 +9,11 @@
 ///
 /// Dimensions are millimetres and the section is centred on the origin in the
 /// XY plane. `extrusion()` sweeps the section along +Z.
+///
+/// When a rectangular slot cavity would intersect the cavity on the adjacent
+/// face, the cavity back is tapered to leave a solid corner web. The resulting
+/// section has the four characteristic corner "arrows" connected to the
+/// central core, rather than a self-intersecting outline.
 pub(all) struct TSlotProfile {
   name : String
   width_mm : Double
@@ -86,6 +91,14 @@ pub fn TSlotProfile::custom(
       ),
     )
   }
+  let core_min = min_size / 2.0 - slot_depth_mm
+  if core_min <= wall_mm / 2.0 {
+    return Err(
+      @common.InvalidParameter(
+        "slot depth and wall thickness leave no corner web between adjacent slots",
+      ),
+    )
+  }
   Ok({
     name,
     width_mm,
@@ -160,6 +173,28 @@ pub fn TSlotProfile::designation(self : TSlotProfile) -> String {
 }
 
 ///|
+/// slot_taper decides whether the slot cavity must be tapered at the back and,
+/// if so, returns the tapered back half-width.
+///
+/// When a rectangular cavity would reach the core corner and intersect the
+/// cavity on the adjacent face, the cavity back is narrowed to leave a solid
+/// corner web of half thickness `wall / 2`. Without the taper the outline
+/// would be self-intersecting and the exported extrusion would not be a simple
+/// solid section.
+fn slot_taper(profile : TSlotProfile) -> (Bool, Double) {
+  let rect_half = profile.cavity_width_mm / 2.0
+  let core_x = profile.width_mm / 2.0 - profile.slot_depth_mm
+  let core_y = profile.height_mm / 2.0 - profile.slot_depth_mm
+  let web = profile.wall_mm / 2.0
+  if rect_half > core_x - web && rect_half > core_y - web {
+    let core = if core_x < core_y { core_x } else { core_y }
+    (true, core - web)
+  } else {
+    (false, rect_half)
+  }
+}
+
+///|
 /// side_with_slot returns the boundary points along one side, starting at `a`
 /// and including the T-slot, but excluding the far corner `b`.
 fn side_with_slot(
@@ -181,18 +216,34 @@ fn side_with_slot(
   let cavity = profile.cavity_width_mm
   let neck = profile.slot_neck_depth_mm
   let depth = profile.slot_depth_mm
-  let lip = (cavity - w) / 2.0
+  let (taper, back_half) = slot_taper(profile)
+  let rect_half = cavity / 2.0
+  let half = length / 2.0
   let t0 = (length - w) / 2.0
-  let slot_points : Array[@cad.Vec2] = [
-    (t0, 0.0),
-    (t0, neck),
-    (t0 - lip, neck),
-    (t0 - lip, depth),
-    (t0 + w + lip, depth),
-    (t0 + w + lip, neck),
-    (t0 + w, neck),
-    (t0 + w, 0.0),
-  ]
+  let t1 = t0 + w
+  let slot_points : Array[@cad.Vec2] = []
+  slot_points.push((t0, 0.0))
+  slot_points.push((t0, neck))
+  if taper {
+    // Widen to the cavity, then taper the back so the cavity on this face does
+    // not run into the cavity on the adjacent face. The remaining corner
+    // material is the four characteristic "arrow" quadrants, connected to the
+    // central core by a web.
+    let shoulder = neck + 0.4 * (depth - neck)
+    slot_points.push((half - rect_half, neck))
+    slot_points.push((half - rect_half, shoulder))
+    slot_points.push((half - back_half, depth))
+    slot_points.push((half + back_half, depth))
+    slot_points.push((half + rect_half, shoulder))
+    slot_points.push((half + rect_half, neck))
+  } else {
+    slot_points.push((half - rect_half, neck))
+    slot_points.push((half - rect_half, depth))
+    slot_points.push((half + rect_half, depth))
+    slot_points.push((half + rect_half, neck))
+  }
+  slot_points.push((t1, neck))
+  slot_points.push((t1, 0.0))
   let out : Array[@cad.Vec2] = [(ax, ay)]
   for (t, d) in slot_points {
     out.push((ax + ux * t + nx * d, ay + uy * t + ny * d))

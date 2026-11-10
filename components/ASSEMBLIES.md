@@ -108,11 +108,13 @@ contact, `is_connected() == true`, and no disconnected instances for the
 
 ## Visual diagnostics
 
-`components/examples/extrusion_frame --views DIR` writes top, front, side, and
-isometric SVG views. Each member has a stable color, its ID and cut length are
-labelled, and any collision reported by the validator is stroked red and listed
-in the caption. The views are diagnostics only; the numeric tests remain the
-acceptance criterion.
+`components/examples/extrusion_frame --views DIR` writes top, front, side,
+isometric, and cross-section SVG views. Each member has a stable color, its ID
+and cut length are labelled, and any collision reported by the validator is
+stroked red and listed in the caption. The section view draws the actual
+T-slot outer boundary and core bore, so the four corner "arrows" and slot
+cavities are directly visible. The views are diagnostics only; the numeric
+tests remain the acceptance criterion.
 
 ## STEP representation
 

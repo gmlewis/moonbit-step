@@ -150,7 +150,7 @@ documented per component, not hidden.
 | Gear tooth flank | Involute sampled at discrete points | `involute_points` |
 | Gear tip/root arcs | Polygonal arcs | `arc_points` |
 | Bearing rolling elements | Cylindrical proxies, not spheres | `roller_count`, ring thickness |
-| T-slot section | Generic polygon with T notches | profile dimensions, all explicit |
+| T-slot section | Generic polygon with tapered T-slot notches and corner webs ("arrows") | profile dimensions, all explicit |
 | Internal ring gear | Trapezoidal internal tooth form | `tooth_fraction`, tip/root arc points |
 | Head chamfers / fillets | Not modeled | documented limitation |
 

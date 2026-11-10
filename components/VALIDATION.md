@@ -9,7 +9,7 @@ Environment: macOS, MoonBit `moon 0.1.20261104 (940aa18 2026-11-04)`,
 ./test-all.sh
 ```
 
-Result after the correctness audit: **430 tests, 430 passed, 0 failed**
+Result after the correctness audit: **432 tests, 432 passed, 0 failed**
 (baseline before the audit: 408/408; before the component work: 345/345).
 `test-all.sh` also runs `moon fmt` and `moon info --target native`.
 
@@ -47,7 +47,7 @@ Representative results:
 | `iso4014-M8x40.step` | 2 | 11 | OK |
 | `din976-M8x200.step` | 1 | 3 | OK |
 | `kit-M4x20-flat.step` | 5 | 216 | OK |
-| `frame-2020-400x300x500.step` | 12 | 1032 | OK |
+| `frame-2020-400x300x500.step` | 12 | 1128 | OK |
 | `gear-pair-m2-20x40.step` | 2 | 2652 | OK |
 | `planetary-m2-s12-p12-r36-3.step` | 5 | 2598 | OK |
 | `motion-608-stack.step` | 22 | 573 | OK |
@@ -74,14 +74,15 @@ volume, and pairwise overlap. Results:
 
 | Frame | Solids | Worst bbox error | Worst volume error | Positive-volume overlaps | Result |
 |---|---:|---:|---:|---:|---|
-| 400 x 300 x 500 | 12 | 1e-07 mm | 6.26e-07 | 0 | PASS |
-| 600 x 300 x 400 | 12 | 1e-07 mm | 6.26e-07 | 0 | PASS |
-| 45 x 45 x 45 | 12 | 1e-07 mm | 5.35e-07 | 0 | PASS |
+| 400 x 300 x 500 | 12 | 1e-07 mm | 5.61e-07 | 0 | PASS |
+| 600 x 300 x 400 | 12 | 1e-07 mm | 2.42e-06 | 0 | PASS |
+| 45 x 45 x 45 | 12 | 1e-07 mm | 4.79e-07 | 0 | PASS |
 | 400 x 300 x 500, 2040 profile | 12 | 1e-07 mm | 2.19e-06 | 0 | PASS |
 
 The independent section area for the generic 2020 envelope is
-172.185108 mm^2 (rectangle minus four T-slots minus the 48-gon core bore),
-which matches the OCCT-measured volume / cut length to the errors above.
+192.345108 mm^2 (rectangle minus four tapered T-slot notches minus the 48-gon
+core bore), which matches the OCCT-measured volume / cut length to the errors
+above.
 
 ## Golden-reference results
 

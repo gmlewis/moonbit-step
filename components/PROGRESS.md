@@ -77,7 +77,7 @@
 
 ## Current status
 
-- Full test suite is kept green (`./test-all.sh`): **430 tests, 430 passed,
+- Full test suite is kept green (`./test-all.sh`): **432 tests, 432 passed,
   0 failed** (baseline at the start of the audit was 408).
 - Representative generated files pass `scripts/validate_step.py` with OCCT
   `checkshape` and watertight tessellation.
@@ -112,9 +112,9 @@ Additional frame configurations validated independently:
 
 | Frame | Solids | Bbox error | Volume error | Overlaps | Result |
 |---|---:|---:|---:|---:|---|
-| 400 x 300 x 500 | 12 | 1e-07 mm | 6.26e-07 | 0 | PASS |
-| 600 x 300 x 400 | 12 | 1e-07 mm | 6.26e-07 | 0 | PASS |
-| 45 x 45 x 45 | 12 | 1e-07 mm | 5.35e-07 | 0 | PASS |
+| 400 x 300 x 500 | 12 | 1e-07 mm | 5.61e-07 | 0 | PASS |
+| 600 x 300 x 400 | 12 | 1e-07 mm | 2.42e-06 | 0 | PASS |
+| 45 x 45 x 45 | 12 | 1e-07 mm | 4.79e-07 | 0 | PASS |
 | 400 x 300 x 500, 2040 profile | 12 | 1e-07 mm | 2.19e-06 | 0 | PASS |
 
 Commands:
@@ -132,6 +132,23 @@ python3 scripts/validate_frame_geometry.py \
   components/examples/output/frame-2020-400x300x500.step \
   --width 400 --depth 300 --height 500 --series 2020
 ```
+
+### P0 — T-slot cross-section self-intersection
+
+The generic 2020 outline was not a simple polygon: the rectangular cavity from
+each face (11 mm wide, 6 mm deep) reached the core corner at 4 mm and overlapped
+the cavity on the adjacent face. The rendered section looked like blocky pixel
+art rather than four T-slots and four corner arrows.
+
+Fix: when a rectangular cavity would reach the core corner, the cavity back is
+tapered to leave a solid corner web of half thickness `wall_mm / 2`. The
+2040 long-side cavities do not reach the corner and keep the rectangular
+cavity. The new 2020 outer outline area is **206.16 mm²**; the solid section
+area (outer minus the 48-gon bore) is **192.345108 mm²**.
+
+Regression coverage: `profiles_test.mbt` checks that all four presets have
+simple, non-self-intersecting outlines and asserts the 2020 outer area. The
+frame section SVG (`--views`) now draws the actual outer boundary and bore.
 
 ### P1 — planetary phase
 

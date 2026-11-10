@@ -50,6 +50,10 @@ proprietary catalog graphics, or manufacturer part files.
 3. **Engineering assumptions**: generic T-slot presets, bearing ring and roller
    proportions, gear tooth resolution defaults, color choices, and detail
    policies. These are clearly labeled as assumptions, not standard data.
+   The generic T-slot cavity is tapered at the back when a rectangular cavity
+   would intersect the adjacent face's cavity; this is an envelope choice that
+   leaves the four corner webs, not a claim about any manufacturer's cavity
+   profile.
 
 Organization references (metadata only; no document content is reproduced):
 

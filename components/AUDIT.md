@@ -48,6 +48,31 @@ Audit date: 2026-11-09
   the declared semantics; the assembly is built from that schedule.
 - **Status:** closed. See `PROGRESS.md` for the before/after collision report.
 
+### P0-2 — T-slot section cavities overlap at the corners
+
+- **Affected component:** `profiles/tslot` and every extrusion built from it.
+- **Reproduction:** render `TSlotProfile::generic_2020().outline()` (or the
+  frame section view). The rectangular cavity from each face reached the core
+  corner and intersected the cavity on the adjacent face.
+- **Observed:** a self-intersecting 2D outline. The generated section looked
+  like blocky "pixel art"; the four T-slots and corner arrows were not
+  distinguishable as a valid solid section.
+- **Expected:** a simple (non-self-intersecting) polygon with four T-slots,
+  four corner "arrow" solids, and one core bore, all connected.
+- **Root cause:** the cavity was a full rectangle of width `cavity_width` and
+  depth `slot_depth - neck`. In a 20 x 20 section, `cavity_width / 2 = 5.5` and
+  the core corner is at `10 - 6 = 4`, so adjacent cavity rectangles overlap.
+- **Fix:** `slot_taper()` detects when a rectangular cavity would reach the
+  core corner and tapers the cavity back to leave a solid corner web of half
+  thickness `wall_mm / 2`. The four corner solids become the characteristic
+  arrows, connected to the central core. Profiles whose cavities do not reach
+  the corner (for example the 2040 long-side cavities) keep the rectangular
+  cavity.
+- **Regression tests:** `profiles_test.mbt` checks that all four presets have
+  simple outlines and that the 2020 outer area is 206.16 mm^2. The frame STEP
+  gate and the independent volume check were re-run.
+- **Status:** closed.
+
 ### P1-1 — Planetary phase ignored the sun tooth phase
 
 - **Affected component:** `gears/planetary_gear_set`.

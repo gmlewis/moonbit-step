@@ -3,10 +3,13 @@ package "gmlewis/step/components/examples/extrusion_frame"
 
 import {
   "gmlewis/step/components/collision",
+  "gmlewis/step/components/profiles",
 }
 
 // Values
 pub fn frame_view_svg(Array[(String, Double, @collision.Obb)], Array[String], FrameView, Double, Double, Double) -> String
+
+pub fn profile_section_svg(@profiles.TSlotProfile) -> String
 
 // Errors
 
