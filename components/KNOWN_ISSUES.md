@@ -22,12 +22,17 @@ and independent validation. See `AUDIT.md` and `PROGRESS.md` for the evidence.
    real features, but components that are naturally layered export as several
    closed bodies. This is documented per family; do not expect one fused
    manifold from a layered screw.
-2. **No head chamfers or fillets.** Screw and bolt heads are sharp-edged
-   cylinders/hex prisms. The kernel has no general chamfer/fillet shape, and a
-   nominal boolean would not produce a true chamfer.
-3. **No screw tip chamfer or thread runout.** The shank ends are square.
-4. **No socket counterbore/lead-in.** The hexagonal socket is a straight
-   through-hole in the socket ring over a solid floor disc.
+2. **Head chamfers are real but engineering defaults.** ISO 4762 socket-head
+   screws now carry a 45° top-edge chamfer and ISO 4032 nuts a 45° face chamfer
+   at `Detailed` and above, built as real ruled ring stacks. The standard does
+   not fix these chamfer sizes, so the inset is an engineering default
+   documented in the component description. Fillets on these families are not
+   modeled. The chamfered prism side faces are planar facets, not a
+   continuously curved surface.
+3. **No screw tip chamfer or thread runout.** The shank ends are square; thread
+   runout/lead-in is not modeled.
+4. **No socket lead-in chamfer.** The hexagonal sockets are straight
+   through-holes/recesses over a floor; the socket rim is not chamfered.
 5. **Helical thread ridge is an approximation.** It uses the ISO 68-1 basic
    profile and standard pitch, but does not model tolerance classes, root
    radius, flank grind, or runout. It is a real swept helix, not a cosmetic
@@ -42,12 +47,17 @@ and independent validation. See `AUDIT.md` and `PROGRESS.md` for the evidence.
    trapezoidal internal tooth profile. It is visually and kinematically laid
    out but is not an exact internal involute envelope. The existing
    `examples/38-planetary-gearbox` herringbone generator is preserved.
-9. **Bearing balls are not spheres.** Each rolling element is a cylinder with
-   diameter and length equal to the radial gap. Rings are plain tubes; seals,
-   cages, chamfers, and exact internal proportions are omitted.
-10. **Stepped shafts are separate cylinders.** Sharp shoulders, no fillets or
-    undercuts. A true one-body stepped extrusion is not available in the
-    current shape set.
+9. **Bearing rolling elements are analytic spheres; internals are envelope
+   geometry.** Balls are closed `SPHERICAL_SURFACE` solids, and the rings carry
+   an engineering-default edge chamfer at `Detailed` and above. Ball diameter
+   equals the modeled radial gap and the ring proportions are derived from the
+   boundary dimensions, so this is not catalogue-internal geometry. Seals,
+   cages, grooves, and bore chamfers are omitted.
+10. **Stepped shafts are separate cylinders by default.** Sharp shoulders, no
+    fillets or undercuts, at the plain builder. The new
+    `filleted_stepped_shaft` builds a single revolved solid with analytic
+    toroidal shoulder fillets on increasing steps; decreasing steps stay sharp
+    and undercuts are not modeled.
 11. **Springs are simplified.** Open helix with flat end caps; closed/ground
     ends, spring rate, and preload are not modeled.
 12. **Standoffs, pins, and keys have no thread/tolerance model.** They are
@@ -123,16 +133,17 @@ and independent validation. See `AUDIT.md` and `PROGRESS.md` for the evidence.
 
 ## Deferred standards/components
 
-- ISO 7380 button head screws (domed head; needs verified table and a dome
-  representation).
-- ISO 10642 countersunk head screws (conical head; needs a true cone or a
-  documented stepped approximation).
 - ISO 4762 additional lengths and preferred-length series outside the tested
   range.
 - Fine-thread fasteners beyond the first-choice fine pitch per size.
-- Threaded inserts, retaining rings, pins, standoffs, and springs.
-- Exact internal involute ring gears.
+- Threaded inserts, retaining rings, and additional verified nuts/washers.
+- Exact internal involute ring gears and gear root fillets/tip chamfers.
 - Helical gears, bevel gears, worm gears, timing belts/pulleys, sprockets.
 - T-nuts, corner brackets, joining plates, end caps.
 - Motor envelopes and mounting patterns.
 - Machine-readable catalog query API.
+
+Implemented in the feature session (previously deferred): ISO 7380-1 button
+head screws, ISO 10642 countersunk head screws, bearing spheres, the 2D
+chamfer/fillet helpers, `RevolvedProfile`, and `ChamferedPrism`. Their
+approximations are recorded above and in `FEATURES.md`.

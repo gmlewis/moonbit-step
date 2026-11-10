@@ -247,6 +247,8 @@ pub fn any_entity_shell_based_surface_model(@topology.ShellBasedSurfaceModel) ->
 
 pub fn any_entity_sphere(@geometry.Sphere) -> AnyEntity
 
+pub fn any_entity_spherical_surface(@geometry.SphericalSurface) -> AnyEntity
+
 pub fn any_entity_styled_item(@presentation.StyledItem) -> AnyEntity
 
 pub fn any_entity_subface(@topology.Subface) -> AnyEntity
@@ -298,6 +300,7 @@ pub enum AnyEntity {
   Hyperbola(@geometry.Hyperbola)
   CylindricalSurface(@geometry.CylindricalSurface)
   ConicalSurface(@geometry.ConicalSurface)
+  SphericalSurface(@geometry.SphericalSurface)
   ToroidalSurface(@geometry.ToroidalSurface)
   BSplineCurve(@geometry.BSplineCurve)
   BSplineCurveWithKnots(@geometry.BSplineCurveWithKnots)

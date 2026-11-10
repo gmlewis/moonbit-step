@@ -353,6 +353,15 @@ pub fn Sphere::new(String, @step.Ref, Double) -> Self
 pub fn Sphere::to_step(Self) -> String
 pub impl @step.Entity for Sphere
 
+pub struct SphericalSurface {
+  name : String
+  position : @step.Ref
+  radius_literal : String
+}
+pub fn SphericalSurface::new(String, @step.Ref, String) -> Self
+pub fn SphericalSurface::to_step(Self) -> String
+pub impl @step.Entity for SphericalSurface
+
 pub struct SurfaceOfLinearExtrusion {
   name : String
   swept_curve : @step.Ref

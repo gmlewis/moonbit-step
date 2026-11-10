@@ -175,6 +175,16 @@ The two rejected models are the reason for the "verify the golden models
 themselves" rule: a catalog designation is not proof that the model follows
 the standard.
 
+### ISO 10642 cross-check
+
+The downloaded `iso10642_socket_countersunk_screw_m3x12` model (SHA-256
+recorded in the fetch report) was measured with OCCT during the feature
+session: its head is 6.046 mm across, its conical bearing surface has a 45°
+half-angle (90° included), and its overall length is 12 mm. This corroborates
+the ISO 10642 M3 head diameter (6.0 mm) and the 90° countersink used by the
+parametric builder. It is a cross-check of nominal data, not a committed
+fixture; the model is not redistributed.
+
 ## Analytic references
 
 The extrusion-frame fixtures are **analytic**, not external:

@@ -190,3 +190,87 @@ pub fn key(
       }
   }
 }
+
+///|
+/// filleted_stepped_shaft builds a stepped shaft whose increasing-diameter
+/// shoulders carry a real circular fillet.
+///
+/// `segments` are `(diameter_mm, length_mm)` pairs from the base up. Each
+/// increasing shoulder is rounded with a toroidal fillet of `fillet_radius_mm`
+/// (a true `TOROIDAL_SURFACE` after revolution); decreasing shoulders and
+/// shoulders where the fillet does not fit stay sharp. Axis +Z, base at z = 0.
+pub fn filleted_stepped_shaft(
+  segments : Array[(Double, Double)],
+  fillet_radius_mm~ : Double = 0.0,
+  color~ : @cad.Rgb = @cad.Rgb::blue(),
+) -> Result[@common.Component, @common.SpecError] {
+  if segments.is_empty() {
+    return Err(@common.InvalidParameter("shaft needs at least one segment"))
+  }
+  match @common.require_non_negative("fillet radius", fillet_radius_mm) {
+    Err(e) => return Err(e)
+    Ok(_) => ()
+  }
+  let n = segments.length()
+  let radii : Array[Double] = []
+  let zs : Array[Double] = [0.0]
+  for seg in segments {
+    let (dia, len) = seg
+    match @common.require_positive("shaft segment diameter", dia) {
+      Err(e) => return Err(e)
+      Ok(_) => ()
+    }
+    match @common.require_positive("shaft segment length", len) {
+      Err(e) => return Err(e)
+      Ok(_) => ()
+    }
+    radii.push(dia / 2.0)
+    zs.push(zs[zs.length() - 1] + len)
+  }
+  let f = fillet_radius_mm
+  let segs : Array[@cad.RevSegment] = [
+    @cad.RevLine((0.0, 0.0), (radii[0], 0.0)),
+  ]
+  let mut cur_r = radii[0]
+  let mut cur_z = 0.0
+  for i in 0..<n {
+    let top = zs[i + 1]
+    if i > 0 && radii[i] > cur_r + 1.0e-9 {
+      let r_i = radii[i]
+      if f > 0.0 && top - cur_z > f && r_i - f >= cur_r {
+        let rf = r_i - f
+        segs.push(@cad.RevLine((cur_r, cur_z), (rf, cur_z)))
+        segs.push(@cad.RevArc((rf, cur_z), (r_i, cur_z + f), (rf, cur_z + f)))
+        cur_z = cur_z + f
+      } else {
+        segs.push(@cad.RevLine((cur_r, cur_z), (r_i, cur_z)))
+      }
+      cur_r = r_i
+    } else if i > 0 {
+      segs.push(@cad.RevLine((cur_r, cur_z), (radii[i], cur_z)))
+      cur_r = radii[i]
+    }
+    segs.push(@cad.RevLine((cur_r, cur_z), (cur_r, top)))
+    cur_z = top
+  }
+  segs.push(@cad.RevLine((cur_r, cur_z), (0.0, cur_z)))
+  let profile = @cad.RevolvedProfile::new(segs)
+  match profile.validate() {
+    Err(e) => return Err(@common.InvalidDimension(e.message()))
+    Ok(_) => ()
+  }
+  let name = "filleted-shaft-\{n}-step"
+  Ok(
+    @common.Component::new(
+      name~,
+      metadata=@common.Metadata::new(
+        designation="Filleted stepped shaft",
+        standard="",
+        family="stepped shaft",
+        size="\{n} steps",
+        source="Parametric solid of revolution with circular shoulder fillets; no standard table is implied.",
+      ),
+      description="Stepped shaft with toroidal shoulder fillets on increasing steps. Decreasing steps and steps too short for the fillet stay sharp.",
+    ).add_layer(profile.as_shape(), name="body", color~),
+  )
+}

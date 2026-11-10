@@ -215,3 +215,65 @@ test "din 976 rod geometry and layers" {
     layer_names(full).any(fn(n) { n == "DIN976-M6x100/helical-thread" }),
   )
 }
+
+///|
+test "iso7380 M4x16 detailed button head dimensions and layers" {
+  let screw = match
+    @fasteners.iso7380_screw(@standards.M4, 16.0, detail=Detailed) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  let (x0, x1, y0, y1, z0, z1) = screw.bounding_box()
+  assert_true(close(x0, -3.8))
+  assert_true(close(x1, 3.8))
+  assert_true(close(y0, -3.8))
+  assert_true(close(y1, 3.8))
+  assert_true(close(z0, 0.0))
+  assert_true(close(z1, 18.2))
+  assert_true(screw.metadata().standard == "ISO 7380-1:2022")
+  let names = layer_names(screw)
+  assert_true(names.any(fn(n) { n.contains("head-floor") }))
+  assert_true(names.any(fn(n) { n.contains("head-socket") }))
+}
+
+///|
+test "iso10642 M4x16 detailed countersunk head dimensions and layers" {
+  let screw = match
+    @fasteners.iso10642_screw(@standards.M4, 16.0, detail=Detailed) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  let (x0, x1, y0, y1, z0, z1) = screw.bounding_box()
+  assert_true(close(x0, -4.2))
+  assert_true(close(x1, 4.2))
+  assert_true(close(z0, 0.0))
+  assert_true(close(z1, 18.3))
+  assert_true(screw.metadata().standard == "ISO 10642:2004")
+  // The socket band is a real hex through-hole over an analytic head floor.
+  let floor = layer_shape(screw, "ISO10642-M4-16/head-floor")
+  match floor {
+    Some(@cad.Shape::RevolvedProfile(_)) => ()
+    _ => abort("expected a revolved head floor")
+  }
+  let socket = layer_shape(screw, "ISO10642-M4-16/head-socket")
+  match socket {
+    Some(@cad.Shape::ChamferedPrism(_)) => ()
+    _ => abort("expected a chamfered-prism socket band")
+  }
+}
+
+///|
+test "new head standards reject unsupported sizes and lengths" {
+  inspect(
+    @fasteners.iso7380_screw(@standards.M2, 16.0) is Err(_),
+    content="true",
+  )
+  inspect(
+    @fasteners.iso10642_screw(@standards.M2, 16.0) is Err(_),
+    content="true",
+  )
+  inspect(
+    @fasteners.iso7380_screw(@standards.M4, 2.0) is Err(_),
+    content="true",
+  )
+}

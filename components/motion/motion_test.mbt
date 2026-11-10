@@ -136,3 +136,53 @@ test "dowel pin is a plain cylinder" {
   assert_true(close(z1, 16.0))
   assert_true(part.name().contains("dowel-pin"))
 }
+
+///|
+test "bearing rolling elements are analytical spheres" {
+  let part = match @motion.bearing_by_designation("608") {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  let names = part.layers().map(fn(l) { l.name })
+  let ball_layers = names.filter(fn(n) { n.contains("ball-") })
+  assert_eq(ball_layers.length(), 8)
+  let step = part.to_step()
+  // Each ball is a closed SPHERICAL_SURFACE solid; two faces per sphere share
+  // the equator, so 8 balls contribute 16 spherical surfaces.
+  assert_true(step.contains("SPHERICAL_SURFACE"))
+}
+
+///|
+test "detailed bearing rings carry chamfers" {
+  let part = match @motion.bearing_by_designation("608", detail=Detailed) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  assert_eq(part.layers().length(), 10)
+  let step = part.to_step()
+  assert_true(step.contains("SPHERICAL_SURFACE"))
+  // The chamfered rings are ruled polygon stacks, not plain cylinders.
+  let names = part.layers().map(fn(l) { l.name })
+  assert_true(names.any(fn(n) { n.contains("outer-ring") }))
+}
+
+///|
+test "filleted stepped shaft has a toroidal shoulder fillet" {
+  let segments : Array[(Double, Double)] = [(10.0, 20.0), (16.0, 15.0)]
+  let part = match
+    @motion.filleted_stepped_shaft(segments, fillet_radius_mm=2.0) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  let (x0, x1, _y0, _y1, z0, z1) = part.bounding_box()
+  assert_true(close(x0, -8.0))
+  assert_true(close(x1, 8.0))
+  assert_true(close(z0, 0.0))
+  assert_true(close(z1, 35.0))
+  assert_true(part.to_step().contains("TOROIDAL_SURFACE"))
+  let sharp = match @motion.filleted_stepped_shaft(segments) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  assert_false(sharp.to_step().contains("TOROIDAL_SURFACE"))
+}

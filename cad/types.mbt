@@ -153,6 +153,8 @@ pub struct ExtrudedBezierProfile {
 pub enum Shape {
   Cuboid(Cuboid)
   Cylinder(Cylinder)
+  RevolvedProfile(RevolvedProfile)
+  ChamferedPrism(ChamferedPrism)
   CalibrationChamferBlock(CalibrationChamferBlock)
   ExtrudedProfile(ExtrudedProfile)
   ExtrudedBezierProfile(ExtrudedBezierProfile)
@@ -231,6 +233,87 @@ pub fn Shape::bounding_box(
     Cylinder(c) => {
       let r = c.diameter / 2.0
       (-r, r, -r, r, 0.0, c.height)
+    }
+    RevolvedProfile(rev) => {
+      let samples : Array[Vec2] = []
+      for seg in rev.segments {
+        match seg {
+          RevLine(a, b) => {
+            samples.push(a)
+            samples.push(b)
+          }
+          RevArc(a, b, c) => {
+            // Sample the arc so its extreme radius and height are captured.
+            let rho = rev_dist2(a, c)
+            let a0 = @math.atan2(a.1 - c.1, a.0 - c.0)
+            let a1 = @math.atan2(b.1 - c.1, b.0 - c.0)
+            let delta = rev_norm_angle(a1 - a0)
+            let count = 64
+            for i in 0..<=count {
+              let t = Double::from_int(i) / Double::from_int(count)
+              let ang = a0 + delta * t
+              samples.push(
+                (c.0 + rho * @math.cos(ang), c.1 + rho * @math.sin(ang)),
+              )
+            }
+          }
+        }
+      }
+      let mut r_max = 0.0
+      let mut z0 = @double.max_value
+      let mut z1 = @double.min_value
+      for p in samples {
+        if p.0 > r_max {
+          r_max = p.0
+        }
+        if p.1 < z0 {
+          z0 = p.1
+        }
+        if p.1 > z1 {
+          z1 = p.1
+        }
+      }
+      if r_max <= 0.0 {
+        (0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+      } else {
+        (-r_max, r_max, -r_max, r_max, z0, z1)
+      }
+    }
+    ChamferedPrism(p) => {
+      let mut x0 = @double.max_value
+      let mut x1 = @double.min_value
+      let mut y0 = @double.max_value
+      let mut y1 = @double.min_value
+      let mut z0 = @double.max_value
+      let mut z1 = @double.min_value
+      for level in p.levels {
+        let (z, inset) = level
+        let ring = match chamfer_inset(p.base, inset) {
+          Some(r) => r
+          None => p.base
+        }
+        for pt in ring {
+          if pt.0 < x0 {
+            x0 = pt.0
+          }
+          if pt.0 > x1 {
+            x1 = pt.0
+          }
+          if pt.1 < y0 {
+            y0 = pt.1
+          }
+          if pt.1 > y1 {
+            y1 = pt.1
+          }
+        }
+        if z < z0 {
+          z0 = z
+        }
+        if z > z1 {
+          z1 = z
+        }
+      }
+      (x0, x1, y0, y1, z0, z1)
     }
     CalibrationChamferBlock(b) =>
       (0.0, b.length_mm, 0.0, b.width_mm, 0.0, b.height_mm)

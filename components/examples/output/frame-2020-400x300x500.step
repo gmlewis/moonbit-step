@@ -18,7 +18,7 @@ HEADER;
     rail-y-top-e = Generic T-slot generic-2020 x 260 (Generic T-slot envelope (not a universal standard))
 */
 FILE_DESCRIPTION(('Rectangular generic T-slot frame: four full-height corner posts and eight rails cut to the clear span between post inner faces. Square butt joints; no brackets or machined joints. Overall outside dimensions.'),'2;1');
-FILE_NAME('extrusion-frame-generic-2020-400x300x500.step','2026-11-10T01:59:30',('gmlewis'),('gmlewis/step','https://github.com/gmlewis/moonbit-step'),'gmlewis/step','moonbit','none');
+FILE_NAME('extrusion-frame-generic-2020-400x300x500.step','2026-11-10T02:56:47',('gmlewis'),('gmlewis/step','https://github.com/gmlewis/moonbit-step'),'gmlewis/step','moonbit','none');
 FILE_SCHEMA(('AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }'));
 ENDSEC;
 DATA;

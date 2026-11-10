@@ -61,6 +61,25 @@ table (6g/6H limits are not modeled as limits).
 - Supported sizes: the same metric size set; lengths 10 mm to 3000 mm.
 - Fully threaded rod; no plain end sections or chamfers.
 
+### ISO 7380-1 — button head hexagon socket screws
+
+- Revision used: ISO 7380-1:2022 (designation).
+- Supported sizes: M3, M4, M5, M6, M8, M10.
+- Data: head diameter `dk`, head height `k`, socket width across flats `s`,
+  socket depth `t`, and a practical length range.
+- The head is a spherical-cap dome with a flat top and a modeled hexagon
+  socket. The flat-top radius and dome profile are engineering approximations;
+  the four dimensions above are the standard's nominal values.
+
+### ISO 10642 — countersunk head hexagon socket screws
+
+- Revision used: ISO 10642:2004 (designation).
+- Supported sizes: M3, M4, M5, M6, M8, M10.
+- Data: head diameter `dk`, head height `k`, 90° head angle, socket across
+  flats `s`, socket depth `t`, and a practical length range.
+- The head is an analytic 90° countersink frustum (45° half-angle) with a flat
+  top and a modeled hexagon socket.
+
 ## Motion and hardware components (parametric, no standard table)
 
 - Shafts, stepped shafts, spacers, bushings, dowel pins, hex standoffs, and

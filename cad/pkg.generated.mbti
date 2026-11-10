@@ -11,7 +11,11 @@ import {
 // Values
 pub fn bolt_circle(Int32, Double, start_angle_deg? : Double) -> Array[(Double, Double)]
 
+pub fn chamfered_prism_mesh(ChamferedPrism) -> (Array[(Double, Double, Double)], Array[Array[Int32]])
+
 pub fn compile_calibration_chamfer_block(StepContext, SceneNode, CalibrationChamferBlock, reverse? : Bool, parent? : Transform?) -> Array[@step.Ref]
+
+pub fn compile_chamfered_prism(StepContext, SceneNode, ChamferedPrism, reverse? : Bool, parent? : Transform?) -> Array[@step.Ref]
 
 pub fn compile_cuboid(StepContext, SceneNode, Cuboid, reverse? : Bool, parent? : Transform?) -> Array[@step.Ref]
 
@@ -20,6 +24,8 @@ pub fn compile_cylinder(StepContext, SceneNode, Cylinder, reverse? : Bool, paren
 pub fn compile_extruded_bezier_profile(StepContext, SceneNode, ExtrudedBezierProfile, reverse? : Bool, parent? : Transform?) -> Array[@step.Ref]
 
 pub fn compile_extruded_profile(StepContext, SceneNode, ExtrudedProfile, reverse? : Bool, parent? : Transform?) -> Array[@step.Ref]
+
+pub fn compile_revolved_profile(StepContext, SceneNode, RevolvedProfile, reverse? : Bool, parent? : Transform?) -> Array[@step.Ref]
 
 pub fn csg_eval_script_path(String?) -> String
 
@@ -56,6 +62,10 @@ pub fn point_on_circle(Double, Double) -> (Double, Double)
 pub fn polygon_area_2d(Array[(Double, Double)]) -> Double
 
 pub fn project_point_to_line((Double, Double), (Double, Double), (Double, Double)) -> (Double, Double)
+
+pub fn rev_mesh(RevolvedProfile, angular_segments? : Int32, arc_segments? : Int32) -> (Array[(Double, Double, Double)], Array[Array[Int32]])
+
+pub fn rev_profile_polyline(RevolvedProfile, arc_segments? : Int32) -> Array[(Double, Double)]
 
 pub fn rotate_point((Double, Double, Double), Double, Double, Double) -> (Double, Double, Double)
 
@@ -125,6 +135,16 @@ pub struct CalibrationChamferBlock {
   fillet_segments : Int32
 }
 pub fn CalibrationChamferBlock::new(Double, Double, Double, chamfer_size_mm? : Double, fillet_radius_mm? : Double, fillet_segments? : Int32) -> Shape
+
+pub struct ChamferedPrism {
+  base : Array[(Double, Double)]
+  levels : Array[(Double, Double)]
+  hole : Array[(Double, Double)]?
+}
+pub fn ChamferedPrism::as_shape(Self) -> Shape
+pub fn ChamferedPrism::from_chamfer(Array[(Double, Double)], Double, bottom_chamfer? : Double, top_chamfer? : Double, chamfer_depth? : Double, hole? : Array[(Double, Double)]) -> Self
+pub fn ChamferedPrism::new(Array[(Double, Double)], Array[(Double, Double)], hole? : Array[(Double, Double)]) -> Self
+pub fn ChamferedPrism::validate(Self) -> Result[Unit, PrismError]
 
 pub struct Cuboid {
   sx : Double
@@ -275,6 +295,15 @@ pub(all) struct Matrix3x3 {
   m22 : Double
 }
 
+pub(all) enum PrismError {
+  PrismTooFewVertices
+  PrismBadLevels
+  PrismInsetTooLarge(Int32)
+  PrismSelfIntersection
+  PrismBadHole
+}
+pub fn PrismError::message(Self) -> String
+
 pub struct Profile2D {
   outer : Array[(Double, Double)]
   holes : Array[Array[(Double, Double)]]
@@ -284,10 +313,13 @@ pub fn Profile2D::add_holes_at(Self, Array[(Double, Double)], Array[(Double, Dou
 pub fn Profile2D::arc(Double, Double, Double, segments? : Int32) -> Array[(Double, Double)]
 pub fn Profile2D::centered_circle(Double, segments? : Int32) -> Array[(Double, Double)]
 pub fn Profile2D::centered_rect(Double, Double) -> Array[(Double, Double)]
+pub fn Profile2D::chamfer_vertices(Array[(Double, Double)], Double, angle_deg? : Double, which? : VertexSelection) -> Result[Array[(Double, Double)], ProfileOpError]
 pub fn Profile2D::circle(Double, segments? : Int32) -> Array[(Double, Double)]
 pub fn Profile2D::circle_with_fit(Double, fit~ : Fit, segments? : Int32) -> Array[(Double, Double)]
 pub fn Profile2D::ellipse(Double, Double, segments? : Int32) -> Array[(Double, Double)]
+pub fn Profile2D::fillet_vertices(Array[(Double, Double)], Double, segments? : Int32, which? : VertexSelection) -> Result[Array[(Double, Double)], ProfileOpError]
 pub fn Profile2D::hole_with_fit(Double, fit~ : Fit, segments? : Int32) -> Array[(Double, Double)]
+pub fn Profile2D::is_simple(Array[(Double, Double)]) -> Bool
 pub fn Profile2D::new(Array[(Double, Double)]) -> Self
 pub fn Profile2D::on_face(Self, FaceInfo, Double, into? : Bool, offset? : Double, center? : (Double, Double), name? : String, color? : Rgb) -> SceneNode
 pub fn Profile2D::polygon(Int32, Double, rotation? : Double) -> Array[(Double, Double)]
@@ -298,6 +330,51 @@ pub fn Profile2D::with_bolt_circle(Self, Int32, Double, Double, start_angle_deg?
 pub fn Profile2D::with_grid_of_holes(Self, Int32, Int32, Double, Double, Double, center? : (Double, Double), fit? : Fit, segments? : Int32) -> Self
 pub fn Profile2D::with_hole_at(Self, Double, Double, Double, fit? : Fit, segments? : Int32) -> Self
 pub fn Profile2D::with_holes_at(Self, Array[(Double, Double)], Double, fit? : Fit, segments? : Int32) -> Self
+
+pub(all) enum ProfileOpError {
+  TooFewVertices
+  NonPositiveSize
+  FeatureTooLarge(Int32)
+  VertexIndexOutOfRange(Int32)
+  SelfIntersection
+}
+pub fn ProfileOpError::message(Self) -> String
+
+pub(all) struct RevCircle {
+  edge : @step.Ref
+  vertex : @step.Ref
+  point : @step.Ref
+}
+
+pub(all) enum RevProfileError {
+  EmptyProfile
+  DiscontinuousChain(Int32)
+  NegativeRadius(Int32)
+  ArcEndpointMismatch(Int32)
+  DegenerateArc(Int32)
+  NotClosed
+  DegenerateArea
+}
+pub fn RevProfileError::message(Self) -> String
+
+pub(all) enum RevSegment {
+  RevLine((Double, Double), (Double, Double))
+  RevArc((Double, Double), (Double, Double), (Double, Double))
+}
+
+pub struct RevolvedProfile {
+  segments : Array[RevSegment]
+}
+pub fn RevolvedProfile::as_shape(Self) -> Shape
+pub fn RevolvedProfile::cone(Double, Double) -> Self
+pub fn RevolvedProfile::cylinder(Double, Double) -> Self
+pub fn RevolvedProfile::frustum(Double, Double, Double) -> Self
+pub fn RevolvedProfile::new(Array[RevSegment]) -> Self
+pub fn RevolvedProfile::polyline(Array[(Double, Double)], closed? : Bool) -> Self
+pub fn RevolvedProfile::segments(Self) -> Array[RevSegment]
+pub fn RevolvedProfile::sphere(Double) -> Self
+pub fn RevolvedProfile::sphere_cap(Double, Double) -> Self
+pub fn RevolvedProfile::validate(Self) -> Result[Unit, RevProfileError]
 
 #derive(@debug.Debug)
 pub struct Rgb {
@@ -349,6 +426,8 @@ pub fn Severity::is_error(Self) -> Bool
 pub enum Shape {
   Cuboid(Cuboid)
   Cylinder(Cylinder)
+  RevolvedProfile(RevolvedProfile)
+  ChamferedPrism(ChamferedPrism)
   CalibrationChamferBlock(CalibrationChamferBlock)
   ExtrudedProfile(ExtrudedProfile)
   ExtrudedBezierProfile(ExtrudedBezierProfile)
@@ -431,6 +510,13 @@ pub fn Transform::apply_dir(Self, (Double, Double, Double)) -> (Double, Double, 
 pub fn Transform::compose(Self, Self) -> Self
 pub fn Transform::from_node(SceneNode) -> Self
 pub fn Transform::identity() -> Self
+
+pub(all) enum VertexSelection {
+  All
+  ConvexOnly
+  ConcaveOnly
+  Indices(Array[Int32])
+}
 
 // Type aliases
 pub using @fonts {type Font}

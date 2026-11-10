@@ -10,7 +10,7 @@ HEADER;
   Notes:      Metric threaded rod; no plain end sections are modeled. No thread geometry is modeled.
 */
 FILE_DESCRIPTION(('DIN 976-1 - M8 x 200'),'2;1');
-FILE_NAME('DIN976-M8x200.step','2026-11-10T01:41:41',('gmlewis'),('gmlewis/step','https://github.com/gmlewis/moonbit-step'),'gmlewis/step','moonbit','none');
+FILE_NAME('DIN976-M8x200.step','2026-11-10T02:56:46',('gmlewis'),('gmlewis/step','https://github.com/gmlewis/moonbit-step'),'gmlewis/step','moonbit','none');
 FILE_SCHEMA(('AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }'));
 ENDSEC;
 DATA;

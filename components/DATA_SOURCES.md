@@ -24,9 +24,17 @@ proprietary catalog graphics, or manufacturer part files.
 | Plain washers, normal series | ISO 7089:2000 | `d1`, `d2`, `h` |
 | Hexagon head screws | ISO 4017:2014 | `s`, `k` |
 | Hexagon head bolts | ISO 4014:2011 | `s`, `k`, thread length `b` |
+| Button head hex socket screws | ISO 7380-1:2022 designation | `dk`, `k`, `s`, `t`, length range |
+| Countersunk head hex socket screws | ISO 10642:2004 designation | `dk`, `k`, 90° angle, `s`, `t`, length range |
 | Threaded rods | DIN 976-1:2016 | Metric coarse thread, rod lengths |
 | Radial ball bearings | ISO 15:2017 boundary dimensions | `d`, `D`, `B` |
 | Involute gear geometry | ISO 21771:2007 terminology / standard practice | radii, involute construction |
+
+The ISO 7380-1 and ISO 10642 tables are transcribed from commonly published
+dimension summaries. The ISO 10642 M3 head diameter (6.0 mm) was cross-checked
+against a step.parts reference model measured with OCCT (bbox 6.046 mm across
+the head). Verify these nominal values against the current standard before
+manufacturing.
 
 ## Where the numbers live
 

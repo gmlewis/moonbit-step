@@ -6,10 +6,10 @@ HEADER;
   Family:     hexagon regular nut
   Size:       M4
   Data source: ISO 4032:2023 hexagon regular nut table; nominal values, see components/DATA_SOURCES.md
-  Notes:      Hexagon regular nut with a through bore. No washer-face chamfer is modeled. No thread geometry is modeled.
+  Notes:      Hexagon regular nut with a through bore. Face chamfers are omitted in this detail level. No thread geometry is modeled.
 */
 FILE_DESCRIPTION(('ISO 4032 - M4'),'2;1');
-FILE_NAME('ISO4032-M4.step','2026-11-10T01:41:41',('gmlewis'),('gmlewis/step','https://github.com/gmlewis/moonbit-step'),'gmlewis/step','moonbit','none');
+FILE_NAME('ISO4032-M4.step','2026-11-10T02:56:46',('gmlewis'),('gmlewis/step','https://github.com/gmlewis/moonbit-step'),'gmlewis/step','moonbit','none');
 FILE_SCHEMA(('AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }'));
 ENDSEC;
 DATA;

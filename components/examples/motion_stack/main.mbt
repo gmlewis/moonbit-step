@@ -40,6 +40,10 @@ async fn main {
       short='M',
       help="Output mode: flat (default) or assembly",
     ),
+    "detail": @cli.opt_string(
+      short='D',
+      help="Bearing detail: simplified (default), detailed, full",
+    ),
     "out": @cli.opt_string(short='o', help="Write STEP to this path"),
     "bbox": @cli.flag(help="Print the assembly bounding box to stderr"),
   }
@@ -62,7 +66,11 @@ async fn main {
       abort("")
     }
   }
-  let bearing = match @motion.bearing_by_designation(bearing_name) {
+  let bearing_detail = parse_bearing_detail(
+    args.string_opt("detail").unwrap_or("simplified"),
+  )
+  let bearing = match
+    @motion.bearing_by_designation(bearing_name, detail=bearing_detail) {
     Ok(c) => c
     Err(e) => {
       @cli.eprintln("error: " + e.message())
@@ -135,5 +143,15 @@ async fn main {
       @cli.eprintln("error: unsupported mode: " + other)
       abort("")
     }
+  }
+}
+
+///|
+fn parse_bearing_detail(text : String) -> @common.DetailLevel {
+  match text {
+    "detailed" | "detail" => @common.DetailLevel::Detailed
+    "full" | "fully-modeled" | "fully_modeled" =>
+      @common.DetailLevel::FullyModeled
+    _ => @common.DetailLevel::Simplified
   }
 }

@@ -36,7 +36,8 @@ pub fn socket_head_cap_screw(
   let base = @common.Component::new(
     name~,
     metadata=spec.metadata(),
-    description="Layered solid: plain shank, head floor, blind hex socket. Socket represented by a ring with a through hex hole over a floor disc. No head chamfer is modeled." +
+    description="Layered solid: plain shank, head floor, blind hex socket. Socket represented by a ring with a through hex hole over a floor disc." +
+      head_chamfer_note(policy) +
       thread_note(thread_rep),
   )
 
@@ -91,11 +92,17 @@ pub fn socket_head_cap_screw(
     color=metal,
     placement=@common.Placement::translation(0.0, 0.0, length),
   )
-  let socket_ring = @cad.ExtrudedProfile::new(
-    circle_profile(dk, segments~),
-    t,
-    holes=[hex_hole_across_flats(dims.socket_across_flats_mm)],
-  )
+  let hex_hole = hex_hole_across_flats(dims.socket_across_flats_mm)
+  let socket_ring = if policy.include_small_features {
+    let c = head_chamfer_mm(dk, k, t)
+    @cad.ChamferedPrism::new(
+      circle_profile(dk, segments~),
+      [(0.0, 0.0), (t - c, 0.0), (t, c)],
+      hole=hex_hole,
+    ).as_shape()
+  } else {
+    @cad.ExtrudedProfile::new(circle_profile(dk, segments~), t, holes=[hex_hole])
+  }
   component = component.add_layer(
     socket_ring,
     name="head-socket",
@@ -132,4 +139,28 @@ pub fn socket_head_cap_screw_assembly_name(
   spec : @standards.ISO4762Spec,
 ) -> String {
   "screw-\{spec.size_dims.size.designation()}-\{format_length(spec.length_mm)}"
+}
+
+///|
+/// head_chamfer_mm returns the engineering-default top-edge chamfer inset for a
+/// socket head cap screw. ISO 4762 does not fix the head chamfer; this keeps it
+/// below a third of the head height and half the socket depth.
+fn head_chamfer_mm(dk : Double, k : Double, t : Double) -> Double {
+  let mut c = 0.1 * dk
+  if c > k / 3.0 {
+    c = k / 3.0
+  }
+  if c > t / 2.0 {
+    c = t / 2.0
+  }
+  c
+}
+
+///|
+fn head_chamfer_note(policy : @common.DetailPolicy) -> String {
+  if policy.include_small_features {
+    " The head top edge carries a 45-degree chamfer (engineering default)."
+  } else {
+    " The head is sharp-edged at this detail level."
+  }
 }

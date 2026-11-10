@@ -52,9 +52,9 @@ moon run --target native components/examples/fasteners -- \
 |---|---|
 | `components/common` | Units-aware validation, detail levels, thread representation, metadata, rigid placement, `Component`. |
 | `components/standards` | Metric thread data and ISO/DIN dimension tables. |
-| `components/fasteners` | ISO 4762 socket head cap screws, ISO 4032 hex nuts, ISO 7089 washers, ISO 4014/4017 hex head screws/bolts, DIN 976 threaded rods. |
+| `components/fasteners` | ISO 4762 socket head cap screws, ISO 4032 hex nuts, ISO 7089 washers, ISO 4014/4017 hex head screws/bolts, ISO 7380-1 button head screws, ISO 10642 countersunk head screws, DIN 976 threaded rods. |
 | `components/profiles` | Generic T-slot extrusion sections and cut-to-length profiles. |
-| `components/motion` | Shafts, stepped shafts, spacers, bushings, keys, dowel pins, standoffs, compression springs, simplified bearings. |
+| `components/motion` | Shafts, stepped shafts, spacers, bushings, keys, dowel pins, standoffs, compression springs, ball bearings with analytic spheres. |
 | `components/gears` | Involute spur gears, external gear pairs, and approximate straight-spur planetary sets. |
 | `components/assemblies` | Rigid placements, linear/circular patterns, hardware kits, extrusion frames, collision/contact reports, and connectivity checks. |
 | `components/collision` | Kernel-free AABB/OBB collision and contact classification with a named tolerance policy. |
@@ -124,7 +124,11 @@ redistribution rights are unverified.
 - Extrusion frames use full-height corner posts and rails cut to the clear
   inner span; joints are square butt contacts. Brackets, T-nuts, and end
   machining are not modeled.
-- Bearing rolling elements are simplified cylindrical proxies, not spheres.
+- Bearing rolling elements are analytic spheres; ball diameter and ring
+  chamfers are envelope/engineering geometry, not catalogue internals.
+- Chamfers on ISO 4032 and ISO 4762 at `Detailed` and above are real ruled
+  chamfers with engineering-default sizes; ISO 7380/10642 socket bands are
+  high-resolution polygons. See `FEATURES.md`.
 - See `KNOWN_ISSUES.md` for the full list.
 
 ## License

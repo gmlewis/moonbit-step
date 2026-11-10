@@ -9,11 +9,22 @@ Environment: macOS, MoonBit `moon 0.1.20261104 (940aa18 2026-11-04)`,
 ./test-all.sh
 ```
 
-Result after the correctness audit: **432 tests, 432 passed, 0 failed**
-(baseline before the audit: 408/408; before the component work: 345/345).
-`test-all.sh` also runs `moon fmt` and `moon info --target native`.
+Result after the chamfer/fillet session: **457 tests, 457 passed, 0 failed**
+(432 at the start of that session; 408 before the earlier audit; 345 before the
+component work). `test-all.sh` also runs `moon fmt` and
+`moon info --target native`.
 
-New regression coverage added by the audit:
+New regression coverage added by the feature session:
+
+- `cad/profile-chamfer_wbtest.mbt` — 2D chamfer/fillet area, oversized
+  rejection, convex-only selection, explicit indices, winding, asymmetric angle.
+- `cad/revolved_profile_wbtest.mbt` — analytic cylinder/cone/sphere/torus
+  surface counts, planar caps, poles, annular rings, bbox, validation errors.
+- `cad/chamfered_prism_wbtest.mbt` — chamfered prism faces and rejection.
+- `components/fasteners/fasteners_test.mbt` — ISO 7380/10642 dimensions, layers,
+  and standard designation.
+- `components/motion/motion_test.mbt` — analytic sphere balls and detailed ring
+  chamfers.
 
 - `components/collision/collision_test.mbt` — contact vs collision vs
   clearance, penetration depth, AABB false-positive rejection, OBB placement.
@@ -33,6 +44,35 @@ python3 scripts/validate_step.py <file.step>
 The validator checks ISO 10303-21 syntax, real-number grammar, reference
 integrity, per-shell edge usage and orientation, `PLANE` planarity, OCCT
 `checkshape`, and watertight tessellation.
+
+### Degenerate facets at singular poles
+
+A singular surface of revolution (cone apex, sphere pole) makes OCCT's
+tessellator emit a zero-area facet there. Such a facet has no surface area and
+its coincident edge is not a real boundary. `scripts/validate_step.py` now
+excludes degenerate facets from the watertight edge count and reports how many
+it ignored (for example `2 degenerate facets ignored at singular points`). This
+fixes a false negative that also affected an OCCT-generated sphere; genuine open
+boundaries (an edge used once by a non-degenerate facet) still fail. It is not
+a relaxation of the watertightness requirement.
+
+### Feature measurement
+
+`scripts/measure_step_features.py` reports surface-type counts and the
+parameters of every cone (radius and semi-angle in degrees), sphere, and torus,
+along with the declared plane-angle unit. It is used to confirm that a chamfer
+or fillet produced real conical/toroidal/spherical geometry:
+
+```bash
+python3 scripts/measure_step_features.py \
+  components/examples/output/revolution-torus.step \
+  components/examples/output/iso10642-M4x16-detailed.step
+```
+
+Representative output: the revolve torus reports four `TOROIDAL_SURFACE` faces
+(major 5, minor 1); the ISO 10642 head reports a `CONICAL_SURFACE` with a 45°
+semi-angle; the chamfered ISO 4032 nut reports all-planar faces (ruled chamfer
+quads); the 608 bearing reports `SPHERICAL_SURFACE` balls.
 
 Representative results:
 

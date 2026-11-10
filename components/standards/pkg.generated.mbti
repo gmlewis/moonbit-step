@@ -12,6 +12,10 @@ pub fn din976_spec(MetricSize, Double) -> Result[DIN976Spec, @common.SpecError]
 
 pub fn hex_head_size(MetricSize) -> Result[HexHeadSize, @common.SpecError]
 
+pub fn iso10642_size(MetricSize) -> Result[ISO10642Size, @common.SpecError]
+
+pub fn iso10642_spec(MetricSize, Double) -> Result[ISO10642Spec, @common.SpecError]
+
 pub fn iso4014_spec(MetricSize, Double) -> Result[ISO4014Spec, @common.SpecError]
 
 pub fn iso4017_spec(MetricSize, Double) -> Result[ISO4017Spec, @common.SpecError]
@@ -27,6 +31,10 @@ pub fn iso4762_spec(MetricSize, Double) -> Result[ISO4762Spec, @common.SpecError
 pub fn iso7089_size(MetricSize) -> Result[ISO7089Size, @common.SpecError]
 
 pub fn iso7089_spec(MetricSize) -> Result[ISO7089Spec, @common.SpecError]
+
+pub fn iso7380_size(MetricSize) -> Result[ISO7380Size, @common.SpecError]
+
+pub fn iso7380_spec(MetricSize, Double) -> Result[ISO7380Spec, @common.SpecError]
 
 // Errors
 
@@ -48,6 +56,29 @@ pub(all) struct HexHeadSize {
   min_length_mm : Double
   max_length_mm : Double
 }
+
+pub(all) struct ISO10642Size {
+  size : MetricSize
+  thread : ThreadSpec
+  head_diameter_mm : Double
+  head_height_mm : Double
+  head_angle_deg : Double
+  socket_across_flats_mm : Double
+  socket_depth_mm : Double
+  min_length_mm : Double
+  max_length_mm : Double
+}
+
+pub(all) struct ISO10642Spec {
+  size_dims : ISO10642Size
+  length_mm : Double
+}
+pub fn ISO10642Spec::designation(Self) -> String
+pub fn ISO10642Spec::metadata(Self) -> @common.Metadata
+pub fn ISO10642Spec::size(Self) -> MetricSize
+pub fn ISO10642Spec::source() -> String
+pub fn ISO10642Spec::standard() -> String
+pub fn ISO10642Spec::thread(Self) -> ThreadSpec
 
 pub(all) struct ISO4014Spec {
   size_dims : HexHeadSize
@@ -128,6 +159,28 @@ pub fn ISO7089Spec::metadata(Self) -> @common.Metadata
 pub fn ISO7089Spec::size(Self) -> MetricSize
 pub fn ISO7089Spec::source() -> String
 pub fn ISO7089Spec::standard() -> String
+
+pub(all) struct ISO7380Size {
+  size : MetricSize
+  thread : ThreadSpec
+  head_diameter_mm : Double
+  head_height_mm : Double
+  socket_across_flats_mm : Double
+  socket_depth_mm : Double
+  min_length_mm : Double
+  max_length_mm : Double
+}
+
+pub(all) struct ISO7380Spec {
+  size_dims : ISO7380Size
+  length_mm : Double
+}
+pub fn ISO7380Spec::designation(Self) -> String
+pub fn ISO7380Spec::metadata(Self) -> @common.Metadata
+pub fn ISO7380Spec::size(Self) -> MetricSize
+pub fn ISO7380Spec::source() -> String
+pub fn ISO7380Spec::standard() -> String
+pub fn ISO7380Spec::thread(Self) -> ThreadSpec
 
 pub(all) enum MetricSize {
   M2

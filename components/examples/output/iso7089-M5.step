@@ -9,7 +9,7 @@ HEADER;
   Notes:      Plain washer, normal series; a single extrusion with a circular bore. Edge chamfers are not modeled.
 */
 FILE_DESCRIPTION(('ISO 7089 - M5'),'2;1');
-FILE_NAME('ISO7089-M5.step','2026-11-10T01:41:41',('gmlewis'),('gmlewis/step','https://github.com/gmlewis/moonbit-step'),'gmlewis/step','moonbit','none');
+FILE_NAME('ISO7089-M5.step','2026-11-10T02:56:46',('gmlewis'),('gmlewis/step','https://github.com/gmlewis/moonbit-step'),'gmlewis/step','moonbit','none');
 FILE_SCHEMA(('AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }'));
 ENDSEC;
 DATA;

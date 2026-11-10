@@ -1,0 +1,255 @@
+///|
+/// iso10642_screw builds an ISO 10642 countersunk head hexagon socket screw.
+///
+/// The head is an analytic revolved frustum: a 90-degree countersink cone
+/// (45-degree half-angle) whose floor layer is a true `CONICAL_SURFACE`, and a
+/// flat top face carrying a real hexagon socket. The upper part of the head
+/// (the socket band) is built from a ring stack so the hexagonal through-hole
+/// can be layered over the solid socket floor; its outer cone is a
+/// high-resolution polygon with a documented deviation.
+pub fn iso10642_screw(
+  size : @standards.MetricSize,
+  length_mm : Double,
+  detail~ : @common.DetailLevel = Simplified,
+  threads? : @common.ThreadRepresentation,
+) -> Result[@common.Component, @common.SpecError] {
+  match @standards.iso10642_spec(size, length_mm) {
+    Err(e) => Err(e)
+    Ok(spec) => Ok(countersunk_screw(spec, detail~, threads?))
+  }
+}
+
+///|
+fn countersunk_screw(
+  spec : @standards.ISO10642Spec,
+  detail~ : @common.DetailLevel = Simplified,
+  threads? : @common.ThreadRepresentation,
+) -> @common.Component {
+  let policy = @common.DetailPolicy::for_level(detail)
+  let thread_rep = match threads {
+    Some(t) => t
+    None => policy.threads
+  }
+  let dims = spec.size_dims
+  let thread = dims.thread
+  let d = thread.nominal_diameter_mm
+  let length = spec.length_mm
+  let r_sh = d / 2.0
+  let big_r = dims.head_diameter_mm / 2.0
+  let k = dims.head_height_mm
+  let t = dims.socket_depth_mm
+  let s = dims.socket_across_flats_mm
+  let segments = clamp_segments(policy.circle_segments)
+  let name = "ISO10642-\{dims.size.designation()}-\{format_length(length)}"
+  let metal = @cad.Rgb::grey()
+  let mut component = @common.Component::new(
+    name~,
+    metadata=spec.metadata(),
+    description="Countersunk head (90-degree included angle) with a hexagon socket. The socket floor is an analytic revolved head; the socket band is a high-resolution polygon with a real hex through-hole." +
+      thread_note(thread_rep),
+  )
+  component = add_plain_or_threaded_shank(
+    component, thread, length, thread_rep, policy, metal,
+  )
+  // Head geometry, local z from 0 (head base) to k (top face).
+  let cone_axial = if big_r - r_sh < k { big_r - r_sh } else { k }
+  let cyl_h = k - cone_axial
+  let z_floor = k - t
+  let r_of = fn(z : Double) -> Double {
+    if z <= cyl_h {
+      r_sh
+    } else {
+      let r = r_sh + (z - cyl_h)
+      if r < big_r {
+        r
+      } else {
+        big_r
+      }
+    }
+  }
+  let r_f = r_of(z_floor)
+  let floor_points : Array[@cad.Vec2] = [(0.0, 0.0), (r_sh, 0.0)]
+  if z_floor <= cyl_h {
+    floor_points.push((r_sh, z_floor))
+  } else {
+    floor_points.push((r_sh, cyl_h))
+    floor_points.push((r_f, z_floor))
+  }
+  floor_points.push((0.0, z_floor))
+  let floor = @cad.RevolvedProfile::polyline(floor_points)
+  component = component.add_layer(
+    floor.as_shape(),
+    name="head-floor",
+    color=metal,
+    placement=@common.Placement::translation(0.0, 0.0, length),
+  )
+  let levels : Array[(Double, Double)] = [(z_floor, big_r - r_f)]
+  if z_floor < cyl_h {
+    levels.push((cyl_h, big_r - r_sh))
+  }
+  levels.push((k, 0.0))
+  let ring = @cad.ChamferedPrism::new(
+    circle_profile(dims.head_diameter_mm, segments~),
+    levels,
+    hole=hex_hole_across_flats(s),
+  ).as_shape()
+  component.add_layer(
+    ring,
+    name="head-socket",
+    color=@cad.Rgb::orange(),
+    placement=@common.Placement::translation(0.0, 0.0, length),
+  )
+}
+
+///|
+/// iso7380_screw builds an ISO 7380-1 button head hexagon socket screw.
+///
+/// The head is a spherical-cap dome (an analytic `SPHERICAL_SURFACE`) with a
+/// flat top face and a real hexagon socket. The flat-top radius and the socket
+/// band are documented engineering choices; the head diameter, height, socket
+/// size and depth are the standard's nominal values.
+pub fn iso7380_screw(
+  size : @standards.MetricSize,
+  length_mm : Double,
+  detail~ : @common.DetailLevel = Simplified,
+  threads? : @common.ThreadRepresentation,
+) -> Result[@common.Component, @common.SpecError] {
+  match @standards.iso7380_spec(size, length_mm) {
+    Err(e) => Err(e)
+    Ok(spec) => Ok(button_screw(spec, detail~, threads?))
+  }
+}
+
+///|
+fn button_screw(
+  spec : @standards.ISO7380Spec,
+  detail~ : @common.DetailLevel = Simplified,
+  threads? : @common.ThreadRepresentation,
+) -> @common.Component {
+  let policy = @common.DetailPolicy::for_level(detail)
+  let thread_rep = match threads {
+    Some(t) => t
+    None => policy.threads
+  }
+  let dims = spec.size_dims
+  let thread = dims.thread
+  let d = thread.nominal_diameter_mm
+  let length = spec.length_mm
+  let r_sh = d / 2.0
+  let big_r = dims.head_diameter_mm / 2.0
+  let k = dims.head_height_mm
+  let t = dims.socket_depth_mm
+  let s = dims.socket_across_flats_mm
+  let segments = clamp_segments(policy.circle_segments)
+  let name = "ISO7380-\{dims.size.designation()}-\{format_length(length)}"
+  let metal = @cad.Rgb::grey()
+  let mut component = @common.Component::new(
+    name~,
+    metadata=spec.metadata(),
+    description="Button head with a spherical-cap dome, flat top, and hexagon socket. The dome is an analytic spherical surface; the socket band is a high-resolution polygon with a real hex through-hole." +
+      thread_note(thread_rep),
+  )
+  component = add_plain_or_threaded_shank(
+    component, thread, length, thread_rep, policy, metal,
+  )
+  // Spherical cap through (big_r, 0) and (r_top, k), centred on the axis.
+  let r_top = button_flat_radius(big_r, s)
+  let c = (k * k + r_top * r_top - big_r * big_r) / (2.0 * k)
+  let rho = Double::sqrt(big_r * big_r + c * c)
+  let z_floor = k - t
+  let r_of = fn(z : Double) -> Double {
+    let v = rho * rho - (z - c) * (z - c)
+    if v <= 0.0 {
+      0.0
+    } else {
+      Double::sqrt(v)
+    }
+  }
+  let r_f = r_of(z_floor)
+  // Head floor: base disc, dome arc to the socket floor, flat socket floor.
+  let floor = @cad.RevolvedProfile::new([
+    @cad.RevLine((0.0, 0.0), (big_r, 0.0)),
+    @cad.RevArc((big_r, 0.0), (r_f, z_floor), (0.0, c)),
+    @cad.RevLine((r_f, z_floor), (0.0, z_floor)),
+  ])
+  component = component.add_layer(
+    floor.as_shape(),
+    name="head-floor",
+    color=metal,
+    placement=@common.Placement::translation(0.0, 0.0, length),
+  )
+  // Socket band: polygon ring stack following the dome, with a hex hole.
+  let levels : Array[(Double, Double)] = []
+  let steps = 4
+  for i in 0..<=steps {
+    let frac = Double::from_int(i) / Double::from_int(steps)
+    let z = z_floor + (k - z_floor) * frac
+    levels.push((z, r_f - r_of(z)))
+  }
+  let ring = @cad.ChamferedPrism::new(
+    circle_profile(2.0 * r_f, segments~),
+    levels,
+    hole=hex_hole_across_flats(s),
+  ).as_shape()
+  component.add_layer(
+    ring,
+    name="head-socket",
+    color=@cad.Rgb::orange(),
+    placement=@common.Placement::translation(0.0, 0.0, length),
+  )
+}
+
+///|
+/// button_flat_radius returns the flat-top radius of a button head. This is an
+/// engineering choice (large enough for the socket, small enough to leave a
+/// visible dome); it is not a standard dimension.
+fn button_flat_radius(big_r : Double, s : Double) -> Double {
+  let by_socket = s * 0.62
+  let by_head = 0.65 * big_r
+  let r = if by_socket > by_head { by_socket } else { by_head }
+  if r > 0.95 * big_r {
+    0.95 * big_r
+  } else {
+    r
+  }
+}
+
+///|
+/// add_plain_or_threaded_shank adds the shank layers shared by the new head
+/// families.
+fn add_plain_or_threaded_shank(
+  base : @common.Component,
+  thread : @standards.ThreadSpec,
+  length : Double,
+  thread_rep : @common.ThreadRepresentation,
+  policy : @common.DetailPolicy,
+  metal : @cad.Rgb,
+) -> @common.Component {
+  if thread_rep is @common.ThreadRepresentation::Helical {
+    let d = thread.nominal_diameter_mm
+    let d3 = thread.external_minor_diameter_mm()
+    match
+      external_thread_ridge(
+        thread,
+        length,
+        segments_per_turn=policy.segments_per_turn,
+      ) {
+      Some(shape) => {
+        let core = base.add_layer(
+          @cad.Cylinder::new(d3, length),
+          name="thread-core",
+          color=metal,
+        )
+        core.add_layer(shape, name="helical-thread", color=@cad.Rgb::cyan())
+      }
+      None =>
+        base.add_layer(@cad.Cylinder::new(d, length), name="shank", color=metal)
+    }
+  } else {
+    base.add_layer(
+      @cad.Cylinder::new(thread.nominal_diameter_mm, length),
+      name="shank",
+      color=metal,
+    )
+  }
+}

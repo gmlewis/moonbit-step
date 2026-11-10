@@ -652,14 +652,28 @@ def _read_stl_triangles(path: Path) -> list[tuple[tuple[float, float, float], ..
     return triangles
 
 
-def _stl_edges(triangles) -> tuple[int, int, int, int]:
+def _stl_edges(triangles) -> tuple[int, int, int, int, int]:
+    """Return (triangles, edges, open_edges, nonmanifold, degenerate).
+
+    Zero-area facets (two coincident corners) are excluded from the edge count.
+    A singular surface of revolution -- a cone apex or a sphere pole -- makes
+    OCCT's tessellator emit degenerate facets there; those facets have no
+    surface area and their coincident edges are not a real boundary. OCCT's own
+    STEP writer produces the same artifact for a sphere. Genuine open
+    boundaries (an edge used once by a non-degenerate facet) are still
+    detected, and the ignored count is reported so it is never hidden.
+    """
     edges: Counter = Counter()
+    degenerate = 0
 
     def q(p):
         return (round(p[0], 5), round(p[1], 5), round(p[2], 5))
 
     for triangle in triangles:
         pts = [q(p) for p in triangle]
+        if len(set(pts)) < 3:
+            degenerate += 1
+            continue
         for i in range(3):
             a = pts[i]
             b = pts[(i + 1) % 3]
@@ -667,7 +681,8 @@ def _stl_edges(triangles) -> tuple[int, int, int, int]:
             edges[key] += 1
     open_edges = sum(1 for c in edges.values() if c == 1)
     nonmanifold = sum(1 for c in edges.values() if c > 2)
-    return len(triangles), len(edges), open_edges, nonmanifold
+    good = len(triangles) - degenerate
+    return good, len(edges), open_edges, nonmanifold, degenerate
 
 
 def check_occt_mesh(path: Path, deflection: float, required: bool) -> Check:
@@ -707,7 +722,7 @@ def check_occt_mesh(path: Path, deflection: float, required: bool) -> Check:
 
     if not triangles:
         return Check("mesh", False, "the STL could not be parsed")
-    tris, edges, open_edges, nonmanifold = _stl_edges(triangles)
+    tris, edges, open_edges, nonmanifold, degenerate = _stl_edges(triangles)
     if open_edges:
         return Check(
             "occt mesh",
@@ -715,10 +730,11 @@ def check_occt_mesh(path: Path, deflection: float, required: bool) -> Check:
             f"{tris} triangles, {edges} edges, {open_edges} open edges",
         )
     warning = f", {nonmanifold} non-manifold edges (separate bodies may touch)" if nonmanifold else ""
+    degen = f", {degenerate} degenerate facets ignored at singular points" if degenerate else ""
     return Check(
         "occt mesh",
         True,
-        f"{tris} triangles, {edges} edges, 0 open edges{warning}",
+        f"{tris} triangles, {edges} edges, 0 open edges{warning}{degen}",
     )
 
 
@@ -747,7 +763,7 @@ def check_gmsh_mesh(path: Path, required: bool) -> Check:
 
     if not triangles:
         return Check("mesh", False, "the STL could not be parsed")
-    tris, edges, open_edges, nonmanifold = _stl_edges(triangles)
+    tris, edges, open_edges, nonmanifold, degenerate = _stl_edges(triangles)
     if open_edges:
         return Check(
             "gmsh mesh",
@@ -755,6 +771,7 @@ def check_gmsh_mesh(path: Path, required: bool) -> Check:
             f"{tris} triangles, {edges} edges, {open_edges} open edges",
         )
     warning = f", {nonmanifold} non-manifold edges (separate bodies may touch)" if nonmanifold else ""
+    degen = f", {degenerate} degenerate facets ignored at singular points" if degenerate else ""
     return Check(
         "gmsh mesh",
         True,

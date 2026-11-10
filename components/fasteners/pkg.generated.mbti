@@ -32,6 +32,8 @@ pub fn hole_profile(Double, segments? : Int32) -> Array[(Double, Double)]
 
 pub fn internal_thread_ridge(@standards.ThreadSpec, Double, segments_per_turn? : Int32, embed_mm? : Double) -> @cad.Shape?
 
+pub fn iso10642_screw(@standards.MetricSize, Double, detail? : @common.DetailLevel, threads? : @common.ThreadRepresentation) -> Result[@common.Component, @common.SpecError]
+
 pub fn iso4014(@standards.MetricSize, Double, detail? : @common.DetailLevel, threads? : @common.ThreadRepresentation) -> Result[@common.Component, @common.SpecError]
 
 pub fn iso4014_bolt(@standards.ISO4014Spec, detail? : @common.DetailLevel, threads? : @common.ThreadRepresentation) -> @common.Component
@@ -45,6 +47,8 @@ pub fn iso4032_nut(@standards.MetricSize, detail? : @common.DetailLevel, threads
 pub fn iso4762_screw(@standards.MetricSize, Double, detail? : @common.DetailLevel, threads? : @common.ThreadRepresentation) -> Result[@common.Component, @common.SpecError]
 
 pub fn iso7089_washer(@standards.MetricSize, detail? : @common.DetailLevel) -> Result[@common.Component, @common.SpecError]
+
+pub fn iso7380_screw(@standards.MetricSize, Double, detail? : @common.DetailLevel, threads? : @common.ThreadRepresentation) -> Result[@common.Component, @common.SpecError]
 
 pub fn socket_head_cap_screw(@standards.ISO4762Spec, detail? : @common.DetailLevel, threads? : @common.ThreadRepresentation, color? : @cad.Rgb) -> @common.Component
 

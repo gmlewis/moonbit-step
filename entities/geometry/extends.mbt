@@ -55,6 +55,9 @@ pub extend CompositeCurve with @step.Entity::{to_step}
 pub extend ConicalSurface with @step.Entity::{to_step}
 
 ///|
+pub extend SphericalSurface with @step.Entity::{to_step}
+
+///|
 pub extend CsgSolid with @step.Entity::{to_step}
 
 ///|

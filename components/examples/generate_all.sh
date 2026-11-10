@@ -34,6 +34,22 @@ moon run --target native components/examples/motion_stack -- \
   --bearing 608 -o "$OUT/motion-608-stack.step"
 moon run --target native components/examples/spring -- \
   -o "$OUT/spring-10x1x20.step"
+# New feature-geometry artifacts (Stage G/H/I).
+moon run --target native components/examples/revolution -- --out-dir "$OUT"
+for std in iso4762 iso4032; do
+  moon run --target native components/examples/fasteners -- \
+    --standard "$std" --size M4 --length 20 --detail detailed \
+    -o "$OUT/$std-M4-detailed.step"
+done
+for std in iso7380 iso10642; do
+  moon run --target native components/examples/fasteners -- \
+    --standard "$std" --size M4 --length 16 --detail detailed \
+    -o "$OUT/$std-M4x16-detailed.step"
+done
+moon run --target native components/examples/motion_stack -- \
+  --bearing 608 --detail detailed -o "$OUT/motion-608-stack-detailed.step"
+moon run --target native components/examples/filleted_shaft -- \
+  --fillet 2 -o "$OUT/filleted-shaft-d10-16.step"
 
 echo "Validating generated fixtures..."
 for f in "$OUT"/*.step; do

@@ -149,10 +149,38 @@ documented per component, not hidden.
 | Helical thread | Swept trapezoidal ridge along a helix | `segments_per_turn`, pitch, basic profile |
 | Gear tooth flank | Involute sampled at discrete points | `involute_points` |
 | Gear tip/root arcs | Polygonal arcs | `arc_points` |
-| Bearing rolling elements | Cylindrical proxies, not spheres | `roller_count`, ring thickness |
+| Bearing rolling elements | Analytic spheres (`SPHERICAL_SURFACE`) | ball diameter = modeled radial gap |
+| Bearing ring chamfers | Parallel-inset ring stack | engineering default `bearing_chamfer` |
 | T-slot section | Generic polygon with tapered T-slot notches and corner webs ("arrows") | profile dimensions, all explicit |
 | Internal ring gear | Trapezoidal internal tooth form | `tooth_fraction`, tip/root arc points |
-| Head chamfers / fillets | Not modeled | documented limitation |
+| 2D chamfer/fillet | Straight bevel or sampled circular arc | `distance`/`radius`, `segments`, `angle_deg` |
+| Prism face/edge chamfers | Parallel-inset ring stack (planar facets) | `ChamferedPrism` levels, inset |
+| Head socket bands | High-resolution polygon ring stack | `circle_segments` (64 at Detailed) |
+
+## Feature geometry primitives
+
+- **`RevolvedProfile`** — a solid of revolution from a chain of line/arc bands
+  in the (r, z) half-plane about +Z. Line bands compile to cylindrical, conical,
+  and planar faces; arcs centred on the axis compile to spherical faces and
+  off-axis arcs to toroidal faces. The chain must either end on the axis (poles:
+  cylinder, cone, sphere, dome) or close away from it (annular: washer, ring).
+  Orientation is normalised so the material is on the left; each band uses its
+  start circle with oriented-edge sense `.T.` and its end circle with `.F.`, so
+  neighbours traverse a shared circle in opposite directions. Full-period bands
+  carry a seam edge.
+- **`ChamferedPrism`** — a convex prism built from a stack of parallel-inset
+  rings with an optional prismatic through-hole. Consecutive rings are joined by
+  planar quads (adjacent edges stay parallel under a parallel offset) and the
+  ends are planar caps. It produces real, measurable face/edge chamfers on hex
+  nuts, socket-head heads, washers, and bearings.
+- **`Profile2D::chamfer_vertices` / `fillet_vertices`** — 2D bevel/arc
+  operations for extruded sections (plate outlines, extrusion corner radii,
+  gear tip details). Convex vertices are cut; re-entrant vertices are beveled or
+  rounded. Invalid sizes return a typed error.
+
+Singular poles (cone apex, sphere pole) are analytic; the OCCT tessellator emits
+a zero-area facet there, which `scripts/validate_step.py` excludes from the
+watertight edge count and reports explicitly.
 
 ## Validation
 

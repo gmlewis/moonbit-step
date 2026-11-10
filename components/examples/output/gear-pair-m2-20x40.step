@@ -8,7 +8,7 @@ HEADER;
     driven = Spur gear m2-z40 (ISO 21771 involute geometry (parametric))
 */
 FILE_DESCRIPTION(('External involute gear pair at the standard centre distance plus offset. Static assembly; no kinematic constraints.'),'2;1');
-FILE_NAME('gear-pair-m2-z20-m2-z40.step','2026-11-10T01:41:43',('gmlewis'),('gmlewis/step','https://github.com/gmlewis/moonbit-step'),'gmlewis/step','moonbit','none');
+FILE_NAME('gear-pair-m2-z20-m2-z40.step','2026-11-10T02:56:47',('gmlewis'),('gmlewis/step','https://github.com/gmlewis/moonbit-step'),'gmlewis/step','moonbit','none');
 FILE_SCHEMA(('AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }'));
 ENDSEC;
 DATA;

@@ -77,12 +77,69 @@
 
 ## Current status
 
-- Full test suite is kept green (`./test-all.sh`): **432 tests, 432 passed,
-  0 failed** (baseline at the start of the audit was 408).
+- Full test suite is kept green (`./test-all.sh`): **457 tests, 457 passed,
+  0 failed** (432 at the start of the chamfer/fillet session; 408 at the start
+  of the earlier audit).
 - Representative generated files pass `scripts/validate_step.py` with OCCT
   `checkshape` and watertight tessellation.
 - Flat assembly exports pass the full validator. The STEP product-structure
   export passes all non-OCCT checks; see `KNOWN_ISSUES.md`.
+
+## Chamfer, fillet, and feature session (2026-11-09)
+
+Starting state: branch `master`, 432/432 tests. This session added the
+feature-geometry kernel and applied it across fasteners, bearings, and the two
+new head standards. See `FEATURES.md` for the full support matrix.
+
+### New kernel primitives
+
+- `Profile2D::chamfer_vertices` / `fillet_vertices`: robust 2D chamfer and
+  fillet with convex/concave classification, selection, fit validation, and a
+  simple-polygon check. Tests: `cad/profile-chamfer_wbtest.mbt`.
+- `RevolvedProfile`: a solid of revolution compiled to analytic
+  `CYLINDRICAL_SURFACE`, `CONICAL_SURFACE`, `SPHERICAL_SURFACE`,
+  `TOROIDAL_SURFACE`, and planar faces, with real seams and analytic poles.
+  Tests: `cad/revolved_profile_wbtest.mbt`. OCCT-measured volumes match the
+  closed-form values (sphere 523.599, cone 134.041, frustum 175.929, cylinder
+  628.319, ring 131.947, torus 98.696, dome 89.535 mm³).
+- `ChamferedPrism`: a parallel-inset ring stack with an optional prismatic
+  through-hole, used for real face chamfers on prisms. Tests:
+  `cad/chamfered_prism_wbtest.mbt`.
+- A `SPHERICAL_SURFACE` STEP entity was added to the geometry, repository, and
+  parse layers.
+
+### Applied features
+
+- ISO 4032 nut: 45° face chamfer on both bearing faces at `Detailed` and above
+  (real ring-stack chamfer; `iso4032-M4-detailed` validates watertight).
+- ISO 4762 screw: 45° head top-edge chamfer at `Detailed` and above
+  (`iso4762-M4-detailed`).
+- ISO 7380-1 button head and ISO 10642 countersunk head: new standards with
+  verified head dimensions and real dome/cone geometry plus hexagon sockets.
+  `iso7380-M4x16-detailed` and `iso10642-M4x16-detailed` validate watertight.
+- Bearings: cylindrical roller proxies replaced with analytic spheres; rings
+  carry an engineering-default edge chamfer at `Detailed` and above
+  (`motion-608-stack-detailed`).
+
+### Validation tooling
+
+- `scripts/measure_step_features.py` reports surface-type counts and cone /
+  sphere / torus parameters, so a chamfer or fillet can be checked for real
+  conical/toroidal/spherical geometry.
+- `scripts/validate_step.py` now excludes zero-area tessellation facets at
+  singular poles from the watertight edge count and reports the ignored count;
+  genuine open boundaries still fail. This fixes a false negative that also
+  affected an OCCT-generated sphere.
+- `components/examples/revolution` generates the analytic revolve fixtures;
+  `generate_all.sh` produces and validates every new artifact.
+
+### Remaining
+
+1. Exact/arc-capable B-slot6 2020 extrusion profile (unchanged from the prior
+   audit; still deferred pending provenance).
+2. Gear root fillet / tip chamfer and exact internal involute ring.
+3. Catalog/query API and mixed-family assemblies.
+4. Broader golden corpus promotion with feature-level verdicts.
 
 ## Correctness audit (2026-11-09)
 

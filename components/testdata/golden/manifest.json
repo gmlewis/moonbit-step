@@ -44,12 +44,20 @@
         "overall_length_mm": 13.0
       },
       "measured_dimensions": {
-        "bbox_mm": [5.5, 5.5, 13.0],
+        "bbox_mm": [
+          5.5,
+          5.5,
+          13.0
+        ],
         "volume_mm3": 128.119,
         "solids": 1
       },
       "parametric_value": {
-        "bbox_mm": [5.5, 5.5, 13.0],
+        "bbox_mm": [
+          5.5,
+          5.5,
+          13.0
+        ],
         "volume_mm3": 134.8361,
         "solids": 3,
         "source": "components/examples/fasteners --standard iso4762 --size M3 --length 10"
@@ -79,12 +87,20 @@
         "overall_length_mm": 24.0
       },
       "measured_dimensions": {
-        "bbox_mm": [7.0, 7.0, 24.0],
+        "bbox_mm": [
+          7.0,
+          7.0,
+          24.0
+        ],
         "volume_mm3": 378.249,
         "solids": 1
       },
       "parametric_value": {
-        "bbox_mm": [7.0, 7.0, 24.0],
+        "bbox_mm": [
+          7.0,
+          7.0,
+          24.0
+        ],
         "volume_mm3": 389.4569,
         "solids": 3,
         "source": "components/examples/fasteners --standard iso4762 --size M4 --length 20"
@@ -114,12 +130,20 @@
         "overall_length_mm": 15.0
       },
       "measured_dimensions": {
-        "bbox_mm": [9.2003, 9.2003, 15.0],
+        "bbox_mm": [
+          9.2003,
+          9.2003,
+          15.0
+        ],
         "volume_mm3": 417.621,
         "solids": 1
       },
       "parametric_value": {
-        "bbox_mm": [8.5, 8.5, 15.0],
+        "bbox_mm": [
+          8.5,
+          8.5,
+          15.0
+        ],
         "volume_mm3": 445.03,
         "solids": 3,
         "source": "components/examples/fasteners --standard iso4762 --size M5 --length 10"
@@ -147,12 +171,20 @@
         "height_mm": 3.2
       },
       "measured_dimensions": {
-        "bbox_mm": [7.66, 7.66, 3.2027],
+        "bbox_mm": [
+          7.66,
+          7.66,
+          3.2027
+        ],
         "volume_mm3": 91.7031,
         "solids": 1
       },
       "parametric_value": {
-        "bbox_mm": [7.0, 8.0829, 3.2],
+        "bbox_mm": [
+          7.0,
+          8.0829,
+          3.2
+        ],
         "volume_mm3": 95.6951,
         "solids": 1,
         "source": "components/examples/fasteners --standard iso4032 --size M4"
@@ -181,12 +213,20 @@
         "thickness_mm": 0.8
       },
       "measured_dimensions": {
-        "bbox_mm": [9.0, 9.0, 1.8],
+        "bbox_mm": [
+          9.0,
+          9.0,
+          1.8
+        ],
         "volume_mm3": 88.3714,
         "solids": 1
       },
       "parametric_value": {
-        "bbox_mm": [9.0, 9.0, 0.8],
+        "bbox_mm": [
+          9.0,
+          9.0,
+          0.8
+        ],
         "volume_mm3": 39.1641,
         "solids": 1,
         "source": "components/examples/fasteners --standard iso7089 --size M4"
@@ -215,12 +255,20 @@
         "width_mm": 7.0
       },
       "measured_dimensions": {
-        "bbox_mm": [22.0, 22.0, 7.0],
+        "bbox_mm": [
+          22.0,
+          22.0,
+          7.0
+        ],
         "volume_mm3": 2242.93,
         "solids": 1
       },
       "parametric_value": {
-        "bbox_mm": [22.0, 22.0, 7.0],
+        "bbox_mm": [
+          22.0,
+          22.0,
+          7.0
+        ],
         "volume_mm3": 1178.87,
         "solids": 22,
         "source": "components/examples/motion_stack --bearing 608 (one bearing outer-ring solid)"
@@ -250,12 +298,19 @@
         "slot_width_mm": 6.0
       },
       "measured_dimensions": {
-        "bbox_mm": [20.0, 50.0, 20.0],
+        "bbox_mm": [
+          20.0,
+          50.0,
+          20.0
+        ],
         "volume_mm3": 8716.82,
         "solids": 1
       },
       "parametric_value": {
-        "section_bbox_mm": [20.0, 20.0],
+        "section_bbox_mm": [
+          20.0,
+          20.0
+        ],
         "section_area_mm2": 192.3451,
         "note": "Generic four-slot envelope, not the B-type section",
         "source": "components/profiles TSlotProfile::generic_2020"
@@ -286,18 +341,63 @@
         "tip_diameter_mm": 44.0
       },
       "measured_dimensions": {
-        "bbox_mm": [44.0, 44.0, 16.0],
+        "bbox_mm": [
+          44.0,
+          44.0,
+          16.0
+        ],
         "volume_mm3": 23524.2,
         "solids": 1
       },
       "parametric_value": {
-        "bbox_mm": [44.0, 44.0, 16.0],
+        "bbox_mm": [
+          44.0,
+          44.0,
+          16.0
+        ],
         "volume_mm3": 18810.8,
         "solids": 1,
         "source": "components/examples/gear_pair --module 2 --teeth 20 --mateTeeth 40 --faceWidth 16 --bore 8 (driver solid)"
       },
       "verdict": "accepted-envelope",
       "notes": "Tip diameter (44 mm), face width (16 mm), module and tooth count match. The reference tooth form and root details are not compared; the parametric gear uses polygonal involute flanks and sharp roots.",
+      "license_status": "unverified-per-file",
+      "committed": false
+    },
+    {
+      "fixture_id": "fasteners/iso10642-m3x12",
+      "part_id": "iso10642_socket_countersunk_screw_m3x12",
+      "designation": "ISO 10642 M3 x 12",
+      "family": "countersunk head hexagon socket screw",
+      "standard": "ISO 10642",
+      "manufacturer": "unspecified step.parts contributor",
+      "source_page": "https://www.step.parts/parts/iso10642_socket_countersunk_screw_m3x12",
+      "local_filename": "external/iso10642_socket_countersunk_screw_m3x12.step",
+      "sha256": "5b4864c7af57e387276f29fb1a3ae5270c749a86e576841ae8a900e080b6ea3c",
+      "byte_size": 90554,
+      "units": "mm",
+      "declared_dimensions": {
+        "head_diameter_max_mm": 6.0,
+        "head_angle_deg": 90.0,
+        "nominal_length_mm": 12.0
+      },
+      "measured_dimensions": {
+        "bbox_mm": [
+          6.0464,
+          6.0464,
+          12.0
+        ],
+        "volume_mm3": 96.4878,
+        "solids": 1,
+        "cone_semi_angle_deg": 45.0
+      },
+      "parametric_value": {
+        "head_diameter_mm": 6.0,
+        "head_angle_deg": 90.0,
+        "length_mm": 12.0
+      },
+      "verdict": "accepted-envelope",
+      "notes": "Head diameter 6.046 mm matches ISO 10642 M3 dk max 6.0 within 0.05 mm; the conical bearing surface measures a 45 degree half-angle (90 degree included), matching the parametric builder. Envelope/angle cross-check only; per-file license unverified and not committed.",
       "license_status": "unverified-per-file",
       "committed": false
     }
@@ -307,7 +407,11 @@
       "fixture_id": "frames/2020-400x300x500",
       "kind": "analytic",
       "provenance": "Authored in this repository from the documented frame semantics; not an external model.",
-      "dimensions_mm": [400.0, 300.0, 500.0],
+      "dimensions_mm": [
+        400.0,
+        300.0,
+        500.0
+      ],
       "series": "2020",
       "members": 12,
       "validator": "scripts/validate_frame_geometry.py",
@@ -316,14 +420,18 @@
       "expected_volumes_mm3": {
         "post": 96172.5539,
         "rail_x": 69244.2388,
-        "rail_y": 50009.7280
+        "rail_y": 50009.728
       }
     },
     {
       "fixture_id": "frames/2020-600x300x400",
       "kind": "analytic",
       "provenance": "Authored in this repository from the documented frame semantics; not an external model.",
-      "dimensions_mm": [600.0, 300.0, 400.0],
+      "dimensions_mm": [
+        600.0,
+        300.0,
+        400.0
+      ],
       "series": "2020",
       "members": 12,
       "validator": "scripts/validate_frame_geometry.py",
@@ -333,7 +441,11 @@
       "fixture_id": "frames/2020-45x45x45",
       "kind": "analytic",
       "provenance": "Authored in this repository near the minimum valid rail span; not an external model.",
-      "dimensions_mm": [45.0, 45.0, 45.0],
+      "dimensions_mm": [
+        45.0,
+        45.0,
+        45.0
+      ],
       "series": "2020",
       "members": 12,
       "validator": "scripts/validate_frame_geometry.py",

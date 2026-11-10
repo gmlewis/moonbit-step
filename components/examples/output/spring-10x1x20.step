@@ -10,7 +10,7 @@ HEADER;
   Notes:      Open helical spring with circular wire and flat swept end caps. Closed/ground ends and preload are not modeled.
 */
 FILE_DESCRIPTION(('Compression spring OD 10 / wire 1 x 20'),'2;1');
-FILE_NAME('spring-10x1x20.step','2026-11-10T01:41:46',('gmlewis'),('gmlewis/step','https://github.com/gmlewis/moonbit-step'),'gmlewis/step','moonbit','none');
+FILE_NAME('spring-10x1x20.step','2026-11-10T02:56:50',('gmlewis'),('gmlewis/step','https://github.com/gmlewis/moonbit-step'),'gmlewis/step','moonbit','none');
 FILE_SCHEMA(('AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }'));
 ENDSEC;
 DATA;

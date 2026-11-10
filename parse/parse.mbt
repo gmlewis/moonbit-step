@@ -45,6 +45,9 @@ fn init {
   parsers.set("CONICAL_SURFACE", fn(args) raise StepParseError {
     @repository.any_entity_conical_surface(parse_conical_surface(args))
   })
+  parsers.set("SPHERICAL_SURFACE", fn(args) raise StepParseError {
+    @repository.any_entity_spherical_surface(parse_spherical_surface(args))
+  })
   parsers.set("TOROIDAL_SURFACE", fn(args) raise StepParseError {
     @repository.any_entity_toroidal_surface(parse_toroidal_surface(args))
   })
@@ -780,6 +783,24 @@ fn parse_conical_surface(
     @step.Ref::{ id: pos_id, },
     radius_literal,
     semi_angle_literal,
+  )
+}
+
+///|
+fn parse_spherical_surface(
+  args : String,
+) -> @geometry.SphericalSurface raise StepParseError {
+  let parts = split_args(args)
+  if parts.length() != 3 {
+    fail_parse()
+  }
+  let name = strip_quotes(parts[0])
+  let pos_id = parse_ref_int(parts[1])
+  let radius_literal = parts[2].trim().to_owned()
+  @geometry.SphericalSurface::new(
+    name,
+    @step.Ref::{ id: pos_id, },
+    radius_literal,
   )
 }
 

@@ -61,11 +61,12 @@ pub fn bearing_designations() -> Array[String] {
 ///|
 /// bearing builds a simplified radial bearing envelope.
 ///
-/// Geometry: an outer ring, an inner ring, and a set of cylindrical roller
-/// proxies between them. **Balls are not modeled as spheres**: the rolling
-/// elements are cylinders with diameter and length equal to the radial gap.
-/// This is an assembly envelope, not an exact catalogue bearing. Ring
-/// dimensions are derived as `(D - d) / 5` unless `ring_thickness_mm` is given.
+/// Geometry: an outer ring, an inner ring, and a set of **spherical balls**
+/// between them (an analytic `SPHERICAL_SURFACE` per ball). At `Detailed` and
+/// above the rings also carry a small engineering-default edge chamfer and the
+/// balls are placed at the radial mid-plane. The envelope is not exact
+/// catalogue geometry: ring proportions and ball diameter come from the
+/// boundary dimensions, and seals/cages are omitted.
 ///
 /// Axis +Z, base at z = 0.
 pub fn bearing(
@@ -96,8 +97,8 @@ pub fn bearing(
       @common.InvalidParameter("bearing roller count must be at least 1"),
     )
   }
-  let gap = outer - d - 4.0 * ring_t
-  if gap <= 0.0 {
+  let radial_gap = (outer - d) / 2.0 - 2.0 * ring_t
+  if radial_gap <= 0.0 {
     return Err(
       @common.InvalidDimension(
         "bearing radial gap must be positive; reduce the ring thickness",
@@ -114,6 +115,7 @@ pub fn bearing(
     Some(c) => c
     None => @cad.Rgb::purple()
   }
+  let use_features = policy.include_small_features
   let name = "bearing-\{size.designation}"
   let mut component = @common.Component::new(
     name~,
@@ -122,41 +124,82 @@ pub fn bearing(
       standard="ISO 15 boundary dimensions; simplified internal geometry",
       family="radial ball bearing (simplified envelope)",
       size=size.designation,
-      source="Boundary dimensions from common ISO 15 / catalogue tables; internal rings and rollers are parametric, not catalogue geometry. See components/DATA_SOURCES.md.",
+      source="Boundary dimensions from common ISO 15 / catalogue tables; internal rings, balls, and chamfers are parametric, not catalogue geometry. See components/DATA_SOURCES.md.",
     ),
-    description="Outer and inner rings plus cylindrical roller proxies. Balls are not modeled as spheres. Rings are plain tubes; seals, cages, and chamfers are omitted.",
+    description="Outer and inner rings plus spherical balls (analytic sphere surfaces). Rings are plain tubes at Simplified detail and carry an engineering-default edge chamfer at Detailed and above. Seals and cages are omitted.",
   )
-  component = component.add_layer(
-    @cad.tube(outer, outer - 2.0 * ring_t, width, segments~),
-    name="outer-ring",
-    color=base_color,
-  )
-  component = component.add_layer(
-    @cad.tube(d + 2.0 * ring_t, d, width, segments~),
-    name="inner-ring",
-    color=@cad.Rgb::blue(),
-  )
-  let mid_radius = (outer + d) / 4.0
-  for i in 0..<roller_count {
-    let angle = 360.0 * i.to_double() / roller_count.to_double()
-    let base = @common.Placement::at(
-      mid_radius - gap / 2.0,
-      0.0,
-      width / 2.0,
-      ry=90.0,
+  let outer_hole = outer - 2.0 * ring_t
+  let inner_outer = d + 2.0 * ring_t
+  if use_features {
+    let c = bearing_chamfer(width, ring_t)
+    component = component.add_layer(
+      @cad.ChamferedPrism::from_chamfer(
+        @cad.Profile2D::circle(outer, segments~),
+        width,
+        bottom_chamfer=c,
+        top_chamfer=c,
+        chamfer_depth=c,
+        hole=@cad.Profile2D::circle(outer_hole, segments~).rev(),
+      ).as_shape(),
+      name="outer-ring",
+      color=base_color,
     )
+    component = component.add_layer(
+      @cad.ChamferedPrism::from_chamfer(
+        @cad.Profile2D::circle(inner_outer, segments~),
+        width,
+        bottom_chamfer=c,
+        top_chamfer=c,
+        chamfer_depth=c,
+        hole=@cad.Profile2D::circle(d, segments~).rev(),
+      ).as_shape(),
+      name="inner-ring",
+      color=@cad.Rgb::blue(),
+    )
+  } else {
+    component = component.add_layer(
+      @cad.tube(outer, outer_hole, width, segments~),
+      name="outer-ring",
+      color=base_color,
+    )
+    component = component.add_layer(
+      @cad.tube(inner_outer, d, width, segments~),
+      name="inner-ring",
+      color=@cad.Rgb::blue(),
+    )
+  }
+  let mid_radius = (outer + d) / 4.0
+  let ball = @cad.RevolvedProfile::sphere(radial_gap)
+  for i in 0..<roller_count {
+    let angle = 360.0 * Double::from_int(i) / Double::from_int(roller_count)
+    let base = @common.Placement::translation(mid_radius, 0.0, width / 2.0)
     let placement = @common.Placement::compose(
       @common.Placement::rotation_z(angle),
       base,
     )
     component = component.add_layer(
-      @cad.Cylinder::new(gap, gap),
-      name="roller-\{i + 1}",
+      ball.as_shape(),
+      name="ball-\{i + 1}",
       color=@cad.Rgb::orange(),
       placement~,
     )
   }
   Ok(component)
+}
+
+///|
+/// bearing_chamfer returns the engineering-default ring edge chamfer. Bearing
+/// catalogue drawings specify their own chamfers; this keeps the value small
+/// relative to the ring and width.
+fn bearing_chamfer(width : Double, ring_t : Double) -> Double {
+  let by_width = 0.15 * width
+  let by_ring = 0.4 * ring_t
+  let c = if by_width < by_ring { by_width } else { by_ring }
+  if c < 0.2 {
+    0.2
+  } else {
+    c
+  }
 }
 
 ///|

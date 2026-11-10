@@ -9,7 +9,7 @@ HEADER;
     nut = ISO 4032 - M4 (ISO 4032:2023)
 */
 FILE_DESCRIPTION(('Socket head cap screw with flat washer and hex nut, separated along the screw axis.'),'2;1');
-FILE_NAME('hardware-kit-M4-20.step','2026-11-10T01:41:42',('gmlewis'),('gmlewis/step','https://github.com/gmlewis/moonbit-step'),'gmlewis/step','moonbit','none');
+FILE_NAME('hardware-kit-M4-20.step','2026-11-10T02:56:46',('gmlewis'),('gmlewis/step','https://github.com/gmlewis/moonbit-step'),'gmlewis/step','moonbit','none');
 FILE_SCHEMA(('AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }'));
 ENDSEC;
 DATA;

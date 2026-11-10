@@ -11,7 +11,7 @@ HEADER;
     ring = Internal ring gear m2 z36 (Approximate internal tooth form (not ISO 21771 exact))
 */
 FILE_DESCRIPTION(('Straight-spur planetary set with an approximate internal ring gear. Static layout; no kinematics.'),'2;1');
-FILE_NAME('planetary-m2-s12-p12-r36-3.step','2026-11-10T01:41:45',('gmlewis'),('gmlewis/step','https://github.com/gmlewis/moonbit-step'),'gmlewis/step','moonbit','none');
+FILE_NAME('planetary-m2-s12-p12-r36-3.step','2026-11-10T02:56:48',('gmlewis'),('gmlewis/step','https://github.com/gmlewis/moonbit-step'),'gmlewis/step','moonbit','none');
 FILE_SCHEMA(('AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }'));
 ENDSEC;
 DATA;

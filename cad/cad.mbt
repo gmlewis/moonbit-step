@@ -312,6 +312,10 @@ fn compile_node_shape(
   match node.shape {
     Cuboid(c) => compile_cuboid(ctx, node, c, reverse~, parent~)
     Cylinder(c) => compile_cylinder(ctx, node, c, reverse~, parent~)
+    RevolvedProfile(r) =>
+      compile_revolved_profile(ctx, node, r, reverse~, parent~)
+    ChamferedPrism(p) =>
+      compile_chamfered_prism(ctx, node, p, reverse~, parent~)
     CalibrationChamferBlock(b) =>
       compile_calibration_chamfer_block(ctx, node, b, reverse~, parent~)
     ExtrudedProfile(e) =>

@@ -3,9 +3,13 @@
 ///
 /// The nut axis is +Z, its bearing face is `z = 0`, and one pair of flats is
 /// normal to the X axis. The bore is a simple cylindrical hole in simplified
-/// and detailed modes. With `ThreadRepresentation::Helical` the body is bored
-/// at the major diameter and a swept helical ridge fills the ISO 68-1 internal
-/// thread form inward to the minor diameter.
+/// mode. At `Detailed` and above the body carries the customary chamfer on both
+/// bearing faces (a parallel inset of the hexagon, built as a real ruled ring
+/// stack). This chamfer is an engineering default derived from the nut size;
+/// ISO 4032 does not fix its dimensions. With
+/// `ThreadRepresentation::Helical` the body is bored at the major diameter and
+/// a swept helical ridge fills the ISO 68-1 internal thread form inward to the
+/// minor diameter; the helical body is not chamfered.
 pub fn hex_nut(
   spec : @standards.ISO4032Spec,
   detail~ : @common.DetailLevel = Simplified,
@@ -30,17 +34,17 @@ pub fn hex_nut(
   }
   let accent = @cad.Rgb::cyan()
   let outer = hex_profile_across_flats(s)
+  let bore_d = d + 2.0 * spec.clearance_mm
+  let hole = hole_profile(bore_d, segments~)
   let base = @common.Component::new(
     name~,
     metadata=spec.metadata(),
-    description="Hexagon regular nut with a through bore. No washer-face chamfer is modeled." +
+    description="Hexagon regular nut with a through bore." +
+      nut_chamfer_note(policy, thread_rep) +
       thread_note(thread_rep),
   )
   if thread_rep is @common.ThreadRepresentation::Helical {
-    let bore_d = d + 2.0 * spec.clearance_mm
-    let body = @cad.ExtrudedProfile::new(outer, m, holes=[
-      hole_profile(bore_d, segments~),
-    ])
+    let body = @cad.ExtrudedProfile::new(outer, m, holes=[hole])
     let mut component = base.add_layer(body, name="body", color=metal)
     match
       internal_thread_ridge(
@@ -57,12 +61,46 @@ pub fn hex_nut(
       None => ()
     }
     component
-  } else {
-    let bore_d = d + 2.0 * spec.clearance_mm
-    let body = @cad.ExtrudedProfile::new(outer, m, holes=[
-      hole_profile(bore_d, segments~),
-    ])
+  } else if policy.include_small_features {
+    let c = nut_chamfer_mm(s, m)
+    let depth = c
+    let body = @cad.ChamferedPrism::new(
+      outer,
+      [(0.0, c), (depth, 0.0), (m - depth, 0.0), (m, c)],
+      hole~,
+    ).as_shape()
     base.add_layer(body, name="body", color=metal)
+  } else {
+    let body = @cad.ExtrudedProfile::new(outer, m, holes=[hole])
+    base.add_layer(body, name="body", color=metal)
+  }
+}
+
+///|
+/// nut_chamfer_mm returns the engineering-default face-chamfer inset for an
+/// ISO 4032 nut. The standard does not fix the chamfer; this keeps it visible
+/// and below a third of the nut height.
+fn nut_chamfer_mm(s : Double, m : Double) -> Double {
+  let by_width = 0.1 * s
+  let by_height = m / 3.0
+  if by_width < by_height {
+    by_width
+  } else {
+    by_height
+  }
+}
+
+///|
+fn nut_chamfer_note(
+  policy : @common.DetailPolicy,
+  thread_rep : @common.ThreadRepresentation,
+) -> String {
+  if thread_rep is @common.ThreadRepresentation::Helical {
+    ""
+  } else if policy.include_small_features {
+    " Both bearing faces carry a 45-degree chamfer (engineering default, not a standard dimension)."
+  } else {
+    " Face chamfers are omitted in this detail level."
   }
 }
 

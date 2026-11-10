@@ -1,0 +1,156 @@
+ISO-10303-21;
+HEADER;
+/*
+  Component:  Filleted stepped shaft
+  Standard:   
+  Family:     stepped shaft
+  Size:       2 steps
+  Data source: Parametric solid of revolution with circular shoulder fillets; no standard table is implied.
+  Notes:      Stepped shaft with toroidal shoulder fillets on increasing steps. Decreasing steps and steps too short for the fillet stay sharp.
+*/
+FILE_DESCRIPTION(('Filleted stepped shaft'),'2;1');
+FILE_NAME('filleted-shaft-2-step.step','2026-11-10T02:56:51',('gmlewis'),('gmlewis/step','https://github.com/gmlewis/moonbit-step'),'gmlewis/step','moonbit','none');
+FILE_SCHEMA(('AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }'));
+ENDSEC;
+DATA;
+#1=DIMENSIONAL_EXPONENTS(0.0,0.0,0.0,0.0,0.0,0.0,0.0);
+#2=(
+NAMED_UNIT(*)
+PLANE_ANGLE_UNIT()
+SI_UNIT($,.RADIAN.)
+);
+#3=PLANE_ANGLE_MEASURE_WITH_UNIT(PLANE_ANGLE_MEASURE(0.0174532925),#2);
+#4=(
+CONVERSION_BASED_UNIT('DEGREE',#3)
+NAMED_UNIT(#1)
+PLANE_ANGLE_UNIT()
+);
+#5=(
+NAMED_UNIT(*)
+SI_UNIT($,.STERADIAN.)
+SOLID_ANGLE_UNIT()
+);
+#6=(
+LENGTH_UNIT()
+NAMED_UNIT(*)
+SI_UNIT(.MILLI.,.METRE.)
+);
+#7=UNCERTAINTY_MEASURE_WITH_UNIT(LENGTH_MEASURE(0.00002),#6,'DISTANCE_ACCURACY_VALUE','Maximum Tolerance applied to model');
+#8=(
+GEOMETRIC_REPRESENTATION_CONTEXT(3)
+GLOBAL_UNCERTAINTY_ASSIGNED_CONTEXT((#7))
+GLOBAL_UNIT_ASSIGNED_CONTEXT((#6,#4,#5))
+REPRESENTATION_CONTEXT('filleted-shaft-2-step','TOP_LEVEL_ASSEMBLY_PART')
+);
+#9=CARTESIAN_POINT('',(0.0,0.0,0.0));
+#10=DIRECTION('',(0.0,0.0,-1.0));
+#11=DIRECTION('',(1.0,0.0,0.0));
+#12=AXIS2_PLACEMENT_3D('',#9, #10, #11);
+#13=PLANE('',#12);
+#14=CARTESIAN_POINT('',(5.0,0.0,0.0));
+#15=DIRECTION('',(0.0,0.0,1.0));
+#16=AXIS2_PLACEMENT_3D('',#9, #15, #11);
+#17=CIRCLE('',#16,5.0);
+#18=VERTEX_POINT('',#14);
+#19=EDGE_CURVE('',#18,#18,#17,.T.);
+#20=ORIENTED_EDGE('',*,*,#19,.F.);
+#21=EDGE_LOOP('',(#20));
+#22=FACE_OUTER_BOUND('',#21,.T.);
+#23=ADVANCED_FACE('',(#22),#13,.T.);
+#24=CYLINDRICAL_SURFACE('',#16,5.0);
+#25=CARTESIAN_POINT('',(0.0,0.0,20.0));
+#26=CARTESIAN_POINT('',(5.0,0.0,20.0));
+#27=AXIS2_PLACEMENT_3D('',#25, #15, #11);
+#28=CIRCLE('',#27,5.0);
+#29=VERTEX_POINT('',#26);
+#30=EDGE_CURVE('',#29,#29,#28,.T.);
+#31=VECTOR('',#15,1.0);
+#32=LINE('',#14,#31);
+#33=EDGE_CURVE('',#18,#29,#32,.T.);
+#34=ORIENTED_EDGE('',*,*,#33,.T.);
+#35=ORIENTED_EDGE('',*,*,#30,.F.);
+#36=ORIENTED_EDGE('',*,*,#33,.F.);
+#37=ORIENTED_EDGE('',*,*,#19,.T.);
+#38=EDGE_LOOP('',(#34,#35,#36,#37));
+#39=FACE_OUTER_BOUND('',#38,.T.);
+#40=ADVANCED_FACE('',(#39),#24,.T.);
+#41=AXIS2_PLACEMENT_3D('',#25, #10, #11);
+#42=PLANE('',#41);
+#43=CARTESIAN_POINT('',(6.0,0.0,20.0));
+#44=CIRCLE('',#27,6.0);
+#45=VERTEX_POINT('',#43);
+#46=EDGE_CURVE('',#45,#45,#44,.T.);
+#47=ORIENTED_EDGE('',*,*,#46,.F.);
+#48=EDGE_LOOP('',(#47));
+#49=ORIENTED_EDGE('',*,*,#30,.T.);
+#50=EDGE_LOOP('',(#49));
+#51=FACE_OUTER_BOUND('',#48,.T.);
+#52=FACE_BOUND('',#50,.T.);
+#53=ADVANCED_FACE('',(#51,#52),#42,.T.);
+#54=CARTESIAN_POINT('',(0.0,0.0,22.0));
+#55=AXIS2_PLACEMENT_3D('',#54, #15, #11);
+#56=TOROIDAL_SURFACE('',#55,6.0,2.0);
+#57=CARTESIAN_POINT('',(8.0,0.0,22.0));
+#58=CIRCLE('',#55,8.0);
+#59=VERTEX_POINT('',#57);
+#60=EDGE_CURVE('',#59,#59,#58,.T.);
+#61=CARTESIAN_POINT('',(6.0,0.0,22.0));
+#62=DIRECTION('',(0.0,-1.0,0.0));
+#63=AXIS2_PLACEMENT_3D('',#61, #62, #11);
+#64=CIRCLE('',#63,2.0);
+#65=EDGE_CURVE('',#45,#59,#64,.T.);
+#66=ORIENTED_EDGE('',*,*,#65,.T.);
+#67=ORIENTED_EDGE('',*,*,#60,.F.);
+#68=ORIENTED_EDGE('',*,*,#65,.F.);
+#69=ORIENTED_EDGE('',*,*,#46,.T.);
+#70=EDGE_LOOP('',(#66,#67,#68,#69));
+#71=FACE_OUTER_BOUND('',#70,.T.);
+#72=ADVANCED_FACE('',(#71),#56,.T.);
+#73=CYLINDRICAL_SURFACE('',#55,8.0);
+#74=CARTESIAN_POINT('',(0.0,0.0,35.0));
+#75=CARTESIAN_POINT('',(8.0,0.0,35.0));
+#76=AXIS2_PLACEMENT_3D('',#74, #15, #11);
+#77=CIRCLE('',#76,8.0);
+#78=VERTEX_POINT('',#75);
+#79=EDGE_CURVE('',#78,#78,#77,.T.);
+#80=LINE('',#57,#31);
+#81=EDGE_CURVE('',#59,#78,#80,.T.);
+#82=ORIENTED_EDGE('',*,*,#81,.T.);
+#83=ORIENTED_EDGE('',*,*,#79,.F.);
+#84=ORIENTED_EDGE('',*,*,#81,.F.);
+#85=ORIENTED_EDGE('',*,*,#60,.T.);
+#86=EDGE_LOOP('',(#82,#83,#84,#85));
+#87=FACE_OUTER_BOUND('',#86,.T.);
+#88=ADVANCED_FACE('',(#87),#73,.T.);
+#89=PLANE('',#76);
+#90=ORIENTED_EDGE('',*,*,#79,.T.);
+#91=EDGE_LOOP('',(#90));
+#92=FACE_OUTER_BOUND('',#91,.T.);
+#93=ADVANCED_FACE('',(#92),#89,.T.);
+#94=CLOSED_SHELL('',(#23,#40,#53,#72,#88,#93));
+#95=MANIFOLD_SOLID_BREP('',#94);
+#96=COLOUR_RGB('filleted-shaft-2-step/body',0.2,0.6,1.0);
+#97=FILL_AREA_STYLE_COLOUR('',#96);
+#98=FILL_AREA_STYLE('',(#97));
+#99=SURFACE_STYLE_FILL_AREA(#98);
+#100=SURFACE_SIDE_STYLE('',(#99));
+#101=SURFACE_STYLE_USAGE(.BOTH.,#100);
+#102=PRESENTATION_STYLE_ASSIGNMENT((#101));
+#103=STYLED_ITEM('',(#102),#95);
+#104=PRESENTATION_LAYER_ASSIGNMENT('1','Layer 1',(#95));
+#105=MECHANICAL_DESIGN_GEOMETRIC_PRESENTATION_REPRESENTATION('',(#103),#8);
+#106=APPLICATION_CONTEXT('core data for automotive mechanical design processes');
+#107=APPLICATION_PROTOCOL_DEFINITION('international standard','automotive_design',2010,#106);
+#108=PRODUCT_CONTEXT(' ',#106,'mechanical');
+#109=PRODUCT('filleted-shaft-2-step/body','filleted-shaft-2-step/body',' ',(#108));
+#110=PRODUCT_RELATED_PRODUCT_CATEGORY('part','',(#109));
+#111=PRODUCT_DEFINITION_FORMATION_WITH_SPECIFIED_SOURCE(' ',' ',#109,.NOT_KNOWN.);
+#112=PRODUCT_DEFINITION_CONTEXT('part definition',#106,'design');
+#113=PRODUCT_DEFINITION(' ','',#111,#112);
+#114=SHAPE_REPRESENTATION('filleted-shaft-2-step/body-None',(#16),#8);
+#115=ADVANCED_BREP_SHAPE_REPRESENTATION('filleted-shaft-2-step/body-None',(#95),#8);
+#116=SHAPE_REPRESENTATION_RELATIONSHIP('None','relationship',#114,#115);
+#117=PRODUCT_DEFINITION_SHAPE('','',#113);
+#118=SHAPE_DEFINITION_REPRESENTATION(#117,#114);
+ENDSEC;
+END-ISO-10303-21;

@@ -21,6 +21,8 @@ pub fn compression_spring(Double, Double, Double, Int32, segments_per_turn? : In
 
 pub fn dowel_pin(Double, Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
+pub fn filleted_stepped_shaft(Array[(Double, Double)], fillet_radius_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
 pub fn key(Double, Double, Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
 pub fn shaft(Double, Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
