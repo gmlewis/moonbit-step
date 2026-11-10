@@ -8,9 +8,13 @@ HEADER;
   Length:     25 mm
   Data source: ISO 4762:2004 head/socket table; nominal values, see components/DATA_SOURCES.md
   Notes:      Layered solid: plain shank, head floor, blind hex socket. Socket represented by a ring with a through hex hole over a floor disc. The head is sharp-edged at this detail level. No thread geometry is modeled.
+  Features modeled:      head-floor, blind-hex-socket
+  Features approximated: head-socket-band (PolygonRevolve, deviation 0.009099576235935214 mm, control circle_segments=48)
+  Features omitted:      shank-tip-chamfer (not modelled by this builder); under-head-radius (not modelled by this builder); socket-lead-in-chamfer (not modelled by this builder); head-chamfer (omitted at Simplified detail level); thread (no thread geometry at this detail level)
+  Feature tolerance:     0.01 mm
 */
 FILE_DESCRIPTION(('ISO 4762 - M5 x 25'),'2;1');
-FILE_NAME('ISO4762-M5-25.step','2026-11-10T02:56:46',('gmlewis'),('gmlewis/step','https://github.com/gmlewis/moonbit-step'),'gmlewis/step','moonbit','none');
+FILE_NAME('ISO4762-M5-25.step','2026-11-10T13:14:26',('gmlewis'),('gmlewis/step','https://github.com/gmlewis/moonbit-step'),'gmlewis/step','moonbit','none');
 FILE_SCHEMA(('AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }'));
 ENDSEC;
 DATA;

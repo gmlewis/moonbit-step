@@ -373,3 +373,46 @@ python3 scripts/compare_golden.py            # six fixtures, PASS/SKIP report
 python3 scripts/compare_golden.py --json     # machine-readable results
 ```
 
+
+## Golden validation, exact internal ring, and keyways (2026-11-10, second session)
+
+Starting state: branch `master`, HEAD `b825f5e`, baseline **495/495 tests**.
+
+### Completed
+
+- **Exact internal involute ring gear** (`components/gears/internal.mbt`):
+  `internal_involute_ring_profile`, `internal_ring_geometry`,
+  `internal_ring_gear_exact`, and `internal_mesh_interference`. The tooth
+  thickness follows the internal relation `psi(r) = psi_p + inv(a_r) - inv(a_p)`;
+  a fixed-centre 32-pose rotation cycle must have zero planet/ring outline
+  crossings. The planetary set now uses the exact ring with a declared
+  `0.05 * module` internal-mesh backlash. The trapezoidal builder remains an
+  explicit fallback.
+- **Keyed shaft with a real keyway** (`components/motion/keyed_shafts.mbt`):
+  `keyed_shaft_cross_section`, `keyed_shaft`, and `key_for_keyway`. The keyway
+  is a geometric notch in the extruded section (one watertight solid), with a
+  matching key sized by a declared clearance. New example
+  `components/examples/keyed_shaft`.
+- **Golden harness expansion** (`scripts/compare_golden.py`): 23 manifest
+  external references (14 newly promoted), `volume_mm3` and
+  `vertex_radius_present_mm` comparison kinds, `vertex_radius_clusters` in
+  `measure_step_features.py`, units/frame normalization, and a `--self-test`
+  mode proving PASS/FAIL/SKIP, checksum, and normalization behaviour. All 19
+  generated fixtures PASS; external geometry SKIP (unverified licences); no
+  FAIL. Rejected washer and rod references are recorded with evidence.
+- **Catalogue:** `gear_catalog` now uses the exact ring; new `motion_catalog`
+  exposes the keyed shaft and key.
+- **Independent measurement:** SolidCraft imports the keyed shaft and the
+  exact-ring planetary with zero errors and all bodies closed; OCCT and
+  SolidCraft agree to four significant figures on volume (keyed shaft
+  12161.0 mm³, planetary 34744.0 mm³). Renders were inspected.
+- Docs updated: `FEATURES.md`, `KNOWN_ISSUES.md`, `GOLDEN_REFERENCES.md`,
+  `VALIDATION.md`, `GEOMETRY.md`, `README.md`, and `SESSION_REPORT_05.md`.
+
+### Final status
+
+- `./test-all.sh`: **511 tests, 511 passed, 0 failed** (508 before the catalogue
+  and sweep additions).
+- `python3 scripts/compare_golden.py`: 19 fixtures PASS, external geometry
+  SKIP, no FAIL.
+- `python3 scripts/compare_golden.py --self-test`: 8/8 cases pass.

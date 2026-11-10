@@ -139,4 +139,17 @@ standards are recorded in `GOLDEN_REFERENCES.md`.
 - No material or strength data.
 - No vendor-compatible T-slot geometry.
 - No exact bearing internal geometry.
-- No gear root fillet or load-capacity rating.
+- No gear load-capacity rating. Gear root fillets and tip chamfers are modelled
+  as documented polyline arcs, and the internal ring is an exact internal
+  involute envelope, but neither implies a rating or an ISO profile-tolerance
+  claim.
+
+## Golden corroboration (2026-11-10)
+
+The step.parts ISO 7380 references (M4 x 10 and M5 x 12) corroborate the
+`iso7380_size` head diameter (`dk` 7.6 / 9.5 mm) and the `L + k` overall length
+(12.2 / 14.75 mm). The ISO 10642 references corroborate the 90 degree
+countersink and the nominal overall length (10.0 / 12.0 mm); their measured
+head diameters (8.131 / 10.181 mm) sit slightly below the nominal `dk` maxima,
+which is consistent with countersink edge rounding but is not used to change
+the table. See `GOLDEN_REFERENCES.md` for the full verdicts.

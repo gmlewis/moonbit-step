@@ -62,6 +62,16 @@ moon run --target native components/examples/gear_pair -- \
 moon run --target native components/examples/extrusion_frame -- \
   --width 200 --depth 200 --height 200 --series 2020 --cornerRadius 1.5 \
   -o "$OUT/frame-2020-200x200x200-rounded.step"
+# Exact internal involute ring, keyed shaft, and single-gear fixtures (Stage H/K).
+moon run --target native components/examples/planetary -- \
+  --sunTeeth 18 --planetTeeth 12 --planets 5 \
+  -o "$OUT/planetary-m2-s18-p12-r42-5-exact.step"
+moon run --target native components/examples/keyed_shaft -- \
+  --diameter 20 --length 40 --keywayWidth 6 --keywayDepth 3.5 \
+  -o "$OUT/keyed-shaft-20x40.step"
+moon run --target native components/examples/gear_pair -- \
+  --module 2 --teeth 40 --faceWidth 16 --bore 10 --single \
+  -o "$OUT/gear-m2-z40-bore10.step"
 
 echo "Validating generated fixtures..."
 for f in "$OUT"/*.step; do

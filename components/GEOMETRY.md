@@ -251,3 +251,31 @@ The root band widens adaptively when the root circle is close to the base
 circle. The result is a simple polygon; the arc chord deviation is recorded.
 The extruded gear is a single watertight solid.
 
+
+## Internal involute ring
+
+An internal (ring) gear differs from an external gear: its tooth tips point
+inward at `r_p - m`, its roots reach outward at `r_p + 1.25 m`, and its tooth
+thickness **grows** outward:
+
+```text
+psi(r) = psi_p + inv(a_r) - inv(a_p),   psi_p = pi/(2 z) - backlash/(2 r_p)
+```
+
+The bore boundary is the hole; the ring material lies outside it. Tooth 0 is
+centred on +X, matching the external gear convention. The tip radius must be
+outside the base circle, which at 20° with a standard addendum needs roughly 34
+or more ring teeth; a smaller ring is rejected rather than truncated. Internal
+meshes use a declared circumferential backlash (`0.05 * module` by default) so
+the ring tooth tip clears the planet flank through a full rotation cycle. A
+planetary layout is a static pose; the rotation-cycle test is the kinematic
+evidence, and it is a 2D outline test, not a 3D contact solver.
+
+## Keyed shaft
+
+The keyway is a rectangular notch in the shaft cross-section on +Y, with the
+slot sides at `x = +- w/2` and a flat bottom at `y = r - depth`. The section is
+extruded along +Z, so the keyway is real geometric material removal, not a
+nominal boolean. The section arc is a polyline; its chord deviation is recorded.
+A matching key has X = width, Y = height, Z = length and a declared side
+clearance.

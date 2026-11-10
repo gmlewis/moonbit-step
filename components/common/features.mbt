@@ -209,6 +209,15 @@ pub fn FeatureRecord::has_approximated(
 }
 
 ///|
+/// FeatureRecord::has_omitted reports whether `feature` is in the omitted list.
+pub fn FeatureRecord::has_omitted(
+  self : FeatureRecord,
+  feature : String,
+) -> Bool {
+  self.omitted.any(fn(o) { o.feature == feature })
+}
+
+///|
 /// FeatureRecord::omission_reason returns the documented reason a feature is
 /// omitted, or `None` when it is not omitted.
 pub fn FeatureRecord::omission_reason(

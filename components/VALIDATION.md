@@ -183,3 +183,31 @@ planetary assembly reference was available; planetary checks are analytic.
 
 Final `./test-all.sh`: **495 tests, 495 passed, 0 failed**.
 
+
+## Exact internal ring, keyway, and harness self-test (2026-11-10)
+
+- **Golden harness self-test:** `scripts/compare_golden.py --self-test` proves
+  PASS/FAIL/SKIP, checksum gating, units/frame normalization, and the
+  `vertex_radius_present_mm` feature kind. It passes all eight cases; a skipped
+  check is never reported as a pass.
+- **Internal involute ring and mesh cycle:** the profile is a simple closed
+  bore boundary whose minimum/maximum radii equal the tip/root circles; tooth
+  thickness follows the internal relation. `internal_mesh_interference` samples
+  32 poses over one planet pitch while the ring turns at `z_p / z_r` in the same
+  direction; it must report zero crossings. A zero-backlash z36/z12 control must
+  report crossings, proving the check is sensitive. The exact-ring planetary
+  STEP is five watertight solids and passes OCCT `checkshape`.
+- **Keyed shaft:** the cross-section is a simple notched disc; the extruded body
+  is one watertight solid. A key sized from the keyway stays inside the slot
+  envelope and does not pierce the shaft wall. The shaft + key STEP is two
+  closed solids.
+- **Independent kernels:** OCCT and SolidCraft agree on the keyed-shaft volume
+  (12161.0 mm³) and the exact-ring planetary volume (34744.0 mm³, 0.0001 %
+  difference), and SolidCraft imports both with zero errors and all bodies
+  closed. The SolidCraft renders are diagnostic, not the acceptance criterion.
+- **Promoted golden fixtures:** 19 fixtures report `PASS`; external geometry is
+  `SKIP` because every per-file licence is unverified. No `FAIL`. The rejected
+  washer and rod references are recorded with their contradictory measurements.
+
+Final state after these additions: run `./test-all.sh` and
+`python3 scripts/compare_golden.py` for the current counts.

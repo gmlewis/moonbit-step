@@ -43,10 +43,15 @@ and independent validation. See `AUDIT.md` and `PROGRESS.md` for the evidence.
 7. **Gear pair is a static layout.** It uses the standard centre distance plus
    an offset and a half-pitch phase. It is not a kinematic solver and does not
    verify tooth contact.
-8. **Internal ring gear tooth form is approximate.** The planetary set uses a
-   trapezoidal internal tooth profile. It is visually and kinematically laid
-   out but is not an exact internal involute envelope. The existing
-   `examples/38-planetary-gearbox` herringbone generator is preserved.
+8. **Internal ring gear is now an exact internal involute envelope.** The
+   planetary set uses `internal_ring_gear_exact`; tooth thickness follows
+   `psi(r) = psi_p + inv(a_r) - inv(a_p)` (thickness grows outward). The flanks
+   are exact involutes sampled as polylines; tips and roots are polyline arcs.
+   Internal meshes use a declared backlash of `0.05 * module` by default because
+   a zero-backlash z36/z12 mesh grazes the ring tooth tip through part of the
+   cycle. The trapezoidal `internal_ring_gear` remains an explicit fallback.
+   Profile shift, helix, root fillets, and tip chamfers on the ring are omitted
+   and recorded in its feature record.
 9. **Bearing rolling elements are analytic spheres; internals are envelope
    geometry.** Balls are closed `SPHERICAL_SURFACE` solids, and the rings carry
    an engineering-default edge chamfer at `Detailed` and above. Ball diameter
@@ -57,7 +62,10 @@ and independent validation. See `AUDIT.md` and `PROGRESS.md` for the evidence.
     fillets or undercuts, at the plain builder. The new
     `filleted_stepped_shaft` builds a single revolved solid with analytic
     toroidal shoulder fillets on increasing steps; decreasing steps stay sharp
-    and undercuts are not modeled.
+    and undercuts are not modeled. `keyed_shaft` cuts a real flat-bottomed
+    rectangular keyway into the extruded section (one watertight solid); the
+    keyway ends are square, not end-milled with a cutter radius, and the shaft
+    has no chamfers.
 11. **Springs are simplified.** Open helix with flat end caps; closed/ground
     ends, spring rate, and preload are not modeled.
 12. **Standoffs, pins, and keys have no thread/tolerance model.** They are
@@ -161,16 +169,20 @@ approximations are recorded above and in `FEATURES.md`.
 - Regression: `fasteners_test.mbt` asserts 16.0 mm for M4 x 16; the golden
   harness asserts 12.0 mm for the M3 x 12 fixture.
 
-### KI-02 — Exact internal involute ring gear remains deferred
+### KI-02 — Exact internal involute ring gear (closed)
 
-- Severity: medium (documented approximation).
-- The trapezoidal ring tooth form is retained. An involute internal profile was
-  implemented and then removed after a fixed-centre rotation-cycle mesh check
-  found 300+ planet/ring outline crossings, so it was not shipped.
-- The ring feature record explicitly omits
-  `exact-involute-internal-envelope`; the catalogue reports this omission.
-- Acceptance for closing: an internal profile that passes the rotation-cycle
-  crossing test and an external or analytic tooth-form reference.
+- Severity: medium (was a documented approximation).
+- Resolved: `internal_involute_ring_profile` implements the exact internal
+  involute relation, and `internal_mesh_interference` proves zero planet/ring
+  outline crossings through a full rotation cycle (32 poses) for modules 1–3 and
+  ring tooth counts 36/42/48. The earlier 300+ crossings came from using the
+  external tooth-thickness sign and from tip grazing without backlash.
+- The trapezoidal `internal_ring_gear` remains as an explicit fallback; the
+  exact builder models `internal-involute-tooth-envelope` and the catalogue
+  reports it.
+- Regression: `components/gears/internal_gear_test.mbt` (including a
+  zero-backlash control that must report crossings, proving the check is not
+  vacuous).
 
 ### KI-03 — Gear root fillet polyline and adaptive band
 
@@ -197,3 +209,31 @@ approximations are recorded above and in `FEATURES.md`.
   contacts are still meaningful. A shape-aware (B-Rep) clearance test is
   required to close this.
 
+
+### KI-06 — Keyway ends are square (new)
+
+- Severity: low (documented approximation).
+- `keyed_shaft` cuts a flat-bottomed rectangular keyway with square ends. A real
+  end-milled keyway has a cutter-radius bottom and rounded ends. The keyway is
+  a real geometric notch in the extruded section (not a nominal boolean), but
+  the end radius is omitted and recorded as `keyway-end-radius` in the feature
+  record. A matching key is sized with a declared side clearance.
+
+### KI-07 — Internal meshes need a declared backlash (new)
+
+- Severity: low (documented engineering default).
+- A zero-backlash internal mesh with a 12-tooth planet grazes the ring tooth
+  tip through part of the rotation cycle. `planetary_gear_set` therefore applies
+  `0.05 * module` circumferential backlash by default, and
+  `internal_mesh_interference` reports crossings when the backlash is zero. This
+  is a declared engineering value, not a standards-mandated one. A caller may
+  override it with `PlanetaryParams::new(backlash_mm=...)`.
+
+### KI-08 — Golden corpus remains uncommitted and external comparison is SKIP
+
+- Severity: low (licensing constraint).
+- The step.parts API does not expose a per-file source/licence, so no external
+  STEP file is committed and the harness reports the external geometry
+  comparison as `SKIP`. The normative/parametric checks still run and pass. The
+  harness `--self-test` proves the PASS/FAIL/SKIP behaviour, including a
+  matching external file (a generated stand-in with a verified test licence).

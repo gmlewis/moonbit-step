@@ -6,9 +6,13 @@ HEADER;
   Description: External involute gear pair at the standard centre distance plus offset. Static assembly; no kinematic constraints.
     driver = Spur gear m2-z20 (ISO 21771 involute geometry (parametric))
     driven = Spur gear m2-z40 (ISO 21771 involute geometry (parametric))
+  Features modeled:      body, involute-tooth-envelope
+  Features approximated: involute-flank (PolylineArc, deviation 0 mm, control involute_points=12); tip-and-root-arc (PolylineArc, deviation 0 mm, control arc_points=8); bore (PolylineArc, deviation 0.00481817517931038 mm, control circle_segments=64)
+  Features omitted:      hub (no hub or web is modelled); keyway (not modelled; represent it with an evaluated cut); root-fillet (sharp root corners at this builder); tip-chamfer (not modelled by this builder)
+  Feature tolerance:     0.01 mm
 */
 FILE_DESCRIPTION(('External involute gear pair at the standard centre distance plus offset. Static assembly; no kinematic constraints.'),'2;1');
-FILE_NAME('gear-pair-m2-z20-m2-z40.step','2026-11-10T02:56:47',('gmlewis'),('gmlewis/step','https://github.com/gmlewis/moonbit-step'),'gmlewis/step','moonbit','none');
+FILE_NAME('gear-pair-m2-z20-m2-z40.step','2026-11-10T13:14:30',('gmlewis'),('gmlewis/step','https://github.com/gmlewis/moonbit-step'),'gmlewis/step','moonbit','none');
 FILE_SCHEMA(('AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }'));
 ENDSEC;
 DATA;

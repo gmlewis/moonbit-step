@@ -117,3 +117,34 @@ External STEP models examined during the correctness audit are recorded in
   normal series is 0.8 mm).
 - The locally authored frame fixtures are analytic references, not external
   models, and are labelled as such in the manifest.
+
+## Golden corpus expansion (2026-11-10)
+
+The manifest now records 23 external references. New acceptances corroborated
+against the standards tables:
+
+- **ISO 4032 M3/M5:** the reference plan bounding box is the across-corners
+  span 6.3509 / 9.2376 mm (= `s / cos 30` for `s` 5.5 / 8.0 mm); heights 2.4 /
+  4.0 mm match.
+- **ISO 7380 M4 x 10 / M5 x 12:** head diameters 7.6 / 9.5 mm and overall
+  lengths 12.2 / 14.75 mm (= `L + k`) match `iso7380_size`.
+- **ISO 10642 M4 x 10 / M5 x 12:** overall lengths 10.0 / 12.0 mm and the 90
+  degree countersink match; the measured head diameters are 8.131 / 10.181 mm
+  against nominal maxima 8.4 / 10.4 mm (edge rounding; the table is unchanged).
+- **ISO 4017 M5 x 20:** the plan bbox is the across-corners span for `s` 8.0
+  mm; the reference overall length 23.74 mm disagrees with the nominal
+  `L + k = 23.5` mm by 0.24 mm, so it is accepted for head width only.
+- **Bearings 6000 / 6001 / 6200:** bore 10 / 12 / 10 mm, outer diameter 26 / 28
+  / 30 mm, width 8 / 8 / 9 mm match the ISO 15 boundary dimensions.
+- **Spur gear m2 z40 bore10:** tip diameter 84 mm, face width 16 mm, bore
+  10 mm, pitch diameter 80 mm, root diameter 75 mm match.
+
+Rejected with evidence (not used as oracles):
+
+- **ISO 7089 M3/M4/M5:** reference thicknesses 1.1 / 1.8 / 2.2 mm against
+  ISO 7089 normal-series 0.5 / 0.8 / 1.0 mm.
+- **"Metric threaded rod M3 x 200":** the model is a 3 x 400 mm cylinder
+  (volume 2827.43 mm³), contradicting its 200 mm label.
+
+The harness verifies each file's SHA-256 and byte size. No external STEP file
+is committed; per-file redistribution rights remain unverified.

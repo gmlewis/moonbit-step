@@ -174,19 +174,53 @@ pub fn gear_catalog() -> Array[CatalogEntry] {
     Err(_) => ()
   }
   match
-    @gears.internal_ring_gear(
+    @gears.internal_ring_gear_exact(
       2.0,
       36,
       10.0,
       pressure_angle_deg=20.0,
+      backlash_mm=0.1,
       detail=@common.Detailed,
     ) {
     Ok(c) =>
       entries.push(
         entry_from_component(
           c,
-          ["module", "teeth", "pressure_angle", "face_width", "detail"],
+          [
+            "module", "teeth", "pressure_angle", "face_width", "backlash", "addendum_factor",
+            "dedendum_factor", "detail",
+          ],
           ["Detailed", "FullyModeled"],
+        ),
+      )
+    Err(_) => ()
+  }
+  entries
+}
+
+///|
+/// motion_catalog returns representative motion entries: a keyed shaft with a
+/// real keyway and the matching key.
+pub fn motion_catalog() -> Array[CatalogEntry] {
+  let entries : Array[CatalogEntry] = []
+  match @motion.keyed_shaft(20.0, 40.0, 6.0, 3.5) {
+    Ok(c) =>
+      entries.push(
+        entry_from_component(
+          c,
+          ["diameter", "length", "keyway_width", "keyway_depth", "segments"],
+          ["Detailed"],
+        ),
+      )
+    Err(_) => ()
+  }
+  match @motion.key_for_keyway(6.0, 3.5, 20.0) {
+    Ok(c) =>
+      entries.push(
+        entry_from_component(
+          c,
+          ["keyway_width", "keyway_depth", "key_length", "width_clearance"],
+          ["Detailed"],
         ),
       )
     Err(_) => ()
@@ -202,6 +236,7 @@ pub fn full_catalog() -> Array[CatalogEntry] {
   entries.push_iter(bearing_catalog().iter())
   entries.push_iter(profile_catalog().iter())
   entries.push_iter(gear_catalog().iter())
+  entries.push_iter(motion_catalog().iter())
   entries
 }
 

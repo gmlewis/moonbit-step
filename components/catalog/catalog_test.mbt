@@ -72,8 +72,28 @@ test "gear catalogue records modeled and omitted features" {
     Ok(e) => e
     Err(err) => abort(err.message())
   }
-  // The exact internal involute envelope is still explicitly omitted.
+  // The exact internal involute envelope is now modelled rather than omitted.
+  assert_true(ring.features.has_modeled("internal-involute-tooth-envelope"))
+  assert_true(ring.features.has_approximated("internal-involute-flank"))
   assert_true(
-    ring.features.omission_reason("exact-involute-internal-envelope") is Some(_),
+    ring.features.omission_reason("exact-involute-internal-envelope") is None,
+  )
+}
+
+///|
+test "motion catalogue carries the keyed shaft and key" {
+  let entries = @catalog.motion_catalog()
+  assert_eq(entries.length(), 2)
+  let shaft = match
+    @catalog.lookup(entries, "Keyed shaft d20 x 40, keyway 6 x 3.5") {
+    Ok(e) => e
+    Err(err) => abort(err.message())
+  }
+  assert_true(shaft.features.has_modeled("keyway"))
+  assert_true(shaft.features.has_omitted("keyway-end-radius"))
+  assert_true(shaft.supported_parameters.any(fn(p) { p == "keyway_depth" }))
+  assert_eq(
+    @catalog.query(@catalog.full_catalog(), family="keyed shaft").length(),
+    1,
   )
 }

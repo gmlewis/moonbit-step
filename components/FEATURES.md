@@ -131,11 +131,12 @@ catalogue value. Covered by `motion_test.mbt` and `motion-608-stack-detailed`.
 
 ### Shafts
 
-| Feature | Plain / stepped shaft | Filleted stepped shaft |
-|---|---|---|
-| Body | stacked cylinders | one `RevolvedProfile` solid |
-| Shoulder fillet | omitted | **analytic** toroidal fillet on increasing steps |
-| Decreasing steps | sharp | sharp (fillet only where it fits) |
+| Feature | Plain / stepped shaft | Filleted stepped shaft | Keyed shaft |
+|---|---|---|---|
+| Body | stacked cylinders | one `RevolvedProfile` solid | one notched `ExtrudedProfile` solid |
+| Shoulder fillet | omitted | **analytic** toroidal fillet on increasing steps | no shoulder |
+| Keyway | omitted | omitted | **real** flat-bottom rectangular notch |
+| Decreasing steps | sharp | sharp (fillet only where it fits) | — |
 
 `filleted_stepped_shaft(segments, fillet_radius_mm~)` produces a single solid
 with a real `TOROIDAL_SURFACE` fillet (measured major radius = shoulder radius
@@ -170,6 +171,9 @@ with a real `TOROIDAL_SURFACE` fillet (measured major radius = shoulder radius
 | ISO 7380 / 10642 | `fasteners_test.mbt` | `iso7380-M4x16-detailed.step`, `iso10642-M4x16-detailed.step` |
 | Bearing balls + ring chamfers | `motion_test.mbt` | `motion-608-stack-detailed.step` |
 | Filleted stepped shaft (toroidal fillet) | `motion_test.mbt` | `filleted-shaft-d10-16.step` |
+| Exact internal involute ring + mesh cycle | `gears/internal_gear_test.mbt` | `planetary-m2-s12-p12-r36-3.step`, `planetary-m2-s18-p12-r42-5-exact.step` |
+| Keyed shaft + matching key | `motion/keyed_shaft_test.mbt` | `keyed-shaft-20x40.step` |
+| Golden harness PASS/FAIL/SKIP self-test | `scripts/compare_golden.py --self-test` | — |
 
 ## Machine-readable feature records
 
@@ -259,9 +263,74 @@ approximation (`helical-ridge`).
 
 ### Deferred after evaluation
 
-- **Exact internal involute ring gear.** An involute internal profile was
-  implemented and checked over a rotation cycle; it produced 300+ tooth-outline
-  crossings against the planet, so it was removed rather than shipped. The
-  validated trapezoidal approximation is retained and the omission is recorded
-  in the ring feature record. See `KNOWN_ISSUES.md`.
+- The earlier involute internal profile failed a rotation-cycle check (300+
+  tooth-outline crossings) and was removed. It has since been re-derived and
+  shipped as `internal_involute_ring_profile`; see the session section below.
+
+## Session additions (2026-11-10, exact ring / keyway / golden expansion)
+
+### Exact internal involute ring gear
+
+| Feature | Representation |
+|---|---|
+| Internal tooth envelope | **exact** involute flanks from the internal relation `psi(r) = psi_p + inv(a_r) - inv(a_p)` (thickness grows outward) |
+| Tooth tips / roots | polyline-sampled arcs at `r_p - m` and `r_p + 1.25 m` |
+| Backlash | declared circumferential tooth-thickness reduction; internal meshes use `0.05 * module` by default |
+| Profile shift / helix / root fillet | omitted with typed feature-record reasons |
+
+- `internal_involute_ring_profile()` returns the bore boundary with tooth 0 on
+  +X. A tip radius at or below the base circle is rejected (roughly fewer than
+  34 ring teeth at 20° with a standard addendum).
+- `internal_mesh_interference()` samples one planet angular pitch (32 poses by
+  default) while the ring turns in the same direction at
+  `planet_teeth / ring_teeth`; zero proper outline crossings is the acceptance
+  test. A zero-backlash z36/z12 mesh reports crossings, so the test is not
+  vacuous.
+- `internal_ring_gear_exact()` builds the body; the trapezoidal
+  `internal_ring_gear()` remains as an explicit fallback.
+- `planetary_gear_set()` now uses the exact ring and applies the default
+  internal-mesh backlash to the sun, planet, and ring.
+- Measured result: the 12/12/36 three-planet and 18/12/42 five-planet static
+  layouts have zero planet/ring crossings; the fixed-centre 32-pose cycle has
+  zero crossings for modules 1–3 and ring tooth counts 36/42/48.
+- Tests: `components/gears/internal_gear_test.mbt`. Fixture:
+  `planetary-m2-s12-p12-r36-3.step`, `planetary-m2-s18-p12-r42-5-exact.step`.
+
+### Keyed shaft with a real keyway
+
+| Feature | Representation |
+|---|---|
+| Body | one `ExtrudedProfile` of a notched circular section |
+| Keyway | **real** flat-bottomed rectangular notch on +Y; not a nominal boolean |
+| Keyway end radius | omitted (square-ended keyway) |
+| Shaft chamfer | omitted |
+
+- `keyed_shaft(diameter, length, keyway_width, keyway_depth)` extrudes the
+  notched section, so the exported body is one watertight solid. Invalid
+  keyways (width ≥ diameter, a depth that does not reach the surface, a depth
+  reaching the axis) return typed errors.
+- `key_for_keyway(width, depth, length)` builds a matching key with X = width,
+  Y = height, Z = length and a declared side clearance; the tests place it in
+  the keyway envelope and prove it does not pierce the shaft wall.
+- Independent measurement: the keyed shaft and key STEP is two closed bodies;
+  OCCT and SolidCraft both report a total volume of 12161.0 mm³ and the same
+  bounding box (shaft 11748.0 mm³, key 413.0 mm³).
+- Tests: `components/motion/keyed_shaft_test.mbt`. Fixture:
+  `keyed-shaft-20x40.step`. Example: `components/examples/keyed_shaft`.
+
+### Golden harness expansion
+
+- The manifest now carries 23 external references: ISO 4762 M3/M4/M5, ISO 4032
+  M3/M4/M5, ISO 7089 M3/M4/M5, ISO 4017 M5, ISO 7380 M4/M5, ISO 10642 M3/M4/M5,
+  bearings 608/6000/6001/6200, two spur gears, the B-slot6 profile, and
+  rejected records for the nonconforming washer and rod references.
+- New comparison kinds: `volume_mm3` (OCCT volume against a normative value)
+  and `vertex_radius_present_mm` (a named tip/root radius from clustered
+  vertex radii). `measure_step_features.py` now emits `vertex_radius_clusters`.
+- New `--self-test` mode proves PASS on a matching fixture, FAIL on a wrong
+  expected dimension, SKIP for a missing/unlicensed external file while the
+  normative checks still pass, FAIL on a checksum mismatch, and units/frame
+  normalization. It passes all eight cases.
+- All 19 generated fixtures report `PASS`; external geometry remains `SKIP`
+  because every per-file licence is unverified. No `FAIL`.
 

@@ -54,8 +54,8 @@ moon run --target native components/examples/fasteners -- \
 | `components/standards` | Metric thread data and ISO/DIN dimension tables. |
 | `components/fasteners` | ISO 4762 socket head cap screws, ISO 4032 hex nuts, ISO 7089 washers, ISO 4014/4017 hex head screws/bolts, ISO 7380-1 button head screws, ISO 10642 countersunk head screws, DIN 976 threaded rods. |
 | `components/profiles` | Generic T-slot extrusion sections and cut-to-length profiles. |
-| `components/motion` | Shafts, stepped shafts, spacers, bushings, keys, dowel pins, standoffs, compression springs, ball bearings with analytic spheres. |
-| `components/gears` | Involute spur gears, external gear pairs, and approximate straight-spur planetary sets. |
+| `components/motion` | Shafts, stepped and keyed shafts, spacers, bushings, keys, dowel pins, standoffs, compression springs, ball bearings with analytic spheres. |
+| `components/gears` | Involute spur gears, external gear pairs, and exact-internal-involute planetary sets. |
 | `components/assemblies` | Rigid placements, linear/circular patterns, hardware kits, extrusion frames, bolted joints, collision/contact reports, and connectivity checks. |
 | `components/collision` | Kernel-free AABB/OBB collision and contact classification with a named tolerance policy. |
 | `components/catalog` | Machine-readable catalogue/query API over the component families, including supported parameters, detail levels, feature records, and provenance. |
@@ -80,6 +80,8 @@ moon run --target native components/examples/fasteners -- \
 
 ```bash
 ./test-all.sh
+python3 scripts/compare_golden.py            # PASS/FAIL/SKIP against the manifest
+python3 scripts/compare_golden.py --self-test # prove the harness behaviour
 python3 scripts/validate_step.py components/examples/output/iso4762-M4x20.step
 python3 scripts/validate_frame_geometry.py \
   components/examples/output/frame-2020-400x300x500.step \
@@ -134,8 +136,13 @@ redistribution rights are unverified.
   approximated with deviation / omitted with reason) in the STEP header. See
   `FEATURES.md`.
 - Evaluated 3D edge fillets/chamfers are optional (OCCT); the kernel-free flat
-  writer refuses them with a typed error. The exact internal involute ring gear
-  remains deferred; the ring uses a documented trapezoidal approximation.
+  writer refuses them with a typed error.
+- The internal ring gear uses an exact internal involute envelope and is
+  validated over a rotation cycle; internal meshes carry a declared
+  `0.05 * module` backlash, and the old trapezoidal profile remains an explicit
+  fallback. Profile shift, helix, and ring root fillets are omitted.
+- `keyed_shaft` cuts a real flat-bottomed rectangular keyway into the extruded
+  section (one watertight solid); the keyway ends are square, not end-milled.
 - See `KNOWN_ISSUES.md` for the full list.
 
 ## License

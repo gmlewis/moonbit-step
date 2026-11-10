@@ -690,6 +690,1176 @@
           }
         ]
       }
+    },
+    {
+      "fixture_id": "fasteners/iso4032-m3",
+      "part_id": "iso4032_hex_nut_m3",
+      "designation": "ISO 4032 M3",
+      "family": "hexagon regular nut",
+      "standard": "ISO 4032",
+      "manufacturer": "unspecified step.parts contributor",
+      "source_page": "https://www.step.parts/parts/iso4032_hex_nut_m3",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso4032_hex_nut_m3.step",
+      "local_filename": "external/iso4032_hex_nut_m3.step",
+      "sha256": "7de90cc2ca5eb2c38a27e3aee66939f30bdfde4ac47cd6f19f0324fcf93496bd",
+      "byte_size": 117675,
+      "units": "mm",
+      "declared_dimensions": {
+        "width_across_flats_mm": 5.5,
+        "height_mm": 2.4,
+        "across_corners_mm": 6.3509
+      },
+      "measured_dimensions": {
+        "bbox_mm": [
+          6.35,
+          6.35,
+          2.4
+        ],
+        "volume_mm3": 45.1539,
+        "solids": 1
+      },
+      "parametric_value": {
+        "bbox_mm": [
+          5.5,
+          6.3509,
+          2.4
+        ],
+        "volume_mm3": 40.557,
+        "solids": 1,
+        "source": "components/examples/fasteners --standard iso4032 --size M3"
+      },
+      "verdict": "accepted-envelope",
+      "notes": "Height 2.4 mm matches. The plan bbox is the across-corners span 6.3509 mm (= 5.5 / cos 30 deg), consistent with s = 5.5; the reference is corner-chamfered so across-flats is not directly observable from an axis-aligned bbox.",
+      "license_status": "unverified-per-file",
+      "committed": false,
+      "generation": {
+        "tool": "components/examples/fasteners",
+        "args": [
+          "--standard",
+          "iso4032",
+          "--size",
+          "M3",
+          "--detail",
+          "detailed",
+          "-o",
+          "{out}"
+        ],
+        "output": "iso4032-M3-detailed.step"
+      },
+      "comparison": {
+        "solids": 1,
+        "bbox_axes": [
+          {
+            "axis": 0,
+            "expected_mm": 5.5,
+            "label": "width across flats"
+          },
+          {
+            "axis": 2,
+            "expected_mm": 2.4,
+            "label": "nut height"
+          }
+        ],
+        "features": [
+          {
+            "kind": "surface_min",
+            "surface": "plane",
+            "min_count": 1
+          }
+        ],
+        "contrast": {
+          "args": [
+            "--standard",
+            "iso4032",
+            "--size",
+            "M3",
+            "--detail",
+            "simplified",
+            "-o",
+            "{out}"
+          ],
+          "output": "iso4032-M3-simplified.step",
+          "expect_more_advanced_faces": 6
+        }
+      }
+    },
+    {
+      "fixture_id": "fasteners/iso4032-m5",
+      "part_id": "iso4032_hex_nut_m5",
+      "designation": "ISO 4032 M5",
+      "family": "hexagon regular nut",
+      "standard": "ISO 4032",
+      "manufacturer": "unspecified step.parts contributor",
+      "source_page": "https://www.step.parts/parts/iso4032_hex_nut_m5",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso4032_hex_nut_m5.step",
+      "local_filename": "external/iso4032_hex_nut_m5.step",
+      "sha256": "e1adc81373d9b9855f93b956737aa4b7f6ca5643b0dc0d6f9a0b896875cce9c2",
+      "byte_size": 91189,
+      "units": "mm",
+      "declared_dimensions": {
+        "width_across_flats_mm": 8.0,
+        "height_mm": 4.0,
+        "across_corners_mm": 9.2376
+      },
+      "measured_dimensions": {
+        "bbox_mm": [
+          9.2376,
+          9.2376,
+          4.0
+        ],
+        "volume_mm3": 141.406,
+        "solids": 1
+      },
+      "parametric_value": {
+        "bbox_mm": [
+          8.0,
+          9.2376,
+          4.0
+        ],
+        "volume_mm3": 126.735,
+        "solids": 1,
+        "source": "components/examples/fasteners --standard iso4032 --size M5"
+      },
+      "verdict": "accepted-envelope",
+      "notes": "Height 4.0 mm matches and the plan bbox 9.2376 mm is the across-corners span for s = 8.0 mm.",
+      "license_status": "unverified-per-file",
+      "committed": false,
+      "generation": {
+        "tool": "components/examples/fasteners",
+        "args": [
+          "--standard",
+          "iso4032",
+          "--size",
+          "M5",
+          "--detail",
+          "detailed",
+          "-o",
+          "{out}"
+        ],
+        "output": "iso4032-M5-detailed.step"
+      },
+      "comparison": {
+        "solids": 1,
+        "bbox_axes": [
+          {
+            "axis": 0,
+            "expected_mm": 8.0,
+            "label": "width across flats"
+          },
+          {
+            "axis": 2,
+            "expected_mm": 4.0,
+            "label": "nut height"
+          }
+        ],
+        "features": [
+          {
+            "kind": "surface_min",
+            "surface": "plane",
+            "min_count": 1
+          }
+        ],
+        "contrast": {
+          "args": [
+            "--standard",
+            "iso4032",
+            "--size",
+            "M5",
+            "--detail",
+            "simplified",
+            "-o",
+            "{out}"
+          ],
+          "output": "iso4032-M5-simplified.step",
+          "expect_more_advanced_faces": 6
+        }
+      }
+    },
+    {
+      "fixture_id": "fasteners/iso7089-m3",
+      "part_id": "flat_washer_normal_m3_simple",
+      "designation": "ISO 7089 M3",
+      "family": "plain washer, normal series",
+      "standard": "ISO 7089",
+      "manufacturer": "unspecified step.parts contributor",
+      "source_page": "https://www.step.parts/parts/flat_washer_normal_m3_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/flat_washer_normal_m3_simple.step",
+      "local_filename": "external/flat_washer_normal_m3_simple.step",
+      "sha256": "6aaad3e26efa4c59d8c081d53fb38053091648aa8f34c031294b50fbd743f409",
+      "byte_size": 15012,
+      "units": "mm",
+      "declared_dimensions": {
+        "inner_diameter_mm": 3.2,
+        "outer_diameter_mm": 7.0,
+        "thickness_mm": 0.5
+      },
+      "measured_dimensions": {
+        "bbox_mm": [
+          7.0,
+          7.0,
+          1.1
+        ],
+        "volume_mm3": 33.4862,
+        "solids": 1
+      },
+      "parametric_value": {
+        "bbox_mm": [
+          7.0,
+          7.0,
+          0.5
+        ],
+        "volume_mm3": 15.197,
+        "solids": 1,
+        "source": "components/examples/fasteners --standard iso7089 --size M3"
+      },
+      "verdict": "rejected",
+      "notes": "The reference thickness is 1.1 mm; ISO 7089 normal-series M3 is 0.5 mm. The outer diameter matches. The reference is not used as an oracle; the parametric checks run against the standard.",
+      "license_status": "unverified-per-file",
+      "committed": false,
+      "generation": {
+        "tool": "components/examples/fasteners",
+        "args": [
+          "--standard",
+          "iso7089",
+          "--size",
+          "M3",
+          "--detail",
+          "detailed",
+          "-o",
+          "{out}"
+        ],
+        "output": "iso7089-M3-detailed.step"
+      },
+      "comparison": {
+        "solids": 1,
+        "bbox_axes": [
+          {
+            "axis": 0,
+            "expected_mm": 7.0,
+            "label": "outer diameter"
+          },
+          {
+            "axis": 2,
+            "expected_mm": 0.5,
+            "label": "thickness"
+          }
+        ],
+        "features": [
+          {
+            "kind": "min_vertex_radius_mm",
+            "expected": 1.6,
+            "tol_mm": 0.01
+          },
+          {
+            "kind": "max_vertex_radius_mm",
+            "expected": 3.5,
+            "tol_mm": 0.01
+          }
+        ]
+      }
+    },
+    {
+      "fixture_id": "fasteners/iso7089-m5",
+      "part_id": "flat_washer_normal_m5_simple",
+      "designation": "ISO 7089 M5",
+      "family": "plain washer, normal series",
+      "standard": "ISO 7089",
+      "manufacturer": "unspecified step.parts contributor",
+      "source_page": "https://www.step.parts/parts/flat_washer_normal_m5_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/flat_washer_normal_m5_simple.step",
+      "local_filename": "external/flat_washer_normal_m5_simple.step",
+      "sha256": "51ff899874c1b231d8b120a3c92d5657faf50d085897c2b7fc6d92e27e10fe5a",
+      "byte_size": 14999,
+      "units": "mm",
+      "declared_dimensions": {
+        "inner_diameter_mm": 5.3,
+        "outer_diameter_mm": 10.0,
+        "thickness_mm": 1.0
+      },
+      "measured_dimensions": {
+        "bbox_mm": [
+          10.0,
+          10.0,
+          2.2
+        ],
+        "volume_mm3": 124.252,
+        "solids": 1
+      },
+      "parametric_value": {
+        "bbox_mm": [
+          10.0,
+          10.0,
+          1.0
+        ],
+        "volume_mm3": 56.387,
+        "solids": 1,
+        "source": "components/examples/fasteners --standard iso7089 --size M5"
+      },
+      "verdict": "rejected",
+      "notes": "The reference thickness is 2.2 mm; ISO 7089 normal-series M5 is 1.0 mm. The outer diameter matches. The reference is not used as an oracle.",
+      "license_status": "unverified-per-file",
+      "committed": false,
+      "generation": {
+        "tool": "components/examples/fasteners",
+        "args": [
+          "--standard",
+          "iso7089",
+          "--size",
+          "M5",
+          "--detail",
+          "detailed",
+          "-o",
+          "{out}"
+        ],
+        "output": "iso7089-M5-detailed.step"
+      },
+      "comparison": {
+        "solids": 1,
+        "bbox_axes": [
+          {
+            "axis": 0,
+            "expected_mm": 10.0,
+            "label": "outer diameter"
+          },
+          {
+            "axis": 2,
+            "expected_mm": 1.0,
+            "label": "thickness"
+          }
+        ],
+        "features": [
+          {
+            "kind": "min_vertex_radius_mm",
+            "expected": 2.65,
+            "tol_mm": 0.01
+          },
+          {
+            "kind": "max_vertex_radius_mm",
+            "expected": 5.0,
+            "tol_mm": 0.01
+          }
+        ]
+      }
+    },
+    {
+      "fixture_id": "fasteners/iso7380-m4x10",
+      "part_id": "button_head_screw_m4_l0010_simple",
+      "designation": "ISO 7380 M4 x 10",
+      "family": "button head hexagon socket screw",
+      "standard": "ISO 7380",
+      "manufacturer": "unspecified step.parts contributor",
+      "source_page": "https://www.step.parts/parts/button_head_screw_m4_l0010_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/button_head_screw_m4_l0010_simple.step",
+      "local_filename": "external/button_head_screw_m4_l0010_simple.step",
+      "sha256": "cf7a001f917b20d9a81f060c0bc09e7d2aa35cda4f1b0a8b1ed2e9e938c5381e",
+      "byte_size": 32132,
+      "units": "mm",
+      "declared_dimensions": {
+        "head_diameter_mm": 7.6,
+        "head_height_mm": 2.2,
+        "nominal_length_mm": 10.0,
+        "overall_length_mm": 12.2
+      },
+      "measured_dimensions": {
+        "bbox_mm": [
+          7.6,
+          7.6,
+          12.2
+        ],
+        "volume_mm3": 141.712,
+        "solids": 1
+      },
+      "parametric_value": {
+        "bbox_mm": [
+          7.6,
+          7.6,
+          12.2
+        ],
+        "volume_mm3": 194.994,
+        "solids": 3,
+        "source": "components/examples/fasteners --standard iso7380 --size M4 --length 10"
+      },
+      "verdict": "accepted-envelope",
+      "notes": "Head diameter 7.6 mm and overall length 12.2 mm (= 10 + k 2.2) match ISO 7380. The parametric head is layered (3 solids) and carries a spherical dome, so volume and solid count are not compared.",
+      "license_status": "unverified-per-file",
+      "committed": false,
+      "generation": {
+        "tool": "components/examples/fasteners",
+        "args": [
+          "--standard",
+          "iso7380",
+          "--size",
+          "M4",
+          "--length",
+          "10",
+          "--detail",
+          "detailed",
+          "-o",
+          "{out}"
+        ],
+        "output": "iso7380-M4x10-detailed.step"
+      },
+      "comparison": {
+        "solids": 3,
+        "bbox_axes": [
+          {
+            "axis": 0,
+            "expected_mm": 7.6,
+            "label": "head diameter"
+          },
+          {
+            "axis": 2,
+            "expected_mm": 12.2,
+            "label": "overall length"
+          }
+        ],
+        "features": [
+          {
+            "kind": "surface_min",
+            "surface": "sphere",
+            "min_count": 1
+          },
+          {
+            "kind": "max_vertex_radius_mm",
+            "expected": 3.8,
+            "tol_mm": 0.01
+          }
+        ]
+      }
+    },
+    {
+      "fixture_id": "fasteners/iso7380-m5x12",
+      "part_id": "button_head_screw_m5_l0012_simple",
+      "designation": "ISO 7380 M5 x 12",
+      "family": "button head hexagon socket screw",
+      "standard": "ISO 7380",
+      "manufacturer": "unspecified step.parts contributor",
+      "source_page": "https://www.step.parts/parts/button_head_screw_m5_l0012_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/button_head_screw_m5_l0012_simple.step",
+      "local_filename": "external/button_head_screw_m5_l0012_simple.step",
+      "sha256": "8afcd729b3bb98926c8cf208725667e94b379461a6491e1b235db13201912a7a",
+      "byte_size": 32126,
+      "units": "mm",
+      "declared_dimensions": {
+        "head_diameter_mm": 9.5,
+        "head_height_mm": 2.75,
+        "nominal_length_mm": 12.0,
+        "overall_length_mm": 14.75
+      },
+      "measured_dimensions": {
+        "bbox_mm": [
+          9.5,
+          9.5,
+          14.75
+        ],
+        "volume_mm3": 281.045,
+        "solids": 1
+      },
+      "parametric_value": {
+        "bbox_mm": [
+          9.5,
+          9.5,
+          14.75
+        ],
+        "volume_mm3": 372.645,
+        "solids": 3,
+        "source": "components/examples/fasteners --standard iso7380 --size M5 --length 12"
+      },
+      "verdict": "accepted-envelope",
+      "notes": "Head diameter 9.5 mm and overall length 14.75 mm (= 12 + k 2.75) match ISO 7380.",
+      "license_status": "unverified-per-file",
+      "committed": false,
+      "generation": {
+        "tool": "components/examples/fasteners",
+        "args": [
+          "--standard",
+          "iso7380",
+          "--size",
+          "M5",
+          "--length",
+          "12",
+          "--detail",
+          "detailed",
+          "-o",
+          "{out}"
+        ],
+        "output": "iso7380-M5x12-detailed.step"
+      },
+      "comparison": {
+        "solids": 3,
+        "bbox_axes": [
+          {
+            "axis": 0,
+            "expected_mm": 9.5,
+            "label": "head diameter"
+          },
+          {
+            "axis": 2,
+            "expected_mm": 14.75,
+            "label": "overall length"
+          }
+        ],
+        "features": [
+          {
+            "kind": "surface_min",
+            "surface": "sphere",
+            "min_count": 1
+          },
+          {
+            "kind": "max_vertex_radius_mm",
+            "expected": 4.75,
+            "tol_mm": 0.01
+          }
+        ]
+      }
+    },
+    {
+      "fixture_id": "fasteners/iso10642-m4x10",
+      "part_id": "countersunk_socket_screw_m4_l0010_simple",
+      "designation": "ISO 10642 M4 x 10",
+      "family": "countersunk head hexagon socket screw",
+      "standard": "ISO 10642",
+      "manufacturer": "unspecified step.parts contributor",
+      "source_page": "https://www.step.parts/parts/countersunk_socket_screw_m4_l0010_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/countersunk_socket_screw_m4_l0010_simple.step",
+      "local_filename": "external/countersunk_socket_screw_m4_l0010_simple.step",
+      "sha256": "2d3599314200603dc971a276db5e38f533138d366bc76fbbb77b4f3ebea3407e",
+      "byte_size": 35504,
+      "units": "mm",
+      "declared_dimensions": {
+        "head_diameter_max_mm": 8.4,
+        "head_angle_deg": 90.0,
+        "nominal_length_mm": 10.0,
+        "overall_length_mm": 10.0
+      },
+      "measured_dimensions": {
+        "bbox_mm": [
+          8.131,
+          8.131,
+          10.0
+        ],
+        "volume_mm3": 114.029,
+        "solids": 1,
+        "cone_semi_angle_deg": 45.0
+      },
+      "parametric_value": {
+        "bbox_mm": [
+          8.4,
+          8.4,
+          10.0
+        ],
+        "volume_mm3": 156.25,
+        "solids": 3,
+        "source": "components/examples/fasteners --standard iso10642 --size M4 --length 10"
+      },
+      "verdict": "accepted-envelope",
+      "notes": "Overall length 10.0 mm matches the nominal length (the head occupies the top k mm). The reference head diameter 8.131 mm is below the nominal dk max 8.4 mm (countersink edge rounding); the 90 deg countersink is present. Envelope and angle cross-check only.",
+      "license_status": "unverified-per-file",
+      "committed": false,
+      "generation": {
+        "tool": "components/examples/fasteners",
+        "args": [
+          "--standard",
+          "iso10642",
+          "--size",
+          "M4",
+          "--length",
+          "10",
+          "--detail",
+          "detailed",
+          "-o",
+          "{out}"
+        ],
+        "output": "iso10642-M4x10-detailed.step"
+      },
+      "comparison": {
+        "solids": 3,
+        "bbox_axes": [
+          {
+            "axis": 0,
+            "expected_mm": 8.4,
+            "label": "head diameter"
+          },
+          {
+            "axis": 2,
+            "expected_mm": 10.0,
+            "label": "overall length"
+          }
+        ],
+        "features": [
+          {
+            "kind": "cone_min_count",
+            "min_count": 1
+          },
+          {
+            "kind": "cone_semi_angle_deg",
+            "expected": 45.0,
+            "tol_deg": 0.5
+          },
+          {
+            "kind": "max_vertex_radius_mm",
+            "expected": 4.2,
+            "tol_mm": 0.01
+          }
+        ]
+      }
+    },
+    {
+      "fixture_id": "fasteners/iso10642-m5x12",
+      "part_id": "countersunk_socket_screw_m5_l0012_simple",
+      "designation": "ISO 10642 M5 x 12",
+      "family": "countersunk head hexagon socket screw",
+      "standard": "ISO 10642",
+      "manufacturer": "unspecified step.parts contributor",
+      "source_page": "https://www.step.parts/parts/countersunk_socket_screw_m5_l0012_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/countersunk_socket_screw_m5_l0012_simple.step",
+      "local_filename": "external/countersunk_socket_screw_m5_l0012_simple.step",
+      "sha256": "f6eaca9f5e1ac16f6dac8ab6cc4ac462785f56148d8c3ea343c23b1f1fd81499",
+      "byte_size": 35533,
+      "units": "mm",
+      "declared_dimensions": {
+        "head_diameter_max_mm": 10.4,
+        "head_angle_deg": 90.0,
+        "nominal_length_mm": 12.0,
+        "overall_length_mm": 12.0
+      },
+      "measured_dimensions": {
+        "bbox_mm": [
+          10.181,
+          10.181,
+          12.0
+        ],
+        "volume_mm3": 222.457,
+        "solids": 1,
+        "cone_semi_angle_deg": 45.0
+      },
+      "parametric_value": {
+        "bbox_mm": [
+          10.4,
+          10.4,
+          12.0
+        ],
+        "volume_mm3": 293.715,
+        "solids": 3,
+        "source": "components/examples/fasteners --standard iso10642 --size M5 --length 12"
+      },
+      "verdict": "accepted-envelope",
+      "notes": "Overall length 12.0 mm matches; the reference head diameter 10.181 mm is below the nominal dk max 10.4 mm and the countersink is 90 deg.",
+      "license_status": "unverified-per-file",
+      "committed": false,
+      "generation": {
+        "tool": "components/examples/fasteners",
+        "args": [
+          "--standard",
+          "iso10642",
+          "--size",
+          "M5",
+          "--length",
+          "12",
+          "--detail",
+          "detailed",
+          "-o",
+          "{out}"
+        ],
+        "output": "iso10642-M5x12-detailed.step"
+      },
+      "comparison": {
+        "solids": 3,
+        "bbox_axes": [
+          {
+            "axis": 0,
+            "expected_mm": 10.4,
+            "label": "head diameter"
+          },
+          {
+            "axis": 2,
+            "expected_mm": 12.0,
+            "label": "overall length"
+          }
+        ],
+        "features": [
+          {
+            "kind": "cone_min_count",
+            "min_count": 1
+          },
+          {
+            "kind": "cone_semi_angle_deg",
+            "expected": 45.0,
+            "tol_deg": 0.5
+          },
+          {
+            "kind": "max_vertex_radius_mm",
+            "expected": 5.2,
+            "tol_mm": 0.01
+          }
+        ]
+      }
+    },
+    {
+      "fixture_id": "fasteners/iso4017-m5x20",
+      "part_id": "hex_head_bolt_m5_l0020_simple",
+      "designation": "ISO 4017 M5 x 20",
+      "family": "hexagon head cap screw, fully threaded",
+      "standard": "ISO 4017",
+      "manufacturer": "unspecified step.parts contributor",
+      "source_page": "https://www.step.parts/parts/hex_head_bolt_m5_l0020_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/hex_head_bolt_m5_l0020_simple.step",
+      "local_filename": "external/hex_head_bolt_m5_l0020_simple.step",
+      "sha256": "4ff7c1735737c42a6a3e0b087f6367a750a10a8a698bb15325796eae9dbdb23c",
+      "byte_size": 50721,
+      "units": "mm",
+      "declared_dimensions": {
+        "width_across_flats_mm": 8.0,
+        "head_height_mm": 3.5,
+        "nominal_length_mm": 20.0,
+        "overall_length_mm": 23.5
+      },
+      "measured_dimensions": {
+        "bbox_mm": [
+          9.2376,
+          9.2376,
+          23.74
+        ],
+        "volume_mm3": 475.479,
+        "solids": 1
+      },
+      "parametric_value": {
+        "bbox_mm": [
+          8.0,
+          9.2376,
+          23.5
+        ],
+        "volume_mm3": 586.689,
+        "solids": 2,
+        "source": "components/examples/fasteners --standard iso4017 --size M5 --length 20"
+      },
+      "verdict": "accepted-head-width-only",
+      "notes": "The reference plan bbox 9.2376 mm is the across-corners span for s = 8.0 mm. Its overall length is 23.74 mm, but the nominal is L + k = 23.5 mm, so the reference head height disagrees by 0.24 mm and is not used for the length; the parametric check is normative.",
+      "license_status": "unverified-per-file",
+      "committed": false,
+      "generation": {
+        "tool": "components/examples/fasteners",
+        "args": [
+          "--standard",
+          "iso4017",
+          "--size",
+          "M5",
+          "--length",
+          "20",
+          "--detail",
+          "detailed",
+          "-o",
+          "{out}"
+        ],
+        "output": "iso4017-M5x20-detailed.step"
+      },
+      "comparison": {
+        "solids": 2,
+        "bbox_axes": [
+          {
+            "axis": 0,
+            "expected_mm": 8.0,
+            "label": "width across flats"
+          },
+          {
+            "axis": 2,
+            "expected_mm": 23.5,
+            "label": "overall length"
+          }
+        ]
+      }
+    },
+    {
+      "fixture_id": "bearings/6000",
+      "part_id": "6000",
+      "designation": "6000",
+      "family": "deep groove ball bearing",
+      "standard": "ISO 15 boundary dimensions (manufacturer model)",
+      "manufacturer": "unspecified step.parts contributor",
+      "source_page": "https://www.step.parts/parts/6000",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/bearing_6000_open_simple.step",
+      "local_filename": "external/bearing_6000_open_simple.step",
+      "sha256": "01c8da21fb04f3db569346d63bfbbb83d21298378f232813c8f3ebb79ed1e60f",
+      "byte_size": 21246,
+      "units": "mm",
+      "declared_dimensions": {
+        "bore_mm": 10.0,
+        "outer_diameter_mm": 26.0,
+        "width_mm": 8.0
+      },
+      "measured_dimensions": {
+        "bbox_mm": [
+          26.0,
+          26.0,
+          8.0
+        ],
+        "volume_mm3": 3420.63,
+        "solids": 2
+      },
+      "parametric_value": {
+        "bbox_mm": [
+          26.0,
+          26.0,
+          8.0
+        ],
+        "volume_mm3": 2723.309,
+        "solids": 10,
+        "source": "components/examples/bearing --bearing 6000"
+      },
+      "verdict": "accepted-envelope",
+      "notes": "Bore, outer diameter and width match the ISO 15 boundary dimensions. The reference has two ring solids and no rolling elements; the parametric bearing has two rings plus eight analytic spheres, so volume and internal geometry are not compared.",
+      "license_status": "unverified-per-file",
+      "committed": false,
+      "generation": {
+        "tool": "components/examples/bearing",
+        "args": [
+          "--bearing",
+          "6000",
+          "--detail",
+          "detailed",
+          "-o",
+          "{out}"
+        ],
+        "output": "bearing-6000-detailed.step"
+      },
+      "comparison": {
+        "solids": 10,
+        "bbox_axes": [
+          {
+            "axis": 0,
+            "expected_mm": 26.0,
+            "label": "outer diameter"
+          },
+          {
+            "axis": 2,
+            "expected_mm": 8.0,
+            "label": "width"
+          }
+        ],
+        "features": [
+          {
+            "kind": "surface_min",
+            "surface": "sphere",
+            "min_count": 8
+          },
+          {
+            "kind": "min_vertex_radius_mm",
+            "expected": 5.0,
+            "tol_mm": 0.01
+          },
+          {
+            "kind": "max_vertex_radius_mm",
+            "expected": 13.0,
+            "tol_mm": 0.01
+          }
+        ]
+      }
+    },
+    {
+      "fixture_id": "bearings/6001",
+      "part_id": "6001",
+      "designation": "6001",
+      "family": "deep groove ball bearing",
+      "standard": "ISO 15 boundary dimensions (manufacturer model)",
+      "manufacturer": "unspecified step.parts contributor",
+      "source_page": "https://www.step.parts/parts/6001",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/bearing_6001_open_simple.step",
+      "local_filename": "external/bearing_6001_open_simple.step",
+      "sha256": "6e6417a4b5c7e2cbee03d5988e8dd16f36d4108d6001f3ddd7e6d41ba7f0d4dc",
+      "byte_size": 21258,
+      "units": "mm",
+      "declared_dimensions": {
+        "bore_mm": 12.0,
+        "outer_diameter_mm": 28.0,
+        "width_mm": 8.0
+      },
+      "measured_dimensions": {
+        "bbox_mm": [
+          28.0,
+          28.0,
+          8.0
+        ],
+        "volume_mm3": 3776.19,
+        "solids": 2
+      },
+      "parametric_value": {
+        "bbox_mm": [
+          28.0,
+          28.0,
+          8.0
+        ],
+        "volume_mm3": 3026.407,
+        "solids": 10,
+        "source": "components/examples/bearing --bearing 6001"
+      },
+      "verdict": "accepted-envelope",
+      "notes": "Bore, outer diameter and width match the ISO 15 boundary dimensions. The reference has two ring solids and no rolling elements; the parametric bearing has two rings plus eight analytic spheres, so volume and internal geometry are not compared.",
+      "license_status": "unverified-per-file",
+      "committed": false,
+      "generation": {
+        "tool": "components/examples/bearing",
+        "args": [
+          "--bearing",
+          "6001",
+          "--detail",
+          "detailed",
+          "-o",
+          "{out}"
+        ],
+        "output": "bearing-6001-detailed.step"
+      },
+      "comparison": {
+        "solids": 10,
+        "bbox_axes": [
+          {
+            "axis": 0,
+            "expected_mm": 28.0,
+            "label": "outer diameter"
+          },
+          {
+            "axis": 2,
+            "expected_mm": 8.0,
+            "label": "width"
+          }
+        ],
+        "features": [
+          {
+            "kind": "surface_min",
+            "surface": "sphere",
+            "min_count": 8
+          },
+          {
+            "kind": "min_vertex_radius_mm",
+            "expected": 6.0,
+            "tol_mm": 0.01
+          },
+          {
+            "kind": "max_vertex_radius_mm",
+            "expected": 14.0,
+            "tol_mm": 0.01
+          }
+        ]
+      }
+    },
+    {
+      "fixture_id": "bearings/6200",
+      "part_id": "6200",
+      "designation": "6200",
+      "family": "deep groove ball bearing",
+      "standard": "ISO 15 boundary dimensions (manufacturer model)",
+      "manufacturer": "unspecified step.parts contributor",
+      "source_page": "https://www.step.parts/parts/6200",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/bearing_6200_open_simple.step",
+      "local_filename": "external/bearing_6200_open_simple.step",
+      "sha256": "c0052815af60a4722a64964d4fd8092dfb89d1344580d7fa2532c83b6f807597",
+      "byte_size": 21264,
+      "units": "mm",
+      "declared_dimensions": {
+        "bore_mm": 10.0,
+        "outer_diameter_mm": 30.0,
+        "width_mm": 9.0
+      },
+      "measured_dimensions": {
+        "bbox_mm": [
+          30.0,
+          30.0,
+          9.0
+        ],
+        "volume_mm3": 5379.19,
+        "solids": 2
+      },
+      "parametric_value": {
+        "bbox_mm": [
+          30.0,
+          30.0,
+          9.0
+        ],
+        "volume_mm3": 4285.74,
+        "solids": 10,
+        "source": "components/examples/bearing --bearing 6200"
+      },
+      "verdict": "accepted-envelope",
+      "notes": "Bore, outer diameter and width match the ISO 15 boundary dimensions. The reference has two ring solids and no rolling elements; the parametric bearing has two rings plus eight analytic spheres, so volume and internal geometry are not compared.",
+      "license_status": "unverified-per-file",
+      "committed": false,
+      "generation": {
+        "tool": "components/examples/bearing",
+        "args": [
+          "--bearing",
+          "6200",
+          "--detail",
+          "detailed",
+          "-o",
+          "{out}"
+        ],
+        "output": "bearing-6200-detailed.step"
+      },
+      "comparison": {
+        "solids": 10,
+        "bbox_axes": [
+          {
+            "axis": 0,
+            "expected_mm": 30.0,
+            "label": "outer diameter"
+          },
+          {
+            "axis": 2,
+            "expected_mm": 9.0,
+            "label": "width"
+          }
+        ],
+        "features": [
+          {
+            "kind": "surface_min",
+            "surface": "sphere",
+            "min_count": 8
+          },
+          {
+            "kind": "min_vertex_radius_mm",
+            "expected": 5.0,
+            "tol_mm": 0.01
+          },
+          {
+            "kind": "max_vertex_radius_mm",
+            "expected": 15.0,
+            "tol_mm": 0.01
+          }
+        ]
+      }
+    },
+    {
+      "fixture_id": "gears/spur-m2-z40-bore10",
+      "part_id": "spur_gear_m2_0_40t_bore10",
+      "designation": "spur gear m2.0 z40 bore10",
+      "family": "involute spur gear",
+      "standard": "catalog record: module 2.0, 40 teeth, width 16, bore 10",
+      "manufacturer": "unspecified step.parts contributor",
+      "source_page": "https://www.step.parts/parts/spur_gear_m2_0_40t_bore10",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/spur_gear_m2_0_40t_bore10.step",
+      "local_filename": "external/spur_gear_m2_0_40t_bore10.step",
+      "sha256": "ac836087ad72bab664600fc37ff82f22b2a2363bb9a825d65953f02044c2db65",
+      "byte_size": 10975,
+      "units": "mm",
+      "declared_dimensions": {
+        "module_mm": 2.0,
+        "teeth": 40,
+        "face_width_mm": 16.0,
+        "bore_mm": 10.0,
+        "tip_diameter_mm": 84.0,
+        "root_diameter_mm": 75.0,
+        "pitch_diameter_mm": 80.0
+      },
+      "measured_dimensions": {
+        "bbox_mm": [
+          84.0,
+          84.0,
+          16.0
+        ],
+        "volume_mm3": 87411.7,
+        "solids": 1
+      },
+      "parametric_value": {
+        "bbox_mm": [
+          84.0,
+          84.0,
+          16.0
+        ],
+        "volume_mm3": 78459.1,
+        "solids": 1,
+        "source": "components/examples/gear_pair --module 2 --teeth 40 --faceWidth 16 --bore 10 --single"
+      },
+      "verdict": "accepted-envelope",
+      "notes": "Tip diameter 84 mm, face width 16 mm, bore 10 mm, pitch diameter 80 mm and root diameter 75 mm match. The reference tooth form differs (the parametric gear uses a polygonal involute with a sharp root), so volume is not compared; tip and root radii are checked from the measured vertex-radius clusters.",
+      "license_status": "unverified-per-file",
+      "committed": false,
+      "generation": {
+        "tool": "components/examples/gear_pair",
+        "args": [
+          "--module",
+          "2",
+          "--teeth",
+          "40",
+          "--faceWidth",
+          "16",
+          "--bore",
+          "10",
+          "--single",
+          "-o",
+          "{out}"
+        ],
+        "output": "gear-m2-z40-bore10.step"
+      },
+      "comparison": {
+        "solids": 1,
+        "bbox_axes": [
+          {
+            "axis": 0,
+            "expected_mm": 84.0,
+            "label": "tip diameter"
+          },
+          {
+            "axis": 2,
+            "expected_mm": 16.0,
+            "label": "face width"
+          }
+        ],
+        "features": [
+          {
+            "kind": "min_vertex_radius_mm",
+            "expected": 5.0,
+            "tol_mm": 0.01
+          },
+          {
+            "kind": "max_vertex_radius_mm",
+            "expected": 42.0,
+            "tol_mm": 0.01
+          },
+          {
+            "kind": "vertex_radius_present_mm",
+            "expected": 42.0,
+            "tol_mm": 0.01
+          },
+          {
+            "kind": "vertex_radius_present_mm",
+            "expected": 37.5,
+            "tol_mm": 0.01
+          }
+        ]
+      }
+    },
+    {
+      "fixture_id": "rods/metric-threaded-rod-m3x200",
+      "part_id": "iso_metric_threaded_rod_m3_l200_simple",
+      "designation": "Metric threaded rod M3 x 200 (catalog label)",
+      "family": "threaded rod",
+      "standard": "none (catalog label only)",
+      "manufacturer": "unspecified step.parts contributor",
+      "source_page": "https://www.step.parts/parts/iso_metric_threaded_rod_m3_l200_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso_metric_threaded_rod_m3_l200_simple.step",
+      "local_filename": "external/iso_metric_threaded_rod_m3_l200_simple.step",
+      "sha256": "5846e4476371e29205dd472d73c52e4036e30fde22e64a78c6e2ec306e6783a0",
+      "byte_size": 8674,
+      "units": "mm",
+      "declared_dimensions": {
+        "nominal_diameter_mm": 3.0,
+        "nominal_length_mm": 200.0
+      },
+      "measured_dimensions": {
+        "bbox_mm": [
+          3.0,
+          3.0,
+          400.0
+        ],
+        "volume_mm3": 2827.43,
+        "solids": 1
+      },
+      "parametric_value": {
+        "note": "not generated; the reference contradicts its 200 mm designation"
+      },
+      "verdict": "rejected",
+      "notes": "The file labelled M3 x 200 models a 3 mm cylinder 400 mm long (volume pi * 1.5^2 * 400 = 2827.43 mm^3), contradicting the 200 mm designation. It is recorded as rejected and is not used as an oracle.",
+      "license_status": "unverified-per-file",
+      "committed": false
     }
   ],
   "analytic_references": [

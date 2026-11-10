@@ -16,6 +16,8 @@ pub fn gear_catalog() -> Array[CatalogEntry]
 
 pub fn lookup(Array[CatalogEntry], String) -> Result[CatalogEntry, CatalogError]
 
+pub fn motion_catalog() -> Array[CatalogEntry]
+
 pub fn profile_catalog() -> Array[CatalogEntry]
 
 pub fn query(Array[CatalogEntry], family? : String, standard? : String, size? : String) -> Array[CatalogEntry]

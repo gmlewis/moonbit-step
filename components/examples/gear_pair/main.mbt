@@ -58,6 +58,9 @@ async fn main {
       help="Tip chamfer distance in mm (0 = sharp tip)",
       min=0.0,
     ),
+    "single": @cli.flag(
+      help="Write only the driver gear (single-gear golden comparison)",
+    ),
     "mode": @cli.opt_string(
       short='M',
       help="Output mode: flat (default) or assembly",
@@ -114,6 +117,21 @@ async fn main {
       @cli.eprintln("error: " + e.message())
       abort("")
     }
+  }
+  if args.flag("single") {
+    let gear = match @gears.spur_gear(driver) {
+      Ok(c) => c
+      Err(e) => {
+        @cli.eprintln("error: " + e.message())
+        abort("")
+      }
+    }
+    if args.flag("bbox") {
+      let (x0, x1, y0, y1, z0, z1) = gear.bounding_box()
+      @cli.eprintln("bbox: x=[\{x0}, \{x1}] y=[\{y0}, \{y1}] z=[\{z0}, \{z1}]")
+    }
+    gear.write_step(args.string_opt("out"), checked=true)
+    return
   }
   let pair = match @gears.gear_pair(driver, driven, offset_mm=offset) {
     Ok(a) => a

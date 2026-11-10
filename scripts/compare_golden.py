@@ -89,6 +89,35 @@ def bbox_extents(bbox: list[float]) -> list[float]:
     return [bbox[1] - bbox[0], bbox[3] - bbox[2], bbox[5] - bbox[4]]
 
 
+_UNIT_TO_MM = {"mm": 1.0, "millimetre": 1.0, "millimeter": 1.0,
+               "cm": 10.0, "m": 1000.0, "inch": 25.4, "in": 25.4}
+
+
+def normalize_extents(bbox: list[float], frame: dict | None) -> list[float]:
+    """Normalize a measured bbox to the repository frame (mm, Z-up).
+
+    `frame` is an optional manifest record:
+    ``{"units": "mm", "up_axis": "z"}``. Lengths are scaled to millimetres and,
+    for a Y-up reference, the measured Y and Z extents are swapped. This is a
+    declared-frame conversion, not a heuristic: an unknown unit or axis raises.
+    """
+    extents = bbox_extents(bbox)
+    if not frame:
+        return extents
+    units = str(frame.get("units", "mm")).lower()
+    if units not in _UNIT_TO_MM:
+        raise RuntimeError(f"unknown reference units {units!r}")
+    scale = _UNIT_TO_MM[units]
+    extents = [e * scale for e in extents]
+    up = str(frame.get("up_axis", "z")).lower()
+    if up == "y":
+        # Y-up -> Z-up: the reference (X, Y, Z) maps to (X, Z, Y).
+        extents = [extents[0], extents[2], extents[1]]
+    elif up != "z":
+        raise RuntimeError(f"unknown reference up axis {up!r}")
+    return extents
+
+
 def check(condition: bool, detail: str, skipped: bool = False) -> dict:
     if skipped:
         return {"status": "SKIP", "detail": detail}
@@ -136,7 +165,10 @@ def check_recorded_reference(
     recorded_bbox = recorded.get("bbox_mm")
     if not recorded_bbox:
         return check(True, "no recorded bbox", skipped=True)
-    extents = bbox_extents(measured["bbox"])
+    try:
+        extents = normalize_extents(measured["bbox"], fixture.get("reference_frame"))
+    except RuntimeError as exc:
+        return check(False, str(exc))
     failures = [
         f"axis {i}: {extents[i]:.4f} vs {recorded_bbox[i]:.4f} mm"
         for i in range(3)
@@ -204,6 +236,19 @@ def check_feature_spec(
         return check(
             len(cones) >= spec["min_count"],
             f"cone count {len(cones)} >= {spec['min_count']}",
+        )
+    if kind == "vertex_radius_present_mm":
+        clusters = features.get("vertex_radius_clusters") or []
+        tol = spec.get("tol_mm", tolerance["linear_mm"])
+        ok = any(abs(c["radius_mm"] - spec["expected"]) <= tol for c in clusters)
+        nearest = sorted(
+            (abs(c["radius_mm"] - spec["expected"]), c["radius_mm"])
+            for c in clusters
+        )[:3]
+        return check(
+            ok,
+            f"radius {spec['expected']:.3f} present; nearest "
+            f"{[round(r, 3) for _d, r in nearest]}",
         )
     return check(False, f"unknown feature check kind {kind!r}")
 
@@ -344,6 +389,22 @@ def compare_fixture(
                 got == spec["solids"], f"{got} vs {spec['solids']} solids"
             )
 
+    # 6b. Mass property: volume of the parametric part against a normative or
+    #     analytic value. Only meaningful where the internal geometry is
+    #     comparable; layered fasteners usually leave this out.
+    if "volume_mm3" in spec:
+        if measured_part is None or measured_part.get("volume") is None:
+            checks["volume"] = check(True, "OCCT volume unavailable", skipped=True)
+        else:
+            expected = spec["volume_mm3"]
+            got = measured_part["volume"]
+            rel = abs(got - expected) / max(abs(expected), 1.0e-9)
+            tol = spec.get("volume_relative_tol", tolerance["volume_relative"])
+            checks["volume"] = check(
+                rel <= tol,
+                f"volume {got:.3f} vs {expected:.3f} mm3 (rel {rel:.4f}, tol {tol})",
+            )
+
     # 7. Feature expectations from STEP text.
     if spec.get("features"):
         if features is None:
@@ -417,6 +478,162 @@ def print_result(result: dict) -> None:
     print(f"  => {result['verdict']}")
 
 
+def _fixture_check_status(result: dict, name: str) -> str:
+    return (result["checks"].get(name) or {}).get("status", "MISSING")
+
+
+def run_self_tests(root: Path, tolerance: dict, have_occt: bool, have_moon: bool) -> int:
+    """Prove the harness's PASS/FAIL/SKIP and normalization behaviour.
+
+    A generated parametric part stands in for the external oracle, so the
+    self-test needs no downloaded file. It proves that a matching fixture
+    reports PASS, a deliberately wrong expected dimension reports FAIL, a
+    missing/unlicensed external file reports SKIP while the normative checks
+    still pass, and a checksum mismatch reports FAIL.
+    """
+    if not (have_occt and have_moon):
+        print("golden harness self-test: SKIP (OCCT and moon are required)")
+        return 0
+
+    manifest = json.loads(MANIFEST_DEFAULT.read_text())
+    base = next(
+        (
+            f
+            for f in manifest.get("external_references", [])
+            if f.get("fixture_id") == "fasteners/iso4762-m3x10"
+        ),
+        None,
+    )
+    if base is None:
+        print("golden harness self-test: FAIL (base fixture missing)")
+        return 1
+
+    failures = 0
+
+    def report(name: str, ok: bool, detail: str) -> None:
+        nonlocal failures
+        if not ok:
+            failures += 1
+        print(f"  [{'PASS' if ok else 'FAIL'}] {name}: {detail}")
+
+    with tempfile.TemporaryDirectory(prefix="golden-selftest-") as td_raw:
+        td = Path(td_raw)
+        external = td / "external"
+        external.mkdir()
+        oracle = external / "self-test-oracle.step"
+        gen = generate_part(base, td, root)
+        shutil.copyfile(gen, oracle)
+        measured = measure_occt(oracle, root)
+        recorded = {
+            "bbox_mm": bbox_extents(measured["bbox"]),
+            "volume_mm3": measured.get("volume"),
+            "solids": measured["solids"],
+        }
+
+        def synthetic(**over) -> dict:
+            fixture = json.loads(json.dumps(base))
+            fixture["fixture_id"] = "self-test/fixture"
+            fixture["local_filename"] = "external/self-test-oracle.step"
+            fixture["license_status"] = "verified-self-test"
+            fixture["sha256"] = sha256_file(oracle)
+            fixture["byte_size"] = oracle.stat().st_size
+            fixture["measured_dimensions"] = recorded
+            fixture.update(over)
+            return fixture
+
+        def compare(fixture: dict) -> dict:
+            return compare_fixture(
+                fixture, root, external, td, tolerance, have_occt, have_moon
+            )
+
+        a = compare(synthetic())
+        report(
+            "matching fixture",
+            a["verdict"] == "PASS"
+            and _fixture_check_status(a, "external_geometry") == "PASS",
+            f"verdict {a['verdict']}, external "
+            f"{_fixture_check_status(a, 'external_geometry')}",
+        )
+
+        bfix = synthetic()
+        bfix["comparison"]["bbox_axes"][0]["expected_mm"] += 1.0
+        b = compare(bfix)
+        report(
+            "mismatched expected dimension",
+            b["verdict"] == "FAIL",
+            f"verdict {b['verdict']}",
+        )
+
+        cfix = synthetic()
+        cfix["local_filename"] = "external/missing-oracle.step"
+        cfix["license_status"] = "unverified-per-file"
+        c = compare(cfix)
+        report(
+            "missing/unlicensed external",
+            c["verdict"] == "PASS"
+            and _fixture_check_status(c, "external_geometry") == "SKIP",
+            f"verdict {c['verdict']}, external "
+            f"{_fixture_check_status(c, 'external_geometry')}",
+        )
+
+        dfix = synthetic()
+        dfix["sha256"] = "0" * 64
+        d = compare(dfix)
+        report(
+            "checksum mismatch",
+            d["verdict"] == "FAIL"
+            and _fixture_check_status(d, "checksum") == "FAIL",
+            f"verdict {d['verdict']}, checksum "
+            f"{_fixture_check_status(d, 'checksum')}",
+        )
+
+        ex = [26.0 / 25.4, 8.0 / 25.4, 26.0 / 25.4]
+        bbox = [0.0, ex[0], 0.0, ex[1], 0.0, ex[2]]
+        norm = normalize_extents(bbox, {"units": "inch", "up_axis": "y"})
+        report(
+            "units/frame normalization",
+            all(abs(norm[i] - v) < 1.0e-6 for i, v in enumerate([26.0, 26.0, 8.0])),
+            f"{[round(v, 6) for v in norm]} -> mm Z-up",
+        )
+        try:
+            normalize_extents(bbox, {"units": "furlong"})
+            report("unknown units rejected", False, "no exception")
+        except RuntimeError:
+            report("unknown units rejected", True, "RuntimeError")
+
+        features = {
+            "surface_counts": {"plane": 3},
+            "cones": [{"semi_angle_deg": 45.0}],
+            "vertex_radius_clusters": [{"radius_mm": 37.5, "count": 40}],
+        }
+        report(
+            "feature kind PASS",
+            check_feature_spec(
+                {"kind": "vertex_radius_present_mm", "expected": 37.5},
+                features,
+                tolerance,
+            )["status"]
+            == "PASS",
+            "radius present",
+        )
+        report(
+            "feature kind FAIL",
+            check_feature_spec(
+                {"kind": "vertex_radius_present_mm", "expected": 12.0},
+                features,
+                tolerance,
+            )["status"]
+            == "FAIL",
+            "radius absent",
+        )
+
+    print(
+        f"golden harness self-test: {'PASS' if failures == 0 else 'FAIL'} "
+        f"({failures} failures)"
+    )
+    return 0 if failures == 0 else 1
+
+
 def main(argv: list[str]) -> int:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--manifest", type=Path, default=MANIFEST_DEFAULT)
@@ -425,12 +642,20 @@ def main(argv: list[str]) -> int:
     ap.add_argument("--fixture", action="append", default=[])
     ap.add_argument("--out", type=Path, default=None)
     ap.add_argument("--json", action="store_true")
+    ap.add_argument(
+        "--self-test",
+        action="store_true",
+        help="Prove the harness PASS/FAIL/SKIP and normalization behaviour",
+    )
     args = ap.parse_args(argv)
 
     manifest = json.loads(args.manifest.read_text())
     tolerance = {**TOLERANCE_DEFAULT, **(manifest.get("tolerance") or {})}
     have_occt = shutil.which("occt-draw") is not None or shutil.which("DRAWEXE")
     have_moon = shutil.which("moon") is not None
+
+    if args.self_test:
+        return run_self_tests(args.root, tolerance, have_occt, have_moon)
 
     fixtures = manifest.get("external_references", [])
     if args.fixture:

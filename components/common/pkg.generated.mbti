@@ -109,6 +109,7 @@ pub fn FeatureRecord::documentation(Self) -> String
 pub fn FeatureRecord::empty() -> Self
 pub fn FeatureRecord::has_approximated(Self, String) -> Bool
 pub fn FeatureRecord::has_modeled(Self, String) -> Bool
+pub fn FeatureRecord::has_omitted(Self, String) -> Bool
 pub fn FeatureRecord::new(modeled? : Array[String], approximated? : Array[Approximation], omitted? : Array[Omission], tolerance_mm? : Double) -> Self
 pub fn FeatureRecord::omission_reason(Self, String) -> String?
 pub fn FeatureRecord::with_approximated(Self, Array[Approximation]) -> Self

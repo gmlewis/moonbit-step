@@ -251,3 +251,82 @@ python3 scripts/compare_golden.py
 python3 scripts/compare_golden.py --fixture bearings/608zz
 ```
 
+
+## Golden validation expansion (2026-11-10, exact-ring/keyway session)
+
+### Promoted fixtures
+
+`components/testdata/golden/manifest.json` now records 23 external references.
+Every one has SHA-256, byte size, source page/URL, declared and measured
+dimensions, the parametric counterpart recipe, and a licence status of
+`unverified-per-file`. No external STEP file is committed.
+
+| Fixture | Reference | Measured (mm) | Verdict |
+|---|---|---|---|
+| ISO 4762 M3 x 10 / M4 x 20 | head dia, overall length | matches ISO 4762 | accepted-envelope |
+| ISO 4032 M3 / M4 / M5 | height; plan = across corners | matches | accepted-envelope / height-only |
+| ISO 7089 M3 / M4 / M5 | OD matches; thickness 1.1 / 1.8 / 2.2 | ISO 7089 h = 0.5 / 0.8 / 1.0 | **rejected** (thickness) |
+| ISO 4017 M5 x 20 | head width = across corners; overall 23.74 | nominal L + k = 23.5 | accepted-head-width-only |
+| ISO 7380 M4 x 10 / M5 x 12 | dk and overall (L + k) | matches | accepted-envelope |
+| ISO 10642 M3 x 12 / M4 x 10 / M5 x 12 | overall length; 90° countersink | matches; dk slightly below max | accepted-envelope |
+| Bearings 608 / 6000 / 6001 / 6200 | bore, OD, width | matches ISO 15 boundary dims | accepted-envelope |
+| Spur gear m2 z20 / z40 | tip dia, face width, bore, root dia | matches | accepted-envelope |
+| 2020 B-slot6 profile | 20 x 20 x 50 envelope | section differs | envelope-only |
+| Metric threaded rod "M3 x 200" | model is 3 mm x **400 mm** | contradicts 200 mm label | **rejected** |
+
+The washer and rod rejections are deliberate: a catalogue designation is not
+proof that the model follows its standard. They are recorded, not used as
+oracles. The ISO 4032 plan bounding box is the across-corners span
+(`s / cos 30°`), so it is consistent with the standard across-flats but cannot
+prove it from an axis-aligned bbox.
+
+### Harness self-test
+
+`python3 scripts/compare_golden.py --self-test` proves:
+
+- a matching fixture reports `PASS` and the external geometry check really runs;
+- a deliberately mismatched expected dimension reports `FAIL`;
+- a missing/unlicensed external file reports the external check `SKIP` while
+  the normative/parametric checks run and the fixture verdict is `PASS`;
+- a checksum mismatch reports `FAIL`;
+- a Y-up/inch reference normalizes to mm/Z-up; unknown units raise;
+- the `vertex_radius_present_mm` feature kind passes and fails correctly.
+
+All eight cases pass. This is a development-time harness, never a runtime
+dependency.
+
+### Independent measurement (MCP)
+
+The exact-ring planetary (`planetary-m2-s12-p12-r36-3.step`) and the keyed shaft
+(`keyed-shaft-20x40.step`) were imported into SolidCraft as an independent
+kernel:
+
+| Model | OCCT volume | SolidCraft volume | Bodies | Result |
+|---|---:|---:|---:|---|
+| Keyed shaft + key | 12161.0 mm³ | 12161.0146 mm³ | 2 closed | agree |
+| Planetary 12/12/36 (exact ring) | 34743.98 mm³ | 34744.013 mm³ | 5 closed | agree |
+
+The planetary render shows the orange planet teeth sitting in the purple ring
+spaces with no visible overlap. The keyed-shaft render shows the rectangular
+keyway notch at the crown. Numeric agreement is the acceptance criterion; the
+renders confirm the feature is where the measurement says it is.
+
+### Comparison capability gap (honest)
+
+The manifest declares a `surface_deviation_mm` tolerance, but the current
+harness does **not** yet implement a sampled surface-distance or section
+comparison. It compares solid count, bbox, volume, analytic surface/feature
+counts, cone angle, sphere count, and clustered vertex radii. A
+surface-deviation or cross-section comparison is future work; until it exists,
+no fixture is reported as surface-deviation-verified.
+
+### Families not promoted this session
+
+The curated set is intentionally small. The following families exist in the
+local corpus and have parametric counterparts, but were not promoted with a
+generation/comparison recipe this session: ISO 4014 (partially threaded hex
+bolt), DIN 913 set screws, ISO 4035 thin nuts, ISO 2338 dowel pins, ISO 8752
+spring pins, and DIN 471 retaining rings. The 6300-series bearing reference is
+absent from the downloaded core corpus. The 2040/3030/4040 extrusion envelopes
+remain analytically checked in the profile tests, not against an external
+model. These are honest coverage gaps, not passes.

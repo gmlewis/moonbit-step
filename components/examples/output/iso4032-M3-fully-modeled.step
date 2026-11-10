@@ -7,9 +7,13 @@ HEADER;
   Size:       M3
   Data source: ISO 4032:2023 hexagon regular nut table; nominal values, see components/DATA_SOURCES.md
   Notes:      Hexagon regular nut with a through bore. A swept helical thread ridge is modeled.
+  Features modeled:      hex-body, helical-thread
+  Features approximated: through-bore (PolylineArc, deviation 0.0018068156922413925 mm, control circle_segments=64); helical-ridge (SweptSpline, deviation 0.011443526554938606 mm, control segments_per_turn=24)
+  Features omitted:      bore-edge-chamfer (not modelled by this builder); thread-runout (not modelled by this builder); nut-face-chamfer (the helical body is not chamfered at this detail level)
+  Feature tolerance:     0.01 mm
 */
 FILE_DESCRIPTION(('ISO 4032 - M3'),'2;1');
-FILE_NAME('ISO4032-M3.step','2026-11-10T02:56:46',('gmlewis'),('gmlewis/step','https://github.com/gmlewis/moonbit-step'),'gmlewis/step','moonbit','none');
+FILE_NAME('ISO4032-M3.step','2026-11-10T13:14:26',('gmlewis'),('gmlewis/step','https://github.com/gmlewis/moonbit-step'),'gmlewis/step','moonbit','none');
 FILE_SCHEMA(('AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }'));
 ENDSEC;
 DATA;

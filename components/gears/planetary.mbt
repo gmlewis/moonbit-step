@@ -246,17 +246,40 @@ pub fn PlanetaryParams::designation(self : PlanetaryParams) -> String {
 }
 
 ///|
-/// planetary_gear_set builds a straight-spur planetary set: sun, planets, and
-/// an approximate internal ring gear.
+/// PlanetaryParams::internal_mesh_backlash returns the circumferential backlash
+/// used for the internal ring mesh.
 ///
-/// The ring tooth form is the trapezoidal approximation from
-/// `internal_ring_gear`; it is visually compatible with the planet pitch but is
-/// not an exact internal involute mesh. The assembly condition
+/// A declared backlash of `0.05 * module` is applied by default. A low planet
+/// tooth count (for example z = 12 at 20 degrees) produces a ring tooth tip
+/// that grazes the planet flank through part of the rotation cycle; the small
+/// backlash clears it. This is a documented engineering default, not a
+/// standards-mandated value. A caller-supplied positive backlash overrides it.
+pub fn PlanetaryParams::internal_mesh_backlash(
+  self : PlanetaryParams,
+) -> Double {
+  if self.backlash_mm > 0.0 {
+    self.backlash_mm
+  } else {
+    0.05 * self.module_mm
+  }
+}
+
+///|
+/// planetary_gear_set builds a straight-spur planetary set: sun, planets, and an
+/// exact internal involute ring gear.
+///
+/// The ring uses `internal_ring_gear_exact`, whose tooth thickness follows the
+/// internal involute relation, so the planet tooth space is conjugate through a
+/// rotation cycle. See `internal_mesh_interference`, which the tests use to
+/// prove zero outline crossings. The assembly condition
 /// `ring = sun + 2 * planet` and `(sun + ring) % planet_count == 0` is enforced.
+///
+/// The layout is geometric: it is a static pose, not a solved kinematic train.
 pub fn planetary_gear_set(
   params : PlanetaryParams,
   detail~ : @common.DetailLevel = Detailed,
 ) -> Result[@assemblies.Assembly, @common.SpecError] {
+  let backlash = params.internal_mesh_backlash()
   let sun = match
     SpurGearParams::new(
       module_mm=params.module_mm,
@@ -264,7 +287,7 @@ pub fn planetary_gear_set(
       pressure_angle_deg=params.pressure_angle_deg,
       face_width_mm=params.face_width_mm,
       bore_diameter_mm=params.sun_bore_mm,
-      backlash_mm=params.backlash_mm,
+      backlash_mm=backlash,
     ) {
     Err(e) => return Err(e)
     Ok(p) => p
@@ -276,7 +299,7 @@ pub fn planetary_gear_set(
       pressure_angle_deg=params.pressure_angle_deg,
       face_width_mm=params.face_width_mm,
       bore_diameter_mm=params.planet_bore_mm,
-      backlash_mm=params.backlash_mm,
+      backlash_mm=backlash,
     ) {
     Err(e) => return Err(e)
     Ok(p) => p
@@ -290,11 +313,12 @@ pub fn planetary_gear_set(
     Ok(c) => c
   }
   let ring = match
-    internal_ring_gear(
+    internal_ring_gear_exact(
       params.module_mm,
       params.ring_teeth,
       params.face_width_mm,
       pressure_angle_deg=params.pressure_angle_deg,
+      backlash_mm=backlash,
       detail~,
     ) {
     Err(e) => return Err(e)
@@ -305,7 +329,7 @@ pub fn planetary_gear_set(
   let sun_pitch_deg = 360.0 / params.sun_teeth.to_double()
   let mut assembly = @assemblies.Assembly::new(
     name~,
-    description="Straight-spur planetary set with an approximate internal ring gear. Static layout; no kinematics.",
+    description="Straight-spur planetary set with an exact internal involute ring gear. Static layout; no kinematics.",
   ).add(sun_component, instance_name="sun")
   for j in 0..<params.planet_count {
     let theta = 360.0 * j.to_double() / params.planet_count.to_double()

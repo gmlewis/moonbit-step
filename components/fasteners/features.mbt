@@ -26,6 +26,12 @@ pub fn fastener_thread_features(
           control="segments_per_turn=\{policy.segments_per_turn}",
         ),
       )
+      .add_omitted(
+        @common.Omission::new(
+          feature="thread-runout",
+          reason="the swept ridge ends at the shank ends; thread runout and lead-in are not modelled",
+        ),
+      )
     _ =>
       record.add_omitted(
         @common.Omission::new(

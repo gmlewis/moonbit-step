@@ -8,9 +8,10 @@ HEADER;
   Length:     20 mm
   Data source: ISO 4017:2014 hexagon head screw, product grades A and B; nominal values, see components/DATA_SOURCES.md
   Notes:      Hexagon head screw; layered body and head. Head edges are not chamfered. No thread geometry is modeled.
+  Feature tolerance:     0.01 mm
 */
 FILE_DESCRIPTION(('ISO 4017 - M5 x 20'),'2;1');
-FILE_NAME('ISO4017-M5-20.step','2026-11-10T02:56:46',('gmlewis'),('gmlewis/step','https://github.com/gmlewis/moonbit-step'),'gmlewis/step','moonbit','none');
+FILE_NAME('ISO4017-M5-20.step','2026-11-10T13:14:26',('gmlewis'),('gmlewis/step','https://github.com/gmlewis/moonbit-step'),'gmlewis/step','moonbit','none');
 FILE_SCHEMA(('AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }'));
 ENDSEC;
 DATA;

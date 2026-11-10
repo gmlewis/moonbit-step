@@ -312,6 +312,11 @@ test "detailed socket screw models the head chamfer" {
   assert_true(features.has_modeled("head-chamfer"))
   assert_true(features.has_modeled("blind-hex-socket"))
   assert_true(features.omission_reason("thread") is Some(_))
+  // Remaining fastener features are recorded as typed omissions, not silently
+  // pretended.
+  assert_true(features.has_omitted("socket-lead-in-chamfer"))
+  assert_true(features.has_omitted("shank-tip-chamfer"))
+  assert_true(features.has_omitted("under-head-radius"))
 }
 
 ///|
@@ -320,6 +325,7 @@ test "fully modeled screw records the swept thread" {
   let features = screw.features()
   assert_true(features.has_modeled("helical-thread"))
   assert_true(features.has_approximated("helical-ridge"))
+  assert_true(features.has_omitted("thread-runout"))
 }
 
 ///|

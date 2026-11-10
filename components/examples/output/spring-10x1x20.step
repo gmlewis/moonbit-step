@@ -8,9 +8,13 @@ HEADER;
   Length:     20 mm
   Data source: Parametric helical sweep; no spring rate, end-coil, or grinding model.
   Notes:      Open helical spring with circular wire and flat swept end caps. Closed/ground ends and preload are not modeled.
+  Features modeled:      helix-body
+  Features approximated: helical-wire (SweptSpline, deviation 0.04277569313094809 mm, control segments_per_turn=24)
+  Features omitted:      closed-end-coils (not modelled by this builder); ground-ends (not modelled by this builder); spring-rate (geometry only; no spring rate or preload model)
+  Feature tolerance:     0.01 mm
 */
 FILE_DESCRIPTION(('Compression spring OD 10 / wire 1 x 20'),'2;1');
-FILE_NAME('spring-10x1x20.step','2026-11-10T02:56:50',('gmlewis'),('gmlewis/step','https://github.com/gmlewis/moonbit-step'),'gmlewis/step','moonbit','none');
+FILE_NAME('spring-10x1x20.step','2026-11-10T13:14:33',('gmlewis'),('gmlewis/step','https://github.com/gmlewis/moonbit-step'),'gmlewis/step','moonbit','none');
 FILE_SCHEMA(('AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }'));
 ENDSEC;
 DATA;

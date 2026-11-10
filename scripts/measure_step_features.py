@@ -146,6 +146,18 @@ def analyze(path: Path) -> dict:
         r = math.hypot(x, y)
         if r > 1.0e-9:
             radii.append(r)
+    # Cluster repeated radii (arc vertices) so a caller can check a named
+    # diameter such as a gear root or tip circle. Flank samples repeat once per
+    # tooth, so a threshold of four keeps arcs and drops one-off points.
+    buckets: dict[float, int] = {}
+    for r in radii:
+        key = round(r, 3)
+        buckets[key] = buckets.get(key, 0) + 1
+    clusters = [
+        {"radius_mm": key, "count": n}
+        for key, n in sorted(buckets.items())
+        if n >= 4
+    ]
     return {
         "path": str(path),
         "solids": solids,
@@ -158,6 +170,7 @@ def analyze(path: Path) -> dict:
         "cylinders": surfaces["cylinder"],
         "min_vertex_radius": min(radii) if radii else None,
         "max_vertex_radius": max(radii) if radii else None,
+        "vertex_radius_clusters": clusters,
     }
 
 
