@@ -1,0 +1,52 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "gmlewis/step/components/assemblies"
+
+import {
+  "gmlewis/step/cad",
+  "gmlewis/step/components/common",
+  "gmlewis/step/components/profiles",
+  "gmlewis/step/components/standards",
+}
+
+// Values
+pub fn extrusion_frame(Double, Double, Double, @profiles.TSlotProfile, detail? : @common.DetailLevel) -> Result[Assembly, @common.SpecError]
+
+pub fn fastener_grid_plate(@standards.MetricSize, Double, Int32, Int32, Double, Double, detail? : @common.DetailLevel) -> Result[Assembly, @common.SpecError]
+
+pub fn metric_hardware_kit(@standards.MetricSize, Double, detail? : @common.DetailLevel) -> Result[Assembly, @common.SpecError]
+
+// Errors
+
+// Types and methods
+pub struct Assembly {
+  // private fields
+}
+pub fn Assembly::add(Self, @common.Component, placement? : @common.Placement, instance_name? : String) -> Self
+pub fn Assembly::add_at(Self, @common.Component, x? : Double, y? : Double, z? : Double, rx? : Double, ry? : Double, rz? : Double, instance_name? : String) -> Self
+pub fn Assembly::bounding_box(Self) -> (Double, Double, Double, Double, Double, Double)
+pub fn Assembly::circular_pattern(Self, @common.Component, Int32, Double, start_angle_deg? : Double, orientation_deg? : Double, instance_name? : String, base? : @common.Placement) -> Self
+pub fn Assembly::component_names(Self) -> Array[String]
+pub fn Assembly::count(Self) -> Int32
+pub fn Assembly::documentation(Self) -> String
+pub fn Assembly::items(Self) -> Array[AssemblyItem]
+pub fn Assembly::linear_pattern(Self, @common.Component, Int32, dx? : Double, dy? : Double, dz? : Double, instance_name? : String, base? : @common.Placement) -> Self
+pub fn Assembly::name(Self) -> String
+pub fn Assembly::new(name~ : String, description? : String, documentation? : String) -> Self
+pub fn Assembly::nodes(Self) -> Array[@cad.SceneNode]
+pub fn Assembly::to_assembly_step(Self, assembly_name? : String) -> String
+pub fn Assembly::to_design(Self, name? : String, documentation? : String) -> @cad.Design
+pub fn Assembly::to_step(Self, checked? : Bool) -> String
+pub fn Assembly::with_description(Self, String) -> Self
+pub fn Assembly::with_documentation(Self, String) -> Self
+pub async fn Assembly::write_assembly_step(Self, String?) -> Unit
+pub async fn Assembly::write_step(Self, String?, checked? : Bool) -> Unit
+
+pub(all) struct AssemblyItem {
+  component : @common.Component
+  placement : @common.Placement
+  instance_name : String
+}
+
+// Type aliases
+
+// Traits

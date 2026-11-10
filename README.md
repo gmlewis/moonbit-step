@@ -99,6 +99,36 @@ The exporter tessellates `PLANE`, `CYLINDRICAL_SURFACE`, and
 `SURFACE_OF_LINEAR_EXTRUSION` faces; any other surface aborts with an explicit
 error rather than emitting an invalid mesh.
 
+## Parametric mechanical components
+
+The repository also includes a MoonBit-native parametric mechanical-components
+library under [`components/`](components/README.md). It generates real,
+dimensioned STEP parts through the same `@cad` pipeline:
+
+- ISO 4762 socket head cap screws, ISO 4032 hex nuts, ISO 7089 washers;
+- ISO 4014/4017 hex head bolts/screws and DIN 976 threaded rods;
+- generic metric T-slot extrusion profiles and rectangular frames;
+- shafts, stepped shafts, spacers, keys, and simplified bearings;
+- involute spur gears, gear pairs, and an approximate straight-spur planetary set;
+- assemblies with rigid placements, linear/circular patterns, and hardware
+  kits.
+
+```bash
+moon run --target native components/examples/fasteners -- \
+  --standard iso4762 --size M4 --length 20 --detail detailed -o M4x20.step
+moon run --target native components/examples/hardware_kit -- \
+  --size M4 --length 20 -o kit.step
+moon run --target native components/examples/extrusion_frame -- \
+  --width 400 --depth 300 --height 500 --series 2020 -o frame.step
+moon run --target native components/examples/gear_pair -- \
+  --module 2 --teeth 20 --mateTeeth 40 -o gear-pair.step
+```
+
+See [`components/README.md`](components/README.md) for the package map,
+standards coverage, provenance, geometry conventions, assembly model, and known
+limitations. Generated fixtures live in
+[`components/examples/output/`](components/examples/output/).
+
 ## Quick Start (Parsing)
 
 Parsing from a string:

@@ -1,6 +1,6 @@
 name = "gmlewis/step"
 
-version = "0.1.27"
+version = "0.2.0"
 
 import {
   "gmlewis/base64@0.16.14",
@@ -18,8 +18,8 @@ repository = "https://github.com/gmlewis/moonbit-step"
 
 license = "Apache-2.0"
 
-keywords = [ "cad", "step", "3d", "modeling" ]
+keywords = [ "cad", "step", "3d", "modeling", "components" ]
 
-description = "Port of https://github.com/tscircuit/stepts to MoonBit"
+description = "A high-level 3D modeling DSL and lossless STEP (ISO 10303-21) parser/serializer in MoonBit."
 
 preferred_target = "native"

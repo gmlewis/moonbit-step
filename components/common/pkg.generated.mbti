@@ -1,0 +1,126 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "gmlewis/step/components/common"
+
+import {
+  "gmlewis/step/cad",
+}
+
+// Values
+pub fn[T] expect_ok(Result[T, SpecError]) -> T
+
+pub fn is_finite(Double) -> Bool
+
+pub fn length_mm(String, @cad.Length) -> Result[Double, SpecError]
+
+pub fn near(Double, Double, tol? : Double) -> Bool
+
+pub fn require_in_range(String, Double, Double, Double) -> Result[Unit, SpecError]
+
+pub fn require_non_negative(String, Double) -> Result[Unit, SpecError]
+
+pub fn require_positive(String, Double) -> Result[Unit, SpecError]
+
+pub fn rotation_matrix_deg(Double, Double, Double) -> @cad.Matrix3x3
+
+// Errors
+
+// Types and methods
+pub struct Component {
+  // private fields
+}
+pub fn Component::add_layer(Self, @cad.Shape, name? : String, color? : @cad.Rgb, placement? : Placement) -> Self
+pub fn Component::add_layers(Self, Array[ComponentLayer]) -> Self
+pub fn Component::bounding_box(Self) -> (Double, Double, Double, Double, Double, Double)
+pub fn Component::description(Self) -> String
+pub fn Component::documentation(Self) -> String
+pub fn Component::layers(Self) -> Array[ComponentLayer]
+pub fn Component::metadata(Self) -> Metadata
+pub fn Component::name(Self) -> String
+pub fn Component::new(name~ : String, metadata~ : Metadata, description? : String) -> Self
+pub fn Component::nodes(Self) -> Array[@cad.SceneNode]
+pub fn Component::nodes_under(Self, Placement) -> Array[@cad.SceneNode]
+pub fn Component::rotate_x(Self, Double) -> Self
+pub fn Component::rotate_y(Self, Double) -> Self
+pub fn Component::rotate_z(Self, Double) -> Self
+pub fn Component::size(Self) -> (Double, Double, Double)
+pub fn Component::to_design(Self, name? : String, documentation? : String) -> @cad.Design
+pub fn Component::to_step(Self, checked? : Bool) -> String
+pub fn Component::transform_with(Self, Placement) -> Self
+pub fn Component::translate(Self, x? : Double, y? : Double, z? : Double) -> Self
+pub fn Component::with_description(Self, String) -> Self
+pub fn Component::with_metadata(Self, Metadata) -> Self
+pub fn Component::with_name(Self, String) -> Self
+pub async fn Component::write_step(Self, String?, checked? : Bool) -> Unit
+
+pub(all) struct ComponentLayer {
+  shape : @cad.Shape
+  name : String
+  color : @cad.Rgb
+  placement : Placement
+}
+
+pub(all) enum DetailLevel {
+  Simplified
+  Detailed
+  FullyModeled
+}
+
+pub(all) struct DetailPolicy {
+  level : DetailLevel
+  threads : ThreadRepresentation
+  segments_per_turn : Int32
+  circle_segments : Int32
+  include_small_features : Bool
+}
+pub fn DetailPolicy::for_level(DetailLevel) -> Self
+pub fn DetailPolicy::with_threads(Self, ThreadRepresentation) -> Self
+
+pub(all) struct Metadata {
+  designation : String
+  standard : String
+  family : String
+  size : String
+  length_mm : Double?
+  material : String?
+  source : String
+}
+pub fn Metadata::documentation(Self) -> String
+pub fn Metadata::new(designation~ : String, standard? : String, family? : String, size? : String, length_mm? : Double, material? : String, source? : String) -> Self
+pub fn Metadata::summary(Self) -> String
+pub fn Metadata::with_material(Self, String) -> Self
+
+pub(all) struct Placement {
+  rot : @cad.Matrix3x3
+  trans : (Double, Double, Double)
+}
+pub fn Placement::apply_dir(Self, (Double, Double, Double)) -> (Double, Double, Double)
+pub fn Placement::apply_point(Self, (Double, Double, Double)) -> (Double, Double, Double)
+pub fn Placement::at(Double, Double, Double, rx? : Double, ry? : Double, rz? : Double) -> Self
+pub fn Placement::compose(Self, Self) -> Self
+pub fn Placement::identity() -> Self
+pub fn Placement::inverse(Self) -> Self
+pub fn Placement::rotation_deg(Double, Double, Double) -> Self
+pub fn Placement::rotation_x(Double) -> Self
+pub fn Placement::rotation_y(Double) -> Self
+pub fn Placement::rotation_z(Double) -> Self
+pub fn Placement::to_euler(Self) -> (Double, Double, Double)
+pub fn Placement::translation(Double, Double, Double) -> Self
+
+pub(all) enum SpecError {
+  InvalidSize(String)
+  UnsupportedLength(String)
+  InvalidDimension(String)
+  InvalidParameter(String)
+}
+pub fn SpecError::message(Self) -> String
+pub fn SpecError::to_string(Self) -> String
+
+pub(all) enum ThreadRepresentation {
+  None
+  Cosmetic
+  Helical
+}
+
+// Type aliases
+
+// Traits

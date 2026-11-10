@@ -1,0 +1,188 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "gmlewis/step/components/standards"
+
+import {
+  "gmlewis/step/components/common",
+}
+
+// Values
+pub fn bolt_thread_length(Double, Double) -> Double
+
+pub fn din976_spec(MetricSize, Double) -> Result[DIN976Spec, @common.SpecError]
+
+pub fn hex_head_size(MetricSize) -> Result[HexHeadSize, @common.SpecError]
+
+pub fn iso4014_spec(MetricSize, Double) -> Result[ISO4014Spec, @common.SpecError]
+
+pub fn iso4017_spec(MetricSize, Double) -> Result[ISO4017Spec, @common.SpecError]
+
+pub fn iso4032_size(MetricSize) -> Result[ISO4032Size, @common.SpecError]
+
+pub fn iso4032_spec(MetricSize, clearance_mm? : Double) -> Result[ISO4032Spec, @common.SpecError]
+
+pub fn iso4762_size(MetricSize) -> Result[ISO4762Size, @common.SpecError]
+
+pub fn iso4762_spec(MetricSize, Double) -> Result[ISO4762Spec, @common.SpecError]
+
+pub fn iso7089_size(MetricSize) -> Result[ISO7089Size, @common.SpecError]
+
+pub fn iso7089_spec(MetricSize) -> Result[ISO7089Spec, @common.SpecError]
+
+// Errors
+
+// Types and methods
+pub(all) struct DIN976Spec {
+  thread : ThreadSpec
+  length_mm : Double
+}
+pub fn DIN976Spec::designation(Self) -> String
+pub fn DIN976Spec::metadata(Self) -> @common.Metadata
+pub fn DIN976Spec::source() -> String
+pub fn DIN976Spec::standard() -> String
+
+pub(all) struct HexHeadSize {
+  size : MetricSize
+  thread : ThreadSpec
+  width_across_flats_mm : Double
+  head_height_mm : Double
+  min_length_mm : Double
+  max_length_mm : Double
+}
+
+pub(all) struct ISO4014Spec {
+  size_dims : HexHeadSize
+  length_mm : Double
+  thread_length_mm : Double
+  fully_threaded : Bool
+}
+pub fn ISO4014Spec::designation(Self) -> String
+pub fn ISO4014Spec::metadata(Self) -> @common.Metadata
+pub fn ISO4014Spec::source() -> String
+pub fn ISO4014Spec::standard() -> String
+pub fn ISO4014Spec::thread(Self) -> ThreadSpec
+
+pub(all) struct ISO4017Spec {
+  size_dims : HexHeadSize
+  length_mm : Double
+}
+pub fn ISO4017Spec::designation(Self) -> String
+pub fn ISO4017Spec::metadata(Self) -> @common.Metadata
+pub fn ISO4017Spec::source() -> String
+pub fn ISO4017Spec::standard() -> String
+pub fn ISO4017Spec::thread(Self) -> ThreadSpec
+
+pub(all) struct ISO4032Size {
+  size : MetricSize
+  thread : ThreadSpec
+  width_across_flats_mm : Double
+  height_mm : Double
+}
+
+pub(all) struct ISO4032Spec {
+  size_dims : ISO4032Size
+  clearance_mm : Double
+}
+pub fn ISO4032Spec::designation(Self) -> String
+pub fn ISO4032Spec::metadata(Self) -> @common.Metadata
+pub fn ISO4032Spec::size(Self) -> MetricSize
+pub fn ISO4032Spec::source() -> String
+pub fn ISO4032Spec::standard() -> String
+pub fn ISO4032Spec::thread(Self) -> ThreadSpec
+
+pub(all) struct ISO4762Size {
+  size : MetricSize
+  thread : ThreadSpec
+  head_diameter_mm : Double
+  head_height_mm : Double
+  socket_across_flats_mm : Double
+  socket_depth_mm : Double
+  min_length_mm : Double
+  max_length_mm : Double
+}
+
+pub(all) struct ISO4762Spec {
+  size_dims : ISO4762Size
+  length_mm : Double
+  thread_length_mm : Double
+  fully_threaded : Bool
+}
+pub fn ISO4762Spec::designation(Self) -> String
+pub fn ISO4762Spec::metadata(Self) -> @common.Metadata
+pub fn ISO4762Spec::size(Self) -> MetricSize
+pub fn ISO4762Spec::source() -> String
+pub fn ISO4762Spec::standard() -> String
+pub fn ISO4762Spec::thread(Self) -> ThreadSpec
+
+pub(all) struct ISO7089Size {
+  size : MetricSize
+  inner_diameter_mm : Double
+  outer_diameter_mm : Double
+  thickness_mm : Double
+}
+
+pub(all) struct ISO7089Spec {
+  size_dims : ISO7089Size
+}
+pub fn ISO7089Spec::designation(Self) -> String
+pub fn ISO7089Spec::metadata(Self) -> @common.Metadata
+pub fn ISO7089Spec::size(Self) -> MetricSize
+pub fn ISO7089Spec::source() -> String
+pub fn ISO7089Spec::standard() -> String
+
+pub(all) enum MetricSize {
+  M2
+  M2_5
+  M3
+  M4
+  M5
+  M6
+  M8
+  M10
+  M12
+  M16
+  M20
+}
+pub fn MetricSize::all() -> Array[Self]
+pub fn MetricSize::coarse_pitch_mm(Self) -> Double
+pub fn MetricSize::designation(Self) -> String
+pub fn MetricSize::fine_pitch_mm(Self) -> Double
+pub fn MetricSize::from_diameter(Double) -> Self?
+pub fn MetricSize::nominal_diameter_mm(Self) -> Double
+pub fn MetricSize::parse(String) -> Self?
+
+pub(all) enum ThreadHand {
+  Right
+  Left
+}
+
+pub(all) enum ThreadSeries {
+  Coarse
+  Fine
+  Custom
+}
+
+pub(all) struct ThreadSpec {
+  size : MetricSize
+  nominal_diameter_mm : Double
+  pitch_mm : Double
+  hand : ThreadHand
+  series : ThreadSeries
+}
+pub fn ThreadSpec::coarse(MetricSize) -> Self
+pub fn ThreadSpec::crest_flat_mm(Self) -> Double
+pub fn ThreadSpec::custom(MetricSize, Double, hand? : ThreadHand) -> Result[Self, @common.SpecError]
+pub fn ThreadSpec::designation(Self, external? : Bool) -> String
+pub fn ThreadSpec::external_minor_diameter_mm(Self) -> Double
+pub fn ThreadSpec::external_thread_depth_mm(Self) -> Double
+pub fn ThreadSpec::fine(MetricSize) -> Self
+pub fn ThreadSpec::height_h_mm(Self) -> Double
+pub fn ThreadSpec::internal_minor_diameter_mm(Self) -> Double
+pub fn ThreadSpec::internal_thread_depth_mm(Self) -> Double
+pub fn ThreadSpec::lead_angle_deg(Self) -> Double
+pub fn ThreadSpec::pitch_diameter_mm(Self) -> Double
+pub fn ThreadSpec::root_flat_mm(Self) -> Double
+pub fn ThreadSpec::with_hand(Self, ThreadHand) -> Self
+
+// Type aliases
+
+// Traits

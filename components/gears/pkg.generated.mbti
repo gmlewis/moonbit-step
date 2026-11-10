@@ -1,0 +1,74 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "gmlewis/step/components/gears"
+
+import {
+  "gmlewis/step/cad",
+  "gmlewis/step/components/assemblies",
+  "gmlewis/step/components/common",
+}
+
+// Values
+pub fn external_involute_outline(Double, Int32, Double, backlash_mm? : Double, involute_points? : Int32, arc_points? : Int32) -> Array[(Double, Double)]
+
+pub fn gear_pair(SpurGearParams, SpurGearParams, offset_mm? : Double, detail? : @common.DetailLevel) -> Result[@assemblies.Assembly, @common.SpecError]
+
+pub fn gear_pair_center_distance(SpurGearParams, SpurGearParams, offset_mm? : Double) -> Double
+
+pub fn internal_ring_gear(Double, Int32, Double, pressure_angle_deg? : Double, outer_wall_mm? : Double, tooth_fraction? : Double, detail? : @common.DetailLevel) -> Result[@common.Component, @common.SpecError]
+
+pub fn internal_ring_gear_profile(Double, Int32, tooth_fraction? : Double, tip_points? : Int32, root_points? : Int32) -> Array[(Double, Double)]
+
+pub fn involute_gear_geometry(Double, Int32, Double) -> InvoluteGearGeometry
+
+pub fn involute_outline_area(Array[(Double, Double)]) -> Double
+
+pub fn planetary_gear_set(PlanetaryParams, detail? : @common.DetailLevel) -> Result[@assemblies.Assembly, @common.SpecError]
+
+pub fn spur_gear(SpurGearParams, detail? : @common.DetailLevel, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+// Errors
+
+// Types and methods
+pub(all) struct InvoluteGearGeometry {
+  module_mm : Double
+  teeth : Int32
+  pressure_angle_deg : Double
+  pitch_radius_mm : Double
+  base_radius_mm : Double
+  root_radius_mm : Double
+  outer_radius_mm : Double
+}
+
+pub(all) struct PlanetaryParams {
+  module_mm : Double
+  sun_teeth : Int32
+  planet_teeth : Int32
+  ring_teeth : Int32
+  planet_count : Int32
+  pressure_angle_deg : Double
+  face_width_mm : Double
+  sun_bore_mm : Double
+  planet_bore_mm : Double
+  backlash_mm : Double
+}
+pub fn PlanetaryParams::center_distance(Self) -> Double
+pub fn PlanetaryParams::designation(Self) -> String
+pub fn PlanetaryParams::new(module_mm~ : Double, sun_teeth~ : Int32, planet_teeth~ : Int32, planet_count? : Int32, pressure_angle_deg? : Double, face_width_mm? : Double, sun_bore_mm? : Double, planet_bore_mm? : Double, backlash_mm? : Double) -> Result[Self, @common.SpecError]
+
+pub(all) struct SpurGearParams {
+  module_mm : Double
+  teeth : Int32
+  pressure_angle_deg : Double
+  face_width_mm : Double
+  bore_diameter_mm : Double
+  backlash_mm : Double
+  involute_points : Int32
+  arc_points : Int32
+}
+pub fn SpurGearParams::designation(Self) -> String
+pub fn SpurGearParams::geometry(Self) -> InvoluteGearGeometry
+pub fn SpurGearParams::new(module_mm~ : Double, teeth~ : Int32, pressure_angle_deg? : Double, face_width_mm? : Double, bore_diameter_mm? : Double, backlash_mm? : Double, involute_points? : Int32, arc_points? : Int32) -> Result[Self, @common.SpecError]
+
+// Type aliases
+
+// Traits

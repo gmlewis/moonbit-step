@@ -7,3 +7,6 @@ target
 /bpy-out
 __pycache__
 *.blend*
+/*.md
+/.github/*.md
+/.github/skills/**

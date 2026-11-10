@@ -1,0 +1,52 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "gmlewis/step/components/motion"
+
+import {
+  "gmlewis/step/cad",
+  "gmlewis/step/components/common",
+}
+
+// Values
+pub fn bearing(BearingSize, ring_thickness_mm? : Double, roller_count? : Int32, detail? : @common.DetailLevel, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn bearing_by_designation(String, detail? : @common.DetailLevel) -> Result[@common.Component, @common.SpecError]
+
+pub fn bearing_designations() -> Array[String]
+
+pub fn bearing_size(String) -> Result[BearingSize, @common.SpecError]
+
+pub fn bushing(Double, Double, Double) -> Result[@common.Component, @common.SpecError]
+
+pub fn compression_spring(Double, Double, Double, Int32, segments_per_turn? : Int32, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn dowel_pin(Double, Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn key(Double, Double, Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn shaft(Double, Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn spacer(Double, Double, Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn standoff(Double, Double, Double, detail? : @common.DetailLevel) -> Result[@common.Component, @common.SpecError]
+
+pub fn stepped_shaft(Array[ShaftSegment], color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+// Errors
+
+// Types and methods
+pub(all) struct BearingSize {
+  designation : String
+  bore_mm : Double
+  outer_mm : Double
+  width_mm : Double
+}
+
+pub(all) struct ShaftSegment {
+  diameter_mm : Double
+  length_mm : Double
+}
+pub fn ShaftSegment::new(Double, Double) -> Result[Self, @common.SpecError]
+
+// Type aliases
+
+// Traits
