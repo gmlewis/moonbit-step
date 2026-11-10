@@ -134,3 +134,57 @@ test "extrusion frame rejects undersized dimensions" {
     is Err(_),
   )
 }
+
+///|
+test "hardware kit coaxial clearance fit and engagement" {
+  for size in [@standards.M3, @standards.M4, @standards.M5] {
+    let length = 20.0
+    let assembly = match @assemblies.metric_hardware_kit(size, length) {
+      Ok(a) => a
+      Err(e) => abort(e.message())
+    }
+    let washer = match @standards.iso7089_size(size) {
+      Ok(w) => w
+      Err(e) => abort(e.message())
+    }
+    let nut = match @standards.iso4032_size(size) {
+      Ok(n) => n
+      Err(e) => abort(e.message())
+    }
+    let d = size.nominal_diameter_mm()
+    // The washer bore clears the nominal screw shank.
+    assert_true(washer.inner_diameter_mm > d)
+    // The simplified nut bore is the nominal diameter; this is a nominal
+    // fit, not an ISO tolerance-class fit.
+    let mut washer_z = -1.0
+    let mut nut_z = -1.0
+    for item in assembly.items() {
+      let (rx, ry, rz) = item.placement.to_euler()
+      assert_true(close(rx, 0.0))
+      assert_true(close(ry, 0.0))
+      assert_true(close(rz, 0.0))
+      assert_true(close(item.placement.trans.0, 0.0))
+      assert_true(close(item.placement.trans.1, 0.0))
+      if item.instance_name == "washer" {
+        washer_z = item.placement.trans.2
+      } else if item.instance_name == "nut" {
+        nut_z = item.placement.trans.2
+      }
+    }
+    // Washer top face meets the head underside at z = length.
+    assert_true(close(washer_z + washer.thickness_mm, length))
+    // The nut is near the free end and the screw passes fully through it.
+    assert_true(close(nut_z, 2.0))
+    assert_true(nut_z + nut.height_mm < length)
+  }
+}
+
+///|
+test "hardware kit envelope overlap is a nested-bore false positive" {
+  // The screw shank passes through the washer and nut bores. The OBB envelope
+  // necessarily reports overlap because the bore is a hole; this test records
+  // the limitation so a future shape-aware test can replace it.
+  let assembly = kit()
+  assert_true(!assembly.collisions().is_empty())
+  assert_true(assembly.is_connected())
+}

@@ -9,8 +9,20 @@ Environment: macOS, MoonBit `moon 0.1.20261104 (940aa18 2026-11-04)`,
 ./test-all.sh
 ```
 
-Result: **408 tests, 408 passed, 0 failed** (baseline before component work:
-345/345). `test-all.sh` also runs `moon fmt` and `moon info --target native`.
+Result after the correctness audit: **430 tests, 430 passed, 0 failed**
+(baseline before the audit: 408/408; before the component work: 345/345).
+`test-all.sh` also runs `moon fmt` and `moon info --target native`.
+
+New regression coverage added by the audit:
+
+- `components/collision/collision_test.mbt` — contact vs collision vs
+  clearance, penetration depth, AABB false-positive rejection, OBB placement.
+- `components/assemblies/extrusion_frame_test.mbt` — member count, cut
+  lengths, endpoints, overall dimensions, pairwise interference, intended
+  contacts, connectivity, no floating members, invalid boundaries, STEP
+  round-trip, and additional frame sizes.
+- `components/gears/gear_mesh_test.mbt` — external gear mesh cycle,
+  non-divisible planetary phasing, and planet/ring clearance.
 
 ## STEP validation
 
@@ -41,7 +53,7 @@ Representative results:
 | `motion-608-stack.step` | 22 | 573 | OK |
 | `spring-10x1x20.step` | 1 | 4610 | OK |
 
-All 29 flat fixtures in `components/examples/output/` pass
+All 31 flat fixtures in `components/examples/output/` pass
 `validate_step.py --no-mesh`; the larger ones above were also checked with
 tessellation enabled (`occt mesh: 0 open edges`).
 
@@ -53,6 +65,45 @@ topology, orientation, and planarity. The repository's OCCT stage asks OCCT to
 read a single named shape and reports "a is not a topological shape" for an
 assembly document. See `KNOWN_ISSUES.md`; the flat kit export is the fully
 validated form.
+
+## Independent frame post-export validation
+
+`scripts/validate_frame_geometry.py` re-imports a frame STEP with OCCT,
+re-derives the member schedule in Python, and checks every solid's bounding box,
+volume, and pairwise overlap. Results:
+
+| Frame | Solids | Worst bbox error | Worst volume error | Positive-volume overlaps | Result |
+|---|---:|---:|---:|---:|---|
+| 400 x 300 x 500 | 12 | 1e-07 mm | 6.26e-07 | 0 | PASS |
+| 600 x 300 x 400 | 12 | 1e-07 mm | 6.26e-07 | 0 | PASS |
+| 45 x 45 x 45 | 12 | 1e-07 mm | 5.35e-07 | 0 | PASS |
+| 400 x 300 x 500, 2040 profile | 12 | 1e-07 mm | 2.19e-06 | 0 | PASS |
+
+The independent section area for the generic 2020 envelope is
+172.185108 mm^2 (rectangle minus four T-slots minus the 48-gon core bore),
+which matches the OCCT-measured volume / cut length to the errors above.
+
+## Golden-reference results
+
+External candidates were downloaded to a temporary directory, checksum-verified,
+and measured with OCCT. Full provenance is in
+`components/testdata/golden/manifest.json`; the policy is in
+`components/GOLDEN_REFERENCES.md`.
+
+| Fixture | Verdict | Evidence |
+|---|---|---|
+| ISO 4762 M3 x 10 | accepted envelope | 5.5 x 5.5 x 13.0 matches |
+| ISO 4762 M4 x 20 | accepted envelope | 7.0 x 7.0 x 24.0 matches |
+| ISO 4762 M5 x 10 | **rejected** | head diameter 9.2003 mm vs ISO max 8.5 |
+| ISO 4032 M4 | height accepted | 3.2027 vs 3.2 mm; plan bbox not confirmable |
+| ISO 7089 M4 | **rejected** | thickness 1.8 mm vs ISO 7089 h = 0.8 |
+| 608ZZ bearing | accepted envelope | 22 x 22 x 7 matches |
+| 2020 B-slot6 profile | envelope only | 20 x 20 x 50 matches; section not compared |
+| Spur gear m2 z20 bore8 | accepted envelope | 44 x 44 x 16 matches |
+
+Honest skips: no external file is committed (per-file license unverified), so
+these comparisons run only when the fetch procedure has been executed. No
+planetary assembly reference was available; planetary checks are analytic.
 
 ## Reproduce
 

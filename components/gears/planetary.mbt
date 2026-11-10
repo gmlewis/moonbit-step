@@ -271,6 +271,7 @@ pub fn planetary_gear_set(
   }
   let center = params.center_distance()
   let name = "planetary-\{params.designation()}"
+  let sun_pitch_deg = 360.0 / params.sun_teeth.to_double()
   let mut assembly = @assemblies.Assembly::new(
     name~,
     description="Straight-spur planetary set with an approximate internal ring gear. Static layout; no kinematics.",
@@ -280,7 +281,17 @@ pub fn planetary_gear_set(
     let rad = theta * @math.PI / 180.0
     let x = center * @math.cos(rad)
     let y = center * @math.sin(rad)
-    let phase = theta + 180.0 + 180.0 / params.planet_teeth.to_double()
+    // The planet's tooth/space phase must follow the sun tooth phase at the
+    // line of centres. For planet angles that are exact multiples of the sun
+    // pitch the offset is zero; otherwise the teeth would interfere even
+    // though the standard (sun + ring) % planet_count condition holds.
+    let sun_offset_deg = theta - (theta / sun_pitch_deg).round() * sun_pitch_deg
+    let phase = theta +
+      180.0 +
+      180.0 / params.planet_teeth.to_double() +
+      sun_offset_deg *
+      params.sun_teeth.to_double() /
+      params.planet_teeth.to_double()
     assembly = assembly.add(
       planet_component,
       placement=@common.Placement::at(x, y, 0.0, rz=phase),

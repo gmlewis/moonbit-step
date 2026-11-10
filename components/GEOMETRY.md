@@ -29,11 +29,81 @@ The STEP/CAD backend is Z-up. Every component documents its own frame:
 | Spur gear | +Z | bottom face | one tooth centered on +X |
 | Gear pair | +Z | driver at origin | driven along +X |
 | Planetary set | +Z | sun at origin | planets on a circle; ring coaxial |
+| Extrusion frame | +Z | overall bounds centered in X/Y, resting on z = 0 | posts at corners; +X = width, +Y = depth, +Z = height |
 
 Placements are rigid transforms in the parent frame. `Placement::compose(outer,
 inner)` applies `inner` first. A component's `nodes_under(parent)` applies the
 parent transform to every layer without changing the component's local
 parametric data.
+
+## Extrusion frame semantics
+
+`extrusion_frame(width, depth, height, profile)` treats `width`, `depth`, and
+`height` as **overall outside dimensions**, including the profile section.
+
+- Four vertical posts occupy the corners and run the full height.
+- X rails run between post inner faces; their cut length is
+  `width - 2 * profile_width`.
+- Y rails have cut length `depth - 2 * profile_height`.
+- All joints are square butt contacts at post inner faces. There are no mitres,
+  brackets, end taps, or fasteners.
+- The member schedule is public as `extrusion_frame_members()`; it reports each
+  member's stable ID, role, cut length, start/end points, and placement.
+- Valid configurations require `width > 2 * profile_width`,
+  `depth > 2 * profile_height`, and
+  `height > 2 * max(profile_width, profile_height)`.
+
+An X rail and a Y rail meet along a zero-volume edge at each corner; each also
+touches its post over a face patch. This is intended contact, not
+interpenetration.
+
+## Collision and contact validation
+
+`components/collision` provides a reusable, kernel-free geometric validation
+facility:
+
+- **Broad phase:** world AABBs (`Aabb::overlaps`).
+- **Narrow phase:** oriented-box separating-axis test over all 15 box axes
+  (three face axes per box and nine edge-cross axes). AABB overlap alone is
+  never reported as a collision.
+- **Classification:** `Clearance`, `Contact`, `InterferenceFit`, `Collision`,
+  `Indeterminate`. Two solids sharing a face or edge are `Contact` when the
+  minimum overlap is within `TolerancePolicy::contact_mm`.
+- **Measured values:** minimum penetration depth, lower-bound separation along
+  the best separating axis, an AABB-intersection upper bound on common volume,
+  and the intersection region.
+
+`TolerancePolicy::default()` uses 1e-6 mm linear/contact tolerance;
+`TolerancePolicy::coarse()` uses 1e-3 mm for large or tessellated models. The
+named policy keeps arbitrary epsilons out of call sites.
+
+`Assembly::collision_reports()` aggregates layer pairs by component instance.
+`Assembly::collisions()` returns only positive-volume overlaps;
+`Assembly::contacts()` returns intended face/edge contact;
+`Assembly::interference_fits()` returns declared permitted overlaps.
+`Assembly::disconnected_instances()` and `is_connected()` build a contact graph
+and report floating members.
+
+Declared fits are handled with `ContactPolicy`:
+
+```moonbit
+let policy = @collision.ContactPolicy::none().permit("hub", "shaft")
+let reports = assembly.collision_reports(policy~)
+```
+
+A permitted pair keeps its measured penetration depth and region but is
+classified as `InterferenceFit` instead of `Collision`, so it does not appear in
+`collisions()`.
+
+### Conservatism for non-convex sections
+
+A shaped solid is represented by the OBB of its local shape bounding box. For a
+box-like extrusion this is the exact outer envelope. For a T-slot profile the
+OBB is the convex envelope: slots and the core bore are not subtracted. A
+reported collision is therefore conservative (it may report envelope overlap
+that the slot voids would avoid). At a frame corner the material that meets is
+the solid corner, so the classification is exact for the intended joint. This
+limitation is recorded in `KNOWN_ISSUES.md`.
 
 ## Detail levels
 
@@ -98,6 +168,16 @@ The checks include ISO 10303-21 syntax, reference integrity, per-shell edge
 usage and orientation, `PLANE` planarity, OCCT `checkshape`, and watertight
 tessellation. OCCT/gmsh are optional; when they are unavailable the validator
 reports skipped checks.
+
+For the extrusion frame, `scripts/validate_frame_geometry.py` adds an
+independent post-export gate: it re-imports the STEP with OCCT, matches every
+solid to a schedule re-derived in Python from the declared frame semantics,
+checks each volume against `section_area * cut_length`, checks the overall
+outside dimensions, and rejects positive-volume bounding-box overlap.
+
+Gear meshes are checked by 2D tooth-outline crossing tests across a mesh cycle
+(`components/gears/gear_mesh_test.mbt`). A single static pose is not treated as
+proof that a gearset can rotate.
 
 ## Determinism
 

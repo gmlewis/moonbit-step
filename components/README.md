@@ -56,15 +56,21 @@ moon run --target native components/examples/fasteners -- \
 | `components/profiles` | Generic T-slot extrusion sections and cut-to-length profiles. |
 | `components/motion` | Shafts, stepped shafts, spacers, bushings, keys, dowel pins, standoffs, compression springs, simplified bearings. |
 | `components/gears` | Involute spur gears, external gear pairs, and approximate straight-spur planetary sets. |
-| `components/assemblies` | Rigid placements, linear/circular patterns, hardware kits, extrusion frames. |
+| `components/assemblies` | Rigid placements, linear/circular patterns, hardware kits, extrusion frames, collision/contact reports, and connectivity checks. |
+| `components/collision` | Kernel-free AABB/OBB collision and contact classification with a named tolerance policy. |
 | `components/examples/*` | Runnable generation programs and generated STEP output. |
 
 ## Documented status
 
 - `STANDARDS.md` — standards covered, exact revisions used, supported sizes.
 - `DATA_SOURCES.md` — dimensional provenance and verification notes.
-- `GEOMETRY.md` — units, axes, origins, detail levels, approximations.
-- `ASSEMBLIES.md` — assembly model, placements, patterns, STEP representation.
+- `AUDIT.md` — component inventory, defects by severity, and audit results.
+- `GOLDEN_REFERENCES.md` — external reference policy, licensing, comparison
+  rules, and verdicts.
+- `GEOMETRY.md` — units, axes, origins, frame semantics, detail levels,
+  approximations, and collision policy.
+- `ASSEMBLIES.md` — assembly model, placements, patterns, contacts, and
+  connectivity.
 - `PROGRESS.md` — current status and next tasks.
 - `DECISIONS.md` — architecture decisions.
 - `KNOWN_ISSUES.md` — defects, unsupported cases, deferred features.
@@ -74,12 +80,37 @@ moon run --target native components/examples/fasteners -- \
 ```bash
 ./test-all.sh
 python3 scripts/validate_step.py components/examples/output/iso4762-M4x20.step
+python3 scripts/validate_frame_geometry.py \
+  components/examples/output/frame-2020-400x300x500.step \
+  --width 400 --depth 300 --height 500 --series 2020
 ```
 
 `scripts/validate_step.py` checks ISO 10303-21 syntax, references, per-shell
 topology/orientation, PLANE planarity, OCCT `checkshape`, and watertight
-tessellation. OCCT, gmsh, and the validator are optional external tools; the
-component library itself does not depend on them.
+tessellation. `scripts/validate_frame_geometry.py` re-imports a frame with OCCT
+and independently checks every solid's position, dimensions, volume, and
+pairwise overlap. OCCT, gmsh, and the validators are optional external tools;
+the component library itself does not depend on them.
+
+Assembly interference checks are available in MoonBit:
+
+```moonbit
+let collisions = assembly.collisions()
+let contacts = assembly.contacts()
+let floating = assembly.disconnected_instances()
+```
+
+Visual diagnostics for the frame:
+
+```bash
+moon run --target native components/examples/extrusion_frame -- \
+  --width 400 --depth 300 --height 500 --series 2020 \
+  --views components/examples/output/views
+```
+
+Golden references and their licensing status are documented in
+`GOLDEN_REFERENCES.md`; no external model is committed because per-file
+redistribution rights are unverified.
 
 ## Important limitations
 
@@ -90,6 +121,9 @@ component library itself does not depend on them.
   geometry.
 - Extrusion profiles are generic engineering envelopes, **not** a claim of
   cross-manufacturer compatibility.
+- Extrusion frames use full-height corner posts and rails cut to the clear
+  inner span; joints are square butt contacts. Brackets, T-nuts, and end
+  machining are not modeled.
 - Bearing rolling elements are simplified cylindrical proxies, not spheres.
 - See `KNOWN_ISSUES.md` for the full list.
 

@@ -3,6 +3,7 @@ package "gmlewis/step/components/assemblies"
 
 import {
   "gmlewis/step/cad",
+  "gmlewis/step/components/collision",
   "gmlewis/step/components/common",
   "gmlewis/step/components/profiles",
   "gmlewis/step/components/standards",
@@ -10,6 +11,8 @@ import {
 
 // Values
 pub fn extrusion_frame(Double, Double, Double, @profiles.TSlotProfile, detail? : @common.DetailLevel) -> Result[Assembly, @common.SpecError]
+
+pub fn extrusion_frame_members(Double, Double, Double, @profiles.TSlotProfile) -> Result[Array[FrameMember], @common.SpecError]
 
 pub fn fastener_grid_plate(@standards.MetricSize, Double, Int32, Int32, Double, Double, detail? : @common.DetailLevel) -> Result[Assembly, @common.SpecError]
 
@@ -25,14 +28,21 @@ pub fn Assembly::add(Self, @common.Component, placement? : @common.Placement, in
 pub fn Assembly::add_at(Self, @common.Component, x? : Double, y? : Double, z? : Double, rx? : Double, ry? : Double, rz? : Double, instance_name? : String) -> Self
 pub fn Assembly::bounding_box(Self) -> (Double, Double, Double, Double, Double, Double)
 pub fn Assembly::circular_pattern(Self, @common.Component, Int32, Double, start_angle_deg? : Double, orientation_deg? : Double, instance_name? : String, base? : @common.Placement) -> Self
+pub fn Assembly::collision_reports(Self, tol? : @collision.TolerancePolicy, policy? : @collision.ContactPolicy) -> Array[@collision.CollisionReport]
+pub fn Assembly::collisions(Self, tol? : @collision.TolerancePolicy) -> Array[@collision.CollisionReport]
 pub fn Assembly::component_names(Self) -> Array[String]
+pub fn Assembly::contacts(Self, tol? : @collision.TolerancePolicy) -> Array[@collision.CollisionReport]
 pub fn Assembly::count(Self) -> Int32
+pub fn Assembly::disconnected_instances(Self, tol? : @collision.TolerancePolicy) -> Array[String]
 pub fn Assembly::documentation(Self) -> String
+pub fn Assembly::interference_fits(Self, tol? : @collision.TolerancePolicy, policy? : @collision.ContactPolicy) -> Array[@collision.CollisionReport]
+pub fn Assembly::is_connected(Self, tol? : @collision.TolerancePolicy) -> Bool
 pub fn Assembly::items(Self) -> Array[AssemblyItem]
 pub fn Assembly::linear_pattern(Self, @common.Component, Int32, dx? : Double, dy? : Double, dz? : Double, instance_name? : String, base? : @common.Placement) -> Self
 pub fn Assembly::name(Self) -> String
 pub fn Assembly::new(name~ : String, description? : String, documentation? : String) -> Self
 pub fn Assembly::nodes(Self) -> Array[@cad.SceneNode]
+pub fn Assembly::placed_shapes(Self) -> Array[@collision.PlacedShape]
 pub fn Assembly::to_assembly_step(Self, assembly_name? : String) -> String
 pub fn Assembly::to_design(Self, name? : String, documentation? : String) -> @cad.Design
 pub fn Assembly::to_step(Self, checked? : Bool) -> String
@@ -46,6 +56,23 @@ pub(all) struct AssemblyItem {
   placement : @common.Placement
   instance_name : String
 }
+
+pub(all) struct FrameMember {
+  id : String
+  role : FrameMemberRole
+  profile : @profiles.TSlotProfile
+  cut_length_mm : Double
+  start : (Double, Double, Double)
+  end : (Double, Double, Double)
+  placement : @common.Placement
+}
+
+pub(all) enum FrameMemberRole {
+  Post
+  RailX
+  RailY
+}
+pub fn FrameMemberRole::to_string(Self) -> String
 
 // Type aliases
 

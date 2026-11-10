@@ -8,4 +8,5 @@ import {
 
 import {
   "moonbitlang/core/builtin",
+  "moonbitlang/core/math",
 } for "test"

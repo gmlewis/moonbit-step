@@ -36,6 +36,9 @@ async fn main {
       help="Output mode: flat (default) or assembly",
     ),
     "out": @cli.opt_string(short='o', help="Write STEP to this path"),
+    "views": @cli.opt_string(
+      help="Write top/front/side/isometric SVG diagnostics to this directory",
+    ),
     "bbox": @cli.flag(help="Print the frame bounding box to stderr"),
   }
   guard @cli.parse(
@@ -67,6 +70,47 @@ async fn main {
   if args.flag("bbox") {
     let (x0, x1, y0, y1, z0, z1) = frame.bounding_box()
     @cli.eprintln("bbox: x=[\{x0}, \{x1}] y=[\{y0}, \{y1}] z=[\{z0}, \{z1}]")
+  }
+  match args.string_opt("views") {
+    Some(dir) => {
+      let schedule = match
+        @assemblies.extrusion_frame_members(width, depth, height, profile) {
+        Ok(m) => m
+        Err(e) => {
+          @cli.eprintln("error: " + e.message())
+          abort("")
+        }
+      }
+      let pw = profile.width_mm
+      let ph = profile.height_mm
+      let members = schedule.map(fn(m) {
+        let obb = @collision.Obb::from_placement(
+          m.placement,
+          (-pw / 2.0, pw / 2.0, -ph / 2.0, ph / 2.0, 0.0, m.cut_length_mm),
+        )
+        (m.id, m.cut_length_mm, obb)
+      })
+      let collisions : Array[String] = []
+      for report in frame.collisions() {
+        collisions.push(report.instance_a)
+        collisions.push(report.instance_b)
+      }
+      @fs.mkdir(dir, recursive=true, allow_exist=true)
+      for view in [Top, Front, Side, Iso] {
+        let svg = frame_view_svg(
+          members, collisions, view, width, depth, height,
+        )
+        @cad.write_text_file(svg, Some(dir + "/" + view.file_name()))
+      }
+      @cli.eprintln(
+        "wrote 4 frame views to " +
+        dir +
+        " (" +
+        collisions.length().to_string() +
+        " collision endpoints highlighted)",
+      )
+    }
+    None => ()
   }
   let out_path = args.string_opt("out")
   match args.string_opt("mode").unwrap_or("flat") {

@@ -1,0 +1,343 @@
+{
+  "schema_version": 1,
+  "generated": "2026-11-09",
+  "catalog": {
+    "name": "step.parts",
+    "repository": "https://github.com/earthtojake/step.parts",
+    "api": "https://api.step.parts/v1",
+    "catalog_commit": "c6113328a5695b976a010a203a90fe86191769bf",
+    "api_notes": "Records expose id, name, standard, attributes, stepUrl, sha256 and byteSize. The API does not expose a per-file source, author, or license."
+  },
+  "redistribution_policy": {
+    "summary": "No external STEP fixture is committed to this repository. Per-file redistribution rights are unverified.",
+    "detail": "step.parts THIRD_PARTY_NOTICES.md states that third-party-derived STEP files retain their source licenses (KiCad: CC-BY-SA-4.0 WITH KiCad-libraries-exception; FreeCAD-library: CC-BY-3.0; Adafruit: MIT; SparkFun KiCad: CC-BY-4.0; SparkFun 3D Models: CC-BY-SA-4.0) and that models with unclear licenses are excluded. The public API does not identify which source a given file came from, so a per-file attribution and redistribution record cannot be completed. The files are downloaded only to a temporary directory for local comparison and are excluded from Git by /components/testdata/golden/external/.",
+    "fetch_script": "scripts/fetch_golden_references.py",
+    "fetch_command": "python3 scripts/fetch_golden_references.py --out /tmp/step-golden --accept-unverified-license",
+    "measure_script": "scripts/measure_step_occt.py"
+  },
+  "tolerance": {
+    "normalized_units": "mm",
+    "linear_mm": 0.01,
+    "volume_relative": 0.05,
+    "contact_mm": 0.001,
+    "surface_deviation_mm": 0.01,
+    "comparison_method": "Open CASCADE re-import; compare axis-aligned bounding box, solid count, and volume. Normative standard dimensions are the primary acceptance criterion; vendor STEP files are secondary geometric oracles."
+  },
+  "external_references": [
+    {
+      "fixture_id": "fasteners/iso4762-m3x10",
+      "part_id": "iso4762_socket_head_cap_screw_m3x10",
+      "designation": "ISO 4762 M3 x 10",
+      "family": "socket head cap screw",
+      "standard": "ISO 4762",
+      "manufacturer": "unspecified step.parts contributor",
+      "source_page": "https://www.step.parts/parts/iso4762_socket_head_cap_screw_m3x10",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso4762_socket_head_cap_screw_m3x10.step",
+      "local_filename": "external/iso4762_socket_head_cap_screw_m3x10.step",
+      "sha256": "9131c5210d88993bbc37b8050cedda590c55f961e6118af749b70b44a0307f2f",
+      "byte_size": 58818,
+      "units": "mm",
+      "declared_dimensions": {
+        "head_diameter_max_mm": 5.5,
+        "head_height_mm": 3.0,
+        "nominal_length_mm": 10.0,
+        "overall_length_mm": 13.0
+      },
+      "measured_dimensions": {
+        "bbox_mm": [5.5, 5.5, 13.0],
+        "volume_mm3": 128.119,
+        "solids": 1
+      },
+      "parametric_value": {
+        "bbox_mm": [5.5, 5.5, 13.0],
+        "volume_mm3": 134.8361,
+        "solids": 3,
+        "source": "components/examples/fasteners --standard iso4762 --size M3 --length 10"
+      },
+      "verdict": "accepted-envelope",
+      "notes": "Head diameter and overall length match ISO 4762 within 0.01 mm. The parametric screw is layered (shank, floor, socket ring), so volume and solid count are not compared.",
+      "license_status": "unverified-per-file",
+      "committed": false
+    },
+    {
+      "fixture_id": "fasteners/iso4762-m4x20",
+      "part_id": "iso4762_socket_head_cap_screw_m4x20",
+      "designation": "ISO 4762 M4 x 20",
+      "family": "socket head cap screw",
+      "standard": "ISO 4762",
+      "manufacturer": "unspecified step.parts contributor",
+      "source_page": "https://www.step.parts/parts/iso4762_socket_head_cap_screw_m4x20",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso4762_socket_head_cap_screw_m4x20.step",
+      "local_filename": "external/iso4762_socket_head_cap_screw_m4x20.step",
+      "sha256": "1ab1a4d7dd478998e4cf56113398b5f92aabfad59f7a161b8814e655c9c56ca6",
+      "byte_size": 154765,
+      "units": "mm",
+      "declared_dimensions": {
+        "head_diameter_max_mm": 7.0,
+        "head_height_mm": 4.0,
+        "nominal_length_mm": 20.0,
+        "overall_length_mm": 24.0
+      },
+      "measured_dimensions": {
+        "bbox_mm": [7.0, 7.0, 24.0],
+        "volume_mm3": 378.249,
+        "solids": 1
+      },
+      "parametric_value": {
+        "bbox_mm": [7.0, 7.0, 24.0],
+        "volume_mm3": 389.4569,
+        "solids": 3,
+        "source": "components/examples/fasteners --standard iso4762 --size M4 --length 20"
+      },
+      "verdict": "accepted-envelope",
+      "notes": "Head diameter and overall length match ISO 4762 within 0.01 mm.",
+      "license_status": "unverified-per-file",
+      "committed": false
+    },
+    {
+      "fixture_id": "fasteners/iso4762-m5x10",
+      "part_id": "iso4762_socket_head_cap_screw_m5x10",
+      "designation": "ISO 4762 M5 x 10",
+      "family": "socket head cap screw",
+      "standard": "ISO 4762",
+      "manufacturer": "unspecified step.parts contributor",
+      "source_page": "https://www.step.parts/parts/iso4762_socket_head_cap_screw_m5x10",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso4762_socket_head_cap_screw_m5x10.step",
+      "local_filename": "external/iso4762_socket_head_cap_screw_m5x10.step",
+      "sha256": "a14a9d1c61047492ee71d3eaf4045b9339c5cee619d19e008ac2b075484afd9d",
+      "byte_size": 39373,
+      "units": "mm",
+      "declared_dimensions": {
+        "head_diameter_max_mm": 8.5,
+        "head_height_mm": 5.0,
+        "nominal_length_mm": 10.0,
+        "overall_length_mm": 15.0
+      },
+      "measured_dimensions": {
+        "bbox_mm": [9.2003, 9.2003, 15.0],
+        "volume_mm3": 417.621,
+        "solids": 1
+      },
+      "parametric_value": {
+        "bbox_mm": [8.5, 8.5, 15.0],
+        "volume_mm3": 445.03,
+        "solids": 3,
+        "source": "components/examples/fasteners --standard iso4762 --size M5 --length 10"
+      },
+      "verdict": "rejected",
+      "notes": "The reference head diameter is 9.2003 mm, which exceeds the ISO 4762:2004 maximum dk = 8.5 mm for M5. The overall length matches, but the model is not a conforming ISO 4762 M5 reference and is not used as a normative oracle.",
+      "license_status": "unverified-per-file",
+      "committed": false
+    },
+    {
+      "fixture_id": "fasteners/iso4032-m4",
+      "part_id": "iso4032_hex_nut_m4",
+      "designation": "ISO 4032 M4",
+      "family": "hexagon regular nut",
+      "standard": "ISO 4032",
+      "manufacturer": "unspecified step.parts contributor",
+      "source_page": "https://www.step.parts/parts/iso4032_hex_nut_m4",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso4032_hex_nut_m4.step",
+      "local_filename": "external/iso4032_hex_nut_m4.step",
+      "sha256": "2d3a514aaf0e55b6eeabf5d7f3e6ecee2ffeed1f77ed864fb280e07a2bcff2c6",
+      "byte_size": 69309,
+      "units": "mm",
+      "declared_dimensions": {
+        "width_across_flats_mm": 7.0,
+        "height_mm": 3.2
+      },
+      "measured_dimensions": {
+        "bbox_mm": [7.66, 7.66, 3.2027],
+        "volume_mm3": 91.7031,
+        "solids": 1
+      },
+      "parametric_value": {
+        "bbox_mm": [7.0, 8.0829, 3.2],
+        "volume_mm3": 95.6951,
+        "solids": 1,
+        "source": "components/examples/fasteners --standard iso4032 --size M4"
+      },
+      "verdict": "accepted-height-only",
+      "notes": "Height matches 3.2027 vs 3.2 mm. The plan bounding box is 7.66 mm, between the across-flats 7.0 mm and across-corners 8.083 mm, which is consistent with a corner-chamfered model in an unknown orientation. Across flats cannot be confirmed from an axis-aligned bounding box; the reference is used only for the height and envelope, not as proof of s = 7.0.",
+      "license_status": "unverified-per-file",
+      "committed": false
+    },
+    {
+      "fixture_id": "fasteners/iso7089-m4",
+      "part_id": "flat_washer_normal_m4_simple",
+      "designation": "ISO 7089 M4",
+      "family": "plain washer, normal series",
+      "standard": "ISO 7089",
+      "manufacturer": "unspecified step.parts contributor",
+      "source_page": "https://www.step.parts/parts/flat_washer_normal_m4_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/flat_washer_normal_m4_simple.step",
+      "local_filename": "external/flat_washer_normal_m4_simple.step",
+      "sha256": "9d7fad7997cab30a597a9374f5666dd7506b7c1682601577545d1e0dbf81576c",
+      "byte_size": 15011,
+      "units": "mm",
+      "declared_dimensions": {
+        "inner_diameter_mm": 4.3,
+        "outer_diameter_mm": 9.0,
+        "thickness_mm": 0.8
+      },
+      "measured_dimensions": {
+        "bbox_mm": [9.0, 9.0, 1.8],
+        "volume_mm3": 88.3714,
+        "solids": 1
+      },
+      "parametric_value": {
+        "bbox_mm": [9.0, 9.0, 0.8],
+        "volume_mm3": 39.1641,
+        "solids": 1,
+        "source": "components/examples/fasteners --standard iso7089 --size M4"
+      },
+      "verdict": "rejected",
+      "notes": "The reference thickness is 1.8 mm; ISO 7089 normal-series M4 is 0.8 mm. The outer diameter matches but the thickness contradicts the claimed standard, so the model is not a conforming ISO 7089 reference.",
+      "license_status": "unverified-per-file",
+      "committed": false
+    },
+    {
+      "fixture_id": "bearings/608zz",
+      "part_id": "bearing_608zz",
+      "designation": "608ZZ",
+      "family": "deep groove ball bearing",
+      "standard": "ISO 15 boundary dimensions (manufacturer model)",
+      "manufacturer": "unspecified step.parts contributor",
+      "source_page": "https://www.step.parts/parts/bearing_608zz",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/bearing_608zz.step",
+      "local_filename": "external/bearing_608zz.step",
+      "sha256": "62d262cc91fb6e213ae85f182811201787e583d527d9a7718ea30a08e1f19fc9",
+      "byte_size": 39700,
+      "units": "mm",
+      "declared_dimensions": {
+        "bore_mm": 8.0,
+        "outer_diameter_mm": 22.0,
+        "width_mm": 7.0
+      },
+      "measured_dimensions": {
+        "bbox_mm": [22.0, 22.0, 7.0],
+        "volume_mm3": 2242.93,
+        "solids": 1
+      },
+      "parametric_value": {
+        "bbox_mm": [22.0, 22.0, 7.0],
+        "volume_mm3": 1178.87,
+        "solids": 22,
+        "source": "components/examples/motion_stack --bearing 608 (one bearing outer-ring solid)"
+      },
+      "verdict": "accepted-envelope",
+      "notes": "Outer diameter and width match the 608 boundary dimensions. The parametric bearing is a simplified envelope (rings plus cylindrical roller proxies), so volume and internal geometry are not compared.",
+      "license_status": "unverified-per-file",
+      "committed": false
+    },
+    {
+      "fixture_id": "profiles/b-slot6-2020-l50",
+      "part_id": "profile_2020_b_slot6_a_l50",
+      "designation": "20 x 20 B-type slot-6 extrusion, 50 mm",
+      "family": "aluminum extrusion profile",
+      "standard": "manufacturer-specific B-type slot-6",
+      "manufacturer": "unspecified step.parts contributor",
+      "source_page": "https://www.step.parts/parts/profile_2020_b_slot6_a_l50",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/profile_2020_b_slot6_a_l50.step",
+      "local_filename": "external/profile_2020_b_slot6_a_l50.step",
+      "sha256": "a363e0cc1571dc08107d38d63fcae7ec10b81b9b608089af4a4a3dfb002c0c41",
+      "byte_size": 388736,
+      "units": "mm",
+      "declared_dimensions": {
+        "section_width_mm": 20.0,
+        "section_height_mm": 20.0,
+        "length_mm": 50.0,
+        "slot_width_mm": 6.0
+      },
+      "measured_dimensions": {
+        "bbox_mm": [20.0, 50.0, 20.0],
+        "volume_mm3": 8716.82,
+        "solids": 1
+      },
+      "parametric_value": {
+        "section_bbox_mm": [20.0, 20.0],
+        "section_area_mm2": 172.1851,
+        "note": "Generic four-slot envelope, not the B-type section",
+        "source": "components/profiles TSlotProfile::generic_2020"
+      },
+      "verdict": "envelope-only",
+      "notes": "The 20 x 20 x 50 envelope matches. The reference is a manufacturer-specific B-type slot-6 section; the parametric generic profile is not claimed to be section-compatible, so slot, cavity, wall, and bore geometry are not compared.",
+      "license_status": "unverified-per-file",
+      "committed": false
+    },
+    {
+      "fixture_id": "gears/spur-m2-z20-bore8",
+      "part_id": "spur_gear_m2_0_20t_bore8",
+      "designation": "spur gear m2.0 z20 bore8",
+      "family": "involute spur gear",
+      "standard": "catalog record: module 2.0, 20 teeth, width 16, bore 8",
+      "manufacturer": "unspecified step.parts contributor",
+      "source_page": "https://www.step.parts/parts/spur_gear_m2_0_20t_bore8",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/spur_gear_m2_0_20t_bore8.step",
+      "local_filename": "external/spur_gear_m2_0_20t_bore8.step",
+      "sha256": "af9a46d4afe7993a99ec3fd49107e7d85ce189ba0c6717dafddf2e54d150454f",
+      "byte_size": 10957,
+      "units": "mm",
+      "declared_dimensions": {
+        "module_mm": 2.0,
+        "teeth": 20,
+        "face_width_mm": 16.0,
+        "bore_mm": 8.0,
+        "tip_diameter_mm": 44.0
+      },
+      "measured_dimensions": {
+        "bbox_mm": [44.0, 44.0, 16.0],
+        "volume_mm3": 23524.2,
+        "solids": 1
+      },
+      "parametric_value": {
+        "bbox_mm": [44.0, 44.0, 16.0],
+        "volume_mm3": 18810.8,
+        "solids": 1,
+        "source": "components/examples/gear_pair --module 2 --teeth 20 --mateTeeth 40 --faceWidth 16 --bore 8 (driver solid)"
+      },
+      "verdict": "accepted-envelope",
+      "notes": "Tip diameter (44 mm), face width (16 mm), module and tooth count match. The reference tooth form and root details are not compared; the parametric gear uses polygonal involute flanks and sharp roots.",
+      "license_status": "unverified-per-file",
+      "committed": false
+    }
+  ],
+  "analytic_references": [
+    {
+      "fixture_id": "frames/2020-400x300x500",
+      "kind": "analytic",
+      "provenance": "Authored in this repository from the documented frame semantics; not an external model.",
+      "dimensions_mm": [400.0, 300.0, 500.0],
+      "series": "2020",
+      "members": 12,
+      "validator": "scripts/validate_frame_geometry.py",
+      "command": "python3 scripts/validate_frame_geometry.py components/examples/output/frame-2020-400x300x500.step --width 400 --depth 300 --height 500 --series 2020",
+      "expected_section_area_mm2": 172.185108,
+      "expected_volumes_mm3": {
+        "post": 86092.5539,
+        "rail_x": 61986.6388,
+        "rail_y": 44768.1280
+      }
+    },
+    {
+      "fixture_id": "frames/2020-600x300x400",
+      "kind": "analytic",
+      "provenance": "Authored in this repository from the documented frame semantics; not an external model.",
+      "dimensions_mm": [600.0, 300.0, 400.0],
+      "series": "2020",
+      "members": 12,
+      "validator": "scripts/validate_frame_geometry.py",
+      "command": "python3 scripts/validate_frame_geometry.py components/examples/output/frame-2020-600x300x400.step --width 600 --depth 300 --height 400 --series 2020"
+    },
+    {
+      "fixture_id": "frames/2020-45x45x45",
+      "kind": "analytic",
+      "provenance": "Authored in this repository near the minimum valid rail span; not an external model.",
+      "dimensions_mm": [45.0, 45.0, 45.0],
+      "series": "2020",
+      "members": 12,
+      "validator": "scripts/validate_frame_geometry.py",
+      "command": "python3 scripts/validate_frame_geometry.py components/examples/output/frame-2020-45x45x45.step --width 45 --depth 45 --height 45 --series 2020"
+    }
+  ]
+}

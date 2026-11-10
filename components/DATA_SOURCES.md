@@ -76,3 +76,24 @@ When a dimension is corrected:
 2. Add or update a unit test asserting the corrected value.
 3. Note the change in `PROGRESS.md` and, if it changes supported
    configurations, in `KNOWN_ISSUES.md`.
+
+## External golden references
+
+External STEP models examined during the correctness audit are recorded in
+`components/testdata/golden/manifest.json` and
+`components/GOLDEN_REFERENCES.md`.
+
+- Catalog: [step.parts](https://www.step.parts/), commit
+  `c6113328a5695b976a010a203a90fe86191769bf`.
+- The catalog's `THIRD_PARTY_NOTICES.md` lists the source licenses (KiCad,
+  FreeCAD-library, Adafruit, SparkFun) but the public API does not identify the
+  per-file source. Per-file redistribution rights are therefore **unverified**.
+- No external STEP file is committed. `scripts/fetch_golden_references.py`
+  downloads candidates to a temporary directory for local comparison and
+  verifies the catalog SHA-256 and byte size.
+- Two candidates were rejected because they contradict the standard they
+  claim: the step.parts ISO 4762 M5 x 10 head diameter is 9.2 mm (ISO maximum
+  8.5 mm), and the step.parts ISO 7089 M4 washer is 1.8 mm thick (ISO 7089
+  normal series is 0.8 mm).
+- The locally authored frame fixtures are analytic references, not external
+  models, and are labelled as such in the manifest.

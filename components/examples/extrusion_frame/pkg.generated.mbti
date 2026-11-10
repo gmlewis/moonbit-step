@@ -1,11 +1,24 @@
 // Generated using `moon info`, DON'T EDIT IT
 package "gmlewis/step/components/examples/extrusion_frame"
 
+import {
+  "gmlewis/step/components/collision",
+}
+
 // Values
+pub fn frame_view_svg(Array[(String, Double, @collision.Obb)], Array[String], FrameView, Double, Double, Double) -> String
 
 // Errors
 
 // Types and methods
+pub(all) enum FrameView {
+  Top
+  Front
+  Side
+  Iso
+}
+pub fn FrameView::file_name(Self) -> String
+pub fn FrameView::title(Self) -> String
 
 // Type aliases
 

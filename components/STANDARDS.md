@@ -108,6 +108,12 @@ simplified; they are not catalogue geometry for a specific manufacturer.
 The existing `examples/38-planetary-gearbox` herringbone planetary generator is
 preserved and is not replaced by this package.
 
+The planetary set phases each planet against the sun tooth phase at its radial,
+so valid layouts whose planet angles are not multiples of the sun pitch (such
+as 18/12/42 with five planets) mesh without tooth interference. External model
+cross-checks and the two candidates rejected for contradicting their claimed
+standards are recorded in `GOLDEN_REFERENCES.md`.
+
 ## What is deliberately not claimed
 
 - No ISO tolerance-class conformity (6g/6H limits, fits, gauging).

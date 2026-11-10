@@ -9,7 +9,7 @@ HEADER;
   Notes:      Hexagon regular nut with a through bore. No washer-face chamfer is modeled. No thread geometry is modeled.
 */
 FILE_DESCRIPTION(('ISO 4032 - M5'),'2;1');
-FILE_NAME('ISO4032-M5.step','2026-11-10T00:51:36',('gmlewis'),('gmlewis/step','https://github.com/gmlewis/moonbit-step'),'gmlewis/step','moonbit','none');
+FILE_NAME('ISO4032-M5.step','2026-11-10T01:41:41',('gmlewis'),('gmlewis/step','https://github.com/gmlewis/moonbit-step'),'gmlewis/step','moonbit','none');
 FILE_SCHEMA(('AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }'));
 ENDSEC;
 DATA;

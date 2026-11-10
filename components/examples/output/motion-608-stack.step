@@ -10,7 +10,7 @@ HEADER;
     spacer = Spacer OD 12 / ID 8 x 10 ()
 */
 FILE_DESCRIPTION(('Shaft with two simplified bearings and a spacer. Bearing rolling elements are cylindrical proxies.'),'2;1');
-FILE_NAME('motion-stack-608.step','2026-11-10T00:51:42',('gmlewis'),('gmlewis/step','https://github.com/gmlewis/moonbit-step'),'gmlewis/step','moonbit','none');
+FILE_NAME('motion-stack-608.step','2026-11-10T01:41:45',('gmlewis'),('gmlewis/step','https://github.com/gmlewis/moonbit-step'),'gmlewis/step','moonbit','none');
 FILE_SCHEMA(('AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }'));
 ENDSEC;
 DATA;

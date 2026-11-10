@@ -1,8 +1,11 @@
 import {
+  "gmlewis/step/cad",
   "gmlewis/step/cli",
   "gmlewis/step/components/assemblies",
+  "gmlewis/step/components/collision",
   "gmlewis/step/components/profiles",
   "moonbitlang/async",
+  "moonbitlang/async/fs",
   "moonbitlang/core/builtin",
 }
 

@@ -75,3 +75,48 @@ The library and tests are pure MoonBit and use only the existing packages.
 OCCT/gmsh validation is an external, optional gate. The generated artifacts are
 validated when the tools are present; their absence does not add a dependency
 to the library.
+
+## D11. Frame dimensions are overall outside dimensions; rails use butt joints
+
+`width x depth x height` means overall outside dimensions. Four full-height
+posts occupy the corners; rails are cut to the clear span between post inner
+faces (`width - 2 * profile_width`, `depth - 2 * profile_height`). The chosen
+joint strategy is square butt contact at post inner faces. This is one coherent
+strategy; the library does not mix full-length perimeter members with
+shortened cross-members.
+
+Members are generated from an explicit `FrameMember` schedule rather than
+scattered translations. The generator computes cut lengths from the declared
+frame and profile dimensions; it does not assume every member is the same
+length.
+
+## D12. Collision uses an OBB narrow phase, with documented envelope conservatism
+
+AABB overlap is only a broad phase. The narrow phase is a 15-axis
+separating-axis test on oriented boxes, so a shared face is contact rather than
+collision, and a real positive-volume overlap is detected. For non-convex
+sections the OBB is the convex envelope; the slot/bore voids are not subtracted,
+which can only over-report, never silently clear, an interference. This policy
+is documented in `GEOMETRY.md` and `KNOWN_ISSUES.md`.
+
+## D13. Planetary phasing follows the sun tooth phase per planet
+
+The standard equal-spacing condition `(sun + ring) % planet_count == 0` is
+necessary but not sufficient for a static phase. The planet orientation must
+compensate for the sun tooth phase at each planet radial. The generator
+computes the signed offset from the nearest sun tooth and scales it by
+`sun_teeth / planet_teeth`. This preserves the 12/12/36 three-planet layout and
+fixes valid layouts such as 18/12/42 with five planets.
+
+Gear-mesh acceptance uses 2D outline crossing tests over a full mesh cycle, not
+a single static render.
+
+## D14. External goldens are oracles, not production geometry, and are not committed unverified
+
+The parametric generator remains authoritative. External STEP models are used
+only for geometric cross-checks. Because per-file redistribution rights could
+not be verified from the step.parts API, no external STEP file is committed;
+`scripts/fetch_golden_references.py` downloads candidates to a temporary
+directory with SHA-256 verification, and `components/testdata/golden/` records
+the provenance and verdicts. Two candidate references that contradict their
+claimed standards were rejected rather than used as pass criteria.

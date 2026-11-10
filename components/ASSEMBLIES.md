@@ -54,12 +54,65 @@ applied first, so a rotation in `base` rotates the whole pattern.
   +Z.
 - `fastener_grid_plate(...)` — a rectangular pattern of screws, washers, and
   nuts.
-- `extrusion_frame(width, depth, height, profile)` — 4 posts and 8 overlapping
-  rails of a generic T-slot profile.
+- `extrusion_frame(width, depth, height, profile)` — 4 full-height corner
+  posts and 8 rails cut to the clear span between post inner faces.
+  `extrusion_frame_members()` exposes the member schedule (stable ID, role, cut
+  length, start/end points, placement). Overall outside dimensions are
+  `width x depth x height`.
 - `gear_pair(driver, driven)` — two external involute gears at the standard
   centre distance plus an offset.
 - `planetary_gear_set(params)` — sun, equally spaced planets, and an approximate
-  internal ring gear.
+  internal ring gear. Each planet is individually phased against the sun tooth
+  phase at its radial.
+
+## Collision, contact, and connectivity
+
+Every assembly can be validated as an arrangement of physical instances:
+
+```moonbit
+let reports = assembly.collision_reports()
+let collisions = assembly.collisions()      // unintended positive-volume overlap
+let contacts = assembly.contacts()          // intended face/edge contact
+let fits = assembly.interference_fits()     // declared permitted overlap
+let floating = assembly.disconnected_instances()
+let connected = assembly.is_connected()
+```
+
+Declare a permitted fit with `@collision.ContactPolicy`:
+
+```moonbit
+let policy = @collision.ContactPolicy::none().permit("hub", "shaft")
+let reports = assembly.collision_reports(policy~)
+```
+
+`collision_reports()` uses an AABB broad phase and an OBB separating-axis narrow
+phase. A shared face or edge is `Contact`, not `Collision`; a declared
+interference fit is a separate `CollisionKind::InterferenceFit`. Reports carry
+the instance pair, penetration depth, separation lower bound, overlap-volume
+upper bound, and the intersection region.
+
+The extrusion frame's intended contacts are:
+
+- each rail end face against a post inner face;
+- each X rail and Y rail meeting along a zero-volume edge at a corner.
+
+Nested-bore assemblies (the hardware kit's screw through a washer and nut)
+necessarily report envelope overlap because an OBB does not subtract the bore.
+For those assemblies, coaxial alignment, bore clearance, and engagement are
+checked analytically (`assemblies_test.mbt`) rather than by treating the
+envelope report as a collision.
+
+The frame regression tests require `collisions().is_empty()`, at least one
+contact, `is_connected() == true`, and no disconnected instances for the
+400 x 300 x 500, 600 x 300 x 400, and near-minimum 45 x 45 x 45 configurations.
+
+## Visual diagnostics
+
+`components/examples/extrusion_frame --views DIR` writes top, front, side, and
+isometric SVG views. Each member has a stable color, its ID and cut length are
+labelled, and any collision reported by the validator is stroked red and listed
+in the caption. The views are diagnostics only; the numeric tests remain the
+acceptance criterion.
 
 ## STEP representation
 

@@ -1,5 +1,19 @@
 # Known Issues and Deferred Features
 
+## Audit issue register
+
+All audit issues below are closed. A closed issue has a passing regression test
+and independent validation. See `AUDIT.md` and `PROGRESS.md` for the evidence.
+
+| ID | Severity | Component | Reproduction | Observed | Expected | Root cause | Regression test | Status |
+|---|---|---|---|---|---|---|---|---|
+| P0-1 | Critical | `assemblies/extrusion_frame` | generate 400x300x500 2020 frame; run `Assembly::collisions()` | 24 positive-volume overlaps (rails into posts and into each other) | rails cut to clear span; contacts only | cut length used `dimension - one profile size`, not `dimension - 2 * profile size` | `extrusion_frame_test.mbt` | closed |
+| P1-1 | High | `gears/planetary_gear_set` | 18/12/42 with 5 planets; `gear_mesh_test.mbt` | 16 tooth-outline crossings | no tooth overlap over a mesh cycle | shared planet phase ignored the sun tooth phase | `gear_mesh_test.mbt` | closed |
+| P2-1 | Medium | `assemblies/extrusion_frame` | width `= 2 * profile_width` | accepted, zero-length rail | reject impossible span | guard only compared against one profile size | `frame rejects spans that leave no rail length` | closed |
+| P2-2 | Medium | validation | inspect test suite | frame defect invisible | independent interference/contact check | no collision facility existed | `collision_test.mbt`, frame tests | closed |
+| P2-3 | Medium | validation | inspect STEP gate | validator checked topology but not frame member dimensions | independent post-export geometry check | no post-export schedule comparison | `scripts/validate_frame_geometry.py` | closed |
+| P2-4 | Medium | golden references | measure step.parts models | M5 screw head 9.2 mm; M4 washer 1.8 mm | models should follow their claimed standards | external models can be nonconforming | `manifest.json` verdicts | recorded |
+
 ## Geometry limitations
 
 1. **Nominal STEP booleans.** `@cad.difference()` and `@cad.union_all()` are
@@ -41,8 +55,11 @@
     bore dimensions are engineering assumptions. They are not manufacturer
     compatible without verification. Section corners are sharp; end taps and
     machining are not modeled.
-14. **Extrusion frame rails overlap posts.** The frame is a display/assembly
-    envelope; brackets, cut-to-fit joints, and fasteners are not modeled.
+14. **Extrusion frame joints are simple butt contacts.** The frame now uses
+    four full-height corner posts and eight rails cut to the clear span between
+    post inner faces; members no longer interpenetrate. Corner brackets, end
+    taps, T-nuts, and fasteners are not modeled. The profile is a generic
+    envelope, not a manufacturer-compatible section.
 
 ## API / packaging
 
@@ -74,6 +91,23 @@
 3. **Bounding boxes of swept profiles are conservative.** `@cad`'s
    `SweptProfile` bounding box expands path points by 5 mm; unit tests inspect
    analytic layers instead of trusting the swept envelope.
+4. **Collision uses convex envelopes.** `components/collision` tests the OBB of
+   each layer's local bounding box. For a T-slot extrusion the slots and core
+   bore are not subtracted, and for a washer or nut the bore is not subtracted.
+   A collision report is therefore conservative: it may report envelope overlap
+   that the holes would avoid. It never reports a real overlap as clear. At
+   frame corners the contacting material is solid, so the frame classification
+   is exact. Nested-bore assemblies such as the hardware kit report envelope
+   overlaps by construction; their coaxial alignment, bore clearance, and
+   engagement are checked analytically in `assemblies_test.mbt`.
+5. **Gear-mesh collision is a 2D outline test.** `gear_mesh_test.mbt` checks
+   tooth-outline crossings across one mesh cycle and planet/ring clearance. It
+   is not a 3D contact solver and does not model profile shift, helix, or load
+   deformation.
+6. **External golden files are not committed.** Per-file redistribution rights
+   are unverified, so golden comparison is a documented fetch procedure rather
+   than a hermetic test. Two candidate models that contradict their claimed
+   standards were rejected (see `GOLDEN_REFERENCES.md`).
 
 ## Deferred standards/components
 

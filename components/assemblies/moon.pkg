@@ -1,5 +1,6 @@
 import {
   "gmlewis/step/cad",
+  "gmlewis/step/components/collision",
   "gmlewis/step/components/common",
   "gmlewis/step/components/fasteners",
   "gmlewis/step/components/profiles",
@@ -9,8 +10,10 @@ import {
 }
 
 import {
+  "gmlewis/step/components/collision",
   "gmlewis/step/components/fasteners",
   "gmlewis/step/components/profiles",
   "gmlewis/step/components/standards",
+  "gmlewis/step/parse",
   "moonbitlang/core/builtin",
 } for "test"

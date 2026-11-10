@@ -77,12 +77,96 @@
 
 ## Current status
 
-- Full test suite is kept green (`./test-all.sh`): **408 tests, 408 passed,
-  0 failed** (baseline was 345).
+- Full test suite is kept green (`./test-all.sh`): **430 tests, 430 passed,
+  0 failed** (baseline at the start of the audit was 408).
 - Representative generated files pass `scripts/validate_step.py` with OCCT
   `checkshape` and watertight tessellation.
 - Flat assembly exports pass the full validator. The STEP product-structure
   export passes all non-OCCT checks; see `KNOWN_ISSUES.md`.
+
+## Correctness audit (2026-11-09)
+
+Starting state: branch `master`, commit
+`994bd0edd931d4a2160ce447a3f2380d6d0fc26c`, baseline **408/408 tests**.
+
+### P0 — extrusion frame interpenetration
+
+Reproduced the owner's defect with the new collision facility. Before the fix,
+`frame-2020-400x300x500.step` produced 24 collision reports: every rail
+overlapped its post by 10 mm, and every X rail overlapped the adjacent Y rails
+by 10 mm. The member cut lengths were `width - profile_width` and
+`depth - profile_height` instead of the clear span between post inner faces.
+
+Fix: `extrusion_frame_members()` computes an explicit schedule with
+`width - 2 * profile_width` and `depth - 2 * profile_height`; the assembly is
+built from the schedule. After the fix:
+
+- pairwise collisions: 0;
+- intended contacts: present at every post/rail joint;
+- connectivity: all 12 instances reachable;
+- floating members: 0;
+- overall dimensions: exactly 400 x 300 x 500;
+- STEP: 12 separate watertight solids, all validator checks PASS.
+
+Additional frame configurations validated independently:
+
+| Frame | Solids | Bbox error | Volume error | Overlaps | Result |
+|---|---:|---:|---:|---:|---|
+| 400 x 300 x 500 | 12 | 1e-07 mm | 6.26e-07 | 0 | PASS |
+| 600 x 300 x 400 | 12 | 1e-07 mm | 6.26e-07 | 0 | PASS |
+| 45 x 45 x 45 | 12 | 1e-07 mm | 5.35e-07 | 0 | PASS |
+| 400 x 300 x 500, 2040 profile | 12 | 1e-07 mm | 2.19e-06 | 0 | PASS |
+
+Commands:
+
+```bash
+moon run --target native components/examples/extrusion_frame -- \
+  --width 400 --depth 300 --height 500 --series 2020 \
+  -o components/examples/output/frame-2020-400x300x500.step \
+  --views components/examples/output/views
+
+python3 scripts/validate_step.py \
+  components/examples/output/frame-2020-400x300x500.step
+
+python3 scripts/validate_frame_geometry.py \
+  components/examples/output/frame-2020-400x300x500.step \
+  --width 400 --depth 300 --height 500 --series 2020
+```
+
+### P1 — planetary phase
+
+The 18/12/42 five-planet layout satisfies the standard equal-spacing condition
+but the old shared planet phase produced 16 proper tooth-outline crossings.
+The planet phase now compensates for the sun tooth phase at each radial.
+Regression tests cover the non-divisible layout, the standard 12/12/36
+three-planet layout, a full external mesh cycle, and planet/ring clearance.
+
+### New validation layers
+
+- `components/collision` — AABB broad phase, OBB/SAT narrow phase, named
+  tolerance policy, contact vs collision vs clearance, assembly connectivity.
+- `components/assemblies/assembly_validation.mbt` — `collision_reports`,
+  `collisions`, `contacts`, `disconnected_instances`, `is_connected`.
+- `scripts/validate_frame_geometry.py` — independent OCCT post-export frame
+  geometry validation.
+- `scripts/measure_step_occt.py` — generic OCCT STEP measurement helper.
+- `scripts/fetch_golden_references.py` — checksum-verified golden fetch to a
+  temporary directory.
+- `components/testdata/golden/manifest.json` — provenance, hashes, measured and
+  parametric dimensions, and verdicts.
+- SVG diagnostics: `--views DIR` on the frame example.
+
+### Golden references
+
+Eight candidates were fetched and verified by SHA-256. Six are useful as
+envelope oracles; two were rejected because they contradict their claimed
+standard:
+
+- ISO 4762 M5 x 10 reference head diameter 9.2003 mm vs ISO maximum 8.5 mm.
+- ISO 7089 M4 reference thickness 1.8 mm vs ISO 7089 h = 0.8 mm.
+
+No external STEP file is committed because per-file redistribution rights are
+unverified. See `GOLDEN_REFERENCES.md`.
 
 ## Next tasks (priority order)
 

@@ -1,0 +1,93 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "gmlewis/step/components/collision"
+
+import {
+  "gmlewis/step/components/common",
+}
+
+// Values
+pub fn classify_obb_pair(Obb, Obb, tol? : TolerancePolicy) -> PairGeometry
+
+pub fn pair_reports(Array[PlacedShape], tol? : TolerancePolicy, policy? : ContactPolicy) -> Array[CollisionReport]
+
+pub fn placed_shapes(String, @common.Component, @common.Placement) -> Array[PlacedShape]
+
+pub fn placed_shapes_for_parts(Array[(String, @common.Component, @common.Placement)]) -> Array[PlacedShape]
+
+// Errors
+
+// Types and methods
+pub(all) struct Aabb {
+  min_pt : (Double, Double, Double)
+  max_pt : (Double, Double, Double)
+}
+pub fn Aabb::intersection(Self, Self) -> Self?
+pub fn Aabb::overlaps(Self, Self, Double) -> Bool
+pub fn Aabb::volume(Self) -> Double
+
+pub(all) enum CollisionKind {
+  Clearance
+  Contact
+  InterferenceFit
+  Collision
+  Indeterminate
+}
+pub fn CollisionKind::severity(Self) -> Int32
+pub fn CollisionKind::to_string(Self) -> String
+
+pub(all) struct CollisionReport {
+  instance_a : String
+  instance_b : String
+  kind : CollisionKind
+  penetration_mm : Double
+  separation_mm : Double
+  overlap_volume_mm3 : Double
+  region : Aabb?
+}
+pub fn CollisionReport::is_collision(Self) -> Bool
+pub fn CollisionReport::is_contact(Self) -> Bool
+pub fn CollisionReport::is_interference_fit(Self) -> Bool
+pub fn CollisionReport::summary(Self) -> String
+
+pub(all) struct ContactPolicy {
+  permitted_interference : Array[(String, String)]
+}
+pub fn ContactPolicy::none() -> Self
+pub fn ContactPolicy::permit(Self, String, String) -> Self
+
+pub(all) struct Obb {
+  center : (Double, Double, Double)
+  half_extents : (Double, Double, Double)
+  axes : ((Double, Double, Double), (Double, Double, Double), (Double, Double, Double))
+}
+pub fn Obb::aabb(Self) -> Aabb
+pub fn Obb::from_placement(@common.Placement, (Double, Double, Double, Double, Double, Double)) -> Self
+pub fn Obb::volume(Self) -> Double
+
+pub(all) struct PairGeometry {
+  kind : CollisionKind
+  penetration_mm : Double
+  separation_mm : Double
+  overlap_volume_mm3 : Double
+  region : Aabb?
+}
+
+pub(all) struct PlacedShape {
+  instance_name : String
+  layer_name : String
+  obb : Obb
+}
+
+pub(all) struct TolerancePolicy {
+  linear_mm : Double
+  angular_deg : Double
+  volume_mm3 : Double
+  contact_mm : Double
+  surface_deviation_mm : Double
+}
+pub fn TolerancePolicy::coarse() -> Self
+pub fn TolerancePolicy::default() -> Self
+
+// Type aliases
+
+// Traits
