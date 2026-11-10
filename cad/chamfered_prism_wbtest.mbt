@@ -13,7 +13,7 @@ test "square prism with a top chamfer is watertight and planar" {
   )
   inspect(prism.validate() is Ok(_), content="true")
   let shape = Shape::ChamferedPrism(prism)
-  let (x0, x1, y0, y1, z0, z1) = shape.bounding_box()
+  let (x0, x1, _y0, y1, _z0, z1) = shape.bounding_box()
   assert_true((x0 - 0.0).abs() < 1.0e-9)
   assert_true((x1 - 10.0).abs() < 1.0e-9)
   assert_true((y1 - 10.0).abs() < 1.0e-9)

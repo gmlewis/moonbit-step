@@ -7,7 +7,7 @@ fn rev_count(haystack : String, needle : String) -> Int32 {
 ///|
 test "revolved cylinder has analytic cylinder and planar caps" {
   let shape = RevolvedProfile::cylinder(10.0, 5.0).as_shape()
-  let (x0, x1, y0, y1, z0, z1) = shape.bounding_box()
+  let (x0, x1, _y0, _y1, z0, z1) = shape.bounding_box()
   assert_true((x0 - -5.0).abs() < 1.0e-9)
   assert_true((x1 - 5.0).abs() < 1.0e-9)
   assert_true((z0 - 0.0).abs() < 1.0e-9)

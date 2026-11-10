@@ -136,9 +136,9 @@ fn chamfer_inset(profile : Array[Vec2], c : Double) -> Array[Vec2]? {
       return None
     }
     let half = theta / 2.0
-    let move = c / @math.sin(half)
+    let inset_dist = c / @math.sin(half)
     let bis = v2_norm((u1.0 + u2.0, u1.1 + u2.1))
-    out.push((cur.0 + bis.0 * move, cur.1 + bis.1 * move))
+    out.push((cur.0 + bis.0 * inset_dist, cur.1 + bis.1 * inset_dist))
   }
   if !is_convex_ccw(out) || polygon_area_2d(out) <= 0.0 {
     return None

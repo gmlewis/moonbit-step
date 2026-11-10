@@ -221,7 +221,7 @@ pub fn RevolvedProfile::validate(
     }
     if i > 0 {
       let prev = rev_seg_end(segs[i - 1])
-      if not(rev_close2(prev, a)) {
+      if !rev_close2(prev, a) {
         return Err(DiscontinuousChain(i))
       }
     }
@@ -230,7 +230,7 @@ pub fn RevolvedProfile::validate(
   let last = rev_seg_end(segs[n - 1])
   let open_on_axis = first.0 < 1.0e-9 && last.0 < 1.0e-9
   let closed = rev_close2(first, last)
-  if not(open_on_axis || closed) {
+  if !(open_on_axis || closed) {
     return Err(NotClosed)
   }
   // The profile must enclose a non-zero signed area.

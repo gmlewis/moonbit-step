@@ -243,7 +243,7 @@ test "iso10642 M4x16 detailed countersunk head dimensions and layers" {
     Ok(c) => c
     Err(e) => abort(e.message())
   }
-  let (x0, x1, y0, y1, z0, z1) = screw.bounding_box()
+  let (x0, x1, _y0, _y1, z0, z1) = screw.bounding_box()
   assert_true(close(x0, -4.2))
   assert_true(close(x1, 4.2))
   assert_true(close(z0, 0.0))
