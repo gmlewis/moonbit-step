@@ -33,26 +33,89 @@ remove the corresponding `.gitignore` entry.
 
 ## Fetch and measurement procedure
 
+The fetch script now selects a **comprehensive standardized corpus** by catalog
+standard, family, nominal size, and representative lengths. It verifies that
+each record's standard designation matches the requested standard, skips
+records without the required size/length, and checks every downloaded file
+against the catalog SHA-256 and byte size.
+
 ```bash
-# 1. Download the curated candidates to a temporary directory.
+# Default core corpus: M2, M2.5, M3, M4, M5.
 python3 scripts/fetch_golden_references.py \
-  --out /tmp/step-golden \
+  --out components/testdata/golden/external \
   --accept-unverified-license
 
-# 2. Verify that each file's SHA-256 and byte size match the catalog record
-#    (the fetch script already does this and writes fetch-report.json).
+# Add M6 and M8.
+python3 scripts/fetch_golden_references.py \
+  --out components/testdata/golden/external \
+  --accept-unverified-license --scope extended
 
-# 3. Measure each reference with Open CASCADE.
-python3 scripts/measure_step_occt.py /tmp/step-golden/*.step
+# Every catalog size and length for the selected standards (large).
+python3 scripts/fetch_golden_references.py \
+  --out components/testdata/golden/external \
+  --accept-unverified-license --scope all --allow-large
 
-# 4. Generate the corresponding parametric part or assembly, then measure it
-#    with the same script. The exact commands per fixture are in
-#    components/testdata/golden/manifest.json.
+# Inspect the plan without downloading.
+python3 scripts/fetch_golden_references.py --scope core --list
+python3 scripts/fetch_golden_references.py --list-selections
+
+# Limit a run to selected families.
+python3 scripts/fetch_golden_references.py \
+  --out components/testdata/golden/external \
+  --accept-unverified-license \
+  --selection iso4762 --selection iso4032 --selection iso7089
 ```
 
-The fetch script uses the Git LFS batch API and the short-lived signed download
-URL, because some networks cannot reach `media.githubusercontent.com`
-directly. Signed URLs are never written to the report.
+Scope counts at the time of writing:
+
+| Scope | Planned files | Coverage |
+|---|---:|---|
+| `core` | 167 | M2-M5 standardized fasteners, washers, pins, bearings, rods |
+| `extended` | 237 | M2-M8 |
+| `all` | 1048 | every catalog size/length for the selected standards |
+
+The core corpus includes:
+
+- **Screws/bolts:** ISO 4762, ISO 4017, ISO 7380 (catalog starts at M3),
+  ISO 10642 (catalog starts at M3), DIN 913 (catalog starts at M3).
+- **Nuts:** ISO 4032, ISO 4035, DIN 1587 (M4+), DIN 557 (M5+).
+- **Washers:** ISO 7089, ISO 7091, ISO 7092, ISO 7093, ISO 7090, DIN 125,
+  DIN 127, DIN 7349, DIN 93, DIN 440.
+- **Pins:** ISO 2338 dowel pins, ISO 8752 slotted spring pins, ISO 1234 cotter
+  pins.
+- **Bearings:** common 608/6000/6200-class boundary references.
+- **Rods:** metric threaded rods (clearly labeled as DIN 976-compatible rather
+  than catalog-standard-designated).
+- **Retaining rings:** DIN 471 is included in `--scope all` because the catalog
+  starts at M10.
+- **Non-standardized oracles:** a 2020 extrusion profile and two spur gears,
+  clearly labeled and never treated as normative references.
+
+The script writes `fetch-report.json` in the output directory. It records the
+catalog commit, scope, missing combinations, per-file provenance, SHA-256,
+byte size, cache/download status, and any failures. Some catalog families
+(notably the ISO 4017 and ISO 7380 "simple" variants) carry
+`threadRepresentation: simplified` or `geometryRepresentation: analytic
+simplified`; the report records this, and the standard's normative dimensions
+remain the primary acceptance criterion. Existing files with a matching
+checksum are reused; `--force` re-downloads. Failed downloads are retried
+(`--retries`, default 3) and written through a temporary `.part` file so a
+partial download is never left as a cached fixture.
+
+The script uses the Git LFS batch API and the short-lived signed download URL,
+because some networks cannot reach `media.githubusercontent.com` directly.
+Signed URLs are never written to the report.
+
+```bash
+# Verify/measure the downloaded corpus with Open CASCADE.
+python3 scripts/measure_step_occt.py components/testdata/golden/external/*.step
+```
+
+`components/testdata/golden/manifest.json` remains the hand-curated record of
+the v1 fixtures that were individually measured and classified. The new
+comprehensive corpus is inventoried by `fetch-report.json`; the next audit
+should measure selected fixtures and promote them into the manifest with
+feature-level verdicts.
 
 ## Comparison rules
 

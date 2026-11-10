@@ -185,6 +185,28 @@ standard:
 No external STEP file is committed because per-file redistribution rights are
 unverified. See `GOLDEN_REFERENCES.md`.
 
+### Comprehensive standardized corpus tooling
+
+`scripts/fetch_golden_references.py` now selects a comprehensive standardized
+corpus by catalog standard, family, nominal size, and representative length,
+instead of an eight-ID list. Scope counts at the time of writing:
+
+- `--scope core` (M2-M5): 167 files;
+- `--scope extended` (M2-M8): 237 files;
+- `--scope all`: 1048 files.
+
+The corpus includes ISO 4762/4017/7380/10642 and DIN 913 screws, ISO 4032/4035
+and DIN 1587/557 nuts, ISO 7089/7091/7092/7093 and DIN 125/127/7349/93/440
+washers, ISO 2338/8752/1234 pins, common 608/6000/6200-class bearings, and
+clearly labeled DIN 976-compatible rods. DIN 471 retaining rings are included
+in `--scope all` (catalog starts at M10). Three non-standardized gear/profile
+oracles are included and labeled as such.
+
+The script verifies the standard designation, size/length availability,
+SHA-256, and byte size; writes `fetch-report.json`; reuses checksum-matching
+files; retries failed downloads; and writes through temporary `.part` files.
+The full core corpus was downloaded and verified locally (167/167 files).
+
 ## Next tasks (priority order)
 
 1. Add button-head (ISO 7380) and countersunk (ISO 10642) screw builders after

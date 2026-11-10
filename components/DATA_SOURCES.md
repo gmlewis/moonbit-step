@@ -93,8 +93,16 @@ External STEP models examined during the correctness audit are recorded in
   FreeCAD-library, Adafruit, SparkFun) but the public API does not identify the
   per-file source. Per-file redistribution rights are therefore **unverified**.
 - No external STEP file is committed. `scripts/fetch_golden_references.py`
-  downloads candidates to a temporary directory for local comparison and
-  verifies the catalog SHA-256 and byte size.
+  downloads candidates to a temporary or Git-ignored directory for local
+  comparison and verifies the catalog standard designation, SHA-256, and byte
+  size.
+- The fetch script selects a comprehensive standardized corpus by standard,
+  family, size, and representative length. The default `core` scope covers
+  M2-M5 (including ISO 4032/4035 nuts; ISO 4762/4017/7380/10642 and DIN 913
+  screws; ISO 7089/7091/7092/7093 and DIN 125/127/7349/93/440 washers; ISO
+  2338/8752/1234 pins; common bearings; and labeled DIN 976-compatible rods).
+  `--scope extended` adds M6/M8 and `--scope all` selects every catalog
+  size/length for the chosen standards.
 - Two candidates were rejected because they contradict the standard they
   claim: the step.parts ISO 4762 M5 x 10 head diameter is 9.2 mm (ISO maximum
   8.5 mm), and the step.parts ISO 7089 M4 washer is 1.8 mm thick (ISO 7089
