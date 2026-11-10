@@ -492,6 +492,41 @@ pub fn difference(
 }
 
 ///|
+/// fillet_edges records the intent to round the selected edges of `base` with
+/// a circular fillet of `radius_mm`.
+///
+/// The flat STEP writer cannot trim edges and refuses this node with an error
+/// diagnostic. Apply it through `Design::to_step_evaluated` (OCCT) or the
+/// Blender backend. A sharp edge is never emitted and called a fillet.
+pub fn fillet_edges(
+  base : SceneNode,
+  radius_mm : Double,
+  selector~ : EdgeSelector = AllEdges,
+  name~ : String = "fillet",
+) -> SceneNode {
+  Shape::Fillet({ base, selector, size_mm: radius_mm, angle_deg: None, }).with_name(
+    name,
+  )
+}
+
+///|
+/// chamfer_edges records the intent to bevel the selected edges of `base` with
+/// a chamfer of `size_mm` (and an optional `angle_deg`).
+///
+/// The flat STEP writer cannot trim edges and refuses this node with an error
+/// diagnostic. Apply it through `Design::to_step_evaluated` (OCCT) or the
+/// Blender backend.
+pub fn chamfer_edges(
+  base : SceneNode,
+  size_mm : Double,
+  angle_deg? : Double,
+  selector~ : EdgeSelector = AllEdges,
+  name~ : String = "chamfer",
+) -> SceneNode {
+  Shape::Chamfer({ base, selector, size_mm, angle_deg, }).with_name(name)
+}
+
+///|
 pub fn Shape::with_name(self : Shape, name : String) -> SceneNode {
   SceneNode::{
     shape: self,

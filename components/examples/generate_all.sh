@@ -50,6 +50,18 @@ moon run --target native components/examples/motion_stack -- \
   --bearing 608 --detail detailed -o "$OUT/motion-608-stack-detailed.step"
 moon run --target native components/examples/filleted_shaft -- \
   --fillet 2 -o "$OUT/filleted-shaft-d10-16.step"
+# Feature-record, catalogue, and mixed-assembly artifacts (Stage M/Q).
+moon run --target native components/examples/bearing -- \
+  --bearing 608 --detail detailed -o "$OUT/bearing-608-detailed.step"
+moon run --target native components/examples/bolted_joint -- \
+  --size M4 --width 40 --depth 30 --thickness 5 \
+  -o "$OUT/bolted-joint-M4-2x5.step"
+moon run --target native components/examples/gear_pair -- \
+  --module 2 --teeth 20 --mateTeeth 40 --rootFillet 0.4 --tipChamfer 0.1 \
+  -o "$OUT/gear-pair-m2-20x40-filleted.step"
+moon run --target native components/examples/extrusion_frame -- \
+  --width 200 --depth 200 --height 200 --series 2020 --cornerRadius 1.5 \
+  -o "$OUT/frame-2020-200x200x200-rounded.step"
 
 echo "Validating generated fixtures..."
 for f in "$OUT"/*.step; do

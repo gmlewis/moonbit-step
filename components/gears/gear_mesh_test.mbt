@@ -274,3 +274,72 @@ test "standard planetary planets clear the approximate ring gear" {
   }
   assert_eq(total, 0)
 }
+
+///|
+/// rotate_outline rotates every point of an outline about the origin.
+fn rotate_outline(
+  outline : Array[@cad.Vec2],
+  angle_deg : Double,
+) -> Array[@cad.Vec2] {
+  let rad = angle_deg * @math.PI / 180.0
+  outline.map(fn(p) { mesh_rotate(p, rad) })
+}
+
+///|
+test "sun and planet have no interference through a full mesh cycle" {
+  let module_mm = 2.0
+  let sun_teeth = 12
+  let planet_teeth = 12
+  let params = match
+    @gears.PlanetaryParams::new(
+      module_mm~,
+      sun_teeth~,
+      planet_teeth~,
+      planet_count=3,
+      face_width_mm=10.0,
+    ) {
+    Ok(p) => p
+    Err(e) => abort(e.message())
+  }
+  let set = match @gears.planetary_gear_set(params) {
+    Ok(a) => a
+    Err(e) => abort(e.message())
+  }
+  let sun = @gears.external_involute_outline(2.0, 12, 20.0)
+  let planet = @gears.external_involute_outline(2.0, 12, 20.0)
+  let sun_radius = 2.0 * 12.0 / 2.0
+  let steps = 16
+  let mut total = 0
+  for item in set.items() {
+    if item.instance_name.has_prefix("planet-") {
+      let cx = item.placement.trans.0
+      let cy = item.placement.trans.1
+      let r = Double::sqrt(cx * cx + cy * cy)
+      let mesh = (sun_radius * cx / r, sun_radius * cy / r)
+      for step in 0..<steps {
+        let sun_angle = 360.0 *
+          step.to_double() /
+          (sun_teeth.to_double() * steps.to_double())
+        let planet_angle = -sun_angle *
+          sun_teeth.to_double() /
+          planet_teeth.to_double()
+        let sun_world = rotate_outline(sun, sun_angle)
+        let placement = @common.Placement::compose(
+          item.placement,
+          @common.Placement::rotation_z(planet_angle),
+        )
+        let world = planet.map(fn(p) {
+          let q = placement.apply_point((p.0, p.1, 0.0))
+          (q.0, q.1)
+        })
+        let sun_edges = edges_near(sun_world, mesh, 6.0)
+        let planet_edges = edges_near(world, mesh, 6.0)
+        total = total + mesh_crossings(sun_edges, planet_edges)
+      }
+    }
+  }
+  if total > 0 {
+    abort("sun/planet crossings through a cycle: " + total.to_string())
+  }
+  assert_eq(total, 0)
+}

@@ -147,3 +147,24 @@ Each component embeds its metadata (designation, standard/revision, family,
 size, length, material, source) in the STEP header documentation. An assembly
 adds its name, instance count, and one line per component instance. Generated
 files therefore carry their provenance when copied out of the repository.
+
+## Bolted joint (mixed family)
+
+`bolted_joint(size, plate_width, plate_depth, plate_thickness)` places:
+
+- two generic plates with a central through hole (`plate_with_hole`), stacked at
+  z = 0 and z = t;
+- an ISO 7089 washer on the top plate;
+- an ISO 4762 screw whose shank passes through the nut, both plates, and the
+  washer, with the head clamping the washer; and
+- an ISO 4032 nut below the bottom plate.
+
+Placements are deterministic; the bounding box is
+`[-w/2, w/2] x [-d/2, d/2] x [-m, 2t + washer + k]`. The plate holes are
+0.4 mm larger than the screw so the shank clears them. `is_connected()` is true
+and contacts are reported at plate/plate, plate/washer, washer/head, and
+nut/shank. The oriented-bounding-box collision report shows the shank inside
+the plate/washer/nut bores as the documented nested-bore false positive; it is
+not presented as a shape-aware clearance proof. The flat STEP has 7 watertight
+solids and passes the validator.
+

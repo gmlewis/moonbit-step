@@ -24,6 +24,8 @@ pub(all) struct TSlotProfile {
   cavity_width_mm : Double
   core_bore_diameter_mm : Double
   wall_mm : Double
+  /// Outer corner radius in millimetres (0 = sharp corners).
+  corner_radius_mm : Double
 }
 
 ///|
@@ -38,6 +40,7 @@ pub fn TSlotProfile::custom(
   cavity_width_mm~ : Double,
   core_bore_diameter_mm~ : Double,
   wall_mm~ : Double,
+  corner_radius_mm~ : Double = 0.0,
 ) -> Result[TSlotProfile, @common.SpecError] {
   let checks : Array[Result[Unit, @common.SpecError]] = [
     @common.require_positive("profile width", width_mm),
@@ -99,6 +102,18 @@ pub fn TSlotProfile::custom(
       ),
     )
   }
+  match
+    @common.require_non_negative("profile corner radius", corner_radius_mm) {
+    Err(e) => return Err(e)
+    Ok(_) => ()
+  }
+  if corner_radius_mm > 0.25 * min_size {
+    return Err(
+      @common.InvalidParameter(
+        "profile corner radius must not exceed a quarter of the smaller section size",
+      ),
+    )
+  }
   Ok({
     name,
     width_mm,
@@ -109,6 +124,7 @@ pub fn TSlotProfile::custom(
     cavity_width_mm,
     core_bore_diameter_mm,
     wall_mm,
+    corner_radius_mm,
   })
 }
 
@@ -125,6 +141,7 @@ pub fn TSlotProfile::generic_2020() -> TSlotProfile {
     cavity_width_mm: 11.0,
     core_bore_diameter_mm: 4.2,
     wall_mm: 1.8,
+    corner_radius_mm: 0.0,
   }
 }
 
@@ -147,6 +164,7 @@ pub fn TSlotProfile::generic_3030() -> TSlotProfile {
     cavity_width_mm: 14.0,
     core_bore_diameter_mm: 6.0,
     wall_mm: 2.0,
+    corner_radius_mm: 0.0,
   }
 }
 
@@ -163,7 +181,61 @@ pub fn TSlotProfile::generic_4040() -> TSlotProfile {
     cavity_width_mm: 14.0,
     core_bore_diameter_mm: 6.5,
     wall_mm: 2.5,
+    corner_radius_mm: 0.0,
   }
+}
+
+///|
+/// TSlotProfile::generic_2060 returns a generic 20 x 60 T-slot envelope.
+pub fn TSlotProfile::generic_2060() -> TSlotProfile {
+  { ..TSlotProfile::generic_2040(), name: "generic-2060", height_mm: 60.0, }
+}
+
+///|
+/// TSlotProfile::generic_2080 returns a generic 20 x 80 T-slot envelope.
+pub fn TSlotProfile::generic_2080() -> TSlotProfile {
+  { ..TSlotProfile::generic_2040(), name: "generic-2080", height_mm: 80.0, }
+}
+
+///|
+/// TSlotProfile::generic_3060 returns a generic 30 x 60 T-slot envelope.
+pub fn TSlotProfile::generic_3060() -> TSlotProfile {
+  { ..TSlotProfile::generic_3030(), name: "generic-3060", height_mm: 60.0, }
+}
+
+///|
+/// TSlotProfile::generic_4080 returns a generic 40 x 80 T-slot envelope.
+pub fn TSlotProfile::generic_4080() -> TSlotProfile {
+  { ..TSlotProfile::generic_4040(), name: "generic-4080", height_mm: 80.0, }
+}
+
+///|
+/// TSlotProfile::with_corner_radius returns a copy with an outer corner radius.
+///
+/// The radius must be non-negative and no more than a quarter of the smaller
+/// section size. Rounding is applied only to the four outer section corners;
+/// slot cavities are unchanged.
+pub fn TSlotProfile::with_corner_radius(
+  self : TSlotProfile,
+  radius_mm : Double,
+) -> Result[TSlotProfile, @common.SpecError] {
+  let min_size = if self.width_mm < self.height_mm {
+    self.width_mm
+  } else {
+    self.height_mm
+  }
+  match @common.require_non_negative("profile corner radius", radius_mm) {
+    Err(e) => return Err(e)
+    Ok(_) => ()
+  }
+  if radius_mm > 0.25 * min_size {
+    return Err(
+      @common.InvalidParameter(
+        "profile corner radius must not exceed a quarter of the smaller section size",
+      ),
+    )
+  }
+  Ok({ ..self, corner_radius_mm: radius_mm, })
 }
 
 ///|
@@ -262,7 +334,29 @@ pub fn TSlotProfile::outline(self : TSlotProfile) -> Array[@cad.Vec2] {
   points.push_iter(side_with_slot(hw, -hh, hw, hh, self).iter())
   points.push_iter(side_with_slot(hw, hh, -hw, hh, self).iter())
   points.push_iter(side_with_slot(-hw, hh, -hw, -hh, self).iter())
-  points
+  if self.corner_radius_mm <= 0.0 {
+    return points
+  }
+  // Round only the four outer section corners (the points at the full
+  // half-diagonal radius). Slot-cavity vertices keep their as-generated form.
+  let corner_distance = Double::sqrt(hw * hw + hh * hh)
+  let indices : Array[Int32] = []
+  for i, p in points {
+    let r = Double::sqrt(p.0 * p.0 + p.1 * p.1)
+    if r >= corner_distance - 1.0e-6 {
+      indices.push(i)
+    }
+  }
+  match
+    @cad.Profile2D::fillet_vertices(
+      points,
+      self.corner_radius_mm,
+      segments=8,
+      which=@cad.VertexSelection::Indices(indices),
+    ) {
+    Ok(rounded) => rounded
+    Err(e) => abort("profile corner radius rejected: " + e.message())
+  }
 }
 
 ///|
@@ -316,11 +410,51 @@ pub fn extrusion(
       let holes = profile.holes(segments~)
       let body = @cad.ExtrudedProfile::new(outer, length_mm, holes~)
       let name = "extrusion-\{profile.name}-\{@cad.fmt_double(length_mm, None)}"
+      let mut features = @common.FeatureRecord::new(
+        modeled=["body", "t-slot-cavities"],
+        approximated=[
+          @common.Approximation::new(
+            feature="core-bore",
+            kind=@common.ApproximationKind::PolylineArc,
+            deviation_mm=@common.chord_deviation(
+              profile.core_bore_diameter_mm / 2.0,
+              segments,
+            ),
+            control="circle_segments=\{segments}",
+          ),
+        ],
+        omitted=[
+          @common.Omission::new(
+            feature="end-caps",
+            reason="end caps and end machining are not modelled",
+          ),
+        ],
+      )
+      if profile.corner_radius_mm > 0.0 {
+        features = features
+          .add_modeled("corner-radii")
+          .add_approximated(
+            @common.Approximation::new(
+              feature="corner-radius-arc",
+              kind=@common.ApproximationKind::PolylineArc,
+              deviation_mm=@common.chord_deviation(profile.corner_radius_mm, 8),
+              control="corner_segments=8",
+            ),
+          )
+      } else {
+        features = features.add_omitted(
+          @common.Omission::new(
+            feature="corner-radii",
+            reason="outer section corners are sharp in this generic envelope",
+          ),
+        )
+      }
       Ok(
         @common.Component::new(
           name~,
           metadata=profile.metadata(length_mm),
-          description="Generic T-slot extrusion with four centred slots and a central core bore. Sharp section corners; no end machining.",
+          description="Generic T-slot extrusion with four centred slots, a central core bore, and optional rounded outer corners. No end machining.",
+          features~,
         ).add_layer(body, name="body", color=@cad.Rgb::cyan()),
       )
     }

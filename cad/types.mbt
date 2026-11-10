@@ -150,6 +150,41 @@ pub struct ExtrudedBezierProfile {
 }
 
 ///|
+/// EdgeSelector chooses which edges of a base solid an edge fillet or chamfer
+/// applies to.
+///
+/// The selector is intent, not geometry: the flat STEP writer cannot evaluate
+/// it. Only the optional OCCT-backed evaluated export (`Design::to_step_evaluated`)
+/// or the Blender backend can apply the operation. Selectors are evaluated
+/// against the base solid's straight/curved edge bounds:
+///
+/// - `AllEdges` selects every edge.
+/// - `EdgesByDirection` selects edges whose bounding-box diagonal is parallel
+///   to `dir` within `tolerance_deg`.
+/// - `EdgesNearPoint` selects edges whose bounding box is within `radius_mm`
+///   of `point`.
+/// - `EdgeIndices` selects 1-based edge indices in the solid's edge order.
+pub(all) enum EdgeSelector {
+  AllEdges
+  EdgesByDirection(Vec3, Double)
+  EdgesNearPoint(Vec3, Double)
+  EdgeIndices(Array[Int32])
+}
+
+///|
+/// EdgeFeature is the intent to fillet or chamfer the selected edges of a base
+/// solid.
+///
+/// `size_mm` is the fillet radius or chamfer distance. `angle_deg` is an
+/// optional chamfer angle; `None` means an equal-distance chamfer.
+pub(all) struct EdgeFeature {
+  base : SceneNode
+  selector : EdgeSelector
+  size_mm : Double
+  angle_deg : Double?
+}
+
+///|
 pub enum Shape {
   Cuboid(Cuboid)
   Cylinder(Cylinder)
@@ -159,6 +194,8 @@ pub enum Shape {
   ExtrudedProfile(ExtrudedProfile)
   ExtrudedBezierProfile(ExtrudedBezierProfile)
   SweptProfile(SweptProfile)
+  Fillet(EdgeFeature)
+  Chamfer(EdgeFeature)
   Union(BooleanUnion)
   Difference(BooleanDifference)
 }
@@ -365,6 +402,8 @@ pub fn Shape::bounding_box(
       (x0, x1, y0, y1, 0.0, e.height_mm)
     }
     Difference(d) => d.base.shape.bounding_box()
+    Fillet(f) => f.base.bounding_box()
+    Chamfer(c) => c.base.bounding_box()
     SweptProfile(s) => {
       let mut x0 = @double.max_value
       let mut x1 = @double.min_value

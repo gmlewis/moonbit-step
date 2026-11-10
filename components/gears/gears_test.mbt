@@ -176,3 +176,123 @@ test "planetary set layout and ring envelope" {
   assert_true(close(z0, 0.0))
   assert_true(close(z1, 10.0))
 }
+
+///|
+test "gear root fillet rounds the root and stays a simple polygon" {
+  let base = @gears.external_involute_outline(2.0, 20, 20.0)
+  let filleted = match
+    @gears.external_involute_outline_ex(
+      2.0,
+      20,
+      20.0,
+      root_fillet_radius_mm=0.4,
+      fillet_segments=6,
+    ) {
+    Ok(o) => o
+    Err(e) => abort(e.message())
+  }
+  assert_true(@cad.Profile2D::is_simple(filleted))
+  assert_true(filleted.length() > base.length())
+  let geom = @gears.involute_gear_geometry(2.0, 20, 20.0)
+  // A root fillet adds material at the re-entrant root. Collapsing the fine
+  // root arc to a chord introduces at most a small sagitta, so the measured
+  // root radius stays within 0.1 mm of the nominal root circle.
+  assert_true(
+    @gears.gear_outline_min_radius(filleted) >= geom.root_radius_mm - 0.1,
+  )
+  assert_true(
+    @gears.gear_outline_max_radius(filleted) <= geom.outer_radius_mm + 1.0e-6,
+  )
+  let area0 = @gears.involute_outline_area(base)
+  let area1 = @gears.involute_outline_area(filleted)
+  // The outline is wound clockwise (negative signed area); a root fillet adds
+  // material, so its absolute area grows.
+  assert_true(area1.abs() > area0.abs())
+  // The polyline arc deviation is the chord error: 0.054 mm at 6 segments and
+  // below 0.01 mm at 24 segments.
+  assert_true(@gears.gear_outline_deviation_mm(0.4, 6) < 0.06)
+  assert_true(@gears.gear_outline_deviation_mm(0.4, 24) < 0.01)
+}
+
+///|
+test "gear tip chamfer bevels the tip and stays a simple polygon" {
+  let base = @gears.external_involute_outline(2.0, 20, 20.0)
+  let chamfered = match
+    @gears.external_involute_outline_ex(2.0, 20, 20.0, tip_chamfer_mm=0.1) {
+    Ok(o) => o
+    Err(e) => abort(e.message())
+  }
+  assert_true(@cad.Profile2D::is_simple(chamfered))
+  assert_true(chamfered.length() >= 2 * 20)
+  let geom = @gears.involute_gear_geometry(2.0, 20, 20.0)
+  assert_true(
+    @gears.gear_outline_max_radius(chamfered) <= geom.outer_radius_mm + 1.0e-6,
+  )
+  // A tip chamfer removes material from the tip, so the absolute area shrinks.
+  assert_true(
+    @gears.involute_outline_area(chamfered).abs() <
+    @gears.involute_outline_area(base).abs(),
+  )
+}
+
+///|
+test "gear feature parameters reject oversized values" {
+  assert_true(
+    @gears.SpurGearParams::new(
+      module_mm=2.0,
+      teeth=20,
+      root_fillet_radius_mm=1.0,
+    )
+    is Err(_),
+  )
+  assert_true(
+    @gears.SpurGearParams::new(module_mm=2.0, teeth=20, tip_chamfer_mm=1.0)
+    is Err(_),
+  )
+  assert_true(
+    @gears.external_involute_outline_ex(
+      2.0,
+      20,
+      20.0,
+      root_fillet_radius_mm=-1.0,
+    )
+    is Err(_),
+  )
+  assert_true(
+    @gears.external_involute_outline_ex(
+      2.0,
+      20,
+      20.0,
+      root_fillet_radius_mm=5.0,
+    )
+    is Err(_),
+  )
+}
+
+///|
+test "spur gear with root fillet and tip chamfer builds and records them" {
+  let params = match
+    @gears.SpurGearParams::new(
+      module_mm=2.0,
+      teeth=20,
+      face_width_mm=10.0,
+      bore_diameter_mm=8.0,
+      root_fillet_radius_mm=0.4,
+      tip_chamfer_mm=0.1,
+      fillet_segments=6,
+    ) {
+    Ok(p) => p
+    Err(e) => abort(e.message())
+  }
+  let gear = match @gears.spur_gear(params) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  let features = gear.features()
+  assert_true(features.has_modeled("root-fillet"))
+  assert_true(features.has_modeled("tip-chamfer"))
+  assert_true(features.has_approximated("root-fillet-arc"))
+  let step = gear.to_step(checked=true)
+  assert_true(step.contains("MANIFOLD_SOLID_BREP"))
+  assert_true(step.contains("CLOSED_SHELL"))
+}

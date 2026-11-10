@@ -208,3 +208,46 @@ external manufacturer models.
   dimensions and analytic geometry.
 - Slot, cavity, wall, and bore dimensions of the 2020 reference differ from the
   generic profile and are deliberately not compared.
+
+## Comparison harness (2026-11-10)
+
+`scripts/compare_golden.py` is the reproducible PASS/FAIL/SKIP harness. For
+each manifest fixture with a `generation` recipe it:
+
+1. verifies the external file's SHA-256 and byte size when present;
+2. skips the external geometry comparison when the per-file licence is not
+   verified (all current fixtures are `unverified-per-file`);
+3. generates the parametric part through the example CLI (never internal
+   dimension functions);
+4. measures it with OCCT (solids, bbox, volume) and with
+   `measure_step_features.py` (surface types, cone/sphere/torus parameters,
+   vertex radii);
+5. checks the manifest's normative bbox extents, solid count, and feature
+   expectations;
+6. optionally builds a lower-detail contrast part and asserts that the detailed
+   build adds faces (a real chamfer/fillet presence check);
+7. prints `PASS`/`FAIL`/`SKIP` per check and per fixture.
+
+The harness runs the normative/analytic checks even when the external file is
+absent. A missing file or unverified licence is reported as `SKIP`, never as a
+pass.
+
+Current fixture results (all external files present, all licences unverified):
+
+| Fixture | Result | Notes |
+|---|---|---|
+| ISO 4762 M3 x 10 | PASS | 3 solids, bbox, detailed adds 80 faces |
+| ISO 4762 M4 x 20 | PASS | 3 solids, bbox, detailed adds 80 faces |
+| ISO 4032 M4 | PASS | 1 solid, AF 7.0, h 3.2, adds 28 faces |
+| ISO 7089 M4 | PASS | OD 9.0, t 0.8, vertex radii 2.15 / 4.5 |
+| 608 bearing | PASS | 10 solids, OD 22, width 7, 16 sphere faces, bore radius 4 |
+| ISO 10642 M3 x 12 | PASS | 3 solids, head 6.0, overall 12.0, cone half-angle 45° |
+
+The harness found the ISO 10642 length defect (13.7 mm instead of 12.0 mm),
+which was fixed; see `KNOWN_ISSUES.md` KI-01.
+
+```bash
+python3 scripts/compare_golden.py
+python3 scripts/compare_golden.py --fixture bearings/608zz
+```
+

@@ -122,8 +122,12 @@ test "T-slot section outlines are simple polygons with corner arrows" {
   let profiles = [
     @profiles.TSlotProfile::generic_2020(),
     @profiles.TSlotProfile::generic_2040(),
+    @profiles.TSlotProfile::generic_2060(),
+    @profiles.TSlotProfile::generic_2080(),
     @profiles.TSlotProfile::generic_3030(),
+    @profiles.TSlotProfile::generic_3060(),
     @profiles.TSlotProfile::generic_4040(),
+    @profiles.TSlotProfile::generic_4080(),
   ]
   for profile in profiles {
     let points = profile.outline()
@@ -164,4 +168,49 @@ test "generic 2020 outer section area includes four corner arrows" {
   let outline = @profiles.TSlotProfile::generic_2020().outline()
   // 400 mm^2 square minus four tapered T-slot notches (48.46 mm^2 each).
   assert_true((section_area(outline) - 206.16).abs() < 1.0e-6)
+}
+
+///|
+test "profile corner radius rounds the outer corners and records it" {
+  let base = @profiles.TSlotProfile::generic_2020()
+  let rounded = match base.with_corner_radius(1.5) {
+    Ok(p) => p
+    Err(e) => abort(e.message())
+  }
+  let outline = rounded.outline()
+  assert_true(@cad.Profile2D::is_simple(outline))
+  let base_area = section_area(base.outline())
+  let rounded_area = section_area(outline)
+  // Rounding removes r^2 * (1 - pi/4) per corner (~0.483 mm^2 at r = 1.5).
+  assert_true(rounded_area < base_area)
+  assert_true(rounded_area > base_area - 4.0 * 0.2146 * 1.5 * 1.5 * 1.1)
+  let part = match @profiles.extrusion(rounded, 50.0) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  assert_true(part.features().has_modeled("corner-radii"))
+  assert_true(part.features().has_approximated("corner-radius-arc"))
+  assert_true(base.with_corner_radius(6.0) is Err(_))
+  assert_true(base.with_corner_radius(-1.0) is Err(_))
+}
+
+///|
+test "generic 2020 is explicitly not the B-slot6 manufacturer section" {
+  let profile = @profiles.TSlotProfile::generic_2020()
+  let outer = section_area(profile.outline())
+  let bore_radius = profile.core_bore_diameter_mm / 2.0
+  // The core bore is the default 48-gon hole loop, not a true circle.
+  let bore = 0.5 *
+    48.0 *
+    bore_radius *
+    bore_radius *
+    @math.sin(2.0 * @math.PI / 48.0)
+  let solid = outer - bore
+  // The generic envelope solid area is the documented 192.345108 mm^2.
+  assert_true((solid - 192.345108).abs() < 0.01)
+  // The step.parts B-slot6 2020 golden measures 8716.82 mm^3 / 50 mm =
+  // 174.3364 mm^2. The generic profile is not equivalent and must not claim
+  // to be; the discrepancy is larger than 5%.
+  let golden_section_area = 174.3364
+  assert_true((solid - golden_section_area).abs() > 0.05 * golden_section_area)
 }

@@ -137,13 +137,63 @@ and independent validation. See `AUDIT.md` and `PROGRESS.md` for the evidence.
   range.
 - Fine-thread fasteners beyond the first-choice fine pitch per size.
 - Threaded inserts, retaining rings, and additional verified nuts/washers.
-- Exact internal involute ring gears and gear root fillets/tip chamfers.
+- Exact internal involute ring gears (see the session issue below).
 - Helical gears, bevel gears, worm gears, timing belts/pulleys, sprockets.
 - T-nuts, corner brackets, joining plates, end caps.
 - Motor envelopes and mounting patterns.
-- Machine-readable catalog query API.
 
 Implemented in the feature session (previously deferred): ISO 7380-1 button
 head screws, ISO 10642 countersunk head screws, bearing spheres, the 2D
 chamfer/fillet helpers, `RevolvedProfile`, and `ChamferedPrism`. Their
 approximations are recorded above and in `FEATURES.md`.
+
+## Session issues (2026-11-10)
+
+### KI-01 — ISO 10642 countersunk length was measured over the head incorrectly (fixed)
+
+- Severity: high (dimensional error).
+- Reproduction: `components/examples/fasteners --standard iso10642 --size M3
+  --length 12` produced an overall z extent of 13.7 mm.
+- Root cause: the head was placed above the shank instead of occupying the top
+  `k` millimetres of the nominal length.
+- Fix: the countersunk head now sits at `length - k`; the shank runs below it.
+  Overall extent equals the nominal length.
+- Regression: `fasteners_test.mbt` asserts 16.0 mm for M4 x 16; the golden
+  harness asserts 12.0 mm for the M3 x 12 fixture.
+
+### KI-02 — Exact internal involute ring gear remains deferred
+
+- Severity: medium (documented approximation).
+- The trapezoidal ring tooth form is retained. An involute internal profile was
+  implemented and then removed after a fixed-centre rotation-cycle mesh check
+  found 300+ planet/ring outline crossings, so it was not shipped.
+- The ring feature record explicitly omits
+  `exact-involute-internal-envelope`; the catalogue reports this omission.
+- Acceptance for closing: an internal profile that passes the rotation-cycle
+  crossing test and an external or analytic tooth-form reference.
+
+### KI-03 — Gear root fillet polyline and adaptive band
+
+- Severity: low.
+- Root fillets are polyline arcs; the chord deviation is recorded
+  (`fillet_segments`). For high tooth counts the root circle is close to the
+  base circle, so the fillet widens its root band; if no band fits, the builder
+  returns a typed error instead of a sharp root.
+
+### KI-04 — Evaluated 3D chamfer is single-edge in this OCCT DRAW build
+
+- Severity: low (optional path).
+- `scripts/csg_eval.py` applies `chamf` to one selected edge per node; a
+  selector matching multiple edges returns a typed error. Fillets support
+  multi-edge `blend`. The flat writer refuses both intents with
+  `EdgeFeatureRequiresKernel`.
+
+### KI-05 — Nested-bore OBB collision false positives
+
+- Severity: low (documented limitation).
+- The collision facility uses oriented bounding boxes. A shank inside a plate
+  or nut bore is reported as an overlap because the box contains the bore. This
+  affects the hardware-kit and bolted-joint assemblies; connectivity and
+  contacts are still meaningful. A shape-aware (B-Rep) clearance test is
+  required to close this.
+

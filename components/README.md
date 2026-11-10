@@ -56,8 +56,9 @@ moon run --target native components/examples/fasteners -- \
 | `components/profiles` | Generic T-slot extrusion sections and cut-to-length profiles. |
 | `components/motion` | Shafts, stepped shafts, spacers, bushings, keys, dowel pins, standoffs, compression springs, ball bearings with analytic spheres. |
 | `components/gears` | Involute spur gears, external gear pairs, and approximate straight-spur planetary sets. |
-| `components/assemblies` | Rigid placements, linear/circular patterns, hardware kits, extrusion frames, collision/contact reports, and connectivity checks. |
+| `components/assemblies` | Rigid placements, linear/circular patterns, hardware kits, extrusion frames, bolted joints, collision/contact reports, and connectivity checks. |
 | `components/collision` | Kernel-free AABB/OBB collision and contact classification with a named tolerance policy. |
+| `components/catalog` | Machine-readable catalogue/query API over the component families, including supported parameters, detail levels, feature records, and provenance. |
 | `components/examples/*` | Runnable generation programs and generated STEP output. |
 
 ## Documented status
@@ -129,6 +130,12 @@ redistribution rights are unverified.
 - Chamfers on ISO 4032 and ISO 4762 at `Detailed` and above are real ruled
   chamfers with engineering-default sizes; ISO 7380/10642 socket bands are
   high-resolution polygons. See `FEATURES.md`.
+- Every component carries a machine-readable feature record (modeled /
+  approximated with deviation / omitted with reason) in the STEP header. See
+  `FEATURES.md`.
+- Evaluated 3D edge fillets/chamfers are optional (OCCT); the kernel-free flat
+  writer refuses them with a typed error. The exact internal involute ring gear
+  remains deferred; the ring uses a documented trapezoidal approximation.
 - See `KNOWN_ISSUES.md` for the full list.
 
 ## License

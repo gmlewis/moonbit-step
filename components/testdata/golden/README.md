@@ -53,3 +53,24 @@ file there until its license, source, author, and attribution are recorded in
 See `components/GOLDEN_REFERENCES.md` for the licensing analysis, comparison
 rules, tolerances, verdicts, and reproduction commands.
 
+## Comparison harness
+
+`scripts/compare_golden.py` reads this directory's `manifest.json`. Fixtures
+with a `generation` recipe are generated through the example CLIs, measured
+with OCCT and the STEP feature inventory, and checked against the manifest's
+`comparison` block (bbox extents, solid count, surface presence, cone angles,
+vertex radii, and a lower-detail face-count contrast). The harness prints
+`PASS`/`FAIL`/`SKIP` per check and never reports a skipped check as a pass.
+
+```bash
+python3 scripts/compare_golden.py
+python3 scripts/compare_golden.py --fixture bearings/608zz
+python3 scripts/compare_golden.py --json
+```
+
+The external geometry comparison is gated on a verified per-file licence. All
+current fixtures are `unverified-per-file`, so that check is `SKIP`; the
+normative and analytic checks still run and pass. The parametric parts and
+their measurements are reproducible without the external corpus.
+
+

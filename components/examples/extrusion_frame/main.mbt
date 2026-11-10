@@ -30,7 +30,15 @@ async fn main {
       min=0.0,
       min_exclusive=true,
     ),
-    "series": @cli.opt_string(help="Generic series: 2020, 2040, 3030, 4040"),
+    "series": @cli.opt_string(
+      help="Generic series: 2020, 2040, 2060, 2080, 3030, 3060, 4040, 4080",
+    ),
+    "cornerRadius": @cli.opt_double(
+      0.0,
+      short='r',
+      help="Outer section corner radius in mm (0 = sharp corners)",
+      min=0.0,
+    ),
     "mode": @cli.opt_string(
       short='M',
       help="Output mode: flat (default) or assembly",
@@ -49,11 +57,21 @@ async fn main {
     is Some(args) else {
     return
   }
-  let profile = match
+  let base_profile = match
     parse_series(args.string_opt("series").unwrap_or("2020")) {
     Some(p) => p
     None => {
-      @cli.eprintln("error: unsupported series (use 2020, 2040, 3030, or 4040)")
+      @cli.eprintln(
+        "error: unsupported series (use 2020, 2040, 2060, 2080, 3030, 3060, 4040, or 4080)",
+      )
+      abort("")
+    }
+  }
+  let profile = match
+    base_profile.with_corner_radius(args.double("cornerRadius")) {
+    Ok(p) => p
+    Err(e) => {
+      @cli.eprintln("error: " + e.message())
       abort("")
     }
   }
@@ -132,8 +150,12 @@ fn parse_series(name : String) -> @profiles.TSlotProfile? {
   match name {
     "2020" => Some(@profiles.TSlotProfile::generic_2020())
     "2040" => Some(@profiles.TSlotProfile::generic_2040())
+    "2060" => Some(@profiles.TSlotProfile::generic_2060())
+    "2080" => Some(@profiles.TSlotProfile::generic_2080())
     "3030" => Some(@profiles.TSlotProfile::generic_3030())
+    "3060" => Some(@profiles.TSlotProfile::generic_3060())
     "4040" => Some(@profiles.TSlotProfile::generic_4040())
+    "4080" => Some(@profiles.TSlotProfile::generic_4080())
     _ => None
   }
 }

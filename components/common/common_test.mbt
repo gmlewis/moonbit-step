@@ -140,3 +140,55 @@ test "validation rejects non-positive and non-finite dimensions" {
   assert_true(@common.require_in_range("l", 5.0, 1.0, 10.0) is Ok(_))
   assert_true(@common.require_in_range("l", 11.0, 1.0, 10.0) is Err(_))
 }
+
+///|
+test "feature record records modeled approximated and omitted features" {
+  let record = @common.FeatureRecord::new(
+    modeled=["head-chamfer", "blind-hex-socket"],
+    approximated=[
+      @common.Approximation::new(
+        feature="socket-band",
+        kind=PolylineArc,
+        deviation_mm=0.0011,
+        control="circle_segments=64",
+      ),
+    ],
+    omitted=[
+      @common.Omission::new(
+        feature="shank-tip-chamfer",
+        reason="not modelled by this builder",
+      ),
+    ],
+  ).with_tolerance(0.01)
+  assert_true(record.has_modeled("head-chamfer"))
+  assert_false(record.has_modeled("nut-face-chamfer"))
+  assert_true(record.has_approximated("socket-band"))
+  assert_true(record.omission_reason("shank-tip-chamfer") is Some(_))
+  assert_true(record.omission_reason("head-chamfer") is None)
+  let doc = record.documentation()
+  assert_true(doc.contains("head-chamfer"))
+  assert_true(doc.contains("PolylineArc"))
+  assert_true(doc.contains("shank-tip-chamfer"))
+  assert_true(doc.contains("Feature tolerance"))
+}
+
+///|
+test "component carries the feature record into step documentation" {
+  let component = @common.Component::new(
+    name="feature-part",
+    metadata=@common.Metadata::new(designation="FEATURE"),
+    features=@common.FeatureRecord::new(modeled=["body"]),
+  ).add_layer(@cad.Cuboid::new(1.0, 1.0, 1.0), name="body")
+  assert_true(component.features().has_modeled("body"))
+  assert_true(component.documentation().contains("Features modeled"))
+  assert_true(component.to_step().contains("Features modeled"))
+}
+
+///|
+test "chord deviation matches the stated sag formula" {
+  let d = @common.chord_deviation(10.0, 64)
+  let expected = 10.0 * (1.0 - @math.cos(@math.PI / 64.0))
+  assert_true((d - expected).abs() < 1.0e-12)
+  // More segments must reduce the deviation.
+  assert_true(@common.chord_deviation(10.0, 128) < d)
+}

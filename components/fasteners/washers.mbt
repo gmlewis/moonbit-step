@@ -20,10 +20,32 @@ pub fn flat_washer(
   let outer = circle_profile(dims.outer_diameter_mm, segments~)
   let hole = hole_profile(dims.inner_diameter_mm, segments~)
   let body = @cad.ExtrudedProfile::new(outer, dims.thickness_mm, holes=[hole])
+  let features = @common.FeatureRecord::new(
+    modeled=["body"],
+    approximated=[
+      polyline_circle_approximation(
+        "outer-boundary",
+        dims.outer_diameter_mm / 2.0,
+        segments,
+      ),
+      polyline_circle_approximation(
+        "through-bore",
+        dims.inner_diameter_mm / 2.0,
+        segments,
+      ),
+    ],
+    omitted=[
+      @common.Omission::new(
+        feature="edge-chamfer",
+        reason="not modelled by this builder",
+      ),
+    ],
+  )
   @common.Component::new(
     name~,
     metadata=spec.metadata(),
     description="Plain washer, normal series; a single extrusion with a circular bore. Edge chamfers are not modeled.",
+    features~,
   ).add_layer(body, name="body", color=metal)
 }
 

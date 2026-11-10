@@ -143,3 +143,99 @@ async test "evaluated export writes a real trimmed brep" {
   ])
   assert_validator_ok(code, output)
 }
+
+///|
+test "flat writer refuses edge fillet with a typed diagnostic" {
+  let base = @cad.Cuboid::new(10.0, 10.0, 10.0).with_name("block")
+  let design = @cad.Design::new(name="fillet-flat").add(
+    @cad.fillet_edges(base, 2.0, name="rounded-block"),
+  )
+  let diags = design.diagnostics()
+  assert_true(diags.any(fn(d) { d is @cad.EdgeFeatureRequiresKernel(_) }))
+  assert_true(design.has_errors())
+  let messages = diags.map(fn(d) { d.message() }).join(" ")
+  assert_true(messages.contains("rounded-block"))
+  assert_true(messages.contains("evaluated"))
+  // The intent carries the fillet radius and selector.
+  match @cad.fillet_edges(base, 2.0).shape {
+    @cad.Shape::Fillet(f) => {
+      assert_true(f.size_mm == 2.0)
+      assert_true(f.selector is @cad.EdgeSelector::AllEdges)
+    }
+    _ => abort("expected a Fillet shape")
+  }
+}
+
+///|
+test "flat writer refuses edge chamfer with a typed diagnostic" {
+  let base = @cad.Cylinder::new(10.0, 8.0).with_name("cyl")
+  let design = @cad.Design::new(name="chamfer-flat").add(
+    @cad.chamfer_edges(
+      base,
+      1.0,
+      selector=@cad.EdgeSelector::EdgesNearPoint((0.0, 0.0, 8.0), 1.0),
+    ),
+  )
+  assert_true(
+    design.diagnostics().any(fn(d) { d is @cad.EdgeFeatureRequiresKernel(_) }),
+  )
+  assert_true(design.has_errors())
+}
+
+///|
+async test "evaluated fillet yields a valid solid with a toroidal face" {
+  if !command_in_path("python3") || !draw_available() {
+    return
+  }
+  let root = repo_root()
+  let dir = @fs.tmpdir(prefix="edge-fillet-")
+  defer @fs.rmdir(dir, recursive=true)
+  let base = @cad.Cylinder::new(10.0, 8.0).with_name("cyl")
+  let design = @cad.Design::new(name="fillet-eval").add(
+    @cad.fillet_edges(
+      base,
+      1.0,
+      selector=@cad.EdgeSelector::EdgesNearPoint((0.0, 0.0, 8.0), 1.0),
+      name="top-fillet",
+    ),
+  )
+  let out = dir + "/fillet.step"
+  design.write_step_evaluated(Some(out), root=Some(root))
+  let text = @fs.read_file(out).text()
+  assert_true(text.contains("TOROIDAL_SURFACE"))
+  let (code, output) = run_validator([
+    root + "/scripts/validate_step.py",
+    "--no-mesh",
+    out,
+  ])
+  assert_validator_ok(code, output)
+}
+
+///|
+async test "evaluated chamfer yields a valid solid with a conical face" {
+  if !command_in_path("python3") || !draw_available() {
+    return
+  }
+  let root = repo_root()
+  let dir = @fs.tmpdir(prefix="edge-chamfer-")
+  defer @fs.rmdir(dir, recursive=true)
+  let base = @cad.Cylinder::new(10.0, 8.0).with_name("cyl")
+  let design = @cad.Design::new(name="chamfer-eval").add(
+    @cad.chamfer_edges(
+      base,
+      1.0,
+      selector=@cad.EdgeSelector::EdgesNearPoint((0.0, 0.0, 8.0), 1.0),
+      name="top-chamfer",
+    ),
+  )
+  let out = dir + "/chamfer.step"
+  design.write_step_evaluated(Some(out), root=Some(root))
+  let text = @fs.read_file(out).text()
+  assert_true(text.contains("CONICAL_SURFACE"))
+  let (code, output) = run_validator([
+    root + "/scripts/validate_step.py",
+    "--no-mesh",
+    out,
+  ])
+  assert_validator_ok(code, output)
+}

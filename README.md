@@ -110,8 +110,14 @@ dimensioned STEP parts through the same `@cad` pipeline:
 - generic metric T-slot extrusion profiles and rectangular frames;
 - shafts, stepped shafts, spacers, keys, and simplified bearings;
 - involute spur gears, gear pairs, and an approximate straight-spur planetary set;
-- assemblies with rigid placements, linear/circular patterns, and hardware
-  kits.
+- assemblies with rigid placements, linear/circular patterns, hardware
+  kits, and a bolted joint;
+- a machine-readable component catalogue/query API
+  (`components/catalog`) and a per-component feature record (modeled,
+  approximated with deviation, omitted with reason) carried in the STEP
+  header;
+- optional OCCT-evaluated 3D edge fillet/chamfer intent; the kernel-free STEP
+  writer refuses it with a typed diagnostic rather than emitting a sharp edge.
 
 ```bash
 moon run --target native components/examples/fasteners -- \

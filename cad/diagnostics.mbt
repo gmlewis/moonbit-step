@@ -21,6 +21,8 @@ pub enum Diagnostic {
   NominalDifference(String)
   /// A boolean nested inside another boolean; it contributes no faces.
   DroppedNestedBoolean(String)
+  /// An edge fillet/chamfer that the kernel-free flat writer cannot evaluate.
+  EdgeFeatureRequiresKernel(String)
   /// A shape whose compiler produces no faces (empty or degenerate).
   EmptySolid(String)
 }
@@ -56,6 +58,7 @@ pub fn Diagnostic::severity(self : Diagnostic) -> Severity {
     NominalUnion(_) => Warning
     NominalDifference(_) => Warning
     DroppedNestedBoolean(_) => Error
+    EdgeFeatureRequiresKernel(_) => Error
     EmptySolid(_) => Error
   }
 }
@@ -69,6 +72,8 @@ pub fn Diagnostic::message(self : Diagnostic) -> String {
       "difference '\{name}' is nominal: faces are concatenated, not subtracted. Use an ExtrudedProfile with inner loops, or export via the Blender backend."
     DroppedNestedBoolean(name) =>
       "boolean '\{name}' is nested inside another boolean and contributes no faces. Flatten the design or split it into separate nodes."
+    EdgeFeatureRequiresKernel(name) =>
+      "edge feature '\{name}' requires an evaluated kernel: the flat STEP writer cannot trim edges. Export with Design::to_step_evaluated() (OCCT) or the Blender backend."
     EmptySolid(name) =>
       "shape '\{name}' produced no faces. Check its dimensions, profile, or path."
   }
@@ -107,6 +112,14 @@ fn collect_diagnostics(
       for cutter in d.cutters {
         collect_diagnostics(cutter.shape, cutter.name, depth + 1, out)
       }
+    }
+    Fillet(f) => {
+      out.push(EdgeFeatureRequiresKernel(name))
+      collect_diagnostics(f.base.shape, f.base.name, depth + 1, out)
+    }
+    Chamfer(c) => {
+      out.push(EdgeFeatureRequiresKernel(name))
+      collect_diagnostics(c.base.shape, c.base.name, depth + 1, out)
     }
     Cylinder(c) =>
       if c.diameter <= 0.0 || c.height <= 0.0 {

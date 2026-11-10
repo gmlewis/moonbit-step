@@ -186,3 +186,32 @@ test "filleted stepped shaft has a toroidal shoulder fillet" {
   }
   assert_false(sharp.to_step().contains("TOROIDAL_SURFACE"))
 }
+
+///|
+test "bearing feature record lists spheres and omitted seals" {
+  let part = match @motion.bearing_by_designation("608") {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  let features = part.features()
+  assert_true(features.has_modeled("ball-sphere"))
+  assert_true(features.omission_reason("seal") is Some(_))
+  assert_true(features.omission_reason("cage") is Some(_))
+  let detailed = match @motion.bearing_by_designation("608", detail=Detailed) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  assert_true(detailed.features().has_modeled("ring-edge-chamfer"))
+}
+
+///|
+test "filleted shaft feature record lists the shoulder fillet" {
+  let segments : Array[(Double, Double)] = [(10.0, 20.0), (16.0, 15.0)]
+  let part = match
+    @motion.filleted_stepped_shaft(segments, fillet_radius_mm=2.0) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  assert_true(part.features().has_modeled("shoulder-fillet"))
+  assert_true(part.features().omission_reason("keyway") is Some(_))
+}

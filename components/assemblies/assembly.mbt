@@ -260,7 +260,7 @@ pub fn Assembly::bounding_box(
 
 ///|
 /// Assembly::documentation returns the assembly header notes, including one
-/// line per placed component.
+/// line per placed component and the aggregated feature record.
 pub fn Assembly::documentation(self : Assembly) -> String {
   let lines : Array[String] = [
     "Assembly:   " + self.name,
@@ -284,7 +284,36 @@ pub fn Assembly::documentation(self : Assembly) -> String {
       ")",
     )
   }
+  lines.push(self.features().documentation())
   lines.join("\n")
+}
+
+///|
+/// Assembly::features aggregates the feature records of every placed
+/// component, de-duplicating by feature name.
+pub fn Assembly::features(self : Assembly) -> @common.FeatureRecord {
+  let modeled : Array[String] = []
+  let approximated : Array[@common.Approximation] = []
+  let omitted : Array[@common.Omission] = []
+  for item in self.items {
+    let record = item.component.features()
+    for feature in record.modeled {
+      if !modeled.any(fn(existing) { existing == feature }) {
+        modeled.push(feature)
+      }
+    }
+    for a in record.approximated {
+      if !approximated.any(fn(existing) { existing.feature == a.feature }) {
+        approximated.push(a)
+      }
+    }
+    for o in record.omitted {
+      if !omitted.any(fn(existing) { existing.feature == o.feature }) {
+        omitted.push(o)
+      }
+    }
+  }
+  @common.FeatureRecord::new(modeled~, approximated~, omitted~)
 }
 
 ///|

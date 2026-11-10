@@ -11,6 +11,8 @@ import {
 // Values
 pub fn bolt_circle(Int32, Double, start_angle_deg? : Double) -> Array[(Double, Double)]
 
+pub fn chamfer_edges(SceneNode, Double, angle_deg? : Double, selector? : EdgeSelector, name? : String) -> SceneNode
+
 pub fn chamfered_prism_mesh(ChamferedPrism) -> (Array[(Double, Double, Double)], Array[Array[Int32]])
 
 pub fn compile_calibration_chamfer_block(StepContext, SceneNode, CalibrationChamferBlock, reverse? : Bool, parent? : Transform?) -> Array[@step.Ref]
@@ -34,6 +36,8 @@ pub fn cut_on_face(SceneNode, Profile2D, FaceInfo, Double, name? : String, overs
 pub fn cycle_area_3d(Array[(Double, Double, Double)], Array[Int32]) -> (Double, Double, Double)
 
 pub fn difference(SceneNode, Array[SceneNode], name? : String) -> SceneNode
+
+pub fn fillet_edges(SceneNode, Double, selector? : EdgeSelector, name? : String) -> SceneNode
 
 pub async fn find_csg_eval_script(String?) -> String?
 
@@ -202,16 +206,31 @@ pub enum Diagnostic {
   NominalUnion(String)
   NominalDifference(String)
   DroppedNestedBoolean(String)
+  EdgeFeatureRequiresKernel(String)
   EmptySolid(String)
 }
 pub fn Diagnostic::is_nominal(Self) -> Bool
 pub fn Diagnostic::message(Self) -> String
 pub fn Diagnostic::severity(Self) -> Severity
 
+pub(all) struct EdgeFeature {
+  base : SceneNode
+  selector : EdgeSelector
+  size_mm : Double
+  angle_deg : Double?
+}
+
 pub(all) struct EdgeInfo {
   start : Int32
   end : Int32
   edge : @step.Ref
+}
+
+pub(all) enum EdgeSelector {
+  AllEdges
+  EdgesByDirection((Double, Double, Double), Double)
+  EdgesNearPoint((Double, Double, Double), Double)
+  EdgeIndices(Array[Int32])
 }
 
 pub struct ExtrudedBezierProfile {
@@ -432,6 +451,8 @@ pub enum Shape {
   ExtrudedProfile(ExtrudedProfile)
   ExtrudedBezierProfile(ExtrudedBezierProfile)
   SweptProfile(SweptProfile)
+  Fillet(EdgeFeature)
+  Chamfer(EdgeFeature)
   Union(BooleanUnion)
   Difference(BooleanDifference)
 }

@@ -65,7 +65,61 @@
       "verdict": "accepted-envelope",
       "notes": "Head diameter and overall length match ISO 4762 within 0.01 mm. The parametric screw is layered (shank, floor, socket ring), so volume and solid count are not compared.",
       "license_status": "unverified-per-file",
-      "committed": false
+      "committed": false,
+      "generation": {
+        "tool": "components/examples/fasteners",
+        "args": [
+          "--standard",
+          "iso4762",
+          "--size",
+          "M3",
+          "--length",
+          "10",
+          "--detail",
+          "detailed",
+          "-o",
+          "{out}"
+        ],
+        "output": "iso4762-M3x10-detailed.step"
+      },
+      "comparison": {
+        "solids": 3,
+        "bbox_axes": [
+          {
+            "axis": 0,
+            "expected_mm": 5.5,
+            "label": "head diameter"
+          },
+          {
+            "axis": 2,
+            "expected_mm": 13.0,
+            "label": "overall length"
+          }
+        ],
+        "features": [
+          {
+            "kind": "surface_min",
+            "surface": "plane",
+            "min_count": 1
+          }
+        ],
+        "contrast": {
+          "args": [
+            "--standard",
+            "iso4762",
+            "--size",
+            "M3",
+            "--length",
+            "10",
+            "--detail",
+            "simplified",
+            "-o",
+            "{out}"
+          ],
+          "output": "iso4762-M3x10-simplified.step",
+          "expect_more_advanced_faces": 6
+        }
+      }
     },
     {
       "fixture_id": "fasteners/iso4762-m4x20",
@@ -108,7 +162,61 @@
       "verdict": "accepted-envelope",
       "notes": "Head diameter and overall length match ISO 4762 within 0.01 mm.",
       "license_status": "unverified-per-file",
-      "committed": false
+      "committed": false,
+      "generation": {
+        "tool": "components/examples/fasteners",
+        "args": [
+          "--standard",
+          "iso4762",
+          "--size",
+          "M4",
+          "--length",
+          "20",
+          "--detail",
+          "detailed",
+          "-o",
+          "{out}"
+        ],
+        "output": "iso4762-M4x20-detailed.step"
+      },
+      "comparison": {
+        "solids": 3,
+        "bbox_axes": [
+          {
+            "axis": 0,
+            "expected_mm": 7.0,
+            "label": "head diameter"
+          },
+          {
+            "axis": 2,
+            "expected_mm": 24.0,
+            "label": "overall length"
+          }
+        ],
+        "features": [
+          {
+            "kind": "surface_min",
+            "surface": "plane",
+            "min_count": 1
+          }
+        ],
+        "contrast": {
+          "args": [
+            "--standard",
+            "iso4762",
+            "--size",
+            "M4",
+            "--length",
+            "20",
+            "--detail",
+            "simplified",
+            "-o",
+            "{out}"
+          ],
+          "output": "iso4762-M4x20-simplified.step",
+          "expect_more_advanced_faces": 6
+        }
+      }
     },
     {
       "fixture_id": "fasteners/iso4762-m5x10",
@@ -192,7 +300,57 @@
       "verdict": "accepted-height-only",
       "notes": "Height matches 3.2027 vs 3.2 mm. The plan bounding box is 7.66 mm, between the across-flats 7.0 mm and across-corners 8.083 mm, which is consistent with a corner-chamfered model in an unknown orientation. Across flats cannot be confirmed from an axis-aligned bounding box; the reference is used only for the height and envelope, not as proof of s = 7.0.",
       "license_status": "unverified-per-file",
-      "committed": false
+      "committed": false,
+      "generation": {
+        "tool": "components/examples/fasteners",
+        "args": [
+          "--standard",
+          "iso4032",
+          "--size",
+          "M4",
+          "--detail",
+          "detailed",
+          "-o",
+          "{out}"
+        ],
+        "output": "iso4032-M4-detailed.step"
+      },
+      "comparison": {
+        "solids": 1,
+        "bbox_axes": [
+          {
+            "axis": 0,
+            "expected_mm": 7.0,
+            "label": "width across flats"
+          },
+          {
+            "axis": 2,
+            "expected_mm": 3.2,
+            "label": "nut height"
+          }
+        ],
+        "features": [
+          {
+            "kind": "surface_min",
+            "surface": "plane",
+            "min_count": 1
+          }
+        ],
+        "contrast": {
+          "args": [
+            "--standard",
+            "iso4032",
+            "--size",
+            "M4",
+            "--detail",
+            "simplified",
+            "-o",
+            "{out}"
+          ],
+          "output": "iso4032-M4-simplified.step",
+          "expect_more_advanced_faces": 6
+        }
+      }
     },
     {
       "fixture_id": "fasteners/iso7089-m4",
@@ -234,7 +392,48 @@
       "verdict": "rejected",
       "notes": "The reference thickness is 1.8 mm; ISO 7089 normal-series M4 is 0.8 mm. The outer diameter matches but the thickness contradicts the claimed standard, so the model is not a conforming ISO 7089 reference.",
       "license_status": "unverified-per-file",
-      "committed": false
+      "committed": false,
+      "generation": {
+        "tool": "components/examples/fasteners",
+        "args": [
+          "--standard",
+          "iso7089",
+          "--size",
+          "M4",
+          "--detail",
+          "detailed",
+          "-o",
+          "{out}"
+        ],
+        "output": "iso7089-M4-detailed.step"
+      },
+      "comparison": {
+        "solids": 1,
+        "bbox_axes": [
+          {
+            "axis": 0,
+            "expected_mm": 9.0,
+            "label": "outer diameter"
+          },
+          {
+            "axis": 2,
+            "expected_mm": 0.8,
+            "label": "thickness"
+          }
+        ],
+        "features": [
+          {
+            "kind": "min_vertex_radius_mm",
+            "expected": 2.15,
+            "tol_mm": 0.01
+          },
+          {
+            "kind": "max_vertex_radius_mm",
+            "expected": 4.5,
+            "tol_mm": 0.01
+          }
+        ]
+      }
     },
     {
       "fixture_id": "bearings/608zz",
@@ -276,7 +475,51 @@
       "verdict": "accepted-envelope",
       "notes": "Outer diameter and width match the 608 boundary dimensions. The parametric bearing is a simplified envelope (rings plus cylindrical roller proxies), so volume and internal geometry are not compared.",
       "license_status": "unverified-per-file",
-      "committed": false
+      "committed": false,
+      "generation": {
+        "tool": "components/examples/bearing",
+        "args": [
+          "--bearing",
+          "608",
+          "--detail",
+          "detailed",
+          "-o",
+          "{out}"
+        ],
+        "output": "bearing-608-detailed.step"
+      },
+      "comparison": {
+        "solids": 10,
+        "bbox_axes": [
+          {
+            "axis": 0,
+            "expected_mm": 22.0,
+            "label": "outer diameter"
+          },
+          {
+            "axis": 2,
+            "expected_mm": 7.0,
+            "label": "width"
+          }
+        ],
+        "features": [
+          {
+            "kind": "surface_min",
+            "surface": "sphere",
+            "min_count": 8
+          },
+          {
+            "kind": "min_vertex_radius_mm",
+            "expected": 4.0,
+            "tol_mm": 0.01
+          },
+          {
+            "kind": "max_vertex_radius_mm",
+            "expected": 11.0,
+            "tol_mm": 0.01
+          }
+        ]
+      }
     },
     {
       "fixture_id": "profiles/b-slot6-2020-l50",
@@ -399,7 +642,54 @@
       "verdict": "accepted-envelope",
       "notes": "Head diameter 6.046 mm matches ISO 10642 M3 dk max 6.0 within 0.05 mm; the conical bearing surface measures a 45 degree half-angle (90 degree included), matching the parametric builder. Envelope/angle cross-check only; per-file license unverified and not committed.",
       "license_status": "unverified-per-file",
-      "committed": false
+      "committed": false,
+      "generation": {
+        "tool": "components/examples/fasteners",
+        "args": [
+          "--standard",
+          "iso10642",
+          "--size",
+          "M3",
+          "--length",
+          "12",
+          "--detail",
+          "detailed",
+          "-o",
+          "{out}"
+        ],
+        "output": "iso10642-M3x12-detailed.step"
+      },
+      "comparison": {
+        "solids": 3,
+        "bbox_axes": [
+          {
+            "axis": 0,
+            "expected_mm": 6.0,
+            "label": "head diameter"
+          },
+          {
+            "axis": 2,
+            "expected_mm": 12.0,
+            "label": "overall length"
+          }
+        ],
+        "features": [
+          {
+            "kind": "cone_min_count",
+            "min_count": 1
+          },
+          {
+            "kind": "cone_semi_angle_deg",
+            "expected": 45.0,
+            "tol_deg": 0.5
+          },
+          {
+            "kind": "max_vertex_radius_mm",
+            "expected": 3.0,
+            "tol_mm": 0.01
+          }
+        ]
+      }
     }
   ],
   "analytic_references": [

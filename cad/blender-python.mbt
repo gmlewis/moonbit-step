@@ -317,6 +317,10 @@ fn emit_node_python(
       )
       (obj_var, final_idx)
     }
+    Fillet(_) | Chamfer(_) =>
+      abort(
+        "edge fillet/chamfer is not supported by the Blender exporter; use Design::to_step_evaluated() (OCCT)",
+      )
   }
 }
 

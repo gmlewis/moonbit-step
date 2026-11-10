@@ -78,6 +78,31 @@ pub fn compression_spring(
         source="Parametric helical sweep; no spring rate, end-coil, or grinding model.",
       ),
       description="Open helical spring with circular wire and flat swept end caps. Closed/ground ends and preload are not modeled.",
+      features=@common.FeatureRecord::new(
+        modeled=["helix-body"],
+        approximated=[
+          @common.Approximation::new(
+            feature="helical-wire",
+            kind=@common.ApproximationKind::SweptSpline,
+            deviation_mm=@common.chord_deviation(radius, segments),
+            control="segments_per_turn=\{segments}",
+          ),
+        ],
+        omitted=[
+          @common.Omission::new(
+            feature="closed-end-coils",
+            reason="not modelled by this builder",
+          ),
+          @common.Omission::new(
+            feature="ground-ends",
+            reason="not modelled by this builder",
+          ),
+          @common.Omission::new(
+            feature="spring-rate",
+            reason="geometry only; no spring rate or preload model",
+          ),
+        ],
+      ),
     ).add_layer(body, name="body", color~),
   )
 }
@@ -128,6 +153,30 @@ pub fn standoff(
         source="Parametric hex tube; threads and chamfers are not modeled.",
       ),
       description="Hexagonal standoff with a plain through bore. Threads and chamfers are not modeled.",
+      features=@common.FeatureRecord::new(
+        modeled=["hex-body"],
+        approximated=[
+          @common.Approximation::new(
+            feature="through-bore",
+            kind=@common.ApproximationKind::PolylineArc,
+            deviation_mm=@common.chord_deviation(
+              bore_diameter_mm / 2.0,
+              segments,
+            ),
+            control="circle_segments=\{segments}",
+          ),
+        ],
+        omitted=[
+          @common.Omission::new(
+            feature="thread",
+            reason="no thread geometry in this builder",
+          ),
+          @common.Omission::new(
+            feature="edge-chamfer",
+            reason="not modelled by this builder",
+          ),
+        ],
+      ),
     ).add_layer(body, name="body", color=@cad.Rgb::green()),
   )
 }
@@ -154,6 +203,18 @@ pub fn dowel_pin(
             length_mm~,
             source="Plain cylindrical pin; chamfers and tolerance class are not modeled.",
           ),
+        )
+        .with_features(
+          @common.FeatureRecord::new(modeled=["body"], omitted=[
+            @common.Omission::new(
+              feature="pin-chamfer",
+              reason="not modelled by this builder",
+            ),
+            @common.Omission::new(
+              feature="tolerance-class",
+              reason="nominal geometry only; no h/g tolerance class",
+            ),
+          ]),
         ),
       )
   }

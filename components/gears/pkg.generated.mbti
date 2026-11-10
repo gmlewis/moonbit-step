@@ -10,6 +10,14 @@ import {
 // Values
 pub fn external_involute_outline(Double, Int32, Double, backlash_mm? : Double, involute_points? : Int32, arc_points? : Int32) -> Array[(Double, Double)]
 
+pub fn external_involute_outline_ex(Double, Int32, Double, backlash_mm? : Double, involute_points? : Int32, arc_points? : Int32, root_fillet_radius_mm? : Double, tip_chamfer_mm? : Double, fillet_segments? : Int32) -> Result[Array[(Double, Double)], @common.SpecError]
+
+pub fn gear_outline_deviation_mm(Double, Int32) -> Double
+
+pub fn gear_outline_max_radius(Array[(Double, Double)]) -> Double
+
+pub fn gear_outline_min_radius(Array[(Double, Double)]) -> Double
+
 pub fn gear_pair(SpurGearParams, SpurGearParams, offset_mm? : Double, detail? : @common.DetailLevel) -> Result[@assemblies.Assembly, @common.SpecError]
 
 pub fn gear_pair_center_distance(SpurGearParams, SpurGearParams, offset_mm? : Double) -> Double
@@ -64,10 +72,13 @@ pub(all) struct SpurGearParams {
   backlash_mm : Double
   involute_points : Int32
   arc_points : Int32
+  root_fillet_radius_mm : Double
+  tip_chamfer_mm : Double
+  fillet_segments : Int32
 }
 pub fn SpurGearParams::designation(Self) -> String
 pub fn SpurGearParams::geometry(Self) -> InvoluteGearGeometry
-pub fn SpurGearParams::new(module_mm~ : Double, teeth~ : Int32, pressure_angle_deg? : Double, face_width_mm? : Double, bore_diameter_mm? : Double, backlash_mm? : Double, involute_points? : Int32, arc_points? : Int32) -> Result[Self, @common.SpecError]
+pub fn SpurGearParams::new(module_mm~ : Double, teeth~ : Int32, pressure_angle_deg? : Double, face_width_mm? : Double, bore_diameter_mm? : Double, backlash_mm? : Double, involute_points? : Int32, arc_points? : Int32, root_fillet_radius_mm? : Double, tip_chamfer_mm? : Double, fillet_segments? : Int32) -> Result[Self, @common.SpecError]
 
 // Type aliases
 

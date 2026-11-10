@@ -120,3 +120,38 @@ not be verified from the step.parts API, no external STEP file is committed;
 directory with SHA-256 verification, and `components/testdata/golden/` records
 the provenance and verdicts. Two candidate references that contradict their
 claimed standards were rejected rather than used as pass criteria.
+
+## D15. Every component carries a machine-readable feature record
+
+`FeatureRecord` is part of `Component`, not an optional side table. A component
+cannot claim to model a feature without listing it, and cannot silently omit one
+without a documented reason. The record is copied into the STEP header. This
+makes detail-level differences and approximations auditable by downstream tools
+and is required by the catalogue.
+
+## D16. Evaluated edge fillet/chamfer is opt-in; the flat writer refuses
+
+The kernel-free flat writer cannot trim edges. `Shape::Fillet`/`Shape::Chamfer`
+therefore produce an `EdgeFeatureRequiresKernel` error diagnostic, and
+`to_step_file_checked()` refuses the design. The intent is evaluated only by
+`Design::to_step_evaluated()` (OCCT) or the Blender backend. The CSG writer
+emits a `MOONBIT_EDGE_FEATURE` node that `scripts/csg_eval.py` understands.
+The library remains usable without OCCT.
+
+## D17. The exact internal involute ring is deferred on negative evidence
+
+An involute internal tooth profile was implemented, but the fixed-centre
+rotation-cycle mesh test found persistent planet/ring outline crossings
+(300+). Rather than keep an unvalidated "exact" profile, it was removed and the
+validated trapezoidal approximation retained with the omission recorded. The
+acceptance criterion for shipping the exact profile is a passing rotation-cycle
+test (and a reference tooth form).
+
+## D18. The catalogue is built from the real builders
+
+`components/catalog` constructs a representative component for each entry and
+reads its metadata and `FeatureRecord`. This avoids a second dimension table
+that could drift from the geometry; the cost is that catalogue construction
+runs the builders, which is acceptable for a query-time API. The catalogue
+lists supported parameters and detail levels explicitly.
+

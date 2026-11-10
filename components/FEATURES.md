@@ -170,3 +170,98 @@ with a real `TOROIDAL_SURFACE` fillet (measured major radius = shoulder radius
 | ISO 7380 / 10642 | `fasteners_test.mbt` | `iso7380-M4x16-detailed.step`, `iso10642-M4x16-detailed.step` |
 | Bearing balls + ring chamfers | `motion_test.mbt` | `motion-608-stack-detailed.step` |
 | Filleted stepped shaft (toroidal fillet) | `motion_test.mbt` | `filleted-shaft-d10-16.step` |
+
+## Machine-readable feature records
+
+Every `Component` carries a `FeatureRecord` (`components/common/features.mbt`):
+
+- `modeled`: features represented by exact analytic surfaces or exact
+  planar/ruled geometry.
+- `approximated`: features with a stated `deviation_mm` and the generator
+  `control` (for example `circle_segments=64`).
+- `omitted`: features that are intentionally absent, each with a documented
+  reason.
+- `tolerance_mm`: the component's overall stated representation tolerance.
+
+`Component::documentation()` appends the record to the STEP header, so a file
+states what it models, approximates, and omits. Builders populate the record
+for every family: ISO 4762/4032/7089/4014/4017/7380/10642, bearings, shafts,
+spacers, keys, pins, standoffs, springs, extrusion profiles, gears, and the
+assembly layer (which aggregates its instances). Tests assert representative
+records (for example the detailed nut lists `nut-face-chamfer`, the simplified
+nut omits it with a reason, and the bearing lists `ball-sphere`).
+
+Detail levels are reflected in the record: `Simplified` omits small features
+only when the record says so; `Detailed` lists every modeled chamfer/recess;
+`FullyModeled` lists the swept thread (`helical-thread`) and its polyline
+approximation (`helical-ridge`).
+
+## Session additions (2026-11-10)
+
+### Evaluated 3D edge fillet/chamfer (optional kernel path)
+
+- `Shape::Fillet(EdgeFeature)` / `Shape::Chamfer(EdgeFeature)` carry a base
+  solid, an `EdgeSelector` (`AllEdges`, `EdgesByDirection`, `EdgesNearPoint`,
+  `EdgeIndices`), a size, and an optional chamfer angle.
+- The flat STEP writer **refuses** these nodes with the typed
+  `EdgeFeatureRequiresKernel` error diagnostic; it never emits the sharp base.
+- `Design::to_step_evaluated()` writes the intent as a
+  `MOONBIT_EDGE_FEATURE` node; `scripts/csg_eval.py` selects the edges and
+  applies OCCT `blend` (fillet) or `chamf` (chamfer).
+- OCCT tests confirm a cylinder's top-rim fillet produces a
+  `TOROIDAL_SURFACE` and a chamfer produces a `CONICAL_SURFACE`; both pass the
+  STEP validator. This path is optional and is not a runtime dependency.
+
+### Gear root fillet and tip chamfer
+
+- `external_involute_outline_ex()` applies `Profile2D::fillet_vertices` to the
+  root corners and `Profile2D::chamfer_vertices` to the tooth tip corners.
+- Root runs and tip runs are collapsed to their endpoints so the tangent arc
+  has a usable edge; the root band widens adaptively when a high tooth count
+  puts the root circle very close to the base circle. An operation that still
+  does not fit returns a typed error (never a silently sharp root).
+- The root fillet is a polyline arc sampled with `fillet_segments`; the chord
+  deviation is `r(1-cos(pi/segments))` (0.054 mm at 6 segments for r = 0.4,
+  below 0.01 mm at 24 segments). The filleted gear extrusion validates
+  watertight.
+- Feature records list `root-fillet` / `tip-chamfer` when present and omit them
+  with a reason otherwise.
+
+### Extrusion corner radii and series
+
+- `TSlotProfile::with_corner_radius()` rounds the four outer section corners
+  with the 2D fillet helper (`corner_segments=8`). The corner arc deviation is
+  recorded. Independent OCCT measurement of a 1.5 mm-radius 2020 frame gives a
+  post section area of 190.37 mm² (sharp generic envelope 192.345 mm² minus
+  four rounded corners).
+- Generic 2060, 2080, 3060, and 4080 envelopes were added and are labelled
+  generic, not vendor-compatible.
+- The generic 2020 envelope is **explicitly not** the manufacturer-specific
+  B-slot6 section: its solid section area is 192.345 mm² versus the golden's
+  measured 174.336 mm². A test encodes that discrepancy; no preset is derived
+  from the unlicensed golden.
+
+### Catalogue and query API
+
+- New `components/catalog` package: `CatalogEntry` carries designation,
+  standard, family, size, supported parameters, detail levels, the feature
+  record, and provenance. `lookup` and `query` support designation/standard/
+  family/size searches. The catalogue is built from the real component
+  builders, so records cannot drift from generated geometry.
+
+### Mixed-family assembly
+
+- `assemblies::bolted_joint` places two plates, an ISO 4762 screw, an ISO 7089
+  washer, and an ISO 4032 nut with explicit transforms. It is connected, has a
+  deterministic bounding box, and its flat STEP has 7 watertight solids. The
+  OBB collision reports the shank inside the plate/washer/nut bores as the
+  documented nested-bore false positive.
+
+### Deferred after evaluation
+
+- **Exact internal involute ring gear.** An involute internal profile was
+  implemented and checked over a rotation cycle; it produced 300+ tooth-outline
+  crossings against the planet, so it was removed rather than shipped. The
+  validated trapezoidal approximation is retained and the omission is recorded
+  in the ring feature record. See `KNOWN_ISSUES.md`.
+

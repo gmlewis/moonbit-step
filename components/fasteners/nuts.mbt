@@ -36,12 +36,16 @@ pub fn hex_nut(
   let outer = hex_profile_across_flats(s)
   let bore_d = d + 2.0 * spec.clearance_mm
   let hole = hole_profile(bore_d, segments~)
+  let features = nut_feature_record(
+    policy, thread_rep, thread, bore_d, segments,
+  )
   let base = @common.Component::new(
     name~,
     metadata=spec.metadata(),
     description="Hexagon regular nut with a through bore." +
       nut_chamfer_note(policy, thread_rep) +
       thread_note(thread_rep),
+    features~,
   )
   if thread_rep is @common.ThreadRepresentation::Helical {
     let body = @cad.ExtrudedProfile::new(outer, m, holes=[hole])
@@ -102,6 +106,57 @@ fn nut_chamfer_note(
   } else {
     " Face chamfers are omitted in this detail level."
   }
+}
+
+///|
+/// nut_feature_record builds the machine-readable feature record for an ISO
+/// 4032 hexagon regular nut.
+fn nut_feature_record(
+  policy : @common.DetailPolicy,
+  thread_rep : @common.ThreadRepresentation,
+  thread : @standards.ThreadSpec,
+  bore_d : Double,
+  segments : Int32,
+) -> @common.FeatureRecord {
+  let base = @common.FeatureRecord::new(
+    modeled=["hex-body"],
+    approximated=[
+      polyline_circle_approximation("through-bore", bore_d / 2.0, segments),
+    ],
+    omitted=[
+      @common.Omission::new(
+        feature="bore-edge-chamfer",
+        reason="not modelled by this builder",
+      ),
+      @common.Omission::new(
+        feature="thread-runout",
+        reason="not modelled by this builder",
+      ),
+    ],
+  )
+  let with_chamfer = if thread_rep is @common.ThreadRepresentation::Helical {
+    base.add_omitted(
+      @common.Omission::new(
+        feature="nut-face-chamfer",
+        reason="the helical body is not chamfered at this detail level",
+      ),
+    )
+  } else if policy.include_small_features {
+    base.add_modeled("nut-face-chamfer")
+  } else {
+    base.add_omitted(
+      @common.Omission::new(
+        feature="nut-face-chamfer",
+        reason="omitted at Simplified detail level",
+      ),
+    )
+  }
+  fastener_thread_features(
+    with_chamfer,
+    thread_rep,
+    policy,
+    thread.pitch_diameter_mm() / 2.0,
+  )
 }
 
 ///|

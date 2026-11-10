@@ -42,16 +42,31 @@ fn countersunk_screw(
   let segments = clamp_segments(policy.circle_segments)
   let name = "ISO10642-\{dims.size.designation()}-\{format_length(length)}"
   let metal = @cad.Rgb::grey()
+  let features = headed_feature_record(
+    policy,
+    thread_rep,
+    thread,
+    "head-countersink-cone",
+    dims.head_diameter_mm,
+    segments,
+  )
   let mut component = @common.Component::new(
     name~,
     metadata=spec.metadata(),
     description="Countersunk head (90-degree included angle) with a hexagon socket. The socket floor is an analytic revolved head; the socket band is a high-resolution polygon with a real hex through-hole." +
       thread_note(thread_rep),
+    features~,
   )
+  // A countersunk head is flush with the bearing surface, so ISO 10642
+  // measures the nominal length from the top of the head to the shank tip.
+  // The head therefore occupies the top `k` millimetres of that length and the
+  // shank runs below it.
+  let head_z = length - k
+  let shank_length = head_z
   component = add_plain_or_threaded_shank(
-    component, thread, length, thread_rep, policy, metal,
+    component, thread, shank_length, thread_rep, policy, metal,
   )
-  // Head geometry, local z from 0 (head base) to k (top face).
+  // Head geometry, local z from 0 (head base) to k (flush top face).
   let cone_axial = if big_r - r_sh < k { big_r - r_sh } else { k }
   let cyl_h = k - cone_axial
   let z_floor = k - t
@@ -81,7 +96,7 @@ fn countersunk_screw(
     floor.as_shape(),
     name="head-floor",
     color=metal,
-    placement=@common.Placement::translation(0.0, 0.0, length),
+    placement=@common.Placement::translation(0.0, 0.0, head_z),
   )
   let levels : Array[(Double, Double)] = [(z_floor, big_r - r_f)]
   if z_floor < cyl_h {
@@ -97,7 +112,7 @@ fn countersunk_screw(
     ring,
     name="head-socket",
     color=@cad.Rgb::orange(),
-    placement=@common.Placement::translation(0.0, 0.0, length),
+    placement=@common.Placement::translation(0.0, 0.0, head_z),
   )
 }
 
@@ -133,9 +148,7 @@ fn button_screw(
   }
   let dims = spec.size_dims
   let thread = dims.thread
-  let d = thread.nominal_diameter_mm
   let length = spec.length_mm
-  let r_sh = d / 2.0
   let big_r = dims.head_diameter_mm / 2.0
   let k = dims.head_height_mm
   let t = dims.socket_depth_mm
@@ -143,11 +156,20 @@ fn button_screw(
   let segments = clamp_segments(policy.circle_segments)
   let name = "ISO7380-\{dims.size.designation()}-\{format_length(length)}"
   let metal = @cad.Rgb::grey()
+  let features = headed_feature_record(
+    policy,
+    thread_rep,
+    thread,
+    "head-dome-sphere",
+    dims.head_diameter_mm,
+    segments,
+  )
   let mut component = @common.Component::new(
     name~,
     metadata=spec.metadata(),
     description="Button head with a spherical-cap dome, flat top, and hexagon socket. The dome is an analytic spherical surface; the socket band is a high-resolution polygon with a real hex through-hole." +
       thread_note(thread_rep),
+    features~,
   )
   component = add_plain_or_threaded_shank(
     component, thread, length, thread_rep, policy, metal,
@@ -212,6 +234,50 @@ fn button_flat_radius(big_r : Double, s : Double) -> Double {
   } else {
     r
   }
+}
+
+///|
+/// headed_feature_record builds the feature record shared by the button and
+/// countersunk head families.
+fn headed_feature_record(
+  policy : @common.DetailPolicy,
+  thread_rep : @common.ThreadRepresentation,
+  thread : @standards.ThreadSpec,
+  head_feature : String,
+  head_diameter_mm : Double,
+  segments : Int32,
+) -> @common.FeatureRecord {
+  let base = @common.FeatureRecord::new(
+    modeled=["blind-hex-socket", head_feature],
+    approximated=[
+      @common.Approximation::new(
+        feature="head-socket-band",
+        kind=@common.ApproximationKind::PolygonRevolve,
+        deviation_mm=@common.chord_deviation(head_diameter_mm / 2.0, segments),
+        control="circle_segments=\{segments}",
+      ),
+    ],
+    omitted=[
+      @common.Omission::new(
+        feature="socket-lead-in-chamfer",
+        reason="not modelled by this builder",
+      ),
+      @common.Omission::new(
+        feature="shank-tip-chamfer",
+        reason="not modelled by this builder",
+      ),
+      @common.Omission::new(
+        feature="under-head-radius",
+        reason="not modelled by this builder",
+      ),
+    ],
+  )
+  fastener_thread_features(
+    base,
+    thread_rep,
+    policy,
+    thread.pitch_diameter_mm() / 2.0,
+  )
 }
 
 ///|

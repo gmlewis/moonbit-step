@@ -1,0 +1,44 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "gmlewis/step/components/catalog"
+
+import {
+  "gmlewis/step/components/common",
+}
+
+// Values
+pub fn bearing_catalog() -> Array[CatalogEntry]
+
+pub fn fastener_catalog() -> Array[CatalogEntry]
+
+pub fn full_catalog() -> Array[CatalogEntry]
+
+pub fn gear_catalog() -> Array[CatalogEntry]
+
+pub fn lookup(Array[CatalogEntry], String) -> Result[CatalogEntry, CatalogError]
+
+pub fn profile_catalog() -> Array[CatalogEntry]
+
+pub fn query(Array[CatalogEntry], family? : String, standard? : String, size? : String) -> Array[CatalogEntry]
+
+// Errors
+
+// Types and methods
+pub(all) struct CatalogEntry {
+  designation : String
+  standard : String
+  family : String
+  size : String
+  supported_parameters : Array[String]
+  detail_levels : Array[String]
+  features : @common.FeatureRecord
+  provenance : String
+}
+
+pub(all) enum CatalogError {
+  UnknownDesignation(String)
+}
+pub fn CatalogError::message(Self) -> String
+
+// Type aliases
+
+// Traits

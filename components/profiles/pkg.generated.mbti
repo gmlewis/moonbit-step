@@ -21,17 +21,23 @@ pub(all) struct TSlotProfile {
   cavity_width_mm : Double
   core_bore_diameter_mm : Double
   wall_mm : Double
+  corner_radius_mm : Double
 }
-pub fn TSlotProfile::custom(name~ : String, width_mm~ : Double, height_mm~ : Double, slot_width_mm~ : Double, slot_neck_depth_mm~ : Double, slot_depth_mm~ : Double, cavity_width_mm~ : Double, core_bore_diameter_mm~ : Double, wall_mm~ : Double) -> Result[Self, @common.SpecError]
+pub fn TSlotProfile::custom(name~ : String, width_mm~ : Double, height_mm~ : Double, slot_width_mm~ : Double, slot_neck_depth_mm~ : Double, slot_depth_mm~ : Double, cavity_width_mm~ : Double, core_bore_diameter_mm~ : Double, wall_mm~ : Double, corner_radius_mm? : Double) -> Result[Self, @common.SpecError]
 pub fn TSlotProfile::designation(Self) -> String
 pub fn TSlotProfile::generic_2020() -> Self
 pub fn TSlotProfile::generic_2040() -> Self
+pub fn TSlotProfile::generic_2060() -> Self
+pub fn TSlotProfile::generic_2080() -> Self
 pub fn TSlotProfile::generic_3030() -> Self
+pub fn TSlotProfile::generic_3060() -> Self
 pub fn TSlotProfile::generic_4040() -> Self
+pub fn TSlotProfile::generic_4080() -> Self
 pub fn TSlotProfile::holes(Self, segments? : Int32) -> Array[Array[(Double, Double)]]
 pub fn TSlotProfile::metadata(Self, Double) -> @common.Metadata
 pub fn TSlotProfile::outline(Self) -> Array[(Double, Double)]
 pub fn TSlotProfile::size(Self) -> (Double, Double)
+pub fn TSlotProfile::with_corner_radius(Self, Double) -> Result[Self, @common.SpecError]
 
 // Type aliases
 

@@ -25,16 +25,25 @@ pub struct Component {
   priv metadata : Metadata
   priv layers : Array[ComponentLayer]
   priv description : String
+  priv features : FeatureRecord
 }
 
 ///|
 /// Component::new builds an empty component with a name and metadata.
+///
+/// `features` is the machine-readable feature record. When omitted it is empty
+/// and `documentation()` states no modelled features.
 pub fn Component::new(
   name~ : String,
   metadata~ : Metadata,
   description~ : String = "",
+  features? : FeatureRecord,
 ) -> Component {
-  { name, metadata, layers: [], description, }
+  let record = match features {
+    Some(f) => f
+    None => FeatureRecord::empty()
+  }
+  { name, metadata, layers: [], description, features: record, }
 }
 
 ///|
@@ -84,6 +93,21 @@ pub fn Component::metadata(self : Component) -> Metadata {
 /// Component::description returns the free-form component description.
 pub fn Component::description(self : Component) -> String {
   self.description
+}
+
+///|
+/// Component::features returns the machine-readable feature record.
+pub fn Component::features(self : Component) -> FeatureRecord {
+  self.features
+}
+
+///|
+/// Component::with_features returns a copy with a new feature record.
+pub fn Component::with_features(
+  self : Component,
+  features : FeatureRecord,
+) -> Component {
+  { ..self, features, }
 }
 
 ///|
@@ -241,15 +265,16 @@ pub fn Component::size(self : Component) -> @cad.Vec3 {
 }
 
 ///|
-/// Component::documentation returns the metadata plus any family description,
-/// suitable for a STEP header.
+/// Component::documentation returns the metadata plus any family description
+/// and the machine-readable feature record, suitable for a STEP header.
 pub fn Component::documentation(self : Component) -> String {
   let meta = self.metadata.documentation()
-  if self.description == "" {
-    meta
-  } else {
-    meta + "\nNotes:      " + self.description
+  let lines : Array[String] = [meta]
+  if self.description != "" {
+    lines.push("Notes:      " + self.description)
   }
+  lines.push(self.features.documentation())
+  lines.join("\n")
 }
 
 ///|

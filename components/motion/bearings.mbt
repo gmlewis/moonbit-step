@@ -117,6 +117,7 @@ pub fn bearing(
   }
   let use_features = policy.include_small_features
   let name = "bearing-\{size.designation}"
+  let features = bearing_feature_record(policy, outer, d, segments)
   let mut component = @common.Component::new(
     name~,
     metadata=@common.Metadata::new(
@@ -127,6 +128,7 @@ pub fn bearing(
       source="Boundary dimensions from common ISO 15 / catalogue tables; internal rings, balls, and chamfers are parametric, not catalogue geometry. See components/DATA_SOURCES.md.",
     ),
     description="Outer and inner rings plus spherical balls (analytic sphere surfaces). Rings are plain tubes at Simplified detail and carry an engineering-default edge chamfer at Detailed and above. Seals and cages are omitted.",
+    features~,
   )
   let outer_hole = outer - 2.0 * ring_t
   let inner_outer = d + 2.0 * ring_t
@@ -211,5 +213,59 @@ pub fn bearing_by_designation(
   match bearing_size(designation) {
     Err(e) => Err(e)
     Ok(size) => bearing(size, detail~)
+  }
+}
+
+///|
+/// bearing_feature_record builds the machine-readable feature record for a
+/// simplified bearing envelope.
+fn bearing_feature_record(
+  policy : @common.DetailPolicy,
+  outer : Double,
+  bore : Double,
+  segments : Int32,
+) -> @common.FeatureRecord {
+  let approximation = fn(feature : String, radius : Double) {
+    @common.Approximation::new(
+      feature~,
+      kind=@common.ApproximationKind::PolylineArc,
+      deviation_mm=@common.chord_deviation(radius, segments),
+      control="circle_segments=\{segments}",
+    )
+  }
+  let base = @common.FeatureRecord::new(
+    modeled=["outer-ring", "inner-ring", "ball-sphere"],
+    approximated=[
+      approximation("outer-ring-boundary", outer / 2.0),
+      approximation("inner-ring-bore", bore / 2.0),
+    ],
+    omitted=[
+      @common.Omission::new(
+        feature="seal",
+        reason="seals are not modelled in this envelope",
+      ),
+      @common.Omission::new(
+        feature="cage",
+        reason="rolling-element cages are not modelled",
+      ),
+      @common.Omission::new(
+        feature="race-groove",
+        reason="rolling-element race grooves are not modelled",
+      ),
+      @common.Omission::new(
+        feature="bore-chamfer",
+        reason="the bore and outer edges are not chamfered at Simplified detail",
+      ),
+    ],
+  )
+  if policy.include_small_features {
+    base.add_modeled("ring-edge-chamfer")
+  } else {
+    base.add_omitted(
+      @common.Omission::new(
+        feature="ring-edge-chamfer",
+        reason="omitted at Simplified detail level",
+      ),
+    )
   }
 }

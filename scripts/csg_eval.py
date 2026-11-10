@@ -18,6 +18,9 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import json
+import math
+import os
 import re
 import shutil
 import subprocess
@@ -62,6 +65,8 @@ class Step:
     op: str = ""
     first: int = 0
     second: int = 0
+    operand: int = 0
+    payload: dict | None = None
 
 
 def parse_records(text: str) -> dict[int, Entity]:
@@ -160,6 +165,31 @@ def require_single_root(records: dict[int, Entity]) -> int:
     return roots[0]
 
 
+def _step_string(arg: str) -> str:
+    """Unquotes a STEP string argument and undoubles escaped quotes."""
+    arg = arg.strip()
+    if len(arg) >= 2 and arg[0] == "'" and arg[-1] == "'":
+        arg = arg[1:-1]
+    return arg.replace("''", "'")
+
+
+def edge_feature_operand(entity: Entity) -> tuple[int, dict]:
+    args = entity_args(entity)
+    if len(args) != 3:
+        raise CsgEvalError(
+            f"MOONBIT_EDGE_FEATURE #{entity.id} has {len(args)} arguments, "
+            "expected 3"
+        )
+    base_ref = ref_of(args[1])
+    try:
+        payload = json.loads(_step_string(args[2]))
+    except json.JSONDecodeError as exc:
+        raise CsgEvalError(
+            f"MOONBIT_EDGE_FEATURE #{entity.id} has an invalid payload: {exc}"
+        ) from exc
+    return base_ref, payload
+
+
 def evaluation_plan(records: dict[int, Entity], root: int) -> list[Step]:
     """Returns the post-order evaluation steps for one boolean tree."""
     plan: list[Step] = []
@@ -182,6 +212,12 @@ def evaluation_plan(records: dict[int, Entity], root: int) -> list[Step]:
             visit(second)
             visiting.discard(ref)
             plan.append(Step("boolean", ref, op, first, second))
+        elif entity.type == "MOONBIT_EDGE_FEATURE":
+            base_ref, payload = edge_feature_operand(entity)
+            visiting.add(ref)
+            visit(base_ref)
+            visiting.discard(ref)
+            plan.append(Step("edge", ref, operand=base_ref, payload=payload))
         elif entity.type in SOLID_TYPES:
             plan.append(Step("leaf", ref))
         else:
@@ -303,9 +339,122 @@ def _tcl_path(path: Path) -> str:
 
 
 def _shape_name(records: dict[int, Entity], ref: int) -> str:
-    if records[ref].type == "BOOLEAN_RESULT":
+    if records[ref].type in ("BOOLEAN_RESULT", "MOONBIT_EDGE_FEATURE"):
         return f"r{ref}"
     return f"s{ref}"
+
+
+def _vec3(v: list[float]) -> tuple[float, float, float]:
+    return (float(v[0]), float(v[1]), float(v[2]))
+
+
+def _length(v: tuple[float, ...]) -> float:
+    return math.sqrt(sum(c * c for c in v))
+
+
+def _norm(v: tuple[float, ...]) -> tuple[float, ...]:
+    length = _length(v)
+    if length < 1.0e-12:
+        return tuple(0.0 for _ in v)
+    return tuple(c / length for c in v)
+
+
+def _dot(a: tuple[float, ...], b: tuple[float, ...]) -> float:
+    return sum(x * y for x, y in zip(a, b))
+
+
+def _bbox_distance(point: tuple[float, float, float], bb) -> float:
+    xmin, ymin, zmin, xmax, ymax, zmax = bb
+    dx = max(xmin - point[0], 0.0, point[0] - xmax)
+    dy = max(ymin - point[1], 0.0, point[1] - ymax)
+    dz = max(zmin - point[2], 0.0, point[2] - zmax)
+    return math.sqrt(dx * dx + dy * dy + dz * dz)
+
+
+def edge_bounds(tool: str, leaf_path: Path, timeout: int) -> list[tuple]:
+    """Returns ``(index, xmin, ymin, zmin, xmax, ymax, zmax)`` for each edge."""
+    with tempfile.TemporaryDirectory(prefix="edge-bounds-") as tmp:
+        csv_path = Path(tmp) / "edges.csv"
+        script = "\n".join(
+            [
+                "pload ALL",
+                f'testreadstep "{_tcl_path(leaf_path)}" s',
+                "set els [explode s E]",
+                f'set f [open "{_tcl_path(csv_path)}" w]',
+                "set i 0",
+                'foreach e $els { incr i; puts $f "$i [bounding $e]" }',
+                "close $f",
+            ]
+        )
+        proc = subprocess.run(
+            [tool, "-b"],
+            input=script + "\n",
+            capture_output=True,
+            text=True,
+            timeout=timeout,
+        )
+        if not csv_path.exists() or not csv_path.read_text().strip():
+            raise CsgEvalError(
+                "OCCT could not explode the edge-feature base into edges:\n"
+                + _tail(proc.stdout + proc.stderr)
+            )
+        rows: list[tuple] = []
+        for line in csv_path.read_text().splitlines():
+            parts = line.split()
+            if len(parts) != 7:
+                continue
+            try:
+                index = int(parts[0])
+                nums = [float(x) for x in parts[1:]]
+            except ValueError:
+                continue
+            rows.append((index, *nums))
+        return rows
+
+
+def select_edges(
+    tool: str,
+    leaf_path: Path,
+    payload: dict,
+    timeout: int,
+) -> list[int]:
+    """Resolves an `EdgeSelector` JSON payload into 1-based edge indices."""
+    selector = payload.get("selector") or {"kind": "all"}
+    rows = edge_bounds(tool, leaf_path, timeout)
+    if not rows:
+        raise CsgEvalError("edge selection found no edges")
+    kind = selector.get("kind", "all")
+    if kind == "all":
+        return [row[0] for row in rows]
+    if kind == "indices":
+        out: list[int] = []
+        for raw in selector.get("indices", []):
+            index = int(raw)
+            if index < 1 or index > len(rows):
+                raise CsgEvalError(
+                    f"edge index {index} is out of range 1..{len(rows)}"
+                )
+            out.append(index)
+        return out
+    if kind == "direction":
+        direction = _norm(_vec3(selector["dir"]))
+        tol = math.cos(math.radians(float(selector.get("tol_deg", 1.0))))
+        out = []
+        for row in rows:
+            _index, xmin, ymin, zmin, xmax, ymax, zmax = row
+            diag = (xmax - xmin, ymax - ymin, zmax - zmin)
+            if _length(diag) < 1.0e-9:
+                continue
+            if abs(_dot(_norm(diag), direction)) >= tol:
+                out.append(row[0])
+        return out
+    if kind == "near_point":
+        point = _vec3(selector["point"])
+        radius = float(selector["radius"])
+        return [
+            row[0] for row in rows if _bbox_distance(point, row[1:]) <= radius
+        ]
+    raise CsgEvalError(f"unsupported edge selector kind {kind!r}")
 
 
 def evaluate(input_path: Path, output_path: Path, timeout: int = 1800) -> str:
@@ -341,12 +490,58 @@ def evaluate(input_path: Path, output_path: Path, timeout: int = 1800) -> str:
                     commands.append(
                         f'testreadstep "{_tcl_path(leaf_path)}" s{step.ref}'
                     )
-                else:
+                elif step.kind == "boolean":
                     first = _shape_name(records, step.first)
                     second = _shape_name(records, step.second)
                     commands.append(
                         f"{DRAW_OP[step.op]} r{step.ref} {first} {second}"
                     )
+                elif step.kind == "edge":
+                    base = _shape_name(records, step.operand)
+                    if records[step.operand].type not in SOLID_TYPES:
+                        raise CsgEvalError(
+                            "edge feature base must be a single solid, "
+                            "not a boolean result"
+                        )
+                    leaf_path = tmpdir / f"leaf-{step.operand}.step"
+                    payload = step.payload or {}
+                    selected = select_edges(tool, leaf_path, payload, timeout)
+                    op = payload.get("op")
+                    size = float(payload.get("size", 0.0))
+                    commands.append(f"explode {base} E")
+                    if op == "fillet":
+                        if not selected:
+                            raise CsgEvalError(
+                                "fillet selector matched no edges"
+                            )
+                        pairs = " ".join(
+                            f"{size} {base}_{index}" for index in selected
+                        )
+                        commands.append(f"blend r{step.ref} {base} {pairs}")
+                    elif op == "chamfer":
+                        if len(selected) != 1:
+                            raise CsgEvalError(
+                                "this OCCT DRAW build exposes 3D chamfer for "
+                                "one edge at a time; the selector matched "
+                                f"{len(selected)} edges. Select a single edge."
+                            )
+                        angle = payload.get("angle")
+                        if angle is not None and abs(float(angle) - 45.0) > 1e-6:
+                            raise CsgEvalError(
+                                "angled chamfer needs a reference face; only "
+                                "equal-distance (45 degree) chamfers are "
+                                "supported"
+                            )
+                        commands.append(
+                            f"chamf r{step.ref} {base} "
+                            f"{base}_{selected[0]} {size}"
+                        )
+                    else:
+                        raise CsgEvalError(
+                            f"unsupported edge operation {op!r}"
+                        )
+                else:
+                    raise CsgEvalError(f"unsupported step kind {step.kind!r}")
         result = _shape_name(records, roots[0])
         for index, root in enumerate(roots[1:]):
             name = f"fused-{index}"
@@ -354,6 +549,9 @@ def evaluate(input_path: Path, output_path: Path, timeout: int = 1800) -> str:
             result = name
         commands.append(f"checkshape {result}")
         commands.append(f'testwritestep "{_tcl_path(output_path)}" {result}')
+
+        if os.environ.get("CSG_EVAL_DEBUG"):
+            print("COMMANDS:\n" + "\n".join(commands), file=sys.stderr)
 
         try:
             proc = subprocess.run(

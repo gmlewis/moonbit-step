@@ -151,3 +151,35 @@ planetary assembly reference was available; planetary checks are analytic.
 ```bash
 ./components/examples/generate_all.sh
 ```
+
+## Additions (2026-11-10)
+
+- **Golden harness:** `scripts/compare_golden.py` reports PASS/FAIL/SKIP per
+  check. It verifies checksums when files are present, gates external geometry
+  on a verified licence, generates parts through the example CLIs, measures
+  them with OCCT and the STEP feature inventory, checks normative bbox/solid
+  counts and feature expectations, and runs analytic checks when the external
+  file is absent. See `GOLDEN_REFERENCES.md`.
+- **Feature-record tests:** every family asserts its modeled / approximated /
+  omitted lists, including detail-level differences; the STEP header is checked
+  to carry the record.
+- **Evaluated edge features (OCCT-gated):** a cylinder top-rim fillet must
+  produce a `TOROIDAL_SURFACE`, a chamfer a `CONICAL_SURFACE`, and both must
+  pass `validate_step.py`. The flat writer must raise the typed
+  `EdgeFeatureRequiresKernel` diagnostic; it is never allowed to emit the
+  sharp base.
+- **Gear features:** the root-filleted/tip-chamfered outline must be a simple
+  polygon with the stated chord deviation, and the extruded pair must pass the
+  STEP validator. A generated m2 20/40 pair with root fillet 0.4 and tip
+  chamfer 0.1 validates with 1932 planar faces and OCCT `checkshape`.
+- **Extrusion corner radii:** a 1.5 mm-radius 2020 frame validates; OCCT
+  measures a post section area of 190.37 mm² (sharp 192.345 mm²).
+- **Mixed assembly:** the bolted joint is checked for instance count, bbox,
+  connectivity, contacts, and 7 watertight solids; nested-bore OBB false
+  positives are documented rather than reported as clearance.
+- **Property sweeps:** fastener sizes/lengths, bearing designations, gear
+  modules/teeth, extrusion series, frame dimensions, and a fixed-seed transform
+  round-trip/composition sweep.
+
+Final `./test-all.sh`: **495 tests, 495 passed, 0 failed**.
+

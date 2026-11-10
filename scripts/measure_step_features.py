@@ -31,6 +31,10 @@ from pathlib import Path
 
 ENTITY_RE = re.compile(r"#(\d+)\s*=\s*(.*?);", re.DOTALL)
 NUM_RE = re.compile(r"[+-]?(?:\d+\.\d*|\.\d+|\d+)(?:[eE][+-]?\d+)?")
+CARTESIAN_POINT_RE = re.compile(
+    r"CARTESIAN_POINT\('[^']*',\(\s*"
+    r"([-0-9.eE+]+)\s*,\s*([-0-9.eE+]+)\s*,\s*([-0-9.eE+]+)\s*\)"
+)
 
 ANALYTIC = {
     "PLANE": "plane",
@@ -136,6 +140,12 @@ def analyze(path: Path) -> dict:
         for cone in surfaces["cone"]:
             if cone["semi_angle"] is not None:
                 cone["semi_angle_deg"] = math.degrees(cone["semi_angle"])
+    radii: list[float] = []
+    for m in CARTESIAN_POINT_RE.finditer(text):
+        x, y, _z = (float(v) for v in m.groups())
+        r = math.hypot(x, y)
+        if r > 1.0e-9:
+            radii.append(r)
     return {
         "path": str(path),
         "solids": solids,
@@ -146,6 +156,8 @@ def analyze(path: Path) -> dict:
         "spheres": surfaces["sphere"],
         "tori": surfaces["torus"],
         "cylinders": surfaces["cylinder"],
+        "min_vertex_radius": min(radii) if radii else None,
+        "max_vertex_radius": max(radii) if radii else None,
     }
 
 
@@ -162,6 +174,10 @@ def main(argv: list[str]) -> int:
         print(r["path"])
         print(f"  solids: {r['solids']}  advanced faces: {r['advanced_faces']}")
         print(f"  plane-angle unit: {r['angle_unit']}")
+        print(
+            "  vertex radius: "
+            f"min={r['min_vertex_radius']} max={r['max_vertex_radius']}"
+        )
         counts = ", ".join(f"{k}={v}" for k, v in sorted(r["surface_counts"].items()))
         print(f"  surfaces: {counts}")
         for cone in r["cones"]:

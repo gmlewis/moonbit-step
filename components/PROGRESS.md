@@ -318,3 +318,58 @@ for f in components/examples/output/*.step; do
   python3 scripts/validate_step.py --no-mesh "$f"
 done
 ```
+
+## Feature-metadata, golden-harness, and remaining-features session (2026-11-10)
+
+Starting state: branch `master`, HEAD `4fc5381`, **458/458 tests**.
+
+### Completed
+
+- **Machine-readable feature records** (`components/common/features.mbt`):
+  `FeatureRecord`, `Approximation`, `Omission`, `ApproximationKind`; carried by
+  every `Component`, copied into the STEP header, populated by every builder,
+  and aggregated by assemblies. New tests assert detail-level differences.
+- **Golden comparison harness** (`scripts/compare_golden.py`): checksum/licence
+  gating, parameteric-part generation through the example CLIs, OCCT and STEP
+  feature measurement, `PASS`/`FAIL`/`SKIP` reporting, and normative checks
+  that run even when the external file is absent. Recipes added to the manifest
+  for six fixtures.
+- **Optional evaluated 3D fillet/chamfer**: `Shape::Fillet`/`Shape::Chamfer`,
+  typed flat-writer refusal, `MOONBIT_EDGE_FEATURE` evaluation in
+  `scripts/csg_eval.py`, and OCCT tests producing a toroidal fillet and a
+  conical chamfer.
+- **Gear root fillet and tip chamfer** with typed rejection and watertight
+  extrusion; the 40-tooth case needed an adaptive root band.
+- **Extrusion corner radii**, generic 2060/2080/3060/4080 series, and an
+  explicit B-slot6 non-equivalence test.
+- **Catalogue/query API** (`components/catalog`) and a **bolted-joint**
+  mixed-family assembly plus a `bolted_joint` example.
+- **Property/parameter-sweep tests** with a documented fixed seed.
+- Docs updated; the final report is `SESSION_REPORT.md`.
+
+### Defect found and fixed
+
+- **ISO 10642 countersunk screws placed the head above the shank**, making an
+  M3 x 12 part 13.7 mm overall instead of the standard 12.0 mm. The head now
+  occupies the top `k` millimetres of the nominal length. Found by the golden
+  harness (`bbox` check), not by inspection.
+
+### Deferred, with evidence
+
+- Exact internal involute ring gear: the implemented involute internal profile
+  failed the rotation-cycle mesh check (300+ crossings) and was removed; the
+  trapezoidal approximation is retained and documented.
+- Gear root fillets are polyline arcs and may be rejected for very high tooth
+  counts if the adaptive band cannot find a fitting edge.
+- Evaluated 3D chamfer is limited to one selected edge per OCCT DRAW node; the
+  evaluator returns a typed error for multi-edge chamfers.
+
+### Final status
+
+- `./test-all.sh`: **495 tests, 495 passed, 0 failed**.
+
+```bash
+python3 scripts/compare_golden.py            # six fixtures, PASS/SKIP report
+python3 scripts/compare_golden.py --json     # machine-readable results
+```
+

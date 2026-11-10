@@ -224,3 +224,30 @@ the repository's OCCT `checkshape` gate reads a single named shape and reports
 "not a topological shape" for the assembly document. Use a CAD assembly importer
 to inspect the product structure, or use the flat export for the full validator
 gate.
+
+## Feature records
+
+A component's `FeatureRecord` is the geometric contract: `modeled` features
+are exact analytic/ruled geometry, `approximated` features carry a deviation
+and the generating control, and `omitted` features carry a reason. Detail
+levels only change geometry when the record says so. A feature is never listed
+as modeled unless the STEP contains the corresponding surface or exact
+planar/ruled form.
+
+## Edge features (optional)
+
+`EdgeFeature` is intent: a base solid, an edge selector, a size, and an optional
+chamfer angle. Its local bounding box is the base's bounds; applying a fillet or
+chamfer never grows the part. The flat writer refuses the intent with a typed
+diagnostic. The evaluated path selects edges by index, direction, or proximity
+and applies OCCT `blend`/`chamf`; a selected edge that cannot absorb the
+requested size is an error, not a silently sharp edge.
+
+## Gear root fillet and tip chamfer
+
+The 2D involute outline is post-processed: root runs and tip runs are collapsed
+to their transition corners, then rounded/bevelled with the 2D profile helpers.
+The root band widens adaptively when the root circle is close to the base
+circle. The result is a simple polygon; the arc chord deviation is recorded.
+The extruded gear is a single watertight solid.
+

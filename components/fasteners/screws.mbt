@@ -33,12 +33,18 @@ pub fn socket_head_cap_screw(
   }
   let accent = @cad.Rgb::orange()
   let thread_color = @cad.Rgb::cyan()
+  let k = dims.head_height_mm
+  let t = dims.socket_depth_mm
+  let dk = dims.head_diameter_mm
+  let segments = clamp_segments(policy.circle_segments)
+  let features = screw_feature_record(policy, thread_rep, thread, dk, segments)
   let base = @common.Component::new(
     name~,
     metadata=spec.metadata(),
     description="Layered solid: plain shank, head floor, blind hex socket. Socket represented by a ring with a through hex hole over a floor disc." +
       head_chamfer_note(policy) +
       thread_note(thread_rep),
+    features~,
   )
 
   // Shank and thread representation.
@@ -81,11 +87,7 @@ pub fn socket_head_cap_screw(
   }
 
   // Head: a solid floor disc plus a socket ring with a hexagonal through-hole.
-  let k = dims.head_height_mm
-  let t = dims.socket_depth_mm
-  let dk = dims.head_diameter_mm
   let floor_height = k - t
-  let segments = clamp_segments(policy.circle_segments)
   component = component.add_layer(
     @cad.Cylinder::new(dk, floor_height),
     name="head-floor",
@@ -163,4 +165,57 @@ fn head_chamfer_note(policy : @common.DetailPolicy) -> String {
   } else {
     " The head is sharp-edged at this detail level."
   }
+}
+
+///|
+/// screw_feature_record builds the machine-readable feature record for an
+/// ISO 4762 socket head cap screw.
+fn screw_feature_record(
+  policy : @common.DetailPolicy,
+  thread_rep : @common.ThreadRepresentation,
+  thread : @standards.ThreadSpec,
+  dk : Double,
+  segments : Int32,
+) -> @common.FeatureRecord {
+  let base = @common.FeatureRecord::new(
+    modeled=["head-floor", "blind-hex-socket"],
+    approximated=[
+      @common.Approximation::new(
+        feature="head-socket-band",
+        kind=@common.ApproximationKind::PolygonRevolve,
+        deviation_mm=@common.chord_deviation(dk / 2.0, segments),
+        control="circle_segments=\{segments}",
+      ),
+    ],
+    omitted=[
+      @common.Omission::new(
+        feature="shank-tip-chamfer",
+        reason="not modelled by this builder",
+      ),
+      @common.Omission::new(
+        feature="under-head-radius",
+        reason="not modelled by this builder",
+      ),
+      @common.Omission::new(
+        feature="socket-lead-in-chamfer",
+        reason="not modelled by this builder",
+      ),
+    ],
+  )
+  let with_chamfer = if policy.include_small_features {
+    base.add_modeled("head-chamfer")
+  } else {
+    base.add_omitted(
+      @common.Omission::new(
+        feature="head-chamfer",
+        reason="omitted at Simplified detail level",
+      ),
+    )
+  }
+  fastener_thread_features(
+    with_chamfer,
+    thread_rep,
+    policy,
+    thread.pitch_diameter_mm() / 2.0,
+  )
 }

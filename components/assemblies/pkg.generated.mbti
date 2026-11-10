@@ -10,6 +10,8 @@ import {
 }
 
 // Values
+pub fn bolted_joint(@standards.MetricSize, Double, Double, Double, detail? : @common.DetailLevel) -> Result[Assembly, @common.SpecError]
+
 pub fn extrusion_frame(Double, Double, Double, @profiles.TSlotProfile, detail? : @common.DetailLevel) -> Result[Assembly, @common.SpecError]
 
 pub fn extrusion_frame_members(Double, Double, Double, @profiles.TSlotProfile) -> Result[Array[FrameMember], @common.SpecError]
@@ -17,6 +19,8 @@ pub fn extrusion_frame_members(Double, Double, Double, @profiles.TSlotProfile) -
 pub fn fastener_grid_plate(@standards.MetricSize, Double, Int32, Int32, Double, Double, detail? : @common.DetailLevel) -> Result[Assembly, @common.SpecError]
 
 pub fn metric_hardware_kit(@standards.MetricSize, Double, detail? : @common.DetailLevel) -> Result[Assembly, @common.SpecError]
+
+pub fn plate_with_hole(Double, Double, Double, Double, name? : String) -> Result[@common.Component, @common.SpecError]
 
 // Errors
 
@@ -35,6 +39,7 @@ pub fn Assembly::contacts(Self, tol? : @collision.TolerancePolicy) -> Array[@col
 pub fn Assembly::count(Self) -> Int32
 pub fn Assembly::disconnected_instances(Self, tol? : @collision.TolerancePolicy) -> Array[String]
 pub fn Assembly::documentation(Self) -> String
+pub fn Assembly::features(Self) -> @common.FeatureRecord
 pub fn Assembly::interference_fits(Self, tol? : @collision.TolerancePolicy, policy? : @collision.ContactPolicy) -> Array[@collision.CollisionReport]
 pub fn Assembly::is_connected(Self, tol? : @collision.TolerancePolicy) -> Bool
 pub fn Assembly::items(Self) -> Array[AssemblyItem]

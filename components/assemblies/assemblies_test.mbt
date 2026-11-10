@@ -188,3 +188,35 @@ test "hardware kit envelope overlap is a nested-bore false positive" {
   assert_true(!assembly.collisions().is_empty())
   assert_true(assembly.is_connected())
 }
+
+///|
+test "bolted joint is a connected mixed-family assembly" {
+  let assembly = match
+    @assemblies.bolted_joint(@standards.M4, 40.0, 30.0, 5.0) {
+    Ok(a) => a
+    Err(e) => abort(e.message())
+  }
+  assert_eq(assembly.count(), 5)
+  let (x0, x1, y0, y1, z0, z1) = assembly.bounding_box()
+  assert_true(close(x0, -20.0))
+  assert_true(close(x1, 20.0))
+  assert_true(close(y0, -15.0))
+  assert_true(close(y1, 15.0))
+  // Nut height 3.2 (below z = 0); head top = 2*5 + 0.8 + 4.0.
+  assert_true(close(z0, -3.2))
+  assert_true(close(z1, 14.8))
+  assert_true(assembly.is_connected())
+  assert_true(!assembly.contacts().is_empty())
+  // The OBB envelopes report the shank inside the plate, washer, and nut
+  // bores as overlaps. This is the documented nested-bore false positive; it
+  // is not claimed as a shape-aware clearance proof.
+  assert_true(!assembly.collisions().is_empty())
+  let step = assembly.to_step(checked=true)
+  assert_true(step.contains("MANIFOLD_SOLID_BREP"))
+}
+
+///|
+test "plate with hole rejects an oversized hole" {
+  assert_true(@assemblies.plate_with_hole(20.0, 20.0, 3.0, 25.0) is Err(_))
+  assert_true(@assemblies.plate_with_hole(20.0, 20.0, 3.0, 6.0) is Ok(_))
+}

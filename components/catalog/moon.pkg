@@ -1,0 +1,21 @@
+import {
+  "gmlewis/step/components/common",
+  "gmlewis/step/components/fasteners",
+  "gmlewis/step/components/gears",
+  "gmlewis/step/components/motion",
+  "gmlewis/step/components/profiles",
+  "gmlewis/step/components/standards",
+  "moonbitlang/core/builtin",
+}
+
+import {
+  "gmlewis/step/cad",
+  "gmlewis/step/components/assemblies",
+  "gmlewis/step/components/common",
+  "gmlewis/step/components/fasteners",
+  "gmlewis/step/components/gears",
+  "gmlewis/step/components/motion",
+  "gmlewis/step/components/profiles",
+  "gmlewis/step/components/standards",
+  "moonbitlang/core/builtin",
+} for "test"

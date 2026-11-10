@@ -6,6 +6,8 @@ import {
 }
 
 // Values
+pub fn chord_deviation(Double, Int32) -> Double
+
 pub fn[T] expect_ok(Result[T, SpecError]) -> T
 
 pub fn is_finite(Double) -> Bool
@@ -25,6 +27,23 @@ pub fn rotation_matrix_deg(Double, Double, Double) -> @cad.Matrix3x3
 // Errors
 
 // Types and methods
+pub(all) struct Approximation {
+  feature : String
+  kind : ApproximationKind
+  deviation_mm : Double
+  control : String
+}
+pub fn Approximation::documentation(Self) -> String
+pub fn Approximation::new(feature~ : String, kind~ : ApproximationKind, deviation_mm~ : Double, control~ : String) -> Self
+
+pub(all) enum ApproximationKind {
+  PolylineArc
+  PolygonRevolve
+  SweptSpline
+  EngineeringDefault
+}
+pub fn ApproximationKind::to_string(Self) -> String
+
 pub struct Component {
   // private fields
 }
@@ -33,10 +52,11 @@ pub fn Component::add_layers(Self, Array[ComponentLayer]) -> Self
 pub fn Component::bounding_box(Self) -> (Double, Double, Double, Double, Double, Double)
 pub fn Component::description(Self) -> String
 pub fn Component::documentation(Self) -> String
+pub fn Component::features(Self) -> FeatureRecord
 pub fn Component::layers(Self) -> Array[ComponentLayer]
 pub fn Component::metadata(Self) -> Metadata
 pub fn Component::name(Self) -> String
-pub fn Component::new(name~ : String, metadata~ : Metadata, description? : String) -> Self
+pub fn Component::new(name~ : String, metadata~ : Metadata, description? : String, features? : FeatureRecord) -> Self
 pub fn Component::nodes(Self) -> Array[@cad.SceneNode]
 pub fn Component::nodes_under(Self, Placement) -> Array[@cad.SceneNode]
 pub fn Component::rotate_x(Self, Double) -> Self
@@ -48,6 +68,7 @@ pub fn Component::to_step(Self, checked? : Bool) -> String
 pub fn Component::transform_with(Self, Placement) -> Self
 pub fn Component::translate(Self, x? : Double, y? : Double, z? : Double) -> Self
 pub fn Component::with_description(Self, String) -> Self
+pub fn Component::with_features(Self, FeatureRecord) -> Self
 pub fn Component::with_metadata(Self, Metadata) -> Self
 pub fn Component::with_name(Self, String) -> Self
 pub async fn Component::write_step(Self, String?, checked? : Bool) -> Unit
@@ -75,6 +96,26 @@ pub(all) struct DetailPolicy {
 pub fn DetailPolicy::for_level(DetailLevel) -> Self
 pub fn DetailPolicy::with_threads(Self, ThreadRepresentation) -> Self
 
+pub(all) struct FeatureRecord {
+  modeled : Array[String]
+  approximated : Array[Approximation]
+  omitted : Array[Omission]
+  tolerance_mm : Double
+}
+pub fn FeatureRecord::add_approximated(Self, Approximation) -> Self
+pub fn FeatureRecord::add_modeled(Self, String) -> Self
+pub fn FeatureRecord::add_omitted(Self, Omission) -> Self
+pub fn FeatureRecord::documentation(Self) -> String
+pub fn FeatureRecord::empty() -> Self
+pub fn FeatureRecord::has_approximated(Self, String) -> Bool
+pub fn FeatureRecord::has_modeled(Self, String) -> Bool
+pub fn FeatureRecord::new(modeled? : Array[String], approximated? : Array[Approximation], omitted? : Array[Omission], tolerance_mm? : Double) -> Self
+pub fn FeatureRecord::omission_reason(Self, String) -> String?
+pub fn FeatureRecord::with_approximated(Self, Array[Approximation]) -> Self
+pub fn FeatureRecord::with_modeled(Self, Array[String]) -> Self
+pub fn FeatureRecord::with_omitted(Self, Array[Omission]) -> Self
+pub fn FeatureRecord::with_tolerance(Self, Double) -> Self
+
 pub(all) struct Metadata {
   designation : String
   standard : String
@@ -88,6 +129,13 @@ pub fn Metadata::documentation(Self) -> String
 pub fn Metadata::new(designation~ : String, standard? : String, family? : String, size? : String, length_mm? : Double, material? : String, source? : String) -> Self
 pub fn Metadata::summary(Self) -> String
 pub fn Metadata::with_material(Self, String) -> Self
+
+pub(all) struct Omission {
+  feature : String
+  reason : String
+}
+pub fn Omission::documentation(Self) -> String
+pub fn Omission::new(feature~ : String, reason~ : String) -> Self
 
 pub(all) struct Placement {
   rot : @cad.Matrix3x3

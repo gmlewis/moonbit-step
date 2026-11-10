@@ -9,6 +9,9 @@ pub(all) struct SpurGearParams {
   backlash_mm : Double
   involute_points : Int32
   arc_points : Int32
+  root_fillet_radius_mm : Double
+  tip_chamfer_mm : Double
+  fillet_segments : Int32
 }
 
 ///|
@@ -22,6 +25,9 @@ pub fn SpurGearParams::new(
   backlash_mm~ : Double = 0.0,
   involute_points~ : Int32 = 12,
   arc_points~ : Int32 = 8,
+  root_fillet_radius_mm~ : Double = 0.0,
+  tip_chamfer_mm~ : Double = 0.0,
+  fillet_segments~ : Int32 = 4,
 ) -> Result[SpurGearParams, @common.SpecError] {
   match @common.require_positive("gear module", module_mm) {
     Err(e) => return Err(e)
@@ -47,6 +53,27 @@ pub fn SpurGearParams::new(
     Err(e) => return Err(e)
     Ok(_) => ()
   }
+  match
+    @common.require_non_negative("root fillet radius", root_fillet_radius_mm) {
+    Err(e) => return Err(e)
+    Ok(_) => ()
+  }
+  match @common.require_non_negative("tip chamfer", tip_chamfer_mm) {
+    Err(e) => return Err(e)
+    Ok(_) => ()
+  }
+  if root_fillet_radius_mm > 0.4 * module_mm {
+    return Err(
+      @common.InvalidParameter(
+        "root fillet radius must not exceed 0.4 * module",
+      ),
+    )
+  }
+  if tip_chamfer_mm > 0.3 * module_mm {
+    return Err(
+      @common.InvalidParameter("tip chamfer must not exceed 0.3 * module"),
+    )
+  }
   if bore_diameter_mm >= module_mm * teeth.to_double() - 2.5 * module_mm {
     return Err(
       @common.InvalidDimension("bore diameter leaves no tooth root material"),
@@ -61,6 +88,9 @@ pub fn SpurGearParams::new(
     backlash_mm,
     involute_points,
     arc_points,
+    root_fillet_radius_mm,
+    tip_chamfer_mm,
+    fillet_segments,
   })
 }
 
@@ -92,14 +122,21 @@ pub fn spur_gear(
     return Err(@common.InvalidDimension("gear root radius must be positive"))
   }
   let policy = @common.DetailPolicy::for_level(detail)
-  let outline = external_involute_outline(
-    params.module_mm,
-    params.teeth,
-    params.pressure_angle_deg,
-    backlash_mm=params.backlash_mm,
-    involute_points=params.involute_points,
-    arc_points=params.arc_points,
-  )
+  let outline = match
+    external_involute_outline_ex(
+      params.module_mm,
+      params.teeth,
+      params.pressure_angle_deg,
+      backlash_mm=params.backlash_mm,
+      involute_points=params.involute_points,
+      arc_points=params.arc_points,
+      root_fillet_radius_mm=params.root_fillet_radius_mm,
+      tip_chamfer_mm=params.tip_chamfer_mm,
+      fillet_segments=params.fillet_segments,
+    ) {
+    Ok(o) => o
+    Err(e) => return Err(e)
+  }
   let holes : Array[Array[@cad.Vec2]] = []
   if params.bore_diameter_mm > 0.0 {
     let segments = if policy.circle_segments < 32 {
@@ -111,6 +148,80 @@ pub fn spur_gear(
   }
   let body = @cad.ExtrudedProfile::new(outline, params.face_width_mm, holes~)
   let name = "spur-gear-\{params.designation()}"
+  let mut features = @common.FeatureRecord::new(
+    modeled=["body", "involute-tooth-envelope"],
+    approximated=[
+      @common.Approximation::new(
+        feature="involute-flank",
+        kind=@common.ApproximationKind::PolylineArc,
+        deviation_mm=0.0,
+        control="involute_points=\{params.involute_points}",
+      ),
+      @common.Approximation::new(
+        feature="tip-and-root-arc",
+        kind=@common.ApproximationKind::PolylineArc,
+        deviation_mm=0.0,
+        control="arc_points=\{params.arc_points}",
+      ),
+    ],
+    omitted=[
+      @common.Omission::new(feature="hub", reason="no hub or web is modelled"),
+      @common.Omission::new(
+        feature="keyway",
+        reason="not modelled; represent it with an evaluated cut",
+      ),
+    ],
+  )
+  if params.root_fillet_radius_mm > 0.0 {
+    features = features
+      .add_modeled("root-fillet")
+      .add_approximated(
+        @common.Approximation::new(
+          feature="root-fillet-arc",
+          kind=@common.ApproximationKind::PolylineArc,
+          deviation_mm=gear_outline_deviation_mm(
+            params.root_fillet_radius_mm,
+            params.fillet_segments,
+          ),
+          control="fillet_segments=\{params.fillet_segments}",
+        ),
+      )
+  } else {
+    features = features.add_omitted(
+      @common.Omission::new(
+        feature="root-fillet",
+        reason="sharp root corners at this builder",
+      ),
+    )
+  }
+  if params.tip_chamfer_mm > 0.0 {
+    features = features.add_modeled("tip-chamfer")
+  } else {
+    features = features.add_omitted(
+      @common.Omission::new(
+        feature="tip-chamfer",
+        reason="not modelled by this builder",
+      ),
+    )
+  }
+  if params.bore_diameter_mm > 0.0 {
+    let segments = if policy.circle_segments < 32 {
+      32
+    } else {
+      policy.circle_segments
+    }
+    features = features.add_approximated(
+      @common.Approximation::new(
+        feature="bore",
+        kind=@common.ApproximationKind::PolylineArc,
+        deviation_mm=@common.chord_deviation(
+          params.bore_diameter_mm / 2.0,
+          segments,
+        ),
+        control="circle_segments=\{segments}",
+      ),
+    )
+  }
   Ok(
     @common.Component::new(
       name~,
@@ -122,6 +233,7 @@ pub fn spur_gear(
         source="Involute gear formulas follow ISO 21771 / standard gear practice. Tip/root arcs are polygonal approximations. Root fillet is not modeled. See components/DATA_SOURCES.md.",
       ),
       description="External involute spur gear with optional central bore. Sharp root corners; no hub, keyway, or fillet.",
+      features~,
     ).add_layer(body, name="body", color~),
   )
 }

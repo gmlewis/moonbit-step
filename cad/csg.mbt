@@ -102,8 +102,110 @@ fn compile_csg_operand(
           )
       }
     }
+    Fillet(f) => compile_edge_feature(ctx, node, f, "fillet", parent)
+    Chamfer(c) => compile_edge_feature(ctx, node, c, "chamfer", parent)
     _ => Some(compile_node_to_brep(ctx, node, parent~))
   }
+}
+
+///|
+/// step_quote escapes a single quote in a STEP string by doubling it.
+fn step_quote(s : String) -> String {
+  s.replace(old="'", new="''")
+}
+
+///|
+fn edge_json_num(v : Double) -> String {
+  v.to_string()
+}
+
+///|
+fn edge_json_vec3(v : Vec3) -> String {
+  "[" +
+  edge_json_num(v.0) +
+  "," +
+  edge_json_num(v.1) +
+  "," +
+  edge_json_num(v.2) +
+  "]"
+}
+
+///|
+fn edge_selector_json(selector : EdgeSelector) -> String {
+  match selector {
+    AllEdges => "{\"kind\":\"all\"}"
+    EdgesByDirection(dir, tolerance_deg) =>
+      "{\"kind\":\"direction\",\"dir\":" +
+      edge_json_vec3(dir) +
+      ",\"tol_deg\":" +
+      edge_json_num(tolerance_deg) +
+      "}"
+    EdgesNearPoint(point, radius_mm) =>
+      "{\"kind\":\"near_point\",\"point\":" +
+      edge_json_vec3(point) +
+      ",\"radius\":" +
+      edge_json_num(radius_mm) +
+      "}"
+    EdgeIndices(indices) =>
+      "{\"kind\":\"indices\",\"indices\":[" +
+      indices.map(fn(i) { i.to_string() }).join(",") +
+      "]}"
+  }
+}
+
+///|
+fn edge_feature_payload(op : String, feat : EdgeFeature) -> String {
+  let angle = match feat.angle_deg {
+    Some(a) => edge_json_num(a)
+    None => "null"
+  }
+  "{\"op\":\"" +
+  op +
+  "\",\"size\":" +
+  edge_json_num(feat.size_mm) +
+  ",\"angle\":" +
+  angle +
+  ",\"selector\":" +
+  edge_selector_json(feat.selector) +
+  "}"
+}
+
+///|
+/// compile_edge_feature emits a `MOONBIT_EDGE_FEATURE` node that
+/// `scripts/csg_eval.py` evaluates with OCCT.
+///
+/// The flat STEP writer refuses these nodes with an error diagnostic; only the
+/// opt-in evaluated CSG path understands them. The base must be a single solid
+/// (not a boolean), because the evaluator selects edges of one loaded leaf.
+fn compile_edge_feature(
+  ctx : StepContext,
+  node : SceneNode,
+  feat : EdgeFeature,
+  op : String,
+  parent : Transform?,
+) -> @step.Ref? {
+  let child_parent = Some(node_transform(node, parent))
+  let base = match feat.base.shape {
+    Union(_) | Difference(_) =>
+      abort(
+        "edge feature '\{node.name}' must wrap a single solid; wrap the boolean result first",
+      )
+    _ =>
+      match compile_csg_operand(ctx, feat.base, child_parent) {
+        Some(r) => r
+        None => abort("edge feature '\{node.name}' has an empty base solid")
+      }
+  }
+  let payload = edge_feature_payload(op, feat)
+  let args = "('" +
+    step_quote(node.name) +
+    "',#" +
+    base.id.value.to_string() +
+    ",'" +
+    step_quote(payload) +
+    "')"
+  let raw = @step.RawEntity::new("MOONBIT_EDGE_FEATURE", args)
+  Some(ctx.add(@repository.any_entity_raw_entity(raw)))
 }
 
 ///|
@@ -128,6 +230,9 @@ pub fn Design::to_csg_step(self : Design) -> String {
       Some(root_ref) => {
         let root_is_boolean = match ctx.entities.get(root_ref.id.value) {
           Some(@repository.AnyEntity::BooleanResult(_)) => true
+          // Edge features are emitted as a raw `MOONBIT_EDGE_FEATURE` entity
+          // that the evaluator understands; treat them as CSG roots too.
+          Some(@repository.AnyEntity::RawEntity(_)) => true
           _ => false
         }
         if root_is_boolean {

@@ -43,3 +43,15 @@ references, shell topology, orientation, planarity, OCCT `checkshape`, and
 watertight tessellation). `assembly-structure/kit-M4x20-assembly.step` is the
 STEP product/occurrence representation and passes everything except the OCCT
 single-shape `checkshape` stage; see `components/KNOWN_ISSUES.md`.
+
+Additional feature-session artifacts (all validated by `generate_all.sh`):
+
+- `bearing-608-detailed.step` — single 608 bearing envelope with analytic
+  spheres and ring chamfers.
+- `bolted-joint-M4-2x5.step` — two plates, screw, washer, and nut (7 watertight
+  solids).
+- `gear-pair-m2-20x40-filleted.step` — involute pair with root fillets and tip
+  chamfers.
+- `frame-2020-200x200x200-rounded.step` — 2020 frame with 1.5 mm outer corner
+  radii (measured post section area 190.37 mm²).
+

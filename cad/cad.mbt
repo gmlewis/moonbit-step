@@ -323,6 +323,10 @@ fn compile_node_shape(
     ExtrudedBezierProfile(e) =>
       compile_extruded_bezier_profile(ctx, node, e, reverse~, parent~)
     SweptProfile(s) => compile_swept_profile(ctx, node, s, reverse~, parent~)
+    Fillet(_) | Chamfer(_) =>
+      abort(
+        "edge feature '\{node.name}' requires an evaluated kernel: the flat STEP writer cannot trim edges. Export with Design::to_step_evaluated() (OCCT) or the Blender backend.",
+      )
     Difference(_) => []
     _ =>
       // This should not be reached for Union shapes as they are expanded in Design::compile

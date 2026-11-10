@@ -46,6 +46,18 @@ async fn main {
       0.05,
       help="Centre-distance offset in mm (backlash)",
     ),
+    "rootFillet": @cli.opt_double(
+      0.0,
+      short='f',
+      help="Root fillet radius in mm (0 = sharp root)",
+      min=0.0,
+    ),
+    "tipChamfer": @cli.opt_double(
+      0.0,
+      short='c',
+      help="Tip chamfer distance in mm (0 = sharp tip)",
+      min=0.0,
+    ),
     "mode": @cli.opt_string(
       short='M',
       help="Output mode: flat (default) or assembly",
@@ -69,6 +81,8 @@ async fn main {
   let bore = args.double("bore")
   let mate_bore = args.double("mateBore")
   let offset = args.double("offset")
+  let root_fillet = args.double("rootFillet")
+  let tip_chamfer = args.double("tipChamfer")
   let driver = match
     @gears.SpurGearParams::new(
       module_mm~,
@@ -76,6 +90,8 @@ async fn main {
       pressure_angle_deg=pressure,
       face_width_mm=face,
       bore_diameter_mm=bore,
+      root_fillet_radius_mm=root_fillet,
+      tip_chamfer_mm=tip_chamfer,
     ) {
     Ok(p) => p
     Err(e) => {
@@ -90,6 +106,8 @@ async fn main {
       pressure_angle_deg=pressure,
       face_width_mm=face,
       bore_diameter_mm=mate_bore,
+      root_fillet_radius_mm=root_fillet,
+      tip_chamfer_mm=tip_chamfer,
     ) {
     Ok(p) => p
     Err(e) => {

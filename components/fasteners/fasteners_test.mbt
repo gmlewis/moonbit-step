@@ -247,7 +247,9 @@ test "iso10642 M4x16 detailed countersunk head dimensions and layers" {
   assert_true(close(x0, -4.2))
   assert_true(close(x1, 4.2))
   assert_true(close(z0, 0.0))
-  assert_true(close(z1, 18.3))
+  // ISO 10642 measures length over the flush countersunk head, so the overall
+  // extent equals the nominal length (16 mm), not length + head height.
+  assert_true(close(z1, 16.0))
   assert_true(screw.metadata().standard == "ISO 10642:2004")
   // The socket band is a real hex through-hole over an analytic head floor.
   let floor = layer_shape(screw, "ISO10642-M4-16/head-floor")
@@ -276,4 +278,74 @@ test "new head standards reject unsupported sizes and lengths" {
     @fasteners.iso7380_screw(@standards.M4, 2.0) is Err(_),
     content="true",
   )
+}
+
+///|
+test "simplified nut omits the face chamfer with a reason" {
+  let nut = match @fasteners.iso4032_nut(@standards.M4) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  let features = nut.features()
+  assert_false(features.has_modeled("nut-face-chamfer"))
+  assert_true(features.omission_reason("nut-face-chamfer") is Some(_))
+  assert_true(features.has_approximated("through-bore"))
+  assert_true(nut.documentation().contains("Features omitted"))
+}
+
+///|
+test "detailed nut models the face chamfer and records it" {
+  let nut = match @fasteners.iso4032_nut(@standards.M4, detail=Detailed) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  let features = nut.features()
+  assert_true(features.has_modeled("nut-face-chamfer"))
+  assert_true(features.omission_reason("nut-face-chamfer") is None)
+  assert_true(nut.to_step().contains("Features modeled"))
+}
+
+///|
+test "detailed socket screw models the head chamfer" {
+  let screw = unwrap_screw(@standards.M4, 20.0, Detailed)
+  let features = screw.features()
+  assert_true(features.has_modeled("head-chamfer"))
+  assert_true(features.has_modeled("blind-hex-socket"))
+  assert_true(features.omission_reason("thread") is Some(_))
+}
+
+///|
+test "fully modeled screw records the swept thread" {
+  let screw = unwrap_screw(@standards.M4, 20.0, FullyModeled)
+  let features = screw.features()
+  assert_true(features.has_modeled("helical-thread"))
+  assert_true(features.has_approximated("helical-ridge"))
+}
+
+///|
+test "washer records its modeled body and omitted chamfer" {
+  let washer = match @fasteners.iso7089_washer(@standards.M4) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  let features = washer.features()
+  assert_true(features.has_modeled("body"))
+  assert_true(features.has_approximated("through-bore"))
+  assert_true(features.omission_reason("edge-chamfer") is Some(_))
+}
+
+///|
+test "button and countersunk heads record analytic dome and cone" {
+  let button = match
+    @fasteners.iso7380_screw(@standards.M4, 16.0, detail=Detailed) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  assert_true(button.features().has_modeled("head-dome-sphere"))
+  let countersunk = match
+    @fasteners.iso10642_screw(@standards.M4, 16.0, detail=Detailed) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  assert_true(countersunk.features().has_modeled("head-countersink-cone"))
 }

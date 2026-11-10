@@ -26,6 +26,20 @@ pub fn shaft(
                 source="Parametric cylinder; no standard table is implied.",
               ),
               description="Plain cylindrical shaft with no keyway, shoulder, or chamfer.",
+              features=@common.FeatureRecord::new(modeled=["body"], omitted=[
+                @common.Omission::new(
+                  feature="keyway",
+                  reason="not modelled; represent it with an evaluated cut",
+                ),
+                @common.Omission::new(
+                  feature="shaft-chamfer",
+                  reason="not modelled by this builder",
+                ),
+                @common.Omission::new(
+                  feature="shoulder-fillet",
+                  reason="a plain shaft has no shoulder",
+                ),
+              ]),
             ).add_layer(
               @cad.Cylinder::new(diameter_mm, length_mm),
               name="body",
@@ -84,6 +98,20 @@ pub fn stepped_shaft(
       source="Parametric stack of cylinders; no standard table is implied.",
     ),
     description="Coaxial cylindrical segments with sharp shoulders. Keyways and chamfers are not modeled.",
+    features=@common.FeatureRecord::new(modeled=["body"], omitted=[
+      @common.Omission::new(
+        feature="shoulder-fillet",
+        reason="sharp shoulders at this builder; use filleted_stepped_shaft",
+      ),
+      @common.Omission::new(
+        feature="keyway",
+        reason="not modelled; represent it with an evaluated cut",
+      ),
+      @common.Omission::new(
+        feature="shaft-chamfer",
+        reason="not modelled by this builder",
+      ),
+    ]),
   )
   let mut z = 0.0
   for i, segment in segments {
@@ -133,6 +161,26 @@ pub fn spacer(
                   source="Parametric tube; no standard table is implied.",
                 ),
                 description="Plain cylindrical spacer with a through bore.",
+                features=@common.FeatureRecord::new(
+                  modeled=["body"],
+                  approximated=[
+                    @common.Approximation::new(
+                      feature="through-bore",
+                      kind=@common.ApproximationKind::PolylineArc,
+                      deviation_mm=@common.chord_deviation(
+                        outer_diameter_mm / 2.0,
+                        64,
+                      ),
+                      control="circle_segments=64",
+                    ),
+                  ],
+                  omitted=[
+                    @common.Omission::new(
+                      feature="edge-chamfer",
+                      reason="not modelled by this builder",
+                    ),
+                  ],
+                ),
               ).add_layer(body, name="body", color~),
             )
           }
@@ -179,6 +227,12 @@ pub fn key(
                     source="Plain rectangular key; verify the key size against the applicable shaft standard.",
                   ),
                   description="Rectangular machine key, sharp edges.",
+                  features=@common.FeatureRecord::new(modeled=["body"], omitted=[
+                    @common.Omission::new(
+                      feature="edge-rounds",
+                      reason="not modelled by this builder",
+                    ),
+                  ]),
                 ).add_layer(
                   @cad.Cuboid::new(length_mm, width_mm, height_mm),
                   name="body",
@@ -260,6 +314,22 @@ pub fn filleted_stepped_shaft(
     Ok(_) => ()
   }
   let name = "filleted-shaft-\{n}-step"
+  let mut shaft_features = @common.FeatureRecord::new(modeled=["body"], omitted=[
+    @common.Omission::new(
+      feature="keyway",
+      reason="not modelled; represent it with an evaluated cut",
+    ),
+  ])
+  if f > 0.0 {
+    shaft_features = shaft_features.add_modeled("shoulder-fillet")
+  } else {
+    shaft_features = shaft_features.add_omitted(
+      @common.Omission::new(
+        feature="shoulder-fillet",
+        reason="fillet radius is zero",
+      ),
+    )
+  }
   Ok(
     @common.Component::new(
       name~,
@@ -271,6 +341,7 @@ pub fn filleted_stepped_shaft(
         source="Parametric solid of revolution with circular shoulder fillets; no standard table is implied.",
       ),
       description="Stepped shaft with toroidal shoulder fillets on increasing steps. Decreasing steps and steps too short for the fillet stay sharp.",
+      features=shaft_features,
     ).add_layer(profile.as_shape(), name="body", color~),
   )
 }
