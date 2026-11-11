@@ -1183,11 +1183,11 @@
           "--length",
           "10",
           "--detail",
-          "detailed",
+          "simplified",
           "-o",
           "{out}"
         ],
-        "output": "iso7380-M4x10-detailed.step"
+        "output": "iso7380-M4x10-simplified.step"
       },
       "comparison": {
         "solids": 1,
@@ -1268,11 +1268,11 @@
           "--length",
           "12",
           "--detail",
-          "detailed",
+          "simplified",
           "-o",
           "{out}"
         ],
-        "output": "iso7380-M5x12-detailed.step"
+        "output": "iso7380-M5x12-simplified.step"
       },
       "comparison": {
         "solids": 1,
@@ -1354,11 +1354,11 @@
           "--length",
           "10",
           "--detail",
-          "detailed",
+          "simplified",
           "-o",
           "{out}"
         ],
-        "output": "iso10642-M4x10-detailed.step"
+        "output": "iso10642-M4x10-simplified.step"
       },
       "comparison": {
         "solids": 1,
@@ -1444,11 +1444,11 @@
           "--length",
           "12",
           "--detail",
-          "detailed",
+          "simplified",
           "-o",
           "{out}"
         ],
-        "output": "iso10642-M5x12-detailed.step"
+        "output": "iso10642-M5x12-simplified.step"
       },
       "comparison": {
         "solids": 1,

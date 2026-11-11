@@ -50,7 +50,9 @@ def load_mesh_module():
 MESH = load_mesh_module()
 
 
-# Representative matrix. Sections are interior planes (never a cap plane):
+# Headed screws/bolts use the head-underside datum (countersunk: flush top),
+# so their interior section planes are negative Z. Sections are interior planes
+# (never a cap plane):
 # measure_step_mesh.py tessellates, and a plane exactly on a cap can miss a
 # layer. `skip_sections` and `skip_extents` carry the typed reason.
 MATRIX = [
@@ -58,7 +60,7 @@ MATRIX = [
         "name": "ISO4762-M4x20-detailed",
         "args": ["--standard", "iso4762", "--size", "M4", "--length", "20",
                  "--detail", "detailed"],
-        "sections": [5.0, 23.0],
+        "sections": [-15.0, 3.0],
     },
     {
         "name": "ISO4762-M4x20-full-thread",
@@ -81,25 +83,25 @@ MATRIX = [
         "name": "ISO4017-M5x20-detailed",
         "args": ["--standard", "iso4017", "--size", "M5", "--length", "20",
                  "--detail", "detailed"],
-        "sections": [5.0, 18.0],
+        "sections": [-15.0, -2.0],
     },
     {
         "name": "ISO4014-M8x40-detailed",
         "args": ["--standard", "iso4014", "--size", "M8", "--length", "40",
                  "--detail", "detailed"],
-        "sections": [10.0, 36.0],
+        "sections": [-30.0, -4.0],
     },
     {
         "name": "ISO7380-M4x16-detailed",
         "args": ["--standard", "iso7380", "--size", "M4", "--length", "16",
                  "--detail", "detailed"],
-        "sections": [5.0, 14.0],
+        "sections": [-11.0, -2.0],
     },
     {
         "name": "ISO10642-M4x16-detailed",
         "args": ["--standard", "iso10642", "--size", "M4", "--length", "16",
                  "--detail", "detailed"],
-        "sections": [5.0],
+        "sections": [-11.0],
     },
     {
         "name": "DIN976-M8x200-detailed",

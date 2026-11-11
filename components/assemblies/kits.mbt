@@ -30,7 +30,12 @@ pub fn metric_hardware_kit(
       name~,
       description="Socket head cap screw with flat washer and hex nut, separated along the screw axis.",
     )
-    .add(screw, instance_name="screw")
+    .add(
+      screw,
+      // Datum is the head underside; lift it so the tip rests on z = 0.
+      placement=@common.Placement::translation(0.0, 0.0, screw_length_mm),
+      instance_name="screw",
+    )
     .add(
       washer,
       placement=@common.Placement::translation(
@@ -89,13 +94,9 @@ pub fn fastener_grid_plate(
       let x = x0 + ix.to_double() * pitch_x_mm
       let y = y0 + iy.to_double() * pitch_y_mm
       let index = iy * cols + ix + 1
-      // Screw: head upward. The screw origin is the shank end, so put the
-      // shank end at -screw_length from the plate face.
-      let screw_placement = @common.Placement::translation(
-        x,
-        y,
-        -screw_length_mm,
-      )
+      // Screw: head upward. The datum is the head underside, which sits on
+      // the pattern face at z = 0; the shank spans -L .. 0.
+      let screw_placement = @common.Placement::translation(x, y, 0.0)
       assembly = assembly.add(
         screw,
         placement=screw_placement,

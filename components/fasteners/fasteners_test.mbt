@@ -48,8 +48,9 @@ test "m4x20 simplified screw bounding box and metadata" {
   assert_true(close(x1, 3.5))
   assert_true(close(y0, -3.5))
   assert_true(close(y1, 3.5))
-  assert_true(close(z0, 0.0))
-  assert_true(close(z1, 24.0))
+  // Datum is the head underside: head 0..k, shank -length..0.
+  assert_true(close(z0, -20.0))
+  assert_true(close(z1, 4.0))
   assert_true(screw.name() == "ISO4762-M4-20")
   assert_true(screw.metadata().designation == "ISO 4762 - M4 x 20")
   assert_true(screw.metadata().standard == "ISO 4762:2004")
@@ -95,8 +96,8 @@ test "m3 m4 m5 screws all build" {
   for size in [@standards.M3, @standards.M4, @standards.M5] {
     let screw = unwrap_screw(size, size.nominal_diameter_mm() * 5.0, Simplified)
     let (_x0, _x1, _y0, _y1, z0, z1) = screw.bounding_box()
-    assert_true(close(z0, 0.0))
-    assert_true(z1 > size.nominal_diameter_mm() * 5.0)
+    assert_true(close(z0, -size.nominal_diameter_mm() * 5.0))
+    assert_true(z1 > 0.0)
   }
 }
 
@@ -260,8 +261,9 @@ test "iso 4017 hex head screw geometry" {
   let (x0, x1, _y0, _y1, z0, z1) = screw.bounding_box()
   assert_true(close(x0, -3.5))
   assert_true(close(x1, 3.5))
-  assert_true(close(z0, 0.0))
-  assert_true(close(z1, 22.8))
+  // Head underside at 0; ISO 4017 M4 head height is 2.8 mm.
+  assert_true(close(z0, -20.0))
+  assert_true(close(z1, 2.8))
   assert_true(screw.name() == "ISO4017-M4-20")
 }
 
@@ -319,8 +321,9 @@ test "iso7380 M4x16 detailed button head dimensions and layers" {
   assert_true(close(x1, 3.8))
   assert_true(close(y0, -3.8))
   assert_true(close(y1, 3.8))
-  assert_true(close(z0, 0.0))
-  assert_true(close(z1, 18.2))
+  // Head underside at 0; ISO 7380 M4 head height is 2.2 mm.
+  assert_true(close(z0, -16.0))
+  assert_true(close(z1, 2.2))
   assert_true(screw.metadata().standard == "ISO 7380-1:2022")
   let names = layer_names(screw)
   assert_true(names.length() == 1)
@@ -340,10 +343,9 @@ test "iso10642 M4x16 detailed countersunk head dimensions and layers" {
   let (x0, x1, _y0, _y1, z0, z1) = screw.bounding_box()
   assert_true(close(x0, -4.2))
   assert_true(close(x1, 4.2))
-  assert_true(close(z0, 0.0))
-  // ISO 10642 measures length over the flush countersunk head, so the overall
-  // extent equals the nominal length (16 mm), not length + head height.
-  assert_true(close(z1, 16.0))
+  // Datum is the flush top face: top at 0, tip at -length.
+  assert_true(close(z0, -16.0))
+  assert_true(close(z1, 0.0))
   assert_true(screw.metadata().standard == "ISO 10642:2004")
   // One closed solid carries the countersink cone and the blind hex socket.
   assert_true(layer_names(screw).length() == 1)
@@ -454,7 +456,7 @@ test "ISO 4762 thread length is measured from the tip" {
     }
   }
   assert_true(step_at_14)
-  assert_true(close(layer_z(screw, "ISO4762-M4-20/helical-thread"), 0.0))
+  assert_true(close(layer_z(screw, "ISO4762-M4-20/helical-thread"), -20.0))
 }
 
 ///|
@@ -487,9 +489,9 @@ test "ISO 4014 thread length is measured from the tip" {
     Ok(c) => c
     Err(e) => abort(e.message())
   }
-  assert_true(close(layer_z(bolt, "ISO4014-M8-80/thread-core"), 0.0))
-  // b = 2 * 8 + 6 = 22 mm for L <= 125.
-  assert_true(close(layer_z(bolt, "ISO4014-M8-80/plain-shank"), 22.0))
+  assert_true(close(layer_z(bolt, "ISO4014-M8-80/thread-core"), -80.0))
+  // b = 2 * 8 + 6 = 22 mm for L <= 125, measured from the tip at -80.
+  assert_true(close(layer_z(bolt, "ISO4014-M8-80/plain-shank"), -58.0))
 }
 
 ///|

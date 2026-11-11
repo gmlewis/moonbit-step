@@ -360,6 +360,12 @@ def chamfer_checks(
 ) -> list[dict]:
     """Independent measured chamfer/lead-in/thread checks from vertex rings."""
     rings = feats.get("vertex_rings") or []
+    # Headed screw/bolt datums are the head underside (countersunk: flush top),
+    # so the shank tip is at -length. Normalize Z back to the tip-at-0 frame
+    # the feature checks below are written in; the checks themselves and the
+    # golden comparison are unchanged.
+    if family in ("iso4762", "iso4017", "iso4014", "iso7380", "iso10642"):
+        rings = [dict(r, z_mm=r["z_mm"] + length) for r in rings]
     checks: list[dict] = []
 
     def add(name: str, ok: bool, detail_text: str) -> None:
@@ -461,7 +467,8 @@ def chamfer_checks(
             add("hex-head-full-radius", ring_present(rings, length + k - c, hex_circumradius(s), 6),
                 ring_report(rings, length + k - c, hex_circumradius(s), 6))
             tc = tip_chamfer(d)
-            full_d = minor(d, PITCH[size]) if detail == "full" else d
+            # Unthreaded shanks are at D1; the swept ridge core is at d3.
+            full_d = minor(d, PITCH[size]) if detail == "full" else minor_d1(d, PITCH[size])
             r_tip = full_d / 2.0 - tc
             add("shank-tip-chamfer",
                 cone_present(feats, full_d / 2.0, 45.0) and ring_present(rings, 0.0, r_tip, 1),
@@ -502,7 +509,8 @@ def chamfer_checks(
             add("socket-floor", ring_present(rings, length - t, hex_circumradius(s), 6),
                 ring_report(rings, length - t, hex_circumradius(s), 6))
             tc = tip_chamfer(d)
-            full_d = minor(d, PITCH[size]) if detail == "full" else d
+            # Unthreaded shanks are at D1; the swept ridge core is at d3.
+            full_d = minor(d, PITCH[size]) if detail == "full" else minor_d1(d, PITCH[size])
             r_tip = full_d / 2.0 - tc
             add("shank-tip-chamfer",
                 cone_present(feats, full_d / 2.0, 45.0) and ring_present(rings, 0.0, r_tip, 1),

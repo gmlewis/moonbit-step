@@ -61,8 +61,16 @@ fn hex_head_shape(
     }
     c
   } else {
+    // Without modeled threads the shank uses the ISO 68-1 basic internal
+    // minor diameter D1 (the table "minor diameter"), matching the downloaded
+    // hexagon-head goldens.
     base.add_layer(
-      tip_chamfered_cylinder(d, length_mm, tip_chamfer, segments~),
+      tip_chamfered_cylinder(
+        thread.internal_minor_diameter_mm(),
+        length_mm,
+        tip_chamfer,
+        segments~,
+      ),
       name="shank",
       color=shank_color,
     )
@@ -84,7 +92,8 @@ fn hex_head_shape(
     color=head_color,
     placement=@common.Placement::translation(0.0, 0.0, length_mm),
   )
-  component
+  // Datum: head underside at z = 0, head +Z, shank -Z.
+  component.translate(z=-length_mm)
 }
 
 ///|
@@ -148,8 +157,8 @@ fn hex_head_feature_record(
 ///|
 /// iso4017_screw builds a fully threaded ISO 4017 hexagon head screw.
 ///
-/// Axis +Z, origin at the free end of the shank; the hexagon head occupies
-/// `z = length .. length + k`.
+/// Axis +Z, origin at the head underside (bearing face); the hexagon head
+/// occupies `z = 0 .. k` and the shank `z = -length .. 0`.
 pub fn iso4017_screw(
   spec : @standards.ISO4017Spec,
   detail~ : @common.DetailLevel = Simplified,
@@ -170,7 +179,7 @@ pub fn iso4017_screw(
     thread_rep,
     name,
     spec.metadata(),
-    "Hexagon head screw; layered body and head. At Detailed and above the head top edge and the shank tip carry 45-degree engineering chamfers." +
+    "Hexagon head screw; layered body and head. Without modeled threads the shank uses the ISO 68-1 basic minor diameter D1. At Detailed and above the head top edge and the shank tip carry 45-degree engineering chamfers." +
     thread_note(thread_rep),
   )
 }
@@ -197,6 +206,9 @@ pub fn iso4017(
 
 ///|
 /// iso4014_bolt builds a partially threaded ISO 4014 hexagon head bolt.
+///
+/// Axis +Z, origin at the head underside (bearing face); the hexagon head
+/// occupies `z = 0 .. k` and the shank `z = -length .. 0`.
 pub fn iso4014_bolt(
   spec : @standards.ISO4014Spec,
   detail~ : @common.DetailLevel = Simplified,
@@ -217,7 +229,7 @@ pub fn iso4014_bolt(
     thread_rep,
     name,
     spec.metadata(),
-    "Hexagon head bolt; layered body and head. At Detailed and above the head top edge and the shank tip carry 45-degree engineering chamfers." +
+    "Hexagon head bolt; layered body and head. Without modeled threads the shank uses the ISO 68-1 basic minor diameter D1. At Detailed and above the head top edge and the shank tip carry 45-degree engineering chamfers." +
     thread_note(thread_rep),
   )
 }

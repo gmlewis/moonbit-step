@@ -277,6 +277,13 @@ def adjust_for_golden(name, tool, args, detail, detail_explicit):
         set_option(args, "--rollers", "0")
         if not detail_explicit:
             set_option(args, "--detail", "simplified")
+    if tool.endswith("/fasteners") and name.endswith("_simple.step"):
+        # The catalogue's "_simple" button and countersunk models have sharp
+        # rims and no tip break or socket lead-in, so the library's Simplified
+        # level matches their feature set. Hex-head "_simple" models do carry
+        # the head washer chamfer, so they stay at Detailed.
+        if arg_value(args, "--standard") in ("iso7380", "iso10642") and not detail_explicit:
+            set_option(args, "--detail", "simplified")
     if detail_explicit and (
         tool.endswith("/fasteners") or tool.endswith("/bearing")
     ):

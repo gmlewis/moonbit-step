@@ -39,12 +39,15 @@ test "fastener size and length sweep has finite symmetric bboxes" {
       }
       let bbox = screw.bounding_box()
       assert_finite_bbox("ISO4762 " + size.designation(), bbox)
-      let (x0, x1, y0, y1, _z0, z1) = bbox
+      let (x0, x1, y0, y1, z0, z1) = bbox
       // A socket head cap screw is symmetric about both plan axes.
       assert_true(sweep_close(x0, -x1, 1.0e-9))
       assert_true(sweep_close(y0, -y1, 1.0e-9))
-      // The head adds material above the nominal length.
-      assert_true(z1 > length + 1.0)
+      // Datum is the head underside: shank down to -length, head above 0.
+      assert_true(sweep_close(z0, -length, 1.0e-9))
+      assert_true(z1 > 0.0)
+      // The head adds material above the nominal shank length.
+      assert_true(z1 - z0 > length + 1.0)
       let nut = match @fasteners.iso4032_nut(size, detail=@common.Detailed) {
         Ok(c) => c
         Err(e) => abort(e.message())

@@ -135,7 +135,9 @@ pub fn bolted_joint(
     Err(e) => return Err(e)
     Ok(c) => c
   }
-  let screw_z = -nut_height
+  // The screw datum is its head underside, so place that face on the washer
+  // top: 2t (plates) + washer_height. Its tip then lands at -nut_height.
+  let screw_z = 2.0 * plate_thickness_mm + washer_height
   let top_plate_z = plate_thickness_mm
   let washer_z = 2.0 * plate_thickness_mm
   let name = "bolted-joint-\{size.designation()}-\{@fasteners.format_length(plate_thickness_mm)}"

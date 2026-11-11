@@ -1,12 +1,10 @@
 ///|
 /// iso10642_screw builds an ISO 10642 countersunk head hexagon socket screw.
 ///
-/// The head is an analytic revolved frustum: a 90-degree countersink cone
-/// (45-degree half-angle) whose floor layer is a true `CONICAL_SURFACE`, and a
-/// flat top face carrying a real hexagon socket. The upper part of the head
-/// (the socket band) is built from a ring stack so the hexagonal through-hole
-/// can be layered over the solid socket floor; its outer cone is a
-/// high-resolution polygon with a documented deviation.
+/// The head is a 90-degree included-angle countersink cone with a flush top
+/// face carrying a real hexagon socket. The datum is the centre of the flush
+/// top face: the head occupies `z = -k .. 0`, the shank `z = -length .. -k`,
+/// and the socket opens at `z = 0`.
 pub fn iso10642_screw(
   size : @standards.MetricSize,
   length_mm : Double,
@@ -53,7 +51,7 @@ fn countersunk_screw(
   let base = @common.Component::new(
     name~,
     metadata=spec.metadata(),
-    description="Single closed solid: a solid of revolution (shank, 90-degree countersink cone, flush top face) with a blind hexagonal socket cut into the top; six planar socket walls and a planar hexagonal floor bound the pocket." +
+    description="Single closed solid: a solid of revolution (shank, 90-degree countersink cone, flush top face) with a blind hexagonal socket cut into the top; six planar socket walls and a planar hexagonal floor bound the pocket. Without modeled threads the shank uses the ISO 68-1 basic minor diameter D1." +
       thread_note(thread_rep),
     features~,
   )
@@ -76,7 +74,13 @@ fn countersunk_screw(
   }
   let threaded = thread_rep is @common.ThreadRepresentation::Helical
   let thread_length = head_z
-  let core_d = if threaded { thread.external_minor_diameter_mm() } else { d }
+  // Without modeled threads the shank uses the ISO 68-1 basic internal minor
+  // diameter D1, matching the downloaded countersunk goldens.
+  let core_d = if threaded {
+    thread.external_minor_diameter_mm()
+  } else {
+    thread.internal_minor_diameter_mm()
+  }
   let core_r = core_d / 2.0
   let pts : Array[@cad.Vec2] = [(0.0, 0.0)]
   if tip > 0.0 && tip < core_r {
@@ -85,12 +89,8 @@ fn countersunk_screw(
   } else {
     pts.push((core_r, 0.0))
   }
-  if threaded {
-    pts.push((core_r, head_z))
-    if core_r < r_sh - FASTENER_EPS {
-      pts.push((r_sh, head_z))
-    }
-  } else {
+  pts.push((core_r, head_z))
+  if core_r < r_sh - FASTENER_EPS {
     pts.push((r_sh, head_z))
   }
   if cyl_h > FASTENER_EPS {
@@ -124,16 +124,19 @@ fn countersunk_screw(
   }
   let _ = z_floor
   let _ = segments
-  component
+  // Datum: flush top face at z = 0, head -Z, shank further -Z.
+  component.translate(z=-length)
 }
 
 ///|
 /// iso7380_screw builds an ISO 7380-1 button head hexagon socket screw.
 ///
 /// The head is a spherical-cap dome (an analytic `SPHERICAL_SURFACE`) with a
-/// flat top face and a real hexagon socket. The flat-top radius and the socket
-/// band are documented engineering choices; the head diameter, height, socket
-/// size and depth are the standard's nominal values.
+/// flat top face and a real hexagon socket. The datum is the head underside
+/// (bearing face): the head occupies `z = 0 .. k` and the shank
+/// `z = -length .. 0`. The flat-top radius and the socket band are documented
+/// engineering choices; the head diameter, height, socket size and depth are
+/// the standard's nominal values.
 pub fn iso7380_screw(
   size : @standards.MetricSize,
   length_mm : Double,
@@ -252,7 +255,8 @@ fn button_screw(
     }
   }
   let _ = segments
-  component
+  // Datum: head underside at z = 0, head +Z, shank -Z.
+  component.translate(z=-length)
 }
 
 ///|

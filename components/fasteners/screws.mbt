@@ -1,9 +1,10 @@
 ///|
 /// socket_head_cap_screw builds an ISO 4762 hexagon socket head cap screw.
 ///
-/// The screw axis is +Z with the origin at the free end of the shank. The head
-/// occupies `z = length .. length + k`. This is a right-handed component and
-/// is intended to be inserted along +Z.
+/// The screw axis is +Z with the origin at the centre of the head underside
+/// (the bearing face). The head occupies `z = 0 .. k` and the shank
+/// `z = -length .. 0`, so the flat bearing face rests on the `z = 0` plane.
+/// This is a right-handed component and is intended to be inserted along -Z.
 ///
 /// Construction is layered rather than boolean-trimmed: the head is a solid
 /// floor disc plus a socket ring with a hexagonal through-hole, so the socket
@@ -119,7 +120,8 @@ pub fn socket_head_cap_screw(
       None => ()
     }
   }
-  component
+  // Datum: head underside at z = 0, head +Z, shank -Z.
+  component.translate(z=-length)
 }
 
 ///|
