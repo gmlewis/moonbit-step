@@ -359,9 +359,10 @@ test "shielded bearing is a single-solid 14-face envelope" {
   assert_eq(motion_count_sub(step, "CONICAL_SURFACE("), 6)
   assert_eq(motion_count_sub(step, "PLANE("), 6)
   assert_eq(motion_count_sub(step, "SPHERICAL_SURFACE("), 0)
-  // One solid style plus six black shield-groove face styles.
-  assert_eq(motion_count_sub(step, "STYLED_ITEM("), 7)
-  assert_eq(motion_count_sub(step, "COLOUR_RGB("), 7)
+  // One solid style plus two black flat-shield face styles. The 45-degree
+  // groove walls stay metal and carry no extra style.
+  assert_eq(motion_count_sub(step, "STYLED_ITEM("), 3)
+  assert_eq(motion_count_sub(step, "COLOUR_RGB("), 3)
   let features = part.features()
   assert_true(features.has_modeled("shield-groove"))
   assert_true(features.has_modeled("shield-face-black"))

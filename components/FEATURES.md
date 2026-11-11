@@ -140,9 +140,10 @@ The rings-only variant matches the step.parts `*_open_simple` envelopes: two
 rings, a narrow face groove, and no rolling elements. The shielded variant
 (`shielded_bearing`) matches the downloaded 608ZZ: one solid of revolution,
 Ø22 × 7, with a recessed 45° shield groove on each face, two cylinders, six
-cones, six planes, and no balls; its volume is 2242.93 mm³. The recessed groove
-faces are styled black with face-level STEP `STYLED_ITEM`s, so the single solid
-matches the reference's grey rings and black shield without adding bodies.
+cones, six planes, and no balls; its volume is 2242.93 mm³. Only the flat shield
+faces are styled black with face-level STEP `STYLED_ITEM`s; the 45° groove walls
+and rings stay light metal, so the single solid matches the reference without
+adding bodies.
 
 ### Shafts
 

@@ -314,11 +314,11 @@ pub fn shielded_bearing(
     (r_inner_face, zf),
     (rb, zf),
   ]
-  // The reference colors the recessed shield groove black and leaves the rings
-  // light grey. Emit the groove faces (both walls and the floor) as face-level
-  // black styles; the solid stays one closed B-rep.
+  // The reference colors only the flat shield faces black; the 45-degree
+  // groove walls and the rings stay light metal. Bands 2 and 10 are the bottom
+  // and top groove floors in the profile point order above.
   let mut profile = @cad.RevolvedProfile::polyline(points, closed=true)
-  for band in [1, 2, 3, 9, 10, 11] {
+  for band in [2, 10] {
     profile = profile.with_band_color(band, @cad.Rgb::black())
   }
   let body = profile.as_shape()
@@ -340,7 +340,7 @@ pub fn shielded_bearing(
         size=size.designation,
         source="Boundary dimensions from common ISO 15 / catalogue tables; the shield groove and ring proportions are parametric envelope geometry, not catalogue internals. See components/DATA_SOURCES.md.",
       ),
-      description="Single-solid shielded bearing envelope: outer and inner rings joined by a recessed 45-degree shield groove on each face. The groove faces are styled black to match the reference; the rings are light grey. No rolling elements, cage, or separate shield plate; the groove floor is the shield seat. Centered on z = 0.",
+      description="Single-solid shielded bearing envelope: outer and inner rings joined by a recessed 45-degree shield groove on each face. The flat shield faces are styled black to match the reference; the 45-degree groove walls and the rings stay light metal. No rolling elements, cage, or separate shield plate; the groove floor is the shield seat. Centered on z = 0.",
       features~,
     ).add_layer(body, name="body", color=metal),
   )
