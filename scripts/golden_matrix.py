@@ -294,6 +294,51 @@ def ring_present(
     )
 
 
+def cone_present(
+    feats: dict,
+    radius: float,
+    semi_angle_deg: float = 45.0,
+    tol: float = LINEAR_TOL,
+    angle_tol: float = 0.05,
+) -> bool:
+    """True when an analytic CONICAL_SURFACE has this reference radius/angle.
+
+    A circular chamfer is a cone, so it carries one circular edge and one
+    vertex per rim rather than a many-vertex polygon ring. Checking the cone's
+    semi-angle and reference radius is the analytic equivalent of the old
+    vertex-ring count and is strictly stronger: it distinguishes a real cone
+    from a ruled facet stack.
+    """
+    for cone in feats.get("cones") or []:
+        if (
+            abs(cone.get("radius", 0.0) - radius) <= tol
+            and abs(cone.get("semi_angle_deg", 0.0) - semi_angle_deg) <= angle_tol
+        ):
+            return True
+    return False
+
+
+def cone_report(
+    feats: dict, radius: float, semi_angle_deg: float = 45.0
+) -> str:
+    cones = [
+        (round(c.get("radius", 0.0), 4), round(c.get("semi_angle_deg", 0.0), 3))
+        for c in (feats.get("cones") or [])
+    ]
+    return (
+        f"cone r={radius:.4f} angle={semi_angle_deg:.1f}; "
+        f"measured cones: {cones[:8]}"
+    )
+
+
+def cylinder_present(feats: dict, radius: float, tol: float = LINEAR_TOL) -> bool:
+    """True when an analytic CYLINDRICAL_SURFACE has this radius."""
+    return any(
+        abs(c.get("radius", 0.0) - radius) <= tol
+        for c in (feats.get("cylinders") or [])
+    )
+
+
 def ring_radius_count(rings: list[dict], radius: float, tol: float = LINEAR_TOL) -> int:
     """Total vertices lying on a circle of `radius` (any z)."""
     return sum(r["count"] for r in rings if abs(r["radius_mm"] - radius) <= tol)
@@ -324,17 +369,41 @@ def chamfer_checks(
             add("tip-sharp", ring_present(rings, 0.0, d / 2.0, 1), ring_report(rings, 0.0, d / 2.0, 1))
         else:
             c = tip_chamfer(d)
-            r_tip = (minor(d, PITCH[size]) if detail == "full" else d) / 2.0 - c
-            add("tip-chamfer", ring_present(rings, 0.0, r_tip, 32), ring_report(rings, 0.0, r_tip, 32))
-            add("tip-full-radius", ring_present(rings, c, (minor(d, PITCH[size]) if detail == "full" else d) / 2.0, 32),
-                ring_report(rings, c, (minor(d, PITCH[size]) if detail == "full" else d) / 2.0, 32))
+            full_d = minor(d, PITCH[size]) if detail == "full" else d
+            r_tip = full_d / 2.0 - c
+            add(
+                "tip-chamfer",
+                cone_present(feats, full_d / 2.0, 45.0)
+                and ring_present(rings, 0.0, r_tip, 1),
+                f"{cone_report(feats, full_d / 2.0)}; "
+                + ring_report(rings, 0.0, r_tip, 1),
+            )
+            add(
+                "tip-full-radius",
+                ring_present(rings, c, full_d / 2.0, 1),
+                ring_report(rings, c, full_d / 2.0, 1),
+            )
             lead = lead_in(s, t)
-            add("socket-lead-in-top", ring_present(rings, length + k, hex_circumradius(s + 2 * lead), 6),
-                ring_report(rings, length + k, hex_circumradius(s + 2 * lead), 6))
+            add(
+                "socket-lead-in-top",
+                ring_present(rings, length + k, hex_circumradius(s + 2 * lead), 6)
+                and cone_present(feats, hex_circumradius(s) + lead, 45.0),
+                f"{cone_report(feats, hex_circumradius(s) + lead)}; "
+                + ring_report(rings, length + k, hex_circumradius(s + 2 * lead), 6),
+            )
             add("socket-lead-in-base", ring_present(rings, length + k - lead, hex_circumradius(s), 6),
                 ring_report(rings, length + k - lead, hex_circumradius(s), 6))
-            add("head-top-chamfer", ring_present(rings, length + k, dk / 2.0 - head_chamfer(dk, k, t), 32),
-                ring_report(rings, length + k, dk / 2.0 - head_chamfer(dk, k, t), 32))
+            add(
+                "head-top-chamfer",
+                cone_present(feats, dk / 2.0, 45.0)
+                and ring_present(
+                    rings, length + k, dk / 2.0 - head_chamfer(dk, k, t), 1
+                ),
+                f"{cone_report(feats, dk / 2.0)}; "
+                + ring_report(
+                    rings, length + k, dk / 2.0 - head_chamfer(dk, k, t), 1
+                ),
+            )
         if detail == "full":
             ridge = feats.get("surface_counts", {})
             # The swept ridge is polygonal; prove real swept geometry by the
@@ -365,10 +434,14 @@ def chamfer_checks(
     elif family == "iso7089":
         p = ISO7089[size]
         d1, d2, h = p["d1"], p["d2"], p["h"]
-        add("outer-rings", ring_present(rings, 0.0, d2 / 2.0, 32) and ring_present(rings, h, d2 / 2.0, 32),
-            ring_report(rings, 0.0, d2 / 2.0, 32))
-        add("bore-rings", ring_present(rings, 0.0, d1 / 2.0, 32) and ring_present(rings, h, d1 / 2.0, 32),
-            ring_report(rings, h, d1 / 2.0, 32))
+        add("outer-rings",
+            ring_present(rings, 0.0, d2 / 2.0, 1) and ring_present(rings, h, d2 / 2.0, 1)
+            and cylinder_present(feats, d2 / 2.0),
+            f"cylinder r={d2/2.0:.4f}; " + ring_report(rings, 0.0, d2 / 2.0, 1))
+        add("bore-rings",
+            ring_present(rings, 0.0, d1 / 2.0, 1) and ring_present(rings, h, d1 / 2.0, 1)
+            and cylinder_present(feats, d1 / 2.0),
+            f"cylinder r={d1/2.0:.4f}; " + ring_report(rings, h, d1 / 2.0, 1))
         zs = sorted({round(r["z_mm"], 3) for r in rings})
         add("no-edge-chamfer", len(zs) == 2 and abs(zs[0]) < 1e-6 and abs(zs[1] - h) < 1e-6,
             f"distinct measured z levels {zs}")
@@ -385,8 +458,11 @@ def chamfer_checks(
             add("hex-head-full-radius", ring_present(rings, length + k - c, hex_circumradius(s), 6),
                 ring_report(rings, length + k - c, hex_circumradius(s), 6))
             tc = tip_chamfer(d)
-            r_tip = (minor(d, PITCH[size]) if detail == "full" else d) / 2.0 - tc
-            add("shank-tip-chamfer", ring_present(rings, 0.0, r_tip, 32), ring_report(rings, 0.0, r_tip, 32))
+            full_d = minor(d, PITCH[size]) if detail == "full" else d
+            r_tip = full_d / 2.0 - tc
+            add("shank-tip-chamfer",
+                cone_present(feats, full_d / 2.0, 45.0) and ring_present(rings, 0.0, r_tip, 1),
+                f"{cone_report(feats, full_d / 2.0)}; " + ring_report(rings, 0.0, r_tip, 1))
 
     elif family == "iso7380":
         p = ISO7380[size]
@@ -401,8 +477,11 @@ def chamfer_checks(
             add("socket-lead-in-base", ring_present(rings, length + k - lead, hex_circumradius(s), 6),
                 ring_report(rings, length + k - lead, hex_circumradius(s), 6))
             tc = tip_chamfer(d)
-            r_tip = (minor(d, PITCH[size]) if detail == "full" else d) / 2.0 - tc
-            add("shank-tip-chamfer", ring_present(rings, 0.0, r_tip, 32), ring_report(rings, 0.0, r_tip, 32))
+            full_d = minor(d, PITCH[size]) if detail == "full" else d
+            r_tip = full_d / 2.0 - tc
+            add("shank-tip-chamfer",
+                cone_present(feats, full_d / 2.0, 45.0) and ring_present(rings, 0.0, r_tip, 1),
+                f"{cone_report(feats, full_d / 2.0)}; " + ring_report(rings, 0.0, r_tip, 1))
             if detail == "full":
                 add("thread-crest-ring", ring_radius_count(rings, d / 2.0) >= 8,
                     f"crest r={d/2.0:.4f}: {ring_radius_count(rings, d/2.0)} vertices")
@@ -420,8 +499,11 @@ def chamfer_checks(
             add("socket-lead-in-base", ring_present(rings, length - lead, hex_circumradius(s), 6),
                 ring_report(rings, length - lead, hex_circumradius(s), 6))
             tc = tip_chamfer(d)
-            r_tip = (minor(d, PITCH[size]) if detail == "full" else d) / 2.0 - tc
-            add("shank-tip-chamfer", ring_present(rings, 0.0, r_tip, 32), ring_report(rings, 0.0, r_tip, 32))
+            full_d = minor(d, PITCH[size]) if detail == "full" else d
+            r_tip = full_d / 2.0 - tc
+            add("shank-tip-chamfer",
+                cone_present(feats, full_d / 2.0, 45.0) and ring_present(rings, 0.0, r_tip, 1),
+                f"{cone_report(feats, full_d / 2.0)}; " + ring_report(rings, 0.0, r_tip, 1))
             if detail == "full":
                 add("thread-crest-ring", ring_radius_count(rings, d / 2.0) >= 8,
                     f"crest r={d/2.0:.4f}: {ring_radius_count(rings, d/2.0)} vertices")
@@ -432,9 +514,14 @@ def chamfer_checks(
             add("ends-sharp", ring_present(rings, 0.0, d / 2.0, 1), ring_report(rings, 0.0, d / 2.0, 1))
         else:
             c = tip_chamfer(d)
-            r_end = (minor(d, PITCH[size]) if detail == "full" else d) / 2.0 - c
-            add("bottom-lead-in", ring_present(rings, 0.0, r_end, 32), ring_report(rings, 0.0, r_end, 32))
-            add("top-lead-in", ring_present(rings, length, r_end, 32), ring_report(rings, length, r_end, 32))
+            full_d = minor(d, PITCH[size]) if detail == "full" else d
+            r_end = full_d / 2.0 - c
+            add("bottom-lead-in",
+                cone_present(feats, full_d / 2.0, 45.0) and ring_present(rings, 0.0, r_end, 1),
+                f"{cone_report(feats, full_d / 2.0)}; " + ring_report(rings, 0.0, r_end, 1))
+            add("top-lead-in",
+                cone_present(feats, full_d / 2.0, 45.0) and ring_present(rings, length, r_end, 1),
+                f"{cone_report(feats, full_d / 2.0)}; " + ring_report(rings, length, r_end, 1))
             if detail == "full":
                 add("thread-crest-ring", ring_radius_count(rings, d / 2.0) >= 8,
                     f"crest r={d/2.0:.4f}: {ring_radius_count(rings, d/2.0)} vertices")
@@ -490,7 +577,7 @@ def expected_solids(family: str, size: str, length: float, detail: str) -> int:
     if detail != "full":
         return {
             "iso4762": 3, "iso4032": 1, "iso7089": 1, "iso4017": 2,
-            "iso4014": 2, "iso7380": 3, "iso10642": 3, "din976": 1,
+            "iso4014": 2, "iso7380": 4, "iso10642": 4, "din976": 1,
         }[family]
     if family == "iso4762":
         b = thread_b(ISO4762[size]["d"], length)
@@ -503,7 +590,8 @@ def expected_solids(family: str, size: str, length: float, detail: str) -> int:
     if family == "iso4032":
         return 2
     if family in ("iso7380", "iso10642"):
-        return 4
+        # analytic head shell + buried hex socket ring + shank core + ridge
+        return 5
     if family == "din976":
         return 2
     return 1

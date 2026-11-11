@@ -160,6 +160,7 @@ fn emit_node_python(
           holes: [],
         },
         height_mm: c.height,
+        round_bore: None,
       }
       emit_node_python(
         builder,

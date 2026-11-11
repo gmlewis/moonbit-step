@@ -194,7 +194,11 @@ pub fn compile_extruded_bezier_profile(
       if profile.outer.length() < 3 {
         continue
       }
-      let ext = ExtrudedProfile::{ profile, height_mm: extrusion.height_mm, }
+      let ext = ExtrudedProfile::{
+        profile,
+        height_mm: extrusion.height_mm,
+        round_bore: None,
+      }
       faces.push_iter(
         compile_extruded_profile(ctx, node, ext, reverse~, parent~).iter(),
       )

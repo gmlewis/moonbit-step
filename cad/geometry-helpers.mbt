@@ -201,6 +201,46 @@ pub fn matrix_to_euler(m : Matrix3x3) -> Vec3 {
 }
 
 ///|
+/// add_plane_face_with_edge_loops emits a planar face whose outer boundary is a
+/// polygon cycle and whose holes are already-built edge loops (for example
+/// analytic circles). The outer cycle is oriented so its area vector points
+/// along `expected_out`; the hole loops are used exactly as supplied.
+fn add_plane_face_with_edge_loops(
+  ctx : StepContext,
+  edges : Array[EdgeInfo],
+  pts : Array[Vec3],
+  cp_refs : Array[@step.Ref],
+  outer_cycle_in : Array[Int32],
+  hole_loops_in : Array[@step.Ref],
+  expected_out : Vec3,
+  reverse~ : Bool = false,
+) -> @step.Ref {
+  let area_vec = cycle_area_3d(pts, outer_cycle_in)
+  let cycle = if v_dot(area_vec, expected_out) < 0.0 {
+    reverse_cycle(outer_cycle_in)
+  } else {
+    outer_cycle_in
+  }
+  let b0 = cycle[0]
+  let axis_raw = v_norm(expected_out)
+  let refd_raw = v_norm(v_sub(pts[cycle[1]], pts[cycle[0]]))
+  let a2p_ref = ctx.axis2_placement_3d(
+    cp_refs[b0],
+    ctx.direction(axis_raw.0, axis_raw.1, axis_raw.2),
+    ctx.direction(refd_raw.0, refd_raw.1, refd_raw.2),
+  )
+  let plane_ref = ctx.add(
+    @repository.any_entity_plane(@geometry.Plane::new("", a2p_ref)),
+  )
+  let outer_loop_ref = face_loop(ctx, edges, cycle)
+  let bounds : Array[@step.Ref] = [ctx.face_outer_bound(outer_loop_ref, true)]
+  for loop_ref in hole_loops_in {
+    bounds.push(ctx.face_bound(loop_ref, true))
+  }
+  ctx.advanced_face(bounds, plane_ref, !reverse)
+}
+
+///|
 pub(all) struct EdgeInfo {
   start : Int32
   end : Int32

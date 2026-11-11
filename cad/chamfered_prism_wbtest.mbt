@@ -89,3 +89,21 @@ test "tapered hole rejects a z stack that does not close the caps" {
   ])
   inspect(prism.validate() is Err(_), content="true")
 }
+
+///|
+test "hex prism with an analytic round bore has a real cylinder" {
+  let hex = Profile2D::polygon(6, 10.0, rotation=30.0)
+  let prism = ChamferedPrism::new(
+    hex,
+    [(0.0, 0.0), (6.0, 0.0)],
+    round_bore=((0.0, 0.0), 5.0),
+  )
+  inspect(prism.validate() is Ok(_), content="true")
+  let step = Design::new(name="bored-nut")
+    .add(Shape::ChamferedPrism(prism).with_name("nut"))
+    .to_step_file()
+  assert_eq(count_sub(step, "CYLINDRICAL_SURFACE("), 1)
+  assert_eq(count_sub(step, "CIRCLE("), 2)
+  // Six planar hex sides plus two annular caps plus the seam line.
+  assert_eq(count_sub(step, "ADVANCED_FACE("), 9)
+}

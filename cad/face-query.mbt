@@ -373,7 +373,7 @@ pub fn Profile2D::on_face(
     }
   }
   {
-    shape: Shape::ExtrudedProfile({ profile, height_mm, }),
+    shape: Shape::ExtrudedProfile({ profile, height_mm, round_bore: None, }),
     name,
     color,
     tx: ox + nx * shift,

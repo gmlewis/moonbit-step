@@ -421,11 +421,9 @@
             "tol_mm": 0.01
           },
           {
-            "kind": "vertex_ring",
-            "z_mm": 0.0,
-            "radius_mm": 4.5,
-            "min_count": 32,
-            "tol_mm": 0.02
+            "kind": "cylinder_radius_present_mm",
+            "expected": 4.5,
+            "tol_mm": 0.01
           }
         ],
         "mass_properties": {
@@ -676,7 +674,7 @@
         "output": "iso10642-M3x12-detailed.step"
       },
       "comparison": {
-        "solids": 3,
+        "solids": 4,
         "bbox_axes": [
           {
             "axis": 0,
@@ -969,11 +967,9 @@
             "tol_mm": 0.01
           },
           {
-            "kind": "vertex_ring",
-            "z_mm": 0.0,
-            "radius_mm": 3.5,
-            "min_count": 32,
-            "tol_mm": 0.02
+            "kind": "cylinder_radius_present_mm",
+            "expected": 3.5,
+            "tol_mm": 0.01
           }
         ],
         "mass_properties": {
@@ -1078,11 +1074,9 @@
             "tol_mm": 0.01
           },
           {
-            "kind": "vertex_ring",
-            "z_mm": 0.0,
-            "radius_mm": 5.0,
-            "min_count": 32,
-            "tol_mm": 0.02
+            "kind": "cylinder_radius_present_mm",
+            "expected": 5.0,
+            "tol_mm": 0.01
           }
         ],
         "mass_properties": {
@@ -1165,7 +1159,7 @@
         "output": "iso7380-M4x10-detailed.step"
       },
       "comparison": {
-        "solids": 3,
+        "solids": 4,
         "bbox_axes": [
           {
             "axis": 0,
@@ -1250,7 +1244,7 @@
         "output": "iso7380-M5x12-detailed.step"
       },
       "comparison": {
-        "solids": 3,
+        "solids": 4,
         "bbox_axes": [
           {
             "axis": 0,
@@ -1336,7 +1330,7 @@
         "output": "iso10642-M4x10-detailed.step"
       },
       "comparison": {
-        "solids": 3,
+        "solids": 4,
         "bbox_axes": [
           {
             "axis": 0,
@@ -1426,7 +1420,7 @@
         "output": "iso10642-M5x12-detailed.step"
       },
       "comparison": {
-        "solids": 3,
+        "solids": 4,
         "bbox_axes": [
           {
             "axis": 0,

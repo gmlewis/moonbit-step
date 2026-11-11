@@ -60,7 +60,7 @@ test "simplified screw has no thread layer but has a blind socket" {
   let screw = unwrap_screw(@standards.M4, 20.0, Simplified)
   let names = layer_names(screw)
   assert_true(names.any(fn(n) { n == "ISO4762-M4-20/shank" }))
-  assert_true(names.any(fn(n) { n == "ISO4762-M4-20/head-floor" }))
+  assert_true(names.any(fn(n) { n == "ISO4762-M4-20/head-shell" }))
   assert_true(names.any(fn(n) { n == "ISO4762-M4-20/head-socket" }))
   assert_false(names.any(fn(n) { n.contains("thread") }))
 }
@@ -83,7 +83,7 @@ test "fully modeled screw adds a swept helical thread" {
   assert_true(cx0 >= -1.6)
   assert_true(close(cz0, 0.0))
   assert_true(close(cz1, 14.0))
-  let head = match layer_shape(screw, "ISO4762-M4-20/head-floor") {
+  let head = match layer_shape(screw, "ISO4762-M4-20/head-shell") {
     Some(shape) => shape
     None => abort("missing head floor")
   }
@@ -382,7 +382,7 @@ test "simplified nut omits the face chamfer with a reason" {
   let features = nut.features()
   assert_false(features.has_modeled("nut-face-chamfer"))
   assert_true(features.omission_reason("nut-face-chamfer") is Some(_))
-  assert_true(features.has_approximated("through-bore"))
+  assert_true(features.has_modeled("through-bore"))
   assert_true(nut.documentation().contains("Features omitted"))
 }
 
@@ -421,8 +421,8 @@ test "detailed screw tip is a real chamfered solid, simplified is a cylinder" {
     None => abort("missing detailed shank")
   }
   match detailed_shank {
-    @cad.Shape::ChamferedPrism(_) => ()
-    _ => abort("detailed shank should carry a ruled tip chamfer")
+    @cad.Shape::RevolvedProfile(_) => ()
+    _ => abort("detailed shank should carry an analytic conical tip chamfer")
   }
   let simplified = unwrap_screw(@standards.M4, 20.0, Simplified)
   let simplified_shank = match layer_shape(simplified, "ISO4762-M4-20/shank") {
@@ -453,8 +453,8 @@ test "ISO 4762 fully modeled core carries a tip chamfer" {
     None => abort("missing thread core")
   }
   match core {
-    @cad.Shape::ChamferedPrism(_) => ()
-    _ => abort("fully modeled thread core should carry a ruled tip chamfer")
+    @cad.Shape::RevolvedProfile(_) => ()
+    _ => abort("fully modeled thread core should carry an analytic tip chamfer")
   }
 }
 
@@ -553,7 +553,7 @@ test "washer records its modeled body and omitted chamfer" {
   }
   let features = washer.features()
   assert_true(features.has_modeled("body"))
-  assert_true(features.has_approximated("through-bore"))
+  assert_true(features.has_modeled("through-bore"))
   assert_true(features.omission_reason("edge-chamfer") is Some(_))
 }
 
@@ -701,7 +701,7 @@ test "M2-M5 tip chamfer is real geometry at Detailed and absent at Simplified" {
       None => abort("missing detailed shank")
     }
     match detailed_shank {
-      @cad.Shape::ChamferedPrism(_) => ()
+      @cad.Shape::RevolvedProfile(_) => ()
       _ => abort("detailed " + size.designation() + " shank is not chamfered")
     }
     let simplified = unwrap_screw(size, length, Simplified)

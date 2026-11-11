@@ -40,6 +40,8 @@ pub fn hex_nut(@standards.ISO4032Spec, detail? : @common.DetailLevel, threads? :
 
 pub fn hex_profile_across_flats(Double, rotation_deg? : Double) -> Array[(Double, Double)]
 
+pub fn hex_socket_ring(Double, Double, Double, Double) -> @cad.Shape
+
 pub fn hole_profile(Double, segments? : Int32) -> Array[(Double, Double)]
 
 pub fn internal_thread_crest_radius_mm(@standards.ThreadSpec) -> Double

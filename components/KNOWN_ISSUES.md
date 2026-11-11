@@ -436,10 +436,10 @@ approximations are recorded above and in `FEATURES.md`.
   (608 accepts 33 rollers, rejects 34).
 - At `Detailed`, a ring thinner than the 0.2 mm minimum edge chamfer (or a width
   below twice the chamfer) is rejected instead of emitting an inverted annulus.
-- Remaining limitation: the rings are polygonal, so a ball that is nominally
-  tangent to the cylindrical envelope can penetrate the faceted bore by the
-  chord sagitta (about 0.018 mm for 608 at 48 segments, 0.010 mm at 64). This is
-  a visual envelope model, not a raceway model.
+- The rings are now real annular solids of revolution: outer and bore surfaces
+  are analytic cylinders and the edge break is an analytic cone, so a nominally
+  tangent ball meets the true bore with no chord sagitta. The internals remain a
+  visual envelope model, not a raceway model (no groove, cage, or seal).
 
 ### KI-18 — Collision aggregation and policy handling (fixed)
 

@@ -19,6 +19,10 @@ pub struct ChamferedPrism {
   /// close. This is how a real tapered hole (a socket lead-in chamfer or a
   /// countersink) is represented: the hole ring shrinks inward with depth.
   hole_levels : Array[(Double, Double)]?
+  /// Optional analytic circular through-bore `(center, diameter)`. Unlike the
+  /// polygonal `hole`, this compiles to a real `CYLINDRICAL_SURFACE` with
+  /// circular bounding edges, so a hex nut's bore never becomes a polygon.
+  round_bore : (Vec2, Double)?
 }
 
 ///|
@@ -33,8 +37,9 @@ pub fn ChamferedPrism::new(
   levels : Array[(Double, Double)],
   hole? : Array[Vec2],
   hole_levels? : Array[(Double, Double)],
+  round_bore? : (Vec2, Double),
 ) -> ChamferedPrism {
-  { base, levels, hole, hole_levels, }
+  { base, levels, hole, hole_levels, round_bore, }
 }
 
 ///|
@@ -48,6 +53,7 @@ pub fn ChamferedPrism::from_chamfer(
   top_chamfer~ : Double = 0.0,
   chamfer_depth~ : Double = 0.0,
   hole? : Array[Vec2],
+  round_bore? : (Vec2, Double),
 ) -> ChamferedPrism {
   let levels : Array[(Double, Double)] = []
   if bottom_chamfer > 0.0 && chamfer_depth > 0.0 {
@@ -62,7 +68,7 @@ pub fn ChamferedPrism::from_chamfer(
   } else {
     levels.push((height, 0.0))
   }
-  { base, levels, hole, hole_levels: None, }
+  { base, levels, hole, hole_levels: None, round_bore, }
 }
 
 ///|
@@ -119,6 +125,17 @@ pub fn ChamferedPrism::validate(
       if h.length() < 3 || !Profile2D::is_simple(h) {
         return Err(PrismBadHole)
       }
+    None => ()
+  }
+  match self.round_bore {
+    Some((center, diameter)) => {
+      if diameter <= 0.0 || self.hole is Some(_) {
+        return Err(PrismBadHole)
+      }
+      if !is_point_in_polygon(center, self.base) {
+        return Err(PrismBadHole)
+      }
+    }
     None => ()
   }
   match self.hole_levels {
@@ -234,6 +251,19 @@ pub fn compile_chamfered_prism(
   match prism.validate() {
     Err(_) => return []
     Ok(_) => ()
+  }
+  match prism.round_bore {
+    Some((center, diameter)) =>
+      return compile_chamfered_prism_round_bore(
+        ctx,
+        node,
+        prism,
+        center,
+        diameter,
+        reverse~,
+        parent~,
+      )
+    None => ()
   }
   let base_raw = prism.base
   let base = if polygon_area_2d(base_raw) < 0.0 {
@@ -452,6 +482,188 @@ pub fn compile_chamfered_prism(
           ),
         )
       }
+    }
+  }
+  face_refs
+}
+
+///|
+/// compile_chamfered_prism_round_bore emits a ring-stack prism whose hole is a
+/// single analytic circular through-bore. The outer boundary keeps the planar
+/// ruled facets of the ring stack (correct for a hexagonal body), while the
+/// bore is a real `CYLINDRICAL_SURFACE` bounded by `CIRCLE` edges and a seam
+/// line, with annular planar caps. This is how a hex nut gets a true round
+/// bore instead of a many-sided polygon hole.
+fn compile_chamfered_prism_round_bore(
+  ctx : StepContext,
+  node : SceneNode,
+  prism : ChamferedPrism,
+  center : Vec2,
+  diameter : Double,
+  reverse~ : Bool = false,
+  parent~ : Transform? = None,
+) -> Array[@step.Ref] {
+  let xform = node_transform(node, parent)
+  let base_raw = prism.base
+  let base = if polygon_area_2d(base_raw) < 0.0 {
+    base_raw.rev()
+  } else {
+    base_raw
+  }
+  let nc = base.length()
+  let nl = prism.levels.length()
+  let pts_raw : Array[Vec3] = []
+  let rings : Array[Array[Int32]] = []
+  for li in 0..<nl {
+    let (z, inset) = prism.levels[li]
+    let ring = match chamfer_inset(base, inset) {
+      Some(r) => r
+      None => return []
+    }
+    let idxs : Array[Int32] = []
+    for p in ring {
+      idxs.push(pts_raw.length())
+      pts_raw.push((p.0, p.1, z))
+    }
+    rings.push(idxs)
+  }
+  let pts = pts_raw.map(fn(pt) { xform.apply(pt) })
+  let cp_refs = pts.map(fn(pt) {
+    let (px, py, pz) = pt
+    ctx.cartesian_point(px, py, pz)
+  })
+  let vp_refs = cp_refs.map(fn(cp) { ctx.vertex_point(cp) })
+  let edges : Array[EdgeInfo] = []
+  let seen : Map[String, Bool] = Map([])
+  let add_edge = fn(a : Int32, b : Int32) -> Unit {
+    let key = if a < b { "\{a}:\{b}" } else { "\{b}:\{a}" }
+    if seen.get(key).unwrap_or(false) {
+      return
+    }
+    seen.set(key, true)
+    let start = if a < b { a } else { b }
+    let end = if a < b { b } else { a }
+    let dir_raw = v_norm(v_sub(pts[end], pts[start]))
+    let dir_ref = ctx.direction(dir_raw.0, dir_raw.1, dir_raw.2)
+    let vec_ref = ctx.vector(dir_ref, 1.0)
+    let line_ref = ctx.line(cp_refs[start], vec_ref)
+    let ec_ref = ctx.edge_curve(vp_refs[start], vp_refs[end], line_ref, true)
+    edges.push(EdgeInfo::{ start, end, edge: ec_ref, })
+  }
+  let connect_ring = fn(a : Array[Int32], b : Array[Int32]) -> Unit {
+    let n = a.length()
+    for k in 0..<n {
+      add_edge(a[k], a[(k + 1) % n])
+      add_edge(b[k], b[(k + 1) % n])
+      add_edge(a[k], b[k])
+    }
+  }
+  for li in 0..<(nl - 1) {
+    connect_ring(rings[li], rings[li + 1])
+  }
+  let z0 = prism.levels[0].0
+  let z1 = prism.levels[nl - 1].0
+  let rb = diameter / 2.0
+  let up = xform.apply_dir((0.0, 0.0, 1.0))
+  let right = xform.apply_dir((1.0, 0.0, 0.0))
+  let down = xform.apply_dir((0.0, 0.0, -1.0))
+  let dir_up = ctx.direction(up.0, up.1, up.2)
+  let dir_right = ctx.direction(right.0, right.1, right.2)
+  let p_b = xform.apply((center.0, center.1, z0))
+  let p_t = xform.apply((center.0, center.1, z1))
+  let cp_b = ctx.cartesian_point(p_b.0, p_b.1, p_b.2)
+  let cp_t = ctx.cartesian_point(p_t.0, p_t.1, p_t.2)
+  let a2p_b = ctx.axis2_placement_3d(cp_b, dir_up, dir_right)
+  let a2p_t = ctx.axis2_placement_3d(cp_t, dir_up, dir_right)
+  let radius = @step.fmt_num(rb)
+  let circle_b = ctx.add(
+    @repository.any_entity_circle(@geometry.Circle::new("", a2p_b, radius)),
+  )
+  let circle_t = ctx.add(
+    @repository.any_entity_circle(@geometry.Circle::new("", a2p_t, radius)),
+  )
+  let cylinder = ctx.add(
+    @repository.any_entity_cylindrical_surface(
+      @geometry.CylindricalSurface::new("", a2p_b, radius),
+    ),
+  )
+  let seam_b = xform.apply((center.0 + rb, center.1, z0))
+  let seam_t = xform.apply((center.0 + rb, center.1, z1))
+  let cp_sb = ctx.cartesian_point(seam_b.0, seam_b.1, seam_b.2)
+  let cp_st = ctx.cartesian_point(seam_t.0, seam_t.1, seam_t.2)
+  let vp_sb = ctx.vertex_point(cp_sb)
+  let vp_st = ctx.vertex_point(cp_st)
+  let seam = ctx.edge_curve(
+    vp_sb,
+    vp_st,
+    ctx.line(cp_sb, ctx.vector(dir_up, 1.0)),
+    true,
+  )
+  let e_b = ctx.edge_curve(vp_sb, vp_sb, circle_b, true)
+  let e_t = ctx.edge_curve(vp_st, vp_st, circle_t, true)
+  let lateral_loop = ctx.edge_loop([
+    ctx.oriented_edge(seam, true),
+    ctx.oriented_edge(e_t, true),
+    ctx.oriented_edge(seam, false),
+    ctx.oriented_edge(e_b, false),
+  ])
+  let face_refs : Array[@step.Ref] = []
+  // A hole wall's natural cylinder normal points radially outward; the face
+  // normal must point toward the axis, so `same_sense` is the reverse flag.
+  face_refs.push(
+    ctx.advanced_face(
+      [ctx.face_outer_bound(lateral_loop, true)],
+      cylinder,
+      reverse,
+    ),
+  )
+  // The lateral loop traverses the bottom circle forward (`true`) and the top
+  // circle backward (`false`); each cap must traverse the same circle in the
+  // opposite direction so every shared edge is used twice with opposite sense.
+  let bottom_hole = ctx.edge_loop([ctx.oriented_edge(e_b, true)])
+  let top_hole = ctx.edge_loop([ctx.oriented_edge(e_t, false)])
+  face_refs.push(
+    add_plane_face_with_edge_loops(
+      ctx,
+      edges,
+      pts,
+      cp_refs,
+      rings[0],
+      [bottom_hole],
+      down,
+      reverse~,
+    ),
+  )
+  face_refs.push(
+    add_plane_face_with_edge_loops(
+      ctx,
+      edges,
+      pts,
+      cp_refs,
+      rings[nl - 1],
+      [top_hole],
+      up,
+      reverse~,
+    ),
+  )
+  for li in 0..<(nl - 1) {
+    let a = rings[li]
+    let b = rings[li + 1]
+    for k in 0..<nc {
+      let k2 = (k + 1) % nc
+      let cycle = [a[k], a[k2], b[k2], b[k]]
+      let normal = prism_face_normal(pts, cycle, false)
+      face_refs.push(
+        add_plane_face_oriented(
+          ctx,
+          edges,
+          pts,
+          cp_refs,
+          cycle,
+          normal,
+          reverse~,
+        ),
+      )
     }
   }
   face_refs

@@ -35,7 +35,8 @@ pub fn hex_nut(
   let accent = @cad.Rgb::cyan()
   let outer = hex_profile_across_flats(s)
   let bore_d = d + 2.0 * spec.clearance_mm
-  let hole = hole_profile(bore_d, segments~)
+  // The bore is an analytic circular hole, not a sampled polygon.
+  let round_bore = ((0.0, 0.0), bore_d)
   let features = nut_feature_record(
     policy, thread_rep, thread, bore_d, segments,
   )
@@ -53,10 +54,10 @@ pub fn hex_nut(
       @cad.ChamferedPrism::new(
         outer,
         [(0.0, c), (c, 0.0), (m - c, 0.0), (m, c)],
-        hole~,
+        round_bore~,
       ).as_shape()
     } else {
-      @cad.ExtrudedProfile::new(outer, m, holes=[hole])
+      @cad.ChamferedPrism::new(outer, [(0.0, 0.0), (m, 0.0)], round_bore~).as_shape()
     }
     let mut component = base.add_layer(body, name="body", color=metal)
     match
@@ -81,11 +82,15 @@ pub fn hex_nut(
     let body = @cad.ChamferedPrism::new(
       outer,
       [(0.0, c), (depth, 0.0), (m - depth, 0.0), (m, c)],
-      hole~,
+      round_bore~,
     ).as_shape()
     base.add_layer(body, name="body", color=metal)
   } else {
-    let body = @cad.ExtrudedProfile::new(outer, m, holes=[hole])
+    let body = @cad.ChamferedPrism::new(
+      outer,
+      [(0.0, 0.0), (m, 0.0)],
+      round_bore~,
+    ).as_shape()
     base.add_layer(body, name="body", color=metal)
   }
 }
@@ -123,11 +128,11 @@ fn nut_feature_record(
   bore_d : Double,
   segments : Int32,
 ) -> @common.FeatureRecord {
+  let _ = bore_d
+  let _ = segments
   let base = @common.FeatureRecord::new(
-    modeled=["hex-body"],
-    approximated=[
-      polyline_circle_approximation("through-bore", bore_d / 2.0, segments),
-    ],
+    modeled=["hex-body", "through-bore"],
+    approximated=[],
     omitted=[
       @common.Omission::new(
         feature="bore-edge-chamfer",

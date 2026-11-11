@@ -147,16 +147,18 @@ pub fn spur_gear(
     Ok(o) => o
     Err(e) => return Err(e)
   }
-  let holes : Array[Array[@cad.Vec2]] = []
-  if params.bore_diameter_mm > 0.0 {
-    let segments = if policy.circle_segments < 32 {
-      32
-    } else {
-      policy.circle_segments
-    }
-    holes.push(@cad.Profile2D::circle(params.bore_diameter_mm, segments~).rev())
+  let _ = policy
+  // The toothed outline is genuinely polygonal; the bore is a real circular
+  // hole compiled to an analytic CYLINDRICAL_SURFACE.
+  let body = if params.bore_diameter_mm > 0.0 {
+    @cad.ExtrudedProfile::new(
+      outline,
+      params.face_width_mm,
+      round_bore=((0.0, 0.0), params.bore_diameter_mm),
+    )
+  } else {
+    @cad.ExtrudedProfile::new(outline, params.face_width_mm)
   }
-  let body = @cad.ExtrudedProfile::new(outline, params.face_width_mm, holes~)
   let name = "spur-gear-\{params.designation()}"
   let mut features = @common.FeatureRecord::new(
     modeled=["body", "involute-tooth-envelope"],

@@ -230,6 +230,16 @@ def check_feature_spec(
             count >= spec["min_count"],
             f"{surface} count {count} >= {spec['min_count']}",
         )
+    if kind == "cylinder_radius_present_mm":
+        cylinders = features.get("cylinders") or []
+        tol = spec.get("tol_mm", tolerance["linear_mm"])
+        radii = [c["radius"] for c in cylinders if c.get("radius") is not None]
+        ok = any(abs(r - spec["expected"]) <= tol for r in radii)
+        return check(
+            ok,
+            f"cylinder radius {spec['expected']:.4f} present among "
+            f"{len(radii)} cylinders {[round(r, 4) for r in radii[:6]]}",
+        )
     if kind == "min_vertex_radius_mm":
         value = features.get("min_vertex_radius")
         tol = spec.get("tol_mm", tolerance["linear_mm"])

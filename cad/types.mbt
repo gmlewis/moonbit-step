@@ -102,6 +102,11 @@ pub struct CalibrationChamferBlock {
 pub struct ExtrudedProfile {
   profile : Profile2D
   height_mm : Double
+  /// Optional analytic circular through-bore `(center, diameter)`. It compiles
+  /// to a real `CYLINDRICAL_SURFACE` with `CIRCLE` bounds, so a gear bore is
+  /// never a sampled polygon. Only one round bore is supported; polygonal holes
+  /// in `profile.holes` remain available for other features.
+  round_bore : (Vec2, Double)?
 }
 
 ///|

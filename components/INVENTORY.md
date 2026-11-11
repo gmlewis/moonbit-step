@@ -9,11 +9,11 @@ insufficient). A PASS is never a claim of manufacturing approval.
 
 | Family | Package | Status | Scope / evidence |
 |---|---|---|---|
-| ISO 4762 socket head cap screws | `fasteners`, `standards` | PASS | M2–M20 table; every M2/M2.5/M3/M4/M5 cell matrix-validated; head top chamfer, socket lead-in chamfer, and shank tip chamfer at `Detailed`+; thread measured from the tip; optional 60° helical thread at `FullyModeled`; `iso4762-M4x20*.step` |
+| ISO 4762 socket head cap screws | `fasteners`, `standards` | PASS | M2–M20 table; every M2/M2.5/M3/M4/M5 cell matrix-validated; head top chamfer, socket lead-in chamfer, and shank tip chamfer at `Detailed`+ as analytic cylinders/cones; thread measured from the tip; optional 60° helical thread at `FullyModeled`; `iso4762-M4x20*.step` |
 | ISO 4017 fully threaded hex head screws | `fasteners`, `standards` | PASS | M2–M20 table; M2–M5 matrix-validated; hex-head top chamfer and shank tip chamfer at `Detailed`+; `iso4017-M5x20.step` |
 | ISO 4014 partially threaded hex head bolts | `fasteners`, `standards` | PASS | M2–M20 table; M2–M5 matrix-validated; ISO `b` measured from the tip; hex-head and tip chamfers; M8 example; `iso4014-M8x40.step` |
-| ISO 4032 hex nuts | `fasteners`, `standards` | PASS | M2–M20 table; M2–M5 matrix-validated; face chamfers at every `Detailed`+ level, including the fully modeled helical body; attached internal 60° ridge at `FullyModeled`; `iso4032-M{3,4,5}*.step` |
-| ISO 7089 plain washers | `fasteners`, `standards` | PASS | M2–M20 table; M2–M5 matrix-validated; single extrusion; ISO 7089 specifies no edge chamfer, so the sharp edge is documented as standard-correct and no chamfer is claimed; `iso7089-M{3,4,5}.step` |
+| ISO 4032 hex nuts | `fasteners`, `standards` | PASS | M2–M20 table; M2–M5 matrix-validated; face chamfers at every `Detailed`+ level (ruled hex approximation) over an analytic circular bore, including the fully modeled helical body; attached internal 60° ridge at `FullyModeled`; `iso4032-M{3,4,5}*.step` |
+| ISO 7089 plain washers | `fasteners`, `standards` | PASS | M2–M20 table; M2–M5 matrix-validated; analytic annular solid of revolution (two cylinders, two planes); ISO 7089 specifies no edge chamfer, so the sharp edge is documented as standard-correct and no chamfer is claimed; `iso7089-M{3,4,5}.step` |
 | ISO 7380-1 button head screws | `fasteners`, `standards` | PASS | M3–M10 table; M3/M4/M5 matrix-validated; spherical-cap head; hex socket with lead-in chamfer and tip chamfer at `Detailed`+; `iso7380-M4x16-detailed.step` |
 | ISO 10642 countersunk screws | `fasteners`, `standards` | PASS | M3–M10 table; M3/M4/M5 matrix-validated; 90° countersink; length over the flush head; socket lead-in and tip chamfers at `Detailed`+; `iso10642-M4x16-detailed.step` |
 | DIN 976-1 threaded rods | `fasteners`, `standards` | PASS | M2–M20 table; M2–M5 matrix-validated; engineering lead-in chamfers at both ends at `Detailed`+; optional helical thread; `din976-M8x200.step` |
@@ -27,7 +27,7 @@ insufficient). A PASS is never a claim of manufacturing approval.
 | Keyed shafts and keys | `motion` | PASS | Real flat-bottom keyway; key with independent height; `keyed-shaft-20x40.step` |
 | Spacers, bushings, pins, standoffs | `motion` | PASS | Parametric envelopes; no standards table claimed |
 | Compression springs | `motion` | PASS | Helical sweep; exact axial `0..length`; wire/section approximations recorded |
-| Ball bearings | `motion` | PASS | ISO 15 boundary table (21 designations); rings + analytic spheres; envelope internals; roller/chamfer validation |
+| Ball bearings | `motion` | PASS | ISO 15 boundary table (21 designations); analytic rings (cylinders/cones) + analytic spheres; envelope internals; roller/chamfer validation |
 | Involute spur gears | `gears` | PASS | Module/teeth/pressure angle/bore/backlash/fillet/chamfer; theoretical involute; undercut limitation recorded |
 | External gear pairs | `gears` | PASS | Standard centre distance + offset; static pose; mesh-cycle tests for several pairs |
 | Exact internal involute ring | `gears` | PASS | Internal relation `psi(r)`; rotation-cycle zero-crossing test; trapezoidal fallback retained |

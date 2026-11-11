@@ -41,7 +41,7 @@ pub fn socket_head_cap_screw(
   let base = @common.Component::new(
     name~,
     metadata=spec.metadata(),
-    description="Layered solid: plain shank, head floor, blind hex socket. Socket represented by a ring with a through hex hole over a floor disc." +
+    description="Layered solid: plain shank and an analytic revolved head (cylindrical outside, conical top break, circular socket bore) plus a buried hexagon ring forming the six socket flats; the blind socket floor is the cup floor." +
       head_chamfer_note(policy) +
       thread_note(thread_rep),
     features~,
@@ -98,28 +98,67 @@ pub fn socket_head_cap_screw(
     )
   }
 
-  // Head: a solid floor disc plus a socket ring with a hexagonal through-hole.
+  // Head: one analytic revolved shell (cylindrical outside, conical top rim,
+  // circular socket bore, planar base/annulus/floor) plus a hexagonal ring that
+  // turns the circular bore into the hex socket. The outer head surface is
+  // therefore a real CYLINDRICAL_SURFACE and its top break a real
+  // CONICAL_SURFACE, never a 64-gon prism.
+  let _ = segments
   let floor_height = k - t
+  let af = dims.socket_across_flats_mm
+  let socket_radius = af / Double::sqrt(3.0)
+  let top_chamfer = if policy.include_small_features {
+    head_chamfer_mm(dk, k, t)
+  } else {
+    0.0
+  }
+  let lead = if policy.include_small_features {
+    socket_lead_in_chamfer_mm(af, t)
+  } else {
+    0.0
+  }
+  let head_shell = @cad.RevolvedProfile::cup(
+    dk,
+    k,
+    socket_radius * 2.0,
+    floor_height,
+    top_chamfer~,
+    bore_lead_in=lead,
+  ).as_shape()
   component = component.add_layer(
-    @cad.Cylinder::new(dk, floor_height),
-    name="head-floor",
+    head_shell,
+    name="head-shell",
     color=metal,
     placement=@common.Placement::translation(0.0, 0.0, length),
   )
-  let hex_hole = hex_hole_across_flats(dims.socket_across_flats_mm)
-  let socket_ring = if policy.include_small_features {
-    let c = head_chamfer_mm(dk, k, t)
-    let lead = socket_lead_in_chamfer_mm(dims.socket_across_flats_mm, t)
-    let hole = socket_lead_in_hole(dims.socket_across_flats_mm, lead)
+  // The hex ring's outer hexagon is buried inside the head shell; only its
+  // six inner flats are visible. Its outer circumradius is kept inside the
+  // shell so no planar facet ever replaces the head cylinder.
+  let outer_radius = if dk / 2.0 - top_chamfer - 0.1 > socket_radius + 0.05 {
+    let target = socket_radius + 0.5 * af
+    let cap = dk / 2.0 - top_chamfer - 0.1
+    if target < cap {
+      target
+    } else {
+      cap
+    }
+  } else {
+    socket_radius + 0.05
+  }
+  let outer_af = outer_radius * Double::sqrt(3.0)
+  let socket_ring = if lead > 0.0 {
+    let hole = socket_lead_in_hole(af, lead)
     let hole_levels = socket_lead_in_hole_levels(0.0, t, lead)
     @cad.ChamferedPrism::new(
-      circle_profile(dk, segments~),
-      [(0.0, 0.0), (t - c, 0.0), (t, c)],
+      hex_profile_across_flats(outer_af),
+      [(0.0, 0.0), (t, 0.0)],
       hole~,
       hole_levels~,
     ).as_shape()
   } else {
-    @cad.ExtrudedProfile::new(circle_profile(dk, segments~), t, holes=[hex_hole])
+    @cad.ExtrudedProfile::new(hex_profile_across_flats(outer_af), t, holes=[
+      hex_hole_across_flats(af),
+    ])
   }
   component = component.add_layer(
     socket_ring,
@@ -193,16 +232,13 @@ fn screw_feature_record(
   dk : Double,
   segments : Int32,
 ) -> @common.FeatureRecord {
+  let _ = segments
+  let _ = dk
   let base = @common.FeatureRecord::new(
-    modeled=["head-floor", "blind-hex-socket"],
-    approximated=[
-      @common.Approximation::new(
-        feature="head-socket-band",
-        kind=@common.ApproximationKind::PolygonRevolve,
-        deviation_mm=@common.chord_deviation(dk / 2.0, segments),
-        control="circle_segments=\{segments}",
-      ),
+    modeled=[
+      "head-outer-cylinder", "head-socket-bore-cylinder", "blind-hex-socket", "hex-socket-flats",
     ],
+    approximated=[],
     omitted=[
       @common.Omission::new(
         feature="under-head-radius",
@@ -217,10 +253,10 @@ fn screw_feature_record(
     .add_modeled("shank-tip-chamfer")
     .add_approximated(
       @common.Approximation::new(
-        feature="socket-lead-in-band",
-        kind=@common.ApproximationKind::PolygonRevolve,
-        deviation_mm=@common.chord_deviation(dk / 2.0, segments),
-        control="hex-hole ruled lead-in, circle_segments=\{segments}",
+        feature="socket-lead-in-hex-facets",
+        kind=@common.ApproximationKind::EngineeringDefault,
+        deviation_mm=0.0,
+        control="the socket lead-in on the hex flats is a ruled hex taper; the circular bore lead-in is an analytic cone",
       ),
     )
   } else {

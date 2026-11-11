@@ -153,6 +153,183 @@ pub fn RevolvedProfile::sphere_cap(
 }
 
 ///|
+/// RevolvedProfile::chamfered_cylinder builds a solid right circular cylinder
+/// of `diameter` and `height` whose bottom and/or top rims carry a 45-degree
+/// analytic chamfer of the given leg length.
+///
+/// The result is one `CYLINDRICAL_SURFACE`, one `CONICAL_SURFACE` per chamfer,
+/// and planar caps. It never degenerates into a prism of planar facets: a
+/// circular body's chamfer is a cone, not a ring stack.
+pub fn RevolvedProfile::chamfered_cylinder(
+  diameter : Double,
+  height : Double,
+  bottom_chamfer~ : Double = 0.0,
+  top_chamfer~ : Double = 0.0,
+) -> RevolvedProfile {
+  let r = diameter / 2.0
+  let cb = if bottom_chamfer > 0.0 && bottom_chamfer < r {
+    bottom_chamfer
+  } else {
+    0.0
+  }
+  let ct = if top_chamfer > 0.0 && top_chamfer < r { top_chamfer } else { 0.0 }
+  if cb <= 0.0 && ct <= 0.0 {
+    return RevolvedProfile::cylinder(diameter, height)
+  }
+  let pts : Array[Vec2] = [(0.0, 0.0)]
+  if cb > 0.0 {
+    pts.push((r - cb, 0.0))
+    pts.push((r, cb))
+  } else {
+    pts.push((r, 0.0))
+  }
+  if ct > 0.0 {
+    pts.push((r, height - ct))
+    pts.push((r - ct, height))
+  } else {
+    pts.push((r, height))
+  }
+  pts.push((0.0, height))
+  RevolvedProfile::polyline(pts)
+}
+
+///|
+/// RevolvedProfile::tube builds an annular solid (washer or plain ring) with
+/// the given outside and inside diameters and axial height. Its lateral faces
+/// are two analytic `CYLINDRICAL_SURFACE` bands and its ends are annular
+/// `PLANE` faces. No polygon facets are emitted.
+pub fn RevolvedProfile::tube(
+  outer_diameter : Double,
+  inner_diameter : Double,
+  height : Double,
+) -> RevolvedProfile {
+  let ro = outer_diameter / 2.0
+  let ri = inner_diameter / 2.0
+  RevolvedProfile::polyline(
+    [(ri, 0.0), (ro, 0.0), (ro, height), (ri, height)],
+    closed=true,
+  )
+}
+
+///|
+/// RevolvedProfile::chamfered_tube builds an annular solid whose outer and
+/// inner rims carry analytic 45-degree chamfers. Every chamfer is a
+/// `CONICAL_SURFACE`, the bores are `CYLINDRICAL_SURFACE`s, and the ends are
+/// annular planes. This is the correct representation of a bearing ring or a
+/// chamfered washer.
+pub fn RevolvedProfile::chamfered_tube(
+  outer_diameter : Double,
+  inner_diameter : Double,
+  height : Double,
+  outer_bottom_chamfer~ : Double = 0.0,
+  outer_top_chamfer~ : Double = 0.0,
+  inner_bottom_chamfer~ : Double = 0.0,
+  inner_top_chamfer~ : Double = 0.0,
+) -> RevolvedProfile {
+  let ro = outer_diameter / 2.0
+  let ri = inner_diameter / 2.0
+  let ob = if outer_bottom_chamfer > 0.0 && outer_bottom_chamfer < ro - ri {
+    outer_bottom_chamfer
+  } else {
+    0.0
+  }
+  let ot = if outer_top_chamfer > 0.0 && outer_top_chamfer < ro - ri {
+    outer_top_chamfer
+  } else {
+    0.0
+  }
+  let ib = if inner_bottom_chamfer > 0.0 && inner_bottom_chamfer < ro - ri {
+    inner_bottom_chamfer
+  } else {
+    0.0
+  }
+  let it = if inner_top_chamfer > 0.0 && inner_top_chamfer < ro - ri {
+    inner_top_chamfer
+  } else {
+    0.0
+  }
+  let pts : Array[Vec2] = []
+  // Outer bottom rim, walking up the outside.
+  if ob > 0.0 {
+    pts.push((ro - ob, 0.0))
+    pts.push((ro, ob))
+  } else {
+    pts.push((ro, 0.0))
+  }
+  if ot > 0.0 {
+    pts.push((ro, height - ot))
+    pts.push((ro - ot, height))
+  } else {
+    pts.push((ro, height))
+  }
+  // Top annulus inward, walking down the bore.
+  if it > 0.0 {
+    pts.push((ri + it, height))
+    pts.push((ri, height - it))
+  } else {
+    pts.push((ri, height))
+  }
+  if ib > 0.0 {
+    pts.push((ri, ib))
+    pts.push((ri + ib, 0.0))
+  } else {
+    pts.push((ri, 0.0))
+  }
+  RevolvedProfile::polyline(pts, closed=true)
+}
+
+///|
+/// RevolvedProfile::cup builds a solid circular cup: an outer cylinder of
+/// `outer_diameter` and height `height` with an optional 45-degree top rim
+/// chamfer, a blind cylindrical bore of `bore_diameter` whose floor sits at
+/// `floor_thickness` above the base, and an optional 45-degree conical lead-in
+/// on the bore rim.
+///
+/// All lateral faces are analytic (`CYLINDRICAL_SURFACE` and
+/// `CONICAL_SURFACE`); the base, the annular top, and the bore floor are planes.
+/// It is the analytic outer shell of a socket-head fastener; the hexagonal
+/// socket flats are added by the caller as planar facets over this shell.
+pub fn RevolvedProfile::cup(
+  outer_diameter : Double,
+  height : Double,
+  bore_diameter : Double,
+  floor_thickness : Double,
+  top_chamfer~ : Double = 0.0,
+  bore_lead_in~ : Double = 0.0,
+) -> RevolvedProfile {
+  let ro = outer_diameter / 2.0
+  let rb = bore_diameter / 2.0
+  let ct = if top_chamfer > 0.0 && top_chamfer < ro - rb {
+    top_chamfer
+  } else {
+    0.0
+  }
+  let lead = if bore_lead_in > 0.0 && bore_lead_in < height - floor_thickness {
+    bore_lead_in
+  } else {
+    0.0
+  }
+  let pts : Array[Vec2] = [(0.0, 0.0)]
+  if ct > 0.0 {
+    pts.push((ro, 0.0))
+    pts.push((ro, height - ct))
+    pts.push((ro - ct, height))
+  } else {
+    pts.push((ro, 0.0))
+    pts.push((ro, height))
+  }
+  if lead > 0.0 {
+    pts.push((rb + lead, height))
+    pts.push((rb, height - lead))
+  } else {
+    pts.push((rb, height))
+  }
+  pts.push((rb, floor_thickness))
+  pts.push((0.0, floor_thickness))
+  RevolvedProfile::polyline(pts)
+}
+
+///|
 /// RevolvedProfile::segments returns the segment chain.
 pub fn RevolvedProfile::segments(self : RevolvedProfile) -> Array[RevSegment] {
   self.segments.copy()

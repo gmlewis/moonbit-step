@@ -343,20 +343,22 @@ test "collisions honours a declared interference policy" {
 ///|
 fn through_bore_deviation(component : @common.Component) -> Double {
   for a in component.features().approximated {
-    if a.feature == "through-bore" {
+    if a.feature == "helical-ridge" {
       return a.deviation_mm
     }
   }
-  abort("missing through-bore approximation")
+  abort("missing helical-ridge approximation")
 }
 
 ///|
 test "assembly feature aggregation keeps the largest deviation" {
-  let m3 = match @fasteners.iso4032_nut(@standards.M3) {
+  let m3 = match
+    @fasteners.iso4762_screw(@standards.M3, 10.0, detail=FullyModeled) {
     Ok(c) => c
     Err(e) => abort(e.message())
   }
-  let m5 = match @fasteners.iso4032_nut(@standards.M5) {
+  let m5 = match
+    @fasteners.iso4762_screw(@standards.M5, 20.0, detail=FullyModeled) {
     Ok(c) => c
     Err(e) => abort(e.message())
   }
@@ -367,7 +369,7 @@ test "assembly feature aggregation keeps the largest deviation" {
     .add(m3, instance_name="m3")
   let mut found = -1.0
   for a in assembly.features().approximated {
-    if a.feature == "through-bore" {
+    if a.feature == "helical-ridge" {
       found = a.deviation_mm
     }
   }

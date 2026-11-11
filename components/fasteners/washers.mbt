@@ -17,23 +17,18 @@ pub fn flat_washer(
     Some(c) => c
     None => @cad.Rgb::green()
   }
-  let outer = circle_profile(dims.outer_diameter_mm, segments~)
-  let hole = hole_profile(dims.inner_diameter_mm, segments~)
-  let body = @cad.ExtrudedProfile::new(outer, dims.thickness_mm, holes=[hole])
+  let _ = segments
+  // A plain washer is a true annular solid of revolution: two analytic
+  // cylindrical surfaces and two planar faces. Its boundary is never sampled
+  // into polygon facets.
+  let body = @cad.RevolvedProfile::tube(
+    dims.outer_diameter_mm,
+    dims.inner_diameter_mm,
+    dims.thickness_mm,
+  ).as_shape()
   let features = @common.FeatureRecord::new(
-    modeled=["body"],
-    approximated=[
-      polyline_circle_approximation(
-        "outer-boundary",
-        dims.outer_diameter_mm / 2.0,
-        segments,
-      ),
-      polyline_circle_approximation(
-        "through-bore",
-        dims.inner_diameter_mm / 2.0,
-        segments,
-      ),
-    ],
+    modeled=["body", "outer-cylinder", "through-bore"],
+    approximated=[],
     omitted=[
       @common.Omission::new(
         feature="edge-chamfer",

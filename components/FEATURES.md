@@ -97,9 +97,9 @@ Covered by `fasteners_test.mbt` and `iso4032-M4-detailed`.
 |---|---|
 | Shank | plain cylinder (helical ridge at FullyModeled) |
 | Head | spherical-cap dome (`SPHERICAL_SURFACE`) with a flat top |
-| Socket | real hexagon through-hole in a high-resolution polygon socket band |
+| Socket | real hexagon formed by six planar flats over an analytic circular socket bore |
 | Flat-top radius | engineering choice (`button_flat_radius`); not a standard dimension |
-| Dome band (socket ring outer) | high-resolution polygon following the sphere |
+| Dome band (socket band outer) | **analytic** `SPHERICAL_SURFACE` shell following the dome |
 
 Head diameter, head height, socket size, and socket depth are the standard's
 nominal values. Covered by `fasteners_test.mbt` and `iso7380-M4x16-detailed`.
@@ -110,12 +110,12 @@ nominal values. Covered by `fasteners_test.mbt` and `iso7380-M4x16-detailed`.
 |---|---|
 | Shank | plain cylinder (helical ridge at FullyModeled) |
 | Head | **analytic** 90° countersink frustum (`CONICAL_SURFACE`), 45° half-angle |
-| Socket | real hexagon through-hole in a polygon socket band over the analytic floor |
+| Socket | real hexagon formed by six planar flats over an analytic circular socket bore |
 | Top face | flat annulus with the socket opening |
 
-The head floor below the socket floor is analytic; the top socket band (about
-the socket depth) is a high-resolution polygon. Covered by `fasteners_test.mbt`
-and `iso10642-M4x16-detailed`.
+The head floor and the socket band's outer cone/cylinder are analytic surfaces
+of revolution; only the six socket flats and their ruled lead-in are planar.
+Covered by `fasteners_test.mbt` and `iso10642-M4x16-detailed`.
 
 ### Bearings
 
@@ -129,10 +129,10 @@ and `iso10642-M4x16-detailed`.
 Ball diameter equals the modeled radial gap; it is envelope geometry, not a
 catalogue value. Adjacent ball centres must be at least one ball diameter apart
 (the builder rejects an overlapping complement), and a `Detailed` ring must be
-thicker than the engineering-default edge chamfer. The rings are polygons, so a
-nominally tangent ball can penetrate the faceted bore by the chord sagitta
-(about 0.018 mm for 608 at 48 segments). Covered by `motion_test.mbt` and
-`motion-608-stack-detailed`.
+thicker than the engineering-default edge chamfer. The rings are real annular
+solids of revolution, so their outer and bore surfaces are analytic cylinders and
+their chamfers analytic cones; a tangent ball meets the true bore surface with no
+chord sagitta. Covered by `motion_test.mbt` and `motion-608-stack-detailed`.
 
 ### Shafts
 

@@ -155,37 +155,35 @@ pub fn bearing(
       )
     }
     component = component.add_layer(
-      @cad.ChamferedPrism::from_chamfer(
-        @cad.Profile2D::circle(outer, segments~),
+      @cad.RevolvedProfile::chamfered_tube(
+        outer,
+        outer_hole,
         width,
-        bottom_chamfer=c,
-        top_chamfer=c,
-        chamfer_depth=c,
-        hole=@cad.Profile2D::circle(outer_hole, segments~).rev(),
+        outer_bottom_chamfer=c,
+        outer_top_chamfer=c,
       ).as_shape(),
       name="outer-ring",
       color=base_color,
     )
     component = component.add_layer(
-      @cad.ChamferedPrism::from_chamfer(
-        @cad.Profile2D::circle(inner_outer, segments~),
+      @cad.RevolvedProfile::chamfered_tube(
+        inner_outer,
+        d,
         width,
-        bottom_chamfer=c,
-        top_chamfer=c,
-        chamfer_depth=c,
-        hole=@cad.Profile2D::circle(d, segments~).rev(),
+        outer_bottom_chamfer=c,
+        outer_top_chamfer=c,
       ).as_shape(),
       name="inner-ring",
       color=@cad.Rgb::blue(),
     )
   } else {
     component = component.add_layer(
-      @cad.tube(outer, outer_hole, width, segments~),
+      @cad.RevolvedProfile::tube(outer, outer_hole, width).as_shape(),
       name="outer-ring",
       color=base_color,
     )
     component = component.add_layer(
-      @cad.tube(inner_outer, d, width, segments~),
+      @cad.RevolvedProfile::tube(inner_outer, d, width).as_shape(),
       name="inner-ring",
       color=@cad.Rgb::blue(),
     )

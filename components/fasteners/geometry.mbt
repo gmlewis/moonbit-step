@@ -318,14 +318,14 @@ pub fn tip_chamfered_cylinder(
   chamfer_mm : Double,
   segments~ : Int32 = 64,
 ) -> @cad.Shape {
+  let _ = segments
   if chamfer_mm <= 0.0 || chamfer_mm >= height / 2.0 {
     @cad.Cylinder::new(diameter, height)
   } else {
-    @cad.ChamferedPrism::from_chamfer(
-      circle_profile(diameter, segments~),
+    @cad.RevolvedProfile::chamfered_cylinder(
+      diameter,
       height,
       bottom_chamfer=chamfer_mm,
-      chamfer_depth=chamfer_mm,
     ).as_shape()
   }
 }
@@ -350,15 +350,15 @@ pub fn chamfered_cylinder_ends(
   } else {
     0.0
   }
+  let _ = segments
   if bottom <= 0.0 && top <= 0.0 {
     @cad.Cylinder::new(diameter, height)
   } else {
-    @cad.ChamferedPrism::from_chamfer(
-      circle_profile(diameter, segments~),
+    @cad.RevolvedProfile::chamfered_cylinder(
+      diameter,
       height,
       bottom_chamfer=bottom,
       top_chamfer=top,
-      chamfer_depth=if bottom > 0.0 { bottom } else { top },
     ).as_shape()
   }
 }
@@ -384,5 +384,35 @@ pub fn thread_note(rep : @common.ThreadRepresentation) -> String {
       " Cosmetic thread representation was requested, but this builder emits no thread geometry; the shank or bore is plain."
     @common.ThreadRepresentation::Helical =>
       " A swept helical thread ridge is modeled."
+  }
+}
+
+///|
+/// hex_socket_ring builds the hexagonal socket band that turns an analytic
+/// circular socket bore into a real hexagon socket.
+///
+/// The outer boundary is a hexagon of circumradius `outer_radius` that stays
+/// buried inside the surrounding head; only the six inner flats are visible.
+/// With a positive `lead_mm` the inner hole carries a ruled lead-in that flares
+/// toward the top face. It is a flat-facet approximation of the socket rim,
+/// never a substitute for the head's analytic cylinder or cone.
+pub fn hex_socket_ring(
+  across_flats : Double,
+  height : Double,
+  outer_radius : Double,
+  lead_mm : Double,
+) -> @cad.Shape {
+  let outer_af = outer_radius * Double::sqrt(3.0)
+  if lead_mm > 0.0 && lead_mm < height / 2.0 {
+    @cad.ChamferedPrism::new(
+      hex_profile_across_flats(outer_af),
+      [(0.0, 0.0), (height, 0.0)],
+      hole=socket_lead_in_hole(across_flats, lead_mm),
+      hole_levels=socket_lead_in_hole_levels(0.0, height, lead_mm),
+    ).as_shape()
+  } else {
+    @cad.ExtrudedProfile::new(hex_profile_across_flats(outer_af), height, holes=[
+      hex_hole_across_flats(across_flats),
+    ])
   }
 }

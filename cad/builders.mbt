@@ -463,8 +463,9 @@ pub fn ExtrudedProfile::new(
   outer : Array[Vec2],
   height_mm : Double,
   holes~ : Array[Array[Vec2]] = [],
+  round_bore? : (Vec2, Double),
 ) -> Shape {
-  Shape::ExtrudedProfile({ profile: { outer, holes, }, height_mm, })
+  Shape::ExtrudedProfile({ profile: { outer, holes, }, height_mm, round_bore, })
 }
 
 ///|

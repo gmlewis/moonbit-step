@@ -53,7 +53,7 @@ fn countersunk_screw(
   let mut component = @common.Component::new(
     name~,
     metadata=spec.metadata(),
-    description="Countersunk head (90-degree included angle) with a hexagon socket. The socket floor is an analytic revolved head; the socket band is a high-resolution polygon with a real hex through-hole." +
+    description="Countersunk head (90-degree included angle) with a hexagon socket. The countersink cone, socket shell, and circular bore are analytic surfaces of revolution; six planar flats form the hex socket." +
       thread_note(thread_rep),
     features~,
   )
@@ -98,33 +98,52 @@ fn countersunk_screw(
     color=metal,
     placement=@common.Placement::translation(0.0, 0.0, head_z),
   )
-  let levels : Array[(Double, Double)] = [(z_floor, big_r - r_f)]
-  if z_floor < cyl_h {
-    levels.push((cyl_h, big_r - r_sh))
-  }
-  levels.push((k, 0.0))
-  let ring = if policy.include_small_features {
-    let lead = socket_lead_in_chamfer_mm(s, t)
-    let hole = socket_lead_in_hole(s, lead)
-    let hole_levels = socket_lead_in_hole_levels(z_floor, k, lead)
-    @cad.ChamferedPrism::new(
-      circle_profile(dims.head_diameter_mm, segments~),
-      levels,
-      hole~,
-      hole_levels~,
-    ).as_shape()
+  let _ = segments
+  // Analytic socket shell: the countersink cone and cylindrical shank band are
+  // real surfaces of revolution, with a circular socket bore. The hexagon ring
+  // then turns that bore into the hex socket without ever polygonalizing the
+  // outer cone.
+  let socket_radius = s / Double::sqrt(3.0)
+  let lead = if policy.include_small_features {
+    socket_lead_in_chamfer_mm(s, t)
   } else {
-    @cad.ChamferedPrism::new(
-      circle_profile(dims.head_diameter_mm, segments~),
-      levels,
-      hole=hex_hole_across_flats(s),
-    ).as_shape()
+    0.0
+  }
+  let shell_pts : Array[@cad.Vec2] = [(r_f, z_floor)]
+  if z_floor < cyl_h {
+    shell_pts.push((r_sh, cyl_h))
+  }
+  shell_pts.push((big_r, k))
+  if lead > 0.0 {
+    shell_pts.push((socket_radius + lead, k))
+    shell_pts.push((socket_radius, k - lead))
+  } else {
+    shell_pts.push((socket_radius, k))
+  }
+  shell_pts.push((socket_radius, z_floor))
+  let shell = @cad.RevolvedProfile::polyline(shell_pts, closed=true).as_shape()
+  component = component.add_layer(
+    shell,
+    name="head-shell",
+    color=metal,
+    placement=@common.Placement::translation(0.0, 0.0, head_z),
+  )
+  let outer_radius = if r_f - 0.1 > socket_radius {
+    let cap = r_f - 0.1
+    let target = socket_radius + 0.35 * s
+    if target < cap {
+      target
+    } else {
+      cap
+    }
+  } else {
+    socket_radius + 0.02
   }
   component.add_layer(
-    ring,
+    hex_socket_ring(s, t, outer_radius, lead),
     name="head-socket",
     color=@cad.Rgb::orange(),
-    placement=@common.Placement::translation(0.0, 0.0, head_z),
+    placement=@common.Placement::translation(0.0, 0.0, head_z + z_floor),
   )
 }
 
@@ -179,7 +198,7 @@ fn button_screw(
   let mut component = @common.Component::new(
     name~,
     metadata=spec.metadata(),
-    description="Button head with a spherical-cap dome, flat top, and hexagon socket. The dome is an analytic spherical surface; the socket band is a high-resolution polygon with a real hex through-hole." +
+    description="Button head with a spherical-cap dome, flat top, and hexagon socket. The dome shell and circular socket bore are analytic surfaces of revolution; six planar flats form the hex socket." +
       thread_note(thread_rep),
     features~,
   )
@@ -212,36 +231,56 @@ fn button_screw(
     color=metal,
     placement=@common.Placement::translation(0.0, 0.0, length),
   )
-  // Socket band: polygon ring stack following the dome, with a hex hole.
-  let levels : Array[(Double, Double)] = []
-  let steps = 4
-  for i in 0..<=steps {
-    let frac = Double::from_int(i) / Double::from_int(steps)
-    let z = z_floor + (k - z_floor) * frac
-    levels.push((z, r_f - r_of(z)))
-  }
-  let ring = if policy.include_small_features {
-    let lead = socket_lead_in_chamfer_mm(s, t)
-    let hole = socket_lead_in_hole(s, lead)
-    let hole_levels = socket_lead_in_hole_levels(z_floor, k, lead)
-    @cad.ChamferedPrism::new(
-      circle_profile(2.0 * r_f, segments~),
-      levels,
-      hole~,
-      hole_levels~,
-    ).as_shape()
+  // Socket band: an analytic spherical shell (the upper dome) with a circular
+  // socket bore, plus a buried hexagon ring that forms the six socket flats.
+  // The dome is therefore a real SPHERICAL_SURFACE, never a facet stack.
+  let _ = segments
+  let _ = r_of
+  let socket_radius = s / Double::sqrt(3.0)
+  let lead = if policy.include_small_features {
+    socket_lead_in_chamfer_mm(s, t)
   } else {
-    @cad.ChamferedPrism::new(
-      circle_profile(2.0 * r_f, segments~),
-      levels,
-      hole=hex_hole_across_flats(s),
-    ).as_shape()
+    0.0
+  }
+  let shell_segs : Array[@cad.RevSegment] = [
+    @cad.RevArc((r_f, z_floor), (r_top, k), (0.0, c)),
+  ]
+  if lead > 0.0 {
+    shell_segs.push(@cad.RevLine((r_top, k), (socket_radius + lead, k)))
+    shell_segs.push(
+      @cad.RevLine((socket_radius + lead, k), (socket_radius, k - lead)),
+    )
+    shell_segs.push(
+      @cad.RevLine((socket_radius, k - lead), (socket_radius, z_floor)),
+    )
+  } else {
+    shell_segs.push(@cad.RevLine((r_top, k), (socket_radius, k)))
+    shell_segs.push(@cad.RevLine((socket_radius, k), (socket_radius, z_floor)))
+  }
+  shell_segs.push(@cad.RevLine((socket_radius, z_floor), (r_f, z_floor)))
+  let shell = @cad.RevolvedProfile::new(shell_segs).as_shape()
+  component = component.add_layer(
+    shell,
+    name="head-shell",
+    color=metal,
+    placement=@common.Placement::translation(0.0, 0.0, length),
+  )
+  let outer_radius = if r_top - 0.1 > socket_radius {
+    let cap = r_top - 0.1
+    let target = socket_radius + 0.35 * s
+    if target < cap {
+      target
+    } else {
+      cap
+    }
+  } else {
+    socket_radius + 0.02
   }
   component.add_layer(
-    ring,
+    hex_socket_ring(s, t, outer_radius, lead),
     name="head-socket",
     color=@cad.Rgb::orange(),
-    placement=@common.Placement::translation(0.0, 0.0, length),
+    placement=@common.Placement::translation(0.0, 0.0, length + z_floor),
   )
 }
 
@@ -271,16 +310,14 @@ fn headed_feature_record(
   head_diameter_mm : Double,
   segments : Int32,
 ) -> @common.FeatureRecord {
+  let _ = head_diameter_mm
+  let _ = segments
   let base = @common.FeatureRecord::new(
-    modeled=["blind-hex-socket", head_feature],
-    approximated=[
-      @common.Approximation::new(
-        feature="head-socket-band",
-        kind=@common.ApproximationKind::PolygonRevolve,
-        deviation_mm=@common.chord_deviation(head_diameter_mm / 2.0, segments),
-        control="circle_segments=\{segments}",
-      ),
+    modeled=[
+      "blind-hex-socket", "head-outer-surface-of-revolution", "socket-bore-cylinder",
+      head_feature,
     ],
+    approximated=[],
     omitted=[
       @common.Omission::new(
         feature="under-head-radius",
@@ -291,13 +328,14 @@ fn headed_feature_record(
   let with_chamfers = if policy.include_small_features {
     base
     .add_modeled("socket-lead-in-chamfer")
+    .add_modeled("socket-lead-in-cone")
     .add_modeled("shank-tip-chamfer")
     .add_approximated(
       @common.Approximation::new(
-        feature="socket-lead-in-band",
-        kind=@common.ApproximationKind::PolygonRevolve,
-        deviation_mm=@common.chord_deviation(head_diameter_mm / 2.0, segments),
-        control="hex-hole ruled lead-in, circle_segments=\{segments}",
+        feature="socket-lead-in-hex-facets",
+        kind=@common.ApproximationKind::EngineeringDefault,
+        deviation_mm=0.0,
+        control="the circular bore lead-in is an analytic cone; on the six hex flats it is a ruled taper",
       ),
     )
   } else {

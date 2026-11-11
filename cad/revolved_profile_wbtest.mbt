@@ -137,3 +137,82 @@ test "invalid revolved profiles are rejected" {
   ])
   inspect(reversed.validate() is Ok(_), content="true")
 }
+
+///|
+test "chamfered cylinder is one cylinder and two cones, never a facet ring" {
+  let shape = RevolvedProfile::chamfered_cylinder(
+    10.0,
+    6.0,
+    bottom_chamfer=1.0,
+    top_chamfer=1.0,
+  ).as_shape()
+  let step = Design::new(name="rev-chamfer")
+    .add(shape.with_name("chamfered"))
+    .to_step_file()
+  assert_eq(rev_count(step, "CYLINDRICAL_SURFACE("), 1)
+  assert_eq(rev_count(step, "CONICAL_SURFACE("), 2)
+  assert_eq(rev_count(step, "PLANE("), 2)
+  assert_eq(rev_count(step, "ADVANCED_FACE("), 5)
+}
+
+///|
+test "revolved tube is an analytic annulus with two cylinders" {
+  let shape = RevolvedProfile::tube(12.0, 6.0, 3.0).as_shape()
+  let step = Design::new(name="rev-tube")
+    .add(shape.with_name("tube"))
+    .to_step_file()
+  assert_eq(rev_count(step, "CYLINDRICAL_SURFACE("), 2)
+  assert_eq(rev_count(step, "CONICAL_SURFACE("), 0)
+  assert_eq(rev_count(step, "PLANE("), 2)
+  assert_eq(rev_count(step, "ADVANCED_FACE("), 4)
+}
+
+///|
+test "chamfered tube puts a cone at every rim" {
+  let shape = RevolvedProfile::chamfered_tube(
+    12.0,
+    6.0,
+    4.0,
+    outer_bottom_chamfer=0.5,
+    outer_top_chamfer=0.5,
+    inner_bottom_chamfer=0.5,
+    inner_top_chamfer=0.5,
+  ).as_shape()
+  let step = Design::new(name="rev-ctube")
+    .add(shape.with_name("ctube"))
+    .to_step_file()
+  assert_eq(rev_count(step, "CYLINDRICAL_SURFACE("), 2)
+  assert_eq(rev_count(step, "CONICAL_SURFACE("), 4)
+  assert_eq(rev_count(step, "PLANE("), 2)
+}
+
+///|
+test "cup has an analytic bore, top chamfer, and bore lead-in cone" {
+  let shape = RevolvedProfile::cup(
+    10.0,
+    5.0,
+    6.0,
+    1.5,
+    top_chamfer=0.6,
+    bore_lead_in=0.4,
+  ).as_shape()
+  let step = Design::new(name="rev-cup")
+    .add(shape.with_name("cup"))
+    .to_step_file()
+  assert_eq(rev_count(step, "CYLINDRICAL_SURFACE("), 2)
+  assert_eq(rev_count(step, "CONICAL_SURFACE("), 2)
+  assert_eq(rev_count(step, "PLANE("), 3)
+}
+
+///|
+test "extruded polygon with a round bore has an analytic cylinder" {
+  let outline = Profile2D::centered_rect(20.0, 20.0)
+  let shape = ExtrudedProfile::new(outline, 5.0, round_bore=((0.0, 0.0), 6.0))
+  let step = Design::new(name="bored-plate")
+    .add(shape.with_name("plate"))
+    .to_step_file()
+  assert_eq(rev_count(step, "CYLINDRICAL_SURFACE("), 1)
+  assert_eq(rev_count(step, "CIRCLE("), 2)
+  // Four outer side quads, two annular caps, one bore wall.
+  assert_eq(rev_count(step, "ADVANCED_FACE("), 7)
+}

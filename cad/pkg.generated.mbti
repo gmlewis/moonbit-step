@@ -145,10 +145,11 @@ pub struct ChamferedPrism {
   levels : Array[(Double, Double)]
   hole : Array[(Double, Double)]?
   hole_levels : Array[(Double, Double)]?
+  round_bore : ((Double, Double), Double)?
 }
 pub fn ChamferedPrism::as_shape(Self) -> Shape
-pub fn ChamferedPrism::from_chamfer(Array[(Double, Double)], Double, bottom_chamfer? : Double, top_chamfer? : Double, chamfer_depth? : Double, hole? : Array[(Double, Double)]) -> Self
-pub fn ChamferedPrism::new(Array[(Double, Double)], Array[(Double, Double)], hole? : Array[(Double, Double)], hole_levels? : Array[(Double, Double)]) -> Self
+pub fn ChamferedPrism::from_chamfer(Array[(Double, Double)], Double, bottom_chamfer? : Double, top_chamfer? : Double, chamfer_depth? : Double, hole? : Array[(Double, Double)], round_bore? : ((Double, Double), Double)) -> Self
+pub fn ChamferedPrism::new(Array[(Double, Double)], Array[(Double, Double)], hole? : Array[(Double, Double)], hole_levels? : Array[(Double, Double)], round_bore? : ((Double, Double), Double)) -> Self
 pub fn ChamferedPrism::validate(Self) -> Result[Unit, PrismError]
 
 pub struct Cuboid {
@@ -243,8 +244,9 @@ pub fn ExtrudedBezierProfile::new(Array[BezierPath], Double) -> Shape
 pub struct ExtrudedProfile {
   profile : Profile2D
   height_mm : Double
+  round_bore : ((Double, Double), Double)?
 }
-pub fn ExtrudedProfile::new(Array[(Double, Double)], Double, holes? : Array[Array[(Double, Double)]]) -> Shape
+pub fn ExtrudedProfile::new(Array[(Double, Double)], Double, holes? : Array[Array[(Double, Double)]], round_bore? : ((Double, Double), Double)) -> Shape
 pub fn ExtrudedProfile::on_face(Self, FaceInfo, into? : Bool, offset? : Double, center? : (Double, Double), name? : String, color? : Rgb) -> SceneNode
 
 pub(all) enum Face {
@@ -386,7 +388,10 @@ pub struct RevolvedProfile {
   segments : Array[RevSegment]
 }
 pub fn RevolvedProfile::as_shape(Self) -> Shape
+pub fn RevolvedProfile::chamfered_cylinder(Double, Double, bottom_chamfer? : Double, top_chamfer? : Double) -> Self
+pub fn RevolvedProfile::chamfered_tube(Double, Double, Double, outer_bottom_chamfer? : Double, outer_top_chamfer? : Double, inner_bottom_chamfer? : Double, inner_top_chamfer? : Double) -> Self
 pub fn RevolvedProfile::cone(Double, Double) -> Self
+pub fn RevolvedProfile::cup(Double, Double, Double, Double, top_chamfer? : Double, bore_lead_in? : Double) -> Self
 pub fn RevolvedProfile::cylinder(Double, Double) -> Self
 pub fn RevolvedProfile::frustum(Double, Double, Double) -> Self
 pub fn RevolvedProfile::new(Array[RevSegment]) -> Self
@@ -394,6 +399,7 @@ pub fn RevolvedProfile::polyline(Array[(Double, Double)], closed? : Bool) -> Sel
 pub fn RevolvedProfile::segments(Self) -> Array[RevSegment]
 pub fn RevolvedProfile::sphere(Double) -> Self
 pub fn RevolvedProfile::sphere_cap(Double, Double) -> Self
+pub fn RevolvedProfile::tube(Double, Double, Double) -> Self
 pub fn RevolvedProfile::validate(Self) -> Result[Unit, RevProfileError]
 
 #derive(@debug.Debug)

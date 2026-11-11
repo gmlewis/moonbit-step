@@ -119,9 +119,9 @@ axis-aligned box, so a rotated coil remains conservative.
 
 | Level | Fastener behavior | Gear behavior | Profile behavior |
 |---|---|---|---|
-| `Simplified` | Major envelopes; socket modeled; no helical thread | Lower segment counts | Lower bore segments |
-| `Detailed` | Same envelope plus small features the kernel supports; no helical thread by default | Higher segment counts | Higher bore segments |
-| `FullyModeled` | Adds a swept helical thread ridge | Higher segment counts | Higher bore segments |
+| `Simplified` | Major envelopes; socket modeled; no helical thread | Lower involute sample count | Lower sample count |
+| `Detailed` | Same envelope plus small features the kernel supports; no helical thread by default | Higher involute sample count | Higher sample count |
+| `FullyModeled` | Adds a swept helical thread ridge | Higher involute sample count | Higher sample count |
 
 `ThreadRepresentation` is explicit and can override the detail policy:
 
@@ -184,21 +184,22 @@ ridge actually intersects its body.
 
 | Feature | Approximation | Control |
 |---|---|---|
-| Circular bores/envelopes | Regular polygon extrusion | `circle_segments` in `DetailPolicy` |
+| Circular bodies, bores, and envelopes | **Analytic** `CYLINDRICAL_SURFACE` via `Cylinder`/`RevolvedProfile`; a polygon is used only for a genuinely polygonal or toothed outline | `RevolvedProfile`; `circle_segments` for toothed outlines only |
 | Helical thread | Swept ISO 68-1 trapezoid along a helix (60-degree flanks) | `segments_per_turn`, pitch, basic profile |
 | Gear tooth flank | Involute sampled at discrete points | `involute_points` |
 | Gear tip/root arcs | Polygonal arcs | `arc_points` |
 | Bearing rolling elements | Analytic spheres (`SPHERICAL_SURFACE`) | ball diameter = modeled radial gap |
-| Bearing ring chamfers | Parallel-inset ring stack | engineering default `bearing_chamfer` |
+| Bearing ring chamfers | **Analytic** cones on a revolved annulus | engineering default `bearing_chamfer` |
 | T-slot section | Generic polygon with tapered T-slot notches and corner webs ("arrows") | profile dimensions, all explicit |
 | Internal ring gear | Exact internal involute envelope (trapezoidal fallback builder) | involute points, arc points, declared backlash |
 | 2D chamfer/fillet | Straight bevel or sampled circular arc | `distance`/`radius`, `segments`, `angle_deg` |
 | Prism face/edge chamfers | Parallel-inset ring stack (planar facets) | `ChamferedPrism` levels, inset |
-| Head socket bands | High-resolution polygon ring stack | `circle_segments` (64 at Detailed) |
-| Socket lead-in chamfer | Tapered hex hole (per-level hole rings, ruled quads) | engineering default `lead = min(0.1 s, 0.5 t)` |
-| Shank tip chamfer | 45° ruled cone ring stack | engineering default `c = min(0.1 d, 0.5 mm)`, capped at `L/4` |
-| Hex-head top chamfer | Parallel-inset hexagon ruled stack (approximation of the conical washer face) | engineering default `c = min(0.1 s, k/3)` |
-| DIN 976 end lead-in | 45° ruled cone at each end | engineering default `c = min(0.1 d, 0.5 mm)` |
+| Head socket bands | **Analytic** revolved cup (outer cylinder + cone + circular bore) with a buried hexagon ring forming the six flats | `RevolvedProfile::cup`, `hex_socket_ring` |
+| Socket lead-in chamfer | Conical bore lead-in plus a ruled hex taper on the six flats | engineering default `lead = min(0.1 s, 0.5 t)` |
+| Shank tip chamfer | **Analytic** 45° `CONICAL_SURFACE` on a revolved cylinder | engineering default `c = min(0.1 d, 0.5 mm)`, capped at `L/4` |
+| Hex-head top chamfer | Parallel-inset hexagon ruled stack (documented approximation of the conical washer face) | engineering default `c = min(0.1 s, k/3)` |
+| DIN 976 end lead-in | **Analytic** 45° `CONICAL_SURFACE` at each end | engineering default `c = min(0.1 d, 0.5 mm)` |
+| Nut face chamfer | Parallel-inset hexagon ruled stack (documented approximation) with an **analytic** round bore | `nut_chamfer`, `round_bore` |
 
 ## Feature geometry primitives
 
