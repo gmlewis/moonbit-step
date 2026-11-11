@@ -159,11 +159,13 @@ against the standards tables:
   table (M4 4.1 / 7.6 / 0.9, M5 5.1 / 9.2 / 1.2, M6 6.1 / 11.8 / 1.6,
   M8 8.1 / 14.8 / 2.0). The free height is taken at h_min (M4 1.8 mm). The
   downloadable M6 reference uses d1 = 6.1 mm; the fasteners.eu table prints
-  6.4 as its minimum, while other tables list 6.1. The reference is a smooth
-  helicoid (four B-spline surfaces and two planes); the parametric part is a
-  documented sampled helical sweep (`SweptSpline`, 144 chords per turn at
-  Detailed). The DIN side length b is recorded in the table, but the radial
-  section is `(d2 - d1) / 2` in the modeled references.
+  6.4 as its minimum, while other tables list 6.1. The parametric part uses
+  the same native topology as the reference: four cubic B-spline side
+  surfaces (24 spans per turn) and two planar caps. The split gap is 10.8
+  degrees at the reference cap angles (+4.54 to -6.26 degrees), and the sweep
+  runs clockwise from high Z to low Z. The DIN side length b is recorded in
+  the table, but the radial section is `(d2 - d1) / 2` in the modeled
+  references.
 
 Rejected with evidence (not used as oracles):
 

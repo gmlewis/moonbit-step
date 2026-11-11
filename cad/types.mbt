@@ -140,6 +140,10 @@ pub struct SweptProfile {
   make_end_cap : Bool
   straight_holes : Bool
   straight_outline : Bool
+  /// Emit a smooth helical B-rep for a rectangular profile on a helical path:
+  /// four B-spline side surfaces and two planar caps (six faces). The mesh,
+  /// section, and mass-property analysis keep using the sampled path.
+  smooth_helix : Bool
 }
 
 ///|

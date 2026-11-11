@@ -18,6 +18,7 @@ pub fn SweptProfile::new(
   make_end_cap~ : Bool = true,
   straight_holes~ : Bool = false,
   straight_outline~ : Bool = true,
+  smooth_helix~ : Bool = false,
 ) -> Shape {
   Shape::SweptProfile({
     path,
@@ -26,6 +27,7 @@ pub fn SweptProfile::new(
     make_end_cap,
     straight_holes,
     straight_outline,
+    smooth_helix,
   })
 }
 
@@ -42,6 +44,9 @@ fn compile_swept_profile(
   let profile = s.profile
   if path.points.length() < 2 || profile.vertices.length() < 3 {
     return []
+  }
+  if s.smooth_helix {
+    return compile_smooth_helix(ctx, node, s, reverse~, parent~)
   }
   let num_path_pts = path.points.length()
 

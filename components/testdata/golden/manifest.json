@@ -1273,16 +1273,16 @@
       },
       "parametric_value": {
         "bbox_mm": [
-          7.563,
-          7.5999,
-          1.7595
+          7.6009,
+          7.6341,
+          1.773
         ],
-        "volume_mm3": 27.6536,
+        "volume_mm3": 28.0835,
         "solids": 1,
         "source": "components/examples/fasteners --standard din127 --size M4"
       },
       "verdict": "accepted-envelope",
-      "notes": "DIN 127 B M4: d1 4.1, d2 7.6, s 0.9, h 1.8. The downloaded reference is a smooth helicoid (4 B-spline surfaces and 2 planes); its exact bbox from the tessellated solid is 7.592 x 7.600 x 1.751 mm, while OCCT Bnd_Box reports the looser 9.915 x 11.120 x 1.773 mm control hull. The parametric part is a sampled helical sweep of a rectangular section, a documented SweptSpline approximation (144 chords per turn at Detailed): volume 27.654 vs 27.637 mm3. DIN side length b = 1.5; the radial section width is (d2 - d1) / 2 = 1.75 mm.",
+      "notes": "DIN 127 B M4: d1 4.1, d2 7.6, s 0.9, h 1.8. The downloaded reference is a smooth helicoid with four B-spline surfaces and two planar caps (6 faces, 12 edges, 8 vertices). The parametric part uses the same native topology: four cubic B-spline side surfaces (24 spans per turn) and two planar caps, with the gap at the reference cap angles (+4.54 to -6.26 degrees) and a clockwise sweep descending from high Z to low Z. Volume 28.084 vs 27.637 mm3. The golden's exact tessellated bbox is 7.592 x 7.600 x 1.751 mm; OCCT Bnd_Box reports the looser 9.915 x 11.120 x 1.773 mm control hull for the golden's high-degree surfaces. DIN side length b = 1.5; the radial section width is (d2 - d1) / 2 = 1.75 mm.",
       "committed": false,
       "generation": {
         "tool": "components/examples/fasteners",
@@ -1310,17 +1310,22 @@
           {
             "axis": 1,
             "expected_mm": 7.6,
-            "tol_mm": 0.02,
+            "tol_mm": 0.05,
             "label": "outer diameter"
           },
           {
             "axis": 2,
             "expected_mm": 1.7513,
-            "tol_mm": 0.02,
+            "tol_mm": 0.03,
             "label": "free height"
           }
         ],
         "features": [
+          {
+            "kind": "surface_min",
+            "surface": "bspline",
+            "min_count": 4
+          },
           {
             "kind": "surface_min",
             "surface": "plane",

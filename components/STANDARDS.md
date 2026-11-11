@@ -75,8 +75,10 @@ table (6g/6H limits are not modeled as limits).
 - Data: inner diameter `d1`, outer diameter `d2`, side length `b`, section
   thickness `s`, and free height `h` (h_min reference).
 - The strip is a radial-vertical rectangle whose width is `(d2 - d1) / 2`;
-  the helix pitch is `h - s`. The part is a documented sampled helical sweep
-  (144 chords per turn at Detailed), not an analytic quadric surface.
+  the helix pitch is `h - s`. The emitted solid has four native cubic
+  B-spline side surfaces (24 spans per turn) and two planar caps, with the
+  split gap at the reference cap angles and the sweep running clockwise from
+  high Z to low Z.
 
 ### ISO 4017 / ISO 4014 — hexagon head screws and bolts
 

@@ -286,12 +286,12 @@ test "din 127 b spring washer geometry" {
     Err(e) => abort(e.message())
   }
   let (x0, x1, y0, y1, z0, z1) = washer.bounding_box()
-  // The radial section spans d1 = 4.1 to d2 = 7.6; the split gap shortens the
-  // +X extent slightly. The free height is s + pitch * coverage = 1.7595 mm.
+  // The radial section spans d1 = 4.1 to d2 = 7.6; the split gap slightly
+  // shortens the +X extent. The free height is s + pitch * coverage = 1.773 mm.
   assert_true(close(z0, 0.0))
-  assert_true(z1 > 1.75 && z1 < 1.77)
+  assert_true(z1 > 1.76 && z1 < 1.78)
   assert_true(x1 - x0 > 7.54 && x1 - x0 < 7.60)
-  assert_true(y1 - y0 > 7.58 && y1 - y0 < 7.61)
+  assert_true(y1 - y0 > 7.59 && y1 - y0 < 7.61)
   assert_true(washer.name() == "DIN127-M4")
   assert_true(washer.metadata().designation == "DIN 127 B - M4")
   assert_true(washer.metadata().standard == "DIN 127 B")

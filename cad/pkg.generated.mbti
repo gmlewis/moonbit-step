@@ -631,8 +631,9 @@ pub struct SweptProfile {
   make_end_cap : Bool
   straight_holes : Bool
   straight_outline : Bool
+  smooth_helix : Bool
 }
-pub fn SweptProfile::new(path~ : SweepPath, profile~ : SweepProfile, make_start_cap? : Bool, make_end_cap? : Bool, straight_holes? : Bool, straight_outline? : Bool) -> Shape
+pub fn SweptProfile::new(path~ : SweepPath, profile~ : SweepProfile, make_start_cap? : Bool, make_end_cap? : Bool, straight_holes? : Bool, straight_outline? : Bool, smooth_helix? : Bool) -> Shape
 
 pub(all) struct Transform {
   rot : Matrix3x3

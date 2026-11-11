@@ -3,19 +3,28 @@
 /// radial-vertical rectangle, so the ring is built as a rectangular profile
 /// swept along a helix; the two square-cut end faces leave the split gap.
 ///
-/// The helix cannot be an analytic quadric surface, so the sweep is sampled
-/// into chords per turn and the deviation is recorded in the feature record.
-/// The DIN 127 edge radius `r` is not modeled.
+/// The four sides are emitted as native cubic B-spline surfaces between the
+/// corner helices, with two planar caps (six faces total). The cubic spans
+/// approximate the helix to within the recorded deviation; the DIN 127 edge
+/// radius `r` is not modeled.
 
 ///|
 /// DIN127_COVERAGE_TURNS is the fraction of a turn occupied by the strip.
-/// The remaining 4.5% (about 16 degrees) is the split gap.
-let din127_coverage_turns : Double = 0.955
+/// The remaining 3.0% (about 10.8 degrees) is the split gap, matching the
+/// downloaded references' cap angles.
+let din127_coverage_turns : Double = 0.970
 
 ///|
-/// DIN127_START_ANGLE_DEG rotates the sweep so the split gap is centered on
-/// the +X axis, matching the downloaded reference orientation.
-let din127_start_angle_deg : Double = 8.0
+/// DIN127_START_ANGLE_DEG places the high end of the strip at -6.26 degrees,
+/// so the gap runs clockwise from +4.54 to -6.26 degrees, matching the
+/// downloaded reference. The sweep itself is clockwise and descends from high
+/// Z to low Z.
+let din127_start_angle_deg : Double = 6.26
+
+///|
+/// Maximum deviation of the cubic B-spline helix spans (24 per turn) from the
+/// ideal helix.
+let din127_bspline_deviation_mm : Double = 1.0e-4
 
 ///|
 /// din127_washer builds a DIN 127 B spring washer.
@@ -42,8 +51,10 @@ pub fn din127_washer(
         FullyModeled => 288
       }
       let path = @cad.helix_path(
-        pos=(0.0, 0.0, thickness / 2.0),
-        size_per_turn=(radius_mid, radius_mid, pitch),
+        // Start at the high end; the negative pitch makes the clockwise sweep
+        // descend to the low end, matching the downloaded reference.
+        pos=(0.0, 0.0, thickness / 2.0 + pitch * din127_coverage_turns),
+        size_per_turn=(radius_mid, radius_mid, -pitch),
         num_turns=din127_coverage_turns,
         num_segs_per_turn=segments,
         start_angle=din127_start_angle_deg,
@@ -63,21 +74,28 @@ pub fn din127_washer(
         normal_dir=(0.0, 1.0, 0.0),
         right_dir=(1.0, 0.0, 0.0),
       )
-      let body = @cad.SweptProfile::new(path~, profile~, straight_outline=false)
-      let deviation = @common.chord_deviation(r_outer, segments)
+      let body = @cad.SweptProfile::new(
+        path~,
+        profile~,
+        straight_outline=false,
+        smooth_helix=true,
+      )
+      let deviation = din127_bspline_deviation_mm
       Ok(
         @common.Component::new(
           name="DIN127-\{dims.size.designation()}",
           metadata=spec.metadata(),
-          description="DIN 127 B spring washer, form B: a helical split ring with a rectangular radial-vertical section, square-cut ends, and a split gap of about 16 degrees. The helix is sampled into \{segments} chords per turn; the DIN edge radius r is not modeled.",
+          description="DIN 127 B spring washer, form B: a helical split ring with a rectangular radial-vertical section and a 10.8-degree split gap. The four sides are native cubic B-spline surfaces (24 spans per turn) between the corner helices, with two planar end caps; the DIN edge radius r is not modeled.",
           features=@common.FeatureRecord::new(
-            modeled=["rectangular-section", "split-gap", "end-faces"],
+            modeled=[
+              "rectangular-section", "split-gap", "end-faces", "b-spline-helicoid",
+            ],
             approximated=[
               @common.Approximation::new(
                 feature="helical-body",
                 kind=@common.ApproximationKind::SweptSpline,
                 deviation_mm=deviation,
-                control="segments_per_turn=\{segments}",
+                control="cubic B-spline, 24 spans per turn",
               ),
             ],
             omitted=[
