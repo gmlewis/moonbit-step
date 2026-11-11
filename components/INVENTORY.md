@@ -35,7 +35,7 @@ insufficient). A PASS is never a claim of manufacturing approval.
 | Collision/contact validation | `collision` | PASS (conservative) | AABB broad phase + 15-axis OBB narrow phase; clearance/contact/interference/collision; envelope conservative for non-convex sections |
 | Catalogue/query API | `catalog` | PASS | Built from the real builders; feature records and provenance |
 | STEP export | `cad`, `components/examples/output` | PASS | Syntax, references, shells, topology, orientation, planarity, OCCT checkshape/mesh, gmsh mesh; assembly document has no single-shape gate |
-| M2–M5 golden matrix | `scripts/golden_matrix.py` | PASS (normative) | 108 cells (8 families × sizes × 3 detail levels); NORMATIVE 108 PASS, 0 FAIL; GOLDEN 108 SKIP (unverified per-file licences); 39 development-time agreements, 69 evidence-based rejections; `components/testdata/golden/matrix.json` |
+| M2–M5 golden matrix | `scripts/golden_matrix.py` | PASS (normative) | 108 cells (8 families × sizes × 3 detail levels); NORMATIVE 108 PASS, 0 FAIL; GOLDEN 39 PASS / 54 FAIL / 15 SKIP against the downloaded open-source golden models; `components/testdata/golden/matrix.json` |
 
 ## Explicitly not implemented
 
@@ -49,12 +49,12 @@ insufficient). A PASS is never a claim of manufacturing approval.
 - Evaluated (trimmed) STEP booleans in the kernel-free writer. Real 3D
   fillet/chamfer evaluation is optional and requires OCCT; chamfers are
   single-edge on the DRAW path, fillets support multi-edge `blend`.
-- External golden STEP geometry as a committed oracle; per-file licences are
-  unverified, so external comparison is SKIP by design. The development-time
-  matrix measurements are recorded, not committed as geometry.
+- External golden STEP geometry as committed files: the owner downloads the
+  open-source golden models into the Git-ignored `external/` directory. The
+  matrix measurements are recorded in `matrix.json`.
 - Under-head radii and ISO 4032 bore-edge chamfers: no verified values, recorded
   as typed omissions.
-- Exact B-slot6 extrusion pending verified provenance/licence.
+- Exact B-slot6 extrusion pending verified provenance.
 
 ## Evidence entry points
 
@@ -62,7 +62,7 @@ insufficient). A PASS is never a claim of manufacturing approval.
 - `FEATURES.md` — per-feature modeled / approximated / omitted detail.
 - `KNOWN_ISSUES.md` — current limitations and fixed-defect register.
 - `VALIDATION.md` — commands, counts, and external-tool results.
-- `GOLDEN_REFERENCES.md` — reference policy, licences, checksums, and verdicts.
+- `GOLDEN_REFERENCES.md` — golden source, comparison rules, checksums, and verdicts.
 - `SESSION_REPORT_06.md` — the round-6 audit and fixes.
 - `SESSION_REPORT_07.md` — the round-7 thread-placement fix, chamfer coverage,
   and 108-cell matrix.

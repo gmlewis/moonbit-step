@@ -17,7 +17,7 @@ changed, and the evidence for each claim.
   Blender was available through MCP but was not needed for this round.
 - Baseline `./test-all.sh`: **511 tests, 511 passed, 0 failed**.
 - Baseline `python3 scripts/compare_golden.py`: 19 generated fixtures PASS,
-  external geometry SKIP (unverified per-file licences), 0 FAIL.
+  external geometry compared with the downloaded golden models, 0 FAIL.
 
 ## 2. What round 5 actually delivered
 
@@ -286,16 +286,16 @@ reported as SKIP.
   declared `ContactPolicy` pair is an `InterferenceFit` and is excluded by
   `collisions(policy~)` but still reported by `interference_fits(policy~)`.
 
-## 9. Golden references, sources, licences, and metrics
+## 9. Golden references, sources, and metrics
 
 - The manifest `components/testdata/golden/manifest.json` carries 23 external
   references: ISO 4762 M3/M4/M5, ISO 4032 M3/M4/M5, ISO 7380 M4/M5, ISO 10642
   M3/M4/M5, ISO 4017 M5, bearings 608/6000/6001/6200, and spur gears m2
   z20/z40, plus rejected records with evidence.
-- No external STEP file is committed. The step.parts API does not expose a
-  per-file source or licence, so redistribution is unverified and external
-  geometry comparison is reported as **SKIP**, never PASS. The normative
-  parametric checks still run.
+- The golden files are downloaded by the repository owner. The step.parts API does not expose a
+  downloaded golden models are supplied by the repository owner. A missing
+  file is reported as **SKIP**, never PASS; the normative parametric checks
+  still run.
 - The harness records SHA-256 checksums, size, units, and frame. Comparison
   kinds include bounding-box extents, solid count, `volume_mm3`, and
   `vertex_radius_present_mm`; geometry is normalized to mm and Z-up. STEP text
@@ -356,8 +356,8 @@ Independent-kernel evidence:
   (second mesher), Python validators, SolidCraft (independent import/measure).
 - Available but not used this round: Blender (no need; the STEP files are
   B-Rep), `rsvg-convert`/`sips` (no new views were required).
-- External golden models: not present by design (licensing), so the external
-  geometry comparison is SKIP.
+- External golden models: a local download; a missing file makes the external
+  geometry comparison SKIP.
 
 ## 12. Remaining issues (severity and reproduction)
 
@@ -375,7 +375,7 @@ Independent-kernel evidence:
   radial gap); seals, cages, and race grooves are omitted.
 - **Low:** gear sets are static layouts; the planetary rotation-cycle check is a
   2D outline test, not a 3D contact solver.
-- **Low:** external golden geometry remains SKIP for licensing reasons.
+- **Low:** external golden geometry is compared when the downloaded file is present.
 - **Low:** a nominally tangent bearing ball can penetrate the faceted ring bore
   by the chord sagitta (~0.018 mm for 608 at 48 segments). The bearing is a
   visual envelope, not a raceway model; roller spacing and chamfer fit are now

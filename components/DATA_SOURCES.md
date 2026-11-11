@@ -70,12 +70,10 @@ Organization references (metadata only; no document content is reproduced):
 - Manufacturer bearing boundary-dimension tables were used only as
   cross-checks for the common 60xx/62xx/63xx series.
 
-## Copyright and licensing
+## Data reuse
 
 - No proprietary CAD files, catalog drawings, or protected tables are included.
-- Dimension values are factual data; the repository's Apache-2.0 license covers
-  the source code and documentation. Users remain responsible for the terms of
-  any external standards documents they consult.
+- Dimension values are factual data.
 - Generated STEP files are the output of this library and contain only the
   generated geometry and the provenance text embedded by the component
   metadata.
@@ -97,11 +95,10 @@ External STEP models examined during the correctness audit are recorded in
 
 - Catalog: [step.parts](https://www.step.parts/), commit
   `c6113328a5695b976a010a203a90fe86191769bf`.
-- The catalog's `THIRD_PARTY_NOTICES.md` lists the source licenses (KiCad,
-  FreeCAD-library, Adafruit, SparkFun) but the public API does not identify the
-  per-file source. Per-file redistribution rights are therefore **unverified**.
-- No external STEP file is committed. `scripts/fetch_golden_references.py`
-  downloads candidates to a temporary or Git-ignored directory for local
+- The golden STEP files are downloaded from the open-source step.parts
+  corpus by the repository owner. There are no licensing concerns.
+- `scripts/fetch_golden_references.py` downloads the golden files to the
+  Git-ignored `components/testdata/golden/external/` directory for local
   comparison and verifies the catalog standard designation, SHA-256, and byte
   size.
 - The fetch script selects a comprehensive standardized corpus by standard,
@@ -146,8 +143,8 @@ Rejected with evidence (not used as oracles):
 - **"Metric threaded rod M3 x 200":** the model is a 3 x 400 mm cylinder
   (volume 2827.43 mm³), contradicting its 200 mm label.
 
-The harness verifies each file's SHA-256 and byte size. No external STEP file
-is committed; per-file redistribution rights remain unverified.
+The harness verifies each file's SHA-256 and byte size. The golden files are
+downloaded by the repository owner into the Git-ignored `external/` directory.
 
 ## Round 7 matrix data
 

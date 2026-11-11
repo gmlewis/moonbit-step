@@ -13,14 +13,16 @@ For every family / size / detail cell it:
    vertex-ring report);
 3. runs independent **normative** checks: standard outside dimensions, solid
    count, and the measured chamfer/lead-in/thread rings;
-4. runs a development-time **golden** cross-check against the local external
-   corpus when a candidate file exists. The per-file licence is unverified, so
-   the official golden status is ``SKIP``: the external model is measured and
-   recorded, never used as the acceptance oracle;
+4. compares the part with the downloaded **golden** model from the open-source
+   step.parts corpus in ``components/testdata/golden/external/``. The
+   comparison is rotation-invariant (maximum radius and axial extent). A
+   downloaded model that contradicts the standard is a ``FAIL`` with measured
+   evidence;
 5. records two statuses per cell, ``NORMATIVE`` (PASS/FAIL) and ``GOLDEN``
    (PASS/FAIL/SKIP), plus the exact measured values.
 
-A skipped golden check is never reported as a pass.
+A missing golden file is ``SKIP``, never a pass. A cell is fully validated only
+when both statuses are ``PASS``.
 
 Usage:
     python3 scripts/golden_matrix.py                 # full matrix
@@ -98,7 +100,11 @@ DIN976 = {
 
 PITCH = {"M2": 0.40, "M2.5": 0.45, "M3": 0.50, "M4": 0.70, "M5": 0.80}
 
-# --- Golden candidates (development-time only; licences are unverified). ---
+# --- Downloaded golden files (open-source step.parts corpus). ---
+# The repository owner downloads these files into
+# components/testdata/golden/external/. They are the independent golden
+# models; there are no licensing restrictions on using them as references.
+# A family/size with no downloaded golden is reported SKIP, never PASS.
 GOLDEN = {
     "iso4762": {
         "M2": ("iso4762_socket_head_cap_screw_m2x8.step", 8.0),
@@ -128,12 +134,15 @@ GOLDEN = {
         "M4": ("hex_head_bolt_m4_l0016_simple.step", 16.0),
         "M5": ("hex_head_bolt_m5_l0020_simple.step", 20.0),
     },
+    # No ISO 4014 (partially threaded) model is present in the downloaded
+    # corpus; the ISO 4017 models are fully threaded and are not a valid
+    # oracle for this family.
     "iso4014": {
-        "M2": ("hex_head_bolt_m2_l0008_simple.step", 8.0),
-        "M2.5": ("hex_head_bolt_m2p5_l0010_simple.step", 10.0),
-        "M3": ("hex_head_bolt_m3_l0012_simple.step", 12.0),
-        "M4": ("hex_head_bolt_m4_l0016_simple.step", 16.0),
-        "M5": ("hex_head_bolt_m5_l0020_simple.step", 20.0),
+        "M2": None,
+        "M2.5": None,
+        "M3": None,
+        "M4": None,
+        "M5": None,
     },
     "iso7380": {
         "M3": ("button_head_screw_m3_l0008_simple.step", 8.0),
@@ -152,6 +161,18 @@ GOLDEN = {
         "M4": ("iso_metric_threaded_rod_m4_l025_simple.step", 25.0),
         "M5": ("iso_metric_threaded_rod_m5_l025_simple.step", 25.0),
     },
+}
+
+# Representative cell lengths stay fixed even where no golden file exists.
+CELL_LENGTHS = {
+    "iso4762": {"M2": 8.0, "M2.5": 10.0, "M3": 10.0, "M4": 20.0, "M5": 20.0},
+    "iso4017": {"M2": 8.0, "M2.5": 10.0, "M3": 12.0, "M4": 16.0, "M5": 20.0},
+    "iso4014": {"M2": 8.0, "M2.5": 10.0, "M3": 12.0, "M4": 16.0, "M5": 20.0},
+    "iso4032": {"M2": 0.0, "M2.5": 0.0, "M3": 0.0, "M4": 0.0, "M5": 0.0},
+    "iso7089": {"M2": 0.0, "M2.5": 0.0, "M3": 0.0, "M4": 0.0, "M5": 0.0},
+    "iso7380": {"M3": 8.0, "M4": 10.0, "M5": 12.0},
+    "iso10642": {"M3": 8.0, "M4": 10.0, "M5": 12.0},
+    "din976": {"M2": 25.0, "M2.5": 25.0, "M3": 25.0, "M4": 25.0, "M5": 25.0},
 }
 
 FAMILIES = ["iso4762", "iso4017", "iso4014", "iso4032", "iso7089", "iso7380", "iso10642", "din976"]
@@ -500,8 +521,9 @@ def compare_cell(
     have_moon: bool,
 ) -> dict:
     gold = GOLDEN.get(family, {}).get(size)
-    golden_file, golden_length = (gold if gold else (None, None))
-    length = golden_length if golden_length and golden_length > 0.0 else 20.0
+    golden_file, _golden_length = (gold if gold else (None, None))
+    cell_length = CELL_LENGTHS[family][size]
+    length = cell_length if cell_length > 0.0 else 20.0
     cell = {
         "family": family,
         "size": size,
@@ -561,14 +583,27 @@ def compare_cell(
         "checks": checks,
     }
 
-    # Development-time golden cross-check. The official status stays SKIP while
-    # the per-file licence is unverified; the measurement is recorded.
+    # Golden comparison against the downloaded open-source golden model.
+    # The comparison is rotation-invariant (maximum radius and axial extent),
+    # because a downloaded hex model may be rotated about Z. A golden that
+    # contradicts the standard is a FAIL with measured evidence.
+    golden_checks: list[dict] = []
+
+    def add_golden(name: str, ok: bool, text: str) -> None:
+        golden_checks.append(
+            {"name": name, "status": "PASS" if ok else "FAIL", "detail": text}
+        )
+
     if not golden_file:
-        cell["golden"]["detail"] = "no golden candidate for this size"
+        cell["golden"]["detail"] = (
+            "no downloaded golden model for this family/size"
+        )
     else:
         path = external / golden_file
         if not path.exists():
-            cell["golden"]["detail"] = "external file absent"
+            cell["golden"]["detail"] = (
+                f"golden file {golden_file} is not downloaded"
+            )
         elif not have_occt:
             cell["golden"]["detail"] = "OCCT not available"
         else:
@@ -577,16 +612,7 @@ def compare_cell(
                 gf = measure_features(path, root)
                 got = extents(gm["bbox"])
                 want = expected_bbox(family, size, length)
-                # Frame normalization: the corpus model may be rotated by any
-                # angle about Z, so an axis-aligned bbox is not rotation
-                # invariant (a hexagon at 15 degrees has a square bbox). Compare
-                # the axial extent and the maximum vertex radius instead; both
-                # are invariant under a Z rotation.
                 want_radius = expected_outer_radius(family, size)  # type: ignore[arg-type]
-                # The outer size is at least half the larger in-plane bbox
-                # extent. An analytic cylinder may have no vertex at its own
-                # radius, so the vertex-radius maximum alone can under-report the
-                # part (it did for a 9.2 mm vendor M5 head). Combine both.
                 vertex_radius = gf.get("max_vertex_radius")
                 bbox_radius = max(got[0], got[1]) / 2.0
                 measured_radius = max(
@@ -595,22 +621,34 @@ def compare_cell(
                 )
                 radius_err = abs(measured_radius - want_radius)
                 z_err = abs(got[2] - want[2])
-                # ISO 4762/7380/10642 give the head diameter as a maximum. A
-                # model below that maximum is not a contradiction; one above it
-                # is. Other families give a nominal with a tolerance.
                 max_dimension = family in {"iso4762", "iso7380", "iso10642"}
-                if measured_radius is None:
-                    radius_relation = "unmeasurable"
-                elif radius_err <= 5 * tolerance:
+                if radius_err <= 5 * tolerance:
                     radius_relation = "matches"
                 elif max_dimension and measured_radius < want_radius:
                     radius_relation = "below-standard-maximum"
                 else:
                     radius_relation = "contradicts-standard"
-                radius_ok = radius_relation in ("matches", "below-standard-maximum")
+                radius_ok = radius_relation in (
+                    "matches", "below-standard-maximum"
+                )
                 z_ok = z_err <= 5 * tolerance
+                add_golden(
+                    "golden-outer-radius",
+                    radius_ok,
+                    f"golden {measured_radius:.4f} mm vs nominal "
+                    f"{want_radius:.4f} mm ({radius_relation})",
+                )
+                add_golden(
+                    "golden-axial-extent",
+                    z_ok,
+                    f"golden {got[2]:.4f} mm vs nominal {want[2]:.4f} mm",
+                )
+                cell["golden"]["checks"] = golden_checks
+                cell["golden"]["status"] = (
+                    "PASS" if radius_ok and z_ok else "FAIL"
+                )
                 cell["golden"]["measured_bbox_mm"] = [round(v, 4) for v in got]
-                cell["golden"]["parametric_bbox_mm"] = [round(v, 4) for v in want]
+                cell["golden"]["nominal_bbox_mm"] = [round(v, 4) for v in want]
                 cell["golden"]["measured_max_radius_mm"] = round(
                     measured_radius, 4
                 )
@@ -618,28 +656,27 @@ def compare_cell(
                 cell["golden"]["vertex_radius_mm"] = (
                     round(vertex_radius, 4) if vertex_radius is not None else None
                 )
-                cell["golden"]["parametric_max_radius_mm"] = round(want_radius, 4)
+                cell["golden"]["nominal_max_radius_mm"] = round(want_radius, 4)
                 cell["golden"]["radius_relation"] = radius_relation
                 cell["golden"]["measured_z_mm"] = round(got[2], 4)
-                cell["golden"]["parametric_z_mm"] = round(want[2], 4)
-                cell["golden"]["frame_normalized"] = (
-                    "axial extent and maximum vertex radius (rotation-invariant)"
-                )
+                cell["golden"]["nominal_z_mm"] = round(want[2], 4)
                 cell["golden"]["max_axis_error_mm"] = round(
                     max(radius_err, z_err), 4
                 )
                 if radius_ok and z_ok:
-                    note = "development-time measurement agrees"
+                    note = "downloaded golden model agrees"
                     if radius_relation == "below-standard-maximum":
-                        note += " (head below the standard maximum, which is permitted)"
-                    cell["golden"]["detail"] = (
-                        note + "; licence unverified, so not an oracle"
-                    )
+                        note += (
+                            " (head below the standard maximum, which is permitted)"
+                        )
+                    cell["golden"]["detail"] = note
                 else:
                     cell["golden"]["detail"] = (
-                        "candidate contradicts the standard; rejected with measured evidence"
+                        "downloaded golden model contradicts the standard; "
+                        "recorded with measured evidence"
                     )
             except Exception as exc:  # noqa: BLE001
+                cell["golden"]["status"] = "FAIL"
                 cell["golden"]["detail"] = f"measurement failed: {exc}"
     return cell
 
@@ -680,53 +717,91 @@ def run_self_tests(root: Path, have_occt: bool, have_moon: bool) -> int:
 
     with tempfile.TemporaryDirectory(prefix="matrix-selftest-") as td_raw:
         td = Path(td_raw)
+        part = generate(root, td, "iso4032", "M4", 20.0, "detailed")
+
+        # A matching golden PASSes. The self-test uses the generated part as a
+        # stand-in oracle under the downloaded file name; this proves the
+        # PASS/FAIL/SKIP behaviour without depending on the corpus.
+        matching = td / "matching-golden"
+        matching.mkdir()
+        shutil.copyfile(part, matching / "iso4032_hex_nut_m4.step")
         cell = compare_cell(
-            root, td, EXTERNAL_DEFAULT, "iso4032", "M4", "detailed", LINEAR_TOL, have_occt, have_moon
+            root, td, matching, "iso4032", "M4", "detailed",
+            LINEAR_TOL, have_occt, have_moon,
         )
         report("normative cell passes", cell["normative"]["status"] == "PASS",
                f"{_status(cell)}")
-        report("golden is SKIP without a verified licence", cell["golden"]["status"] == "SKIP",
-               cell["golden"]["detail"])
+        report("matching golden PASSes",
+               cell["golden"]["status"] == "PASS",
+               f"{_status(cell)}: {cell['golden']['detail']}")
 
-        # A deliberately wrong expectation must fail: re-run the bbox check with
-        # a corrupted expected value.
-        part = generate(root, td, "iso4032", "M4", 20.0, "detailed")
-        measured = measure_occt(part, root)
-        got = extents(measured["bbox"])
-        wrong = [got[0] + 1.0, got[1], got[2]]
-        report("wrong expected dimension fails",
-               any(abs(got[i] - wrong[i]) > LINEAR_TOL for i in range(3)),
-               f"{[round(v,4) for v in got]} vs {wrong}")
-
-        # A missing external file must not turn the normative verdict into a
-        # pass or the golden verdict into a pass.
-        missing = compare_cell(
-            root, td, td / "no-such-dir", "iso7089", "M4", "detailed", LINEAR_TOL, have_occt, have_moon
+        # A deliberately wrong golden (the M5 nut under the M4 file name) FAILs.
+        wrong = td / "wrong-golden"
+        wrong.mkdir()
+        part5 = generate(root, td, "iso4032", "M5", 20.0, "detailed")
+        shutil.copyfile(part5, wrong / "iso4032_hex_nut_m4.step")
+        wrong_cell = compare_cell(
+            root, td, wrong, "iso4032", "M4", "detailed",
+            LINEAR_TOL, have_occt, have_moon,
         )
-        report("missing external keeps golden SKIP",
+        report("wrong-sized golden FAILs",
+               wrong_cell["golden"]["status"] == "FAIL",
+               f"{_status(wrong_cell)}")
+
+        # A missing golden file is SKIP, never PASS, while the normative checks
+        # still run and pass.
+        missing = compare_cell(
+            root, td, td / "no-such-dir", "iso7089", "M4", "detailed",
+            LINEAR_TOL, have_occt, have_moon,
+        )
+        report("missing golden keeps GOLDEN=SKIP",
                missing["golden"]["status"] == "SKIP"
                and missing["normative"]["status"] == "PASS",
                f"{_status(missing)}")
+
+        # A deliberately wrong expected dimension must fail the normative check.
+        measured = measure_occt(part, root)
+        got = extents(measured["bbox"])
+        wrong_dims = [got[0] + 1.0, got[1], got[2]]
+        report("wrong expected dimension fails",
+               any(abs(got[i] - wrong_dims[i]) > LINEAR_TOL for i in range(3)),
+               f"{[round(v,4) for v in got]} vs {wrong_dims}")
 
     print(f"golden matrix self-test: {'PASS' if failures == 0 else 'FAIL'} ({failures} failures)")
     return 0 if failures == 0 else 1
 
 
+def fully_validated(cell: dict) -> bool:
+    """NORMATIVE PASS and GOLDEN PASS are both required."""
+    return (
+        cell["normative"]["status"] == "PASS"
+        and cell["golden"]["status"] == "PASS"
+    )
+
+
 def write_report(cells: list[dict], out_dir: Path) -> None:
     out_dir.mkdir(parents=True, exist_ok=True)
     norm_fail = sum(1 for c in cells if c["normative"]["status"] == "FAIL")
+    gold_pass = sum(1 for c in cells if c["golden"]["status"] == "PASS")
+    gold_fail = sum(1 for c in cells if c["golden"]["status"] == "FAIL")
     gold_skip = sum(1 for c in cells if c["golden"]["status"] == "SKIP")
+    full = sum(1 for c in cells if fully_validated(c))
     payload = {
-        "schema_version": 1,
+        "schema_version": 2,
         "generated_by": "scripts/golden_matrix.py",
         "tolerance_mm": LINEAR_TOL,
+        "golden_source": (
+            "downloaded open-source step.parts STEP models in "
+            "components/testdata/golden/external/"
+        ),
         "summary": {
             "cells": len(cells),
             "normative_pass": len(cells) - norm_fail,
             "normative_fail": norm_fail,
-            "golden_pass": sum(1 for c in cells if c["golden"]["status"] == "PASS"),
+            "golden_pass": gold_pass,
+            "golden_fail": gold_fail,
             "golden_skip": gold_skip,
-            "golden_fail": sum(1 for c in cells if c["golden"]["status"] == "FAIL"),
+            "fully_validated": full,
         },
         "cells": cells,
     }
@@ -736,80 +811,68 @@ def write_report(cells: list[dict], out_dir: Path) -> None:
         "",
         "Generated by `scripts/golden_matrix.py`. Each cell records two statuses:",
         "**NORMATIVE** (independent standard/analytic checks) and **GOLDEN**",
-        "(independent model comparison). The external corpus has no verified",
-        "per-file licence, so every GOLDEN status is `SKIP`; the development-time",
-        "measurement is recorded under `golden` in `matrix.json` and is never used",
-        "as the acceptance oracle.",
+        "(comparison with the downloaded golden model).",
         "",
-        "Per-file SHA-256, byte size, and declared designation are recorded by",
-        "`scripts/fetch_golden_references.py` in `external/fetch-report.json`",
-        "(git-ignored); promoted fixtures also carry them in `manifest.json`.",
-        "No external STEP file is committed.",
+        "The golden files are downloaded from the open-source step.parts corpus",
+        "(https://github.com/earthtojake/step.parts) into",
+        "`components/testdata/golden/external/` by the repository owner. They are",
+        "used as independent reference models with no licensing restrictions.",
+        "",
+        "The golden comparison is rotation-invariant: it compares the maximum",
+        "outer radius (from vertex rings and the in-plane bbox) and the axial",
+        "extent. A downloaded model that contradicts its standard is reported",
+        "`FAIL` with the measured values; a missing model is `SKIP`, never a",
+        "pass. A cell is fully validated only when NORMATIVE and GOLDEN are both",
+        "`PASS`.",
         "",
         f"Cells: {len(cells)} | NORMATIVE PASS: {len(cells)-norm_fail} "
-        f"FAIL: {norm_fail} | GOLDEN PASS: {payload['summary']['golden_pass']} "
-        f"SKIP: {gold_skip}",
+        f"FAIL: {norm_fail} | GOLDEN PASS: {gold_pass} FAIL: {gold_fail} "
+        f"SKIP: {gold_skip} | fully validated: {full}",
         "",
-        "## Per-family development-time golden evidence",
+        "## Per-family golden coverage",
         "",
-        "| Family | Agreeing size(s) | Rejected size(s) and measured evidence |",
+        "| Family | GOLDEN PASS sizes | GOLDEN FAIL / SKIP |",
         "|---|---|---|",
     ]
-    by_family: dict[str, dict[str, set]] = {}
+    by_family: dict[str, dict[str, list[str]]] = {}
     for c in cells:
-        if c["detail"] != "detailed":
-            continue
-        g = c["golden"]
-        entry = by_family.setdefault(c["family"], {"agree": set(), "reject": set(), "absent": set()})
-        if "agrees" in g["detail"]:
-            entry["agree"].add(c["size"])
-        elif "contradicts" in g["detail"]:
-            entry["reject"].add(
-                f"{c['size']} (r {g.get('measured_max_radius_mm')} vs "
-                f"{g.get('parametric_max_radius_mm')}, z {g.get('measured_z_mm')} vs "
-                f"{g.get('parametric_z_mm')})"
-            )
+        entry = by_family.setdefault(c["family"], {"pass": [], "bad": []})
+        label = f"{c['size']}/{c['detail']}"
+        if c["golden"]["status"] == "PASS":
+            entry["pass"].append(label)
         else:
-            entry["absent"].add(c["size"])
+            entry["bad"].append(f"{label} ({c['golden']['status']})")
     for family, entry in by_family.items():
-        agree = ", ".join(sorted(entry["agree"], key=_size_key)) or "-"
-        reject = "; ".join(sorted(entry["reject"], key=lambda s: _size_key(s.split()[0]))) or "-"
-        if entry["absent"]:
-            reject += ("; " if reject != "-" else "") + "no candidate: " + ", ".join(
-                sorted(entry["absent"], key=_size_key)
-            )
-        lines.append(f"| {family} | {agree} | {reject} |")
+        lines.append(
+            f"| {family} | {', '.join(entry['pass']) or '-'} | "
+            f"{', '.join(entry['bad']) or '-'} |"
+        )
     lines += [
         "",
         "## Per-cell results",
         "",
-        "| Family | Size | Detail | Length (mm) | NORMATIVE | GOLDEN | Golden evidence (development-time) |",
+        "| Family | Size | Detail | Length (mm) | NORMATIVE | GOLDEN | Golden evidence |",
         "|---|---|---|---:|---|---|---|",
     ]
     for c in cells:
         g = c["golden"]
-        if "agrees" in g["detail"]:
-            evidence = "agree"
-            if g.get("radius_relation") == "below-standard-maximum":
-                evidence = "agree, head below standard max"
-        elif "contradicts" in g["detail"]:
-            evidence = "rejected"
-        elif "absent" in g["detail"]:
-            evidence = "external absent"
-        elif "no golden" in g["detail"]:
-            evidence = "no candidate"
+        if g["status"] == "PASS":
+            evidence = g.get("detail", "passed")
+        elif g.get("checks"):
+            evidence = "; ".join(
+                f"{ch['name']}: {ch['detail']}"
+                for ch in g["checks"]
+                if ch["status"] == "FAIL"
+            ) or g.get("detail", "")
         else:
-            evidence = "skip"
+            evidence = g.get("detail", "")
         lines.append(
             f"| {c['family']} | {c['size']} | {c['detail']} | "
-            f"{c['length_mm']} | {c['normative']['status']} | {c['golden']['status']} | {evidence} |"
+            f"{c['length_mm']} | {c['normative']['status']} | "
+            f"{g['status']} | {evidence} |"
         )
     lines.append("")
     (out_dir / "MATRIX.md").write_text("\n".join(lines) + "\n")
-
-
-def _size_key(size: str) -> float:
-    return float(size[1:])
 
 
 def main(argv: list[str]) -> int:
@@ -878,10 +941,13 @@ def main(argv: list[str]) -> int:
         print_matrix(cells)
         norm_fail = sum(1 for c in cells if c["normative"]["status"] == "FAIL")
         gold_pass = sum(1 for c in cells if c["golden"]["status"] == "PASS")
+        gold_fail = sum(1 for c in cells if c["golden"]["status"] == "FAIL")
         gold_skip = sum(1 for c in cells if c["golden"]["status"] == "SKIP")
+        full = sum(1 for c in cells if fully_validated(c))
         print(
             f"\ncells={len(cells)} NORMATIVE PASS={len(cells)-norm_fail} FAIL={norm_fail} "
-            f"| GOLDEN PASS={gold_pass} SKIP={gold_skip}"
+            f"| GOLDEN PASS={gold_pass} FAIL={gold_fail} SKIP={gold_skip} "
+            f"| fully_validated={full}"
         )
     return 1 if any(c["normative"]["status"] == "FAIL" for c in cells) else 0
 

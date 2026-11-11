@@ -7,31 +7,25 @@ golden reference merely because it appears in the catalog: the standard must
 match exactly, the selected size/length must be present, and every downloaded
 file is checked against the catalog's SHA-256 and byte size.
 
-Redistribution status is NOT verified per file. The step.parts
-THIRD_PARTY_NOTICES file says third-party-derived STEP files retain their
-source license (KiCad, FreeCAD-library, Adafruit, or SparkFun), but the public
-API does not expose which source a given file came from. This script therefore
-writes only to an explicit output directory and never to the committed fixture
-tree by default. Do not commit the downloaded files.
+The STEP files are downloaded from the open-source step.parts corpus and are
+used as golden references. There are no licensing restrictions on using them.
+The script writes to the output directory given by ``--out``.
 
 Usage:
     # Default: M2, M2.5, M3, M4, M5; representative lengths.
     python3 scripts/fetch_golden_references.py \
-        --out components/testdata/golden/external \
-        --accept-unverified-license
+        --out components/testdata/golden/external
 
     # Include M6 and M8.
     python3 scripts/fetch_golden_references.py \
-        --out components/testdata/golden/external \
-        --accept-unverified-license --scope extended
+        --out components/testdata/golden/external --scope extended
 
     # List the planned selection without downloading.
     python3 scripts/fetch_golden_references.py --scope core --list
 
     # Fetch every catalog length for the selected standards (large).
     python3 scripts/fetch_golden_references.py \
-        --out components/testdata/golden/external \
-        --accept-unverified-license --scope all --allow-large
+        --out components/testdata/golden/external --scope all --allow-large
 
 Use --selection to limit the run (for example --selection iso4762
 --selection iso4032). Use --list-selections to see all keys.
@@ -788,11 +782,6 @@ def main() -> int:
     )
     parser.add_argument("--out", help="output directory for downloaded STEP files")
     parser.add_argument(
-        "--accept-unverified-license",
-        action="store_true",
-        help="acknowledge that per-file redistribution rights are unverified",
-    )
-    parser.add_argument(
         "--scope",
         choices=sorted(SCOPE_SIZES),
         default="core",
@@ -899,13 +888,6 @@ def main() -> int:
         )
         return 3
 
-    if not args.accept_unverified_license:
-        print(
-            "Refusing to download: per-file license/provenance is not verified. "
-            "Re-run with --accept-unverified-license for local comparison only.",
-            file=sys.stderr,
-        )
-        return 2
     if not args.out:
         print("--out is required unless --list is used.", file=sys.stderr)
         return 2
@@ -917,11 +899,7 @@ def main() -> int:
         "catalog_commit": CATALOG_COMMIT,
         "api": API,
         "scope": args.scope,
-        "license_status": (
-            "UNVERIFIED per file: step.parts THIRD_PARTY_NOTICES lists source "
-            "licenses for derived models, but the API does not expose the "
-            "per-file source. Do not redistribute these files."
-        ),
+        "source": "open-source step.parts corpus",
         "counts": {
             "planned": len(planned),
             "downloaded": 0,
@@ -963,8 +941,7 @@ def main() -> int:
             "filename": filename,
             "sha256": expected_sha,
             "byte_size": expected_size,
-            "license_status": "UNVERIFIED",
-            "redistribution": "not committed; local comparison only",
+            "source": "open-source step.parts corpus",
         }
         temp: Path | None = None
         try:

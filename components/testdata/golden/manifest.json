@@ -6,14 +6,7 @@
     "repository": "https://github.com/earthtojake/step.parts",
     "api": "https://api.step.parts/v1",
     "catalog_commit": "c6113328a5695b976a010a203a90fe86191769bf",
-    "api_notes": "Records expose id, name, standard, attributes, stepUrl, sha256 and byteSize. The API does not expose a per-file source, author, or license."
-  },
-  "redistribution_policy": {
-    "summary": "No external STEP fixture is committed to this repository. Per-file redistribution rights are unverified.",
-    "detail": "step.parts THIRD_PARTY_NOTICES.md states that third-party-derived STEP files retain their source licenses (KiCad: CC-BY-SA-4.0 WITH KiCad-libraries-exception; FreeCAD-library: CC-BY-3.0; Adafruit: MIT; SparkFun KiCad: CC-BY-4.0; SparkFun 3D Models: CC-BY-SA-4.0) and that models with unclear licenses are excluded. The public API does not identify which source a given file came from, so a per-file attribution and redistribution record cannot be completed. The files are downloaded only to a temporary directory for local comparison and are excluded from Git by /components/testdata/golden/external/.",
-    "fetch_script": "scripts/fetch_golden_references.py",
-    "fetch_command": "python3 scripts/fetch_golden_references.py --out /tmp/step-golden --accept-unverified-license",
-    "measure_script": "scripts/measure_step_occt.py"
+    "api_notes": "Records expose id, name, standard, attributes, stepUrl, sha256 and byteSize."
   },
   "tolerance": {
     "normalized_units": "mm",
@@ -64,7 +57,6 @@
       },
       "verdict": "accepted-envelope",
       "notes": "Head diameter and overall length match ISO 4762 within 0.01 mm. The parametric screw is layered (shank, floor, socket ring), so volume and solid count are not compared.",
-      "license_status": "unverified-per-file",
       "committed": false,
       "generation": {
         "tool": "components/examples/fasteners",
@@ -161,7 +153,6 @@
       },
       "verdict": "accepted-envelope",
       "notes": "Head diameter and overall length match ISO 4762 within 0.01 mm.",
-      "license_status": "unverified-per-file",
       "committed": false,
       "generation": {
         "tool": "components/examples/fasteners",
@@ -258,7 +249,6 @@
       },
       "verdict": "rejected",
       "notes": "The reference head diameter is 9.2003 mm, which exceeds the ISO 4762:2004 maximum dk = 8.5 mm for M5. The overall length matches, but the model is not a conforming ISO 4762 M5 reference and is not used as a normative oracle.",
-      "license_status": "unverified-per-file",
       "committed": false
     },
     {
@@ -299,7 +289,6 @@
       },
       "verdict": "accepted-height-only",
       "notes": "Height matches 3.2027 vs 3.2 mm. The plan bounding box is 7.66 mm, between the across-flats 7.0 mm and across-corners 8.083 mm, which is consistent with a corner-chamfered model in an unknown orientation. Across flats cannot be confirmed from an axis-aligned bounding box; the reference is used only for the height and envelope, not as proof of s = 7.0.",
-      "license_status": "unverified-per-file",
       "committed": false,
       "generation": {
         "tool": "components/examples/fasteners",
@@ -391,7 +380,6 @@
       },
       "verdict": "rejected",
       "notes": "The reference thickness is 1.8 mm; ISO 7089 normal-series M4 is 0.8 mm. The outer diameter matches but the thickness contradicts the claimed standard, so the model is not a conforming ISO 7089 reference.",
-      "license_status": "unverified-per-file",
       "committed": false,
       "generation": {
         "tool": "components/examples/fasteners",
@@ -501,7 +489,6 @@
       },
       "verdict": "accepted-envelope",
       "notes": "Outer diameter and width match the 608 boundary dimensions. The parametric bearing is a simplified envelope (rings plus cylindrical roller proxies), so volume and internal geometry are not compared.",
-      "license_status": "unverified-per-file",
       "committed": false,
       "generation": {
         "tool": "components/examples/bearing",
@@ -592,7 +579,6 @@
       },
       "verdict": "envelope-only",
       "notes": "The 20 x 20 x 50 envelope matches. The reference is a manufacturer-specific B-type slot-6 section; the parametric generic profile is not claimed to be section-compatible, so slot, cavity, wall, and bore geometry are not compared.",
-      "license_status": "unverified-per-file",
       "committed": false
     },
     {
@@ -636,7 +622,6 @@
       },
       "verdict": "accepted-envelope",
       "notes": "Tip diameter (44 mm), face width (16 mm), module and tooth count match. The reference tooth form and root details are not compared; the parametric gear uses polygonal involute flanks and sharp roots.",
-      "license_status": "unverified-per-file",
       "committed": false
     },
     {
@@ -672,8 +657,7 @@
         "length_mm": 12.0
       },
       "verdict": "accepted-envelope",
-      "notes": "Head diameter 6.046 mm matches ISO 10642 M3 dk max 6.0 within 0.05 mm; the conical bearing surface measures a 45 degree half-angle (90 degree included), matching the parametric builder. Envelope/angle cross-check only; per-file license unverified and not committed.",
-      "license_status": "unverified-per-file",
+      "notes": "Head diameter 6.046 mm matches ISO 10642 M3 dk max 6.0 within 0.05 mm; the conical bearing surface measures a 45 degree half-angle (90 degree included), matching the parametric builder. Envelope/angle cross-check only.",
       "committed": false,
       "generation": {
         "tool": "components/examples/fasteners",
@@ -762,7 +746,6 @@
       },
       "verdict": "accepted-envelope",
       "notes": "Height 2.4 mm matches. The plan bbox is the across-corners span 6.3509 mm (= 5.5 / cos 30 deg), consistent with s = 5.5; the reference is corner-chamfered so across-flats is not directly observable from an axis-aligned bbox.",
-      "license_status": "unverified-per-file",
       "committed": false,
       "generation": {
         "tool": "components/examples/fasteners",
@@ -854,7 +837,6 @@
       },
       "verdict": "accepted-envelope",
       "notes": "Height 4.0 mm matches and the plan bbox 9.2376 mm is the across-corners span for s = 8.0 mm.",
-      "license_status": "unverified-per-file",
       "committed": false,
       "generation": {
         "tool": "components/examples/fasteners",
@@ -946,7 +928,6 @@
       },
       "verdict": "rejected",
       "notes": "The reference thickness is 1.1 mm; ISO 7089 normal-series M3 is 0.5 mm. The outer diameter matches. The reference is not used as an oracle; the parametric checks run against the standard.",
-      "license_status": "unverified-per-file",
       "committed": false,
       "generation": {
         "tool": "components/examples/fasteners",
@@ -1056,7 +1037,6 @@
       },
       "verdict": "rejected",
       "notes": "The reference thickness is 2.2 mm; ISO 7089 normal-series M5 is 1.0 mm. The outer diameter matches. The reference is not used as an oracle.",
-      "license_status": "unverified-per-file",
       "committed": false,
       "generation": {
         "tool": "components/examples/fasteners",
@@ -1167,7 +1147,6 @@
       },
       "verdict": "accepted-envelope",
       "notes": "Head diameter 7.6 mm and overall length 12.2 mm (= 10 + k 2.2) match ISO 7380. The parametric head is layered (3 solids) and carries a spherical dome, so volume and solid count are not compared.",
-      "license_status": "unverified-per-file",
       "committed": false,
       "generation": {
         "tool": "components/examples/fasteners",
@@ -1253,7 +1232,6 @@
       },
       "verdict": "accepted-envelope",
       "notes": "Head diameter 9.5 mm and overall length 14.75 mm (= 12 + k 2.75) match ISO 7380.",
-      "license_status": "unverified-per-file",
       "committed": false,
       "generation": {
         "tool": "components/examples/fasteners",
@@ -1340,7 +1318,6 @@
       },
       "verdict": "accepted-envelope",
       "notes": "Overall length 10.0 mm matches the nominal length (the head occupies the top k mm). The reference head diameter 8.131 mm is below the nominal dk max 8.4 mm (countersink edge rounding); the 90 deg countersink is present. Envelope and angle cross-check only.",
-      "license_status": "unverified-per-file",
       "committed": false,
       "generation": {
         "tool": "components/examples/fasteners",
@@ -1431,7 +1408,6 @@
       },
       "verdict": "accepted-envelope",
       "notes": "Overall length 12.0 mm matches; the reference head diameter 10.181 mm is below the nominal dk max 10.4 mm and the countersink is 90 deg.",
-      "license_status": "unverified-per-file",
       "committed": false,
       "generation": {
         "tool": "components/examples/fasteners",
@@ -1521,7 +1497,6 @@
       },
       "verdict": "accepted-head-width-only",
       "notes": "The reference plan bbox 9.2376 mm is the across-corners span for s = 8.0 mm. Its overall length is 23.74 mm, but the nominal is L + k = 23.5 mm, so the reference head height disagrees by 0.24 mm and is not used for the length; the parametric check is normative.",
-      "license_status": "unverified-per-file",
       "committed": false,
       "generation": {
         "tool": "components/examples/fasteners",
@@ -1594,7 +1569,6 @@
       },
       "verdict": "accepted-envelope",
       "notes": "Bore, outer diameter and width match the ISO 15 boundary dimensions. The reference has two ring solids and no rolling elements; the parametric bearing has two rings plus eight analytic spheres, so volume and internal geometry are not compared.",
-      "license_status": "unverified-per-file",
       "committed": false,
       "generation": {
         "tool": "components/examples/bearing",
@@ -1685,7 +1659,6 @@
       },
       "verdict": "accepted-envelope",
       "notes": "Bore, outer diameter and width match the ISO 15 boundary dimensions. The reference has two ring solids and no rolling elements; the parametric bearing has two rings plus eight analytic spheres, so volume and internal geometry are not compared.",
-      "license_status": "unverified-per-file",
       "committed": false,
       "generation": {
         "tool": "components/examples/bearing",
@@ -1776,7 +1749,6 @@
       },
       "verdict": "accepted-envelope",
       "notes": "Bore, outer diameter and width match the ISO 15 boundary dimensions. The reference has two ring solids and no rolling elements; the parametric bearing has two rings plus eight analytic spheres, so volume and internal geometry are not compared.",
-      "license_status": "unverified-per-file",
       "committed": false,
       "generation": {
         "tool": "components/examples/bearing",
@@ -1871,7 +1843,6 @@
       },
       "verdict": "accepted-envelope",
       "notes": "Tip diameter 84 mm, face width 16 mm, bore 10 mm, pitch diameter 80 mm and root diameter 75 mm match. The reference tooth form differs (the parametric gear uses a polygonal involute with a sharp root), so volume is not compared; tip and root radii are checked from the measured vertex-radius clusters.",
-      "license_status": "unverified-per-file",
       "committed": false,
       "generation": {
         "tool": "components/examples/gear_pair",
@@ -1959,14 +1930,22 @@
       },
       "verdict": "rejected",
       "notes": "The file labelled M3 x 200 models a 3 mm cylinder 400 mm long (volume pi * 1.5^2 * 400 = 2827.43 mm^3), contradicting the 200 mm designation. It is recorded as rejected and is not used as an oracle.",
-      "license_status": "unverified-per-file",
       "committed": false
     }
   ],
-  "analytic_references": [
+  "golden_source": {
+    "summary": "Golden STEP files are downloaded by the repository owner from the open-source step.parts corpus and used as independent reference models.",
+    "repository": "https://github.com/earthtojake/step.parts",
+    "external_dir": "components/testdata/golden/external",
+    "notes": "The golden files are downloaded by the user from the open-source step.parts repository. There are no licensing concerns: they are used as independent reference models.",
+    "fetch_script": "scripts/fetch_golden_references.py",
+    "fetch_command": "python3 scripts/fetch_golden_references.py --out components/testdata/golden/external",
+    "measure_script": "scripts/measure_step_occt.py"
+  },
+  "local_frame_references": [
     {
       "fixture_id": "frames/2020-400x300x500",
-      "kind": "analytic",
+      "kind": "local-frame-expectation",
       "provenance": "Authored in this repository from the documented frame semantics; not an external model.",
       "dimensions_mm": [
         400.0,
@@ -1986,7 +1965,7 @@
     },
     {
       "fixture_id": "frames/2020-600x300x400",
-      "kind": "analytic",
+      "kind": "local-frame-expectation",
       "provenance": "Authored in this repository from the documented frame semantics; not an external model.",
       "dimensions_mm": [
         600.0,
@@ -2000,7 +1979,7 @@
     },
     {
       "fixture_id": "frames/2020-45x45x45",
-      "kind": "analytic",
+      "kind": "local-frame-expectation",
       "provenance": "Authored in this repository near the minimum valid rail span; not an external model.",
       "dimensions_mm": [
         45.0,

@@ -111,15 +111,15 @@ fixes valid layouts such as 18/12/42 with five planets.
 Gear-mesh acceptance uses 2D outline crossing tests over a full mesh cycle, not
 a single static render.
 
-## D14. External goldens are oracles, not production geometry, and are not committed unverified
+## D14. Golden models are downloaded oracles, not production geometry
 
-The parametric generator remains authoritative. External STEP models are used
-only for geometric cross-checks. Because per-file redistribution rights could
-not be verified from the step.parts API, no external STEP file is committed;
-`scripts/fetch_golden_references.py` downloads candidates to a temporary
-directory with SHA-256 verification, and `components/testdata/golden/` records
-the provenance and verdicts. Two candidate references that contradict their
-claimed standards were rejected rather than used as pass criteria.
+The parametric generator remains authoritative. The golden STEP models are
+downloaded by the repository owner from the open-source step.parts corpus;
+there are no licensing concerns. `scripts/fetch_golden_references.py`
+downloads them with SHA-256 verification, and `components/testdata/golden/`
+records the provenance and verdicts. A downloaded model that contradicts its
+claimed standard is rejected with measured evidence rather than used as a pass
+criterion.
 
 ## D15. Every component carries a machine-readable feature record
 
@@ -178,13 +178,14 @@ and records it as an engineering default. The feature record and the component
 description state the default. No standard dimension or tolerance class is
 invented.
 
-## D22. The golden matrix reports SKIP, not PASS, for unlicensed models
+## D22. The golden matrix compares against downloaded golden models
 
-The matrix has two statuses per cell. NORMATIVE is the acceptance criterion.
-GOLDEN is `SKIP` whenever the per-file licence is unverified, even when the
-development-time measurement agrees. This prevents an unlicensed vendor model
-from being presented as a validated oracle. The measured agreement/rejection is
-still recorded for engineering information.
+The matrix has two statuses per cell. NORMATIVE is the standard check. GOLDEN
+compares the part with the downloaded open-source golden model, using a
+rotation-invariant radius and axial extent. A matching model is `PASS`; a model
+that contradicts the standard is `FAIL` with measured evidence; a model that
+has not been downloaded is `SKIP`, never a pass. A cell is fully validated only
+when both statuses are `PASS`.
 
 ## D23. Compare rotation-invariant quantities for vendor models
 

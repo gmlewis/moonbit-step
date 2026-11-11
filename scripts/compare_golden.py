@@ -6,11 +6,11 @@ the MoonBit component library.
 
 For every manifest fixture that carries a ``generation`` block it:
 
-1. verifies the provenance and licence record;
+1. verifies the golden file record and checksum;
 2. verifies the external fixture's SHA-256 and byte size when the file is
    present;
-3. re-measures the external file with Open CASCADE when it is present and its
-   licence is verified (otherwise the external comparison is ``SKIP``);
+3. re-measures the downloaded golden file with Open CASCADE when it is present
+   (otherwise the external comparison is ``SKIP``);
 4. generates the corresponding parametric part through the example CLI (never
    by calling internal dimension functions);
 5. normalises to millimetres and the repository's Z-up frame;
@@ -296,7 +296,7 @@ def compare_fixture(
     checks: dict[str, dict] = {}
     notes: list[str] = []
 
-    # 1. External fixture: checksum and licence.
+    # 1. External golden file: checksum.
     local = fixture.get("local_filename")
     external_path = external_dir.parent / local if local else None
     present = bool(external_path and external_path.exists())
@@ -313,18 +313,10 @@ def compare_fixture(
     else:
         checks["checksum"] = check(True, "external file absent", skipped=True)
 
-    # 2. External geometry comparison (needs file, verified licence, OCCT).
-    license_status = fixture.get("license_status", "unverified-per-file")
+    # 2. External geometry comparison against the downloaded golden model.
     if not present:
         checks["external_geometry"] = check(
             True, "external file absent", skipped=True
-        )
-    elif not str(license_status).startswith("verified"):
-        checks["external_geometry"] = check(
-            True,
-            f"licence status {license_status!r} is not verified; "
-            "external model not used as an oracle",
-            skipped=True,
         )
     elif not have_occt:
         checks["external_geometry"] = check(
@@ -512,8 +504,8 @@ def compare_fixture(
         except Exception as exc:  # noqa: BLE001
             checks["sections"] = check(False, str(exc))
 
-    # 6e. Sampled bidirectional surface deviation against an external model (only
-    #     with a verified licence) or a generated contrast part.
+    # 6e. Sampled bidirectional surface deviation against the downloaded golden
+    #     model or a generated contrast part.
     sd = spec.get("surface_deviation")
     if sd:
         ref = sd.get("reference", "external")
@@ -523,12 +515,6 @@ def compare_fixture(
                 if not present or external_path is None:
                     checks["surface_deviation"] = check(
                         True, "external file absent", skipped=True
-                    )
-                elif not str(license_status).startswith("verified"):
-                    checks["surface_deviation"] = check(
-                        True,
-                        f"licence status {license_status!r} is not verified",
-                        skipped=True,
                     )
                 elif not have_occt:
                     checks["surface_deviation"] = check(
@@ -655,8 +641,8 @@ def run_self_tests(root: Path, tolerance: dict, have_occt: bool, have_moon: bool
     A generated parametric part stands in for the external oracle, so the
     self-test needs no downloaded file. It proves that a matching fixture
     reports PASS, a deliberately wrong expected dimension reports FAIL, a
-    missing/unlicensed external file reports SKIP while the normative checks
-    still pass, and a checksum mismatch reports FAIL.
+    missing golden file reports SKIP while the normative checks still pass, and
+    a checksum mismatch reports FAIL.
     """
     if not (have_occt and have_moon):
         print("golden harness self-test: SKIP (OCCT and moon are required)")
@@ -701,7 +687,7 @@ def run_self_tests(root: Path, tolerance: dict, have_occt: bool, have_moon: bool
             fixture = json.loads(json.dumps(base))
             fixture["fixture_id"] = "self-test/fixture"
             fixture["local_filename"] = "external/self-test-oracle.step"
-            fixture["license_status"] = "verified-self-test"
+            fixture["license_status"] = "open-source"
             fixture["sha256"] = sha256_file(oracle)
             fixture["byte_size"] = oracle.stat().st_size
             fixture["measured_dimensions"] = recorded
@@ -733,10 +719,9 @@ def run_self_tests(root: Path, tolerance: dict, have_occt: bool, have_moon: bool
 
         cfix = synthetic()
         cfix["local_filename"] = "external/missing-oracle.step"
-        cfix["license_status"] = "unverified-per-file"
         c = compare(cfix)
         report(
-            "missing/unlicensed external",
+            "missing golden file",
             c["verdict"] == "PASS"
             and _fixture_check_status(c, "external_geometry") == "SKIP",
             f"verdict {c['verdict']}, external "

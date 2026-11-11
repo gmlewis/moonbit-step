@@ -1,14 +1,16 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "generated_by": "scripts/golden_matrix.py",
   "tolerance_mm": 0.02,
+  "golden_source": "downloaded open-source step.parts STEP models in components/testdata/golden/external/",
   "summary": {
     "cells": 108,
     "normative_pass": 108,
     "normative_fail": 0,
-    "golden_pass": 0,
-    "golden_skip": 108,
-    "golden_fail": 0
+    "golden_pass": 39,
+    "golden_fail": 54,
+    "golden_skip": 15,
+    "fully_validated": 39
   },
   "cells": [
     {
@@ -47,15 +49,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "FAIL",
         "file": "iso4762_socket_head_cap_screw_m2x8.step",
-        "detail": "candidate contradicts the standard; rejected with measured evidence",
+        "detail": "downloaded golden model contradicts the standard; recorded with measured evidence",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "FAIL",
+            "detail": "golden 2.0565 mm vs nominal 1.9000 mm (contradicts-standard)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "PASS",
+            "detail": "golden 10.0000 mm vs nominal 10.0000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           4.1131,
           4.1131,
           10.0
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           3.8,
           3.8,
           10.0
@@ -63,11 +77,10 @@
         "measured_max_radius_mm": 2.0565,
         "bbox_radius_mm": 2.0565,
         "vertex_radius_mm": 1.9,
-        "parametric_max_radius_mm": 1.9,
+        "nominal_max_radius_mm": 1.9,
         "radius_relation": "contradicts-standard",
         "measured_z_mm": 10.0,
-        "parametric_z_mm": 10.0,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 10.0,
         "max_axis_error_mm": 0.1565
       }
     },
@@ -127,15 +140,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "FAIL",
         "file": "iso4762_socket_head_cap_screw_m2x8.step",
-        "detail": "candidate contradicts the standard; rejected with measured evidence",
+        "detail": "downloaded golden model contradicts the standard; recorded with measured evidence",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "FAIL",
+            "detail": "golden 2.0565 mm vs nominal 1.9000 mm (contradicts-standard)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "PASS",
+            "detail": "golden 10.0000 mm vs nominal 10.0000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           4.1131,
           4.1131,
           10.0
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           3.8,
           3.8,
           10.0
@@ -143,11 +168,10 @@
         "measured_max_radius_mm": 2.0565,
         "bbox_radius_mm": 2.0565,
         "vertex_radius_mm": 1.9,
-        "parametric_max_radius_mm": 1.9,
+        "nominal_max_radius_mm": 1.9,
         "radius_relation": "contradicts-standard",
         "measured_z_mm": 10.0,
-        "parametric_z_mm": 10.0,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 10.0,
         "max_axis_error_mm": 0.1565
       }
     },
@@ -217,15 +241,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "FAIL",
         "file": "iso4762_socket_head_cap_screw_m2x8.step",
-        "detail": "candidate contradicts the standard; rejected with measured evidence",
+        "detail": "downloaded golden model contradicts the standard; recorded with measured evidence",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "FAIL",
+            "detail": "golden 2.0565 mm vs nominal 1.9000 mm (contradicts-standard)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "PASS",
+            "detail": "golden 10.0000 mm vs nominal 10.0000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           4.1131,
           4.1131,
           10.0
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           3.8,
           3.8,
           10.0
@@ -233,11 +269,10 @@
         "measured_max_radius_mm": 2.0565,
         "bbox_radius_mm": 2.0565,
         "vertex_radius_mm": 1.9,
-        "parametric_max_radius_mm": 1.9,
+        "nominal_max_radius_mm": 1.9,
         "radius_relation": "contradicts-standard",
         "measured_z_mm": 10.0,
-        "parametric_z_mm": 10.0,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 10.0,
         "max_axis_error_mm": 0.1565
       }
     },
@@ -277,15 +312,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "FAIL",
         "file": "iso4762_socket_head_cap_screw_m2p5x10.step",
-        "detail": "candidate contradicts the standard; rejected with measured evidence",
+        "detail": "downloaded golden model contradicts the standard; recorded with measured evidence",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "FAIL",
+            "detail": "golden 2.4354 mm vs nominal 2.2500 mm (contradicts-standard)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "PASS",
+            "detail": "golden 12.5000 mm vs nominal 12.5000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           4.8708,
           4.8708,
           12.5
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           4.5,
           4.5,
           12.5
@@ -293,11 +340,10 @@
         "measured_max_radius_mm": 2.4354,
         "bbox_radius_mm": 2.4354,
         "vertex_radius_mm": 2.25,
-        "parametric_max_radius_mm": 2.25,
+        "nominal_max_radius_mm": 2.25,
         "radius_relation": "contradicts-standard",
         "measured_z_mm": 12.5,
-        "parametric_z_mm": 12.5,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 12.5,
         "max_axis_error_mm": 0.1854
       }
     },
@@ -357,15 +403,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "FAIL",
         "file": "iso4762_socket_head_cap_screw_m2p5x10.step",
-        "detail": "candidate contradicts the standard; rejected with measured evidence",
+        "detail": "downloaded golden model contradicts the standard; recorded with measured evidence",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "FAIL",
+            "detail": "golden 2.4354 mm vs nominal 2.2500 mm (contradicts-standard)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "PASS",
+            "detail": "golden 12.5000 mm vs nominal 12.5000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           4.8708,
           4.8708,
           12.5
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           4.5,
           4.5,
           12.5
@@ -373,11 +431,10 @@
         "measured_max_radius_mm": 2.4354,
         "bbox_radius_mm": 2.4354,
         "vertex_radius_mm": 2.25,
-        "parametric_max_radius_mm": 2.25,
+        "nominal_max_radius_mm": 2.25,
         "radius_relation": "contradicts-standard",
         "measured_z_mm": 12.5,
-        "parametric_z_mm": 12.5,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 12.5,
         "max_axis_error_mm": 0.1854
       }
     },
@@ -447,15 +504,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "FAIL",
         "file": "iso4762_socket_head_cap_screw_m2p5x10.step",
-        "detail": "candidate contradicts the standard; rejected with measured evidence",
+        "detail": "downloaded golden model contradicts the standard; recorded with measured evidence",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "FAIL",
+            "detail": "golden 2.4354 mm vs nominal 2.2500 mm (contradicts-standard)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "PASS",
+            "detail": "golden 12.5000 mm vs nominal 12.5000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           4.8708,
           4.8708,
           12.5
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           4.5,
           4.5,
           12.5
@@ -463,11 +532,10 @@
         "measured_max_radius_mm": 2.4354,
         "bbox_radius_mm": 2.4354,
         "vertex_radius_mm": 2.25,
-        "parametric_max_radius_mm": 2.25,
+        "nominal_max_radius_mm": 2.25,
         "radius_relation": "contradicts-standard",
         "measured_z_mm": 12.5,
-        "parametric_z_mm": 12.5,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 12.5,
         "max_axis_error_mm": 0.1854
       }
     },
@@ -507,15 +575,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "PASS",
         "file": "iso4762_socket_head_cap_screw_m3x10.step",
-        "detail": "development-time measurement agrees; licence unverified, so not an oracle",
+        "detail": "downloaded golden model agrees",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 2.7500 mm vs nominal 2.7500 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "PASS",
+            "detail": "golden 13.0000 mm vs nominal 13.0000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           5.5,
           5.5,
           13.0
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           5.5,
           5.5,
           13.0
@@ -523,11 +603,10 @@
         "measured_max_radius_mm": 2.75,
         "bbox_radius_mm": 2.75,
         "vertex_radius_mm": 2.75,
-        "parametric_max_radius_mm": 2.75,
+        "nominal_max_radius_mm": 2.75,
         "radius_relation": "matches",
         "measured_z_mm": 13.0,
-        "parametric_z_mm": 13.0,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 13.0,
         "max_axis_error_mm": 0.0
       }
     },
@@ -587,15 +666,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "PASS",
         "file": "iso4762_socket_head_cap_screw_m3x10.step",
-        "detail": "development-time measurement agrees; licence unverified, so not an oracle",
+        "detail": "downloaded golden model agrees",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 2.7500 mm vs nominal 2.7500 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "PASS",
+            "detail": "golden 13.0000 mm vs nominal 13.0000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           5.5,
           5.5,
           13.0
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           5.5,
           5.5,
           13.0
@@ -603,11 +694,10 @@
         "measured_max_radius_mm": 2.75,
         "bbox_radius_mm": 2.75,
         "vertex_radius_mm": 2.75,
-        "parametric_max_radius_mm": 2.75,
+        "nominal_max_radius_mm": 2.75,
         "radius_relation": "matches",
         "measured_z_mm": 13.0,
-        "parametric_z_mm": 13.0,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 13.0,
         "max_axis_error_mm": 0.0
       }
     },
@@ -677,15 +767,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "PASS",
         "file": "iso4762_socket_head_cap_screw_m3x10.step",
-        "detail": "development-time measurement agrees; licence unverified, so not an oracle",
+        "detail": "downloaded golden model agrees",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 2.7500 mm vs nominal 2.7500 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "PASS",
+            "detail": "golden 13.0000 mm vs nominal 13.0000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           5.5,
           5.5,
           13.0
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           5.5,
           5.5,
           13.0
@@ -693,11 +795,10 @@
         "measured_max_radius_mm": 2.75,
         "bbox_radius_mm": 2.75,
         "vertex_radius_mm": 2.75,
-        "parametric_max_radius_mm": 2.75,
+        "nominal_max_radius_mm": 2.75,
         "radius_relation": "matches",
         "measured_z_mm": 13.0,
-        "parametric_z_mm": 13.0,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 13.0,
         "max_axis_error_mm": 0.0
       }
     },
@@ -737,15 +838,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "PASS",
         "file": "iso4762_socket_head_cap_screw_m4x20.step",
-        "detail": "development-time measurement agrees; licence unverified, so not an oracle",
+        "detail": "downloaded golden model agrees",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 3.5000 mm vs nominal 3.5000 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "PASS",
+            "detail": "golden 24.0000 mm vs nominal 24.0000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           7.0,
           7.0,
           24.0
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           7.0,
           7.0,
           24.0
@@ -753,11 +866,10 @@
         "measured_max_radius_mm": 3.5,
         "bbox_radius_mm": 3.5,
         "vertex_radius_mm": 3.5,
-        "parametric_max_radius_mm": 3.5,
+        "nominal_max_radius_mm": 3.5,
         "radius_relation": "matches",
         "measured_z_mm": 24.0,
-        "parametric_z_mm": 24.0,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 24.0,
         "max_axis_error_mm": 0.0
       }
     },
@@ -817,15 +929,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "PASS",
         "file": "iso4762_socket_head_cap_screw_m4x20.step",
-        "detail": "development-time measurement agrees; licence unverified, so not an oracle",
+        "detail": "downloaded golden model agrees",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 3.5000 mm vs nominal 3.5000 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "PASS",
+            "detail": "golden 24.0000 mm vs nominal 24.0000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           7.0,
           7.0,
           24.0
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           7.0,
           7.0,
           24.0
@@ -833,11 +957,10 @@
         "measured_max_radius_mm": 3.5,
         "bbox_radius_mm": 3.5,
         "vertex_radius_mm": 3.5,
-        "parametric_max_radius_mm": 3.5,
+        "nominal_max_radius_mm": 3.5,
         "radius_relation": "matches",
         "measured_z_mm": 24.0,
-        "parametric_z_mm": 24.0,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 24.0,
         "max_axis_error_mm": 0.0
       }
     },
@@ -907,15 +1030,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "PASS",
         "file": "iso4762_socket_head_cap_screw_m4x20.step",
-        "detail": "development-time measurement agrees; licence unverified, so not an oracle",
+        "detail": "downloaded golden model agrees",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 3.5000 mm vs nominal 3.5000 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "PASS",
+            "detail": "golden 24.0000 mm vs nominal 24.0000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           7.0,
           7.0,
           24.0
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           7.0,
           7.0,
           24.0
@@ -923,11 +1058,10 @@
         "measured_max_radius_mm": 3.5,
         "bbox_radius_mm": 3.5,
         "vertex_radius_mm": 3.5,
-        "parametric_max_radius_mm": 3.5,
+        "nominal_max_radius_mm": 3.5,
         "radius_relation": "matches",
         "measured_z_mm": 24.0,
-        "parametric_z_mm": 24.0,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 24.0,
         "max_axis_error_mm": 0.0
       }
     },
@@ -967,15 +1101,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "FAIL",
         "file": "iso4762_socket_head_cap_screw_m5x20.step",
-        "detail": "candidate contradicts the standard; rejected with measured evidence",
+        "detail": "downloaded golden model contradicts the standard; recorded with measured evidence",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "FAIL",
+            "detail": "golden 4.6002 mm vs nominal 4.2500 mm (contradicts-standard)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "PASS",
+            "detail": "golden 25.0000 mm vs nominal 25.0000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           9.2003,
           9.2003,
           25.0
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           8.5,
           8.5,
           25.0
@@ -983,11 +1129,10 @@
         "measured_max_radius_mm": 4.6002,
         "bbox_radius_mm": 4.6002,
         "vertex_radius_mm": 4.25,
-        "parametric_max_radius_mm": 4.25,
+        "nominal_max_radius_mm": 4.25,
         "radius_relation": "contradicts-standard",
         "measured_z_mm": 25.0,
-        "parametric_z_mm": 25.0,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 25.0,
         "max_axis_error_mm": 0.3502
       }
     },
@@ -1047,15 +1192,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "FAIL",
         "file": "iso4762_socket_head_cap_screw_m5x20.step",
-        "detail": "candidate contradicts the standard; rejected with measured evidence",
+        "detail": "downloaded golden model contradicts the standard; recorded with measured evidence",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "FAIL",
+            "detail": "golden 4.6002 mm vs nominal 4.2500 mm (contradicts-standard)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "PASS",
+            "detail": "golden 25.0000 mm vs nominal 25.0000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           9.2003,
           9.2003,
           25.0
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           8.5,
           8.5,
           25.0
@@ -1063,11 +1220,10 @@
         "measured_max_radius_mm": 4.6002,
         "bbox_radius_mm": 4.6002,
         "vertex_radius_mm": 4.25,
-        "parametric_max_radius_mm": 4.25,
+        "nominal_max_radius_mm": 4.25,
         "radius_relation": "contradicts-standard",
         "measured_z_mm": 25.0,
-        "parametric_z_mm": 25.0,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 25.0,
         "max_axis_error_mm": 0.3502
       }
     },
@@ -1137,15 +1293,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "FAIL",
         "file": "iso4762_socket_head_cap_screw_m5x20.step",
-        "detail": "candidate contradicts the standard; rejected with measured evidence",
+        "detail": "downloaded golden model contradicts the standard; recorded with measured evidence",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "FAIL",
+            "detail": "golden 4.6002 mm vs nominal 4.2500 mm (contradicts-standard)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "PASS",
+            "detail": "golden 25.0000 mm vs nominal 25.0000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           9.2003,
           9.2003,
           25.0
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           8.5,
           8.5,
           25.0
@@ -1153,11 +1321,10 @@
         "measured_max_radius_mm": 4.6002,
         "bbox_radius_mm": 4.6002,
         "vertex_radius_mm": 4.25,
-        "parametric_max_radius_mm": 4.25,
+        "nominal_max_radius_mm": 4.25,
         "radius_relation": "contradicts-standard",
         "measured_z_mm": 25.0,
-        "parametric_z_mm": 25.0,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 25.0,
         "max_axis_error_mm": 0.3502
       }
     },
@@ -1197,15 +1364,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "FAIL",
         "file": "hex_head_bolt_m2_l0008_simple.step",
-        "detail": "candidate contradicts the standard; rejected with measured evidence",
+        "detail": "downloaded golden model contradicts the standard; recorded with measured evidence",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 2.3094 mm vs nominal 2.3094 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "FAIL",
+            "detail": "golden 9.6000 mm vs nominal 9.4000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           4.6188,
           4.6188,
           9.6
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           4.0,
           4.6188,
           9.4
@@ -1213,11 +1392,10 @@
         "measured_max_radius_mm": 2.3094,
         "bbox_radius_mm": 2.3094,
         "vertex_radius_mm": 2.3094,
-        "parametric_max_radius_mm": 2.3094,
+        "nominal_max_radius_mm": 2.3094,
         "radius_relation": "matches",
         "measured_z_mm": 9.6,
-        "parametric_z_mm": 9.4,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 9.4,
         "max_axis_error_mm": 0.2
       }
     },
@@ -1267,15 +1445,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "FAIL",
         "file": "hex_head_bolt_m2_l0008_simple.step",
-        "detail": "candidate contradicts the standard; rejected with measured evidence",
+        "detail": "downloaded golden model contradicts the standard; recorded with measured evidence",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 2.3094 mm vs nominal 2.3094 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "FAIL",
+            "detail": "golden 9.6000 mm vs nominal 9.4000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           4.6188,
           4.6188,
           9.6
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           4.0,
           4.6188,
           9.4
@@ -1283,11 +1473,10 @@
         "measured_max_radius_mm": 2.3094,
         "bbox_radius_mm": 2.3094,
         "vertex_radius_mm": 2.3094,
-        "parametric_max_radius_mm": 2.3094,
+        "nominal_max_radius_mm": 2.3094,
         "radius_relation": "matches",
         "measured_z_mm": 9.6,
-        "parametric_z_mm": 9.4,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 9.4,
         "max_axis_error_mm": 0.2
       }
     },
@@ -1337,15 +1526,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "FAIL",
         "file": "hex_head_bolt_m2_l0008_simple.step",
-        "detail": "candidate contradicts the standard; rejected with measured evidence",
+        "detail": "downloaded golden model contradicts the standard; recorded with measured evidence",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 2.3094 mm vs nominal 2.3094 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "FAIL",
+            "detail": "golden 9.6000 mm vs nominal 9.4000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           4.6188,
           4.6188,
           9.6
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           4.0,
           4.6188,
           9.4
@@ -1353,11 +1554,10 @@
         "measured_max_radius_mm": 2.3094,
         "bbox_radius_mm": 2.3094,
         "vertex_radius_mm": 2.3094,
-        "parametric_max_radius_mm": 2.3094,
+        "nominal_max_radius_mm": 2.3094,
         "radius_relation": "matches",
         "measured_z_mm": 9.6,
-        "parametric_z_mm": 9.4,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 9.4,
         "max_axis_error_mm": 0.2
       }
     },
@@ -1397,15 +1597,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "FAIL",
         "file": "hex_head_bolt_m2p5_l0010_simple.step",
-        "detail": "candidate contradicts the standard; rejected with measured evidence",
+        "detail": "downloaded golden model contradicts the standard; recorded with measured evidence",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 2.8868 mm vs nominal 2.8868 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "FAIL",
+            "detail": "golden 11.9000 mm vs nominal 11.6000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           5.7735,
           5.7735,
           11.9
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           5.0,
           5.7735,
           11.6
@@ -1413,11 +1625,10 @@
         "measured_max_radius_mm": 2.8868,
         "bbox_radius_mm": 2.8868,
         "vertex_radius_mm": 2.8868,
-        "parametric_max_radius_mm": 2.8868,
+        "nominal_max_radius_mm": 2.8868,
         "radius_relation": "matches",
         "measured_z_mm": 11.9,
-        "parametric_z_mm": 11.6,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 11.6,
         "max_axis_error_mm": 0.3
       }
     },
@@ -1467,15 +1678,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "FAIL",
         "file": "hex_head_bolt_m2p5_l0010_simple.step",
-        "detail": "candidate contradicts the standard; rejected with measured evidence",
+        "detail": "downloaded golden model contradicts the standard; recorded with measured evidence",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 2.8868 mm vs nominal 2.8868 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "FAIL",
+            "detail": "golden 11.9000 mm vs nominal 11.6000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           5.7735,
           5.7735,
           11.9
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           5.0,
           5.7735,
           11.6
@@ -1483,11 +1706,10 @@
         "measured_max_radius_mm": 2.8868,
         "bbox_radius_mm": 2.8868,
         "vertex_radius_mm": 2.8868,
-        "parametric_max_radius_mm": 2.8868,
+        "nominal_max_radius_mm": 2.8868,
         "radius_relation": "matches",
         "measured_z_mm": 11.9,
-        "parametric_z_mm": 11.6,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 11.6,
         "max_axis_error_mm": 0.3
       }
     },
@@ -1537,15 +1759,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "FAIL",
         "file": "hex_head_bolt_m2p5_l0010_simple.step",
-        "detail": "candidate contradicts the standard; rejected with measured evidence",
+        "detail": "downloaded golden model contradicts the standard; recorded with measured evidence",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 2.8868 mm vs nominal 2.8868 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "FAIL",
+            "detail": "golden 11.9000 mm vs nominal 11.6000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           5.7735,
           5.7735,
           11.9
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           5.0,
           5.7735,
           11.6
@@ -1553,11 +1787,10 @@
         "measured_max_radius_mm": 2.8868,
         "bbox_radius_mm": 2.8868,
         "vertex_radius_mm": 2.8868,
-        "parametric_max_radius_mm": 2.8868,
+        "nominal_max_radius_mm": 2.8868,
         "radius_relation": "matches",
         "measured_z_mm": 11.9,
-        "parametric_z_mm": 11.6,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 11.6,
         "max_axis_error_mm": 0.3
       }
     },
@@ -1597,15 +1830,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "FAIL",
         "file": "hex_head_bolt_m3_l0012_simple.step",
-        "detail": "candidate contradicts the standard; rejected with measured evidence",
+        "detail": "downloaded golden model contradicts the standard; recorded with measured evidence",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 3.1754 mm vs nominal 3.1754 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "FAIL",
+            "detail": "golden 14.2000 mm vs nominal 14.0000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           6.3509,
           6.3509,
           14.2
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           5.5,
           6.3509,
           14.0
@@ -1613,11 +1858,10 @@
         "measured_max_radius_mm": 3.1754,
         "bbox_radius_mm": 3.1754,
         "vertex_radius_mm": 3.1754,
-        "parametric_max_radius_mm": 3.1754,
+        "nominal_max_radius_mm": 3.1754,
         "radius_relation": "matches",
         "measured_z_mm": 14.2,
-        "parametric_z_mm": 14.0,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 14.0,
         "max_axis_error_mm": 0.2
       }
     },
@@ -1667,15 +1911,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "FAIL",
         "file": "hex_head_bolt_m3_l0012_simple.step",
-        "detail": "candidate contradicts the standard; rejected with measured evidence",
+        "detail": "downloaded golden model contradicts the standard; recorded with measured evidence",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 3.1754 mm vs nominal 3.1754 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "FAIL",
+            "detail": "golden 14.2000 mm vs nominal 14.0000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           6.3509,
           6.3509,
           14.2
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           5.5,
           6.3509,
           14.0
@@ -1683,11 +1939,10 @@
         "measured_max_radius_mm": 3.1754,
         "bbox_radius_mm": 3.1754,
         "vertex_radius_mm": 3.1754,
-        "parametric_max_radius_mm": 3.1754,
+        "nominal_max_radius_mm": 3.1754,
         "radius_relation": "matches",
         "measured_z_mm": 14.2,
-        "parametric_z_mm": 14.0,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 14.0,
         "max_axis_error_mm": 0.2
       }
     },
@@ -1737,15 +1992,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "FAIL",
         "file": "hex_head_bolt_m3_l0012_simple.step",
-        "detail": "candidate contradicts the standard; rejected with measured evidence",
+        "detail": "downloaded golden model contradicts the standard; recorded with measured evidence",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 3.1754 mm vs nominal 3.1754 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "FAIL",
+            "detail": "golden 14.2000 mm vs nominal 14.0000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           6.3509,
           6.3509,
           14.2
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           5.5,
           6.3509,
           14.0
@@ -1753,11 +2020,10 @@
         "measured_max_radius_mm": 3.1754,
         "bbox_radius_mm": 3.1754,
         "vertex_radius_mm": 3.1754,
-        "parametric_max_radius_mm": 3.1754,
+        "nominal_max_radius_mm": 3.1754,
         "radius_relation": "matches",
         "measured_z_mm": 14.2,
-        "parametric_z_mm": 14.0,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 14.0,
         "max_axis_error_mm": 0.2
       }
     },
@@ -1797,15 +2063,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "FAIL",
         "file": "hex_head_bolt_m4_l0016_simple.step",
-        "detail": "candidate contradicts the standard; rejected with measured evidence",
+        "detail": "downloaded golden model contradicts the standard; recorded with measured evidence",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 4.0415 mm vs nominal 4.0415 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "FAIL",
+            "detail": "golden 19.0000 mm vs nominal 18.8000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           8.0829,
           8.0829,
           19.0
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           7.0,
           8.0829,
           18.8
@@ -1813,11 +2091,10 @@
         "measured_max_radius_mm": 4.0415,
         "bbox_radius_mm": 4.0415,
         "vertex_radius_mm": 4.0415,
-        "parametric_max_radius_mm": 4.0415,
+        "nominal_max_radius_mm": 4.0415,
         "radius_relation": "matches",
         "measured_z_mm": 19.0,
-        "parametric_z_mm": 18.8,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 18.8,
         "max_axis_error_mm": 0.2
       }
     },
@@ -1867,15 +2144,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "FAIL",
         "file": "hex_head_bolt_m4_l0016_simple.step",
-        "detail": "candidate contradicts the standard; rejected with measured evidence",
+        "detail": "downloaded golden model contradicts the standard; recorded with measured evidence",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 4.0415 mm vs nominal 4.0415 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "FAIL",
+            "detail": "golden 19.0000 mm vs nominal 18.8000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           8.0829,
           8.0829,
           19.0
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           7.0,
           8.0829,
           18.8
@@ -1883,11 +2172,10 @@
         "measured_max_radius_mm": 4.0415,
         "bbox_radius_mm": 4.0415,
         "vertex_radius_mm": 4.0415,
-        "parametric_max_radius_mm": 4.0415,
+        "nominal_max_radius_mm": 4.0415,
         "radius_relation": "matches",
         "measured_z_mm": 19.0,
-        "parametric_z_mm": 18.8,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 18.8,
         "max_axis_error_mm": 0.2
       }
     },
@@ -1937,15 +2225,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "FAIL",
         "file": "hex_head_bolt_m4_l0016_simple.step",
-        "detail": "candidate contradicts the standard; rejected with measured evidence",
+        "detail": "downloaded golden model contradicts the standard; recorded with measured evidence",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 4.0415 mm vs nominal 4.0415 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "FAIL",
+            "detail": "golden 19.0000 mm vs nominal 18.8000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           8.0829,
           8.0829,
           19.0
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           7.0,
           8.0829,
           18.8
@@ -1953,11 +2253,10 @@
         "measured_max_radius_mm": 4.0415,
         "bbox_radius_mm": 4.0415,
         "vertex_radius_mm": 4.0415,
-        "parametric_max_radius_mm": 4.0415,
+        "nominal_max_radius_mm": 4.0415,
         "radius_relation": "matches",
         "measured_z_mm": 19.0,
-        "parametric_z_mm": 18.8,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 18.8,
         "max_axis_error_mm": 0.2
       }
     },
@@ -1997,15 +2296,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "FAIL",
         "file": "hex_head_bolt_m5_l0020_simple.step",
-        "detail": "candidate contradicts the standard; rejected with measured evidence",
+        "detail": "downloaded golden model contradicts the standard; recorded with measured evidence",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 4.6188 mm vs nominal 4.6188 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "FAIL",
+            "detail": "golden 23.7400 mm vs nominal 23.5000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           9.2376,
           9.2376,
           23.74
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           8.0,
           9.2376,
           23.5
@@ -2013,11 +2324,10 @@
         "measured_max_radius_mm": 4.6188,
         "bbox_radius_mm": 4.6188,
         "vertex_radius_mm": 4.6188,
-        "parametric_max_radius_mm": 4.6188,
+        "nominal_max_radius_mm": 4.6188,
         "radius_relation": "matches",
         "measured_z_mm": 23.74,
-        "parametric_z_mm": 23.5,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 23.5,
         "max_axis_error_mm": 0.24
       }
     },
@@ -2067,15 +2377,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "FAIL",
         "file": "hex_head_bolt_m5_l0020_simple.step",
-        "detail": "candidate contradicts the standard; rejected with measured evidence",
+        "detail": "downloaded golden model contradicts the standard; recorded with measured evidence",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 4.6188 mm vs nominal 4.6188 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "FAIL",
+            "detail": "golden 23.7400 mm vs nominal 23.5000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           9.2376,
           9.2376,
           23.74
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           8.0,
           9.2376,
           23.5
@@ -2083,11 +2405,10 @@
         "measured_max_radius_mm": 4.6188,
         "bbox_radius_mm": 4.6188,
         "vertex_radius_mm": 4.6188,
-        "parametric_max_radius_mm": 4.6188,
+        "nominal_max_radius_mm": 4.6188,
         "radius_relation": "matches",
         "measured_z_mm": 23.74,
-        "parametric_z_mm": 23.5,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 23.5,
         "max_axis_error_mm": 0.24
       }
     },
@@ -2137,15 +2458,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "FAIL",
         "file": "hex_head_bolt_m5_l0020_simple.step",
-        "detail": "candidate contradicts the standard; rejected with measured evidence",
+        "detail": "downloaded golden model contradicts the standard; recorded with measured evidence",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 4.6188 mm vs nominal 4.6188 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "FAIL",
+            "detail": "golden 23.7400 mm vs nominal 23.5000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           9.2376,
           9.2376,
           23.74
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           8.0,
           9.2376,
           23.5
@@ -2153,11 +2486,10 @@
         "measured_max_radius_mm": 4.6188,
         "bbox_radius_mm": 4.6188,
         "vertex_radius_mm": 4.6188,
-        "parametric_max_radius_mm": 4.6188,
+        "nominal_max_radius_mm": 4.6188,
         "radius_relation": "matches",
         "measured_z_mm": 23.74,
-        "parametric_z_mm": 23.5,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 23.5,
         "max_axis_error_mm": 0.24
       }
     },
@@ -2198,27 +2530,8 @@
       },
       "golden": {
         "status": "SKIP",
-        "file": "hex_head_bolt_m2_l0008_simple.step",
-        "detail": "candidate contradicts the standard; rejected with measured evidence",
-        "measured_bbox_mm": [
-          4.6188,
-          4.6188,
-          9.6
-        ],
-        "parametric_bbox_mm": [
-          4.0,
-          4.6188,
-          9.4
-        ],
-        "measured_max_radius_mm": 2.3094,
-        "bbox_radius_mm": 2.3094,
-        "vertex_radius_mm": 2.3094,
-        "parametric_max_radius_mm": 2.3094,
-        "radius_relation": "matches",
-        "measured_z_mm": 9.6,
-        "parametric_z_mm": 9.4,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
-        "max_axis_error_mm": 0.2
+        "file": null,
+        "detail": "no downloaded golden model for this family/size"
       }
     },
     {
@@ -2268,27 +2581,8 @@
       },
       "golden": {
         "status": "SKIP",
-        "file": "hex_head_bolt_m2_l0008_simple.step",
-        "detail": "candidate contradicts the standard; rejected with measured evidence",
-        "measured_bbox_mm": [
-          4.6188,
-          4.6188,
-          9.6
-        ],
-        "parametric_bbox_mm": [
-          4.0,
-          4.6188,
-          9.4
-        ],
-        "measured_max_radius_mm": 2.3094,
-        "bbox_radius_mm": 2.3094,
-        "vertex_radius_mm": 2.3094,
-        "parametric_max_radius_mm": 2.3094,
-        "radius_relation": "matches",
-        "measured_z_mm": 9.6,
-        "parametric_z_mm": 9.4,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
-        "max_axis_error_mm": 0.2
+        "file": null,
+        "detail": "no downloaded golden model for this family/size"
       }
     },
     {
@@ -2338,27 +2632,8 @@
       },
       "golden": {
         "status": "SKIP",
-        "file": "hex_head_bolt_m2_l0008_simple.step",
-        "detail": "candidate contradicts the standard; rejected with measured evidence",
-        "measured_bbox_mm": [
-          4.6188,
-          4.6188,
-          9.6
-        ],
-        "parametric_bbox_mm": [
-          4.0,
-          4.6188,
-          9.4
-        ],
-        "measured_max_radius_mm": 2.3094,
-        "bbox_radius_mm": 2.3094,
-        "vertex_radius_mm": 2.3094,
-        "parametric_max_radius_mm": 2.3094,
-        "radius_relation": "matches",
-        "measured_z_mm": 9.6,
-        "parametric_z_mm": 9.4,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
-        "max_axis_error_mm": 0.2
+        "file": null,
+        "detail": "no downloaded golden model for this family/size"
       }
     },
     {
@@ -2398,27 +2673,8 @@
       },
       "golden": {
         "status": "SKIP",
-        "file": "hex_head_bolt_m2p5_l0010_simple.step",
-        "detail": "candidate contradicts the standard; rejected with measured evidence",
-        "measured_bbox_mm": [
-          5.7735,
-          5.7735,
-          11.9
-        ],
-        "parametric_bbox_mm": [
-          5.0,
-          5.7735,
-          11.6
-        ],
-        "measured_max_radius_mm": 2.8868,
-        "bbox_radius_mm": 2.8868,
-        "vertex_radius_mm": 2.8868,
-        "parametric_max_radius_mm": 2.8868,
-        "radius_relation": "matches",
-        "measured_z_mm": 11.9,
-        "parametric_z_mm": 11.6,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
-        "max_axis_error_mm": 0.3
+        "file": null,
+        "detail": "no downloaded golden model for this family/size"
       }
     },
     {
@@ -2468,27 +2724,8 @@
       },
       "golden": {
         "status": "SKIP",
-        "file": "hex_head_bolt_m2p5_l0010_simple.step",
-        "detail": "candidate contradicts the standard; rejected with measured evidence",
-        "measured_bbox_mm": [
-          5.7735,
-          5.7735,
-          11.9
-        ],
-        "parametric_bbox_mm": [
-          5.0,
-          5.7735,
-          11.6
-        ],
-        "measured_max_radius_mm": 2.8868,
-        "bbox_radius_mm": 2.8868,
-        "vertex_radius_mm": 2.8868,
-        "parametric_max_radius_mm": 2.8868,
-        "radius_relation": "matches",
-        "measured_z_mm": 11.9,
-        "parametric_z_mm": 11.6,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
-        "max_axis_error_mm": 0.3
+        "file": null,
+        "detail": "no downloaded golden model for this family/size"
       }
     },
     {
@@ -2538,27 +2775,8 @@
       },
       "golden": {
         "status": "SKIP",
-        "file": "hex_head_bolt_m2p5_l0010_simple.step",
-        "detail": "candidate contradicts the standard; rejected with measured evidence",
-        "measured_bbox_mm": [
-          5.7735,
-          5.7735,
-          11.9
-        ],
-        "parametric_bbox_mm": [
-          5.0,
-          5.7735,
-          11.6
-        ],
-        "measured_max_radius_mm": 2.8868,
-        "bbox_radius_mm": 2.8868,
-        "vertex_radius_mm": 2.8868,
-        "parametric_max_radius_mm": 2.8868,
-        "radius_relation": "matches",
-        "measured_z_mm": 11.9,
-        "parametric_z_mm": 11.6,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
-        "max_axis_error_mm": 0.3
+        "file": null,
+        "detail": "no downloaded golden model for this family/size"
       }
     },
     {
@@ -2598,27 +2816,8 @@
       },
       "golden": {
         "status": "SKIP",
-        "file": "hex_head_bolt_m3_l0012_simple.step",
-        "detail": "candidate contradicts the standard; rejected with measured evidence",
-        "measured_bbox_mm": [
-          6.3509,
-          6.3509,
-          14.2
-        ],
-        "parametric_bbox_mm": [
-          5.5,
-          6.3509,
-          14.0
-        ],
-        "measured_max_radius_mm": 3.1754,
-        "bbox_radius_mm": 3.1754,
-        "vertex_radius_mm": 3.1754,
-        "parametric_max_radius_mm": 3.1754,
-        "radius_relation": "matches",
-        "measured_z_mm": 14.2,
-        "parametric_z_mm": 14.0,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
-        "max_axis_error_mm": 0.2
+        "file": null,
+        "detail": "no downloaded golden model for this family/size"
       }
     },
     {
@@ -2668,27 +2867,8 @@
       },
       "golden": {
         "status": "SKIP",
-        "file": "hex_head_bolt_m3_l0012_simple.step",
-        "detail": "candidate contradicts the standard; rejected with measured evidence",
-        "measured_bbox_mm": [
-          6.3509,
-          6.3509,
-          14.2
-        ],
-        "parametric_bbox_mm": [
-          5.5,
-          6.3509,
-          14.0
-        ],
-        "measured_max_radius_mm": 3.1754,
-        "bbox_radius_mm": 3.1754,
-        "vertex_radius_mm": 3.1754,
-        "parametric_max_radius_mm": 3.1754,
-        "radius_relation": "matches",
-        "measured_z_mm": 14.2,
-        "parametric_z_mm": 14.0,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
-        "max_axis_error_mm": 0.2
+        "file": null,
+        "detail": "no downloaded golden model for this family/size"
       }
     },
     {
@@ -2738,27 +2918,8 @@
       },
       "golden": {
         "status": "SKIP",
-        "file": "hex_head_bolt_m3_l0012_simple.step",
-        "detail": "candidate contradicts the standard; rejected with measured evidence",
-        "measured_bbox_mm": [
-          6.3509,
-          6.3509,
-          14.2
-        ],
-        "parametric_bbox_mm": [
-          5.5,
-          6.3509,
-          14.0
-        ],
-        "measured_max_radius_mm": 3.1754,
-        "bbox_radius_mm": 3.1754,
-        "vertex_radius_mm": 3.1754,
-        "parametric_max_radius_mm": 3.1754,
-        "radius_relation": "matches",
-        "measured_z_mm": 14.2,
-        "parametric_z_mm": 14.0,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
-        "max_axis_error_mm": 0.2
+        "file": null,
+        "detail": "no downloaded golden model for this family/size"
       }
     },
     {
@@ -2798,27 +2959,8 @@
       },
       "golden": {
         "status": "SKIP",
-        "file": "hex_head_bolt_m4_l0016_simple.step",
-        "detail": "candidate contradicts the standard; rejected with measured evidence",
-        "measured_bbox_mm": [
-          8.0829,
-          8.0829,
-          19.0
-        ],
-        "parametric_bbox_mm": [
-          7.0,
-          8.0829,
-          18.8
-        ],
-        "measured_max_radius_mm": 4.0415,
-        "bbox_radius_mm": 4.0415,
-        "vertex_radius_mm": 4.0415,
-        "parametric_max_radius_mm": 4.0415,
-        "radius_relation": "matches",
-        "measured_z_mm": 19.0,
-        "parametric_z_mm": 18.8,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
-        "max_axis_error_mm": 0.2
+        "file": null,
+        "detail": "no downloaded golden model for this family/size"
       }
     },
     {
@@ -2868,27 +3010,8 @@
       },
       "golden": {
         "status": "SKIP",
-        "file": "hex_head_bolt_m4_l0016_simple.step",
-        "detail": "candidate contradicts the standard; rejected with measured evidence",
-        "measured_bbox_mm": [
-          8.0829,
-          8.0829,
-          19.0
-        ],
-        "parametric_bbox_mm": [
-          7.0,
-          8.0829,
-          18.8
-        ],
-        "measured_max_radius_mm": 4.0415,
-        "bbox_radius_mm": 4.0415,
-        "vertex_radius_mm": 4.0415,
-        "parametric_max_radius_mm": 4.0415,
-        "radius_relation": "matches",
-        "measured_z_mm": 19.0,
-        "parametric_z_mm": 18.8,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
-        "max_axis_error_mm": 0.2
+        "file": null,
+        "detail": "no downloaded golden model for this family/size"
       }
     },
     {
@@ -2938,27 +3061,8 @@
       },
       "golden": {
         "status": "SKIP",
-        "file": "hex_head_bolt_m4_l0016_simple.step",
-        "detail": "candidate contradicts the standard; rejected with measured evidence",
-        "measured_bbox_mm": [
-          8.0829,
-          8.0829,
-          19.0
-        ],
-        "parametric_bbox_mm": [
-          7.0,
-          8.0829,
-          18.8
-        ],
-        "measured_max_radius_mm": 4.0415,
-        "bbox_radius_mm": 4.0415,
-        "vertex_radius_mm": 4.0415,
-        "parametric_max_radius_mm": 4.0415,
-        "radius_relation": "matches",
-        "measured_z_mm": 19.0,
-        "parametric_z_mm": 18.8,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
-        "max_axis_error_mm": 0.2
+        "file": null,
+        "detail": "no downloaded golden model for this family/size"
       }
     },
     {
@@ -2998,27 +3102,8 @@
       },
       "golden": {
         "status": "SKIP",
-        "file": "hex_head_bolt_m5_l0020_simple.step",
-        "detail": "candidate contradicts the standard; rejected with measured evidence",
-        "measured_bbox_mm": [
-          9.2376,
-          9.2376,
-          23.74
-        ],
-        "parametric_bbox_mm": [
-          8.0,
-          9.2376,
-          23.5
-        ],
-        "measured_max_radius_mm": 4.6188,
-        "bbox_radius_mm": 4.6188,
-        "vertex_radius_mm": 4.6188,
-        "parametric_max_radius_mm": 4.6188,
-        "radius_relation": "matches",
-        "measured_z_mm": 23.74,
-        "parametric_z_mm": 23.5,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
-        "max_axis_error_mm": 0.24
+        "file": null,
+        "detail": "no downloaded golden model for this family/size"
       }
     },
     {
@@ -3068,27 +3153,8 @@
       },
       "golden": {
         "status": "SKIP",
-        "file": "hex_head_bolt_m5_l0020_simple.step",
-        "detail": "candidate contradicts the standard; rejected with measured evidence",
-        "measured_bbox_mm": [
-          9.2376,
-          9.2376,
-          23.74
-        ],
-        "parametric_bbox_mm": [
-          8.0,
-          9.2376,
-          23.5
-        ],
-        "measured_max_radius_mm": 4.6188,
-        "bbox_radius_mm": 4.6188,
-        "vertex_radius_mm": 4.6188,
-        "parametric_max_radius_mm": 4.6188,
-        "radius_relation": "matches",
-        "measured_z_mm": 23.74,
-        "parametric_z_mm": 23.5,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
-        "max_axis_error_mm": 0.24
+        "file": null,
+        "detail": "no downloaded golden model for this family/size"
       }
     },
     {
@@ -3138,27 +3204,8 @@
       },
       "golden": {
         "status": "SKIP",
-        "file": "hex_head_bolt_m5_l0020_simple.step",
-        "detail": "candidate contradicts the standard; rejected with measured evidence",
-        "measured_bbox_mm": [
-          9.2376,
-          9.2376,
-          23.74
-        ],
-        "parametric_bbox_mm": [
-          8.0,
-          9.2376,
-          23.5
-        ],
-        "measured_max_radius_mm": 4.6188,
-        "bbox_radius_mm": 4.6188,
-        "vertex_radius_mm": 4.6188,
-        "parametric_max_radius_mm": 4.6188,
-        "radius_relation": "matches",
-        "measured_z_mm": 23.74,
-        "parametric_z_mm": 23.5,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
-        "max_axis_error_mm": 0.24
+        "file": null,
+        "detail": "no downloaded golden model for this family/size"
       }
     },
     {
@@ -3197,15 +3244,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "PASS",
         "file": "hex_nut_m2_simple.step",
-        "detail": "development-time measurement agrees; licence unverified, so not an oracle",
+        "detail": "downloaded golden model agrees",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 2.3094 mm vs nominal 2.3094 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "PASS",
+            "detail": "golden 1.6000 mm vs nominal 1.6000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           4.6168,
           4.6168,
           1.6
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           4.0,
           4.6188,
           1.6
@@ -3213,11 +3272,10 @@
         "measured_max_radius_mm": 2.3094,
         "bbox_radius_mm": 2.3084,
         "vertex_radius_mm": 2.3094,
-        "parametric_max_radius_mm": 2.3094,
+        "nominal_max_radius_mm": 2.3094,
         "radius_relation": "matches",
         "measured_z_mm": 1.6,
-        "parametric_z_mm": 1.6,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 1.6,
         "max_axis_error_mm": 0.0
       }
     },
@@ -3267,15 +3325,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "PASS",
         "file": "hex_nut_m2_simple.step",
-        "detail": "development-time measurement agrees; licence unverified, so not an oracle",
+        "detail": "downloaded golden model agrees",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 2.3094 mm vs nominal 2.3094 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "PASS",
+            "detail": "golden 1.6000 mm vs nominal 1.6000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           4.6168,
           4.6168,
           1.6
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           4.0,
           4.6188,
           1.6
@@ -3283,11 +3353,10 @@
         "measured_max_radius_mm": 2.3094,
         "bbox_radius_mm": 2.3084,
         "vertex_radius_mm": 2.3094,
-        "parametric_max_radius_mm": 2.3094,
+        "nominal_max_radius_mm": 2.3094,
         "radius_relation": "matches",
         "measured_z_mm": 1.6,
-        "parametric_z_mm": 1.6,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 1.6,
         "max_axis_error_mm": 0.0
       }
     },
@@ -3347,15 +3416,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "PASS",
         "file": "hex_nut_m2_simple.step",
-        "detail": "development-time measurement agrees; licence unverified, so not an oracle",
+        "detail": "downloaded golden model agrees",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 2.3094 mm vs nominal 2.3094 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "PASS",
+            "detail": "golden 1.6000 mm vs nominal 1.6000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           4.6168,
           4.6168,
           1.6
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           4.0,
           4.6188,
           1.6
@@ -3363,11 +3444,10 @@
         "measured_max_radius_mm": 2.3094,
         "bbox_radius_mm": 2.3084,
         "vertex_radius_mm": 2.3094,
-        "parametric_max_radius_mm": 2.3094,
+        "nominal_max_radius_mm": 2.3094,
         "radius_relation": "matches",
         "measured_z_mm": 1.6,
-        "parametric_z_mm": 1.6,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 1.6,
         "max_axis_error_mm": 0.0
       }
     },
@@ -3407,15 +3487,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "PASS",
         "file": "hex_nut_m2p5_simple.step",
-        "detail": "development-time measurement agrees; licence unverified, so not an oracle",
+        "detail": "downloaded golden model agrees",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 2.8868 mm vs nominal 2.8868 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "PASS",
+            "detail": "golden 2.0000 mm vs nominal 2.0000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           5.7715,
           5.7715,
           2.0
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           5.0,
           5.7735,
           2.0
@@ -3423,11 +3515,10 @@
         "measured_max_radius_mm": 2.8868,
         "bbox_radius_mm": 2.8858,
         "vertex_radius_mm": 2.8868,
-        "parametric_max_radius_mm": 2.8868,
+        "nominal_max_radius_mm": 2.8868,
         "radius_relation": "matches",
         "measured_z_mm": 2.0,
-        "parametric_z_mm": 2.0,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 2.0,
         "max_axis_error_mm": 0.0
       }
     },
@@ -3477,15 +3568,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "PASS",
         "file": "hex_nut_m2p5_simple.step",
-        "detail": "development-time measurement agrees; licence unverified, so not an oracle",
+        "detail": "downloaded golden model agrees",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 2.8868 mm vs nominal 2.8868 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "PASS",
+            "detail": "golden 2.0000 mm vs nominal 2.0000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           5.7715,
           5.7715,
           2.0
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           5.0,
           5.7735,
           2.0
@@ -3493,11 +3596,10 @@
         "measured_max_radius_mm": 2.8868,
         "bbox_radius_mm": 2.8858,
         "vertex_radius_mm": 2.8868,
-        "parametric_max_radius_mm": 2.8868,
+        "nominal_max_radius_mm": 2.8868,
         "radius_relation": "matches",
         "measured_z_mm": 2.0,
-        "parametric_z_mm": 2.0,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 2.0,
         "max_axis_error_mm": 0.0
       }
     },
@@ -3557,15 +3659,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "PASS",
         "file": "hex_nut_m2p5_simple.step",
-        "detail": "development-time measurement agrees; licence unverified, so not an oracle",
+        "detail": "downloaded golden model agrees",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 2.8868 mm vs nominal 2.8868 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "PASS",
+            "detail": "golden 2.0000 mm vs nominal 2.0000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           5.7715,
           5.7715,
           2.0
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           5.0,
           5.7735,
           2.0
@@ -3573,11 +3687,10 @@
         "measured_max_radius_mm": 2.8868,
         "bbox_radius_mm": 2.8858,
         "vertex_radius_mm": 2.8868,
-        "parametric_max_radius_mm": 2.8868,
+        "nominal_max_radius_mm": 2.8868,
         "radius_relation": "matches",
         "measured_z_mm": 2.0,
-        "parametric_z_mm": 2.0,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 2.0,
         "max_axis_error_mm": 0.0
       }
     },
@@ -3617,15 +3730,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "PASS",
         "file": "iso4032_hex_nut_m3.step",
-        "detail": "development-time measurement agrees; licence unverified, so not an oracle",
+        "detail": "downloaded golden model agrees",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 3.1754 mm vs nominal 3.1754 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "PASS",
+            "detail": "golden 2.4000 mm vs nominal 2.4000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           6.35,
           6.35,
           2.4
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           5.5,
           6.3509,
           2.4
@@ -3633,11 +3758,10 @@
         "measured_max_radius_mm": 3.1754,
         "bbox_radius_mm": 3.175,
         "vertex_radius_mm": 3.1754,
-        "parametric_max_radius_mm": 3.1754,
+        "nominal_max_radius_mm": 3.1754,
         "radius_relation": "matches",
         "measured_z_mm": 2.4,
-        "parametric_z_mm": 2.4,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 2.4,
         "max_axis_error_mm": 0.0
       }
     },
@@ -3687,15 +3811,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "PASS",
         "file": "iso4032_hex_nut_m3.step",
-        "detail": "development-time measurement agrees; licence unverified, so not an oracle",
+        "detail": "downloaded golden model agrees",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 3.1754 mm vs nominal 3.1754 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "PASS",
+            "detail": "golden 2.4000 mm vs nominal 2.4000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           6.35,
           6.35,
           2.4
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           5.5,
           6.3509,
           2.4
@@ -3703,11 +3839,10 @@
         "measured_max_radius_mm": 3.1754,
         "bbox_radius_mm": 3.175,
         "vertex_radius_mm": 3.1754,
-        "parametric_max_radius_mm": 3.1754,
+        "nominal_max_radius_mm": 3.1754,
         "radius_relation": "matches",
         "measured_z_mm": 2.4,
-        "parametric_z_mm": 2.4,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 2.4,
         "max_axis_error_mm": 0.0
       }
     },
@@ -3767,15 +3902,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "PASS",
         "file": "iso4032_hex_nut_m3.step",
-        "detail": "development-time measurement agrees; licence unverified, so not an oracle",
+        "detail": "downloaded golden model agrees",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 3.1754 mm vs nominal 3.1754 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "PASS",
+            "detail": "golden 2.4000 mm vs nominal 2.4000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           6.35,
           6.35,
           2.4
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           5.5,
           6.3509,
           2.4
@@ -3783,11 +3930,10 @@
         "measured_max_radius_mm": 3.1754,
         "bbox_radius_mm": 3.175,
         "vertex_radius_mm": 3.1754,
-        "parametric_max_radius_mm": 3.1754,
+        "nominal_max_radius_mm": 3.1754,
         "radius_relation": "matches",
         "measured_z_mm": 2.4,
-        "parametric_z_mm": 2.4,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 2.4,
         "max_axis_error_mm": 0.0
       }
     },
@@ -3827,15 +3973,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "PASS",
         "file": "iso4032_hex_nut_m4.step",
-        "detail": "development-time measurement agrees; licence unverified, so not an oracle",
+        "detail": "downloaded golden model agrees",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 4.0000 mm vs nominal 4.0415 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "PASS",
+            "detail": "golden 3.2027 mm vs nominal 3.2000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           7.66,
           7.66,
           3.2027
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           7.0,
           8.0829,
           3.2
@@ -3843,11 +4001,10 @@
         "measured_max_radius_mm": 4.0,
         "bbox_radius_mm": 3.83,
         "vertex_radius_mm": 4.0,
-        "parametric_max_radius_mm": 4.0415,
+        "nominal_max_radius_mm": 4.0415,
         "radius_relation": "matches",
         "measured_z_mm": 3.2027,
-        "parametric_z_mm": 3.2,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 3.2,
         "max_axis_error_mm": 0.0415
       }
     },
@@ -3897,15 +4054,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "PASS",
         "file": "iso4032_hex_nut_m4.step",
-        "detail": "development-time measurement agrees; licence unverified, so not an oracle",
+        "detail": "downloaded golden model agrees",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 4.0000 mm vs nominal 4.0415 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "PASS",
+            "detail": "golden 3.2027 mm vs nominal 3.2000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           7.66,
           7.66,
           3.2027
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           7.0,
           8.0829,
           3.2
@@ -3913,11 +4082,10 @@
         "measured_max_radius_mm": 4.0,
         "bbox_radius_mm": 3.83,
         "vertex_radius_mm": 4.0,
-        "parametric_max_radius_mm": 4.0415,
+        "nominal_max_radius_mm": 4.0415,
         "radius_relation": "matches",
         "measured_z_mm": 3.2027,
-        "parametric_z_mm": 3.2,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 3.2,
         "max_axis_error_mm": 0.0415
       }
     },
@@ -3977,15 +4145,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "PASS",
         "file": "iso4032_hex_nut_m4.step",
-        "detail": "development-time measurement agrees; licence unverified, so not an oracle",
+        "detail": "downloaded golden model agrees",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 4.0000 mm vs nominal 4.0415 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "PASS",
+            "detail": "golden 3.2027 mm vs nominal 3.2000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           7.66,
           7.66,
           3.2027
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           7.0,
           8.0829,
           3.2
@@ -3993,11 +4173,10 @@
         "measured_max_radius_mm": 4.0,
         "bbox_radius_mm": 3.83,
         "vertex_radius_mm": 4.0,
-        "parametric_max_radius_mm": 4.0415,
+        "nominal_max_radius_mm": 4.0415,
         "radius_relation": "matches",
         "measured_z_mm": 3.2027,
-        "parametric_z_mm": 3.2,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 3.2,
         "max_axis_error_mm": 0.0415
       }
     },
@@ -4037,15 +4216,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "PASS",
         "file": "iso4032_hex_nut_m5.step",
-        "detail": "development-time measurement agrees; licence unverified, so not an oracle",
+        "detail": "downloaded golden model agrees",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 4.6188 mm vs nominal 4.6188 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "PASS",
+            "detail": "golden 4.0000 mm vs nominal 4.0000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           9.2376,
           9.2376,
           4.0
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           8.0,
           9.2376,
           4.0
@@ -4053,11 +4244,10 @@
         "measured_max_radius_mm": 4.6188,
         "bbox_radius_mm": 4.6188,
         "vertex_radius_mm": 4.6188,
-        "parametric_max_radius_mm": 4.6188,
+        "nominal_max_radius_mm": 4.6188,
         "radius_relation": "matches",
         "measured_z_mm": 4.0,
-        "parametric_z_mm": 4.0,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 4.0,
         "max_axis_error_mm": 0.0
       }
     },
@@ -4107,15 +4297,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "PASS",
         "file": "iso4032_hex_nut_m5.step",
-        "detail": "development-time measurement agrees; licence unverified, so not an oracle",
+        "detail": "downloaded golden model agrees",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 4.6188 mm vs nominal 4.6188 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "PASS",
+            "detail": "golden 4.0000 mm vs nominal 4.0000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           9.2376,
           9.2376,
           4.0
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           8.0,
           9.2376,
           4.0
@@ -4123,11 +4325,10 @@
         "measured_max_radius_mm": 4.6188,
         "bbox_radius_mm": 4.6188,
         "vertex_radius_mm": 4.6188,
-        "parametric_max_radius_mm": 4.6188,
+        "nominal_max_radius_mm": 4.6188,
         "radius_relation": "matches",
         "measured_z_mm": 4.0,
-        "parametric_z_mm": 4.0,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 4.0,
         "max_axis_error_mm": 0.0
       }
     },
@@ -4187,15 +4388,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "PASS",
         "file": "iso4032_hex_nut_m5.step",
-        "detail": "development-time measurement agrees; licence unverified, so not an oracle",
+        "detail": "downloaded golden model agrees",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 4.6188 mm vs nominal 4.6188 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "PASS",
+            "detail": "golden 4.0000 mm vs nominal 4.0000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           9.2376,
           9.2376,
           4.0
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           8.0,
           9.2376,
           4.0
@@ -4203,11 +4416,10 @@
         "measured_max_radius_mm": 4.6188,
         "bbox_radius_mm": 4.6188,
         "vertex_radius_mm": 4.6188,
-        "parametric_max_radius_mm": 4.6188,
+        "nominal_max_radius_mm": 4.6188,
         "radius_relation": "matches",
         "measured_z_mm": 4.0,
-        "parametric_z_mm": 4.0,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 4.0,
         "max_axis_error_mm": 0.0
       }
     },
@@ -4257,15 +4469,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "FAIL",
         "file": "flat_washer_normal_m2_simple.step",
-        "detail": "candidate contradicts the standard; rejected with measured evidence",
+        "detail": "downloaded golden model contradicts the standard; recorded with measured evidence",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 2.5000 mm vs nominal 2.5000 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "FAIL",
+            "detail": "golden 0.7000 mm vs nominal 0.3000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           5.0,
           5.0,
           0.7
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           5.0,
           5.0,
           0.3
@@ -4273,11 +4497,10 @@
         "measured_max_radius_mm": 2.5,
         "bbox_radius_mm": 2.5,
         "vertex_radius_mm": 2.5,
-        "parametric_max_radius_mm": 2.5,
+        "nominal_max_radius_mm": 2.5,
         "radius_relation": "matches",
         "measured_z_mm": 0.7,
-        "parametric_z_mm": 0.3,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 0.3,
         "max_axis_error_mm": 0.4
       }
     },
@@ -4327,15 +4550,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "FAIL",
         "file": "flat_washer_normal_m2_simple.step",
-        "detail": "candidate contradicts the standard; rejected with measured evidence",
+        "detail": "downloaded golden model contradicts the standard; recorded with measured evidence",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 2.5000 mm vs nominal 2.5000 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "FAIL",
+            "detail": "golden 0.7000 mm vs nominal 0.3000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           5.0,
           5.0,
           0.7
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           5.0,
           5.0,
           0.3
@@ -4343,11 +4578,10 @@
         "measured_max_radius_mm": 2.5,
         "bbox_radius_mm": 2.5,
         "vertex_radius_mm": 2.5,
-        "parametric_max_radius_mm": 2.5,
+        "nominal_max_radius_mm": 2.5,
         "radius_relation": "matches",
         "measured_z_mm": 0.7,
-        "parametric_z_mm": 0.3,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 0.3,
         "max_axis_error_mm": 0.4
       }
     },
@@ -4397,15 +4631,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "FAIL",
         "file": "flat_washer_normal_m2_simple.step",
-        "detail": "candidate contradicts the standard; rejected with measured evidence",
+        "detail": "downloaded golden model contradicts the standard; recorded with measured evidence",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 2.5000 mm vs nominal 2.5000 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "FAIL",
+            "detail": "golden 0.7000 mm vs nominal 0.3000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           5.0,
           5.0,
           0.7
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           5.0,
           5.0,
           0.3
@@ -4413,11 +4659,10 @@
         "measured_max_radius_mm": 2.5,
         "bbox_radius_mm": 2.5,
         "vertex_radius_mm": 2.5,
-        "parametric_max_radius_mm": 2.5,
+        "nominal_max_radius_mm": 2.5,
         "radius_relation": "matches",
         "measured_z_mm": 0.7,
-        "parametric_z_mm": 0.3,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 0.3,
         "max_axis_error_mm": 0.4
       }
     },
@@ -4467,15 +4712,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "FAIL",
         "file": "flat_washer_normal_m2p5_simple.step",
-        "detail": "candidate contradicts the standard; rejected with measured evidence",
+        "detail": "downloaded golden model contradicts the standard; recorded with measured evidence",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 3.0000 mm vs nominal 3.0000 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "FAIL",
+            "detail": "golden 1.1000 mm vs nominal 0.5000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           6.0,
           6.0,
           1.1
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           6.0,
           6.0,
           0.5
@@ -4483,11 +4740,10 @@
         "measured_max_radius_mm": 3.0,
         "bbox_radius_mm": 3.0,
         "vertex_radius_mm": 3.0,
-        "parametric_max_radius_mm": 3.0,
+        "nominal_max_radius_mm": 3.0,
         "radius_relation": "matches",
         "measured_z_mm": 1.1,
-        "parametric_z_mm": 0.5,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 0.5,
         "max_axis_error_mm": 0.6
       }
     },
@@ -4537,15 +4793,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "FAIL",
         "file": "flat_washer_normal_m2p5_simple.step",
-        "detail": "candidate contradicts the standard; rejected with measured evidence",
+        "detail": "downloaded golden model contradicts the standard; recorded with measured evidence",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 3.0000 mm vs nominal 3.0000 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "FAIL",
+            "detail": "golden 1.1000 mm vs nominal 0.5000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           6.0,
           6.0,
           1.1
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           6.0,
           6.0,
           0.5
@@ -4553,11 +4821,10 @@
         "measured_max_radius_mm": 3.0,
         "bbox_radius_mm": 3.0,
         "vertex_radius_mm": 3.0,
-        "parametric_max_radius_mm": 3.0,
+        "nominal_max_radius_mm": 3.0,
         "radius_relation": "matches",
         "measured_z_mm": 1.1,
-        "parametric_z_mm": 0.5,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 0.5,
         "max_axis_error_mm": 0.6
       }
     },
@@ -4607,15 +4874,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "FAIL",
         "file": "flat_washer_normal_m2p5_simple.step",
-        "detail": "candidate contradicts the standard; rejected with measured evidence",
+        "detail": "downloaded golden model contradicts the standard; recorded with measured evidence",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 3.0000 mm vs nominal 3.0000 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "FAIL",
+            "detail": "golden 1.1000 mm vs nominal 0.5000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           6.0,
           6.0,
           1.1
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           6.0,
           6.0,
           0.5
@@ -4623,11 +4902,10 @@
         "measured_max_radius_mm": 3.0,
         "bbox_radius_mm": 3.0,
         "vertex_radius_mm": 3.0,
-        "parametric_max_radius_mm": 3.0,
+        "nominal_max_radius_mm": 3.0,
         "radius_relation": "matches",
         "measured_z_mm": 1.1,
-        "parametric_z_mm": 0.5,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 0.5,
         "max_axis_error_mm": 0.6
       }
     },
@@ -4677,15 +4955,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "FAIL",
         "file": "flat_washer_normal_m3_simple.step",
-        "detail": "candidate contradicts the standard; rejected with measured evidence",
+        "detail": "downloaded golden model contradicts the standard; recorded with measured evidence",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 3.5000 mm vs nominal 3.5000 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "FAIL",
+            "detail": "golden 1.1000 mm vs nominal 0.5000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           7.0,
           7.0,
           1.1
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           7.0,
           7.0,
           0.5
@@ -4693,11 +4983,10 @@
         "measured_max_radius_mm": 3.5,
         "bbox_radius_mm": 3.5,
         "vertex_radius_mm": 3.5,
-        "parametric_max_radius_mm": 3.5,
+        "nominal_max_radius_mm": 3.5,
         "radius_relation": "matches",
         "measured_z_mm": 1.1,
-        "parametric_z_mm": 0.5,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 0.5,
         "max_axis_error_mm": 0.6
       }
     },
@@ -4747,15 +5036,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "FAIL",
         "file": "flat_washer_normal_m3_simple.step",
-        "detail": "candidate contradicts the standard; rejected with measured evidence",
+        "detail": "downloaded golden model contradicts the standard; recorded with measured evidence",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 3.5000 mm vs nominal 3.5000 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "FAIL",
+            "detail": "golden 1.1000 mm vs nominal 0.5000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           7.0,
           7.0,
           1.1
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           7.0,
           7.0,
           0.5
@@ -4763,11 +5064,10 @@
         "measured_max_radius_mm": 3.5,
         "bbox_radius_mm": 3.5,
         "vertex_radius_mm": 3.5,
-        "parametric_max_radius_mm": 3.5,
+        "nominal_max_radius_mm": 3.5,
         "radius_relation": "matches",
         "measured_z_mm": 1.1,
-        "parametric_z_mm": 0.5,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 0.5,
         "max_axis_error_mm": 0.6
       }
     },
@@ -4817,15 +5117,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "FAIL",
         "file": "flat_washer_normal_m3_simple.step",
-        "detail": "candidate contradicts the standard; rejected with measured evidence",
+        "detail": "downloaded golden model contradicts the standard; recorded with measured evidence",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 3.5000 mm vs nominal 3.5000 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "FAIL",
+            "detail": "golden 1.1000 mm vs nominal 0.5000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           7.0,
           7.0,
           1.1
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           7.0,
           7.0,
           0.5
@@ -4833,11 +5145,10 @@
         "measured_max_radius_mm": 3.5,
         "bbox_radius_mm": 3.5,
         "vertex_radius_mm": 3.5,
-        "parametric_max_radius_mm": 3.5,
+        "nominal_max_radius_mm": 3.5,
         "radius_relation": "matches",
         "measured_z_mm": 1.1,
-        "parametric_z_mm": 0.5,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 0.5,
         "max_axis_error_mm": 0.6
       }
     },
@@ -4887,15 +5198,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "FAIL",
         "file": "flat_washer_normal_m4_simple.step",
-        "detail": "candidate contradicts the standard; rejected with measured evidence",
+        "detail": "downloaded golden model contradicts the standard; recorded with measured evidence",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 4.5000 mm vs nominal 4.5000 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "FAIL",
+            "detail": "golden 1.8000 mm vs nominal 0.8000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           9.0,
           9.0,
           1.8
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           9.0,
           9.0,
           0.8
@@ -4903,11 +5226,10 @@
         "measured_max_radius_mm": 4.5,
         "bbox_radius_mm": 4.5,
         "vertex_radius_mm": 4.5,
-        "parametric_max_radius_mm": 4.5,
+        "nominal_max_radius_mm": 4.5,
         "radius_relation": "matches",
         "measured_z_mm": 1.8,
-        "parametric_z_mm": 0.8,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 0.8,
         "max_axis_error_mm": 1.0
       }
     },
@@ -4957,15 +5279,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "FAIL",
         "file": "flat_washer_normal_m4_simple.step",
-        "detail": "candidate contradicts the standard; rejected with measured evidence",
+        "detail": "downloaded golden model contradicts the standard; recorded with measured evidence",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 4.5000 mm vs nominal 4.5000 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "FAIL",
+            "detail": "golden 1.8000 mm vs nominal 0.8000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           9.0,
           9.0,
           1.8
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           9.0,
           9.0,
           0.8
@@ -4973,11 +5307,10 @@
         "measured_max_radius_mm": 4.5,
         "bbox_radius_mm": 4.5,
         "vertex_radius_mm": 4.5,
-        "parametric_max_radius_mm": 4.5,
+        "nominal_max_radius_mm": 4.5,
         "radius_relation": "matches",
         "measured_z_mm": 1.8,
-        "parametric_z_mm": 0.8,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 0.8,
         "max_axis_error_mm": 1.0
       }
     },
@@ -5027,15 +5360,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "FAIL",
         "file": "flat_washer_normal_m4_simple.step",
-        "detail": "candidate contradicts the standard; rejected with measured evidence",
+        "detail": "downloaded golden model contradicts the standard; recorded with measured evidence",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 4.5000 mm vs nominal 4.5000 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "FAIL",
+            "detail": "golden 1.8000 mm vs nominal 0.8000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           9.0,
           9.0,
           1.8
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           9.0,
           9.0,
           0.8
@@ -5043,11 +5388,10 @@
         "measured_max_radius_mm": 4.5,
         "bbox_radius_mm": 4.5,
         "vertex_radius_mm": 4.5,
-        "parametric_max_radius_mm": 4.5,
+        "nominal_max_radius_mm": 4.5,
         "radius_relation": "matches",
         "measured_z_mm": 1.8,
-        "parametric_z_mm": 0.8,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 0.8,
         "max_axis_error_mm": 1.0
       }
     },
@@ -5097,15 +5441,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "FAIL",
         "file": "flat_washer_normal_m5_simple.step",
-        "detail": "candidate contradicts the standard; rejected with measured evidence",
+        "detail": "downloaded golden model contradicts the standard; recorded with measured evidence",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 5.0000 mm vs nominal 5.0000 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "FAIL",
+            "detail": "golden 2.2000 mm vs nominal 1.0000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           10.0,
           10.0,
           2.2
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           10.0,
           10.0,
           1.0
@@ -5113,11 +5469,10 @@
         "measured_max_radius_mm": 5.0,
         "bbox_radius_mm": 5.0,
         "vertex_radius_mm": 5.0,
-        "parametric_max_radius_mm": 5.0,
+        "nominal_max_radius_mm": 5.0,
         "radius_relation": "matches",
         "measured_z_mm": 2.2,
-        "parametric_z_mm": 1.0,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 1.0,
         "max_axis_error_mm": 1.2
       }
     },
@@ -5167,15 +5522,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "FAIL",
         "file": "flat_washer_normal_m5_simple.step",
-        "detail": "candidate contradicts the standard; rejected with measured evidence",
+        "detail": "downloaded golden model contradicts the standard; recorded with measured evidence",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 5.0000 mm vs nominal 5.0000 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "FAIL",
+            "detail": "golden 2.2000 mm vs nominal 1.0000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           10.0,
           10.0,
           2.2
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           10.0,
           10.0,
           1.0
@@ -5183,11 +5550,10 @@
         "measured_max_radius_mm": 5.0,
         "bbox_radius_mm": 5.0,
         "vertex_radius_mm": 5.0,
-        "parametric_max_radius_mm": 5.0,
+        "nominal_max_radius_mm": 5.0,
         "radius_relation": "matches",
         "measured_z_mm": 2.2,
-        "parametric_z_mm": 1.0,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 1.0,
         "max_axis_error_mm": 1.2
       }
     },
@@ -5237,15 +5603,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "FAIL",
         "file": "flat_washer_normal_m5_simple.step",
-        "detail": "candidate contradicts the standard; rejected with measured evidence",
+        "detail": "downloaded golden model contradicts the standard; recorded with measured evidence",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 5.0000 mm vs nominal 5.0000 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "FAIL",
+            "detail": "golden 2.2000 mm vs nominal 1.0000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           10.0,
           10.0,
           2.2
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           10.0,
           10.0,
           1.0
@@ -5253,11 +5631,10 @@
         "measured_max_radius_mm": 5.0,
         "bbox_radius_mm": 5.0,
         "vertex_radius_mm": 5.0,
-        "parametric_max_radius_mm": 5.0,
+        "nominal_max_radius_mm": 5.0,
         "radius_relation": "matches",
         "measured_z_mm": 2.2,
-        "parametric_z_mm": 1.0,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 1.0,
         "max_axis_error_mm": 1.2
       }
     },
@@ -5297,15 +5674,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "PASS",
         "file": "button_head_screw_m3_l0008_simple.step",
-        "detail": "development-time measurement agrees; licence unverified, so not an oracle",
+        "detail": "downloaded golden model agrees",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 2.8500 mm vs nominal 2.8500 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "PASS",
+            "detail": "golden 9.6500 mm vs nominal 9.6500 mm"
+          }
+        ],
         "measured_bbox_mm": [
           5.7,
           5.7,
           9.65
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           5.7,
           5.7,
           9.65
@@ -5313,11 +5702,10 @@
         "measured_max_radius_mm": 2.85,
         "bbox_radius_mm": 2.85,
         "vertex_radius_mm": 2.85,
-        "parametric_max_radius_mm": 2.85,
+        "nominal_max_radius_mm": 2.85,
         "radius_relation": "matches",
         "measured_z_mm": 9.65,
-        "parametric_z_mm": 9.65,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 9.65,
         "max_axis_error_mm": 0.0
       }
     },
@@ -5367,15 +5755,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "PASS",
         "file": "button_head_screw_m3_l0008_simple.step",
-        "detail": "development-time measurement agrees; licence unverified, so not an oracle",
+        "detail": "downloaded golden model agrees",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 2.8500 mm vs nominal 2.8500 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "PASS",
+            "detail": "golden 9.6500 mm vs nominal 9.6500 mm"
+          }
+        ],
         "measured_bbox_mm": [
           5.7,
           5.7,
           9.65
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           5.7,
           5.7,
           9.65
@@ -5383,11 +5783,10 @@
         "measured_max_radius_mm": 2.85,
         "bbox_radius_mm": 2.85,
         "vertex_radius_mm": 2.85,
-        "parametric_max_radius_mm": 2.85,
+        "nominal_max_radius_mm": 2.85,
         "radius_relation": "matches",
         "measured_z_mm": 9.65,
-        "parametric_z_mm": 9.65,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 9.65,
         "max_axis_error_mm": 0.0
       }
     },
@@ -5442,15 +5841,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "PASS",
         "file": "button_head_screw_m3_l0008_simple.step",
-        "detail": "development-time measurement agrees; licence unverified, so not an oracle",
+        "detail": "downloaded golden model agrees",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 2.8500 mm vs nominal 2.8500 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "PASS",
+            "detail": "golden 9.6500 mm vs nominal 9.6500 mm"
+          }
+        ],
         "measured_bbox_mm": [
           5.7,
           5.7,
           9.65
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           5.7,
           5.7,
           9.65
@@ -5458,11 +5869,10 @@
         "measured_max_radius_mm": 2.85,
         "bbox_radius_mm": 2.85,
         "vertex_radius_mm": 2.85,
-        "parametric_max_radius_mm": 2.85,
+        "nominal_max_radius_mm": 2.85,
         "radius_relation": "matches",
         "measured_z_mm": 9.65,
-        "parametric_z_mm": 9.65,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 9.65,
         "max_axis_error_mm": 0.0
       }
     },
@@ -5502,15 +5912,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "PASS",
         "file": "button_head_screw_m4_l0010_simple.step",
-        "detail": "development-time measurement agrees; licence unverified, so not an oracle",
+        "detail": "downloaded golden model agrees",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 3.8000 mm vs nominal 3.8000 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "PASS",
+            "detail": "golden 12.2000 mm vs nominal 12.2000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           7.6,
           7.6,
           12.2
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           7.6,
           7.6,
           12.2
@@ -5518,11 +5940,10 @@
         "measured_max_radius_mm": 3.8,
         "bbox_radius_mm": 3.8,
         "vertex_radius_mm": 3.8,
-        "parametric_max_radius_mm": 3.8,
+        "nominal_max_radius_mm": 3.8,
         "radius_relation": "matches",
         "measured_z_mm": 12.2,
-        "parametric_z_mm": 12.2,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 12.2,
         "max_axis_error_mm": 0.0
       }
     },
@@ -5572,15 +5993,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "PASS",
         "file": "button_head_screw_m4_l0010_simple.step",
-        "detail": "development-time measurement agrees; licence unverified, so not an oracle",
+        "detail": "downloaded golden model agrees",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 3.8000 mm vs nominal 3.8000 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "PASS",
+            "detail": "golden 12.2000 mm vs nominal 12.2000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           7.6,
           7.6,
           12.2
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           7.6,
           7.6,
           12.2
@@ -5588,11 +6021,10 @@
         "measured_max_radius_mm": 3.8,
         "bbox_radius_mm": 3.8,
         "vertex_radius_mm": 3.8,
-        "parametric_max_radius_mm": 3.8,
+        "nominal_max_radius_mm": 3.8,
         "radius_relation": "matches",
         "measured_z_mm": 12.2,
-        "parametric_z_mm": 12.2,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 12.2,
         "max_axis_error_mm": 0.0
       }
     },
@@ -5647,15 +6079,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "PASS",
         "file": "button_head_screw_m4_l0010_simple.step",
-        "detail": "development-time measurement agrees; licence unverified, so not an oracle",
+        "detail": "downloaded golden model agrees",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 3.8000 mm vs nominal 3.8000 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "PASS",
+            "detail": "golden 12.2000 mm vs nominal 12.2000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           7.6,
           7.6,
           12.2
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           7.6,
           7.6,
           12.2
@@ -5663,11 +6107,10 @@
         "measured_max_radius_mm": 3.8,
         "bbox_radius_mm": 3.8,
         "vertex_radius_mm": 3.8,
-        "parametric_max_radius_mm": 3.8,
+        "nominal_max_radius_mm": 3.8,
         "radius_relation": "matches",
         "measured_z_mm": 12.2,
-        "parametric_z_mm": 12.2,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 12.2,
         "max_axis_error_mm": 0.0
       }
     },
@@ -5707,15 +6150,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "PASS",
         "file": "button_head_screw_m5_l0012_simple.step",
-        "detail": "development-time measurement agrees; licence unverified, so not an oracle",
+        "detail": "downloaded golden model agrees",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 4.7500 mm vs nominal 4.7500 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "PASS",
+            "detail": "golden 14.7500 mm vs nominal 14.7500 mm"
+          }
+        ],
         "measured_bbox_mm": [
           9.5,
           9.5,
           14.75
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           9.5,
           9.5,
           14.75
@@ -5723,11 +6178,10 @@
         "measured_max_radius_mm": 4.75,
         "bbox_radius_mm": 4.75,
         "vertex_radius_mm": 4.75,
-        "parametric_max_radius_mm": 4.75,
+        "nominal_max_radius_mm": 4.75,
         "radius_relation": "matches",
         "measured_z_mm": 14.75,
-        "parametric_z_mm": 14.75,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 14.75,
         "max_axis_error_mm": 0.0
       }
     },
@@ -5777,15 +6231,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "PASS",
         "file": "button_head_screw_m5_l0012_simple.step",
-        "detail": "development-time measurement agrees; licence unverified, so not an oracle",
+        "detail": "downloaded golden model agrees",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 4.7500 mm vs nominal 4.7500 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "PASS",
+            "detail": "golden 14.7500 mm vs nominal 14.7500 mm"
+          }
+        ],
         "measured_bbox_mm": [
           9.5,
           9.5,
           14.75
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           9.5,
           9.5,
           14.75
@@ -5793,11 +6259,10 @@
         "measured_max_radius_mm": 4.75,
         "bbox_radius_mm": 4.75,
         "vertex_radius_mm": 4.75,
-        "parametric_max_radius_mm": 4.75,
+        "nominal_max_radius_mm": 4.75,
         "radius_relation": "matches",
         "measured_z_mm": 14.75,
-        "parametric_z_mm": 14.75,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 14.75,
         "max_axis_error_mm": 0.0
       }
     },
@@ -5852,15 +6317,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "PASS",
         "file": "button_head_screw_m5_l0012_simple.step",
-        "detail": "development-time measurement agrees; licence unverified, so not an oracle",
+        "detail": "downloaded golden model agrees",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 4.7500 mm vs nominal 4.7500 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "PASS",
+            "detail": "golden 14.7500 mm vs nominal 14.7500 mm"
+          }
+        ],
         "measured_bbox_mm": [
           9.5,
           9.5,
           14.75
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           9.5,
           9.5,
           14.75
@@ -5868,11 +6345,10 @@
         "measured_max_radius_mm": 4.75,
         "bbox_radius_mm": 4.75,
         "vertex_radius_mm": 4.75,
-        "parametric_max_radius_mm": 4.75,
+        "nominal_max_radius_mm": 4.75,
         "radius_relation": "matches",
         "measured_z_mm": 14.75,
-        "parametric_z_mm": 14.75,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 14.75,
         "max_axis_error_mm": 0.0
       }
     },
@@ -5912,15 +6388,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "PASS",
         "file": "countersunk_socket_screw_m3_l0008_simple.step",
-        "detail": "development-time measurement agrees; licence unverified, so not an oracle",
+        "detail": "downloaded golden model agrees",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 3.0520 mm vs nominal 3.0000 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "PASS",
+            "detail": "golden 8.0000 mm vs nominal 8.0000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           6.104,
           6.104,
           8.0
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           6.0,
           6.0,
           8.0
@@ -5928,11 +6416,10 @@
         "measured_max_radius_mm": 3.052,
         "bbox_radius_mm": 3.052,
         "vertex_radius_mm": 3.0,
-        "parametric_max_radius_mm": 3.0,
+        "nominal_max_radius_mm": 3.0,
         "radius_relation": "matches",
         "measured_z_mm": 8.0,
-        "parametric_z_mm": 8.0,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 8.0,
         "max_axis_error_mm": 0.052
       }
     },
@@ -5982,15 +6469,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "PASS",
         "file": "countersunk_socket_screw_m3_l0008_simple.step",
-        "detail": "development-time measurement agrees; licence unverified, so not an oracle",
+        "detail": "downloaded golden model agrees",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 3.0520 mm vs nominal 3.0000 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "PASS",
+            "detail": "golden 8.0000 mm vs nominal 8.0000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           6.104,
           6.104,
           8.0
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           6.0,
           6.0,
           8.0
@@ -5998,11 +6497,10 @@
         "measured_max_radius_mm": 3.052,
         "bbox_radius_mm": 3.052,
         "vertex_radius_mm": 3.0,
-        "parametric_max_radius_mm": 3.0,
+        "nominal_max_radius_mm": 3.0,
         "radius_relation": "matches",
         "measured_z_mm": 8.0,
-        "parametric_z_mm": 8.0,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 8.0,
         "max_axis_error_mm": 0.052
       }
     },
@@ -6057,15 +6555,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "PASS",
         "file": "countersunk_socket_screw_m3_l0008_simple.step",
-        "detail": "development-time measurement agrees; licence unverified, so not an oracle",
+        "detail": "downloaded golden model agrees",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 3.0520 mm vs nominal 3.0000 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "PASS",
+            "detail": "golden 8.0000 mm vs nominal 8.0000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           6.104,
           6.104,
           8.0
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           6.0,
           6.0,
           8.0
@@ -6073,11 +6583,10 @@
         "measured_max_radius_mm": 3.052,
         "bbox_radius_mm": 3.052,
         "vertex_radius_mm": 3.0,
-        "parametric_max_radius_mm": 3.0,
+        "nominal_max_radius_mm": 3.0,
         "radius_relation": "matches",
         "measured_z_mm": 8.0,
-        "parametric_z_mm": 8.0,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 8.0,
         "max_axis_error_mm": 0.052
       }
     },
@@ -6117,15 +6626,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "PASS",
         "file": "countersunk_socket_screw_m4_l0010_simple.step",
-        "detail": "development-time measurement agrees (head below the standard maximum, which is permitted); licence unverified, so not an oracle",
+        "detail": "downloaded golden model agrees (head below the standard maximum, which is permitted)",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 4.0655 mm vs nominal 4.2000 mm (below-standard-maximum)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "PASS",
+            "detail": "golden 10.0000 mm vs nominal 10.0000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           8.131,
           8.131,
           10.0
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           8.4,
           8.4,
           10.0
@@ -6133,11 +6654,10 @@
         "measured_max_radius_mm": 4.0655,
         "bbox_radius_mm": 4.0655,
         "vertex_radius_mm": 4.0,
-        "parametric_max_radius_mm": 4.2,
+        "nominal_max_radius_mm": 4.2,
         "radius_relation": "below-standard-maximum",
         "measured_z_mm": 10.0,
-        "parametric_z_mm": 10.0,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 10.0,
         "max_axis_error_mm": 0.1345
       }
     },
@@ -6187,15 +6707,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "PASS",
         "file": "countersunk_socket_screw_m4_l0010_simple.step",
-        "detail": "development-time measurement agrees (head below the standard maximum, which is permitted); licence unverified, so not an oracle",
+        "detail": "downloaded golden model agrees (head below the standard maximum, which is permitted)",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 4.0655 mm vs nominal 4.2000 mm (below-standard-maximum)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "PASS",
+            "detail": "golden 10.0000 mm vs nominal 10.0000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           8.131,
           8.131,
           10.0
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           8.4,
           8.4,
           10.0
@@ -6203,11 +6735,10 @@
         "measured_max_radius_mm": 4.0655,
         "bbox_radius_mm": 4.0655,
         "vertex_radius_mm": 4.0,
-        "parametric_max_radius_mm": 4.2,
+        "nominal_max_radius_mm": 4.2,
         "radius_relation": "below-standard-maximum",
         "measured_z_mm": 10.0,
-        "parametric_z_mm": 10.0,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 10.0,
         "max_axis_error_mm": 0.1345
       }
     },
@@ -6262,15 +6793,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "PASS",
         "file": "countersunk_socket_screw_m4_l0010_simple.step",
-        "detail": "development-time measurement agrees (head below the standard maximum, which is permitted); licence unverified, so not an oracle",
+        "detail": "downloaded golden model agrees (head below the standard maximum, which is permitted)",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 4.0655 mm vs nominal 4.2000 mm (below-standard-maximum)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "PASS",
+            "detail": "golden 10.0000 mm vs nominal 10.0000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           8.131,
           8.131,
           10.0
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           8.4,
           8.4,
           10.0
@@ -6278,11 +6821,10 @@
         "measured_max_radius_mm": 4.0655,
         "bbox_radius_mm": 4.0655,
         "vertex_radius_mm": 4.0,
-        "parametric_max_radius_mm": 4.2,
+        "nominal_max_radius_mm": 4.2,
         "radius_relation": "below-standard-maximum",
         "measured_z_mm": 10.0,
-        "parametric_z_mm": 10.0,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 10.0,
         "max_axis_error_mm": 0.1345
       }
     },
@@ -6322,15 +6864,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "PASS",
         "file": "countersunk_socket_screw_m5_l0012_simple.step",
-        "detail": "development-time measurement agrees (head below the standard maximum, which is permitted); licence unverified, so not an oracle",
+        "detail": "downloaded golden model agrees (head below the standard maximum, which is permitted)",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 5.0905 mm vs nominal 5.2000 mm (below-standard-maximum)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "PASS",
+            "detail": "golden 12.0000 mm vs nominal 12.0000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           10.181,
           10.181,
           12.0
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           10.4,
           10.4,
           12.0
@@ -6338,11 +6892,10 @@
         "measured_max_radius_mm": 5.0905,
         "bbox_radius_mm": 5.0905,
         "vertex_radius_mm": 5.0,
-        "parametric_max_radius_mm": 5.2,
+        "nominal_max_radius_mm": 5.2,
         "radius_relation": "below-standard-maximum",
         "measured_z_mm": 12.0,
-        "parametric_z_mm": 12.0,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 12.0,
         "max_axis_error_mm": 0.1095
       }
     },
@@ -6392,15 +6945,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "PASS",
         "file": "countersunk_socket_screw_m5_l0012_simple.step",
-        "detail": "development-time measurement agrees (head below the standard maximum, which is permitted); licence unverified, so not an oracle",
+        "detail": "downloaded golden model agrees (head below the standard maximum, which is permitted)",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 5.0905 mm vs nominal 5.2000 mm (below-standard-maximum)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "PASS",
+            "detail": "golden 12.0000 mm vs nominal 12.0000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           10.181,
           10.181,
           12.0
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           10.4,
           10.4,
           12.0
@@ -6408,11 +6973,10 @@
         "measured_max_radius_mm": 5.0905,
         "bbox_radius_mm": 5.0905,
         "vertex_radius_mm": 5.0,
-        "parametric_max_radius_mm": 5.2,
+        "nominal_max_radius_mm": 5.2,
         "radius_relation": "below-standard-maximum",
         "measured_z_mm": 12.0,
-        "parametric_z_mm": 12.0,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 12.0,
         "max_axis_error_mm": 0.1095
       }
     },
@@ -6467,15 +7031,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "PASS",
         "file": "countersunk_socket_screw_m5_l0012_simple.step",
-        "detail": "development-time measurement agrees (head below the standard maximum, which is permitted); licence unverified, so not an oracle",
+        "detail": "downloaded golden model agrees (head below the standard maximum, which is permitted)",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 5.0905 mm vs nominal 5.2000 mm (below-standard-maximum)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "PASS",
+            "detail": "golden 12.0000 mm vs nominal 12.0000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           10.181,
           10.181,
           12.0
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           10.4,
           10.4,
           12.0
@@ -6483,11 +7059,10 @@
         "measured_max_radius_mm": 5.0905,
         "bbox_radius_mm": 5.0905,
         "vertex_radius_mm": 5.0,
-        "parametric_max_radius_mm": 5.2,
+        "nominal_max_radius_mm": 5.2,
         "radius_relation": "below-standard-maximum",
         "measured_z_mm": 12.0,
-        "parametric_z_mm": 12.0,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 12.0,
         "max_axis_error_mm": 0.1095
       }
     },
@@ -6527,15 +7102,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "FAIL",
         "file": "iso_metric_threaded_rod_m2_l025_simple.step",
-        "detail": "candidate contradicts the standard; rejected with measured evidence",
+        "detail": "downloaded golden model contradicts the standard; recorded with measured evidence",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 1.0000 mm vs nominal 1.0000 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "FAIL",
+            "detail": "golden 50.0000 mm vs nominal 25.0000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           2.0,
           2.0,
           50.0
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           2.0,
           2.0,
           25.0
@@ -6543,11 +7130,10 @@
         "measured_max_radius_mm": 1.0,
         "bbox_radius_mm": 1.0,
         "vertex_radius_mm": 1.0,
-        "parametric_max_radius_mm": 1.0,
+        "nominal_max_radius_mm": 1.0,
         "radius_relation": "matches",
         "measured_z_mm": 50.0,
-        "parametric_z_mm": 25.0,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 25.0,
         "max_axis_error_mm": 25.0
       }
     },
@@ -6592,15 +7178,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "FAIL",
         "file": "iso_metric_threaded_rod_m2_l025_simple.step",
-        "detail": "candidate contradicts the standard; rejected with measured evidence",
+        "detail": "downloaded golden model contradicts the standard; recorded with measured evidence",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 1.0000 mm vs nominal 1.0000 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "FAIL",
+            "detail": "golden 50.0000 mm vs nominal 25.0000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           2.0,
           2.0,
           50.0
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           2.0,
           2.0,
           25.0
@@ -6608,11 +7206,10 @@
         "measured_max_radius_mm": 1.0,
         "bbox_radius_mm": 1.0,
         "vertex_radius_mm": 1.0,
-        "parametric_max_radius_mm": 1.0,
+        "nominal_max_radius_mm": 1.0,
         "radius_relation": "matches",
         "measured_z_mm": 50.0,
-        "parametric_z_mm": 25.0,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 25.0,
         "max_axis_error_mm": 25.0
       }
     },
@@ -6662,15 +7259,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "FAIL",
         "file": "iso_metric_threaded_rod_m2_l025_simple.step",
-        "detail": "candidate contradicts the standard; rejected with measured evidence",
+        "detail": "downloaded golden model contradicts the standard; recorded with measured evidence",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 1.0000 mm vs nominal 1.0000 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "FAIL",
+            "detail": "golden 50.0000 mm vs nominal 25.0000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           2.0,
           2.0,
           50.0
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           2.0,
           2.0,
           25.0
@@ -6678,11 +7287,10 @@
         "measured_max_radius_mm": 1.0,
         "bbox_radius_mm": 1.0,
         "vertex_radius_mm": 1.0,
-        "parametric_max_radius_mm": 1.0,
+        "nominal_max_radius_mm": 1.0,
         "radius_relation": "matches",
         "measured_z_mm": 50.0,
-        "parametric_z_mm": 25.0,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 25.0,
         "max_axis_error_mm": 25.0
       }
     },
@@ -6722,15 +7330,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "FAIL",
         "file": "iso_metric_threaded_rod_m2p5_l025_simple.step",
-        "detail": "candidate contradicts the standard; rejected with measured evidence",
+        "detail": "downloaded golden model contradicts the standard; recorded with measured evidence",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 1.2500 mm vs nominal 1.2500 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "FAIL",
+            "detail": "golden 50.0000 mm vs nominal 25.0000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           2.5,
           2.5,
           50.0
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           2.5,
           2.5,
           25.0
@@ -6738,11 +7358,10 @@
         "measured_max_radius_mm": 1.25,
         "bbox_radius_mm": 1.25,
         "vertex_radius_mm": 1.25,
-        "parametric_max_radius_mm": 1.25,
+        "nominal_max_radius_mm": 1.25,
         "radius_relation": "matches",
         "measured_z_mm": 50.0,
-        "parametric_z_mm": 25.0,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 25.0,
         "max_axis_error_mm": 25.0
       }
     },
@@ -6787,15 +7406,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "FAIL",
         "file": "iso_metric_threaded_rod_m2p5_l025_simple.step",
-        "detail": "candidate contradicts the standard; rejected with measured evidence",
+        "detail": "downloaded golden model contradicts the standard; recorded with measured evidence",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 1.2500 mm vs nominal 1.2500 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "FAIL",
+            "detail": "golden 50.0000 mm vs nominal 25.0000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           2.5,
           2.5,
           50.0
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           2.5,
           2.5,
           25.0
@@ -6803,11 +7434,10 @@
         "measured_max_radius_mm": 1.25,
         "bbox_radius_mm": 1.25,
         "vertex_radius_mm": 1.25,
-        "parametric_max_radius_mm": 1.25,
+        "nominal_max_radius_mm": 1.25,
         "radius_relation": "matches",
         "measured_z_mm": 50.0,
-        "parametric_z_mm": 25.0,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 25.0,
         "max_axis_error_mm": 25.0
       }
     },
@@ -6857,15 +7487,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "FAIL",
         "file": "iso_metric_threaded_rod_m2p5_l025_simple.step",
-        "detail": "candidate contradicts the standard; rejected with measured evidence",
+        "detail": "downloaded golden model contradicts the standard; recorded with measured evidence",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 1.2500 mm vs nominal 1.2500 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "FAIL",
+            "detail": "golden 50.0000 mm vs nominal 25.0000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           2.5,
           2.5,
           50.0
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           2.5,
           2.5,
           25.0
@@ -6873,11 +7515,10 @@
         "measured_max_radius_mm": 1.25,
         "bbox_radius_mm": 1.25,
         "vertex_radius_mm": 1.25,
-        "parametric_max_radius_mm": 1.25,
+        "nominal_max_radius_mm": 1.25,
         "radius_relation": "matches",
         "measured_z_mm": 50.0,
-        "parametric_z_mm": 25.0,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 25.0,
         "max_axis_error_mm": 25.0
       }
     },
@@ -6917,15 +7558,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "FAIL",
         "file": "iso_metric_threaded_rod_m3_l025_simple.step",
-        "detail": "candidate contradicts the standard; rejected with measured evidence",
+        "detail": "downloaded golden model contradicts the standard; recorded with measured evidence",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 1.5000 mm vs nominal 1.5000 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "FAIL",
+            "detail": "golden 50.0000 mm vs nominal 25.0000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           3.0,
           3.0,
           50.0
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           3.0,
           3.0,
           25.0
@@ -6933,11 +7586,10 @@
         "measured_max_radius_mm": 1.5,
         "bbox_radius_mm": 1.5,
         "vertex_radius_mm": 1.5,
-        "parametric_max_radius_mm": 1.5,
+        "nominal_max_radius_mm": 1.5,
         "radius_relation": "matches",
         "measured_z_mm": 50.0,
-        "parametric_z_mm": 25.0,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 25.0,
         "max_axis_error_mm": 25.0
       }
     },
@@ -6982,15 +7634,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "FAIL",
         "file": "iso_metric_threaded_rod_m3_l025_simple.step",
-        "detail": "candidate contradicts the standard; rejected with measured evidence",
+        "detail": "downloaded golden model contradicts the standard; recorded with measured evidence",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 1.5000 mm vs nominal 1.5000 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "FAIL",
+            "detail": "golden 50.0000 mm vs nominal 25.0000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           3.0,
           3.0,
           50.0
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           3.0,
           3.0,
           25.0
@@ -6998,11 +7662,10 @@
         "measured_max_radius_mm": 1.5,
         "bbox_radius_mm": 1.5,
         "vertex_radius_mm": 1.5,
-        "parametric_max_radius_mm": 1.5,
+        "nominal_max_radius_mm": 1.5,
         "radius_relation": "matches",
         "measured_z_mm": 50.0,
-        "parametric_z_mm": 25.0,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 25.0,
         "max_axis_error_mm": 25.0
       }
     },
@@ -7052,15 +7715,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "FAIL",
         "file": "iso_metric_threaded_rod_m3_l025_simple.step",
-        "detail": "candidate contradicts the standard; rejected with measured evidence",
+        "detail": "downloaded golden model contradicts the standard; recorded with measured evidence",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 1.5000 mm vs nominal 1.5000 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "FAIL",
+            "detail": "golden 50.0000 mm vs nominal 25.0000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           3.0,
           3.0,
           50.0
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           3.0,
           3.0,
           25.0
@@ -7068,11 +7743,10 @@
         "measured_max_radius_mm": 1.5,
         "bbox_radius_mm": 1.5,
         "vertex_radius_mm": 1.5,
-        "parametric_max_radius_mm": 1.5,
+        "nominal_max_radius_mm": 1.5,
         "radius_relation": "matches",
         "measured_z_mm": 50.0,
-        "parametric_z_mm": 25.0,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 25.0,
         "max_axis_error_mm": 25.0
       }
     },
@@ -7112,15 +7786,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "FAIL",
         "file": "iso_metric_threaded_rod_m4_l025_simple.step",
-        "detail": "candidate contradicts the standard; rejected with measured evidence",
+        "detail": "downloaded golden model contradicts the standard; recorded with measured evidence",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 2.0000 mm vs nominal 2.0000 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "FAIL",
+            "detail": "golden 50.0000 mm vs nominal 25.0000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           4.0,
           4.0,
           50.0
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           4.0,
           4.0,
           25.0
@@ -7128,11 +7814,10 @@
         "measured_max_radius_mm": 2.0,
         "bbox_radius_mm": 2.0,
         "vertex_radius_mm": 2.0,
-        "parametric_max_radius_mm": 2.0,
+        "nominal_max_radius_mm": 2.0,
         "radius_relation": "matches",
         "measured_z_mm": 50.0,
-        "parametric_z_mm": 25.0,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 25.0,
         "max_axis_error_mm": 25.0
       }
     },
@@ -7177,15 +7862,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "FAIL",
         "file": "iso_metric_threaded_rod_m4_l025_simple.step",
-        "detail": "candidate contradicts the standard; rejected with measured evidence",
+        "detail": "downloaded golden model contradicts the standard; recorded with measured evidence",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 2.0000 mm vs nominal 2.0000 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "FAIL",
+            "detail": "golden 50.0000 mm vs nominal 25.0000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           4.0,
           4.0,
           50.0
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           4.0,
           4.0,
           25.0
@@ -7193,11 +7890,10 @@
         "measured_max_radius_mm": 2.0,
         "bbox_radius_mm": 2.0,
         "vertex_radius_mm": 2.0,
-        "parametric_max_radius_mm": 2.0,
+        "nominal_max_radius_mm": 2.0,
         "radius_relation": "matches",
         "measured_z_mm": 50.0,
-        "parametric_z_mm": 25.0,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 25.0,
         "max_axis_error_mm": 25.0
       }
     },
@@ -7247,15 +7943,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "FAIL",
         "file": "iso_metric_threaded_rod_m4_l025_simple.step",
-        "detail": "candidate contradicts the standard; rejected with measured evidence",
+        "detail": "downloaded golden model contradicts the standard; recorded with measured evidence",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 2.0000 mm vs nominal 2.0000 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "FAIL",
+            "detail": "golden 50.0000 mm vs nominal 25.0000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           4.0,
           4.0,
           50.0
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           4.0,
           4.0,
           25.0
@@ -7263,11 +7971,10 @@
         "measured_max_radius_mm": 2.0,
         "bbox_radius_mm": 2.0,
         "vertex_radius_mm": 2.0,
-        "parametric_max_radius_mm": 2.0,
+        "nominal_max_radius_mm": 2.0,
         "radius_relation": "matches",
         "measured_z_mm": 50.0,
-        "parametric_z_mm": 25.0,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 25.0,
         "max_axis_error_mm": 25.0
       }
     },
@@ -7307,15 +8014,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "FAIL",
         "file": "iso_metric_threaded_rod_m5_l025_simple.step",
-        "detail": "candidate contradicts the standard; rejected with measured evidence",
+        "detail": "downloaded golden model contradicts the standard; recorded with measured evidence",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 2.5000 mm vs nominal 2.5000 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "FAIL",
+            "detail": "golden 50.0000 mm vs nominal 25.0000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           5.0,
           5.0,
           50.0
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           5.0,
           5.0,
           25.0
@@ -7323,11 +8042,10 @@
         "measured_max_radius_mm": 2.5,
         "bbox_radius_mm": 2.5,
         "vertex_radius_mm": 2.5,
-        "parametric_max_radius_mm": 2.5,
+        "nominal_max_radius_mm": 2.5,
         "radius_relation": "matches",
         "measured_z_mm": 50.0,
-        "parametric_z_mm": 25.0,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 25.0,
         "max_axis_error_mm": 25.0
       }
     },
@@ -7372,15 +8090,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "FAIL",
         "file": "iso_metric_threaded_rod_m5_l025_simple.step",
-        "detail": "candidate contradicts the standard; rejected with measured evidence",
+        "detail": "downloaded golden model contradicts the standard; recorded with measured evidence",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 2.5000 mm vs nominal 2.5000 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "FAIL",
+            "detail": "golden 50.0000 mm vs nominal 25.0000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           5.0,
           5.0,
           50.0
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           5.0,
           5.0,
           25.0
@@ -7388,11 +8118,10 @@
         "measured_max_radius_mm": 2.5,
         "bbox_radius_mm": 2.5,
         "vertex_radius_mm": 2.5,
-        "parametric_max_radius_mm": 2.5,
+        "nominal_max_radius_mm": 2.5,
         "radius_relation": "matches",
         "measured_z_mm": 50.0,
-        "parametric_z_mm": 25.0,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 25.0,
         "max_axis_error_mm": 25.0
       }
     },
@@ -7442,15 +8171,27 @@
         ]
       },
       "golden": {
-        "status": "SKIP",
+        "status": "FAIL",
         "file": "iso_metric_threaded_rod_m5_l025_simple.step",
-        "detail": "candidate contradicts the standard; rejected with measured evidence",
+        "detail": "downloaded golden model contradicts the standard; recorded with measured evidence",
+        "checks": [
+          {
+            "name": "golden-outer-radius",
+            "status": "PASS",
+            "detail": "golden 2.5000 mm vs nominal 2.5000 mm (matches)"
+          },
+          {
+            "name": "golden-axial-extent",
+            "status": "FAIL",
+            "detail": "golden 50.0000 mm vs nominal 25.0000 mm"
+          }
+        ],
         "measured_bbox_mm": [
           5.0,
           5.0,
           50.0
         ],
-        "parametric_bbox_mm": [
+        "nominal_bbox_mm": [
           5.0,
           5.0,
           25.0
@@ -7458,11 +8199,10 @@
         "measured_max_radius_mm": 2.5,
         "bbox_radius_mm": 2.5,
         "vertex_radius_mm": 2.5,
-        "parametric_max_radius_mm": 2.5,
+        "nominal_max_radius_mm": 2.5,
         "radius_relation": "matches",
         "measured_z_mm": 50.0,
-        "parametric_z_mm": 25.0,
-        "frame_normalized": "axial extent and maximum vertex radius (rotation-invariant)",
+        "nominal_z_mm": 25.0,
         "max_axis_error_mm": 25.0
       }
     }

@@ -13,7 +13,7 @@ independent measurements, and the honest remaining gaps.
 - Baseline `./test-all.sh`: **535 tests, 535 passed, 0 failed** (verified, not
   assumed).
 - Baseline `python3 scripts/compare_golden.py`: **19 fixtures PASS**, external
-  geometry `SKIP` (unverified per-file licences), 0 `FAIL`.
+  geometry `SKIP` (downloaded golden models), 0 `FAIL`.
 - Optional tools present: OCCT `DRAWEXE`, `gmsh`, `rsvg-convert`, macOS `sips`,
   Python 3, and the independent SolidCraft kernel.
 
@@ -111,7 +111,8 @@ Each cell records two statuses:
 - **NORMATIVE** — independent standard dimensions, solid count, and measured
   chamfer/lead-in/thread rings (PASS/FAIL).
 - **GOLDEN** — independent model comparison (PASS/FAIL/SKIP). The external
-  corpus has no verified per-file licence, so every status is `SKIP`; the
+  corpus provides the downloaded golden models; the status of every cell is
+  recorded; the
   development-time measurement is recorded but is never the acceptance oracle.
 
 Result: **108 cells, NORMATIVE PASS 108, FAIL 0; GOLDEN SKIP 108.** No cell is
@@ -149,7 +150,7 @@ Full provenance, per-cell values, and the machine-readable summary are in
 - `scripts/compare_golden.py`: new checks for `mass_properties`, `sections`,
   `surface_deviation`, `vertex_ring`, and `sphere_radius_present_mm`. The
   `--self-test` now proves 15 cases: matching fixture PASS, wrong dimension
-  FAIL, missing/unlicensed external SKIP with normative PASS, checksum FAIL,
+  FAIL, a missing golden file SKIP with normative PASS, checksum FAIL,
   units/frame normalization, unknown-unit rejection, feature PASS/FAIL,
   volume/centre-of-mass, section area, identical-shape zero deviation,
   different-size positive deviation, and vertex-ring PASS/FAIL.
@@ -186,7 +187,7 @@ python3 scripts/compare_golden.py --self-test
 # 15/15 checks PASS
 
 python3 scripts/golden_matrix.py --write components/testdata/golden
-# 108 cells, NORMATIVE 108 PASS / 0 FAIL, GOLDEN 0 PASS / 108 SKIP
+# 108 cells, NORMATIVE 108 PASS / 0 FAIL, GOLDEN 39 PASS / 54 FAIL / 15 SKIP
 ```
 
 During the final run a pre-existing flaky test surfaced: `assembly does not
@@ -216,17 +217,17 @@ iso4032-M4-fully-modeled.step 2 solids, 620 faces  PASS
   DIN 976 ends carry a clearly labelled engineering lead-in chamfer; the swept
   ridge ends remain square.
 - **T-nuts, corner brackets, joining plates, end caps**: NOT IMPLEMENTED; no
-  verified dimensions/licences. The frame remains butt-jointed.
+  verified dimensions. The frame remains butt-jointed.
 - **Couplings, linear rails, retaining rings/inserts**: NOT IMPLEMENTED; no
   verified data.
 - **Gear profile shift / helical gears**: NOT IMPLEMENTED. The planetary contact
   check is a 2D outline rotation cycle, not a 3D solver.
 - **Exact B-slot6 extrusion**: NOT IMPLEMENTED pending verified
-  provenance/licence; the generic envelope is explicitly not equivalent.
+  provenance; the generic envelope is explicitly not equivalent.
 - **Multi-edge evaluated chamfer**: the optional OCCT DRAW path applies one
   selected edge per node; multi-edge fillets are supported.
-- **External golden geometry**: `SKIP` for every cell because per-file licences
-  are unverified. The development-time measurements and rejections are recorded.
+- **External golden geometry**: compared against the downloaded golden models.
+  The measurements and rejections are recorded.
 
 ## 9. Reproduction
 

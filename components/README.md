@@ -74,8 +74,8 @@ moon run --target native components/examples/fasteners -- \
 - `STANDARDS.md` — standards covered, exact revisions used, supported sizes.
 - `DATA_SOURCES.md` — dimensional provenance and verification notes.
 - `AUDIT.md` — component inventory, defects by severity, and audit results.
-- `GOLDEN_REFERENCES.md` — external reference policy, licensing, comparison
-  rules, and verdicts.
+- `GOLDEN_REFERENCES.md` — golden reference source, comparison rules, and
+  verdicts.
 - `GEOMETRY.md` — units, axes, origins, frame semantics, detail levels,
   approximations, and collision policy.
 - `ASSEMBLIES.md` — assembly model, placements, patterns, contacts, and
@@ -119,9 +119,8 @@ moon run --target native components/examples/extrusion_frame -- \
   --views components/examples/output/views
 ```
 
-Golden references and their licensing status are documented in
-`GOLDEN_REFERENCES.md`; no external model is committed because per-file
-redistribution rights are unverified.
+Golden references are documented in `GOLDEN_REFERENCES.md`. The golden files
+are downloaded by the owner from the open-source step.parts corpus.
 
 ## Important limitations
 

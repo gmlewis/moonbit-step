@@ -146,6 +146,6 @@ These are documented engineering limitations, not undiscovered silence:
 - Bearing rolling elements are cylindrical proxies, not spheres.
 - The internal ring gear is a trapezoidal approximation, not an exact internal
   involute envelope.
-- External golden STEP models are not committed because per-file
-  redistribution rights are unverified; the fetch and comparison procedures
-  are documented.
+- Golden STEP models are downloaded by the repository owner from the
+  open-source step.parts corpus; the fetch and comparison procedures are
+  documented.

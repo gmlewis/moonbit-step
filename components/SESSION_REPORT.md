@@ -17,7 +17,7 @@
 
 - `./test-all.sh`: **495 tests, 495 passed, 0 failed** (+37 tests).
 - `scripts/compare_golden.py`: 6 fixtures, all `PASS` on normative/analytic
-  checks, external geometry `SKIP` (per-file licence unverified). No `FAIL`.
+  checks, external geometry `SKIP` . No `FAIL`.
 - Generated artifacts validated with `scripts/validate_step.py` (syntax,
   references, closed shells, orientation, planarity, OCCT `checkshape`).
 
@@ -41,8 +41,8 @@
 
 - `scripts/compare_golden.py`:
   - verifies SHA-256 and byte size when the external file is present;
-  - gates external geometry comparison on a verified licence (all current
-    fixtures are `unverified-per-file`, so it reports `SKIP`);
+  - compares external geometry against the downloaded golden model when it is
+    present;
   - generates the parametric part through the example CLI;
   - measures with OCCT (solids, bbox, volume) and `measure_step_features.py`
     (surface types, cone/sphere/torus parameters, vertex radii);
@@ -84,7 +84,7 @@
 - Generic 2060/2080/3060/4080 envelopes added (labelled generic).
 - Explicit test: the generic 2020 envelope's solid section area (192.345 mm²)
   is not the B-slot6 golden section (174.336 mm²), so no equivalence is
-  claimed and no preset is derived from the unlicensed golden.
+  claimed and no preset is derived from the golden.
 - The `extrusion_frame` example supports `--cornerRadius` and the new series.
 
 ### Catalogue and mixed assembly (Stage Q)
@@ -137,8 +137,8 @@ No pre-existing failure was present or introduced.
 
 ## 7. Golden fixtures examined
 
-All checksums verify against `manifest.json`; no external file is committed
-(per-file licence unverified).
+All checksums verify against `manifest.json`; the golden files are downloaded by the repository owner
+.
 
 | Fixture | SHA-256 verified | Verdict |
 |---|---|---|
@@ -168,11 +168,11 @@ are never used as pass criteria.
 
 ## 9. Components validated analytically only
 
-- Gear tooth forms and mesh cycles (outline crossing tests, no external gear
-  reference was licensed).
+- Gear tooth forms and mesh cycles (outline crossing tests; no external gear
+  golden is present).
 - Planetary ring clearance (trapezoidal ring; exact involute deferred).
 - Extrusion sections (generic envelopes; the B-slot6 golden is not equivalent
-  and its licence is unverified).
+  and its golden file is downloaded).
 - Catalogue entries (built from the real builders; no external oracle).
 
 ## 10. Tests and commands

@@ -98,7 +98,7 @@ and independent validation. See `AUDIT.md` and `PROGRESS.md` for the evidence.
     bore, and simple T-slots. The two must not be described as equivalent.
     Exact B-slot6 support is deferred to the next session because it requires
     an arc-capable 2D section representation and verification of the
-    reference's provenance/license. See `GOLDEN_REFERENCES.md` and
+    reference's provenance. See `GOLDEN_REFERENCES.md` and
     `perfect-prompt-03.md`.
 
 ## API / packaging
@@ -149,10 +149,11 @@ and independent validation. See `AUDIT.md` and `PROGRESS.md` for the evidence.
    tooth-outline crossings across one mesh cycle and planet/ring clearance. It
    is not a 3D contact solver and does not model profile shift, helix, or load
    deformation.
-6. **External golden files are not committed.** Per-file redistribution rights
-   are unverified, so golden comparison is a documented fetch procedure rather
-   than a hermetic test. Two candidate models that contradict their claimed
-   standards were rejected (see `GOLDEN_REFERENCES.md`).
+6. **Golden files are a local download.** The open-source golden STEP models
+   are downloaded by the repository owner into the Git-ignored `external/`
+   directory, so the golden comparison is a documented fetch procedure rather
+   than a hermetic test. Models that contradict their claimed standards are
+   reported with measured evidence (see `GOLDEN_REFERENCES.md`).
 
 ## Deferred standards/components
 
@@ -164,7 +165,7 @@ and independent validation. See `AUDIT.md` and `PROGRESS.md` for the evidence.
 - T-nuts, corner brackets, joining plates, end caps (no verified data).
 - Couplings, linear rails, retaining rings/inserts (no verified data).
 - Motor envelopes and mounting patterns.
-- Exact B-slot6 extrusion (provenance/licence).
+- Exact B-slot6 extrusion (provenance).
 - Multi-edge evaluated chamfers (the optional OCCT DRAW path is single-edge for
   chamfers; fillets support multi-edge `blend`).
 
@@ -216,15 +217,17 @@ approximations are recorded above and in `FEATURES.md`.
   Detailed body, so face chamfers exist at `FullyModeled` too. The internal
   ridge is unchanged.
 
-### KI-29 — Golden corpus remains unlicensed; matrix GOLDEN status is SKIP
+### KI-29 — Some downloaded golden models contradict their standards
 
-- Severity: low (licensing constraint), but it must not be misreported.
-- `scripts/golden_matrix.py` records 108 cells: NORMATIVE 108 PASS; GOLDEN 108
-  SKIP. The development-time comparison is rotation-invariant (axial extent and
-  outer radius from the vertex rings and the in-plane bbox) and is recorded in
-  `matrix.json`: 39 cells agree, 69 are rejected with measured evidence
-  (including the ISO 4762 M2/M2.5/M5 vendor heads that exceed the standard
-  maximum). No cell is described as fully golden-validated.
+- Severity: low (reference quality), but it must not be misreported.
+- The golden files are downloaded from the open-source step.parts corpus by
+  the repository owner; there are no licensing concerns.
+- `scripts/golden_matrix.py` records 108 cells: NORMATIVE 108 PASS. The GOLDEN
+  column compares each part with the downloaded model using a rotation-
+  invariant radius and axial extent. Models that contradict the standard are
+  `FAIL` with measured evidence (ISO 4762 M2/M2.5/M5 oversized heads, ISO 7089
+  thick washers, DIN 976 doubled length, ISO 4017/4014 head height). ISO 4014
+  has no downloaded partially-threaded model and is `SKIP`.
 
 ### KI-30 — Timestamp made the flat-export test flaky (fixed)
 
@@ -311,14 +314,14 @@ approximations are recorded above and in `FEATURES.md`.
   is a declared engineering value, not a standards-mandated one. A caller may
   override it with `PlanetaryParams::new(backlash_mm=...)`.
 
-### KI-08 — Golden corpus remains uncommitted and external comparison is SKIP
+### KI-08 — Golden corpus is a local download
 
-- Severity: low (licensing constraint).
-- The step.parts API does not expose a per-file source/licence, so no external
-  STEP file is committed and the harness reports the external geometry
-  comparison as `SKIP`. The normative/parametric checks still run and pass. The
-  harness `--self-test` proves the PASS/FAIL/SKIP behaviour, including a
-  matching external file (a generated stand-in with a verified test licence).
+- Severity: low (reproducibility).
+- The golden STEP files are downloaded by the repository owner from the
+  open-source step.parts corpus into the Git-ignored `external/` directory.
+  A missing file is reported as `SKIP`; the normative/parametric checks still
+  run and pass. The harness `--self-test` proves the PASS/FAIL/SKIP behaviour
+  without depending on the downloaded corpus.
 
 ### KI-09 — Internal thread ridge was detached for M16/M20 (fixed)
 

@@ -10,5 +10,5 @@ __pycache__
 /*.md
 /.github/*.md
 /.github/skills/**
-# External STEP references have unverified per-file redistribution rights.
+# Golden STEP files downloaded by the owner from the open-source step.parts corpus.
 /components/testdata/golden/external/

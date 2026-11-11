@@ -157,6 +157,13 @@ def surface_deviation(
     """Bidirectional sampled surface deviation (Hausdorff-like)."""
     a = mesh_triangles(a_path, deflection)
     b = mesh_triangles(b_path, deflection)
+    return surface_deviation_from_triangles(a, b, deflection, samples)
+
+
+def surface_deviation_from_triangles(
+    a: list[Tri], b: list[Tri], deflection: float = 0.1, samples: int = 4000
+) -> dict:
+    """Bidirectional sampled surface deviation for two existing meshes."""
     if not a or not b:
         raise RuntimeError("empty tessellation")
     pa = [v for tri in a for v in tri]
@@ -190,17 +197,36 @@ def surface_deviation(
 
 
 def _segment_z(tri: Tri, z: float) -> tuple[tuple[float, float], tuple[float, float]] | None:
+    """Oriented intersection segment of a triangle with the plane z.
+
+    The segment is oriented so that the divergence-theorem boundary integral
+    gives a positive area for the material region. The tangent is
+    ``t = z_hat x n_xy``, where ``n`` is the triangle's outward normal; this
+    makes holes contribute negatively and multiple disjoint loops add
+    correctly. An unoriented segment made the signed area cancel
+    unpredictably on threaded or multi-body sections.
+    """
     pts: list[tuple[float, float]] = []
     for i in range(3):
         p, q = tri[i], tri[(i + 1) % 3]
         if (p[2] - z) * (q[2] - z) < 0.0:
             t = (z - p[2]) / (q[2] - p[2])
             pts.append((p[0] + t * (q[0] - p[0]), p[1] + t * (q[1] - p[1])))
-        elif abs(p[2] - z) <= 1e-12:
-            pts.append((p[0], p[1]))
-    if len(pts) < 2:
+    if len(pts) != 2:
         return None
-    return (pts[0], pts[1])
+    a, b, c = tri
+    u = (b[0] - a[0], b[1] - a[1], b[2] - a[2])
+    v = (c[0] - a[0], c[1] - a[1], c[2] - a[2])
+    nx = u[1] * v[2] - u[2] * v[1]
+    ny = u[2] * v[0] - u[0] * v[2]
+    norm = math.hypot(nx, ny)
+    if norm <= 1e-12:
+        return None
+    tx, ty = -ny / norm, nx / norm
+    p0, p1 = pts
+    if (p1[0] - p0[0]) * tx + (p1[1] - p0[1]) * ty < 0.0:
+        p0, p1 = p1, p0
+    return (p0, p1)
 
 
 def section_at(tris: list[Tri], z: float) -> dict:

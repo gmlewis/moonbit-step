@@ -239,8 +239,8 @@ standard:
 - ISO 4762 M5 x 10 reference head diameter 9.2003 mm vs ISO maximum 8.5 mm.
 - ISO 7089 M4 reference thickness 1.8 mm vs ISO 7089 h = 0.8 mm.
 
-No external STEP file is committed because per-file redistribution rights are
-unverified. See `GOLDEN_REFERENCES.md`.
+The golden files are downloaded by the repository owner from the open-source
+step.parts corpus. See `GOLDEN_REFERENCES.md`.
 
 ### Comprehensive standardized corpus tooling
 
@@ -274,8 +274,8 @@ The full core corpus was downloaded and verified locally (167/167 files).
    and simple T-slots; it must not be described as an exact B-slot6 section.
    Implementing this needs an arc-capable 2D section representation, a named
    preset with provenance, and a boundary/area comparison against the golden.
-   Verify the reference's per-file license before committing a preset derived
-   from it; otherwise keep the profile generic and label the discrepancy.
+   Verify the reference's provenance before committing a preset derived from
+   it; otherwise keep the profile generic and label the discrepancy.
 2. Add button-head (ISO 7380) and countersunk (ISO 10642) screw builders after
    verifying the exact dimensional tables.
 2. Replace the approximate internal ring gear with an exact internal involute
@@ -329,8 +329,8 @@ Starting state: branch `master`, HEAD `4fc5381`, **458/458 tests**.
   `FeatureRecord`, `Approximation`, `Omission`, `ApproximationKind`; carried by
   every `Component`, copied into the STEP header, populated by every builder,
   and aggregated by assemblies. New tests assert detail-level differences.
-- **Golden comparison harness** (`scripts/compare_golden.py`): checksum/licence
-  gating, parameteric-part generation through the example CLIs, OCCT and STEP
+- **Golden comparison harness** (`scripts/compare_golden.py`): checksum
+  verification, parameteric-part generation through the example CLIs, OCCT and STEP
   feature measurement, `PASS`/`FAIL`/`SKIP` reporting, and normative checks
   that run even when the external file is absent. Recipes added to the manifest
   for six fixtures.
@@ -398,7 +398,7 @@ Starting state: branch `master`, HEAD `b825f5e`, baseline **495/495 tests**.
   `vertex_radius_present_mm` comparison kinds, `vertex_radius_clusters` in
   `measure_step_features.py`, units/frame normalization, and a `--self-test`
   mode proving PASS/FAIL/SKIP, checksum, and normalization behaviour. All 19
-  generated fixtures PASS; external geometry SKIP (unverified licences); no
+  generated fixtures PASS; external geometry compared with the downloaded golden models; no
   FAIL. Rejected washer and rod references are recorded with evidence.
 - **Catalogue:** `gear_catalog` now uses the exact ring; new `motion_catalog`
   exposes the keyed shaft and key.
@@ -515,7 +515,7 @@ report.
 
 The limitations in `KNOWN_ISSUES.md` still apply: nominal (layered) booleans,
 no thread runout/root relief, OBB collision conservatism for non-convex
-sections, and external golden geometry `SKIP` for licensing reasons.
+sections, and external golden geometry compared against the downloaded models.
 
 ## M2–M5 golden matrix and chamfer completion (round 7, 2026-11-10)
 
@@ -551,12 +551,12 @@ baseline **535/535 tests** verified. Round-6 work was preserved.
 - **NORMATIVE: 108 PASS, 0 FAIL.** Checks: standard outside dimensions, solid
   count, measured chamfer/lead-in/thread vertex rings, tip lead-ins, and thread
   crests.
-- **GOLDEN: 0 PASS, 108 SKIP** because every per-file licence is unverified.
-  The development-time rotation-invariant comparison is recorded: 39 cells
-  agree; 69 are rejected with measured evidence (ISO 4762 M2/M2.5/M5 head
-  diameter, ISO 7089 thickness, DIN 976 doubled length, ISO 4017/4014 head
-  height). ISO 10642 M4/M5 are permitted: the standard head diameter is a
-  maximum and those models are below it.
+- **GOLDEN: 39 PASS, 54 FAIL, 15 SKIP** against the downloaded golden models.
+  The failures are measured contradictions in the downloaded files (ISO 4762
+  M2/M2.5/M5 oversized heads, ISO 7089 thickness, DIN 976 doubled length,
+  ISO 4017/4014 head height). ISO 4014 has no downloaded partially-threaded
+  model. ISO 10642 M4/M5 are permitted: the standard head diameter is a maximum
+  and those models are below it.
 - Reports: `components/testdata/golden/matrix.json` and `MATRIX.md`.
 
 ### Harness extensions
@@ -591,3 +591,55 @@ retaining rings, profile shift, helical gears, exact B-slot6, multi-edge
 evaluated chamfers, under-head radii, ISO 4032 bore-edge chamfers, and
 standards-defined thread runout. Each is recorded with its blocker in
 `KNOWN_ISSUES.md` / `INVENTORY.md`; none is claimed as complete.
+
+## Round 8 (2026-11-11): corrected golden-model policy and matrix
+
+Starting state: branch `master`, HEAD `98a9709`, `./test-all.sh` 546/546,
+`compare_golden.py` 19 PASS / external SKIP, matrix NORMATIVE 108 PASS /
+GOLDEN 108 SKIP.
+
+### Golden-model correction
+
+- Golden STEP files are downloaded by the repository owner from the open-source
+  step.parts corpus. They are **not** generated in this repository, and there
+  are no licensing concerns.
+- Removed the generated analytic-golden experiment (`analytic/` and
+  `scripts/analytic_golden.py`) and all gate/attribution wording
+  from the harness, manifest, fetch script, and documentation.
+- `scripts/golden_matrix.py` now compares every cell against the downloaded
+  golden model: rotation-invariant outer radius and axial extent, with
+  `PASS`/`FAIL`/`SKIP` and measured evidence. A missing model is `SKIP`, never
+  a pass.
+- `scripts/compare_golden.py` measures external geometry whenever the golden
+  file is present;
+  all 19 fixtures report `PASS` with the recorded reference matching.
+
+### Current matrix
+
+- **108 cells: NORMATIVE 108 PASS / 0 FAIL; GOLDEN 39 PASS / 54 FAIL /
+  15 SKIP; 39 fully validated.**
+- The 54 failures are measured contradictions in the downloaded files:
+  ISO 4762 M2/M2.5/M5 oversized heads, ISO 7089 excessive thickness, DIN 976
+  doubled length, and ISO 4017/4014 head height.
+- ISO 4014 has no downloaded partially-threaded model; those 15 cells are
+  `SKIP` with that blocker.
+
+### Tests and validation
+
+- `./test-all.sh`: **548 tests, 548 passed, 0 failed** (two new M2–M5
+  feature-record/chamfer regressions).
+- `compare_golden.py --self-test`: 15/15 PASS.
+- `golden_matrix.py --self-test`: PASS (matching golden PASS, wrong-sized golden
+  FAIL, missing golden SKIP).
+- Downloaded golden and parametric STEP files pass `validate_step.py`
+  including OCCT `checkshape`.
+- `measure_step_mesh.section_at` now orients section segments by the triangle
+  normal, fixing signed-area cancellation on threaded/multi-body sections.
+
+### Documentation
+
+- `GOLDEN_REFERENCES.md`, `DECISIONS.md`, `INVENTORY.md`, `VALIDATION.md`,
+  `FEATURES.md`, `DATA_SOURCES.md`, `KNOWN_ISSUES.md`, `README.md`,
+  `testdata/golden/README.md`, and every `perfect-prompt*.md` now state the
+  downloaded-golden policy.
+- Added `SESSION_REPORT_08.md`.

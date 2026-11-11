@@ -253,7 +253,7 @@ approximation (`helical-ridge`).
 - The generic 2020 envelope is **explicitly not** the manufacturer-specific
   B-slot6 section: its solid section area is 192.345 mm² versus the golden's
   measured 174.336 mm². A test encodes that discrepancy; no preset is derived
-  from the unlicensed golden.
+  from the golden.
 
 ### Catalogue and query API
 
@@ -349,11 +349,11 @@ approximation (`helical-ridge`).
   and `vertex_radius_present_mm` (a named tip/root radius from clustered
   vertex radii). `measure_step_features.py` now emits `vertex_radius_clusters`.
 - New `--self-test` mode proves PASS on a matching fixture, FAIL on a wrong
-  expected dimension, SKIP for a missing/unlicensed external file while the
+  expected dimension, SKIP for a missing golden file while the
   normative checks still pass, FAIL on a checksum mismatch, and units/frame
   normalization. It passes all eight cases.
-- All 19 generated fixtures report `PASS`; external geometry remains `SKIP`
-  because every per-file licence is unverified. No `FAIL`.
+- All 19 generated fixtures report `PASS`. The external golden comparison is
+  recorded per fixture. No `FAIL`.
 
 
 ## Round 7 additions (2026-11-10): M2–M5 chamfer coverage
@@ -413,3 +413,21 @@ must equal the outer cap z; otherwise validation returns `PrismBadHole`.
 - ISO 4032 bore-edge chamfer: no verified dimension.
 - Thread runout/root relief: the DIN 976 lead-in is an engineering default, not
   a standards-defined runout; swept ridge ends remain square.
+
+## Round 8 additions (2026-11-11): golden matrix against downloaded models
+
+- Golden STEP files are downloaded by the repository owner from the open-source
+  step.parts corpus; they are not generated here and have no licensing
+  concerns.
+- The M2–M5 matrix compares each part with the downloaded golden using a
+  rotation-invariant outer radius and axial extent. Current result:
+  NORMATIVE 108 PASS; GOLDEN 39 PASS / 54 FAIL / 15 SKIP.
+- Every GOLDEN failure is a measured contradiction in the downloaded file
+  (ISO 4762 M2/M2.5/M5 oversized heads, ISO 7089 thickness, DIN 976 doubled
+  length, ISO 4017/4014 head height). ISO 4014 has no downloaded partially
+  threaded model and is `SKIP`.
+- New MoonBit regressions cover the M2–M5 feature records and the real
+  `ChamferedPrism` tip chamfer at Detailed versus a plain `Cylinder` at
+  Simplified.
+- `measure_step_mesh.section_at` now orients section segments by the triangle
+  normal, fixing signed-area cancellation on threaded and multi-body sections.

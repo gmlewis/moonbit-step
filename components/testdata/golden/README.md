@@ -3,34 +3,31 @@
 `manifest.json` is the machine-readable record of the individually verified v1
 fixtures:
 
-- `external_references` — step.parts candidates. Their per-file license and
-  provenance are **unverified**, so the STEP files themselves are not
-  committed.
-- `analytic_references` — locally authored frame expectations checked by
-  `scripts/validate_frame_geometry.py`. These are clearly labelled analytic,
-  not external models.
+- `external_references` — downloaded golden STEP models from the open-source
+  [step.parts](https://github.com/earthtojake/step.parts) corpus. The repository
+  owner downloads them into `external/`; there are no licensing concerns.
+- `local_frame_references` — locally authored frame expectations checked by
+  `scripts/validate_frame_geometry.py`. These are clearly labelled local
+  expectations, not downloaded golden models.
 
-## Comprehensive standardized corpus
+## Downloaded golden corpus
 
-`scripts/fetch_golden_references.py` selects a much larger corpus by standard,
-family, size, and representative length. It defaults to M2-M5 and can be
-extended:
+`scripts/fetch_golden_references.py` selects a comprehensive corpus by
+standard, family, size, and representative length. It defaults to M2-M5 and can
+be extended:
 
 ```bash
 # M2, M2.5, M3, M4, M5: ~167 files (screws, nuts, washers, pins, bearings, rods)
 python3 scripts/fetch_golden_references.py \
-  --out components/testdata/golden/external \
-  --accept-unverified-license
+  --out components/testdata/golden/external
 
 # M2 through M8: ~237 files
 python3 scripts/fetch_golden_references.py \
-  --out components/testdata/golden/external \
-  --accept-unverified-license --scope extended
+  --out components/testdata/golden/external --scope extended
 
 # Every catalog size/length for the selected standards: ~1048 files
 python3 scripts/fetch_golden_references.py \
-  --out components/testdata/golden/external \
-  --accept-unverified-license --scope all --allow-large
+  --out components/testdata/golden/external --scope all --allow-large
 ```
 
 Inspect before downloading:
@@ -46,12 +43,10 @@ missing combinations, cache/download status, and failures. Existing files with
 a matching checksum are reused; failed downloads are retried and written
 through temporary `.part` files.
 
-`external/` is a local download target and is ignored by Git. Do not commit a
-file there until its license, source, author, and attribution are recorded in
-`manifest.json` and `components/GOLDEN_REFERENCES.md`.
+`external/` is a local download cache and is ignored by Git.
 
-See `components/GOLDEN_REFERENCES.md` for the licensing analysis, comparison
-rules, tolerances, verdicts, and reproduction commands.
+See `components/GOLDEN_REFERENCES.md` for the golden source, comparison rules,
+tolerances, verdicts, and reproduction commands.
 
 ## Comparison harness
 
@@ -68,24 +63,23 @@ python3 scripts/compare_golden.py --fixture bearings/608zz
 python3 scripts/compare_golden.py --json
 ```
 
-The external geometry comparison is gated on a verified per-file licence. All
-current fixtures are `unverified-per-file`, so that check is `SKIP`; the
-normative and analytic checks still run and pass. The parametric parts and
-their measurements are reproducible without the external corpus.
+The external geometry comparison runs whenever the downloaded golden file is
+present. A missing file is `SKIP`; the normative and analytic checks still run.
+The parametric parts and their measurements are reproducible without the
+golden corpus.
 
-
-
-## M2–M5 matrix (round 7)
+## M2–M5 matrix
 
 `scripts/golden_matrix.py` builds the 108-cell M2–M5 matrix and writes:
 
 - `matrix.json` — per-cell `NORMATIVE` and `GOLDEN` statuses, the measured
-  values, and the development-time comparison evidence.
+  values, and the comparison evidence.
 - `MATRIX.md` — the per-family and per-cell tables.
 
-Every `GOLDEN` status is `SKIP` because the per-file licences are unverified.
-The normative checks are the acceptance criterion; the development-time
-measurements are recorded, never used as an oracle.
+The GOLDEN column compares each parametric part with the downloaded golden
+model using a rotation-invariant maximum radius and axial extent. A missing
+model is `SKIP`, never a pass. A cell is fully validated only when NORMATIVE
+and GOLDEN are both `PASS`.
 
 ```bash
 python3 scripts/golden_matrix.py --write components/testdata/golden

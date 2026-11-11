@@ -3,15 +3,17 @@
 Environment: macOS, MoonBit `moon 0.1.20261104 (940aa18 2026-11-04)`,
 `moonc v0.10.20+65efd5b93`; OCCT `DRAWEXE` and `gmsh` present.
 
-## Current status (round 7, 2026-11-10)
+## Current status (round 8, 2026-11-11)
 
-- `./test-all.sh`: **546 tests, 546 passed, 0 failed**.
+- `./test-all.sh`: **548 tests, 548 passed, 0 failed**.
 - `python3 scripts/compare_golden.py`: 19 generated fixtures `PASS`, external
-  geometry `SKIP` (unverified per-file licences), 0 `FAIL`.
+  geometry compared against the downloaded golden models.
 - `python3 scripts/compare_golden.py --self-test`: **15/15 checks PASS**.
 - `python3 scripts/golden_matrix.py`: **108 cells, NORMATIVE 108 PASS / 0 FAIL;
-  GOLDEN 0 PASS / 108 SKIP** (licence); 39 development-time agreements, 69
-  evidence-based rejections.
+  GOLDEN 39 PASS / 54 FAIL / 15 SKIP; 39 fully validated**. The GOLDEN failures
+  are measured contradictions in the downloaded files (ISO 4762 M2/M2.5/M5
+  oversized heads, ISO 7089 thickness, DIN 976 doubled length, ISO 4017 head
+  height); ISO 4014 has no downloaded partially-threaded model.
 - `python3 scripts/golden_matrix.py --self-test`: PASS.
 - The corrected thread placement and every new chamfer are measured from the
   emitted STEP and validated with OCCT `checkshape`; representative files:
@@ -23,7 +25,7 @@ Environment: macOS, MoonBit `moon 0.1.20261104 (940aa18 2026-11-04)`,
 
 - `./test-all.sh`: **535 tests, 535 passed, 0 failed**.
 - `python3 scripts/compare_golden.py`: 19 generated fixtures `PASS`, external
-  geometry `SKIP` (unverified per-file licences), 0 `FAIL`.
+  geometry compared against the downloaded golden models.
 - `python3 scripts/compare_golden.py --self-test`: PASS.
 - Regenerated fully modeled fasteners and the spring validate with
   `scripts/validate_step.py` (syntax, references, closed shells, topology,
@@ -206,9 +208,9 @@ and measured with OCCT. Full provenance is in
 | 2020 B-slot6 profile | envelope only | 20 x 20 x 50 matches; section not compared |
 | Spur gear m2 z20 bore8 | accepted envelope | 44 x 44 x 16 matches |
 
-Honest skips: no external file is committed (per-file license unverified), so
-these comparisons run only when the fetch procedure has been executed. No
-planetary assembly reference was available; planetary checks are analytic.
+The golden files are downloaded by the repository owner, so these
+comparisons run when the fetch procedure has been executed. No planetary
+assembly golden is present; planetary checks are analytic.
 
 ## Reproduce
 
@@ -219,8 +221,8 @@ planetary assembly reference was available; planetary checks are analytic.
 ## Additions (2026-11-10)
 
 - **Golden harness:** `scripts/compare_golden.py` reports PASS/FAIL/SKIP per
-  check. It verifies checksums when files are present, gates external geometry
-  on a verified licence, generates parts through the example CLIs, measures
+  check. It verifies checksums when files are present, uses the downloaded golden
+  file when present, generates parts through the example CLIs, measures
   them with OCCT and the STEP feature inventory, checks normative bbox/solid
   counts and feature expectations, and runs analytic checks when the external
   file is absent. See `GOLDEN_REFERENCES.md`.
@@ -270,7 +272,7 @@ Final `./test-all.sh`: **495 tests, 495 passed, 0 failed**.
   difference), and SolidCraft imports both with zero errors and all bodies
   closed. The SolidCraft renders are diagnostic, not the acceptance criterion.
 - **Promoted golden fixtures:** 19 fixtures report `PASS`; external geometry is
-  `SKIP` because every per-file licence is unverified. No `FAIL`. The rejected
+  `SKIP` when no golden file is present. No `FAIL`. The rejected
   washer and rod references are recorded with their contradictory measurements.
 
 Final state after these additions: run `./test-all.sh` and
@@ -293,7 +295,7 @@ python3 scripts/compare_golden.py --self-test
 # mass properties, section area, surface deviation, vertex ring)
 
 python3 scripts/golden_matrix.py --write components/testdata/golden
-# 108 cells, NORMATIVE 108 PASS / 0 FAIL, GOLDEN 108 SKIP
+# 108 cells, NORMATIVE 108 PASS / 0 FAIL, GOLDEN 39 PASS / 54 FAIL / 15 SKIP
 
 python3 scripts/golden_matrix.py --self-test
 # PASS
@@ -339,9 +341,9 @@ iso4032-M4-fully-modeled.step [PASS] same gates, 620 planar faces
 
 ### Honest skips
 
-- External golden geometry: every cell `SKIP` because per-file licences are
-  unverified. The development-time measurements are recorded in
-  `components/testdata/golden/matrix.json`; they are not committed geometry.
+- External golden geometry: compared against the downloaded models; a
+  missing file is `SKIP`. The measurements are recorded in
+  `components/testdata/golden/matrix.json`.
 - No 3D kinematic gear-contact solver: the planetary check remains a 2D outline
   rotation cycle.
 

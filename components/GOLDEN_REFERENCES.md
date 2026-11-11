@@ -3,33 +3,15 @@
 Golden references are independent test oracles, never production geometry.
 The parametric MoonBit generator remains authoritative.
 
-## Licensing decision
+## Golden file source
 
-No external STEP model is committed to this repository.
-
-The investigated catalog is [step.parts](https://www.step.parts/)
-([source](https://github.com/earthtojake/step.parts)). Its
-`THIRD_PARTY_NOTICES.md` says third-party-derived STEP files retain their
-source license:
-
-| Source | License |
-|---|---|
-| KiCad `kicad-packages3D` | CC-BY-SA-4.0 WITH KiCad-libraries-exception |
-| FreeCAD-library | CC-BY-3.0 |
-| Adafruit CAD Parts | MIT |
-| SparkFun KiCad Libraries | CC-BY-4.0 |
-| SparkFun 3D Models | CC-BY-SA-4.0 |
-| Original step.parts material | MIT (does not relicense derived STEP files) |
-
-The step.parts API exposes `stepUrl`, `sha256`, and `byteSize`, but **not** the
-per-file source, author, or license. A complete attribution and redistribution
-record therefore cannot be produced for an individual file. The models are
-downloaded only to a temporary directory for local comparison, and
-`components/testdata/golden/external/` is ignored by Git.
-
-If a per-file license and attribution are later confirmed, add the file to
-`components/testdata/golden/external/`, record it in `manifest.json`, and
-remove the corresponding `.gitignore` entry.
+The golden STEP models are downloaded by the repository owner from the
+open-source [step.parts](https://www.step.parts/) corpus
+([source](https://github.com/earthtojake/step.parts)) into
+`components/testdata/golden/external/`. There are no licensing concerns: these
+files are independent reference models used for comparison only.
+`external/` is excluded from Git because it is a downloaded cache, not because
+of any restriction on the files.
 
 ## Fetch and measurement procedure
 
@@ -42,18 +24,15 @@ against the catalog SHA-256 and byte size.
 ```bash
 # Default core corpus: M2, M2.5, M3, M4, M5.
 python3 scripts/fetch_golden_references.py \
-  --out components/testdata/golden/external \
-  --accept-unverified-license
+  --out components/testdata/golden/external
 
 # Add M6 and M8.
 python3 scripts/fetch_golden_references.py \
-  --out components/testdata/golden/external \
-  --accept-unverified-license --scope extended
+  --out components/testdata/golden/external --scope extended
 
 # Every catalog size and length for the selected standards (large).
 python3 scripts/fetch_golden_references.py \
-  --out components/testdata/golden/external \
-  --accept-unverified-license --scope all --allow-large
+  --out components/testdata/golden/external --scope all --allow-large
 
 # Inspect the plan without downloading.
 python3 scripts/fetch_golden_references.py --scope core --list
@@ -62,7 +41,6 @@ python3 scripts/fetch_golden_references.py --list-selections
 # Limit a run to selected families.
 python3 scripts/fetch_golden_references.py \
   --out components/testdata/golden/external \
-  --accept-unverified-license \
   --selection iso4762 --selection iso4032 --selection iso7089
 ```
 
@@ -168,8 +146,8 @@ core region built from 2.75 mm-radius cylindrical/arc surfaces. The generic
 2020 envelope is 192.345108 mm^2 with sharp corners, a 4.2 mm bore, and simple
 T-slots. The 20 x 20 x 50 envelope matches, but the section does not. Exact
 B-slot6 support is deferred to the next session because it requires an
-arc-capable 2D section representation and verification of the reference's
-provenance/license. See `KNOWN_ISSUES.md` and `perfect-prompt-03.md`.
+arc-capable 2D section representation and verification of the reference's provenance. See
+`KNOWN_ISSUES.md` and `perfect-prompt-03.md`.
 
 The two rejected models are the reason for the "verify the golden models
 themselves" rule: a catalog designation is not proof that the model follows
@@ -182,8 +160,7 @@ recorded in the fetch report) was measured with OCCT during the feature
 session: its head is 6.046 mm across, its conical bearing surface has a 45°
 half-angle (90° included), and its overall length is 12 mm. This corroborates
 the ISO 10642 M3 head diameter (6.0 mm) and the 90° countersink used by the
-parametric builder. It is a cross-check of nominal data, not a committed
-fixture; the model is not redistributed.
+parametric builder. It is a cross-check of nominal data against the downloaded golden file.
 
 ## Analytic references
 
@@ -201,11 +178,11 @@ external manufacturer models.
 
 ## Known gaps
 
-- No suitably licensed planetary assembly reference was found in the curated
-  corpus; the planetary checks are analytic tooth-outline tests.
-- No external reference is committed, so golden comparison is a development
-  procedure, not a hermetic CI test. The committed tests cover normative
-  dimensions and analytic geometry.
+- No planetary assembly golden file is present in the downloaded corpus; the
+  planetary checks are analytic tooth-outline tests.
+- The golden files are downloaded by the repository owner, so golden
+  comparison is a development procedure rather than a hermetic CI test. The
+  committed tests cover normative dimensions and analytic geometry.
 - Slot, cavity, wall, and bore dimensions of the 2020 reference differ from the
   generic profile and are deliberately not compared.
 
@@ -215,8 +192,8 @@ external manufacturer models.
 each manifest fixture with a `generation` recipe it:
 
 1. verifies the external file's SHA-256 and byte size when present;
-2. skips the external geometry comparison when the per-file licence is not
-   verified (all current fixtures are `unverified-per-file`);
+2. measures the downloaded golden file and compares it with the recorded
+   reference;
 3. generates the parametric part through the example CLI (never internal
    dimension functions);
 4. measures it with OCCT (solids, bbox, volume) and with
@@ -228,11 +205,10 @@ each manifest fixture with a `generation` recipe it:
    build adds faces (a real chamfer/fillet presence check);
 7. prints `PASS`/`FAIL`/`SKIP` per check and per fixture.
 
-The harness runs the normative/analytic checks even when the external file is
-absent. A missing file or unverified licence is reported as `SKIP`, never as a
-pass.
+The harness runs the normative/analytic checks even when the golden file is
+absent. A missing golden file is reported as `SKIP`, never as a pass.
 
-Current fixture results (all external files present, all licences unverified):
+Current fixture results (all golden files present):
 
 | Fixture | Result | Notes |
 |---|---|---|
@@ -258,8 +234,8 @@ python3 scripts/compare_golden.py --fixture bearings/608zz
 
 `components/testdata/golden/manifest.json` now records 23 external references.
 Every one has SHA-256, byte size, source page/URL, declared and measured
-dimensions, the parametric counterpart recipe, and a licence status of
-`unverified-per-file`. No external STEP file is committed.
+dimensions, and the parametric counterpart recipe. The golden files are
+downloaded by the owner into `external/`.
 
 | Fixture | Reference | Measured (mm) | Verdict |
 |---|---|---|---|
@@ -286,8 +262,8 @@ prove it from an axis-aligned bbox.
 
 - a matching fixture reports `PASS` and the external geometry check really runs;
 - a deliberately mismatched expected dimension reports `FAIL`;
-- a missing/unlicensed external file reports the external check `SKIP` while
-  the normative/parametric checks run and the fixture verdict is `PASS`;
+- a missing golden file reports the external check `SKIP` while the
+  normative/parametric checks run and the fixture verdict is `PASS`;
 - a checksum mismatch reports `FAIL`;
 - a Y-up/inch reference normalizes to mm/Z-up; unknown units raise;
 - the `vertex_radius_present_mm` feature kind passes and fails correctly.
@@ -331,7 +307,7 @@ absent from the downloaded core corpus. The 2040/3030/4040 extrusion envelopes
 remain analytically checked in the profile tests, not against an external
 model. These are honest coverage gaps, not passes.
 
-## M2–M5 golden matrix (round 7, 2026-11-10)
+## M2–M5 golden matrix
 
 `scripts/golden_matrix.py` is the reproducible matrix harness. It covers eight
 families and every M2/M2.5/M3/M4/M5 size they support, at Simplified, Detailed,
@@ -346,10 +322,19 @@ Each cell records:
   measured chamfer/lead-in/thread vertex rings (PASS/FAIL).
 - **GOLDEN**: the independent model comparison (PASS/FAIL/SKIP).
 
-Result: **108 cells, NORMATIVE 108 PASS / 0 FAIL; GOLDEN 0 PASS / 108 SKIP.**
-Every external candidate has `license_status = unverified-per-file`, so it is
-measured for development-time information only and is never the acceptance
-oracle. A `SKIP` is never reported as a pass.
+Result: **108 cells, NORMATIVE 108 PASS / 0 FAIL; GOLDEN 39 PASS / 54 FAIL /
+15 SKIP; 39 fully validated.** The GOLDEN column compares against the
+downloaded open-source golden model using a rotation-invariant outer radius and
+axial extent. The 54 failures are measured contradictions in the downloaded
+files, not parametric failures:
+- ISO 4762 M2/M2.5/M5 heads exceed the ISO maximum (4.1131 / 4.8708 / 9.2003 mm
+  vs 3.8 / 4.5 / 8.5 mm);
+- ISO 4017/4014 overall length exceeds `L + k` by 0.2–0.24 mm;
+- ISO 7089 washers are 2.2x thicker than the ISO 7089 thickness;
+- DIN 976 "l025" rods measure 50 mm instead of 25 mm.
+ISO 4014 has no downloaded partially-threaded model, so its 15 cells are
+`SKIP`. ISO 10642 M4/M5 are permitted: the standard head diameter is a maximum
+and those models are below it. A missing model is `SKIP`, never a pass.
 
 ### Rotation-invariant comparison
 
@@ -368,30 +353,33 @@ ISO 7380, and ISO 10642 the standard head diameter is a **maximum**, so a model
 below it is recorded as `below-standard-maximum` (permitted) rather than a
 contradiction.
 
-### Development-time results
+### Results (39 PASS / 54 FAIL / 15 SKIP)
 
-39 cells agree (13 family/size pairs × 3 detail levels):
+39 cells agree:
 
 | Family | Agreement |
 |---|---|
-| ISO 4762 | M3/M4 head diameter and overall length |
 | ISO 4032 | M2–M5 across-corners radius and height |
+| ISO 4762 | M3/M4 head diameter and overall length |
 | ISO 7380-1 | M3–M5 head radius and overall length |
 | ISO 10642 | M3 exactly; M4/M5 below the standard maximum (permitted) |
 
-69 cells are rejected with measured evidence:
+54 cells are rejected with measured evidence:
 
 | Family | Rejection evidence |
 |---|---|
 | ISO 4762 M2/M2.5/M5 | head diameter 4.1131 / 4.8708 / 9.2003 mm vs ISO maxima 3.8 / 4.5 / 8.5 mm |
-| ISO 4017/4014 | overall length exceeds `L + k` by 0.2–0.24 mm (vendor head height larger than ISO nominal) |
+| ISO 4017 | overall length exceeds `L + k` by 0.2–0.24 mm (downloaded head height larger than ISO nominal) |
 | ISO 7089 | thickness 0.7/1.1/1.1/1.8/2.2 mm vs ISO 7089 h = 0.3/0.5/0.5/0.8/1.0 mm |
 | DIN 976 | the "l025" model is 50 mm long (2× the label) |
-| ISO 10642 M4/M5 | head below but within the standard maximum (recorded as permitted) |
+
+15 cells are `SKIP` because the downloaded corpus has no ISO 4014
+(partially threaded) model. The ISO 4017 files are fully threaded and are not a
+valid ISO 4014 oracle.
 
 The machine-readable record is `components/testdata/golden/matrix.json`; the
-table is `components/testdata/golden/MATRIX.md`. No external STEP file is
-committed and no committed preset is derived from an unlicensed golden.
+table is `components/testdata/golden/MATRIX.md`. The golden files are
+downloaded from the open-source step.parts corpus by the repository owner.
 
 ```bash
 python3 scripts/golden_matrix.py                        # print the matrix

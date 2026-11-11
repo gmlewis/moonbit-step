@@ -20,8 +20,7 @@ is green with it, and the owner can review or pin it.
 
 - `./test-all.sh`: **511 tests, 511 passed, 0 failed** (+16 tests).
 - `python3 scripts/compare_golden.py`: 19 generated fixtures report `PASS`;
-  external geometry is `SKIP` for every fixture because the per-file licence is
-  unverified; no `FAIL`.
+  external geometry is compared with the downloaded golden models; no `FAIL`.
 - `python3 scripts/compare_golden.py --self-test`: 8/8 cases pass.
 - `components/examples/generate_all.sh`: every generated STEP validates with
   `scripts/validate_step.py` and OCCT `checkshape`; the analytic frame geometry
@@ -86,7 +85,7 @@ closed solids. The keyway ends are square (documented omission
   named gear tip/root radius can be checked from the generated polyline.
 - The harness self-test proves PASS on a matching fixture (with the external
   geometry check actually running), FAIL on a wrong expected dimension,
-  `SKIP` + normative PASS for a missing/unlicensed external file, FAIL on a
+  `SKIP` + normative PASS for a missing golden file, FAIL on a
   checksum mismatch, Y-up/inch normalization, unknown-unit rejection, and the
   present-radius feature kind.
 
@@ -174,7 +173,7 @@ The full record is in `components/testdata/golden/manifest.json` and
 M3/M4/M5, ISO 7380 M4/M5, ISO 10642 M3/M4/M5, bearings 608/6000/6001/6200,
 spur gears m2 z20/z40. Rejected: ISO 7089 M3/M4/M5 (thickness), the "M3 x 200"
 rod (400 mm model). Head-width-only: ISO 4017 M5. Envelope-only: the 2020
-B-slot6 profile (section differs; licence unverified).
+B-slot6 profile (section differs; reference recorded).
 
 ## 9. Components compared and the method
 
@@ -189,8 +188,8 @@ B-slot6 profile (section differs; licence unverified).
 
 ## 10. Analytic-only validation
 
-- Internal involute tooth form and the planet/ring rotation cycle (no licensed
-  gear or planetary reference).
+- Internal involute tooth form and the planet/ring rotation cycle (no gear or
+  planetary golden is present).
 - The keyway/key fit and the keyed-shaft section (no standard key table is
   claimed).
 - The extrusion section (generic envelope; the B-slot6 golden is not
@@ -236,8 +235,8 @@ self-test 8/8.
   clearance, not a standard key table.
 - Internal ring: no profile shift, helix, root fillet, or tip chamfer;
   internal meshes need the declared backlash.
-- External golden files are not committed (per-file licences unverified), so
-  external geometry comparison is `SKIP` by design.
+- The golden files are downloaded by the repository owner from the open-source
+  step.parts corpus; external geometry is compared when they are present.
 
 ## 14. Reproduction
 

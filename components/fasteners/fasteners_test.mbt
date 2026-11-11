@@ -604,6 +604,120 @@ test "thread ridge handedness changes the swept geometry" {
 }
 
 ///|
+test "M2-M5 detailed and full detail records the required features" {
+  let sizes = [
+    @standards.M2,
+    @standards.M2_5,
+    @standards.M3,
+    @standards.M4,
+    @standards.M5,
+  ]
+  for size in sizes {
+    let d = size.nominal_diameter_mm()
+    let length = d * 4.0
+    let screw_detailed = unwrap_screw(size, length, Detailed)
+    let screw_features = screw_detailed.features()
+    assert_true(screw_features.has_modeled("head-chamfer"))
+    assert_true(screw_features.has_modeled("socket-lead-in-chamfer"))
+    assert_true(screw_features.has_modeled("shank-tip-chamfer"))
+    assert_true(screw_features.has_omitted("under-head-radius"))
+    let screw_full = unwrap_screw(size, length, FullyModeled)
+    assert_true(screw_full.features().has_modeled("helical-thread"))
+
+    let nut_detailed = match @fasteners.iso4032_nut(size, detail=Detailed) {
+      Ok(c) => c
+      Err(e) => abort(e.message())
+    }
+    assert_true(nut_detailed.features().has_modeled("nut-face-chamfer"))
+    let nut_full = match @fasteners.iso4032_nut(size, detail=FullyModeled) {
+      Ok(c) => c
+      Err(e) => abort(e.message())
+    }
+    assert_true(nut_full.features().has_modeled("helical-thread"))
+
+    let hex_screw = match @fasteners.iso4017(size, length, detail=Detailed) {
+      Ok(c) => c
+      Err(e) => abort(e.message())
+    }
+    assert_true(hex_screw.features().has_modeled("hex-head-chamfer"))
+    assert_true(hex_screw.features().has_modeled("shank-tip-chamfer"))
+    let hex_bolt = match @fasteners.iso4014(size, length, detail=Detailed) {
+      Ok(c) => c
+      Err(e) => abort(e.message())
+    }
+    assert_true(hex_bolt.features().has_modeled("hex-head-chamfer"))
+    assert_true(hex_bolt.features().has_modeled("shank-tip-chamfer"))
+
+    let rod_detailed = match @fasteners.din976(size, 25.0, detail=Detailed) {
+      Ok(c) => c
+      Err(e) => abort(e.message())
+    }
+    assert_true(rod_detailed.features().has_modeled("thread-lead-in-chamfer"))
+    let rod_full = match @fasteners.din976(size, 25.0, detail=FullyModeled) {
+      Ok(c) => c
+      Err(e) => abort(e.message())
+    }
+    assert_true(rod_full.features().has_modeled("helical-thread"))
+
+    let washer = match @fasteners.iso7089_washer(size) {
+      Ok(c) => c
+      Err(e) => abort(e.message())
+    }
+    assert_true(washer.features().omission_reason("edge-chamfer") is Some(_))
+  }
+  for size in [@standards.M3, @standards.M4, @standards.M5] {
+    let length = size.nominal_diameter_mm() * 4.0
+    let button = match @fasteners.iso7380_screw(size, length, detail=Detailed) {
+      Ok(c) => c
+      Err(e) => abort(e.message())
+    }
+    assert_true(button.features().has_modeled("socket-lead-in-chamfer"))
+    assert_true(button.features().has_modeled("shank-tip-chamfer"))
+    let countersunk = match
+      @fasteners.iso10642_screw(size, length, detail=Detailed) {
+      Ok(c) => c
+      Err(e) => abort(e.message())
+    }
+    assert_true(countersunk.features().has_modeled("socket-lead-in-chamfer"))
+    assert_true(countersunk.features().has_modeled("shank-tip-chamfer"))
+  }
+}
+
+///|
+test "M2-M5 tip chamfer is real geometry at Detailed and absent at Simplified" {
+  for
+    size in [
+      @standards.M2,
+      @standards.M2_5,
+      @standards.M3,
+      @standards.M4,
+      @standards.M5,
+    ] {
+    let length = size.nominal_diameter_mm() * 4.0
+    let detailed = unwrap_screw(size, length, Detailed)
+    let detailed_shank = match
+      layer_shape(detailed, detailed.name() + "/shank") {
+      Some(shape) => shape
+      None => abort("missing detailed shank")
+    }
+    match detailed_shank {
+      @cad.Shape::ChamferedPrism(_) => ()
+      _ => abort("detailed " + size.designation() + " shank is not chamfered")
+    }
+    let simplified = unwrap_screw(size, length, Simplified)
+    let simplified_shank = match
+      layer_shape(simplified, simplified.name() + "/shank") {
+      Some(shape) => shape
+      None => abort("missing simplified shank")
+    }
+    match simplified_shank {
+      @cad.Shape::Cylinder(_) => ()
+      _ => abort("simplified " + size.designation() + " shank is not plain")
+    }
+  }
+}
+
+///|
 test "socket lead-in hole levels span the socket band" {
   let levels = @fasteners.socket_lead_in_hole_levels(0.0, 2.0, 0.25)
   assert_eq(levels.length(), 3)
