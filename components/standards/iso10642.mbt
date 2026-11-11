@@ -128,7 +128,7 @@ pub fn ISO10642Spec::standard() -> String {
 ///|
 /// ISO10642Spec::source returns the dimensional provenance note.
 pub fn ISO10642Spec::source() -> String {
-  "ISO 10642:2026 (edition 4) countersunk head table; the 2026 change list has no dimensional changes, so the verified 2019 dk/k/s/t_max values are used. See components/DATA_SOURCES.md"
+  "ISO 10642:2026 (edition 4); dimensional table unchanged from 2019. Reference sharp dk within the ISO range, ISO head edge radius, socket at s_max, depth within t_min..t_max. See components/DATA_SOURCES.md"
 }
 
 ///|

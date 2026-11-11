@@ -82,16 +82,22 @@ table (6g/6H limits are not modeled as limits).
 
 ### ISO 10642 — countersunk head hexagon socket screws
 
-- Revision used: ISO 10642:2026 (edition 4); the 2026 change list has no
-  dimensional changes, so the verified 2019 table values are used.
+- Revision used: ISO 10642:2026 (edition 4); its dimensional table is
+  unchanged from 2019.
 - Supported sizes: M3, M4, M5, M6, M8, M10.
-- Data: maximum head diameter `dk`, maximum head height `k`, 90° head angle,
-  socket across flats `s` (modeled at the upper limit `s_max`), maximum socket
-  depth `t_max`, and a practical length range.
-- The head is an analytic 90° countersink frustum (45° half-angle) with a flat
-  top and a modeled hexagon socket. The downloaded references are superseded
-  DIN 7991 sizes (larger `dk`, shallower socket) and are not used as the
-  dimensional oracle.
+- Data: reference sharp head diameter `dk` within the ISO range
+  `dk_min..dk_max`, reference head height `k` (at most the ISO maximum), head
+  edge radius `r`, 90° head angle, socket across flats (modeled at `s_max`),
+  socket depth `t` (within `t_min..t_max`), and a practical length range.
+- The head is an analytic 90° countersink cone ending at the sharp `dk` and
+  rounded by the ISO head edge radius `r` (`TOROIDAL_SURFACE`); the socket is a
+  real hex pocket.
+- The downloaded M3 and M5 head profiles match this model exactly; the M4
+  reference edge radius (0.1725 mm) is below the ISO minimum 0.2 mm and the
+  M4/M5 socket depths (1.8/2.3 mm) exceed `t_max` (1.65/2.00 mm), so those use
+  the ISO values. All the downloaded countersunk references have a socket
+  across flats above the ISO maximum (M3 2.10 vs 2.08, M4 2.60 vs 2.58, M5
+  3.10 vs 3.08), so the parametric parts use `s_max`.
 
 ## Motion and hardware components (parametric, no standard table)
 

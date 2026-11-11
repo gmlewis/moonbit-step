@@ -31,12 +31,16 @@ proprietary catalog graphics, or manufacturer part files.
 | Involute gear geometry | ISO 21771:2007 terminology / standard practice | radii, involute construction |
 
 The ISO 7380-1 and ISO 10642 tables are transcribed from the published
-standards. ISO 10642:2026 has no dimensional changes versus 2019; its head
-maxima are dk 5.81 / 7.96 / 10.07 mm for M3 / M4 / M5, with t_max 1.25 / 1.65 /
-2.00 mm. The downloaded ISO 10642 references measure dk 6.046 / 8.131 / 10.181
-mm and use the superseded DIN 7991 socket depth, so they are recorded as
-non-compliant with the current edition and are not used as the dimensional
-oracle.
+standards. ISO 10642:2026 has no dimensional changes versus 2019. Its head
+diameter dk ranges are 5.54-6.72 / 7.53-8.96 / 9.43-11.20 mm for M3 / M4 / M5
+(the reference models use the references' sharp 6.0 / 8.0 / 10.0 mm, within
+range); the head edge radius minima are 0.1 / 0.2 / 0.2 mm and t_max is 1.25 /
+1.65 / 2.00 mm. The downloaded M3 and M5 head profiles match the standard
+(M3 edge radius 0.1275, M5 0.21); the M4 reference edge radius 0.1725 is below
+the 0.2 minimum and the M4/M5 socket depths 1.8 / 2.3 mm exceed t_max, so the
+parametric parts use the ISO values. The references' socket widths
+(2.10 / 2.60 / 3.10 mm) are above the ISO maxima (2.08 / 2.58 / 3.08 mm), so
+the parametric parts use s_max.
 
 ## Where the numbers live
 
@@ -129,10 +133,12 @@ against the standards tables:
   as non-compliant and the parametric part follows the ISO height.
 - **ISO 7380 M4 x 10 / M5 x 12:** head diameters 7.6 / 9.5 mm and overall
   lengths 12.2 / 14.75 mm (= `L + k`) match `iso7380_size`.
-- **ISO 10642 M4 x 10 / M5 x 12:** overall lengths 10.0 / 12.0 mm and the 90
-  degree countersink match; the measured head diameters are 8.131 / 10.181 mm
-  against the ISO 10642:2026 maxima 7.96 / 10.07 mm. The references are the
-  superseded DIN 7991 sizes and are non-compliant with the current edition.
+- **ISO 10642 M3 / M4 / M5:** the M3 and M5 head cone/edge profiles match the
+  ISO model exactly; M4 uses the ISO minimum edge radius because its reference
+  (0.1725 mm) is below 0.2 mm. The references' socket depths M4/M5 (1.8 / 2.3
+  mm) exceed t_max (1.65 / 2.00 mm), and their socket across flats
+  (2.10 / 2.60 / 3.10 mm) exceed the ISO maxima (2.08 / 2.58 / 3.08 mm); the
+  parametric parts use the ISO limits.
 - **ISO 4017 M5 x 20:** the plan bbox is the across-corners span for `s` 8.0
   mm; the reference overall length 23.74 mm disagrees with the nominal
   `L + k = 23.5` mm by 0.24 mm, so it is accepted for head width only.
