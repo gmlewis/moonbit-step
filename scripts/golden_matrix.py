@@ -81,9 +81,11 @@ HEX_HEAD = {
     "M5": dict(d=5.0, s=8.0, k=3.5),
 }
 ISO7380 = {
-    "M3": dict(d=3.0, dk=5.7, k=1.65, s=2.0, t=1.04),
-    "M4": dict(d=4.0, dk=7.6, k=2.20, s=2.5, t=1.30),
-    "M5": dict(d=5.0, dk=9.5, k=2.75, s=3.0, t=1.56),
+    # s is the ISO socket upper limit (nominal 2.0/2.5/3.0 + 0.08), which is
+    # what the builder models and what the downloaded goldens use.
+    "M3": dict(d=3.0, dk=5.7, k=1.65, s=2.08, t=1.04),
+    "M4": dict(d=4.0, dk=7.6, k=2.20, s=2.58, t=1.30),
+    "M5": dict(d=5.0, dk=9.5, k=2.75, s=3.08, t=1.56),
 }
 ISO10642 = {
     "M3": dict(d=3.0, dk=6.0, k=1.70, s=2.0, t=1.30),

@@ -166,6 +166,7 @@ pub(all) struct ISO7380Size {
   head_diameter_mm : Double
   head_height_mm : Double
   socket_across_flats_mm : Double
+  socket_across_flats_max_mm : Double
   socket_depth_mm : Double
   min_length_mm : Double
   max_length_mm : Double

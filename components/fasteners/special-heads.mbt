@@ -134,9 +134,12 @@ fn countersunk_screw(
 /// The head is a spherical-cap dome (an analytic `SPHERICAL_SURFACE`) with a
 /// flat top face and a real hexagon socket. The datum is the head underside
 /// (bearing face): the head occupies `z = 0 .. k` and the shank
-/// `z = -length .. 0`. The flat-top radius and the socket band are documented
-/// engineering choices; the head diameter, height, socket size and depth are
-/// the standard's nominal values.
+/// `z = -length .. 0`. The socket is modelled at the ISO upper limit of the
+/// across-flats range (for example 2.080 mm for M3, whose range is
+/// 2.020–2.080 mm) so a standard hex key fits; the downloaded button-head
+/// goldens use the same limit. The flat-top radius and socket band are
+/// documented engineering choices; the head diameter, height and socket depth
+/// are the standard's values.
 pub fn iso7380_screw(
   size : @standards.MetricSize,
   length_mm : Double,
@@ -167,7 +170,9 @@ fn button_screw(
   let big_r = dims.head_diameter_mm / 2.0
   let k = dims.head_height_mm
   let t = dims.socket_depth_mm
-  let s = dims.socket_across_flats_mm
+  // ISO gives the socket as 2.02-2.08 mm for M3 (nominal 2.0). Model the
+  // upper limit so a standard hex key fits; the downloaded goldens use it too.
+  let s = dims.socket_across_flats_max_mm
   let segments = clamp_segments(policy.circle_segments)
   let name = "ISO7380-\{dims.size.designation()}-\{format_length(length)}"
   let metal = @cad.Rgb::grey()

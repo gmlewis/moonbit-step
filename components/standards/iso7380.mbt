@@ -2,16 +2,19 @@
 /// ISO7380Size carries the ISO 7380-1 button head hexagon socket screw
 /// dimensions for one nominal size.
 ///
-/// `d_k` is the head diameter, `k` the head height, `s` the socket width across
-/// flats, and `t` the socket depth. These are nominal values transcribed from
-/// commonly published dimension summaries; verify against the current standard
-/// or a manufacturer drawing before manufacturing (see `DATA_SOURCES.md`).
+/// `d_k` is the head diameter, `k` the head height, `s` the socket nominal
+/// width across flats, `s_max` its upper limit, and `t` the socket depth. ISO
+/// gives the socket width as an asymmetric tolerance entirely above the nominal
+/// (for M3, 2.00 mm nominal but 2.02–2.08 mm actual). The builder models the
+/// socket at `s_max` so a standard hex key fits and the part matches the
+/// downloaded button-head goldens; the nominal `s` is retained for reference.
 pub(all) struct ISO7380Size {
   size : MetricSize
   thread : ThreadSpec
   head_diameter_mm : Double
   head_height_mm : Double
   socket_across_flats_mm : Double
+  socket_across_flats_max_mm : Double
   socket_depth_mm : Double
   min_length_mm : Double
   max_length_mm : Double
@@ -22,13 +25,14 @@ pub(all) struct ISO7380Size {
 pub fn iso7380_size(
   size : MetricSize,
 ) -> Result[ISO7380Size, @common.SpecError] {
+  // (dk, k, s nominal, s max, t, min length, max length)
   let dims = match size {
-    M3 => (5.7, 1.65, 2.0, 1.04, 5.0, 30.0)
-    M4 => (7.6, 2.20, 2.5, 1.30, 6.0, 40.0)
-    M5 => (9.5, 2.75, 3.0, 1.56, 8.0, 50.0)
-    M6 => (10.5, 3.30, 4.0, 2.08, 10.0, 60.0)
-    M8 => (14.0, 4.40, 5.0, 2.60, 12.0, 80.0)
-    M10 => (17.5, 5.50, 6.0, 3.12, 16.0, 100.0)
+    M3 => (5.7, 1.65, 2.0, 2.08, 1.04, 5.0, 30.0)
+    M4 => (7.6, 2.20, 2.5, 2.58, 1.30, 6.0, 40.0)
+    M5 => (9.5, 2.75, 3.0, 3.08, 1.56, 8.0, 50.0)
+    M6 => (10.5, 3.30, 4.0, 4.095, 2.08, 10.0, 60.0)
+    M8 => (14.0, 4.40, 5.0, 5.14, 2.60, 12.0, 80.0)
+    M10 => (17.5, 5.50, 6.0, 6.14, 3.12, 16.0, 100.0)
     _ =>
       return Err(
         @common.SpecError::InvalidSize(
@@ -36,13 +40,14 @@ pub fn iso7380_size(
         ),
       )
   }
-  let (dk, k, s, t, lo, hi) = dims
+  let (dk, k, s, s_max, t, lo, hi) = dims
   Ok({
     size,
     thread: ThreadSpec::coarse(size),
     head_diameter_mm: dk,
     head_height_mm: k,
     socket_across_flats_mm: s,
+    socket_across_flats_max_mm: s_max,
     socket_depth_mm: t,
     min_length_mm: lo,
     max_length_mm: hi,

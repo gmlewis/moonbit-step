@@ -23,7 +23,9 @@ pub fn SocketedSolid::new(
   across_flats_mm : Double,
   socket_floor_z_mm : Double,
   lead_in_mm~ : Double = 0.0,
-  rotation_deg~ : Double = 30.0,
+  // Vertices at 0/60/... so flats face 30/90/... - the clocking used by the
+  // downloaded socket-head goldens.
+  rotation_deg~ : Double = 0.0,
 ) -> SocketedSolid {
   { body, across_flats_mm, socket_floor_z_mm, lead_in_mm, rotation_deg, }
 }
