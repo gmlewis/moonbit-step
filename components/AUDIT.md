@@ -29,7 +29,7 @@ Audit date: 2026-11-09
 ### P0-1 — Extrusion frame members interpenetrate
 
 - **Affected component:** `assemblies/extrusion_frame`.
-- **Reproduction:** `moon run --target native components/examples/extrusion_frame -- --width 400 --depth 300 --height 500 --series 2020 -o /tmp/frame.step`
+- **Reproduction:** `moon run components/examples/extrusion_frame -- --width 400 --depth 300 --height 500 --series 2020 -o /tmp/frame.step`
 - **Observed:** every rail overlapped its corner post by 10 mm; every X rail
   overlapped the adjacent Y rails by 10 mm. AABB and OBB analysis both
   reported positive-volume intersections at all eight corners.

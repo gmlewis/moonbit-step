@@ -5,7 +5,7 @@
 /// programmable hole patterns and cable strain-relief geometry.
 ///
 /// Usage (stdout):
-///   moon run --target native examples/19-raspberry-pi-mount-plate -- --width 80 --length 70 > rpi-plate.step
+///   moon run examples/19-raspberry-pi-mount-plate -- --width 80 --length 70 > rpi-plate.step
 async fn main {
   let base_args_spec = {
     "width": @cli.opt_double(

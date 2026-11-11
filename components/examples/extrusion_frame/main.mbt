@@ -4,7 +4,7 @@
 /// Generate a generic T-slot rectangular frame:
 ///
 /// ```bash
-/// moon run --target native components/examples/extrusion_frame -- \
+/// moon run components/examples/extrusion_frame -- \
 ///   --width 400 --depth 300 --height 500 --series 2020 -o frame.step
 /// ```
 ///

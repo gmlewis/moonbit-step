@@ -121,6 +121,27 @@ def fail(message, code=2, hint=True):
     sys.exit(code)
 
 
+def failure_diagnostic_lines(text, limit=10):
+    """Keep the lines that carry the actual failure, not the panic tail.
+
+    MoonBit aborts print their message first and then a "PanicError" stack
+    trace, while compiler diagnostics start with "Error:". Stack frames are
+    noise here, so return the leading message block and drop the trace.
+    """
+    lines = [line.rstrip() for line in (text or "").splitlines() if line.strip()]
+    if not lines:
+        return []
+    for i, line in enumerate(lines):
+        if line.strip().startswith("PanicError"):
+            head = lines[:i]
+            return (head or [lines[0]])[:limit]
+    for i, line in enumerate(lines):
+        low = line.strip().lower()
+        if low.startswith("error:") or low.startswith("error ["):
+            return lines[i:i + limit]
+    return lines[:limit]
+
+
 def normalize_detail(text):
     t = text.strip().lower()
     if t in ("simplified", "simple", "simp", "1"):
@@ -407,7 +428,7 @@ def generation_command(row, threads, out_path):
             args.append(out_path)
     else:
         args += ["-o", out_path]
-    return ["moon", "run", "--target", "native", tool, "--"] + args
+    return ["moon", "run", tool, "--"] + args
 
 
 def wait_for_enter(message):
@@ -540,7 +561,7 @@ def inspect_command(args):
             continue
         filtered.append(a)
         i += 1
-    return ["moon", "run", "--target", "native", "tools/inspect", "--"] + filtered + ["--json"]
+    return ["moon", "run", "tools/inspect", "--"] + filtered + ["--json"]
 
 
 def main():
@@ -722,11 +743,12 @@ def main():
         proc = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True)
         if proc.returncode != 0 or not os.path.exists(out_path):
             failures += 1
-            detail_text = (proc.stderr or proc.stdout or "").strip()
+            # Keep both streams: the real diagnostic may be written to either
+            # one, and the panic stack must not hide it.
+            detail_text = ((proc.stderr or "") + "\n" + (proc.stdout or "")).strip()
             print("  FAILED: " + " ".join(cmd))
-            if detail_text:
-                for line in detail_text.splitlines()[-4:]:
-                    print("  " + line)
+            for line in failure_diagnostic_lines(detail_text):
+                print("  " + line)
             continue
         pairs.append((row, out_path))
         if inspect:
@@ -744,8 +766,15 @@ def main():
                     summary = iproc.stdout.strip().splitlines()[-1]
                     print("  inspect: " + summary)
                 else:
-                    detail_text = (iproc.stderr or iproc.stdout or "").strip()
-                    print("  inspect: unavailable (" + (detail_text.splitlines()[-1] if detail_text else "no output") + ")")
+                    detail_text = (
+                        (iproc.stderr or "") + "\n" + (iproc.stdout or "")
+                    ).strip()
+                    diag = failure_diagnostic_lines(detail_text)
+                    print(
+                        "  inspect: unavailable ("
+                        + (diag[0] if diag else "no output")
+                        + ")"
+                    )
 
     # Explicitly selected goldens without an equivalent can still be opened on
     # their own; --all stays focused on the pairs that can actually be generated.

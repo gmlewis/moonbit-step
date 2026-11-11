@@ -50,8 +50,6 @@ def _run_export_conductor_network(args: argparse.Namespace, json_path: Path) -> 
     cmd = [
         "moon",
         "run",
-        "--target",
-        "native",
         "examples/12-bifilar-electromagnet",
         "--",
         "--export_conductor_network",

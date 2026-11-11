@@ -13,21 +13,21 @@ other native runtime is required to use the component packages.
 Generate a single ISO 4762 M4 x 20 socket head cap screw:
 
 ```bash
-moon run --target native components/examples/fasteners -- \
+moon run components/examples/fasteners -- \
   --standard iso4762 --size M4 --length 20 --detail detailed -o M4x20.step
 ```
 
 Generate a screw + washer + nut kit:
 
 ```bash
-moon run --target native components/examples/hardware_kit -- \
+moon run components/examples/hardware_kit -- \
   --size M4 --length 20 -o kit.step
 ```
 
 Generate a generic 2020 T-slot frame:
 
 ```bash
-moon run --target native components/examples/extrusion_frame -- \
+moon run components/examples/extrusion_frame -- \
   --width 400 --depth 300 --height 500 --series 2020 -o frame.step
 ```
 
@@ -40,7 +40,7 @@ python3 scripts/golden_matrix.py --write components/testdata/golden
 Generate an involute gear pair:
 
 ```bash
-moon run --target native components/examples/gear_pair -- \
+moon run components/examples/gear_pair -- \
   --module 2 --teeth 20 --mateTeeth 40 -o gear-pair.step
 ```
 
@@ -48,7 +48,7 @@ Generate the built-in M3/M4/M5 fastener catalog:
 
 ```bash
 mkdir -p components/examples/output
-moon run --target native components/examples/fasteners -- \
+moon run components/examples/fasteners -- \
   --catalog components/examples/output
 ```
 
@@ -114,7 +114,7 @@ let floating = assembly.disconnected_instances()
 Visual diagnostics for the frame:
 
 ```bash
-moon run --target native components/examples/extrusion_frame -- \
+moon run components/examples/extrusion_frame -- \
   --width 400 --depth 300 --height 500 --series 2020 \
   --views components/examples/output/views
 ```

@@ -5,7 +5,7 @@
 /// Each wedge represents a standard joint angle.
 ///
 /// Usage (stdout):
-///   moon run --target native examples/25-miter-saw-angle-template -- --thickness 5 > templates.step
+///   moon run examples/25-miter-saw-angle-template -- --thickness 5 > templates.step
 async fn main {
   let base_args_spec = {
     "angles": @cli.opt_string(

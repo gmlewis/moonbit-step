@@ -167,8 +167,6 @@ def _export_network(args: argparse.Namespace, json_path: Path) -> None:
     cmd = [
         "moon",
         "run",
-        "--target",
-        "native",
         "examples/12-bifilar-electromagnet",
         "--",
         "--nostep",

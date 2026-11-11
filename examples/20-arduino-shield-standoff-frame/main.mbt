@@ -5,7 +5,7 @@
 /// supports stacked boards with computed clearances.
 ///
 /// Usage (stdout):
-///   moon run --target native examples/20-arduino-shield-standoff-frame -- --standoffHeight 10 > arduino-frame.step
+///   moon run examples/20-arduino-shield-standoff-frame -- --standoffHeight 10 > arduino-frame.step
 async fn main {
   let base_args_spec = {
     "frameThickness": @cli.opt_double(

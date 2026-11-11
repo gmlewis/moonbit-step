@@ -5,7 +5,7 @@
 /// anchors with different slot geometries and strengths.
 ///
 /// Usage (stdout):
-///   moon run --target native examples/22-zip-tie-anchor-panel -- --rows 2 --cols 3 > anchors.step
+///   moon run examples/22-zip-tie-anchor-panel -- --rows 2 --cols 3 > anchors.step
 async fn main {
   let base_args_spec = {
     "rows": @cli.opt_double(2.0, help="Number of rows of anchors", min=1.0),

@@ -4,7 +4,7 @@
 /// A drill guide with configurable angles and bushing seat geometry.
 ///
 /// Usage (stdout):
-///   moon run --target native examples/24-angled-drill-guide-block -- --angle 15 --holeDiameter 9.5 > guide.step
+///   moon run examples/24-angled-drill-guide-block -- --angle 15 --holeDiameter 9.5 > guide.step
 async fn main {
   let base_args_spec = {
     "angle": @cli.opt_double(

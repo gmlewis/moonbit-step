@@ -4,7 +4,7 @@
 /// Generate one metric fastener as a STEP file:
 ///
 /// ```bash
-/// moon run --target native components/examples/fasteners -- \
+/// moon run components/examples/fasteners -- \
 ///   --standard iso4762 --size M4 --length 20 --detail detailed -o M4x20.step
 /// ```
 ///

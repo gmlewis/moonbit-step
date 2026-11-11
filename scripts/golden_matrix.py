@@ -258,8 +258,6 @@ def generate(
     cmd = [
         "moon",
         "run",
-        "--target",
-        "native",
         "components/examples/fasteners",
         "--",
         "--standard",

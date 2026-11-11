@@ -51,7 +51,7 @@ def sync_versions():
                 update_sh_lines.append(f"moon add --no-update {dep_name}")
         
         update_sh_lines.append("moon install")
-        update_sh_lines.append("moon check --target native")
+        update_sh_lines.append("moon check")
         update_sh_content = "\n".join(update_sh_lines) + "\n"
 
         update_sh_changed = False

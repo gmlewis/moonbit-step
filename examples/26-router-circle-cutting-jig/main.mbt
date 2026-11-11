@@ -5,7 +5,7 @@
 /// Demonstrates complex profile construction and coordinate transformations.
 ///
 /// Usage (stdout):
-///   moon run --target native examples/26-router-circle-cutting-jig -- --armLength 300 > jig.step
+///   moon run examples/26-router-circle-cutting-jig -- --armLength 300 > jig.step
 async fn main {
   let base_args_spec = {
     "baseDiameter": @cli.opt_double(

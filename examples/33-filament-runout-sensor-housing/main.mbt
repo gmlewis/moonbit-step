@@ -5,10 +5,10 @@
 /// Demonstrates complex assemblies, rounded profiles, and face-based engraving.
 ///
 /// Usage (stdout):
-///   moon run --target native examples/33-filament-runout-sensor-housing -- > housing.step
+///   moon run examples/33-filament-runout-sensor-housing -- > housing.step
 ///
 /// Usage (write file):
-///   moon run --target native examples/33-filament-runout-sensor-housing -- -o housing.step
+///   moon run examples/33-filament-runout-sensor-housing -- -o housing.step
 async fn main {
   let base_args_spec = {
     "bodyLength": @cli.opt_double(

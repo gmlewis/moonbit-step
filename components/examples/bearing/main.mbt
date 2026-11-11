@@ -4,7 +4,7 @@
 /// Generate a single radial ball bearing envelope:
 ///
 /// ```bash
-/// moon run --target native components/examples/bearing -- \
+/// moon run components/examples/bearing -- \
 ///   --bearing 608 --detail detailed -o bearing.step
 /// ```
 ///

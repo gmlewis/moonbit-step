@@ -4,7 +4,7 @@
 /// Generate a shaft / bearing / spacer stack:
 ///
 /// ```bash
-/// moon run --target native components/examples/motion_stack -- \
+/// moon run components/examples/motion_stack -- \
 ///   --bearing 608 --shaftDiameter 8 --shaftLength 40 -o motion.step
 /// ```
 ///

@@ -4,7 +4,7 @@
 /// Generate a straight-spur planetary gear set:
 ///
 /// ```bash
-/// moon run --target native components/examples/planetary -- \
+/// moon run components/examples/planetary -- \
 ///   --module 2 --sunTeeth 12 --planetTeeth 12 --planets 3 -o planetary.step
 /// ```
 ///

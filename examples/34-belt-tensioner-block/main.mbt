@@ -5,10 +5,10 @@
 /// Demonstrates complex profile generation with integrated cutouts and teeth.
 ///
 /// Usage (stdout):
-///   moon run --target native examples/34-belt-tensioner-block -- > tensioner.step
+///   moon run examples/34-belt-tensioner-block -- > tensioner.step
 ///
 /// Usage (write file):
-///   moon run --target native examples/34-belt-tensioner-block -- -o tensioner.step
+///   moon run examples/34-belt-tensioner-block -- -o tensioner.step
 async fn main {
   let base_args_spec = {
     "length": @cli.opt_double(50.0, help="Block length (mm)"),

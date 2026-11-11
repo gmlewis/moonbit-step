@@ -4,7 +4,7 @@
 /// A parametric grommet for cable pass-throughs with lip and retention features.
 ///
 /// Usage (stdout):
-///   moon run --target native examples/23-cable-grommet-ring -- --innerDiameter 10 --panelThickness 3 > grommet.step
+///   moon run examples/23-cable-grommet-ring -- --innerDiameter 10 --panelThickness 3 > grommet.step
 async fn main {
   let base_args_spec = {
     "innerDiameter": @cli.opt_double(

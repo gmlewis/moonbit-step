@@ -79,7 +79,7 @@ New round-6 regressions:
 Result after the chamfer/fillet session: **457 tests, 457 passed, 0 failed**
 (432 at the start of that session; 408 before the earlier audit; 345 before the
 component work). `test-all.sh` also runs `moon fmt` and
-`moon info --target native`.
+`moon info`.
 
 New regression coverage added by the feature session:
 

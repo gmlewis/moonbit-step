@@ -4,10 +4,10 @@
 /// A parametric polygon knob with a custom polygon hole for a shaft.
 ///
 /// Usage (stdout):
-///   moon run --target native examples/10-polygon-knob -- > knob.step
+///   moon run examples/10-polygon-knob -- > knob.step
 ///
 /// Usage (write file):
-///   moon run --target native examples/10-polygon-knob -- -o knob.step
+///   moon run examples/10-polygon-knob -- -o knob.step
 async fn main {
   let base_args_spec = {
     "sides": @cli.opt_double(

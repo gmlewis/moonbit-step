@@ -5,10 +5,10 @@
 /// 5 mm/10 mm scribed tick marks on the top face.
 ///
 /// Usage (stdout):
-///   moon run --target native examples/14-bolt-length-gauge -- > gauge.step
+///   moon run examples/14-bolt-length-gauge -- > gauge.step
 ///
 /// Usage (write file):
-///   moon run --target native examples/14-bolt-length-gauge -- -o gauge.step
+///   moon run examples/14-bolt-length-gauge -- -o gauge.step
 async fn main {
   let base_args_spec = {
     "length": @cli.opt_double(100.0, help="Length of the gauge (mm)", min=50.0),

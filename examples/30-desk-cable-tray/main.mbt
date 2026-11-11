@@ -6,7 +6,7 @@
 /// and precise text positioning on faces.
 ///
 /// Usage (stdout):
-///   moon run --target native examples/30-desk-cable-tray -- --length 200 > tray.step
+///   moon run examples/30-desk-cable-tray -- --length 200 > tray.step
 async fn main {
   let base_args_spec = {
     "length": @cli.opt_double(

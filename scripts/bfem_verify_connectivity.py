@@ -11,7 +11,7 @@ verify that the resulting conductor network is:
 - a single path graph (exactly two degree-1 nodes, all others degree-2)
 
 Usage:
-  moon run --target native examples/12-bifilar-electromagnet -- \
+  moon run examples/12-bifilar-electromagnet -- \
         --export_centerlines /tmp/bfem_centerlines.json
 
   ./scripts/bfem_verify_connectivity.py /tmp/bfem_centerlines.json

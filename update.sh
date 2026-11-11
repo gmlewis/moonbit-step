@@ -19,7 +19,7 @@ moon add --upgrade moonbitlang/x || true
 moon add --upgrade gmlewis/fonts || true
 
 moon fmt || true
-moon info --target native || true
+moon info || true
 
 # Run tests
 echo "Running tests..."

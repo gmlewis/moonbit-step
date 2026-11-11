@@ -6,10 +6,10 @@
 /// and extruding it to create a functional mechanical part.
 ///
 /// Usage (stdout):
-///   moon run --target native examples/27-camera-tripod-adapter -- > plate.step
+///   moon run examples/27-camera-tripod-adapter -- > plate.step
 ///
 /// Usage (write file):
-///   moon run --target native examples/27-camera-tripod-adapter -- -o plate.step
+///   moon run examples/27-camera-tripod-adapter -- -o plate.step
 async fn main {
   let base_args_spec = {
     "width": @cli.opt_double(

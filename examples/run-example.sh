@@ -331,10 +331,10 @@ step_to_stl() {
 # so no `-C` (which moon no longer supports) is needed.
 if (( ${#FORWARD_ARGS[@]} )); then
   MOONBIT_STEP_ROOT="$ROOT_DIR" \
-    moon run --quiet --target native "$ROOT_DIR/$EXAMPLE_PATH_REL" -- "${FORWARD_ARGS[@]}"
+    moon run --quiet "$ROOT_DIR/$EXAMPLE_PATH_REL" -- "${FORWARD_ARGS[@]}"
 else
   MOONBIT_STEP_ROOT="$ROOT_DIR" \
-    moon run --quiet --target native "$ROOT_DIR/$EXAMPLE_PATH_REL"
+    moon run --quiet "$ROOT_DIR/$EXAMPLE_PATH_REL"
 fi
 
 if (( STL_REQUESTED )); then

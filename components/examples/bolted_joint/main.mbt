@@ -4,7 +4,7 @@
 /// Generate a through-bolted joint of two plates:
 ///
 /// ```bash
-/// moon run --target native components/examples/bolted_joint -- \
+/// moon run components/examples/bolted_joint -- \
 ///   --size M4 --width 40 --depth 30 --thickness 5 -o joint.step
 /// ```
 async fn main {

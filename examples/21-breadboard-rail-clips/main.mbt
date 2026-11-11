@@ -5,7 +5,7 @@
 /// breadboards to rails, generated for multiple breadboard sizes.
 ///
 /// Usage (stdout):
-///   moon run --target native examples/21-breadboard-rail-clips -- --width 54.5 > clip.step
+///   moon run examples/21-breadboard-rail-clips -- --width 54.5 > clip.step
 async fn main {
   let base_args_spec = {
     "width": @cli.opt_double(54.5, help="Breadboard width (mm)", min=10.0),

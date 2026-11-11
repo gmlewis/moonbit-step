@@ -4,10 +4,10 @@
 /// A strip with magnet pockets, spacing rules, and configurable retention lips.
 ///
 /// Usage (stdout):
-///   moon run --target native examples/31-magnetic-tool-holder-strip -- --rows 1 --cols 5 > strip.step
+///   moon run examples/31-magnetic-tool-holder-strip -- --rows 1 --cols 5 > strip.step
 ///
 /// Usage (write file):
-///   moon run --target native examples/31-magnetic-tool-holder-strip -- -o strip.step --rows 2 --cols 3
+///   moon run examples/31-magnetic-tool-holder-strip -- -o strip.step --rows 2 --cols 3
 async fn main {
   let base_args_spec = {
     "rows": @cli.opt_int(1, help="Number of rows", min=1),

@@ -10,15 +10,15 @@ Builds a component with the same builders the examples use and reports the
 in-memory scene graph.
 
 ```bash
-moon run --target native tools/inspect -- --help
-moon run --target native tools/inspect -- \
+moon run tools/inspect -- --help
+moon run tools/inspect -- \
   --standard iso4762 --size M4 --length 20 --detail detailed --json
-moon run --target native tools/inspect -- --bearing 608 --shielded --json
-moon run --target native tools/inspect -- --module 2 --teeth 40 --bore 10 --json
-moon run --target native tools/inspect -- \
+moon run tools/inspect -- --bearing 608 --shielded --json
+moon run tools/inspect -- --module 2 --teeth 40 --bore 10 --json
+moon run tools/inspect -- \
   --bearing 608 --section z=3.3 --volume
-moon run --target native tools/inspect -- --standard iso4762 --mesh part.obj
-moon run --target native tools/inspect -- --self-test
+moon run tools/inspect -- --standard iso4762 --mesh part.obj
+moon run tools/inspect -- --self-test
 ```
 
 Families: fasteners (`--standard`, `--size`, `--length`, `--detail`,
@@ -73,11 +73,11 @@ goldens (including entities the typed parser does not model, preserved as
 `RawEntity`).
 
 ```bash
-moon run --target native tools/step-stats -- \
+moon run tools/step-stats -- \
   components/testdata/golden/external/iso4762_socket_head_cap_screw_m4x20.step --json
-moon run --target native tools/step-stats -- \
+moon run tools/step-stats -- \
   target/golden-compare/parametric-bearing_608zz.step --json
-moon run --target native tools/step-stats -- --self-test
+moon run tools/step-stats -- --self-test
 ```
 
 Reports file size, entity counts (`ADVANCED_FACE`, `CLOSED_SHELL`,

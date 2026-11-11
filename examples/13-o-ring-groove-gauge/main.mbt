@@ -5,10 +5,10 @@
 /// Contains several standard groove sizes based on AS568 cross-sections.
 ///
 /// Usage (stdout):
-///   moon run --target native examples/13-o-ring-groove-gauge -- > gauge.step
+///   moon run examples/13-o-ring-groove-gauge -- > gauge.step
 ///
 /// Usage (write file):
-///   moon run --target native examples/13-o-ring-groove-gauge -- -o gauge.step
+///   moon run examples/13-o-ring-groove-gauge -- -o gauge.step
 async fn main {
   let base_args_spec = {
     "length": @cli.opt_double(

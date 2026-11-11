@@ -66,8 +66,6 @@ def main() -> None:
         export_cmd = [
             "moon",
             "run",
-            "--target",
-            "native",
             "examples/12-bifilar-electromagnet",
             "--",
             "--nostep",

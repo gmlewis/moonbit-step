@@ -2,10 +2,10 @@
 /// 12-bifilar-electromagnet
 ///
 /// Usage (stdout):
-///   moon run --target native examples/12-bifilar-electromagnet -- > bifilar-electromagnet.step
+///   moon run examples/12-bifilar-electromagnet -- > bifilar-electromagnet.step
 ///
 /// Usage (write file):
-///   moon run --target native examples/12-bifilar-electromagnet -- -o bifilar-electromagnet.step
+///   moon run examples/12-bifilar-electromagnet -- -o bifilar-electromagnet.step
 async fn main {
   guard parse_params() is Some(params) else { return }
 

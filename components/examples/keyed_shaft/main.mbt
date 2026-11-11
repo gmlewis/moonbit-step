@@ -4,7 +4,7 @@
 /// Generate a shaft with a real rectangular keyway and a matching key:
 ///
 /// ```bash
-/// moon run --target native components/examples/keyed_shaft -- \
+/// moon run components/examples/keyed_shaft -- \
 ///   --diameter 20 --length 40 --keywayWidth 6 --keywayDepth 3.5 -o keyed.step
 /// ```
 ///

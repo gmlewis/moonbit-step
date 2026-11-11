@@ -7,7 +7,7 @@
 /// Python/OCCT dependency.
 ///
 /// ```bash
-/// moon run --target native tools/inspect -- \
+/// moon run tools/inspect -- \
 ///   --standard iso4762 --size M4 --length 20 --detail detailed --json
 /// ```
 struct LayerInfo {

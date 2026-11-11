@@ -4,7 +4,7 @@
 /// A maker-friendly storage bin generator.
 ///
 /// Usage (stdout):
-///   moon run --target native examples/05-gridfinity-compatible-bin -- --rows 2 --cols 1 > bin.step
+///   moon run examples/05-gridfinity-compatible-bin -- --rows 2 --cols 1 > bin.step
 const GRID_UNIT : Double = 42.0
 
 ///|

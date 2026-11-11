@@ -580,7 +580,7 @@ If you want, I can add an opt-in export mode (JSON or a direct FastHenry-ish tex
 Example 12 now supports exporting discretized helix centerlines as JSON:
 
 ```bash
-moon run --target native examples/12-bifilar-electromagnet -- \
+moon run examples/12-bifilar-electromagnet -- \
   --export_centerlines /tmp/bfem_centerlines.json \
   > /dev/null
 ```

@@ -65,8 +65,6 @@ def run_bfem_report(args: argparse.Namespace) -> BfemReport:
     cmd = [
         "moon",
         "run",
-        "--target",
-        "native",
         "examples/12-bifilar-electromagnet",
         "--",
         "--report",

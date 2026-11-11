@@ -253,12 +253,12 @@ def main():
     root = Path(__file__).parent.parent
 
     # Run moon check first
-    print("Running 'moon check --target native'...")
+    print("Running 'moon check'...")
     try:
-        subprocess.run(["moon", "check", "--target", "native"], cwd=root, check=True, capture_output=True, text=True)
+        subprocess.run(["moon", "check", ], cwd=root, check=True, capture_output=True, text=True)
         print("  Check: OK")
     except subprocess.CalledProcessError as e:
-        print("\nERROR: 'moon check --target native' failed. Please fix the following errors before running this script again:\n")
+        print("\nERROR: 'moon check' failed. Please fix the following errors before running this script again:\n")
         print(e.stdout)
         print(e.stderr)
         sys.exit(1)

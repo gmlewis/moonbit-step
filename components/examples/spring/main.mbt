@@ -4,7 +4,7 @@
 /// Generate a simplified helical compression spring:
 ///
 /// ```bash
-/// moon run --target native components/examples/spring -- \
+/// moon run components/examples/spring -- \
 ///   --meanDiameter 10 --wireDiameter 1 --length 20 --coils 8 -o spring.step
 /// ```
 async fn main {

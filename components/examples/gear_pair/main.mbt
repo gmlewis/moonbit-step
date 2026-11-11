@@ -4,7 +4,7 @@
 /// Generate a two-gear involute spur gear pair:
 ///
 /// ```bash
-/// moon run --target native components/examples/gear_pair -- \
+/// moon run components/examples/gear_pair -- \
 ///   --module 2 --teeth 20 --mateTeeth 40 -o pair.step
 /// ```
 async fn main {

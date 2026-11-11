@@ -5,10 +5,10 @@
 /// the outside of a tube) or "plugs" (fitting inside a tube).
 ///
 /// Usage (stdout):
-///   moon run --target native examples/12-tube-cap-assortment -- --diameter 20 --wall 1.5 > cap.step
+///   moon run examples/12-tube-cap-assortment -- --diameter 20 --wall 1.5 > cap.step
 ///
 /// Usage (write file):
-///   moon run --target native examples/12-tube-cap-assortment -- -o cap.step
+///   moon run examples/12-tube-cap-assortment -- -o cap.step
 async fn main {
   let base_args_spec = {
     "diameter": @cli.opt_double(

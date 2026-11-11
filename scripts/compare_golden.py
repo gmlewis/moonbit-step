@@ -147,7 +147,7 @@ def generate_part(
         arg.replace("{out}", str(out_path))
         for arg in (override_args or generation.get("args", []))
     ]
-    cmd = ["moon", "run", "--target", "native", tool, "--", *args]
+    cmd = ["moon", "run", tool, "--", *args]
     proc = subprocess.run(
         cmd, cwd=str(root), capture_output=True, text=True, timeout=1800
     )

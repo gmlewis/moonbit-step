@@ -44,12 +44,12 @@ jobs:
 
       - name: moon info
         run: |
-          moon info --target native
+          moon info
           git diff --exit-code
 
       - name: moon test
         run: |
-          moon test --target native
+          moon test
 
       - name: format diff
         run: |

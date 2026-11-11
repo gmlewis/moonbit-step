@@ -6,10 +6,10 @@
 /// and aesthetics.
 ///
 /// Usage (stdout):
-///   moon run --target native examples/29-headphone-hook -- > hook.step
+///   moon run examples/29-headphone-hook -- > hook.step
 ///
 /// Usage (write file):
-///   moon run --target native examples/29-headphone-hook -- -o hook.step
+///   moon run examples/29-headphone-hook -- -o hook.step
 async fn main {
   let base_args_spec = {
     "width": @cli.opt_double(30.0, help="Width of the hook (mm)", min=10.0),

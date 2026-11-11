@@ -7,7 +7,7 @@
 /// a trimmed-geometry bounding box.
 ///
 /// ```bash
-/// moon run --target native tools/step-stats -- file.step --json
+/// moon run tools/step-stats -- file.step --json
 /// ```
 struct StepStats {
   bytes : Int32
@@ -35,8 +35,8 @@ struct StepStats {
 ///|
 fn help_text() -> String {
   [
-    "tools/step-stats — parse-only STEP structure inspection", "", "Usage:", "  moon run --target native tools/step-stats -- <file.step> [--json]",
-    "  moon run --target native tools/step-stats -- --self-test", "", "Output:",
+    "tools/step-stats — parse-only STEP structure inspection", "", "Usage:", "  moon run tools/step-stats -- <file.step> [--json]",
+    "  moon run tools/step-stats -- --self-test", "", "Output:",
     "  - file path and size", "  - entity counts (ADVANCED_FACE, CLOSED_SHELL, MANIFOLD_SOLID_BREP,",
     "    CARTESIAN_POINT, EDGE_CURVE, CIRCLE, LINE, VERTEX_POINT, ...)", "  - surface counts (plane, cylinder, cone, sphere, torus, bspline,",
     "    surface_of_revolution, surface_of_linear_extrusion)", "  - solid and shell counts",

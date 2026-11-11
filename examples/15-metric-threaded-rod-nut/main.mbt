@@ -5,7 +5,7 @@
 /// with modeled internal threads and correct clearances.
 ///
 /// Usage (stdout):
-///   moon run --target native examples/15-metric-threaded-rod-nut -- --boltDiameter 8 --clearance 0.1 > nut-strip.step
+///   moon run examples/15-metric-threaded-rod-nut -- --boltDiameter 8 --clearance 0.1 > nut-strip.step
 async fn main {
   let base_args_spec = {
     "boltDiameter": @cli.opt_double(

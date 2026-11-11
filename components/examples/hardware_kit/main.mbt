@@ -5,7 +5,7 @@
 /// a STEP assembly with separate products:
 ///
 /// ```bash
-/// moon run --target native components/examples/hardware_kit -- \
+/// moon run components/examples/hardware_kit -- \
 ///   --size M4 --length 20 --mode flat -o kit.step
 /// ```
 async fn main {

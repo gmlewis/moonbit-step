@@ -40,7 +40,7 @@
 /// native Y-up frame.
 ///
 /// Usage (stdout):
-///   moon run --target native examples/38-planetary-gearbox -- > gearbox.step
+///   moon run examples/38-planetary-gearbox -- > gearbox.step
 ///
 /// Usage (write file):
 ///   ./examples/run-example.sh 38 --numTeeth 12 -o gearbox.step

@@ -177,7 +177,7 @@ Additional frame configurations validated independently:
 Commands:
 
 ```bash
-moon run --target native components/examples/extrusion_frame -- \
+moon run components/examples/extrusion_frame -- \
   --width 400 --depth 300 --height 500 --series 2020 \
   -o components/examples/output/frame-2020-400x300x500.step \
   --views components/examples/output/views
@@ -293,25 +293,25 @@ The full core corpus was downloaded and verified locally (167/167 files).
 ```bash
 ./test-all.sh
 
-moon run --target native components/examples/fasteners -- \
+moon run components/examples/fasteners -- \
   --standard iso4762 --size M4 --length 20 --detail fully-modeled \
   -o components/examples/output/iso4762-M4x20-fully-modeled.step
 
-moon run --target native components/examples/hardware_kit -- \
+moon run components/examples/hardware_kit -- \
   --size M4 --length 20 -o components/examples/output/kit-M4x20-flat.step
 
-moon run --target native components/examples/extrusion_frame -- \
+moon run components/examples/extrusion_frame -- \
   --width 400 --depth 300 --height 500 --series 2020 \
   -o components/examples/output/frame-2020-400x300x500.step
 
-moon run --target native components/examples/gear_pair -- \
+moon run components/examples/gear_pair -- \
   --module 2 --teeth 20 --mateTeeth 40 \
   -o components/examples/output/gear-pair-m2-20x40.step
 
-moon run --target native components/examples/planetary -- \
+moon run components/examples/planetary -- \
   -o components/examples/output/planetary-m2-s12-p12-r36-3.step
 
-moon run --target native components/examples/motion_stack -- \
+moon run components/examples/motion_stack -- \
   --bearing 608 -o components/examples/output/motion-608-stack.step
 
 for f in components/examples/output/*.step; do

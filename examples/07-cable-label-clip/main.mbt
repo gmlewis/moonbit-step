@@ -4,7 +4,7 @@
 /// A snap-on cable label clip with programmable text.
 ///
 /// Usage (stdout):
-///   moon run --target native examples/07-cable-label-clip -- --diameter 5 --text USB > clip.step
+///   moon run examples/07-cable-label-clip -- --diameter 5 --text USB > clip.step
 async fn main {
   let base_args_spec = {
     "diameter": @cli.opt_double(6.0, help="Cable diameter (mm)", min=1.0),

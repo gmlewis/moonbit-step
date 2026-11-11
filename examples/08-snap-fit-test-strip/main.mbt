@@ -6,7 +6,7 @@
 /// with varying interference levels to test print tolerances.
 ///
 /// Usage (stdout):
-///   moon run --target native examples/08-snap-fit-test-strip -- --interference 0.5 > test-strip.step
+///   moon run examples/08-snap-fit-test-strip -- --interference 0.5 > test-strip.step
 async fn main {
   let base_args_spec = {
     "clearance": @cli.opt_double(

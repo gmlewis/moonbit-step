@@ -5,10 +5,10 @@
 /// Demonstrates using grids of holes and multi-part assemblies (base + holder).
 ///
 /// Usage (stdout):
-///   moon run --target native examples/11-hex-bit-holder -- > holder.step
+///   moon run examples/11-hex-bit-holder -- > holder.step
 ///
 /// Usage (write file):
-///   moon run --target native examples/11-hex-bit-holder -- -o holder.step
+///   moon run examples/11-hex-bit-holder -- -o holder.step
 async fn main {
   let base_args_spec = {
     "rows": @cli.opt_double(2.0, help="Number of rows in the grid", min=1.0),

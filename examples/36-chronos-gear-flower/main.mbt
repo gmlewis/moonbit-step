@@ -6,10 +6,10 @@
 /// and multiple colors.
 ///
 /// Usage (stdout):
-///   moon run --target native examples/36-chronos-gear-flower -- > flower.step
+///   moon run examples/36-chronos-gear-flower -- > flower.step
 ///
 /// Usage (write file):
-///   moon run --target native examples/36-chronos-gear-flower -- -o flower.step
+///   moon run examples/36-chronos-gear-flower -- -o flower.step
 async fn main {
   let base_args_spec = {
     "petals": @cli.opt_int(12, help="Number of petals", min=3, max=36),

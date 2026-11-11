@@ -5,7 +5,7 @@
 /// through interference values to calibrate press fits.
 ///
 /// Usage (stdout):
-///   moon run --target native examples/16-press-fit-pin-gauge -- --pinDiameter 5 --clearance 0.1 > pin-gauge.step
+///   moon run examples/16-press-fit-pin-gauge -- --pinDiameter 5 --clearance 0.1 > pin-gauge.step
 async fn main {
   let base_args_spec = {
     "pinDiameter": @cli.opt_double(

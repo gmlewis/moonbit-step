@@ -125,13 +125,13 @@ dimensioned STEP parts through the same `@cad` pipeline:
   writer refuses it with a typed diagnostic rather than emitting a sharp edge.
 
 ```bash
-moon run --target native components/examples/fasteners -- \
+moon run components/examples/fasteners -- \
   --standard iso4762 --size M4 --length 20 --detail detailed -o M4x20.step
-moon run --target native components/examples/hardware_kit -- \
+moon run components/examples/hardware_kit -- \
   --size M4 --length 20 -o kit.step
-moon run --target native components/examples/extrusion_frame -- \
+moon run components/examples/extrusion_frame -- \
   --width 400 --depth 300 --height 500 --series 2020 -o frame.step
-moon run --target native components/examples/gear_pair -- \
+moon run components/examples/gear_pair -- \
   --module 2 --teeth 20 --mateTeeth 40 -o gear-pair.step
 ```
 

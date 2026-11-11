@@ -5,7 +5,7 @@
 /// Demonstrates precision pockets and multi-profile extrusions.
 ///
 /// Usage (stdout):
-///   moon run --target native examples/35-linear-rail-endcap -- > endcap.step
+///   moon run examples/35-linear-rail-endcap -- > endcap.step
 ///
 async fn main {
   let base_args_spec = {

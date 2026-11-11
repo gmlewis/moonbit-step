@@ -4,7 +4,7 @@
 /// Generate a stepped shaft with toroidal shoulder fillets:
 ///
 /// ```bash
-/// moon run --target native components/examples/filleted_shaft -- \
+/// moon run components/examples/filleted_shaft -- \
 ///   --fillet 2 -o filleted-shaft.step
 /// ```
 ///

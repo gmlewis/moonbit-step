@@ -122,8 +122,6 @@ class IntegrationTests(unittest.TestCase):
             [
                 "moon",
                 "run",
-                "--target",
-                "native",
                 "scripts/csg-fixture",
                 "--",
                 str(cls.fixture),

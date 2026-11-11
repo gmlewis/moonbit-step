@@ -4,10 +4,10 @@
 /// A bracket that adapts to multiple spool widths and axle diameters.
 ///
 /// Usage (stdout):
-///   moon run --target native examples/32-spool-holder-bracket -- > bracket.step
+///   moon run examples/32-spool-holder-bracket -- > bracket.step
 ///
 /// Usage (write file):
-///   moon run --target native examples/32-spool-holder-bracket -- -o bracket.step
+///   moon run examples/32-spool-holder-bracket -- -o bracket.step
 async fn main {
   let base_args_spec = {
     "baseLength": @cli.opt_double(

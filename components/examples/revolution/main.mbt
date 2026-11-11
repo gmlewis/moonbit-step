@@ -5,7 +5,7 @@
 /// `RevolvedProfile` compiler:
 ///
 /// ```bash
-/// moon run --target native components/examples/revolution -- \
+/// moon run components/examples/revolution -- \
 ///   --out-dir components/examples/output
 /// ```
 ///

@@ -5,10 +5,10 @@
 /// This example demonstrates complex assembly and coordinate transforms.
 ///
 /// Usage (stdout):
-///   moon run --target native examples/28-phone-stand-parametric -- > stand.step
+///   moon run examples/28-phone-stand-parametric -- > stand.step
 ///
 /// Usage (write file):
-///   moon run --target native examples/28-phone-stand-parametric -- -o stand.step
+///   moon run examples/28-phone-stand-parametric -- -o stand.step
 async fn main {
   let base_args_spec = {
     "phoneThickness": @cli.opt_double(

@@ -5,10 +5,10 @@
 /// programmable text placement and border styles.
 ///
 /// Usage (stdout):
-///   moon run --target native examples/03-engraved-name-tag -- --name Susan > name-tag.step
+///   moon run examples/03-engraved-name-tag -- --name Susan > name-tag.step
 ///
 /// Usage (write file):
-///   moon run --target native examples/03-engraved-name-tag -- --name Susan -o name-tag.step
+///   moon run examples/03-engraved-name-tag -- --name Susan -o name-tag.step
 async fn main {
   let base_args_spec = {
     "debug": @cli.flag(short='d', help="Print debug information"),

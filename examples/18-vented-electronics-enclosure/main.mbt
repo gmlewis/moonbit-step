@@ -5,7 +5,7 @@
 /// walls, lid, screw bosses, and parametric vent patterns.
 ///
 /// Usage (stdout):
-///   moon run --target native examples/18-vented-electronics-enclosure -- --width 80 --length 120 --height 40 > enclosure.step
+///   moon run examples/18-vented-electronics-enclosure -- --width 80 --length 120 --height 40 > enclosure.step
 async fn main {
   let base_args_spec = {
     "width": @cli.opt_double(80.0, help="Outer width of the box (mm)", min=20.0),

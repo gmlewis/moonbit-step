@@ -4,7 +4,7 @@
 /// A working example that generates a STEP model for a living hinge sample.
 ///
 /// Usage (stdout):
-///   moon run --target native examples/17-living-hinge-sample -- --thickness 2 > hinge.step
+///   moon run examples/17-living-hinge-sample -- --thickness 2 > hinge.step
 async fn main {
   let base_args_spec = {
     "plateLength": @cli.opt_double(
