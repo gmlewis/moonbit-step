@@ -33,6 +33,8 @@ pub fn compile_revolved_profile(StepContext, SceneNode, RevolvedProfile, reverse
 
 pub fn compile_socketed_solid(StepContext, SceneNode, SocketedSolid, reverse? : Bool, parent? : Transform?) -> Array[@step.Ref]
 
+pub fn compile_square_hole_washer(StepContext, SceneNode, SquareHoleWasher, reverse? : Bool, parent? : Transform?) -> Array[@step.Ref]
+
 pub fn csg_eval_script_path(String?) -> String
 
 pub fn cut_on_face(SceneNode, Profile2D, FaceInfo, Double, name? : String, overshoot? : Double, center? : (Double, Double), color? : Rgb) -> SceneNode
@@ -516,6 +518,7 @@ pub enum Shape {
   CalibrationChamferBlock(CalibrationChamferBlock)
   ExtrudedProfile(ExtrudedProfile)
   ExtrudedArcProfile(ExtrudedArcProfile)
+  SquareHoleWasher(SquareHoleWasher)
   ExtrudedBezierProfile(ExtrudedBezierProfile)
   SweptProfile(SweptProfile)
   Fillet(EdgeFeature)
@@ -557,6 +560,14 @@ pub fn SocketedSolid::body_segments(Self) -> Array[RevSegment]
 pub fn SocketedSolid::centroid(Self) -> (Double, Double, Double)
 pub fn SocketedSolid::new(RevolvedProfile, Double, Double, lead_in_mm? : Double, rotation_deg? : Double) -> Self
 pub fn SocketedSolid::volume(Self) -> Double
+
+pub struct SquareHoleWasher {
+  outer_diameter_mm : Double
+  square_side_mm : Double
+  thickness_mm : Double
+}
+pub fn SquareHoleWasher::as_shape(Self) -> Shape
+pub fn SquareHoleWasher::new(outer_diameter_mm~ : Double, square_side_mm~ : Double, thickness_mm~ : Double) -> Self
 
 pub struct StepContext {
   mut repo : @repository.Repository

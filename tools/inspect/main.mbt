@@ -473,6 +473,7 @@ fn shape_kind(shape : @cad.Shape) -> String {
     CalibrationChamferBlock(_) => "calibration-chamfer-block"
     ExtrudedProfile(_) => "extruded-profile"
     ExtrudedArcProfile(_) => "extruded-arc-profile"
+    SquareHoleWasher(_) => "square-hole-washer"
     ExtrudedBezierProfile(_) => "extruded-bezier-profile"
     SweptProfile(_) => "swept-profile"
     Fillet(_) => "fillet"

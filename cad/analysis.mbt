@@ -1252,6 +1252,7 @@ fn an_shape_inventory(shape : Shape) -> SurfaceInventory {
       an_inventory(2 + outer_n + hole_n, cylinder, 0, 0, 0, 0, 0, 0)
     }
     ExtrudedArcProfile(e) => an_extruded_arc_inventory(e)
+    SquareHoleWasher(w) => an_square_hole_inventory(w)
     ExtrudedBezierProfile(e) => an_bezier_inventory(e)
     SweptProfile(s) => an_swept_inventory(s)
     Fillet(f) => an_shape_inventory(f.base.shape)
@@ -1389,6 +1390,14 @@ pub fn Shape::analysis_volume(self : Shape) -> Result[Double, AnalysisError] {
         Ok(volume)
       }
     }
+    SquareHoleWasher(w) => {
+      let volume = shw_area(w) * w.thickness_mm
+      if volume <= 0.0 {
+        Err(DegenerateProfile)
+      } else {
+        Ok(volume)
+      }
+    }
     ExtrudedBezierProfile(_) =>
       Err(NotAnalytic("Bezier profile requires tessellation"))
     SweptProfile(_) => Err(NotAnalytic("swept profile requires tessellation"))
@@ -1434,6 +1443,7 @@ pub fn Shape::analysis_centroid(self : Shape) -> Result[Vec3, AnalysisError] {
       Ok(c)
     }
     ExtrudedArcProfile(e) => Ok(e.centroid())
+    SquareHoleWasher(w) => Ok((0.0, 0.0, w.thickness_mm / 2.0))
     ExtrudedBezierProfile(_) =>
       Err(NotAnalytic("Bezier profile requires tessellation"))
     SweptProfile(_) => Err(NotAnalytic("swept profile requires tessellation"))
@@ -1503,6 +1513,7 @@ pub fn Shape::section_at_local(
     CalibrationChamferBlock(b) => an_calib_section(b, z)
     ExtrudedProfile(e) => e.section_at(z)
     ExtrudedArcProfile(e) => an_extruded_arc_section(e, z)
+    SquareHoleWasher(w) => an_square_hole_section(w, z)
     ExtrudedBezierProfile(_) =>
       Err(NotAnalytic("Bezier profile requires tessellation"))
     SweptProfile(_) => Err(NotAnalytic("swept profile requires tessellation"))
@@ -1729,6 +1740,12 @@ pub fn Shape::analysis_mesh(
         Err(DegenerateProfile)
       } else {
         Ok(extruded_arc_mesh(e))
+      }
+    SquareHoleWasher(w) =>
+      if shw_area(w) <= 0.0 || w.thickness_mm <= 0.0 {
+        Err(DegenerateProfile)
+      } else {
+        Ok(square_hole_mesh(w))
       }
     Union(u) => {
       let verts : Array[Vec3] = []

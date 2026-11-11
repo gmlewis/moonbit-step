@@ -98,6 +98,48 @@ pub fn din125_washer(
 }
 
 ///|
+/// din440_washer builds a DIN 440 V large washer with a square hole.
+///
+/// The washer lies in the XY plane with its faces at `z = 0` and `z = s`; the
+/// square hole is centered on the origin with sides parallel to X and Y. The
+/// outer surface is one analytic cylinder, the hole walls are four planes, and
+/// the end faces are planes with a square hole.
+pub fn din440_washer(
+  size : @standards.MetricSize,
+  detail~ : @common.DetailLevel = Simplified,
+  color~ : @cad.Rgb = @cad.Rgb::green(),
+) -> Result[@common.Component, @common.SpecError] {
+  match @standards.din440_spec(size) {
+    Err(e) => Err(e)
+    Ok(spec) => {
+      let dims = spec.size_dims
+      let body = @cad.SquareHoleWasher::new(
+        outer_diameter_mm=dims.outer_diameter_mm,
+        square_side_mm=dims.square_side_mm,
+        thickness_mm=dims.thickness_mm,
+      ).as_shape()
+      Ok(
+        @common.Component::new(
+          name="DIN440V-\{dims.size.designation()}",
+          metadata=spec.metadata(),
+          description="DIN 440 V large washer, square hole: one analytic outer cylinder, four planar square-hole walls, and two planar end faces." +
+            edge_chamfer_note(detail, "DIN 440 V"),
+          features=@common.FeatureRecord::new(
+            modeled=["body", "outer-cylinder", "square-bore", "end-faces"],
+            omitted=[
+              @common.Omission::new(
+                feature="edge-chamfer",
+                reason="DIN 440 V does not specify an edge chamfer or deburr; the sharp edge is standard-correct",
+              ),
+            ],
+          ),
+        ).add_layer(body, name="body", color~),
+      )
+    }
+  }
+}
+
+///|
 fn edge_chamfer_note(
   detail : @common.DetailLevel,
   standard_label : String,

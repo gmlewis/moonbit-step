@@ -305,6 +305,31 @@ test "din 127 b spring washer geometry" {
 }
 
 ///|
+test "din 440 v large washer geometry" {
+  let washer = match @fasteners.din440_washer(@standards.M5) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  let (x0, x1, y0, y1, z0, z1) = washer.bounding_box()
+  assert_true(close(x0, -9.0))
+  assert_true(close(x1, 9.0))
+  assert_true(close(y0, -9.0))
+  assert_true(close(y1, 9.0))
+  assert_true(close(z0, 0.0))
+  assert_true(close(z1, 2.0))
+  assert_true(washer.name() == "DIN440V-M5")
+  assert_true(washer.metadata().designation == "DIN 440 V - M5")
+  let features = washer.features()
+  assert_true(features.has_modeled("outer-cylinder"))
+  assert_true(features.has_modeled("square-bore"))
+  assert_true(features.has_omitted("edge-chamfer"))
+  let step = washer.to_step(checked=true)
+  assert_true(step.contains("MANIFOLD_SOLID_BREP"))
+  assert_true(step.contains("CLOSED_SHELL"))
+  assert_true(step.contains("CYLINDRICAL_SURFACE"))
+}
+
+///|
 test "fastener step text is non-empty and watertight-looking" {
   let washer = match @fasteners.iso7089_washer(@standards.M3) {
     Ok(c) => c

@@ -262,6 +262,33 @@ test "din 127 b known spring washer dimensions" {
 }
 
 ///|
+test "din 440 v large washer dimensions" {
+  let m5 = match @standards.din440_size(@standards.M5) {
+    Ok(v) => v
+    Err(e) => abort(e.message())
+  }
+  assert_true(close(m5.outer_diameter_mm, 18.0))
+  assert_true(close(m5.square_side_mm, 5.5))
+  assert_true(close(m5.thickness_mm, 2.0))
+  let spec = match @standards.din440_spec(@standards.M5) {
+    Ok(v) => v
+    Err(e) => abort(e.message())
+  }
+  assert_true(spec.designation() == "DIN 440 V - M5")
+  assert_true(@standards.DIN440Spec::standard() == "DIN 440 V")
+  assert_true(
+    spec.metadata().family == "large washer, square hole (timber construction)",
+  )
+  let m8 = match @standards.din440_size(@standards.M8) {
+    Ok(v) => v
+    Err(e) => abort(e.message())
+  }
+  assert_true(close(m8.outer_diameter_mm, 28.0))
+  assert_true(close(m8.square_side_mm, 9.0))
+  assert_true(close(m8.thickness_mm, 3.0))
+}
+
+///|
 test "iso 4017 and iso 4014 hex head dimensions" {
   let h4 = match @standards.hex_head_size(@standards.M4) {
     Ok(v) => v

@@ -18,6 +18,10 @@ pub fn din127_size(MetricSize) -> Result[DIN127Size, @common.SpecError]
 
 pub fn din127_spec(MetricSize) -> Result[DIN127Spec, @common.SpecError]
 
+pub fn din440_size(MetricSize) -> Result[DIN440Size, @common.SpecError]
+
+pub fn din440_spec(MetricSize) -> Result[DIN440Spec, @common.SpecError]
+
 pub fn din976_spec(MetricSize, Double) -> Result[DIN976Spec, @common.SpecError]
 
 pub fn hex_head_size(MetricSize) -> Result[HexHeadSize, @common.SpecError]
@@ -82,6 +86,22 @@ pub fn DIN127Spec::metadata(Self) -> @common.Metadata
 pub fn DIN127Spec::size(Self) -> MetricSize
 pub fn DIN127Spec::source() -> String
 pub fn DIN127Spec::standard() -> String
+
+pub(all) struct DIN440Size {
+  size : MetricSize
+  outer_diameter_mm : Double
+  square_side_mm : Double
+  thickness_mm : Double
+}
+
+pub(all) struct DIN440Spec {
+  size_dims : DIN440Size
+}
+pub fn DIN440Spec::designation(Self) -> String
+pub fn DIN440Spec::metadata(Self) -> @common.Metadata
+pub fn DIN440Spec::size(Self) -> MetricSize
+pub fn DIN440Spec::source() -> String
+pub fn DIN440Spec::standard() -> String
 
 pub(all) struct DIN976Spec {
   thread : ThreadSpec

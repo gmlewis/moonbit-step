@@ -24,6 +24,7 @@ proprietary catalog graphics, or manufacturer part files.
 | Plain washers, normal series | ISO 7089:2000 | `d1`, `d2`, `h` |
 | Plain washers, DIN A series | DIN 125 A | `d1`, `d2`, `h` (identical to ISO 7089 for the modeled sizes; M8 reference at h_max) |
 | Spring washers, form B | DIN 127 B | `d1`, `d2`, `b`, `s`, `h` (h_min reference) |
+| Large washers, square hole | DIN 440 V | `d2`, square side `a`, thickness `s` |
 | Hexagon head screws | ISO 4017:2022 | `s`, `k` |
 | Hexagon head bolts | ISO 4014:2022 | `s`, `k`, thread length `b` |
 | Button head hex socket screws | ISO 7380-1:2022 designation | `dk`, `k`, `s`, `t`, length range |
@@ -54,6 +55,7 @@ the parametric parts use s_max.
 - `components/standards/din125.mbt` — DIN 125 A washer table (reuses ISO 7089
   for the modeled sizes).
 - `components/standards/din127.mbt` — DIN 127 B spring-washer table.
+- `components/standards/din440.mbt` — DIN 440 V square-hole large-washer table.
 - `components/standards/hex_heads.mbt` — ISO 4014/4017 head table and DIN 976
   rod validation.
 - `components/motion/bearings.mbt` — bearing boundary table.
@@ -128,7 +130,7 @@ External STEP models examined during the correctness audit are recorded in
 
 ## Golden corpus expansion (2026-11-10)
 
-The manifest now records 26 external references. New acceptances corroborated
+The manifest now records 27 external references. New acceptances corroborated
 against the standards tables:
 
 - **ISO 4032 M3/M5:** the reference plan bounding box is the across-corners
@@ -155,6 +157,11 @@ against the standards tables:
   exactly. The M8 reference is 8.4 / 16 / 1.8 mm; 1.8 mm is the ISO 7089 /
   DIN 125 A h_max (nominal 1.6, limits 1.4..1.8 mm), so it is standard-correct
   and the DIN 125 A M8 reference thickness is taken at h_max.
+- **DIN 440 V M5/M6/M8:** the square-hole large washers match the DIN 440 V
+  table (M5 18 / 5.5 / 2.0, M6 22 / 6.6 / 2.0, M8 28 / 9.0 / 3.0). Both the
+  reference and the parametric part have one analytic outer cylinder, four
+  planar square-hole walls, and two planar end faces (7 faces, 15 edges, 10
+  vertices); the M5 volume and area match to rounding.
 - **DIN 127 B M4/M5/M6/M8:** the reference d1/d2/s values match the DIN 127 B
   table (M4 4.1 / 7.6 / 0.9, M5 5.1 / 9.2 / 1.2, M6 6.1 / 11.8 / 1.6,
   M8 8.1 / 14.8 / 2.0). The free height is taken at h_min (M4 1.8 mm). The

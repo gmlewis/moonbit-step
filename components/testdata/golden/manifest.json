@@ -1339,6 +1339,118 @@
       }
     },
     {
+      "fixture_id": "fasteners/din440v-m5",
+      "part_id": "din440_large_washer_m5",
+      "designation": "DIN 440 V - M5",
+      "family": "large washer, square hole (timber construction)",
+      "standard": "DIN 440 V",
+      "manufacturer": "unspecified step.parts contributor",
+      "source_page": "https://www.step.parts/parts/din440_large_washer_m5",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/din440_large_washer_m5.step",
+      "local_filename": "external/din440_large_washer_m5.step",
+      "sha256": "c0071a403098219a8f36e552920a6ca86a39b96cc28da3693603f74efb4c5ae0",
+      "byte_size": 21146,
+      "units": "mm",
+      "declared_dimensions": {
+        "outer_diameter_mm": 18.0,
+        "square_side_mm": 5.5,
+        "thickness_mm": 2.0
+      },
+      "measured_dimensions": {
+        "bbox_mm": [
+          18.0,
+          18.0,
+          2.0
+        ],
+        "volume_mm3": 448.438,
+        "solids": 1
+      },
+      "parametric_value": {
+        "bbox_mm": [
+          18.0,
+          18.0,
+          2.0
+        ],
+        "volume_mm3": 448.438,
+        "solids": 1,
+        "source": "components/examples/fasteners --standard din440 --size M5"
+      },
+      "verdict": "accepted",
+      "notes": "DIN 440 V M5: d2 18, square hole 5.5, s 2.0. The golden and parametric part both have one analytic outer cylinder, four planar square-hole walls, and two planar end faces (7 faces, 15 edges, 10 vertices); volume and area match to rounding.",
+      "committed": false,
+      "generation": {
+        "tool": "components/examples/fasteners",
+        "args": [
+          "--standard",
+          "din440",
+          "--size",
+          "M5",
+          "--detail",
+          "detailed",
+          "-o",
+          "{out}"
+        ],
+        "output": "din440-M5-detailed.step"
+      },
+      "comparison": {
+        "solids": 1,
+        "bbox_axes": [
+          {
+            "axis": 0,
+            "expected_mm": 18.0,
+            "label": "outer diameter"
+          },
+          {
+            "axis": 2,
+            "expected_mm": 2.0,
+            "label": "thickness"
+          }
+        ],
+        "features": [
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 9.0,
+            "tol_mm": 0.01
+          },
+          {
+            "kind": "min_vertex_radius_mm",
+            "expected": 3.8890872965260113,
+            "tol_mm": 0.01
+          },
+          {
+            "kind": "max_vertex_radius_mm",
+            "expected": 9.0,
+            "tol_mm": 0.01
+          },
+          {
+            "kind": "surface_min",
+            "surface": "plane",
+            "min_count": 6
+          }
+        ],
+        "mass_properties": {
+          "volume_mm3": 448.438,
+          "volume_relative_tol": 0.005,
+          "center_of_mass_mm": [
+            0.0,
+            0.0,
+            1.0
+          ],
+          "center_of_mass_tol_mm": 0.01
+        },
+        "sections": [
+          {
+            "z_mm": 1.0,
+            "area_mm2": 224.219,
+            "area_relative_tol": 0.01,
+            "x_extent_mm": 18.0,
+            "extent_tol_mm": 0.02
+          }
+        ],
+        "section_deflection_mm": 0.01
+      }
+    },
+    {
       "fixture_id": "fasteners/iso7089-m5",
       "part_id": "flat_washer_normal_m5_simple",
       "designation": "ISO 7089 M5",

@@ -88,6 +88,14 @@ table (6g/6H limits are not modeled as limits).
 - Data: width across flats `s`, head height `k`.
 - ISO 4017 is fully threaded. ISO 4014 uses the nominal `b` thread length.
 
+### DIN 440 V — large washers, square hole
+
+- Revision used: DIN 440 V (timber-construction large washer, square hole).
+- Supported sizes: M5, M6, M8, M10, M12, M16, M20.
+- Data: outer diameter `d2`, square-hole side `a`, thickness `s`.
+- The outer surface is one analytic cylinder; the hole walls are four planes
+  and the end faces are planes with the square hole.
+
 ### DIN 976-1 — metric threaded rods
 
 - Revision used: DIN 976-1:2016.

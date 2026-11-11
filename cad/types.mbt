@@ -246,6 +246,32 @@ pub struct SocketedSolid {
 }
 
 ///|
+/// SquareHoleWasher is a plain circular washer with a centered square through
+/// hole. The outer surface is one analytic cylinder; the hole walls are four
+/// planes and the two end faces are planes with a square hole.
+pub struct SquareHoleWasher {
+  outer_diameter_mm : Double
+  square_side_mm : Double
+  thickness_mm : Double
+}
+
+///|
+/// SquareHoleWasher::new builds a square-hole washer intent.
+pub fn SquareHoleWasher::new(
+  outer_diameter_mm~ : Double,
+  square_side_mm~ : Double,
+  thickness_mm~ : Double,
+) -> SquareHoleWasher {
+  { outer_diameter_mm, square_side_mm, thickness_mm, }
+}
+
+///|
+/// SquareHoleWasher::as_shape wraps the washer as a Shape.
+pub fn SquareHoleWasher::as_shape(self : SquareHoleWasher) -> Shape {
+  Shape::SquareHoleWasher(self)
+}
+
+///|
 pub enum Shape {
   Cuboid(Cuboid)
   Cylinder(Cylinder)
@@ -255,6 +281,7 @@ pub enum Shape {
   CalibrationChamferBlock(CalibrationChamferBlock)
   ExtrudedProfile(ExtrudedProfile)
   ExtrudedArcProfile(ExtrudedArcProfile)
+  SquareHoleWasher(SquareHoleWasher)
   ExtrudedBezierProfile(ExtrudedBezierProfile)
   SweptProfile(SweptProfile)
   Fillet(EdgeFeature)
@@ -511,6 +538,10 @@ pub fn Shape::bounding_box(
         }
       }
       (x0, x1, y0, y1, 0.0, e.height_mm)
+    }
+    SquareHoleWasher(w) => {
+      let r = w.outer_diameter_mm / 2.0
+      (-r, r, -r, r, 0.0, w.thickness_mm)
     }
     ExtrudedBezierProfile(e) => {
       let mut x0 = @double.max_value
