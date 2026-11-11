@@ -2,10 +2,10 @@
 /// ISO10642Size carries the ISO 10642 countersunk head hexagon socket screw
 /// dimensions for one nominal size.
 ///
-/// `d_k` is the head diameter, `k` the head height, `s` the socket width across
-/// flats, `t` the socket depth, and the head has a 90 degree (45 degree
-/// half-angle) countersink. These are nominal values transcribed from commonly
-/// published dimension summaries; verify against the current standard or a
+/// `d_k` is the maximum head diameter, `k` the maximum head height, `s` the
+/// socket nominal width across flats, `s_max` its upper limit, and `t` the
+/// maximum socket depth, per ISO 10642:2026. The head has a 90 degree
+/// (45 degree half-angle) countersink. Verify against the standard or a
 /// manufacturer drawing before manufacturing (see `DATA_SOURCES.md`).
 pub(all) struct ISO10642Size {
   size : MetricSize
@@ -28,12 +28,14 @@ pub fn iso10642_size(
 ) -> Result[ISO10642Size, @common.SpecError] {
   let dims = match size {
     // M3 starts at 5 mm: the downloaded countersunk reference is an M3 x 5.
-    M3 => (6.0, 1.70, 2.0, 2.08, 1.30, 5.0, 30.0)
-    M4 => (8.4, 2.30, 2.5, 2.58, 2.00, 6.0, 40.0)
-    M5 => (10.4, 2.80, 3.0, 3.08, 2.50, 8.0, 50.0)
-    M6 => (12.6, 3.30, 4.0, 4.095, 3.00, 12.0, 60.0)
-    M8 => (16.8, 4.40, 5.0, 5.14, 4.00, 16.0, 80.0)
-    M10 => (20.8, 5.50, 6.0, 6.14, 5.00, 20.0, 100.0)
+    // ISO 10642:2026: dk/k maxima and the socket depth t_max (the socket
+    // must not be deeper). The goldens are the superseded DIN 7991 sizes.
+    M3 => (5.81, 1.860, 2.0, 2.08, 1.25, 5.0, 30.0)
+    M4 => (7.96, 2.480, 2.5, 2.58, 1.65, 6.0, 40.0)
+    M5 => (10.07, 3.100, 3.0, 3.08, 2.00, 8.0, 50.0)
+    M6 => (12.16, 3.720, 4.0, 4.095, 2.50, 10.0, 60.0)
+    M8 => (16.43, 4.960, 5.0, 5.14, 3.20, 12.0, 80.0)
+    M10 => (20.69, 6.200, 6.0, 6.14, 3.90, 20.0, 100.0)
     _ =>
       return Err(
         @common.SpecError::InvalidSize(
@@ -106,13 +108,13 @@ pub fn ISO10642Spec::designation(self : ISO10642Spec) -> String {
 ///|
 /// ISO10642Spec::standard returns the exact standard used.
 pub fn ISO10642Spec::standard() -> String {
-  "ISO 10642:2004"
+  "ISO 10642:2026"
 }
 
 ///|
 /// ISO10642Spec::source returns the dimensional provenance note.
 pub fn ISO10642Spec::source() -> String {
-  "ISO 10642 countersunk head table; nominal values transcribed from published summaries, see components/DATA_SOURCES.md"
+  "ISO 10642:2026 (edition 4) countersunk head table; the 2026 change list has no dimensional changes, so the verified 2019 dk/k/s/t_max values are used. See components/DATA_SOURCES.md"
 }
 
 ///|

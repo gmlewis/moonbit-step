@@ -22,19 +22,21 @@ proprietary catalog graphics, or manufacturer part files.
 | Socket head cap screws | ISO 4762:2004 | `dk`, `k`, `s`, `t`, length ranges |
 | Hexagon regular nuts | ISO 4032:2023 | `s`, `m` |
 | Plain washers, normal series | ISO 7089:2000 | `d1`, `d2`, `h` |
-| Hexagon head screws | ISO 4017:2014 | `s`, `k` |
-| Hexagon head bolts | ISO 4014:2011 | `s`, `k`, thread length `b` |
+| Hexagon head screws | ISO 4017:2022 | `s`, `k` |
+| Hexagon head bolts | ISO 4014:2022 | `s`, `k`, thread length `b` |
 | Button head hex socket screws | ISO 7380-1:2022 designation | `dk`, `k`, `s`, `t`, length range |
-| Countersunk head hex socket screws | ISO 10642:2004 designation | `dk`, `k`, 90° angle, `s`, `t`, length range |
+| Countersunk head hex socket screws | ISO 10642:2026 designation | `dk`, `k`, 90° angle, `s`, `t`, length range |
 | Threaded rods | DIN 976-1:2016 | Metric coarse thread, rod lengths |
 | Radial ball bearings | ISO 15:2017 boundary dimensions | `d`, `D`, `B` |
 | Involute gear geometry | ISO 21771:2007 terminology / standard practice | radii, involute construction |
 
-The ISO 7380-1 and ISO 10642 tables are transcribed from commonly published
-dimension summaries. The ISO 10642 M3 head diameter (6.0 mm) was cross-checked
-against a step.parts reference model measured with OCCT (bbox 6.046 mm across
-the head). Verify these nominal values against the current standard before
-manufacturing.
+The ISO 7380-1 and ISO 10642 tables are transcribed from the published
+standards. ISO 10642:2026 has no dimensional changes versus 2019; its head
+maxima are dk 5.81 / 7.96 / 10.07 mm for M3 / M4 / M5, with t_max 1.25 / 1.65 /
+2.00 mm. The downloaded ISO 10642 references measure dk 6.046 / 8.131 / 10.181
+mm and use the superseded DIN 7991 socket depth, so they are recorded as
+non-compliant with the current edition and are not used as the dimensional
+oracle.
 
 ## Where the numbers live
 
@@ -127,7 +129,8 @@ against the standards tables:
   lengths 12.2 / 14.75 mm (= `L + k`) match `iso7380_size`.
 - **ISO 10642 M4 x 10 / M5 x 12:** overall lengths 10.0 / 12.0 mm and the 90
   degree countersink match; the measured head diameters are 8.131 / 10.181 mm
-  against nominal maxima 8.4 / 10.4 mm (edge rounding; the table is unchanged).
+  against the ISO 10642:2026 maxima 7.96 / 10.07 mm. The references are the
+  superseded DIN 7991 sizes and are non-compliant with the current edition.
 - **ISO 4017 M5 x 20:** the plan bbox is the across-corners span for `s` 8.0
   mm; the reference overall length 23.74 mm disagrees with the nominal
   `L + k = 23.5` mm by 0.24 mm, so it is accepted for head width only.

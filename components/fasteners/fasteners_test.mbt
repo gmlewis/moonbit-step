@@ -341,12 +341,13 @@ test "iso10642 M4x16 detailed countersunk head dimensions and layers" {
     Err(e) => abort(e.message())
   }
   let (x0, x1, _y0, _y1, z0, z1) = screw.bounding_box()
-  assert_true(close(x0, -4.2))
-  assert_true(close(x1, 4.2))
+  // ISO 10642:2026 M4 head diameter max is 7.96 mm.
+  assert_true(close(x0, -3.98))
+  assert_true(close(x1, 3.98))
   // Datum is the flush top face: top at 0, tip at -length.
   assert_true(close(z0, -16.0))
   assert_true(close(z1, 0.0))
-  assert_true(screw.metadata().standard == "ISO 10642:2004")
+  assert_true(screw.metadata().standard == "ISO 10642:2026")
   // One closed solid carries the countersink cone and the blind hex socket.
   assert_true(layer_names(screw).length() == 1)
   match layer_shape(screw, "ISO10642-M4-16/body") {

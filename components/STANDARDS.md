@@ -77,12 +77,16 @@ table (6g/6H limits are not modeled as limits).
 
 ### ISO 10642 — countersunk head hexagon socket screws
 
-- Revision used: ISO 10642:2004 (designation).
+- Revision used: ISO 10642:2026 (edition 4); the 2026 change list has no
+  dimensional changes, so the verified 2019 table values are used.
 - Supported sizes: M3, M4, M5, M6, M8, M10.
-- Data: head diameter `dk`, head height `k`, 90° head angle, socket across
-  flats `s`, socket depth `t`, and a practical length range.
+- Data: maximum head diameter `dk`, maximum head height `k`, 90° head angle,
+  socket across flats `s` (modeled at the upper limit `s_max`), maximum socket
+  depth `t_max`, and a practical length range.
 - The head is an analytic 90° countersink frustum (45° half-angle) with a flat
-  top and a modeled hexagon socket.
+  top and a modeled hexagon socket. The downloaded references are superseded
+  DIN 7991 sizes (larger `dk`, shallower socket) and are not used as the
+  dimensional oracle.
 
 ## Motion and hardware components (parametric, no standard table)
 

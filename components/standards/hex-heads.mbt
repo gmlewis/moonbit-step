@@ -21,8 +21,8 @@ pub fn hex_head_size(
     M3 => (5.5, 2.0, 5.0, 60.0)
     M4 => (7.0, 2.8, 6.0, 80.0)
     M5 => (8.0, 3.5, 8.0, 100.0)
-    M6 => (10.0, 4.0, 12.0, 120.0)
-    M8 => (13.0, 5.3, 16.0, 150.0)
+    M6 => (10.0, 4.0, 10.0, 120.0)
+    M8 => (13.0, 5.3, 12.0, 150.0)
     M10 => (16.0, 6.4, 20.0, 200.0)
     M12 => (18.0, 7.5, 25.0, 200.0)
     M16 => (24.0, 10.0, 30.0, 200.0)
@@ -95,12 +95,12 @@ pub fn ISO4017Spec::designation(self : ISO4017Spec) -> String {
 
 ///|
 pub fn ISO4017Spec::standard() -> String {
-  "ISO 4017:2014"
+  "ISO 4017:2022"
 }
 
 ///|
 pub fn ISO4017Spec::source() -> String {
-  "ISO 4017:2014 hexagon head screw, product grades A and B; nominal values, see components/DATA_SOURCES.md"
+  "ISO 4017:2022 hexagon head screw, product grades A and B; nominal values, see components/DATA_SOURCES.md"
 }
 
 ///|
@@ -171,12 +171,12 @@ pub fn ISO4014Spec::designation(self : ISO4014Spec) -> String {
 
 ///|
 pub fn ISO4014Spec::standard() -> String {
-  "ISO 4014:2011"
+  "ISO 4014:2022"
 }
 
 ///|
 pub fn ISO4014Spec::source() -> String {
-  "ISO 4014:2011 hexagon head bolt, product grades A and B; nominal values, see components/DATA_SOURCES.md"
+  "ISO 4014:2022 hexagon head bolt, product grades A and B; nominal values, see components/DATA_SOURCES.md"
 }
 
 ///|

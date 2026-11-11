@@ -686,7 +686,7 @@
         "length_mm": 12.0
       },
       "verdict": "accepted-envelope",
-      "notes": "Head diameter 6.046 mm matches ISO 10642 M3 dk max 6.0 within 0.05 mm; the conical bearing surface measures a 45 degree half-angle (90 degree included), matching the parametric builder. Envelope/angle cross-check only. The golden socket across flats is above the ISO maximum; the parametric part uses the ISO upper limit s_max.",
+      "notes": "The golden is the superseded DIN 7991 size (dk 6.046 mm); ISO 10642:2026 caps dk at 5.81 mm and the socket depth at 1.25 mm, so the golden is non-compliant with the current edition. The parametric part follows ISO 10642:2026.",
       "committed": false,
       "generation": {
         "tool": "components/examples/fasteners",
@@ -709,7 +709,7 @@
         "bbox_axes": [
           {
             "axis": 0,
-            "expected_mm": 6.0,
+            "expected_mm": 5.81,
             "label": "head diameter"
           },
           {
@@ -730,7 +730,7 @@
           },
           {
             "kind": "max_vertex_radius_mm",
-            "expected": 3.0,
+            "expected": 2.905,
             "tol_mm": 0.01
           }
         ]
@@ -1342,7 +1342,7 @@
         "source": "components/examples/fasteners --standard iso10642 --size M4 --length 10"
       },
       "verdict": "accepted-envelope",
-      "notes": "Overall length 10.0 mm matches the nominal length (the head occupies the top k mm). The reference head diameter 8.131 mm is below the nominal dk max 8.4 mm (countersink edge rounding); the 90 deg countersink is present. Envelope and angle cross-check only. The golden socket across flats is above the ISO maximum; the parametric part uses the ISO upper limit s_max.",
+      "notes": "The golden is the superseded DIN 7991 size (dk 8.131 mm, socket depth 1.8 mm); ISO 10642:2026 caps dk at 7.96 mm and the socket depth at 1.65 mm, so the golden is non-compliant with the current edition. The parametric part follows ISO 10642:2026.",
       "committed": false,
       "generation": {
         "tool": "components/examples/fasteners",
@@ -1365,7 +1365,7 @@
         "bbox_axes": [
           {
             "axis": 0,
-            "expected_mm": 8.4,
+            "expected_mm": 7.96,
             "label": "head diameter"
           },
           {
@@ -1386,7 +1386,7 @@
           },
           {
             "kind": "max_vertex_radius_mm",
-            "expected": 4.2,
+            "expected": 3.98,
             "tol_mm": 0.01
           }
         ]
@@ -1432,7 +1432,7 @@
         "source": "components/examples/fasteners --standard iso10642 --size M5 --length 12"
       },
       "verdict": "accepted-envelope",
-      "notes": "Overall length 12.0 mm matches; the reference head diameter 10.181 mm is below the nominal dk max 10.4 mm and the countersink is 90 deg. The golden socket across flats is above the ISO maximum; the parametric part uses the ISO upper limit s_max.",
+      "notes": "The golden is the superseded DIN 7991 size (dk 10.181 mm); ISO 10642:2026 caps dk at 10.07 mm and the socket depth at 2.00 mm, so the golden is non-compliant with the current edition. The parametric part follows ISO 10642:2026.",
       "committed": false,
       "generation": {
         "tool": "components/examples/fasteners",
@@ -1455,7 +1455,7 @@
         "bbox_axes": [
           {
             "axis": 0,
-            "expected_mm": 10.4,
+            "expected_mm": 10.07,
             "label": "head diameter"
           },
           {
@@ -1476,7 +1476,7 @@
           },
           {
             "kind": "max_vertex_radius_mm",
-            "expected": 5.2,
+            "expected": 5.035,
             "tol_mm": 0.01
           }
         ]
