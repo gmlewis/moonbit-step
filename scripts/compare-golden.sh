@@ -35,7 +35,20 @@
 #
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Resolve the script's real location, following symlinks. A git-ignored
+# ./compare-golden.sh symlink at the repository root must locate the same
+# repository as scripts/compare-golden.sh, so use the resolved target's
+# directory rather than the symlink's directory.
+SOURCE="${BASH_SOURCE[0]:-$0}"
+while [ -h "${SOURCE}" ]; do
+  SOURCE_DIR="$(cd -P "$(dirname "${SOURCE}")" && pwd)"
+  SOURCE="$(readlink "${SOURCE}")"
+  case "${SOURCE}" in
+    /*) ;;
+    *) SOURCE="${SOURCE_DIR}/${SOURCE}" ;;
+  esac
+done
+SCRIPT_DIR="$(cd -P "$(dirname "${SOURCE}")" && pwd)"
 ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 
 exec python3 -I - "${ROOT}" "$@" <<'PY'
@@ -318,9 +331,46 @@ def generation_command(row, detail, threads, out_path):
     return ["moon", "run", "--target", "native", tool, "--"] + args
 
 
+def wait_for_enter(message):
+    """Wait on the controlling terminal.
+
+    The script's stdin is the heredoc that carries this Python program, so
+    sys.stdin is already at EOF and is never a TTY. /dev/tty is the terminal
+    the user actually ran the script from.
+    """
+    try:
+        fd = os.open("/dev/tty", os.O_RDWR)
+    except OSError:
+        return False
+    try:
+        os.write(fd, message.encode("utf-8", "replace"))
+        while True:
+            chunk = os.read(fd, 1)
+            if not chunk or chunk in (b"\n", b"\r"):
+                break
+        return True
+    except OSError:
+        return False
+    finally:
+        try:
+            os.close(fd)
+        except OSError:
+            pass
+
+
+def split_batches(paths, batch):
+    if batch and batch > 0:
+        size = 2 * batch  # two files (golden + parametric) per pair
+    else:
+        size = len(paths)
+    return [paths[start:start + size] for start in range(0, len(paths), size)]
+
+
 def open_paths(paths, app, batch, use_helper):
     if not paths:
         return 0
+
+    helper_cmd = None
     if use_helper:
         helper = os.path.expanduser(
             "~/.claude/skills/solidcraft-app/scripts/sc_mcp.py"
@@ -342,48 +392,57 @@ def open_paths(paths, app, batch, use_helper):
                     "back to `open -a {}`".format(app)
                 )
             else:
-                cmd = [sys.executable, "-I", helper, "open", *paths,
-                       "--up", "z", "--continue-on-error"]
-                print(
-                    "opening {} file(s) through the SolidCraft GUI helper".format(
-                        len(paths)
-                    )
-                )
-                proc = subprocess.run(cmd, capture_output=True, text=True)
-                if proc.stdout.strip():
-                    print(proc.stdout.strip())
-                if proc.returncode != 0 and proc.stderr.strip():
-                    print(proc.stderr.strip())
-                return 0 if proc.returncode == 0 else 1
-    if not shutil.which("open"):
+                helper_cmd = [sys.executable, "-I", helper, "open"]
+
+    if helper_cmd is None and not shutil.which("open"):
         print("`open` is not available; generated files:")
         for path in paths:
             print("  " + path)
         return 0
-    size = 2 * batch if batch and batch > 0 else len(paths)
+
+    chunks = split_batches(paths, batch)
     status = 0
-    for start in range(0, len(paths), size):
-        chunk = paths[start:start + size]
-        print("opening {} file(s) with `open -a {}`".format(len(chunk), app))
-        proc = subprocess.run(["open", "-a", app, *chunk])
-        if proc.returncode != 0:
-            status = proc.returncode
+    for index, chunk in enumerate(chunks, 1):
+        if helper_cmd is not None:
+            cmd = helper_cmd + chunk + ["--up", "z", "--continue-on-error"]
             print(
-                "warning: `open -a {}` returned {}. The paths are:".format(
-                    app, proc.returncode
+                "opening {}/{} file(s) through the SolidCraft GUI helper".format(
+                    len(chunk), len(paths)
                 )
             )
-            for path in chunk:
-                print("  " + path)
-        if start + size < len(paths):
-            if sys.stdin.isatty():
-                try:
-                    input(
-                        "Close some SolidCraft tabs, then press Enter for the "
-                        "next batch (Ctrl-C to stop)... "
+            proc = subprocess.run(cmd, capture_output=True, text=True)
+            if proc.stdout.strip():
+                print(proc.stdout.strip())
+            if proc.returncode != 0:
+                status = proc.returncode
+                if proc.stderr.strip():
+                    print(proc.stderr.strip())
+        else:
+            print(
+                "opening {}/{} file(s) with `open -a {}`".format(
+                    len(chunk), len(paths), app
+                )
+            )
+            proc = subprocess.run(["open", "-a", app, *chunk])
+            if proc.returncode != 0:
+                status = proc.returncode
+                print(
+                    "warning: `open -a {}` returned {}. The paths are:".format(
+                        app, proc.returncode
                     )
-                except EOFError:
-                    pass
+                )
+                for path in chunk:
+                    print("  " + path)
+        if index < len(chunks):
+            if not wait_for_enter(
+                "Batch {}/{} opened. Close some SolidCraft tabs, then press "
+                "Enter for the next batch (Ctrl-C to stop)... ".format(
+                    index, len(chunks)
+                )
+            ):
+                print(
+                    "note: no controlling terminal; continuing without waiting."
+                )
     return status
 
 
