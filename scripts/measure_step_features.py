@@ -146,6 +146,34 @@ def analyze(path: Path) -> dict:
         r = math.hypot(x, y)
         if r > 1.0e-9:
             radii.append(r)
+    # Vertex rings: only real model vertices (VERTEX_POINT -> CARTESIAN_POINT),
+    # reported as (z, radius) pairs with their multiplicity. This lets a caller
+    # measure a chamfer leg, a socket lead-in, or a ring-stack face directly
+    # from the emitted geometry instead of trusting the builder.
+    ring_pairs: list[tuple[float, float]] = []
+    for _eid, body in ents.items():
+        head = body.split("(", 1)[0].strip().upper()
+        if head != "VERTEX_POINT":
+            continue
+        args = split_args(body[body.find("(") + 1 : body.rfind(")")])
+        if len(args) < 2:
+            continue
+        ref = re.search(r"#(\d+)", args[1])
+        if not ref:
+            continue
+        point_body = ents.get(int(ref.group(1)), "")
+        pm = CARTESIAN_POINT_RE.search(point_body)
+        if not pm:
+            continue
+        x, y, z = (float(v) for v in pm.groups())
+        ring_pairs.append((round(z, 4), round(math.hypot(x, y), 4)))
+    ring_buckets: dict[tuple[float, float], int] = {}
+    for pair in ring_pairs:
+        ring_buckets[pair] = ring_buckets.get(pair, 0) + 1
+    vertex_rings = [
+        {"z_mm": z, "radius_mm": r, "count": n}
+        for (z, r), n in sorted(ring_buckets.items())
+    ]
     # Cluster repeated radii (arc vertices) so a caller can check a named
     # diameter such as a gear root or tip circle. Flank samples repeat once per
     # tooth, so a threshold of four keeps arcs and drops one-off points.
@@ -171,6 +199,8 @@ def analyze(path: Path) -> dict:
         "min_vertex_radius": min(radii) if radii else None,
         "max_vertex_radius": max(radii) if radii else None,
         "vertex_radius_clusters": clusters,
+        "vertex_count": len(ring_pairs),
+        "vertex_rings": vertex_rings,
     }
 
 

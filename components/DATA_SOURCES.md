@@ -148,3 +148,23 @@ Rejected with evidence (not used as oracles):
 
 The harness verifies each file's SHA-256 and byte size. No external STEP file
 is committed; per-file redistribution rights remain unverified.
+
+## Round 7 matrix data
+
+The M2–M5 matrix uses the same standards tables as the builders, independently
+re-encoded in `scripts/golden_matrix.py`:
+
+- ISO 4762: `d, dk, k, s, t`;
+- ISO 4032: `s, m`;
+- ISO 7089: `d1, d2, h`;
+- ISO 4014/4017: `s, k`;
+- ISO 7380-1: `dk, k, s, t`;
+- ISO 10642: `dk, k, s, t`;
+- DIN 976-1: `d` and the requested length.
+
+The engineering-default chamfer formulas are re-encoded independently in the
+harness (`tip_chamfer`, `lead_in`, `head_chamfer`, `hex_head_chamfer`,
+`nut_chamfer`) so a matrix failure reflects the emitted geometry, not a call
+into the generator. The full development-time verdicts and the rejected
+candidate models are in `GOLDEN_REFERENCES.md` and
+`components/testdata/golden/matrix.json`.

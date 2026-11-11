@@ -9,12 +9,12 @@ HEADER;
     bearing-b = Bearing 608 (ISO 15 boundary dimensions; simplified internal geometry)
     spacer = Spacer OD 12 / ID 8 x 10 ()
   Features modeled:      body, outer-ring, inner-ring, ball-sphere
-  Features approximated: outer-ring-boundary (PolylineArc, deviation 0.02355184437536173 mm, control circle_segments=48); inner-ring-bore (PolylineArc, deviation 0.008564307045586084 mm, control circle_segments=48); through-bore (PolylineArc, deviation 0.00722726276896557 mm, control circle_segments=64)
+  Features approximated: outer-ring-boundary (PolylineArc, deviation 0.02355184437536173 mm, control circle_segments=48); inner-ring-bore (PolylineArc, deviation 0.008564307045586084 mm, control circle_segments=48); outer-boundary (PolylineArc, deviation 0.00722726276896557 mm, control circle_segments=64); through-bore (PolylineArc, deviation 0.00481817517931038 mm, control circle_segments=64)
   Features omitted:      keyway (not modelled; represent it with an evaluated cut); shaft-chamfer (not modelled by this builder); shoulder-fillet (a plain shaft has no shoulder); seal (seals are not modelled in this envelope); cage (rolling-element cages are not modelled); race-groove (rolling-element race grooves are not modelled); bore-chamfer (the bore and outer edges are not chamfered at Simplified detail); ring-edge-chamfer (omitted at Simplified detail level); edge-chamfer (not modelled by this builder)
   Feature tolerance:     0.01 mm
 */
 FILE_DESCRIPTION(('Shaft with two simplified bearings and a spacer. Bearing rolling elements are cylindrical proxies.'),'2;1');
-FILE_NAME('motion-stack-608.step','2026-11-10T13:14:32',('gmlewis'),('gmlewis/step','https://github.com/gmlewis/moonbit-step'),'gmlewis/step','moonbit','none');
+FILE_NAME('motion-stack-608.step','2026-11-11T02:02:22',('gmlewis'),('gmlewis/step','https://github.com/gmlewis/moonbit-step'),'gmlewis/step','moonbit','none');
 FILE_SCHEMA(('AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }'));
 ENDSEC;
 DATA;

@@ -6,14 +6,14 @@ HEADER;
   Family:     plain washer, normal series
   Size:       M4
   Data source: ISO 7089:2000 plain washer, normal series, product grade A; nominal values, see components/DATA_SOURCES.md
-  Notes:      Plain washer, normal series; a single extrusion with a circular bore. Edge chamfers are not modeled.
+  Notes:      Plain washer, normal series; a single extrusion with a circular bore. ISO 7089 specifies no edge chamfer, so the sharp edge is modeled at every detail level and no chamfer is claimed. No edge treatment is specified by the standard.
   Features modeled:      body
   Features approximated: outer-boundary (PolylineArc, deviation 0.009634845426284344 mm, control circle_segments=48); through-bore (PolylineArc, deviation 0.00460331503700252 mm, control circle_segments=48)
-  Features omitted:      edge-chamfer (not modelled by this builder)
+  Features omitted:      edge-chamfer (ISO 7089 does not specify an edge chamfer or deburr; the sharp edge is the standard-correct representation)
   Feature tolerance:     0.01 mm
 */
 FILE_DESCRIPTION(('ISO 7089 - M4'),'2;1');
-FILE_NAME('ISO7089-M4.step','2026-11-10T13:14:26',('gmlewis'),('gmlewis/step','https://github.com/gmlewis/moonbit-step'),'gmlewis/step','moonbit','none');
+FILE_NAME('ISO7089-M4.step','2026-11-11T02:02:16',('gmlewis'),('gmlewis/step','https://github.com/gmlewis/moonbit-step'),'gmlewis/step','moonbit','none');
 FILE_SCHEMA(('AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }'));
 ENDSEC;
 DATA;

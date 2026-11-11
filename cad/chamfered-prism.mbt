@@ -13,17 +13,28 @@ pub struct ChamferedPrism {
   base : Array[Vec2]
   levels : Array[(Double, Double)]
   hole : Array[Vec2]?
+  /// Optional per-level hole profile. Each entry is `(z, inward_inset)` applied
+  /// to `hole`, which is the largest (outermost) hole profile. The first and
+  /// last `z` must equal the first and last outer level `z`, so the end caps
+  /// close. This is how a real tapered hole (a socket lead-in chamfer or a
+  /// countersink) is represented: the hole ring shrinks inward with depth.
+  hole_levels : Array[(Double, Double)]?
 }
 
 ///|
 /// ChamferedPrism::new stores a ring stack without validating it. `levels` are
 /// `(z, inset)` pairs with strictly increasing `z` and non-negative insets.
+///
+/// `hole_levels` optionally gives a `(z, inward_inset)` ring stack for the
+/// hole; it makes a tapered hole such as a socket lead-in chamfer. Without it
+/// the hole has vertical walls.
 pub fn ChamferedPrism::new(
   base : Array[Vec2],
   levels : Array[(Double, Double)],
   hole? : Array[Vec2],
+  hole_levels? : Array[(Double, Double)],
 ) -> ChamferedPrism {
-  { base, levels, hole, }
+  { base, levels, hole, hole_levels, }
 }
 
 ///|
@@ -51,7 +62,7 @@ pub fn ChamferedPrism::from_chamfer(
   } else {
     levels.push((height, 0.0))
   }
-  { base, levels, hole, }
+  { base, levels, hole, hole_levels: None, }
 }
 
 ///|
@@ -107,6 +118,43 @@ pub fn ChamferedPrism::validate(
     Some(h) =>
       if h.length() < 3 || !Profile2D::is_simple(h) {
         return Err(PrismBadHole)
+      }
+    None => ()
+  }
+  match self.hole_levels {
+    Some(hls) =>
+      match self.hole {
+        None => return Err(PrismBadHole)
+        Some(h) => {
+          if hls.length() < 2 {
+            return Err(PrismBadHole)
+          }
+          let z_first = self.levels[0].0
+          let z_last = self.levels[self.levels.length() - 1].0
+          if (hls[0].0 - z_first).abs() > 1.0e-9 ||
+            (hls[hls.length() - 1].0 - z_last).abs() > 1.0e-9 {
+            return Err(PrismBadHole)
+          }
+          let mut prev_z = -1.0e300
+          let hccw = if polygon_area_2d(h) < 0.0 { h.rev() } else { h }
+          for i in 0..<hls.length() {
+            let (z, inset) = hls[i]
+            if z < prev_z - 1.0e-12 {
+              return Err(PrismBadHole)
+            }
+            prev_z = z
+            if inset < -1.0e-12 {
+              return Err(PrismBadHole)
+            }
+            match chamfer_inset(hccw, inset) {
+              None => return Err(PrismBadHole)
+              Some(ring) =>
+                if !Profile2D::is_simple(ring) {
+                  return Err(PrismBadHole)
+                }
+            }
+          }
+        }
       }
     None => ()
   }
@@ -213,20 +261,42 @@ pub fn compile_chamfered_prism(
   }
   let z0 = prism.levels[0].0
   let z1 = prism.levels[nl - 1].0
-  let hole0 : Array[Int32] = []
-  let hole1 : Array[Int32] = []
+  let hole_rings : Array[Array[Int32]] = []
   match prism.hole {
-    Some(h) => {
-      let hcw = if polygon_area_2d(h) > 0.0 { h.rev() } else { h }
-      for p in hcw {
-        hole0.push(pts_raw.length())
-        pts_raw.push((p.0, p.1, z0))
+    Some(h) =>
+      match prism.hole_levels {
+        Some(hls) => {
+          let hccw = if polygon_area_2d(h) < 0.0 { h.rev() } else { h }
+          for level in hls {
+            let (z, inset) = level
+            let ring = match chamfer_inset(hccw, inset) {
+              Some(r) => r.rev()
+              None => return []
+            }
+            let idxs : Array[Int32] = []
+            for p in ring {
+              idxs.push(pts_raw.length())
+              pts_raw.push((p.0, p.1, z))
+            }
+            hole_rings.push(idxs)
+          }
+        }
+        None => {
+          let hcw = if polygon_area_2d(h) > 0.0 { h.rev() } else { h }
+          let idx0 : Array[Int32] = []
+          for p in hcw {
+            idx0.push(pts_raw.length())
+            pts_raw.push((p.0, p.1, z0))
+          }
+          let idx1 : Array[Int32] = []
+          for p in hcw {
+            idx1.push(pts_raw.length())
+            pts_raw.push((p.0, p.1, z1))
+          }
+          hole_rings.push(idx0)
+          hole_rings.push(idx1)
+        }
       }
-      for p in hcw {
-        hole1.push(pts_raw.length())
-        pts_raw.push((p.0, p.1, z1))
-      }
-    }
     None => ()
   }
   let pts = pts_raw.map(fn(pt) { xform.apply(pt) })
@@ -264,14 +334,21 @@ pub fn compile_chamfered_prism(
   for li in 0..<(nl - 1) {
     connect_ring(rings[li], rings[li + 1])
   }
-  // Hole rings and vertical hole edges.
+  // Hole rings and vertical/ruled hole edges (one ring chain per level).
   let has_hole = prism.hole is Some(_)
   if has_hole {
-    let nh = hole0.length()
-    for k in 0..<nh {
-      add_edge(hole0[k], hole0[(k + 1) % nh])
-      add_edge(hole1[k], hole1[(k + 1) % nh])
-      add_edge(hole0[k], hole1[k])
+    for hi in 0..<hole_rings.length() {
+      let ring = hole_rings[hi]
+      let nh = ring.length()
+      for k in 0..<nh {
+        add_edge(ring[k], ring[(k + 1) % nh])
+      }
+      if hi > 0 {
+        let prev = hole_rings[hi - 1]
+        for k in 0..<nh {
+          add_edge(prev[k], ring[k])
+        }
+      }
     }
   }
   let face_refs : Array[@step.Ref] = []
@@ -279,6 +356,8 @@ pub fn compile_chamfered_prism(
   let up = xform.apply_dir((0.0, 0.0, 1.0))
   // End caps.
   if has_hole {
+    let hole_bottom = hole_rings[0]
+    let hole_top = hole_rings[hole_rings.length() - 1]
     face_refs.push(
       add_plane_face_with_holes_oriented(
         ctx,
@@ -286,7 +365,7 @@ pub fn compile_chamfered_prism(
         pts,
         cp_refs,
         rings[0],
-        [hole0],
+        [hole_bottom],
         down,
         reverse~,
       ),
@@ -298,7 +377,7 @@ pub fn compile_chamfered_prism(
         pts,
         cp_refs,
         rings[nl - 1],
-        [hole1],
+        [hole_top],
         up,
         reverse~,
       ),
@@ -349,24 +428,30 @@ pub fn compile_chamfered_prism(
       )
     }
   }
-  // Hole walls; the plane normal points inward toward the axis.
+  // Hole walls; the plane normal points inward toward the axis. Consecutive
+  // hole rings are joined by ruled quads, so a tapered hole (socket lead-in)
+  // is a chain of planar ruled facets.
   if has_hole {
-    let nh = hole0.length()
-    for k in 0..<nh {
-      let k2 = (k + 1) % nh
-      let cycle = [hole0[k], hole0[k2], hole1[k2], hole1[k]]
-      let normal = prism_face_normal(pts, cycle, true)
-      face_refs.push(
-        add_plane_face_oriented(
-          ctx,
-          edges,
-          pts,
-          cp_refs,
-          cycle,
-          normal,
-          reverse~,
-        ),
-      )
+    for hi in 1..<hole_rings.length() {
+      let a = hole_rings[hi - 1]
+      let b = hole_rings[hi]
+      let nh = a.length()
+      for k in 0..<nh {
+        let k2 = (k + 1) % nh
+        let cycle = [a[k], a[k2], b[k2], b[k]]
+        let normal = prism_face_normal(pts, cycle, true)
+        face_refs.push(
+          add_plane_face_oriented(
+            ctx,
+            edges,
+            pts,
+            cp_refs,
+            cycle,
+            normal,
+            reverse~,
+          ),
+        )
+      }
     }
   }
   face_refs

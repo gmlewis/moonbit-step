@@ -31,6 +31,12 @@ moon run --target native components/examples/extrusion_frame -- \
   --width 400 --depth 300 --height 500 --series 2020 -o frame.step
 ```
 
+Build and validate the M2–M5 fastener golden matrix (108 cells):
+
+```bash
+python3 scripts/golden_matrix.py --write components/testdata/golden
+```
+
 Generate an involute gear pair:
 
 ```bash

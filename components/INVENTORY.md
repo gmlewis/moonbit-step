@@ -9,14 +9,14 @@ insufficient). A PASS is never a claim of manufacturing approval.
 
 | Family | Package | Status | Scope / evidence |
 |---|---|---|---|
-| ISO 4762 socket head cap screws | `fasteners`, `standards` | PASS | M2–M20 table; M3/M4/M5 tested; layered shank/head/socket; optional 60° helical thread at `FullyModeled`; `iso4762-M4x20*.step` |
-| ISO 4017 fully threaded hex head screws | `fasteners`, `standards` | PASS | M2–M20 table; M4/M5 examples; plain hex head; `iso4017-M5x20.step` |
-| ISO 4014 partially threaded hex head bolts | `fasteners`, `standards` | PASS | M2–M20 table; ISO `b` length bands; M8 example; `iso4014-M8x40.step` |
-| ISO 4032 hex nuts | `fasteners`, `standards` | PASS | M2–M20 table; face chamfer at `Detailed`; attached internal 60° ridge at `FullyModeled`; `iso4032-M{3,4,5}*.step` |
-| ISO 7089 plain washers | `fasteners`, `standards` | PASS | M2–M20 table; single extrusion; `iso7089-M{3,4,5}.step` |
-| ISO 7380-1 button head screws | `fasteners`, `standards` | PASS | M3–M10 table; spherical-cap head; hex socket; `iso7380-M4x16-detailed.step` |
-| ISO 10642 countersunk screws | `fasteners`, `standards` | PASS | M3–M10 table; 90° countersink; length over the flush head; `iso10642-M4x16-detailed.step` |
-| DIN 976-1 threaded rods | `fasteners`, `standards` | PASS | M2–M20 table; optional helical thread; `din976-M8x200.step` |
+| ISO 4762 socket head cap screws | `fasteners`, `standards` | PASS | M2–M20 table; every M2/M2.5/M3/M4/M5 cell matrix-validated; head top chamfer, socket lead-in chamfer, and shank tip chamfer at `Detailed`+; thread measured from the tip; optional 60° helical thread at `FullyModeled`; `iso4762-M4x20*.step` |
+| ISO 4017 fully threaded hex head screws | `fasteners`, `standards` | PASS | M2–M20 table; M2–M5 matrix-validated; hex-head top chamfer and shank tip chamfer at `Detailed`+; `iso4017-M5x20.step` |
+| ISO 4014 partially threaded hex head bolts | `fasteners`, `standards` | PASS | M2–M20 table; M2–M5 matrix-validated; ISO `b` measured from the tip; hex-head and tip chamfers; M8 example; `iso4014-M8x40.step` |
+| ISO 4032 hex nuts | `fasteners`, `standards` | PASS | M2–M20 table; M2–M5 matrix-validated; face chamfers at every `Detailed`+ level, including the fully modeled helical body; attached internal 60° ridge at `FullyModeled`; `iso4032-M{3,4,5}*.step` |
+| ISO 7089 plain washers | `fasteners`, `standards` | PASS | M2–M20 table; M2–M5 matrix-validated; single extrusion; ISO 7089 specifies no edge chamfer, so the sharp edge is documented as standard-correct and no chamfer is claimed; `iso7089-M{3,4,5}.step` |
+| ISO 7380-1 button head screws | `fasteners`, `standards` | PASS | M3–M10 table; M3/M4/M5 matrix-validated; spherical-cap head; hex socket with lead-in chamfer and tip chamfer at `Detailed`+; `iso7380-M4x16-detailed.step` |
+| ISO 10642 countersunk screws | `fasteners`, `standards` | PASS | M3–M10 table; M3/M4/M5 matrix-validated; 90° countersink; length over the flush head; socket lead-in and tip chamfers at `Detailed`+; `iso10642-M4x16-detailed.step` |
+| DIN 976-1 threaded rods | `fasteners`, `standards` | PASS | M2–M20 table; M2–M5 matrix-validated; engineering lead-in chamfers at both ends at `Detailed`+; optional helical thread; `din976-M8x200.step` |
 | Generic T-slot profiles | `profiles` | PASS | 2020/2040/2060/2080/3030/3060/4040/4080; generic envelopes, not vendor sections |
 | Cut-to-length extrusions | `profiles` | PASS | Extruded section with core bore; optional corner radii; no end machining |
 | Rectangular extrusion frames | `assemblies` | PASS | 4 posts + 8 rails; clear-span cut lengths; four fixtures (including rounded); no brackets/T-nuts |
@@ -35,18 +35,26 @@ insufficient). A PASS is never a claim of manufacturing approval.
 | Collision/contact validation | `collision` | PASS (conservative) | AABB broad phase + 15-axis OBB narrow phase; clearance/contact/interference/collision; envelope conservative for non-convex sections |
 | Catalogue/query API | `catalog` | PASS | Built from the real builders; feature records and provenance |
 | STEP export | `cad`, `components/examples/output` | PASS | Syntax, references, shells, topology, orientation, planarity, OCCT checkshape/mesh, gmsh mesh; assembly document has no single-shape gate |
+| M2–M5 golden matrix | `scripts/golden_matrix.py` | PASS (normative) | 108 cells (8 families × sizes × 3 detail levels); NORMATIVE 108 PASS, 0 FAIL; GOLDEN 108 SKIP (unverified per-file licences); 39 development-time agreements, 69 evidence-based rejections; `components/testdata/golden/matrix.json` |
 
 ## Explicitly not implemented
 
 - ISO tolerance classes (6g/6H limits), material properties, and certification.
-- Thread runout, root relief, and cutter-generated undercuts.
-- Helical, bevel, and worm gears; timing belts/pulleys; sprockets.
-- T-nuts, corner brackets, joining plates, end caps, and machined frame joints.
+- Thread runout, root relief, and cutter-generated undercuts as standards-defined
+  forms. DIN 976 ends carry a labelled engineering lead-in, not a runout.
+- Helical, bevel, and worm gears; timing belts/pulleys; sprockets; profile shift.
+- T-nuts, corner brackets, joining plates, end caps, machined frame joints,
+  couplings, linear rails, and retaining rings/inserts.
 - Bearing seals, cages, and race grooves; catalogue-internal bearing geometry.
 - Evaluated (trimmed) STEP booleans in the kernel-free writer. Real 3D
-  fillet/chamfer evaluation is optional and requires OCCT.
+  fillet/chamfer evaluation is optional and requires OCCT; chamfers are
+  single-edge on the DRAW path, fillets support multi-edge `blend`.
 - External golden STEP geometry as a committed oracle; per-file licences are
-  unverified, so external comparison is SKIP by design.
+  unverified, so external comparison is SKIP by design. The development-time
+  matrix measurements are recorded, not committed as geometry.
+- Under-head radii and ISO 4032 bore-edge chamfers: no verified values, recorded
+  as typed omissions.
+- Exact B-slot6 extrusion pending verified provenance/licence.
 
 ## Evidence entry points
 
@@ -56,3 +64,6 @@ insufficient). A PASS is never a claim of manufacturing approval.
 - `VALIDATION.md` — commands, counts, and external-tool results.
 - `GOLDEN_REFERENCES.md` — reference policy, licences, checksums, and verdicts.
 - `SESSION_REPORT_06.md` — the round-6 audit and fixes.
+- `SESSION_REPORT_07.md` — the round-7 thread-placement fix, chamfer coverage,
+  and 108-cell matrix.
+- `testdata/golden/matrix.json` / `MATRIX.md` — the per-cell matrix results.

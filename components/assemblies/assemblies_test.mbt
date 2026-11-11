@@ -218,6 +218,31 @@ test "bolted joint is a connected mixed-family assembly" {
 }
 
 ///|
+test "bolted joint part schedule groups identical parts" {
+  let assembly = match
+    @assemblies.bolted_joint(@standards.M4, 40.0, 30.0, 5.0) {
+    Ok(a) => a
+    Err(e) => abort(e.message())
+  }
+  let schedule = assembly.schedule()
+  // Two identical plates, one screw, one washer, one nut.
+  assert_eq(schedule.length(), 4)
+  let mut total = 0
+  let mut plate_quantity = 0
+  for entry in schedule {
+    total = total + entry.quantity
+    if entry.part_name.contains("plate") {
+      plate_quantity = entry.quantity
+    }
+  }
+  assert_eq(total, 5)
+  assert_eq(plate_quantity, 2)
+  let text = assembly.schedule_text()
+  assert_true(text.contains("2 x"))
+  assert_true(text.contains("ISO 4762"))
+}
+
+///|
 test "plate with hole rejects an oversized hole" {
   assert_true(@assemblies.plate_with_hole(20.0, 20.0, 3.0, 25.0) is Err(_))
   assert_true(@assemblies.plate_with_hole(20.0, 20.0, 3.0, 6.0) is Ok(_))

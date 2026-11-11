@@ -144,10 +144,11 @@ pub struct ChamferedPrism {
   base : Array[(Double, Double)]
   levels : Array[(Double, Double)]
   hole : Array[(Double, Double)]?
+  hole_levels : Array[(Double, Double)]?
 }
 pub fn ChamferedPrism::as_shape(Self) -> Shape
 pub fn ChamferedPrism::from_chamfer(Array[(Double, Double)], Double, bottom_chamfer? : Double, top_chamfer? : Double, chamfer_depth? : Double, hole? : Array[(Double, Double)]) -> Self
-pub fn ChamferedPrism::new(Array[(Double, Double)], Array[(Double, Double)], hole? : Array[(Double, Double)]) -> Self
+pub fn ChamferedPrism::new(Array[(Double, Double)], Array[(Double, Double)], hole? : Array[(Double, Double)], hole_levels? : Array[(Double, Double)]) -> Self
 pub fn ChamferedPrism::validate(Self) -> Result[Unit, PrismError]
 
 pub struct Cuboid {

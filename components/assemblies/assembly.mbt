@@ -404,3 +404,69 @@ pub async fn Assembly::write_assembly_step(
 pub fn Assembly::component_names(self : Assembly) -> Array[String] {
   self.items.map(fn(item) { item.instance_name })
 }
+
+///|
+/// PartScheduleEntry is one distinct part in an assembly schedule.
+///
+/// A schedule groups instances of the same parametric component, so a joint
+/// with two identical plates reports one line with quantity 2 rather than two
+/// unrelated entries.
+pub(all) struct PartScheduleEntry {
+  /// Canonical parametric component name.
+  part_name : String
+  designation : String
+  standard : String
+  quantity : Int32
+  instances : Array[String]
+}
+
+///|
+/// Assembly::schedule returns the grouped part schedule in first-seen order.
+///
+/// This is a BOM aid, not a manufacturing release: it reports the parametric
+/// identity and instance names that the assembly actually contains.
+pub fn Assembly::schedule(self : Assembly) -> Array[PartScheduleEntry] {
+  let entries : Array[PartScheduleEntry] = []
+  for item in self.items {
+    let name = item.component.name()
+    let mut found = false
+    for i in 0..<entries.length() {
+      if entries[i].part_name == name {
+        let instances = entries[i].instances.copy()
+        instances.push(item.instance_name)
+        entries[i] = {
+          ..entries[i],
+          quantity: entries[i].quantity + 1,
+          instances,
+        }
+        found = true
+        break
+      }
+    }
+    if !found {
+      let meta = item.component.metadata()
+      entries.push({
+        part_name: name,
+        designation: meta.designation,
+        standard: meta.standard,
+        quantity: 1,
+        instances: [item.instance_name],
+      })
+    }
+  }
+  entries
+}
+
+///|
+/// Assembly::schedule_text returns a human-readable part schedule, one line per
+/// distinct part.
+pub fn Assembly::schedule_text(self : Assembly) -> String {
+  self
+  .schedule()
+  .map(fn(entry) {
+    "\{entry.quantity} x \{entry.part_name} [\{entry.designation}] " +
+    "instances: " +
+    entry.instances.join(", ")
+  })
+  .join("\n")
+}

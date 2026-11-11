@@ -46,6 +46,19 @@ for std in iso7380 iso10642; do
     --standard "$std" --size M4 --length 16 --detail detailed \
     -o "$OUT/$std-M4x16-detailed.step"
 done
+# Round-7 chamfer coverage: hex-head and rod lead-ins.
+moon run --target native components/examples/fasteners -- \
+  --standard iso4017 --size M4 --length 20 --detail detailed \
+  -o "$OUT/iso4017-M4x20-detailed.step"
+moon run --target native components/examples/fasteners -- \
+  --standard iso4014 --size M4 --length 20 --detail detailed \
+  -o "$OUT/iso4014-M4x20-detailed.step"
+moon run --target native components/examples/fasteners -- \
+  --standard din976 --size M5 --length 50 --detail detailed \
+  -o "$OUT/din976-M5x50-detailed.step"
+moon run --target native components/examples/fasteners -- \
+  --standard iso7089 --size M4 --detail detailed \
+  -o "$OUT/iso7089-M4-detailed.step"
 moon run --target native components/examples/motion_stack -- \
   --bearing 608 --detail detailed -o "$OUT/motion-608-stack-detailed.step"
 moon run --target native components/examples/filleted_shaft -- \

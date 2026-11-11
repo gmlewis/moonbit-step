@@ -155,3 +155,41 @@ that could drift from the geometry; the cost is that catalogue construction
 runs the builders, which is acceptable for a query-time API. The catalogue
 lists supported parameters and detail levels explicitly.
 
+
+## D19. Thread length is measured from the tip
+
+ISO 4762 and ISO 4014 define `b` from the free end (tip). The builders now place
+the thread at `z = 0..b` and the plain shank under the head. This is a
+correctness decision, not a style choice: a nut at the free end of a bolted
+joint must land on the thread. Regressions assert the placed layer positions.
+
+## D20. Real tapered holes instead of a stepped socket
+
+A socket lead-in is a tapered hole. Rather than fake it with a smaller hexagon
+step, `ChamferedPrism` gained a per-level `hole_levels` ring stack. The resulting
+hole wall is a chain of planar ruled quads, and the lead-in is measurable from
+the emitted vertices. This keeps the "no relabelled sharp edge" rule.
+
+## D21. Engineering-default chamfers are declared, not guessed silently
+
+Where a standard does not fix a chamfer (head top edge, socket lead-in, tip,
+nut faces, hex-head top, rod ends), the builder uses a small documented formula
+and records it as an engineering default. The feature record and the component
+description state the default. No standard dimension or tolerance class is
+invented.
+
+## D22. The golden matrix reports SKIP, not PASS, for unlicensed models
+
+The matrix has two statuses per cell. NORMATIVE is the acceptance criterion.
+GOLDEN is `SKIP` whenever the per-file licence is unverified, even when the
+development-time measurement agrees. This prevents an unlicensed vendor model
+from being presented as a validated oracle. The measured agreement/rejection is
+still recorded for engineering information.
+
+## D23. Compare rotation-invariant quantities for vendor models
+
+A vendor hex model may be rotated about Z, so an axis-aligned bbox is not a
+sound frame normalization. The matrix compares the axial extent and the maximum
+vertex radius. This avoids rejecting a conforming model merely because its hex
+orientation differs, while still rejecting a head that exceeds a standard
+maximum.

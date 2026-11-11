@@ -355,3 +355,61 @@ approximation (`helical-ridge`).
 - All 19 generated fixtures report `PASS`; external geometry remains `SKIP`
   because every per-file licence is unverified. No `FAIL`.
 
+
+## Round 7 additions (2026-11-10): M2–M5 chamfer coverage
+
+All chamfers below are measured from the emitted STEP vertex rings (see
+`scripts/measure_step_features.py --json`), not inferred from the builder.
+Engineering-default sizes are stated; no standard dimension is invented.
+
+| Family | Feature | Levels | Representation | Measured check |
+|---|---|---|---|---|
+| ISO 4762 | head top-edge chamfer | Detailed, FullyModeled | ruled `ChamferedPrism` ring stack | vertex ring at the head top radius `dk/2 - c` |
+| ISO 4762 | socket lead-in chamfer | Detailed, FullyModeled | **real tapered hex hole** (`ChamferedPrism` `hole_levels`) | top hex circumradius `(s+2c)/(2cos30)`, base `s/(2cos30)` |
+| ISO 4762 | shank tip chamfer | Detailed, FullyModeled | 45° ruled cone ring stack | ring at `z=0`, `r = r_core - c`, full radius at `z=c` |
+| ISO 4032 | both face chamfers | Detailed, FullyModeled | ruled hex ring stack | inset hex circumradius at both faces |
+| ISO 7089 | **no** edge chamfer | all | sharp extrusion | exact thickness/volume; no intermediate z ring |
+| ISO 4017/4014 | hex-head top chamfer | Detailed, FullyModeled | ruled parallel-inset hexagon stack (approximation of the conical washer face) | top hex circumradius `R - c/cos30` |
+| ISO 4017/4014 | shank tip chamfer | Detailed, FullyModeled | 45° ruled cone | same ring check |
+| ISO 7380-1 | socket lead-in chamfer | Detailed, FullyModeled | tapered hex hole | same lead-in ring check |
+| ISO 7380-1 | shank tip chamfer | Detailed, FullyModeled | 45° ruled cone | same ring check |
+| ISO 10642 | socket lead-in chamfer | Detailed, FullyModeled | tapered hex hole | same lead-in ring check |
+| ISO 10642 | shank tip chamfer | Detailed, FullyModeled | 45° ruled cone | same ring check |
+| DIN 976-1 | end lead-in chamfers | Detailed, FullyModeled | 45° ruled cones at both ends | rings at both ends with reduced radius |
+
+### Thread placement correction
+
+ISO 4762 and ISO 4014 measure the thread length `b` from the **tip**; the plain
+shank (when any) is under the head. The builders now place the thread core and
+swept ridge at `z = 0..b` and the plain shank at `z = b..L`. A previous build
+placed the plain shank at the tip, so a nut at the free end of a bolted joint
+sat on an unthreaded length. Regressions assert the placed layer z positions.
+
+### Hex-head chamfer approximation
+
+The characteristic hexagon-head chamfer is a conical cut leaving a washer face.
+This kernel represents it as a parallel-inset ruled ring stack, whose top face
+is a smaller hexagon. The feature record lists `head-washer-face` as omitted and
+records the ruled approximation with its radial deviation
+`R(1/cos30 - 1)`. No standard fixes the chamfer size.
+
+### Washer decision
+
+ISO 7089 specifies no edge chamfer or deburr. The washer is therefore sharp at
+every detail level, the feature record omits `edge-chamfer` with that reason, and
+a test asserts no chamfer is claimed. This is the standard-correct
+representation, not an omission of convenience.
+
+### New kernel capability
+
+`ChamferedPrism::new(..., hole_levels?)` accepts a `(z, inward_inset)` ring stack
+for the hole. Consecutive hole rings are joined by planar ruled quads, so a
+tapered socket lead-in is real ruled geometry. The first and last hole-ring z
+must equal the outer cap z; otherwise validation returns `PrismBadHole`.
+
+### Still omitted with reasons
+
+- Under-head radius: no verified value for these families.
+- ISO 4032 bore-edge chamfer: no verified dimension.
+- Thread runout/root relief: the DIN 976 lead-in is an engineering default, not
+  a standards-defined runout; swept ridge ends remain square.

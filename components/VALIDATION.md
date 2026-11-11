@@ -3,7 +3,23 @@
 Environment: macOS, MoonBit `moon 0.1.20261104 (940aa18 2026-11-04)`,
 `moonc v0.10.20+65efd5b93`; OCCT `DRAWEXE` and `gmsh` present.
 
-## Current status (round 6, 2026-11-10)
+## Current status (round 7, 2026-11-10)
+
+- `./test-all.sh`: **546 tests, 546 passed, 0 failed**.
+- `python3 scripts/compare_golden.py`: 19 generated fixtures `PASS`, external
+  geometry `SKIP` (unverified per-file licences), 0 `FAIL`.
+- `python3 scripts/compare_golden.py --self-test`: **15/15 checks PASS**.
+- `python3 scripts/golden_matrix.py`: **108 cells, NORMATIVE 108 PASS / 0 FAIL;
+  GOLDEN 0 PASS / 108 SKIP** (licence); 39 development-time agreements, 69
+  evidence-based rejections.
+- `python3 scripts/golden_matrix.py --self-test`: PASS.
+- The corrected thread placement and every new chamfer are measured from the
+  emitted STEP and validated with OCCT `checkshape`; representative files:
+  `iso4762-M4x20-detailed` (3 solids, 275 faces),
+  `iso4017-M4x20-detailed` (2/144), `iso10642-M4x16-detailed` (3/212),
+  `iso4032-M4-fully-modeled` (2/620).
+
+## Round 6 status (historical)
 
 - `./test-all.sh`: **535 tests, 535 passed, 0 failed**.
 - `python3 scripts/compare_golden.py`: 19 generated fixtures `PASS`, external
@@ -259,3 +275,93 @@ Final `./test-all.sh`: **495 tests, 495 passed, 0 failed**.
 
 Final state after these additions: run `./test-all.sh` and
 `python3 scripts/compare_golden.py` for the current counts.
+
+
+## Round 7 additions (2026-11-10)
+
+### Commands and results
+
+```bash
+./test-all.sh
+# 546 tests, 546 passed, 0 failed
+
+python3 scripts/compare_golden.py
+# 19 fixtures PASS, external geometry SKIP, 0 FAIL, exit 0
+
+python3 scripts/compare_golden.py --self-test
+# 15/15 checks PASS (PASS/FAIL/SKIP, checksum, units/frame, feature kinds,
+# mass properties, section area, surface deviation, vertex ring)
+
+python3 scripts/golden_matrix.py --write components/testdata/golden
+# 108 cells, NORMATIVE 108 PASS / 0 FAIL, GOLDEN 108 SKIP
+
+python3 scripts/golden_matrix.py --self-test
+# PASS
+```
+
+### Measured chamfer evidence
+
+`scripts/measure_step_features.py --json` on
+`iso4762-M4x20-detailed.step` reports these real vertex rings:
+
+```text
+z=0.0   r=1.5995  (tip chamfer: 2.0 - 0.4)
+z=0.4   r=2.0000  (full shank radius)
+z=22.0  r=1.7321  (nominal socket hex circumradius, s=3.0)
+z=24.0  r=2.0785  (lead-in top hex, s+2c = 3.6)
+z=24.0  r=2.7992  (head top ring, 3.5 - 0.7)
+```
+
+`iso4032-M4-fully-modeled.step` reports the face-chamfer ring at both
+`z=0` and `z=3.2` with circumradius `3.2332` (from `4.0415 - 0.7/cos30`) and
+the internal-ridge crest at the basic minor radius.
+
+### Independent mass, section, and surface checks
+
+The manifest now carries analytic washer checks and bearing ball-radius checks:
+
+- ISO 7089 M4 at `z=0.4`: section area 49.016 mm² vs analytic 49.095 mm²
+  (0.16 %, tessellation chord error); volume 39.213 mm³ vs 39.276 mm³; centre
+  of mass `z=0.4`.
+- 608 bearing: ball radius 0.7 mm (diameter 1.4 mm), independently re-derived
+  from the boundary dimensions; 16 spherical surfaces (8 balls × 2 hemispheres).
+- Surface deviation: identical shapes 0.000000 mm; M4 vs M5 washer 0.5385 mm.
+
+### STEP validation of the new geometry
+
+```text
+iso4762-M4x20-detailed.step   [PASS] syntax/reals/references/shells/topology/
+                                     orientation/planarity/OCCT checkshape
+iso4017-M4x20-detailed.step   [PASS] same gates
+iso10642-M4x16-detailed.step  [PASS] same gates
+iso4032-M4-fully-modeled.step [PASS] same gates, 620 planar faces
+```
+
+### Honest skips
+
+- External golden geometry: every cell `SKIP` because per-file licences are
+  unverified. The development-time measurements are recorded in
+  `components/testdata/golden/matrix.json`; they are not committed geometry.
+- No 3D kinematic gear-contact solver: the planetary check remains a 2D outline
+  rotation cycle.
+
+### Independent second kernel (SolidCraft, round 7)
+
+The new detailed screw and the fully modeled nut were imported into SolidCraft
+(SMLib kernel) as an independent B-Rep implementation:
+
+| Model | OCCT volume (mm³) | SolidCraft volume (mm³) | Bodies | Closed |
+|---|---:|---:|---:|---|
+| ISO 4762 M4 x 20 Detailed | 382.687 | 382.687 | 3 | all |
+| ISO 4032 M4 FullyModeled | 92.7776 | 92.7777 | 2 | all |
+
+SolidCraft reports the expected bounding boxes: screw `±3.5 x ±3.5 x 0..24`,
+nut `±3.5 x ±4.0415 x 0..3.2`. Both imports report 0 errors. The screw's shank
+body has 130 faces (tip chamfer), the head socket 142 faces (head chamfer and
+socket lead-in), and the nut body 84 faces (both face chamfers) plus a 536-face
+internal helical ridge.
+
+Renders (`iso` view) show the hex socket with its flared lead-in, the head top
+bevel, the shank tip break, and the nut face chamfers with the cyan internal
+ridge. The numeric agreement is the acceptance evidence; the render is
+supplementary.

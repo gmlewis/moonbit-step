@@ -168,3 +168,24 @@ the plate/washer/nut bores as the documented nested-bore false positive; it is
 not presented as a shape-aware clearance proof. The flat STEP has 7 watertight
 solids and passes the validator.
 
+
+## Part schedule (round 7)
+
+`Assembly::schedule()` groups identical parametric components into a BOM:
+
+```moonbit
+for entry in assembly.schedule() {
+  // entry.part_name, entry.designation, entry.standard,
+  // entry.quantity, entry.instances
+}
+```
+
+`Assembly::schedule_text()` renders one line per distinct part. The bolted
+joint (two plates, ISO 4762 screw, ISO 7089 washer, ISO 4032 nut) reports four
+distinct parts and five instances; the plate quantity is 2. The schedule is a
+BOM aid, not a manufacturing release: it reports the parametric identity and
+instance names the assembly actually contains, with the placements retained.
+
+The existing shaft/bearing/spacer stack (`components/examples/motion_stack`)
+is the multi-family motion assembly. Couplings and linear rails are not
+implemented because no verified data was available.

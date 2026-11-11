@@ -20,5 +20,13 @@ Each directory is a MoonBit executable that parses parameters and writes STEP.
 Run `./generate_all.sh` from this directory to regenerate every fixture in
 `output/` and validate the flat exports with the repository gate.
 
+The M2–M5 fastener matrix is generated and measured by
+`scripts/golden_matrix.py` (not an example program):
+
+```bash
+python3 scripts/golden_matrix.py --write components/testdata/golden
+python3 scripts/golden_matrix.py --self-test
+```
+
 All programs use millimetres and the Z-up component conventions documented in
 `../GEOMETRY.md`.

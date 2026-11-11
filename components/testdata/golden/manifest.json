@@ -431,8 +431,35 @@
             "kind": "max_vertex_radius_mm",
             "expected": 4.5,
             "tol_mm": 0.01
+          },
+          {
+            "kind": "vertex_ring",
+            "z_mm": 0.0,
+            "radius_mm": 4.5,
+            "min_count": 32,
+            "tol_mm": 0.02
           }
-        ]
+        ],
+        "mass_properties": {
+          "volume_mm3": 39.2762,
+          "volume_relative_tol": 0.02,
+          "center_of_mass_mm": [
+            0.0,
+            0.0,
+            0.4
+          ],
+          "center_of_mass_tol_mm": 0.01
+        },
+        "sections": [
+          {
+            "z_mm": 0.4,
+            "area_mm2": 49.0952,
+            "area_relative_tol": 0.02,
+            "x_extent_mm": 9.0,
+            "extent_tol_mm": 0.02
+          }
+        ],
+        "section_deflection_mm": 0.01
       }
     },
     {
@@ -516,6 +543,11 @@
           {
             "kind": "max_vertex_radius_mm",
             "expected": 11.0,
+            "tol_mm": 0.01
+          },
+          {
+            "kind": "sphere_radius_present_mm",
+            "expected": 0.7,
             "tol_mm": 0.01
           }
         ]
@@ -954,8 +986,35 @@
             "kind": "max_vertex_radius_mm",
             "expected": 3.5,
             "tol_mm": 0.01
+          },
+          {
+            "kind": "vertex_ring",
+            "z_mm": 0.0,
+            "radius_mm": 3.5,
+            "min_count": 32,
+            "tol_mm": 0.02
           }
-        ]
+        ],
+        "mass_properties": {
+          "volume_mm3": 15.221,
+          "volume_relative_tol": 0.02,
+          "center_of_mass_mm": [
+            0.0,
+            0.0,
+            0.25
+          ],
+          "center_of_mass_tol_mm": 0.01
+        },
+        "sections": [
+          {
+            "z_mm": 0.25,
+            "area_mm2": 30.442,
+            "area_relative_tol": 0.02,
+            "x_extent_mm": 7.0,
+            "extent_tol_mm": 0.02
+          }
+        ],
+        "section_deflection_mm": 0.01
       }
     },
     {
@@ -1037,8 +1096,35 @@
             "kind": "max_vertex_radius_mm",
             "expected": 5.0,
             "tol_mm": 0.01
+          },
+          {
+            "kind": "vertex_ring",
+            "z_mm": 0.0,
+            "radius_mm": 5.0,
+            "min_count": 32,
+            "tol_mm": 0.02
           }
-        ]
+        ],
+        "mass_properties": {
+          "volume_mm3": 56.478,
+          "volume_relative_tol": 0.02,
+          "center_of_mass_mm": [
+            0.0,
+            0.0,
+            0.5
+          ],
+          "center_of_mass_tol_mm": 0.01
+        },
+        "sections": [
+          {
+            "z_mm": 0.5,
+            "area_mm2": 56.478,
+            "area_relative_tol": 0.02,
+            "x_extent_mm": 10.0,
+            "extent_tol_mm": 0.02
+          }
+        ],
+        "section_deflection_mm": 0.01
       }
     },
     {
@@ -1551,6 +1637,11 @@
             "kind": "max_vertex_radius_mm",
             "expected": 13.0,
             "tol_mm": 0.01
+          },
+          {
+            "kind": "sphere_radius_present_mm",
+            "expected": 0.8,
+            "tol_mm": 0.01
           }
         ]
       }
@@ -1637,6 +1728,11 @@
             "kind": "max_vertex_radius_mm",
             "expected": 14.0,
             "tol_mm": 0.01
+          },
+          {
+            "kind": "sphere_radius_present_mm",
+            "expected": 0.8,
+            "tol_mm": 0.01
           }
         ]
       }
@@ -1722,6 +1818,11 @@
           {
             "kind": "max_vertex_radius_mm",
             "expected": 15.0,
+            "tol_mm": 0.01
+          },
+          {
+            "kind": "sphere_radius_present_mm",
+            "expected": 1.0,
             "tol_mm": 0.01
           }
         ]

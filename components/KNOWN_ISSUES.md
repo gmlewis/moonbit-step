@@ -22,17 +22,24 @@ and independent validation. See `AUDIT.md` and `PROGRESS.md` for the evidence.
    real features, but components that are naturally layered export as several
    closed bodies. This is documented per family; do not expect one fused
    manifold from a layered screw.
-2. **Head chamfers are real but engineering defaults.** ISO 4762 socket-head
-   screws now carry a 45° top-edge chamfer and ISO 4032 nuts a 45° face chamfer
-   at `Detailed` and above, built as real ruled ring stacks. The standard does
-   not fix these chamfer sizes, so the inset is an engineering default
-   documented in the component description. Fillets on these families are not
-   modeled. The chamfered prism side faces are planar facets, not a
-   continuously curved surface.
-3. **No screw tip chamfer or thread runout.** The shank ends are square; thread
-   runout/lead-in is not modeled.
-4. **No socket lead-in chamfer.** The hexagonal sockets are straight
-   through-holes/recesses over a floor; the socket rim is not chamfered.
+2. **Head, socket, and tip chamfers are real but engineering defaults.** ISO
+   4762 socket-head screws carry a 45° head top-edge chamfer, a socket lead-in
+   chamfer (a tapered hex hole), and a shank tip chamfer at `Detailed` and
+   above. ISO 4032 nuts carry 45° face chamfers on both faces at `Detailed` and
+   above, including the fully modeled helical body. ISO 4017/4014 carry a ruled
+   hex-head top chamfer and a tip chamfer; ISO 7380/10642 carry a socket lead-in
+   and tip chamfer; DIN 976 carries engineering lead-in chamfers at both ends.
+   These are real ruled ring stacks measured from the STEP. The standards do not
+   fix most of these sizes, so the insets are declared engineering defaults.
+   Under-head radii are still omitted (no verified value), and the hex-head
+   chamfer is a parallel-inset ruled approximation, not the characteristic
+   conical washer face (recorded as `head-washer-face` omitted).
+3. **No standards-defined thread runout or root relief.** The swept ridge ends
+   are square cuts. DIN 976 ends carry a clearly labelled engineering lead-in
+   chamfer; that is not a tolerance-class runout.
+4. **No under-head radius or ISO 4032 bore-edge chamfer.** No verified
+   standard/drawing value exists; both are typed omissions rather than guessed
+   fillets/chamfers.
 5. **Helical thread ridge uses the ISO 68-1 basic profile.** The radial
    placement, axial crest/root widths, 60-degree included angle, pitch, and
    handedness are exact basic-profile values (tests assert them for every
@@ -154,13 +161,81 @@ and independent validation. See `AUDIT.md` and `PROGRESS.md` for the evidence.
 - Fine-thread fasteners beyond the first-choice fine pitch per size.
 - Threaded inserts, retaining rings, and additional verified nuts/washers.
 - Helical gears, bevel gears, worm gears, timing belts/pulleys, sprockets.
-- T-nuts, corner brackets, joining plates, end caps.
+- T-nuts, corner brackets, joining plates, end caps (no verified data).
+- Couplings, linear rails, retaining rings/inserts (no verified data).
 - Motor envelopes and mounting patterns.
+- Exact B-slot6 extrusion (provenance/licence).
+- Multi-edge evaluated chamfers (the optional OCCT DRAW path is single-edge for
+  chamfers; fillets support multi-edge `blend`).
 
 Implemented in the feature session (previously deferred): ISO 7380-1 button
 head screws, ISO 10642 countersunk head screws, bearing spheres, the 2D
 chamfer/fillet helpers, `RevolvedProfile`, and `ChamferedPrism`. Their
 approximations are recorded above and in `FEATURES.md`.
+
+## Round-7 issues (2026-11-10)
+
+### KI-25 — Partially threaded screws were threaded at the wrong end (fixed)
+
+- Severity: high (engineering-invalid geometry; the nut of a bolted joint sat
+  on an unthreaded shank).
+- Reproduction before the fix: ISO 4762 M4 x 20 FullyModeled exported a plain
+  shank at `z = 0..6` and the thread core/ridge at `z = 6..20`. ISO 4762
+  measures `b = 2d + 6 = 14 mm` from the tip, so the thread must be
+  `z = 0..14` and the plain shank `z = 14..20`.
+- Root cause: the plain shank was added at `z = 0` and the thread core was
+  placed at `z = plain_length`.
+- Fix: thread core and ridge at `z = 0..thread_length`; plain shank at
+  `z = thread_length`. The same fix applies to ISO 4014.
+- Regression: `fasteners_test.mbt` asserts the placed layer positions for
+  M4 x 20 and M8 x 80.
+
+### KI-26 — Socket lead-in and tip chamfers were missing (implemented)
+
+- Severity: medium (feature coverage).
+- ISO 4762/7380/10642 sockets now have a real tapered hex lead-in at
+  `Detailed`+, built with the new `ChamferedPrism` `hole_levels` ring stack.
+  Shanks carry a 45° ruled tip chamfer. The measured vertex rings show the
+  flared top hex and the reduced tip radius.
+- `cad/chamfered_prism_wbtest.mbt` covers the tapered-hole face count,
+  planarity, and cap-closure validation.
+
+### KI-27 — Hex-head top chamfer was missing (implemented)
+
+- Severity: medium (feature coverage).
+- ISO 4017/4014 hex heads now carry a real ruled top-edge chamfer at
+  `Detailed`+, plus a tip chamfer and a machine-readable feature record.
+- The ruled parallel-inset approximation leaves a smaller hexagon top rather
+  than the standard conical washer face; the deviation and omission are
+  recorded, not hidden.
+
+### KI-28 — Fully modeled nut body was not face-chamfered (implemented)
+
+- Severity: medium (inconsistent detail level).
+- The helical ISO 4032 body is now the same chamfered prism ring stack as the
+  Detailed body, so face chamfers exist at `FullyModeled` too. The internal
+  ridge is unchanged.
+
+### KI-29 — Golden corpus remains unlicensed; matrix GOLDEN status is SKIP
+
+- Severity: low (licensing constraint), but it must not be misreported.
+- `scripts/golden_matrix.py` records 108 cells: NORMATIVE 108 PASS; GOLDEN 108
+  SKIP. The development-time comparison is rotation-invariant (axial extent and
+  outer radius from the vertex rings and the in-plane bbox) and is recorded in
+  `matrix.json`: 39 cells agree, 69 are rejected with measured evidence
+  (including the ISO 4762 M2/M2.5/M5 vendor heads that exceed the standard
+  maximum). No cell is described as fully golden-validated.
+
+### KI-30 — Timestamp made the flat-export test flaky (fixed)
+
+- Severity: low (test reliability).
+- `cad/assembly_wbtest.mbt` compared two full STEP exports including the
+  wall-clock `FILE_NAME` timestamp. When the two exports straddled a second
+  boundary the test failed although the geometry was identical.
+- Fix: compare the `DATA;` section (the geometry) and keep the assertion that
+  no `NEXT_ASSEMBLY_USAGE_OCCURRENCE` appears in the flat export. This is the
+  same approach the thread-handedness test already uses; no geometric assertion
+  was weakened.
 
 ## Session issues (2026-11-10)
 

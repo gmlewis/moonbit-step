@@ -37,16 +37,28 @@ pub fn flat_washer(
     omitted=[
       @common.Omission::new(
         feature="edge-chamfer",
-        reason="not modelled by this builder",
+        reason="ISO 7089 does not specify an edge chamfer or deburr; the sharp edge is the standard-correct representation",
       ),
     ],
   )
   @common.Component::new(
     name~,
     metadata=spec.metadata(),
-    description="Plain washer, normal series; a single extrusion with a circular bore. Edge chamfers are not modeled.",
+    description="Plain washer, normal series; a single extrusion with a circular bore. ISO 7089 specifies no edge chamfer, so the sharp edge is modeled at every detail level and no chamfer is claimed." +
+      edge_chamfer_note(detail),
     features~,
   ).add_layer(body, name="body", color=metal)
+}
+
+///|
+fn edge_chamfer_note(detail : @common.DetailLevel) -> String {
+  match detail {
+    Simplified => " No edge treatment is specified by the standard."
+    Detailed =>
+      " No edge chamfer/deburr is specified by ISO 7089; the sharp edge is standard-correct."
+    FullyModeled =>
+      " No edge chamfer/deburr is specified by ISO 7089; the sharp edge is standard-correct."
+  }
 }
 
 ///|

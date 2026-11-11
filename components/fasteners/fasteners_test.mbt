@@ -21,6 +21,16 @@ fn layer_names(c : @common.Component) -> Array[String] {
 }
 
 ///|
+fn layer_z(c : @common.Component, name : String) -> Double {
+  for layer in c.layers() {
+    if layer.name == name {
+      return layer.placement.trans.2
+    }
+  }
+  abort("missing layer " + name)
+}
+
+///|
 fn layer_shape(c : @common.Component, name : String) -> @cad.Shape? {
   for layer in c.layers() {
     if layer.name == name {
@@ -395,11 +405,135 @@ test "detailed socket screw models the head chamfer" {
   assert_true(features.has_modeled("head-chamfer"))
   assert_true(features.has_modeled("blind-hex-socket"))
   assert_true(features.omission_reason("thread") is Some(_))
-  // Remaining fastener features are recorded as typed omissions, not silently
-  // pretended.
-  assert_true(features.has_omitted("socket-lead-in-chamfer"))
-  assert_true(features.has_omitted("shank-tip-chamfer"))
+  // The socket lead-in and the tip chamfer are now real geometry at Detailed.
+  assert_true(features.has_modeled("socket-lead-in-chamfer"))
+  assert_true(features.has_modeled("shank-tip-chamfer"))
+  // The under-head radius is still a typed omission because no verified value
+  // exists.
   assert_true(features.has_omitted("under-head-radius"))
+}
+
+///|
+test "detailed screw tip is a real chamfered solid, simplified is a cylinder" {
+  let detailed = unwrap_screw(@standards.M4, 20.0, Detailed)
+  let detailed_shank = match layer_shape(detailed, "ISO4762-M4-20/shank") {
+    Some(shape) => shape
+    None => abort("missing detailed shank")
+  }
+  match detailed_shank {
+    @cad.Shape::ChamferedPrism(_) => ()
+    _ => abort("detailed shank should carry a ruled tip chamfer")
+  }
+  let simplified = unwrap_screw(@standards.M4, 20.0, Simplified)
+  let simplified_shank = match layer_shape(simplified, "ISO4762-M4-20/shank") {
+    Some(shape) => shape
+    None => abort("missing simplified shank")
+  }
+  match simplified_shank {
+    @cad.Shape::Cylinder(_) => ()
+    _ => abort("simplified shank should be a plain cylinder")
+  }
+}
+
+///|
+test "ISO 4762 thread length is measured from the tip" {
+  // M4 x 20: b = 2d + 6 = 14 mm, so the thread occupies z = 0 .. 14 and the
+  // plain shank is under the head (z = 14 .. 20). A previous build reversed
+  // this, leaving the nut of a bolted joint on an unthreaded tip.
+  let screw = unwrap_screw(@standards.M4, 20.0, FullyModeled)
+  assert_true(close(layer_z(screw, "ISO4762-M4-20/thread-core"), 0.0))
+  assert_true(close(layer_z(screw, "ISO4762-M4-20/plain-shank"), 14.0))
+}
+
+///|
+test "ISO 4762 fully modeled core carries a tip chamfer" {
+  let screw = unwrap_screw(@standards.M4, 20.0, FullyModeled)
+  let core = match layer_shape(screw, "ISO4762-M4-20/thread-core") {
+    Some(shape) => shape
+    None => abort("missing thread core")
+  }
+  match core {
+    @cad.Shape::ChamferedPrism(_) => ()
+    _ => abort("fully modeled thread core should carry a ruled tip chamfer")
+  }
+}
+
+///|
+test "ISO 4014 thread length is measured from the tip" {
+  let bolt = match
+    @fasteners.iso4014(@standards.M8, 80.0, detail=FullyModeled) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  assert_true(close(layer_z(bolt, "ISO4014-M8-80/thread-core"), 0.0))
+  // b = 2 * 8 + 6 = 22 mm for L <= 125.
+  assert_true(close(layer_z(bolt, "ISO4014-M8-80/plain-shank"), 22.0))
+}
+
+///|
+test "detailed hex head models a head chamfer and a tip chamfer" {
+  let screw = match @fasteners.iso4017(@standards.M4, 20.0, detail=Detailed) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  let features = screw.features()
+  assert_true(features.has_modeled("hex-head-chamfer"))
+  assert_true(features.has_modeled("shank-tip-chamfer"))
+  assert_true(features.has_approximated("hex-head-chamfer-band"))
+  let head = match layer_shape(screw, "ISO4017-M4-20/hex-head") {
+    Some(shape) => shape
+    None => abort("missing hex head")
+  }
+  match head {
+    @cad.Shape::ChamferedPrism(_) => ()
+    _ => abort("detailed hex head should be a chamfered prism")
+  }
+  let simplified = match @fasteners.iso4017(@standards.M4, 20.0) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  assert_false(simplified.features().has_modeled("hex-head-chamfer"))
+}
+
+///|
+test "detailed DIN 976 rod chamfers both ends with a typed lead-in" {
+  let rod = match @fasteners.din976(@standards.M5, 50.0, detail=Detailed) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  assert_true(rod.features().has_modeled("thread-lead-in-chamfer"))
+  let body = match layer_shape(rod, "DIN976-M5x50/rod") {
+    Some(shape) => shape
+    None => abort("missing rod layer")
+  }
+  let (x0, x1, _y0, _y1, z0, z1) = body.bounding_box()
+  assert_true(z0 >= 0.0)
+  assert_true(close(z1, 50.0))
+  assert_true(close(x1, 2.5))
+  assert_true(x0 <= -2.5)
+}
+
+///|
+test "plain washer claims no edge chamfer at any detail level" {
+  for
+    detail in [
+      @common.DetailLevel::Simplified,
+      @common.DetailLevel::Detailed,
+      @common.DetailLevel::FullyModeled,
+    ] {
+    let washer = match @fasteners.iso7089_washer(@standards.M4, detail~) {
+      Ok(c) => c
+      Err(e) => abort(e.message())
+    }
+    let features = washer.features()
+    assert_false(features.has_modeled("edge-chamfer"))
+    assert_false(features.has_approximated("edge-chamfer"))
+    let reason = match features.omission_reason("edge-chamfer") {
+      Some(r) => r
+      None => abort("edge-chamfer should be an omission")
+    }
+    assert_true(reason.contains("ISO 7089"))
+  }
 }
 
 ///|
@@ -467,4 +601,18 @@ test "thread ridge handedness changes the swept geometry" {
   let left_data = left_step.split("DATA;").collect()
   assert_true(right_data.length() == 2 && left_data.length() == 2)
   assert_true(right_data[1] != left_data[1])
+}
+
+///|
+test "socket lead-in hole levels span the socket band" {
+  let levels = @fasteners.socket_lead_in_hole_levels(0.0, 2.0, 0.25)
+  assert_eq(levels.length(), 3)
+  assert_true(close(levels[0].0, 0.0))
+  assert_true(close(levels[1].0, 1.75))
+  assert_true(close(levels[2].0, 2.0))
+  assert_true(close(levels[2].1, 0.0))
+  // A socket no deeper than the lead-in falls back to a vertical hole.
+  let shallow = @fasteners.socket_lead_in_hole_levels(0.0, 0.2, 0.25)
+  assert_eq(shallow.length(), 2)
+  assert_true(close(shallow[0].1, shallow[1].1))
 }

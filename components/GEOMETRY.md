@@ -140,9 +140,11 @@ Examples:
 
 - A socket head cap screw head is a solid floor disc plus a ring with a
   hexagonal through-hole. The socket is blind because the floor body closes it.
-- A shaft with a modeled thread is a plain shank, a minor-diameter threaded
-  core, and a swept helical ridge (with the root embedded 0.1 mm into the
-  core, so the solids intersect).
+- A shaft with a modeled thread is a minor-diameter threaded core plus a swept
+  helical ridge (with the root embedded 0.1 mm into the core, so the solids
+  intersect), with any plain shank under the head. ISO 4762 and ISO 4014 measure
+  the thread length `b` from the **tip**: the thread occupies `z = 0..b` and the
+  plain shank `z = b..L`. (An earlier build swapped these.)
 - A nut with a modeled thread is a hex body with a major-diameter plus
   clearance bore and an internal helical ridge. The ridge root is shifted
   outward by the bore clearance and embedded 0.1 mm into the body, so it is
@@ -193,6 +195,10 @@ ridge actually intersects its body.
 | 2D chamfer/fillet | Straight bevel or sampled circular arc | `distance`/`radius`, `segments`, `angle_deg` |
 | Prism face/edge chamfers | Parallel-inset ring stack (planar facets) | `ChamferedPrism` levels, inset |
 | Head socket bands | High-resolution polygon ring stack | `circle_segments` (64 at Detailed) |
+| Socket lead-in chamfer | Tapered hex hole (per-level hole rings, ruled quads) | engineering default `lead = min(0.1 s, 0.5 t)` |
+| Shank tip chamfer | 45° ruled cone ring stack | engineering default `c = min(0.1 d, 0.5 mm)`, capped at `L/4` |
+| Hex-head top chamfer | Parallel-inset hexagon ruled stack (approximation of the conical washer face) | engineering default `c = min(0.1 s, k/3)` |
+| DIN 976 end lead-in | 45° ruled cone at each end | engineering default `c = min(0.1 d, 0.5 mm)` |
 
 ## Feature geometry primitives
 
@@ -206,10 +212,12 @@ ridge actually intersects its body.
   neighbours traverse a shared circle in opposite directions. Full-period bands
   carry a seam edge.
 - **`ChamferedPrism`** — a convex prism built from a stack of parallel-inset
-  rings with an optional prismatic through-hole. Consecutive rings are joined by
+  rings with an optional through-hole. Consecutive outer rings are joined by
   planar quads (adjacent edges stay parallel under a parallel offset) and the
-  ends are planar caps. It produces real, measurable face/edge chamfers on hex
-  nuts, socket-head heads, washers, and bearings.
+  ends are planar caps. An optional `hole_levels` stack gives each hole ring its
+  own inward inset, so the hole can taper (a real socket lead-in chamfer). It
+  produces measurable face/edge chamfers on hex nuts, socket-head heads,
+  washers, and bearings.
 - **`Profile2D::chamfer_vertices` / `fillet_vertices`** — 2D bevel/arc
   operations for extruded sections (plate outlines, extrusion corner radii,
   gear tip details). Convex vertices are cut; re-entrant vertices are beveled or

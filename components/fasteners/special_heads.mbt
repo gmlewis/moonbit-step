@@ -103,11 +103,23 @@ fn countersunk_screw(
     levels.push((cyl_h, big_r - r_sh))
   }
   levels.push((k, 0.0))
-  let ring = @cad.ChamferedPrism::new(
-    circle_profile(dims.head_diameter_mm, segments~),
-    levels,
-    hole=hex_hole_across_flats(s),
-  ).as_shape()
+  let ring = if policy.include_small_features {
+    let lead = socket_lead_in_chamfer_mm(s, t)
+    let hole = socket_lead_in_hole(s, lead)
+    let hole_levels = socket_lead_in_hole_levels(z_floor, k, lead)
+    @cad.ChamferedPrism::new(
+      circle_profile(dims.head_diameter_mm, segments~),
+      levels,
+      hole~,
+      hole_levels~,
+    ).as_shape()
+  } else {
+    @cad.ChamferedPrism::new(
+      circle_profile(dims.head_diameter_mm, segments~),
+      levels,
+      hole=hex_hole_across_flats(s),
+    ).as_shape()
+  }
   component.add_layer(
     ring,
     name="head-socket",
@@ -208,11 +220,23 @@ fn button_screw(
     let z = z_floor + (k - z_floor) * frac
     levels.push((z, r_f - r_of(z)))
   }
-  let ring = @cad.ChamferedPrism::new(
-    circle_profile(2.0 * r_f, segments~),
-    levels,
-    hole=hex_hole_across_flats(s),
-  ).as_shape()
+  let ring = if policy.include_small_features {
+    let lead = socket_lead_in_chamfer_mm(s, t)
+    let hole = socket_lead_in_hole(s, lead)
+    let hole_levels = socket_lead_in_hole_levels(z_floor, k, lead)
+    @cad.ChamferedPrism::new(
+      circle_profile(2.0 * r_f, segments~),
+      levels,
+      hole~,
+      hole_levels~,
+    ).as_shape()
+  } else {
+    @cad.ChamferedPrism::new(
+      circle_profile(2.0 * r_f, segments~),
+      levels,
+      hole=hex_hole_across_flats(s),
+    ).as_shape()
+  }
   component.add_layer(
     ring,
     name="head-socket",
@@ -259,21 +283,40 @@ fn headed_feature_record(
     ],
     omitted=[
       @common.Omission::new(
-        feature="socket-lead-in-chamfer",
-        reason="not modelled by this builder",
-      ),
-      @common.Omission::new(
-        feature="shank-tip-chamfer",
-        reason="not modelled by this builder",
-      ),
-      @common.Omission::new(
         feature="under-head-radius",
-        reason="not modelled by this builder",
+        reason="no verified standard value; a typed omission rather than a guessed fillet",
       ),
     ],
   )
+  let with_chamfers = if policy.include_small_features {
+    base
+    .add_modeled("socket-lead-in-chamfer")
+    .add_modeled("shank-tip-chamfer")
+    .add_approximated(
+      @common.Approximation::new(
+        feature="socket-lead-in-band",
+        kind=@common.ApproximationKind::PolygonRevolve,
+        deviation_mm=@common.chord_deviation(head_diameter_mm / 2.0, segments),
+        control="hex-hole ruled lead-in, circle_segments=\{segments}",
+      ),
+    )
+  } else {
+    base
+    .add_omitted(
+      @common.Omission::new(
+        feature="socket-lead-in-chamfer",
+        reason="omitted at Simplified detail level",
+      ),
+    )
+    .add_omitted(
+      @common.Omission::new(
+        feature="shank-tip-chamfer",
+        reason="omitted at Simplified detail level",
+      ),
+    )
+  }
   fastener_thread_features(
-    base,
+    with_chamfers,
     thread_rep,
     policy,
     thread.pitch_diameter_mm() / 2.0,
@@ -282,7 +325,8 @@ fn headed_feature_record(
 
 ///|
 /// add_plain_or_threaded_shank adds the shank layers shared by the new head
-/// families.
+/// families. At Detailed and above the tip carries a 45-degree engineering
+/// chamfer (a real ruled cone ring stack).
 fn add_plain_or_threaded_shank(
   base : @common.Component,
   thread : @standards.ThreadSpec,
@@ -291,8 +335,19 @@ fn add_plain_or_threaded_shank(
   policy : @common.DetailPolicy,
   metal : @cad.Rgb,
 ) -> @common.Component {
+  let d = thread.nominal_diameter_mm
+  let segments = clamp_segments(policy.circle_segments)
+  let tip = if policy.include_small_features {
+    let raw = shank_tip_chamfer_mm(d)
+    if raw < length / 4.0 {
+      raw
+    } else {
+      length / 4.0
+    }
+  } else {
+    0.0
+  }
   if thread_rep is @common.ThreadRepresentation::Helical {
-    let d = thread.nominal_diameter_mm
     let d3 = thread.external_minor_diameter_mm()
     match
       external_thread_ridge(
@@ -302,18 +357,22 @@ fn add_plain_or_threaded_shank(
       ) {
       Some(shape) => {
         let core = base.add_layer(
-          @cad.Cylinder::new(d3, length),
+          tip_chamfered_cylinder(d3, length, tip, segments~),
           name="thread-core",
           color=metal,
         )
         core.add_layer(shape, name="helical-thread", color=@cad.Rgb::cyan())
       }
       None =>
-        base.add_layer(@cad.Cylinder::new(d, length), name="shank", color=metal)
+        base.add_layer(
+          tip_chamfered_cylinder(d, length, tip, segments~),
+          name="shank",
+          color=metal,
+        )
     }
   } else {
     base.add_layer(
-      @cad.Cylinder::new(thread.nominal_diameter_mm, length),
+      tip_chamfered_cylinder(d, length, tip, segments~),
       name="shank",
       color=metal,
     )

@@ -47,25 +47,29 @@ pub fn socket_head_cap_screw(
     features~,
   )
 
-  // Shank and thread representation.
+  // Shank and thread representation. ISO 4762 measures the thread length from
+  // the tip, so the thread occupies z = 0 .. thread_length and any plain shank
+  // sits under the head. (An earlier build put the plain shank at the tip,
+  // which left the nut of a bolted joint on an unthreaded length.)
+  let tip_chamfer = if policy.include_small_features {
+    let raw = shank_tip_chamfer_mm(d)
+    if raw < length / 4.0 {
+      raw
+    } else {
+      length / 4.0
+    }
+  } else {
+    0.0
+  }
   let mut component = if thread_rep is @common.ThreadRepresentation::Helical {
     let thread_length = spec.thread_length_mm
     let plain_length = length - thread_length
-    let mut c = base
-    if plain_length > 0.0 {
-      c = c.add_layer(
-        @cad.Cylinder::new(d, plain_length),
-        name="plain-shank",
-        color=metal,
-      )
-    }
     let d3 = thread.external_minor_diameter_mm()
-    let core = @cad.Cylinder::new(d3, thread_length)
+    let mut c = base
     c = c.add_layer(
-      core,
+      tip_chamfered_cylinder(d3, thread_length, tip_chamfer, segments~),
       name="thread-core",
       color=accent,
-      placement=@common.Placement::translation(0.0, 0.0, plain_length),
     )
     let ridge = external_thread_ridge(
       thread,
@@ -74,16 +78,24 @@ pub fn socket_head_cap_screw(
     )
     match ridge {
       Some(shape) =>
-        c.add_layer(
-          shape,
-          name="helical-thread",
-          color=thread_color,
-          placement=@common.Placement::translation(0.0, 0.0, plain_length),
-        )
-      None => c
+        c = c.add_layer(shape, name="helical-thread", color=thread_color)
+      None => ()
     }
+    if plain_length > 0.0 {
+      c = c.add_layer(
+        @cad.Cylinder::new(d, plain_length),
+        name="plain-shank",
+        color=metal,
+        placement=@common.Placement::translation(0.0, 0.0, thread_length),
+      )
+    }
+    c
   } else {
-    base.add_layer(@cad.Cylinder::new(d, length), name="shank", color=metal)
+    base.add_layer(
+      tip_chamfered_cylinder(d, length, tip_chamfer, segments~),
+      name="shank",
+      color=metal,
+    )
   }
 
   // Head: a solid floor disc plus a socket ring with a hexagonal through-hole.
@@ -97,10 +109,14 @@ pub fn socket_head_cap_screw(
   let hex_hole = hex_hole_across_flats(dims.socket_across_flats_mm)
   let socket_ring = if policy.include_small_features {
     let c = head_chamfer_mm(dk, k, t)
+    let lead = socket_lead_in_chamfer_mm(dims.socket_across_flats_mm, t)
+    let hole = socket_lead_in_hole(dims.socket_across_flats_mm, lead)
+    let hole_levels = socket_lead_in_hole_levels(0.0, t, lead)
     @cad.ChamferedPrism::new(
       circle_profile(dk, segments~),
       [(0.0, 0.0), (t - c, 0.0), (t, c)],
-      hole=hex_hole,
+      hole~,
+      hole_levels~,
     ).as_shape()
   } else {
     @cad.ExtrudedProfile::new(circle_profile(dk, segments~), t, holes=[hex_hole])
@@ -161,9 +177,9 @@ fn head_chamfer_mm(dk : Double, k : Double, t : Double) -> Double {
 ///|
 fn head_chamfer_note(policy : @common.DetailPolicy) -> String {
   if policy.include_small_features {
-    " The head top edge carries a 45-degree chamfer (engineering default)."
+    " The head top edge, the socket rim, and the shank tip carry 45-degree chamfers (engineering defaults)."
   } else {
-    " The head is sharp-edged at this detail level."
+    " The head, socket, and shank edges are sharp at this detail level."
   }
 }
 
@@ -189,31 +205,47 @@ fn screw_feature_record(
     ],
     omitted=[
       @common.Omission::new(
-        feature="shank-tip-chamfer",
-        reason="not modelled by this builder",
-      ),
-      @common.Omission::new(
         feature="under-head-radius",
-        reason="not modelled by this builder",
-      ),
-      @common.Omission::new(
-        feature="socket-lead-in-chamfer",
-        reason="not modelled by this builder",
+        reason="ISO 4762 does not give a verified under-head radius for this builder; a typed omission rather than a guessed fillet",
       ),
     ],
   )
-  let with_chamfer = if policy.include_small_features {
-    base.add_modeled("head-chamfer")
+  let with_chamfers = if policy.include_small_features {
+    base
+    .add_modeled("head-chamfer")
+    .add_modeled("socket-lead-in-chamfer")
+    .add_modeled("shank-tip-chamfer")
+    .add_approximated(
+      @common.Approximation::new(
+        feature="socket-lead-in-band",
+        kind=@common.ApproximationKind::PolygonRevolve,
+        deviation_mm=@common.chord_deviation(dk / 2.0, segments),
+        control="hex-hole ruled lead-in, circle_segments=\{segments}",
+      ),
+    )
   } else {
-    base.add_omitted(
+    base
+    .add_omitted(
       @common.Omission::new(
         feature="head-chamfer",
         reason="omitted at Simplified detail level",
       ),
     )
+    .add_omitted(
+      @common.Omission::new(
+        feature="socket-lead-in-chamfer",
+        reason="omitted at Simplified detail level",
+      ),
+    )
+    .add_omitted(
+      @common.Omission::new(
+        feature="shank-tip-chamfer",
+        reason="omitted at Simplified detail level",
+      ),
+    )
   }
   fastener_thread_features(
-    with_chamfer,
+    with_chamfers,
     thread_rep,
     policy,
     thread.pitch_diameter_mm() / 2.0,

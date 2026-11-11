@@ -12,7 +12,7 @@ HEADER;
   Feature tolerance:     0.01 mm
 */
 FILE_DESCRIPTION(('Filleted stepped shaft'),'2;1');
-FILE_NAME('filleted-shaft-2-step.step','2026-11-11T01:14:33',('gmlewis'),('gmlewis/step','https://github.com/gmlewis/moonbit-step'),'gmlewis/step','moonbit','none');
+FILE_NAME('filleted-shaft-2-step.step','2026-11-11T02:02:27',('gmlewis'),('gmlewis/step','https://github.com/gmlewis/moonbit-step'),'gmlewis/step','moonbit','none');
 FILE_SCHEMA(('AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }'));
 ENDSEC;
 DATA;

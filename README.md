@@ -107,11 +107,16 @@ dimensioned STEP parts through the same `@cad` pipeline:
 
 - ISO 4762 socket head cap screws, ISO 4032 hex nuts, ISO 7089 washers;
 - ISO 4014/4017 hex head bolts/screws and DIN 976 threaded rods;
+- ISO 7380-1 button head and ISO 10642 countersunk socket screws;
+- real 45-degree head, socket-lead-in, and shank-tip chamfers on the M2-M5
+  fastener families (engineering defaults where a standard is silent), with a
+  108-cell normative/golden matrix (`scripts/golden_matrix.py`);
 - generic metric T-slot extrusion profiles and rectangular frames;
 - shafts, stepped shafts, spacers, keys, and simplified bearings;
-- involute spur gears, gear pairs, and an approximate straight-spur planetary set;
+- involute spur gears, gear pairs, and an exact-internal-ring planetary set;
 - assemblies with rigid placements, linear/circular patterns, hardware
-  kits, and a bolted joint;
+  kits, a bolted joint, a shaft/bearing/spacer stack, and a grouped part
+  schedule;
 - a machine-readable component catalogue/query API
   (`components/catalog`) and a per-component feature record (modeled,
   approximated with deviation, omitted with reason) carried in the STEP

@@ -34,11 +34,15 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 import shutil
 import subprocess
 import sys
 import tempfile
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import measure_step_mesh as msm  # noqa: E402
 
 ROOT_DEFAULT = Path(__file__).resolve().parent.parent
 MANIFEST_DEFAULT = ROOT_DEFAULT / "components/testdata/golden/manifest.json"
@@ -193,6 +197,32 @@ def check_feature_spec(
     spec: dict, features: dict, tolerance: dict
 ) -> dict:
     kind = spec.get("kind")
+    if kind == "vertex_ring":
+        rings = features.get("vertex_rings") or []
+        tol = spec.get("tol_mm", tolerance["linear_mm"])
+        min_count = spec.get("min_count", 1)
+        ok = any(
+            abs(r["z_mm"] - spec["z_mm"]) <= tol
+            and abs(r["radius_mm"] - spec["radius_mm"]) <= tol
+            and r["count"] >= min_count
+            for r in rings
+        )
+        return check(
+            ok,
+            f"ring at z={spec['z_mm']} r={spec['radius_mm']} n>={min_count}",
+        )
+    if kind == "sphere_radius_present_mm":
+        spheres = features.get("spheres") or []
+        tol = spec.get("tol_mm", tolerance["linear_mm"])
+        radii = [
+            s["radius"] for s in spheres if s.get("radius") is not None
+        ]
+        ok = any(abs(r - spec["expected"]) <= tol for r in radii)
+        return check(
+            ok,
+            f"sphere radius {spec['expected']:.4f} present among "
+            f"{len(radii)} spheres {[round(r, 4) for r in radii[:4]]}",
+        )
     if kind == "surface_min":
         surface = spec["surface"]
         count = (features.get("surface_counts") or {}).get(surface, 0)
@@ -404,6 +434,143 @@ def compare_fixture(
                 rel <= tol,
                 f"volume {got:.3f} vs {expected:.3f} mm3 (rel {rel:.4f}, tol {tol})",
             )
+
+    # 6c. Mass properties: volume and centre of mass.
+    mp = spec.get("mass_properties")
+    if mp:
+        if measured_part is None:
+            checks["mass_properties"] = check(
+                True, "OCCT not available", skipped=True
+            )
+        else:
+            failures = []
+            if "volume_mm3" in mp and measured_part.get("volume") is not None:
+                expected = mp["volume_mm3"]
+                got = measured_part["volume"]
+                rel = abs(got - expected) / max(abs(expected), 1.0e-9)
+                tol = mp.get("volume_relative_tol", tolerance["volume_relative"])
+                if rel > tol:
+                    failures.append(
+                        f"volume {got:.3f} vs {expected:.3f} (rel {rel:.4f})"
+                    )
+            if "center_of_mass_mm" in mp:
+                got = measured_part.get("center_of_mass")
+                if got is None:
+                    failures.append("centre of mass unavailable")
+                else:
+                    tol = mp.get("center_of_mass_tol_mm", tolerance["linear_mm"])
+                    want = mp["center_of_mass_mm"]
+                    for i in range(3):
+                        if abs(got[i] - want[i]) > tol:
+                            failures.append(
+                                f"com[{i}] {got[i]:.4f} vs {want[i]:.4f}"
+                            )
+            checks["mass_properties"] = check(
+                not failures,
+                "; ".join(failures) if failures else "mass properties match",
+            )
+
+    # 6d. Cross-section slices at declared planes. Measured by tessellating the
+    #     parametric part and slicing the mesh, independently of the builder.
+    sections = spec.get("sections")
+    if sections:
+        try:
+            tris = msm.mesh_triangles(
+                part_path, spec.get("section_deflection_mm", 0.01)
+            )
+            failures = []
+            for s in sections:
+                sec = msm.section_at(tris, s["z_mm"])
+                rel_tol = s.get("area_relative_tol", 0.02)
+                if "area_mm2" in s:
+                    expected = s["area_mm2"]
+                    rel = abs(sec["area_mm2"] - expected) / max(abs(expected), 1e-9)
+                    if rel > rel_tol:
+                        failures.append(
+                            f"z={s['z_mm']}: area {sec['area_mm2']:.3f} vs "
+                            f"{expected:.3f} (rel {rel:.4f})"
+                        )
+                if "perimeter_mm" in s:
+                    expected = s["perimeter_mm"]
+                    rel = abs(sec["perimeter_mm"] - expected) / max(abs(expected), 1e-9)
+                    if rel > s.get("perimeter_relative_tol", 0.02):
+                        failures.append(
+                            f"z={s['z_mm']}: perimeter {sec['perimeter_mm']:.3f} vs "
+                            f"{expected:.3f}"
+                        )
+                if "x_extent_mm" in s:
+                    tol = s.get("extent_tol_mm", 5 * tolerance["linear_mm"])
+                    if abs(sec["x_extent_mm"] - s["x_extent_mm"]) > tol:
+                        failures.append(
+                            f"z={s['z_mm']}: x {sec['x_extent_mm']:.3f} vs "
+                            f"{s['x_extent_mm']:.3f}"
+                        )
+            checks["sections"] = check(
+                not failures,
+                "; ".join(failures) if failures else "section areas match",
+            )
+        except Exception as exc:  # noqa: BLE001
+            checks["sections"] = check(False, str(exc))
+
+    # 6e. Sampled bidirectional surface deviation against an external model (only
+    #     with a verified licence) or a generated contrast part.
+    sd = spec.get("surface_deviation")
+    if sd:
+        ref = sd.get("reference", "external")
+        tol = sd.get("max_mm", tolerance["surface_deviation_mm"])
+        try:
+            if ref == "external":
+                if not present or external_path is None:
+                    checks["surface_deviation"] = check(
+                        True, "external file absent", skipped=True
+                    )
+                elif not str(license_status).startswith("verified"):
+                    checks["surface_deviation"] = check(
+                        True,
+                        f"licence status {license_status!r} is not verified",
+                        skipped=True,
+                    )
+                elif not have_occt:
+                    checks["surface_deviation"] = check(
+                        True, "OCCT not available", skipped=True
+                    )
+                else:
+                    dev = msm.surface_deviation(
+                        part_path,
+                        external_path,
+                        sd.get("deflection_mm", 0.02),
+                        sd.get("samples", 2000),
+                    )
+                    checks["surface_deviation"] = check(
+                        dev["max_mm"] <= tol,
+                        f"max deviation {dev['max_mm']:.4f} mm (tol {tol})",
+                    )
+            elif ref == "contrast":
+                contrast_fixture = {
+                    **fixture,
+                    "generation": {
+                        "tool": fixture["generation"]["tool"],
+                        "args": sd.get("args", []),
+                        "output": sd.get("output", "deviation-reference.step"),
+                    },
+                }
+                ref_path = generate_part(contrast_fixture, out_dir, root)
+                dev = msm.surface_deviation(
+                    part_path,
+                    ref_path,
+                    sd.get("deflection_mm", 0.02),
+                    sd.get("samples", 2000),
+                )
+                checks["surface_deviation"] = check(
+                    dev["max_mm"] <= tol,
+                    f"max deviation {dev['max_mm']:.4f} mm (tol {tol})",
+                )
+            else:
+                checks["surface_deviation"] = check(
+                    False, f"unknown surface-deviation reference {ref!r}"
+                )
+        except Exception as exc:  # noqa: BLE001
+            checks["surface_deviation"] = check(False, str(exc))
 
     # 7. Feature expectations from STEP text.
     if spec.get("features"):
@@ -626,6 +793,92 @@ def run_self_tests(root: Path, tolerance: dict, have_occt: bool, have_moon: bool
             == "FAIL",
             "radius absent",
         )
+
+        # Independent mass, section, and surface-deviation measurements.
+        washer = {
+            "fixture_id": "self-test/washer",
+            "generation": {
+                "tool": "components/examples/fasteners",
+                "args": [
+                    "--standard", "iso7089", "--size", "M4",
+                    "--detail", "detailed", "-o", "{out}",
+                ],
+                "output": "self-washer-m4.step",
+            },
+        }
+        washer5 = json.loads(json.dumps(washer))
+        washer5["generation"]["args"] = [
+            "--standard", "iso7089", "--size", "M5",
+            "--detail", "detailed", "-o", "{out}",
+        ]
+        washer5["generation"]["output"] = "self-washer-m5.step"
+        try:
+            w4 = generate_part(washer, td, root)
+            w5 = generate_part(washer5, td, root)
+            wm = measure_occt(w4, root)
+            expected_volume = math.pi * (4.5 ** 2 - 2.15 ** 2) * 0.8
+            report(
+                "mass properties (volume, centre of mass)",
+                wm.get("volume") is not None
+                and abs(wm["volume"] - expected_volume) / expected_volume < 0.01
+                and wm.get("center_of_mass") is not None
+                and abs(wm["center_of_mass"][2] - 0.4) < 0.01,
+                f"volume {wm.get('volume')} vs {expected_volume:.3f}, "
+                f"com {wm.get('center_of_mass')}",
+            )
+            tris = msm.mesh_triangles(w4, 0.01)
+            sec = msm.section_at(tris, 0.4)
+            expected_area = math.pi * (4.5 ** 2 - 2.15 ** 2)
+            report(
+                "section area at z=0.4",
+                abs(sec["area_mm2"] - expected_area) / expected_area < 0.02,
+                f"{sec['area_mm2']:.3f} vs {expected_area:.3f} mm2",
+            )
+            dev_self = msm.surface_deviation(w4, w4, 0.02, 500)
+            report(
+                "surface deviation of identical shapes",
+                dev_self["max_mm"] < 1.0e-6,
+                f"max {dev_self['max_mm']:.6f} mm",
+            )
+            dev_diff = msm.surface_deviation(w4, w5, 0.02, 500)
+            report(
+                "surface deviation detects a different size",
+                dev_diff["max_mm"] > 0.1,
+                f"max {dev_diff['max_mm']:.4f} mm",
+            )
+            wf = measure_features(w4, root)
+            report(
+                "vertex_ring feature PASS",
+                check_feature_spec(
+                    {
+                        "kind": "vertex_ring",
+                        "z_mm": 0.0,
+                        "radius_mm": 4.5,
+                        "min_count": 32,
+                    },
+                    wf,
+                    tolerance,
+                )["status"]
+                == "PASS",
+                "outer rim ring present",
+            )
+            report(
+                "vertex_ring feature FAIL",
+                check_feature_spec(
+                    {
+                        "kind": "vertex_ring",
+                        "z_mm": 0.0,
+                        "radius_mm": 12.0,
+                        "min_count": 1,
+                    },
+                    wf,
+                    tolerance,
+                )["status"]
+                == "FAIL",
+                "absent radius fails",
+            )
+        except Exception as exc:  # noqa: BLE001
+            report("mass/section/surface self-tests", False, str(exc))
 
     print(
         f"golden harness self-test: {'PASS' if failures == 0 else 'FAIL'} "

@@ -219,6 +219,151 @@ pub fn format_length(v : Double) -> String {
 }
 
 ///|
+/// shank_tip_chamfer_mm returns the engineering-default 45-degree chamfer leg
+/// for a shank tip of nominal diameter `d`.
+///
+/// ISO 4762, ISO 4014, and ISO 4017 do not fix the tip break. A small
+/// deburr-style lead-in of `0.1 d` (capped at 0.5 mm) is modelled at Detailed
+/// and above and is recorded as an engineering default, never as a standard
+/// dimension. Callers cap it against the available shank length.
+pub fn shank_tip_chamfer_mm(d : Double) -> Double {
+  let c = 0.1 * d
+  if c > 0.5 {
+    0.5
+  } else {
+    c
+  }
+}
+
+///|
+/// socket_lead_in_chamfer_mm returns the engineering-default 45-degree lead-in
+/// leg at a hexagon socket rim, `0.1 * across_flats` capped at half the socket
+/// depth so the lead-in cannot consume the socket.
+pub fn socket_lead_in_chamfer_mm(
+  across_flats : Double,
+  socket_depth_mm : Double,
+) -> Double {
+  let c = 0.1 * across_flats
+  let cap = 0.5 * socket_depth_mm
+  if c > cap {
+    cap
+  } else {
+    c
+  }
+}
+
+///|
+/// hex_head_chamfer_mm returns the engineering-default ruled top-edge chamfer
+/// inset for a hexagon head, `0.1 * across_flats` capped at a third of the head
+/// height.
+///
+/// The characteristic hexagon-head chamfer is a conical cut that leaves a
+/// washer-face top. This kernel models it as a parallel-inset ruled ring stack
+/// (a smaller hexagon top), which is an honest ruled approximation; the
+/// feature record and documentation state that difference. No standard fixes
+/// the chamfer size.
+pub fn hex_head_chamfer_mm(
+  across_flats : Double,
+  head_height : Double,
+) -> Double {
+  let c = 0.1 * across_flats
+  let cap = head_height / 3.0
+  if c > cap {
+    cap
+  } else {
+    c
+  }
+}
+
+///|
+/// socket_lead_in_hole_levels builds the `(z, inset)` hole ring stack for a
+/// hexagon socket lead-in over a socket band that spans `z_bottom..z_top`.
+///
+/// `hole` passed to the prism must be the *largest* (top) hexagon, across flats
+/// `across_flats + 2 * lead`; insetting it by `lead` gives the nominal socket.
+/// The stack is vertical below the lead-in and flares over the top `lead`
+/// millimetres, so the result is a real ruled lead-in chamfer.
+pub fn socket_lead_in_hole_levels(
+  z_bottom : Double,
+  z_top : Double,
+  lead_mm : Double,
+) -> Array[(Double, Double)] {
+  if lead_mm <= 0.0 || z_top - z_bottom <= lead_mm {
+    [(z_bottom, lead_mm), (z_top, lead_mm)]
+  } else {
+    [(z_bottom, lead_mm), (z_top - lead_mm, lead_mm), (z_top, 0.0)]
+  }
+}
+
+///|
+/// socket_lead_in_hole returns the largest hexagon hole profile for a socket
+/// lead-in: across flats `across_flats + 2 * lead`, clockwise.
+pub fn socket_lead_in_hole(
+  across_flats : Double,
+  lead_mm : Double,
+) -> Array[@cad.Vec2] {
+  hex_hole_across_flats(across_flats + 2.0 * lead_mm)
+}
+
+///|
+/// tip_chamfered_cylinder returns a cylinder of `diameter` and `height` whose
+/// bottom (tip) edge carries a 45-degree ruled chamfer of `chamfer_mm`.
+///
+/// The chamfer is real geometry: a polygonal cone ring stack, not a relabelled
+/// sharp edge. When `chamfer_mm` is not positive the plain cylinder is
+/// returned so a simplified part claims no chamfer.
+pub fn tip_chamfered_cylinder(
+  diameter : Double,
+  height : Double,
+  chamfer_mm : Double,
+  segments~ : Int32 = 64,
+) -> @cad.Shape {
+  if chamfer_mm <= 0.0 || chamfer_mm >= height / 2.0 {
+    @cad.Cylinder::new(diameter, height)
+  } else {
+    @cad.ChamferedPrism::from_chamfer(
+      circle_profile(diameter, segments~),
+      height,
+      bottom_chamfer=chamfer_mm,
+      chamfer_depth=chamfer_mm,
+    ).as_shape()
+  }
+}
+
+///|
+/// chamfered_cylinder_ends returns a cylinder with 45-degree ruled chamfers at
+/// either or both end edges (used for threaded-rod lead-ins).
+pub fn chamfered_cylinder_ends(
+  diameter : Double,
+  height : Double,
+  bottom_chamfer : Double,
+  top_chamfer : Double,
+  segments~ : Int32 = 64,
+) -> @cad.Shape {
+  let bottom = if bottom_chamfer > 0.0 && bottom_chamfer < height / 2.0 {
+    bottom_chamfer
+  } else {
+    0.0
+  }
+  let top = if top_chamfer > 0.0 && top_chamfer < height / 2.0 {
+    top_chamfer
+  } else {
+    0.0
+  }
+  if bottom <= 0.0 && top <= 0.0 {
+    @cad.Cylinder::new(diameter, height)
+  } else {
+    @cad.ChamferedPrism::from_chamfer(
+      circle_profile(diameter, segments~),
+      height,
+      bottom_chamfer=bottom,
+      top_chamfer=top,
+      chamfer_depth=if bottom > 0.0 { bottom } else { top },
+    ).as_shape()
+  }
+}
+
+///|
 /// clamp_positive_segments returns a usable segment count.
 pub fn clamp_segments(n : Int32, minimum~ : Int32 = 12) -> Int32 {
   if n < minimum {

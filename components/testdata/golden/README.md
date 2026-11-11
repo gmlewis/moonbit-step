@@ -74,3 +74,28 @@ normative and analytic checks still run and pass. The parametric parts and
 their measurements are reproducible without the external corpus.
 
 
+
+## M2–M5 matrix (round 7)
+
+`scripts/golden_matrix.py` builds the 108-cell M2–M5 matrix and writes:
+
+- `matrix.json` — per-cell `NORMATIVE` and `GOLDEN` statuses, the measured
+  values, and the development-time comparison evidence.
+- `MATRIX.md` — the per-family and per-cell tables.
+
+Every `GOLDEN` status is `SKIP` because the per-file licences are unverified.
+The normative checks are the acceptance criterion; the development-time
+measurements are recorded, never used as an oracle.
+
+```bash
+python3 scripts/golden_matrix.py --write components/testdata/golden
+python3 scripts/golden_matrix.py --self-test
+```
+
+Additional measurement helpers:
+
+- `scripts/measure_step_features.py` — surface counts, cone/sphere/torus
+  parameters, and the vertex-ring `(z, radius, count)` report.
+- `scripts/measure_step_occt.py` — solids, bbox, volume, and centre of mass.
+- `scripts/measure_step_mesh.py` — sampled bidirectional surface deviation and
+  cross-section area/perimeter/extents.

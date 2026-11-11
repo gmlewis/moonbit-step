@@ -17,23 +17,29 @@ fn hex_head_shape(
   let head_color = @cad.Rgb::blue()
   let shank_color = @cad.Rgb::orange()
   let thread_color = @cad.Rgb::cyan()
-  let base = @common.Component::new(name~, metadata~, description~)
+  let segments = clamp_segments(policy.circle_segments)
+  let features = hex_head_feature_record(policy, threads, thread, s)
+  let base = @common.Component::new(name~, metadata~, description~, features~)
+  let tip_chamfer = if policy.include_small_features {
+    let raw = shank_tip_chamfer_mm(d)
+    if raw < length_mm / 4.0 {
+      raw
+    } else {
+      length_mm / 4.0
+    }
+  } else {
+    0.0
+  }
+  // ISO 4014 measures the thread length b from the tip, so the thread occupies
+  // z = 0 .. thread_length and any plain shank is under the head.
   let mut component = if threads is @common.ThreadRepresentation::Helical {
     let plain_length = length_mm - thread_length_mm
-    let mut c = base
-    if plain_length > 0.0 {
-      c = c.add_layer(
-        @cad.Cylinder::new(d, plain_length),
-        name="plain-shank",
-        color=shank_color,
-      )
-    }
     let d3 = thread.external_minor_diameter_mm()
+    let mut c = base
     c = c.add_layer(
-      @cad.Cylinder::new(d3, thread_length_mm),
+      tip_chamfered_cylinder(d3, thread_length_mm, tip_chamfer, segments~),
       name="thread-core",
       color=shank_color,
-      placement=@common.Placement::translation(0.0, 0.0, plain_length),
     )
     match
       external_thread_ridge(
@@ -42,22 +48,36 @@ fn hex_head_shape(
         segments_per_turn=policy.segments_per_turn,
       ) {
       Some(shape) =>
-        c.add_layer(
-          shape,
-          name="helical-thread",
-          color=thread_color,
-          placement=@common.Placement::translation(0.0, 0.0, plain_length),
-        )
-      None => c
+        c = c.add_layer(shape, name="helical-thread", color=thread_color)
+      None => ()
     }
+    if plain_length > 0.0 {
+      c = c.add_layer(
+        @cad.Cylinder::new(d, plain_length),
+        name="plain-shank",
+        color=shank_color,
+        placement=@common.Placement::translation(0.0, 0.0, thread_length_mm),
+      )
+    }
+    c
   } else {
     base.add_layer(
-      @cad.Cylinder::new(d, length_mm),
+      tip_chamfered_cylinder(d, length_mm, tip_chamfer, segments~),
       name="shank",
       color=shank_color,
     )
   }
-  let head = @cad.ExtrudedProfile::new(hex_profile_across_flats(s), k)
+  let head = if policy.include_small_features {
+    let c = hex_head_chamfer_mm(s, k)
+    @cad.ChamferedPrism::from_chamfer(
+      hex_profile_across_flats(s),
+      k,
+      top_chamfer=c,
+      chamfer_depth=c,
+    ).as_shape()
+  } else {
+    @cad.ExtrudedProfile::new(hex_profile_across_flats(s), k)
+  }
   component = component.add_layer(
     head,
     name="hex-head",
@@ -65,6 +85,64 @@ fn hex_head_shape(
     placement=@common.Placement::translation(0.0, 0.0, length_mm),
   )
   component
+}
+
+///|
+/// hex_head_feature_record builds the machine-readable feature record for an
+/// ISO 4014 / ISO 4017 hexagon head screw or bolt.
+fn hex_head_feature_record(
+  policy : @common.DetailPolicy,
+  threads : @common.ThreadRepresentation,
+  thread : @standards.ThreadSpec,
+  across_flats : Double,
+) -> @common.FeatureRecord {
+  let base = @common.FeatureRecord::new(
+    modeled=["hex-head", "hex-body"],
+    approximated=[],
+    omitted=[
+      @common.Omission::new(
+        feature="under-head-radius",
+        reason="no verified standard value; a typed omission rather than a guessed fillet",
+      ),
+      @common.Omission::new(
+        feature="head-washer-face",
+        reason="the characteristic conical hexagon-head chamfer is modelled as a parallel-inset ruled approximation, not a true washer face",
+      ),
+    ],
+  )
+  let with_chamfers = if policy.include_small_features {
+    base
+    .add_modeled("hex-head-chamfer")
+    .add_modeled("shank-tip-chamfer")
+    .add_approximated(
+      @common.Approximation::new(
+        feature="hex-head-chamfer-band",
+        kind=@common.ApproximationKind::PolygonRevolve,
+        deviation_mm=across_flats * (1.0 / @math.cos(@math.PI / 6.0) - 1.0),
+        control="parallel-inset hexagon ruled chamfer",
+      ),
+    )
+  } else {
+    base
+    .add_omitted(
+      @common.Omission::new(
+        feature="hex-head-chamfer",
+        reason="omitted at Simplified detail level",
+      ),
+    )
+    .add_omitted(
+      @common.Omission::new(
+        feature="shank-tip-chamfer",
+        reason="omitted at Simplified detail level",
+      ),
+    )
+  }
+  fastener_thread_features(
+    with_chamfers,
+    threads,
+    policy,
+    thread.pitch_diameter_mm() / 2.0,
+  )
 }
 
 ///|
@@ -92,7 +170,7 @@ pub fn iso4017_screw(
     thread_rep,
     name,
     spec.metadata(),
-    "Hexagon head screw; layered body and head. Head edges are not chamfered." +
+    "Hexagon head screw; layered body and head. At Detailed and above the head top edge and the shank tip carry 45-degree engineering chamfers." +
     thread_note(thread_rep),
   )
 }
@@ -139,7 +217,7 @@ pub fn iso4014_bolt(
     thread_rep,
     name,
     spec.metadata(),
-    "Hexagon head bolt; layered body and head. Head edges are not chamfered." +
+    "Hexagon head bolt; layered body and head. At Detailed and above the head top edge and the shank tip carry 45-degree engineering chamfers." +
     thread_note(thread_rep),
   )
 }

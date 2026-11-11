@@ -157,3 +157,19 @@ countersink and the nominal overall length (10.0 / 12.0 mm); their measured
 head diameters (8.131 / 10.181 mm) sit slightly below the nominal `dk` maxima,
 which is consistent with countersink edge rounding but is not used to change
 the table. See `GOLDEN_REFERENCES.md` for the full verdicts.
+
+## Round 7: chamfer and thread-length semantics
+
+- ISO 4762 and ISO 4014 measure the thread length `b` from the **tip**. The
+  builders place the thread at `z = 0..b` and any plain shank under the head.
+  This was corrected in round 7; see `SESSION_REPORT_07.md`.
+- ISO 4762 head diameter, ISO 7380-1 head diameter, and ISO 10642 head diameter
+  are **maxima** in their standards. The matrix comparison treats a vendor head
+  below the maximum as permitted, not as a contradiction.
+- ISO 7089 specifies no edge chamfer or deburr. The washer is sharp at every
+  detail level and the record says so.
+- The head/socket/tip chamfers are engineering defaults where a standard is
+  silent. The sizes are documented in `FEATURES.md` and `GEOMETRY.md`; they are
+  not claimed as standard dimensions.
+- No ISO tolerance class (6g/6H), material property, or strength value is
+  claimed.

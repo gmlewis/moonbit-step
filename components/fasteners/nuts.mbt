@@ -43,12 +43,21 @@ pub fn hex_nut(
     name~,
     metadata=spec.metadata(),
     description="Hexagon regular nut with a through bore." +
-      nut_chamfer_note(policy, thread_rep) +
+      nut_chamfer_note(policy) +
       thread_note(thread_rep),
     features~,
   )
   if thread_rep is @common.ThreadRepresentation::Helical {
-    let body = @cad.ExtrudedProfile::new(outer, m, holes=[hole])
+    let body = if policy.include_small_features {
+      let c = nut_chamfer_mm(s, m)
+      @cad.ChamferedPrism::new(
+        outer,
+        [(0.0, c), (c, 0.0), (m - c, 0.0), (m, c)],
+        hole~,
+      ).as_shape()
+    } else {
+      @cad.ExtrudedProfile::new(outer, m, holes=[hole])
+    }
     let mut component = base.add_layer(body, name="body", color=metal)
     match
       internal_thread_ridge(
@@ -96,13 +105,8 @@ fn nut_chamfer_mm(s : Double, m : Double) -> Double {
 }
 
 ///|
-fn nut_chamfer_note(
-  policy : @common.DetailPolicy,
-  thread_rep : @common.ThreadRepresentation,
-) -> String {
-  if thread_rep is @common.ThreadRepresentation::Helical {
-    ""
-  } else if policy.include_small_features {
+fn nut_chamfer_note(policy : @common.DetailPolicy) -> String {
+  if policy.include_small_features {
     " Both bearing faces carry a 45-degree chamfer (engineering default, not a standard dimension)."
   } else {
     " Face chamfers are omitted in this detail level."
@@ -135,14 +139,7 @@ fn nut_feature_record(
       ),
     ],
   )
-  let with_chamfer = if thread_rep is @common.ThreadRepresentation::Helical {
-    base.add_omitted(
-      @common.Omission::new(
-        feature="nut-face-chamfer",
-        reason="the helical body is not chamfered at this detail level",
-      ),
-    )
-  } else if policy.include_small_features {
+  let with_chamfer = if policy.include_small_features {
     base.add_modeled("nut-face-chamfer")
   } else {
     base.add_omitted(

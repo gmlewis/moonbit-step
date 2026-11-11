@@ -48,6 +48,8 @@ pub fn Assembly::name(Self) -> String
 pub fn Assembly::new(name~ : String, description? : String, documentation? : String) -> Self
 pub fn Assembly::nodes(Self) -> Array[@cad.SceneNode]
 pub fn Assembly::placed_shapes(Self) -> Array[@collision.PlacedShape]
+pub fn Assembly::schedule(Self) -> Array[PartScheduleEntry]
+pub fn Assembly::schedule_text(Self) -> String
 pub fn Assembly::to_assembly_step(Self, assembly_name? : String) -> String
 pub fn Assembly::to_design(Self, name? : String, documentation? : String) -> @cad.Design
 pub fn Assembly::to_step(Self, checked? : Bool) -> String
@@ -78,6 +80,14 @@ pub(all) enum FrameMemberRole {
   RailY
 }
 pub fn FrameMemberRole::to_string(Self) -> String
+
+pub(all) struct PartScheduleEntry {
+  part_name : String
+  designation : String
+  standard : String
+  quantity : Int32
+  instances : Array[String]
+}
 
 // Type aliases
 

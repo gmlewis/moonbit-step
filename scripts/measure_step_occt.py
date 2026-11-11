@@ -17,6 +17,7 @@ Exits 2 when OCCT is unavailable.
 from __future__ import annotations
 
 import json
+import re
 import shutil
 import subprocess
 import sys
@@ -41,6 +42,7 @@ def measure(path: Path) -> dict:
             f'testreadstep "{step_escaped}" a; '
             "puts [nbshapes a]; "
             "puts [bounding a]; "
+            "puts [vprops a]; "
             "explode a So; "
             f'set f [open "{csv_escaped}" w]; '
             "set n 0; "
@@ -96,11 +98,25 @@ def measure(path: Path) -> dict:
                 x0, y0, z0, x1, y1, z1 = (float(v) for v in cols[2:])
                 solid_bboxes.append([x0, x1, y0, y1, z0, z1])
 
+        center_of_mass = None
+        com_match = re.search(
+            r"Center of (?:Mass|gravity)\s*:\s*"
+            r"(?:\(\s*([-0-9.eE+]+)\s*,\s*([-0-9.eE+]+)\s*,\s*([-0-9.eE+]+)\s*\)"
+            r"|X\s*=\s*([-0-9.eE+]+)\s*Y\s*=\s*([-0-9.eE+]+)\s*"
+            r"Z\s*=\s*([-0-9.eE+]+))",
+            proc.stdout,
+            re.DOTALL,
+        )
+        if com_match:
+            groups = [g for g in com_match.groups() if g is not None]
+            center_of_mass = [float(v) for v in groups]
+
         return {
             "path": str(path),
             "solids": solids,
             "bbox": [xmin, xmax, ymin, ymax, zmin, zmax],
             "volume": sum(solid_volumes) if solid_volumes else None,
+            "center_of_mass": center_of_mass,
             "solid_bboxes": solid_bboxes,
             "solid_volumes": solid_volumes,
         }

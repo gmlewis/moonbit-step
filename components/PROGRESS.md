@@ -516,3 +516,78 @@ report.
 The limitations in `KNOWN_ISSUES.md` still apply: nominal (layered) booleans,
 no thread runout/root relief, OBB collision conservatism for non-convex
 sections, and external golden geometry `SKIP` for licensing reasons.
+
+## M2–M5 golden matrix and chamfer completion (round 7, 2026-11-10)
+
+Starting state: branch `master`, HEAD `7f1181a` (`Complete round 6`),
+baseline **535/535 tests** verified. Round-6 work was preserved.
+
+### Defect found and fixed
+
+- **P1: partially threaded screws were threaded at the wrong end.** ISO 4762
+  M4 x 20 exported a plain shank at the tip (`z=0..6`) and the thread under the
+  head (`z=6..20`), but ISO 4762 measures `b` from the tip. ISO 4014 had the
+  same reversal. The thread core and swept ridge now occupy `z = 0..b`; the
+  plain shank sits under the head. Regressions assert both placed positions.
+
+### Chamfer/fillet completion (M2–M5)
+
+- ISO 4762: real socket lead-in chamfer (tapered hex hole) and shank tip
+  chamfer at `Detailed`+, in addition to the existing head chamfer.
+- ISO 4032: face chamfers now also on the fully modeled helical body.
+- ISO 7089: documented the sharp edge as standard-correct; no chamfer claimed.
+- ISO 4017/4014: real hex-head top chamfer and shank tip chamfer; feature
+  records added; thread measured from the tip.
+- ISO 7380-1/ISO 10642: socket lead-in and tip chamfers; feature records
+  updated.
+- DIN 976-1: engineering lead-in chamfers at both ends; feature record added.
+- Kernel: `ChamferedPrism` supports a per-level tapered hole (`hole_levels`),
+  making the socket lead-in real ruled geometry.
+
+### Golden matrix (centerpiece)
+
+- `scripts/golden_matrix.py` builds and validates **108 cells** (8 families ×
+  M2/M2.5/M3/M4/M5 × Simplified/Detailed/FullyModeled).
+- **NORMATIVE: 108 PASS, 0 FAIL.** Checks: standard outside dimensions, solid
+  count, measured chamfer/lead-in/thread vertex rings, tip lead-ins, and thread
+  crests.
+- **GOLDEN: 0 PASS, 108 SKIP** because every per-file licence is unverified.
+  The development-time rotation-invariant comparison is recorded: 39 cells
+  agree; 69 are rejected with measured evidence (ISO 4762 M2/M2.5/M5 head
+  diameter, ISO 7089 thickness, DIN 976 doubled length, ISO 4017/4014 head
+  height). ISO 10642 M4/M5 are permitted: the standard head diameter is a
+  maximum and those models are below it.
+- Reports: `components/testdata/golden/matrix.json` and `MATRIX.md`.
+
+### Harness extensions
+
+- `measure_step_features.py`: vertex-ring report.
+- `measure_step_occt.py`: centre of mass.
+- `measure_step_mesh.py` (new): sampled bidirectional surface deviation and
+  cross-section area/perimeter/extent.
+- `compare_golden.py`: mass-properties, section, surface-deviation, vertex-ring,
+  and sphere-radius checks; self-test expanded to 15/15.
+- Manifest: analytic washer mass/section/ring checks; bearing ball-radius
+  checks.
+
+### Assembly schedule
+
+- `Assembly::schedule()`/`schedule_text()` group identical parametric parts into
+  a BOM with quantity and instance names. The bolted joint reports four parts /
+  five instances.
+
+### Final status
+
+- `./test-all.sh`: **546 tests, 546 passed, 0 failed** (+11 regressions).
+- `python3 scripts/compare_golden.py`: 19 PASS, external SKIP, 0 FAIL.
+- `python3 scripts/compare_golden.py --self-test`: 15/15 PASS.
+- `python3 scripts/golden_matrix.py`: 108 cells, NORMATIVE 108 PASS, GOLDEN 108
+  SKIP.
+
+### Explicitly not implemented
+
+T-nuts, corner brackets, joining plates, end caps, couplings, linear rails,
+retaining rings, profile shift, helical gears, exact B-slot6, multi-edge
+evaluated chamfers, under-head radii, ISO 4032 bore-edge chamfers, and
+standards-defined thread runout. Each is recorded with its blocker in
+`KNOWN_ISSUES.md` / `INVENTORY.md`; none is claimed as complete.

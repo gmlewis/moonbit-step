@@ -8,6 +8,8 @@ import {
 }
 
 // Values
+pub fn chamfered_cylinder_ends(Double, Double, Double, Double, segments? : Int32) -> @cad.Shape
+
 pub fn circle_profile(Double, segments? : Int32) -> Array[(Double, Double)]
 
 pub fn clamp_segments(Int32, minimum? : Int32) -> Int32
@@ -29,6 +31,8 @@ pub fn fastener_thread_features(@common.FeatureRecord, @common.ThreadRepresentat
 pub fn flat_washer(@standards.ISO7089Spec, detail? : @common.DetailLevel, color? : @cad.Rgb) -> @common.Component
 
 pub fn format_length(Double) -> String
+
+pub fn hex_head_chamfer_mm(Double, Double) -> Double
 
 pub fn hex_hole_across_flats(Double, rotation_deg? : Double) -> Array[(Double, Double)]
 
@@ -66,11 +70,21 @@ pub fn iso7380_screw(@standards.MetricSize, Double, detail? : @common.DetailLeve
 
 pub fn polyline_circle_approximation(String, Double, Int32) -> @common.Approximation
 
+pub fn shank_tip_chamfer_mm(Double) -> Double
+
 pub fn socket_head_cap_screw(@standards.ISO4762Spec, detail? : @common.DetailLevel, threads? : @common.ThreadRepresentation, color? : @cad.Rgb) -> @common.Component
 
 pub fn socket_head_cap_screw_assembly_name(@standards.ISO4762Spec) -> String
 
+pub fn socket_lead_in_chamfer_mm(Double, Double) -> Double
+
+pub fn socket_lead_in_hole(Double, Double) -> Array[(Double, Double)]
+
+pub fn socket_lead_in_hole_levels(Double, Double, Double) -> Array[(Double, Double)]
+
 pub fn thread_note(@common.ThreadRepresentation) -> String
+
+pub fn tip_chamfered_cylinder(Double, Double, Double, segments? : Int32) -> @cad.Shape
 
 // Errors
 

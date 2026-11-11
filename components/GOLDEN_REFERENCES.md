@@ -330,3 +330,87 @@ spring pins, and DIN 471 retaining rings. The 6300-series bearing reference is
 absent from the downloaded core corpus. The 2040/3030/4040 extrusion envelopes
 remain analytically checked in the profile tests, not against an external
 model. These are honest coverage gaps, not passes.
+
+## M2–M5 golden matrix (round 7, 2026-11-10)
+
+`scripts/golden_matrix.py` is the reproducible matrix harness. It covers eight
+families and every M2/M2.5/M3/M4/M5 size they support, at Simplified, Detailed,
+and FullyModeled:
+
+`iso4762`, `iso4017`, `iso4014`, `iso4032`, `iso7089`, `iso7380`,
+`iso10642`, `din976`.
+
+Each cell records:
+
+- **NORMATIVE**: independent standard outside dimensions, solid count, and the
+  measured chamfer/lead-in/thread vertex rings (PASS/FAIL).
+- **GOLDEN**: the independent model comparison (PASS/FAIL/SKIP).
+
+Result: **108 cells, NORMATIVE 108 PASS / 0 FAIL; GOLDEN 0 PASS / 108 SKIP.**
+Every external candidate has `license_status = unverified-per-file`, so it is
+measured for development-time information only and is never the acceptance
+oracle. A `SKIP` is never reported as a pass.
+
+### Rotation-invariant comparison
+
+A vendor hex model may be rotated about Z, so an axis-aligned bounding box is
+not rotation invariant (a hexagon rotated 15° has a square bbox). The harness
+compares:
+
+- the axial extent, and
+- the outer radius, taken as the larger of the maximum vertex radius and half
+  the larger in-plane bbox extent. The bbox term is a sound lower bound that
+  catches a widest analytic surface with no vertex at its own radius; the
+  vertex term recovers a hexagon's across-corners radius.
+
+Both are invariant under a Z rotation, with the declared tolerance. For ISO 4762,
+ISO 7380, and ISO 10642 the standard head diameter is a **maximum**, so a model
+below it is recorded as `below-standard-maximum` (permitted) rather than a
+contradiction.
+
+### Development-time results
+
+39 cells agree (13 family/size pairs × 3 detail levels):
+
+| Family | Agreement |
+|---|---|
+| ISO 4762 | M3/M4 head diameter and overall length |
+| ISO 4032 | M2–M5 across-corners radius and height |
+| ISO 7380-1 | M3–M5 head radius and overall length |
+| ISO 10642 | M3 exactly; M4/M5 below the standard maximum (permitted) |
+
+69 cells are rejected with measured evidence:
+
+| Family | Rejection evidence |
+|---|---|
+| ISO 4762 M2/M2.5/M5 | head diameter 4.1131 / 4.8708 / 9.2003 mm vs ISO maxima 3.8 / 4.5 / 8.5 mm |
+| ISO 4017/4014 | overall length exceeds `L + k` by 0.2–0.24 mm (vendor head height larger than ISO nominal) |
+| ISO 7089 | thickness 0.7/1.1/1.1/1.8/2.2 mm vs ISO 7089 h = 0.3/0.5/0.5/0.8/1.0 mm |
+| DIN 976 | the "l025" model is 50 mm long (2× the label) |
+| ISO 10642 M4/M5 | head below but within the standard maximum (recorded as permitted) |
+
+The machine-readable record is `components/testdata/golden/matrix.json`; the
+table is `components/testdata/golden/MATRIX.md`. No external STEP file is
+committed and no committed preset is derived from an unlicensed golden.
+
+```bash
+python3 scripts/golden_matrix.py                        # print the matrix
+python3 scripts/golden_matrix.py --write components/testdata/golden
+python3 scripts/golden_matrix.py --family iso4762 --size M4
+python3 scripts/golden_matrix.py --self-test
+```
+
+### Harness measurement capabilities
+
+- **Vertex rings** (`measure_step_features.py`): `(z, radius, count)` from real
+  `VERTEX_POINT`s, used to measure chamfer legs, socket lead-ins, and ring
+  stacks.
+- **Mass properties** (`measure_step_occt.py`): volume and centre of mass.
+- **Sections** (`measure_step_mesh.py`): tessellate, slice at a plane, and
+  report area, perimeter, and extents.
+- **Surface deviation** (`measure_step_mesh.py`): sampled bidirectional
+  point-to-triangle distance (Hausdorff-like).
+- **Checks** (`compare_golden.py`): `mass_properties`, `sections`,
+  `surface_deviation`, `vertex_ring`, `sphere_radius_present_mm`.
+- **Self-test**: 15 checks covering PASS/FAIL/SKIP, checksum, units/frame,
+  feature kinds, mass, sections, deviation, and vertex rings.

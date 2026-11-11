@@ -57,3 +57,35 @@ test "chamfered prism rejects an inset that collapses the base" {
   )
   inspect(prism.validate() is Err(_), content="true")
 }
+
+///|
+test "tapered hole creates a real ruled socket lead-in" {
+  // Outer hexagon 10 mm across corners; the hole flares outward by a 0.5 mm
+  // parallel inset over the top 0.5 mm.
+  let base = Profile2D::polygon(6, 10.0, rotation=30.0)
+  let top_hole = Profile2D::polygon(6, 5.0, rotation=30.0).rev()
+  let prism = ChamferedPrism::new(
+    base,
+    [(0.0, 0.0), (6.0, 0.0)],
+    hole=top_hole,
+    hole_levels=[(0.0, 0.5), (5.5, 0.5), (6.0, 0.0)],
+  )
+  inspect(prism.validate() is Ok(_), content="true")
+  let step = Design::new(name="lead-in")
+    .add(Shape::ChamferedPrism(prism).with_name("lead-in"))
+    .to_step_file()
+  // 2 annular caps + 6 outer quads + 2 bands * 6 ruled hole quads.
+  assert_eq(count_sub(step, "ADVANCED_FACE("), 20)
+  assert_eq(count_sub(step, "PLANE("), 20)
+}
+
+///|
+test "tapered hole rejects a z stack that does not close the caps" {
+  let base = Profile2D::polygon(6, 10.0, rotation=30.0)
+  let hole = Profile2D::polygon(6, 5.0, rotation=30.0).rev()
+  let prism = ChamferedPrism::new(base, [(0.0, 0.0), (6.0, 0.0)], hole~, hole_levels=[
+    (1.0, 0.5),
+    (6.0, 0.0),
+  ])
+  inspect(prism.validate() is Err(_), content="true")
+}
