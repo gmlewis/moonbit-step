@@ -1026,6 +1026,220 @@
       }
     },
     {
+      "fixture_id": "fasteners/din125-m3",
+      "part_id": "din125_flat_washer_m3",
+      "designation": "DIN 125 A - M3",
+      "family": "plain washer, normal series",
+      "standard": "DIN 125 A",
+      "manufacturer": "unspecified step.parts contributor",
+      "source_page": "https://www.step.parts/parts/din125_flat_washer_m3",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/din125_flat_washer_m3.step",
+      "local_filename": "external/din125_flat_washer_m3.step",
+      "sha256": "df57fbc49f55dd15c2780249a178c36e005ac299762d6def9f2c5b11fc8f7aff",
+      "byte_size": 12337,
+      "units": "mm",
+      "declared_dimensions": {
+        "inner_diameter_mm": 3.2,
+        "outer_diameter_mm": 7.0,
+        "thickness_mm": 0.5
+      },
+      "measured_dimensions": {
+        "bbox_mm": [
+          7.0,
+          7.0,
+          0.5
+        ],
+        "volume_mm3": 15.221,
+        "solids": 1
+      },
+      "parametric_value": {
+        "bbox_mm": [
+          7.0,
+          7.0,
+          0.5
+        ],
+        "volume_mm3": 15.221,
+        "solids": 1,
+        "source": "components/examples/fasteners --standard din125 --size M3"
+      },
+      "verdict": "accepted-envelope",
+      "notes": "DIN 125 A M3 dimensions (d1 3.2, d2 7, h 0.5) match the golden and ISO 7089; the golden is a standard-correct plain washer.",
+      "committed": false,
+      "generation": {
+        "tool": "components/examples/fasteners",
+        "args": [
+          "--standard",
+          "din125",
+          "--size",
+          "M3",
+          "--detail",
+          "detailed",
+          "-o",
+          "{out}"
+        ],
+        "output": "din125-M3-detailed.step"
+      },
+      "comparison": {
+        "solids": 1,
+        "bbox_axes": [
+          {
+            "axis": 0,
+            "expected_mm": 7.0,
+            "label": "outer diameter"
+          },
+          {
+            "axis": 2,
+            "expected_mm": 0.5,
+            "label": "thickness"
+          }
+        ],
+        "features": [
+          {
+            "kind": "min_vertex_radius_mm",
+            "expected": 1.6,
+            "tol_mm": 0.01
+          },
+          {
+            "kind": "max_vertex_radius_mm",
+            "expected": 3.5,
+            "tol_mm": 0.01
+          },
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 3.5,
+            "tol_mm": 0.01
+          }
+        ],
+        "mass_properties": {
+          "volume_mm3": 15.221,
+          "volume_relative_tol": 0.02,
+          "center_of_mass_mm": [
+            0.0,
+            0.0,
+            0.25
+          ],
+          "center_of_mass_tol_mm": 0.01
+        },
+        "sections": [
+          {
+            "z_mm": 0.25,
+            "area_mm2": 30.442,
+            "area_relative_tol": 0.02,
+            "x_extent_mm": 7.0,
+            "extent_tol_mm": 0.02
+          }
+        ],
+        "section_deflection_mm": 0.01
+      }
+    },
+    {
+      "fixture_id": "fasteners/din125-m8",
+      "part_id": "din125_flat_washer_m8",
+      "designation": "DIN 125 A - M8",
+      "family": "plain washer, normal series",
+      "standard": "DIN 125 A",
+      "manufacturer": "unspecified step.parts contributor",
+      "source_page": "https://www.step.parts/parts/din125_flat_washer_m8",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/din125_flat_washer_m8.step",
+      "local_filename": "external/din125_flat_washer_m8.step",
+      "sha256": "30b69a33be0a17651cb1bbf21a7bb5b01227a1e63d7cb657d32e3457b22cc78d",
+      "byte_size": 12468,
+      "units": "mm",
+      "declared_dimensions": {
+        "inner_diameter_mm": 8.4,
+        "outer_diameter_mm": 16.0,
+        "thickness_mm": 1.6
+      },
+      "measured_dimensions": {
+        "bbox_mm": [
+          16.0,
+          16.0,
+          1.8
+        ],
+        "volume_mm3": 262.1596,
+        "solids": 1
+      },
+      "parametric_value": {
+        "bbox_mm": [
+          16.0,
+          16.0,
+          1.8
+        ],
+        "volume_mm3": 262.1596,
+        "solids": 1,
+        "source": "components/examples/fasteners --standard din125 --size M8"
+      },
+      "verdict": "accepted-envelope",
+      "notes": "DIN 125 A M8: d1 8.4, d2 16, h nominal 1.6 mm (limits 1.4..1.8). The reference is 1.8 mm, the ISO 7089 h_max, so the reference thickness is chosen at h_max to reproduce the golden within the standard.",
+      "committed": false,
+      "generation": {
+        "tool": "components/examples/fasteners",
+        "args": [
+          "--standard",
+          "din125",
+          "--size",
+          "M8",
+          "--detail",
+          "detailed",
+          "-o",
+          "{out}"
+        ],
+        "output": "din125-M8-detailed.step"
+      },
+      "comparison": {
+        "solids": 1,
+        "bbox_axes": [
+          {
+            "axis": 0,
+            "expected_mm": 16.0,
+            "label": "outer diameter"
+          },
+          {
+            "axis": 2,
+            "expected_mm": 1.8,
+            "label": "thickness"
+          }
+        ],
+        "features": [
+          {
+            "kind": "min_vertex_radius_mm",
+            "expected": 4.2,
+            "tol_mm": 0.01
+          },
+          {
+            "kind": "max_vertex_radius_mm",
+            "expected": 8.0,
+            "tol_mm": 0.01
+          },
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 8.0,
+            "tol_mm": 0.01
+          }
+        ],
+        "mass_properties": {
+          "volume_mm3": 262.1596,
+          "volume_relative_tol": 0.02,
+          "center_of_mass_mm": [
+            0.0,
+            0.0,
+            0.9
+          ],
+          "center_of_mass_tol_mm": 0.01
+        },
+        "sections": [
+          {
+            "z_mm": 0.9,
+            "area_mm2": 145.644,
+            "area_relative_tol": 0.02,
+            "x_extent_mm": 16.0,
+            "extent_tol_mm": 0.02
+          }
+        ],
+        "section_deflection_mm": 0.01
+      }
+    },
+    {
       "fixture_id": "fasteners/iso7089-m5",
       "part_id": "flat_washer_normal_m5_simple",
       "designation": "ISO 7089 M5",

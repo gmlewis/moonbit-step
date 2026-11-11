@@ -22,6 +22,7 @@ proprietary catalog graphics, or manufacturer part files.
 | Socket head cap screws | ISO 4762:2004 | `dk`, `k`, `s`, `t`, length ranges |
 | Hexagon regular nuts | ISO 4032:2023 | `s`, `m` |
 | Plain washers, normal series | ISO 7089:2000 | `d1`, `d2`, `h` |
+| Plain washers, DIN A series | DIN 125 A | `d1`, `d2`, `h` (identical to ISO 7089 for the modeled sizes) |
 | Hexagon head screws | ISO 4017:2022 | `s`, `k` |
 | Hexagon head bolts | ISO 4014:2022 | `s`, `k`, thread length `b` |
 | Button head hex socket screws | ISO 7380-1:2022 designation | `dk`, `k`, `s`, `t`, length range |
@@ -49,6 +50,8 @@ the parametric parts use s_max.
 - `components/standards/iso4762.mbt` — ISO 4762 head/socket table.
 - `components/standards/iso4032.mbt` — ISO 4032 nut table.
 - `components/standards/iso7089.mbt` — ISO 7089 washer table.
+- `components/standards/din125.mbt` — DIN 125 A washer table (reuses ISO 7089
+  for the modeled sizes).
 - `components/standards/hex_heads.mbt` — ISO 4014/4017 head table and DIN 976
   rod validation.
 - `components/motion/bearings.mbt` — bearing boundary table.
@@ -123,7 +126,7 @@ External STEP models examined during the correctness audit are recorded in
 
 ## Golden corpus expansion (2026-11-10)
 
-The manifest now records 23 external references. New acceptances corroborated
+The manifest now records 24 external references. New acceptances corroborated
 against the standards tables:
 
 - **ISO 4032 M3/M5:** the reference plan bounding box is the across-corners
@@ -146,6 +149,10 @@ against the standards tables:
   / 30 mm, width 8 / 8 / 9 mm match the ISO 15 boundary dimensions.
 - **Spur gear m2 z40 bore10:** tip diameter 84 mm, face width 16 mm, bore
   10 mm, pitch diameter 80 mm, root diameter 75 mm match.
+- **DIN 125 A M3/M8:** the M3 reference (3.2 / 7 / 0.5 mm) matches DIN 125 A
+  exactly. The M8 reference is 8.4 / 16 / 1.8 mm; 1.8 mm is the ISO 7089 /
+  DIN 125 A h_max (nominal 1.6, limits 1.4..1.8 mm), so it is standard-correct
+  and the DIN 125 A M8 reference thickness is taken at h_max.
 
 Rejected with evidence (not used as oracles):
 

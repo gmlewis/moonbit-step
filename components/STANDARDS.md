@@ -57,6 +57,16 @@ table (6g/6H limits are not modeled as limits).
 - Supported sizes: M2, M2.5, M3, M4, M5, M6, M8, M10, M12, M16, M20.
 - Data: inner diameter `d1`, outer diameter `d2`, thickness `h`.
 
+### DIN 125 A — plain washers, normal series
+
+- Revision used: DIN 125 A.
+- Supported sizes: the same metric size set as ISO 7089.
+- Data: inner diameter `d1`, outer diameter `d2`, thickness `h`; for the
+  modeled sizes these are identical to ISO 7089 normal series, so the verified
+  ISO 7089 table is reused. DIN 125 A M8 specifies h = 1.6 mm with limits
+  1.4..1.8 mm; the reference thickness is taken at h_max = 1.8 mm to reproduce
+  the downloaded DIN 125 A M8 reference within the standard.
+
 ### ISO 4017 / ISO 4014 — hexagon head screws and bolts
 
 - Revisions used: ISO 4017:2022 and ISO 4014:2022.

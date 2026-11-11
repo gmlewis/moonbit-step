@@ -14,7 +14,7 @@ async fn main {
   let spec = {
     "standard": @cli.opt_string(
       short='s',
-      help="Standard: iso4762, iso4032, iso7089, iso4017, iso4014, iso7380, iso10642, din976",
+      help="Standard: iso4762, iso4032, iso7089, din125, iso4017, iso4014, iso7380, iso10642, din976",
     ),
     "size": @cli.opt_string(short='m', help="Metric size, e.g. M3, M4, M5"),
     "length": @cli.opt_double(
@@ -78,6 +78,7 @@ async fn main {
         None => @fcomponents.iso4032_nut(size, detail~)
       }
     "iso7089" => @fcomponents.iso7089_washer(size, detail~)
+    "din125" => @fcomponents.din125_washer(size, detail~)
     "iso7380" =>
       match threads {
         Some(t) => @fcomponents.iso7380_screw(size, length, detail~, threads=t)

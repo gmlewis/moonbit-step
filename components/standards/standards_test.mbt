@@ -203,6 +203,36 @@ test "iso 7089 known washer dimensions" {
 }
 
 ///|
+test "din 125 a known washer dimensions" {
+  let m3 = match @standards.din125_size(@standards.M3) {
+    Ok(v) => v
+    Err(e) => abort(e.message())
+  }
+  assert_true(close(m3.inner_diameter_mm, 3.2))
+  assert_true(close(m3.outer_diameter_mm, 7.0))
+  assert_true(close(m3.thickness_mm, 0.5))
+  let spec = match @standards.din125_spec(@standards.M3) {
+    Ok(v) => v
+    Err(e) => abort(e.message())
+  }
+  assert_true(spec.designation() == "DIN 125 A - M3")
+  assert_true(@standards.DIN125Spec::standard() == "DIN 125 A")
+  assert_true(spec.metadata().standard == "DIN 125 A")
+  assert_true(
+    spec.metadata().family == "plain washer, normal series (DIN 125 A)",
+  )
+  // DIN 125 A / ISO 7089 M8: h nominal 1.6 mm, limits 1.4..1.8 mm. The
+  // reference thickness is the upper limit, matching the downloaded reference.
+  let m8 = match @standards.din125_size(@standards.M8) {
+    Ok(v) => v
+    Err(e) => abort(e.message())
+  }
+  assert_true(close(m8.inner_diameter_mm, 8.4))
+  assert_true(close(m8.outer_diameter_mm, 16.0))
+  assert_true(close(m8.thickness_mm, 1.8))
+}
+
+///|
 test "iso 4017 and iso 4014 hex head dimensions" {
   let h4 = match @standards.hex_head_size(@standards.M4) {
     Ok(v) => v

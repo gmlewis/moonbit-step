@@ -8,6 +8,10 @@ import {
 // Values
 pub fn bolt_thread_length(Double, Double) -> Double
 
+pub fn din125_size(MetricSize) -> Result[DIN125Size, @common.SpecError]
+
+pub fn din125_spec(MetricSize) -> Result[DIN125Spec, @common.SpecError]
+
 pub fn din976_spec(MetricSize, Double) -> Result[DIN976Spec, @common.SpecError]
 
 pub fn hex_head_size(MetricSize) -> Result[HexHeadSize, @common.SpecError]
@@ -39,6 +43,22 @@ pub fn iso7380_spec(MetricSize, Double) -> Result[ISO7380Spec, @common.SpecError
 // Errors
 
 // Types and methods
+pub(all) struct DIN125Size {
+  size : MetricSize
+  inner_diameter_mm : Double
+  outer_diameter_mm : Double
+  thickness_mm : Double
+}
+
+pub(all) struct DIN125Spec {
+  size_dims : DIN125Size
+}
+pub fn DIN125Spec::designation(Self) -> String
+pub fn DIN125Spec::metadata(Self) -> @common.Metadata
+pub fn DIN125Spec::size(Self) -> MetricSize
+pub fn DIN125Spec::source() -> String
+pub fn DIN125Spec::standard() -> String
+
 pub(all) struct DIN976Spec {
   thread : ThreadSpec
   length_mm : Double

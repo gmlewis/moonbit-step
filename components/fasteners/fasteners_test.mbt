@@ -241,6 +241,45 @@ test "flat washer dimensions" {
 }
 
 ///|
+test "din 125 a washer dimensions" {
+  let washer = match @fasteners.din125_washer(@standards.M3) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  let (x0, x1, y0, y1, z0, z1) = washer.bounding_box()
+  assert_true(close(x0, -3.5))
+  assert_true(close(x1, 3.5))
+  assert_true(close(y0, -3.5))
+  assert_true(close(y1, 3.5))
+  assert_true(close(z0, 0.0))
+  assert_true(close(z1, 0.5))
+  assert_true(washer.name() == "DIN125-M3")
+  assert_true(washer.metadata().designation == "DIN 125 A - M3")
+  assert_true(washer.metadata().standard == "DIN 125 A")
+  // One analytic annular layer (a revolved tube): no polygon approximation.
+  let names = layer_names(washer)
+  assert_true(names.length() == 1)
+  assert_true(names.any(fn(n) { n == "DIN125-M3/body" }))
+  let features = washer.features()
+  assert_true(features.has_modeled("through-bore"))
+  assert_true(features.has_omitted("edge-chamfer"))
+  // M8 reference thickness is the ISO 7089 h_max of 1.8 mm (nominal 1.6).
+  let m8 = match @fasteners.din125_washer(@standards.M8) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  let (mx0, mx1, my0, my1, mz0, mz1) = m8.bounding_box()
+  assert_true(close(mx0, -8.0))
+  assert_true(close(mx1, 8.0))
+  assert_true(close(my0, -8.0))
+  assert_true(close(my1, 8.0))
+  assert_true(close(mz0, 0.0))
+  assert_true(close(mz1, 1.8))
+  assert_true(m8.name() == "DIN125-M8")
+  assert_true(m8.metadata().designation == "DIN 125 A - M8")
+}
+
+///|
 test "fastener step text is non-empty and watertight-looking" {
   let washer = match @fasteners.iso7089_washer(@standards.M3) {
     Ok(c) => c
