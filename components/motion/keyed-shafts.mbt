@@ -89,16 +89,31 @@ pub fn keyed_shaft(
     Ok(_) => ()
   }
   let used_segments = if segments < 8 { 8 } else { segments }
-  let section = match
+  let _ = used_segments
+  // Validate the same parameters as the polygon section, then build the exact
+  // line-plus-arc section: two minor circular arcs for the shaft and three
+  // straight edges for the keyway.
+  let radius = diameter_mm / 2.0
+  let hw = keyway_width_mm / 2.0
+  let y_top = Double::sqrt(radius * radius - hw * hw)
+  let y_bottom = radius - keyway_depth_mm
+  match
     keyed_shaft_cross_section(
       diameter_mm,
       keyway_width_mm,
       keyway_depth_mm,
       segments=used_segments,
     ) {
-    Ok(p) => p
+    Ok(_) => ()
     Err(e) => return Err(e)
   }
+  let arc_segments : Array[@cad.ProfileSegment] = [
+    @cad.SegmentArc((-hw, y_top), (0.0, -radius), (0.0, 0.0)),
+    @cad.SegmentArc((0.0, -radius), (hw, y_top), (0.0, 0.0)),
+    @cad.SegmentLine((hw, y_top), (hw, y_bottom)),
+    @cad.SegmentLine((hw, y_bottom), (-hw, y_bottom)),
+    @cad.SegmentLine((-hw, y_bottom), (-hw, y_top)),
+  ]
   let name = "keyed-shaft-d\{@cad.fmt_double(diameter_mm, None)}x\{@cad.fmt_double(length_mm, None)}-kw\{@cad.fmt_double(keyway_width_mm, None)}x\{@cad.fmt_double(keyway_depth_mm, None)}"
   Ok(
     @common.Component::new(
@@ -110,20 +125,10 @@ pub fn keyed_shaft(
         length_mm~,
         source="Parametric shaft with a flat-bottom keyway generated from the section; verify the key size against the applicable shaft standard.",
       ),
-      description="Cylindrical shaft with a real flat-bottomed rectangular keyway on +Y, running the full length. The keyway is a geometric notch in the extruded section; it is not a nominal boolean.",
+      description="Cylindrical shaft with a real flat-bottomed rectangular keyway on +Y, running the full length. The shaft is an analytic cylinder (two circular-arc side faces) and the keyway is a geometric notch in the extruded section; it is not a nominal boolean.",
       features=@common.FeatureRecord::new(
-        modeled=["body", "keyway"],
-        approximated=[
-          @common.Approximation::new(
-            feature="shaft-section-arc",
-            kind=@common.ApproximationKind::PolylineArc,
-            deviation_mm=@common.chord_deviation(
-              diameter_mm / 2.0,
-              used_segments,
-            ),
-            control="segments=\{used_segments}",
-          ),
-        ],
+        modeled=["body", "keyway", "shaft-circular-section"],
+        approximated=[],
         omitted=[
           @common.Omission::new(
             feature="keyway-end-radius",
@@ -136,7 +141,7 @@ pub fn keyed_shaft(
         ],
       ),
     ).add_layer(
-      @cad.ExtrudedProfile::new(section, length_mm),
+      @cad.ExtrudedArcProfile::new(arc_segments, length_mm).as_shape(),
       name="body",
       color~,
     ),

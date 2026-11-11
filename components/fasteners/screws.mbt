@@ -76,7 +76,7 @@ pub fn socket_head_cap_screw(
   } else {
     pts.push((core_r, 0.0))
   }
-  if threaded && thread_length < length - 1.0e-9 {
+  if threaded && thread_length < length - FASTENER_EPS {
     pts.push((core_r, thread_length))
     pts.push((d / 2.0, thread_length))
     pts.push((d / 2.0, length))

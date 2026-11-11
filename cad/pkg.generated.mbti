@@ -23,6 +23,8 @@ pub fn compile_cuboid(StepContext, SceneNode, Cuboid, reverse? : Bool, parent? :
 
 pub fn compile_cylinder(StepContext, SceneNode, Cylinder, reverse? : Bool, parent? : Transform?) -> Array[@step.Ref]
 
+pub fn compile_extruded_arc_profile(StepContext, SceneNode, ExtrudedArcProfile, reverse? : Bool, parent? : Transform?) -> Array[@step.Ref]
+
 pub fn compile_extruded_bezier_profile(StepContext, SceneNode, ExtrudedBezierProfile, reverse? : Bool, parent? : Transform?) -> Array[@step.Ref]
 
 pub fn compile_extruded_profile(StepContext, SceneNode, ExtrudedProfile, reverse? : Bool, parent? : Transform?) -> Array[@step.Ref]
@@ -38,6 +40,8 @@ pub fn cut_on_face(SceneNode, Profile2D, FaceInfo, Double, name? : String, overs
 pub fn cycle_area_3d(Array[(Double, Double, Double)], Array[Int32]) -> (Double, Double, Double)
 
 pub fn difference(SceneNode, Array[SceneNode], name? : String) -> SceneNode
+
+pub fn extruded_arc_mesh(ExtrudedArcProfile, arc_segments? : Int32) -> (Array[(Double, Double, Double)], Array[Array[Int32]])
 
 pub fn fillet_edges(SceneNode, Double, selector? : EdgeSelector, name? : String) -> SceneNode
 
@@ -251,6 +255,17 @@ pub(all) enum EdgeSelector {
   EdgeIndices(Array[Int32])
 }
 
+pub struct ExtrudedArcProfile {
+  segments : Array[ProfileSegment]
+  height_mm : Double
+  round_bore : ((Double, Double), Double)?
+}
+pub fn ExtrudedArcProfile::as_shape(Self) -> Shape
+pub fn ExtrudedArcProfile::centroid(Self) -> (Double, Double, Double)
+pub fn ExtrudedArcProfile::new(Array[ProfileSegment], Double, round_bore? : ((Double, Double), Double)) -> Self
+pub fn ExtrudedArcProfile::validate(Self) -> Bool
+pub fn ExtrudedArcProfile::volume(Self) -> Double
+
 pub struct ExtrudedBezierProfile {
   paths : Array[BezierPath]
   height_mm : Double
@@ -380,6 +395,11 @@ pub(all) enum ProfileOpError {
 }
 pub fn ProfileOpError::message(Self) -> String
 
+pub(all) enum ProfileSegment {
+  SegmentLine((Double, Double), (Double, Double))
+  SegmentArc((Double, Double), (Double, Double), (Double, Double))
+}
+
 pub(all) struct RevCircle {
   edge : @step.Ref
   vertex : @step.Ref
@@ -495,6 +515,7 @@ pub enum Shape {
   SocketedSolid(SocketedSolid)
   CalibrationChamferBlock(CalibrationChamferBlock)
   ExtrudedProfile(ExtrudedProfile)
+  ExtrudedArcProfile(ExtrudedArcProfile)
   ExtrudedBezierProfile(ExtrudedBezierProfile)
   SweptProfile(SweptProfile)
   Fillet(EdgeFeature)

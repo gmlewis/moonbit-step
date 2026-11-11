@@ -87,13 +87,13 @@ fn countersunk_screw(
   }
   if threaded {
     pts.push((core_r, head_z))
-    if core_r < r_sh - 1.0e-9 {
+    if core_r < r_sh - FASTENER_EPS {
       pts.push((r_sh, head_z))
     }
   } else {
     pts.push((r_sh, head_z))
   }
-  if cyl_h > 1.0e-9 {
+  if cyl_h > FASTENER_EPS {
     pts.push((r_sh, head_z + cyl_h))
   }
   pts.push((big_r, length))
@@ -207,12 +207,8 @@ fn button_screw(
   } else {
     pts.push((core_r, 0.0))
   }
-  if threaded {
-    pts.push((core_r, length))
-    if core_r < big_r - 1.0e-9 {
-      pts.push((big_r, length))
-    }
-  } else {
+  pts.push((core_r, length))
+  if core_r < big_r - FASTENER_EPS {
     pts.push((big_r, length))
   }
   let segs : Array[@cad.RevSegment] = []

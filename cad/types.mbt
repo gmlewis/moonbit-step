@@ -110,6 +110,29 @@ pub struct ExtrudedProfile {
 }
 
 ///|
+/// ProfileSegment is one boundary segment of a planar profile: a straight line
+/// or a counter-clockwise minor circular arc (sweep at most 180 degrees).
+pub(all) enum ProfileSegment {
+  SegmentLine(Vec2, Vec2)
+  SegmentArc(Vec2, Vec2, Vec2)
+}
+
+///|
+/// ExtrudedArcProfile is an extruded closed profile whose boundary contains
+/// circular arcs, so a genuinely circular side becomes an analytic
+/// `CYLINDRICAL_SURFACE` instead of a polygon of planar facets.
+///
+/// `segments` is one closed counter-clockwise outer loop. `round_bore` is an
+/// optional analytic circular through-bore. This is the representation for a
+/// keyed shaft (a circular body with a real keyway notch) and for other
+/// line-plus-arc sections.
+pub struct ExtrudedArcProfile {
+  segments : Array[ProfileSegment]
+  height_mm : Double
+  round_bore : (Vec2, Double)?
+}
+
+///|
 pub struct SweptProfile {
   path : SweepPath
   profile : SweepProfile
@@ -222,6 +245,7 @@ pub enum Shape {
   SocketedSolid(SocketedSolid)
   CalibrationChamferBlock(CalibrationChamferBlock)
   ExtrudedProfile(ExtrudedProfile)
+  ExtrudedArcProfile(ExtrudedArcProfile)
   ExtrudedBezierProfile(ExtrudedBezierProfile)
   SweptProfile(SweptProfile)
   Fillet(EdgeFeature)
@@ -402,6 +426,79 @@ pub fn Shape::bounding_box(
         }
         if pt.1 > y1 {
           y1 = pt.1
+        }
+      }
+      (x0, x1, y0, y1, 0.0, e.height_mm)
+    }
+    ExtrudedArcProfile(e) => {
+      let mut x0 = @double.max_value
+      let mut x1 = @double.min_value
+      let mut y0 = @double.max_value
+      let mut y1 = @double.min_value
+      for seg in e.segments {
+        match seg {
+          SegmentLine(a, b) =>
+            for pt in [a, b] {
+              if pt.0 < x0 {
+                x0 = pt.0
+              }
+              if pt.0 > x1 {
+                x1 = pt.0
+              }
+              if pt.1 < y0 {
+                y0 = pt.1
+              }
+              if pt.1 > y1 {
+                y1 = pt.1
+              }
+            }
+          SegmentArc(a, b, c) => {
+            let rho = arc_dist2(a, c)
+            let a0 = @math.atan2(a.1 - c.1, a.0 - c.0)
+            let delta = arc_norm_sweep(@math.atan2(b.1 - c.1, b.0 - c.0) - a0)
+            for k in 0..<=64 {
+              let t = Double::from_int(k) / 64.0
+              let ang = a0 + delta * t
+              let px = c.0 + rho * @math.cos(ang)
+              let py = c.1 + rho * @math.sin(ang)
+              if px < x0 {
+                x0 = px
+              }
+              if px > x1 {
+                x1 = px
+              }
+              if py < y0 {
+                y0 = py
+              }
+              if py > y1 {
+                y1 = py
+              }
+            }
+            // Axis extrema occur at the cardinal angles; include them exactly
+            // rather than relying on the uniform samples to land on them.
+            for base in [0.0, @math.PI / 2.0, @math.PI, 3.0 * @math.PI / 2.0] {
+              for shift in -1..<=2 {
+                let ang = base + 2.0 * @math.PI * Double::from_int(shift)
+                if ang >= a0 - CAD_ANGLE_EPS &&
+                  ang <= a0 + delta + CAD_ANGLE_EPS {
+                  let px = c.0 + rho * @math.cos(ang)
+                  let py = c.1 + rho * @math.sin(ang)
+                  if px < x0 {
+                    x0 = px
+                  }
+                  if px > x1 {
+                    x1 = px
+                  }
+                  if py < y0 {
+                    y0 = py
+                  }
+                  if py > y1 {
+                    y1 = py
+                  }
+                }
+              }
+            }
+          }
         }
       }
       (x0, x1, y0, y1, 0.0, e.height_mm)

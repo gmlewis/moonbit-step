@@ -70,7 +70,9 @@ fn socketed_geometry(s : SocketedSolid) -> SocketGeometry? {
   }
   let (top_radius, top_z) = match segs[n - 1] {
     RevLine(a, b) =>
-      if b.0.abs() > 1.0e-9 || (a.1 - b.1).abs() > 1.0e-9 || a.0 <= 0.0 {
+      if b.0.abs() > CAD_LENGTH_EPS ||
+        (a.1 - b.1).abs() > CAD_LENGTH_EPS ||
+        a.0 <= 0.0 {
         return None
       } else {
         (a.0, b.1)
@@ -95,7 +97,7 @@ fn socketed_geometry(s : SocketedSolid) -> SocketGeometry? {
   }
   let mid_z = top_z - lead
   let top_hex = nominal + lead / @math.cos(@math.PI / 6.0)
-  if top_hex >= top_radius - 1.0e-9 {
+  if top_hex >= top_radius - CAD_LENGTH_EPS {
     return None
   }
   Some({
@@ -114,11 +116,11 @@ fn socketed_geometry(s : SocketedSolid) -> SocketGeometry? {
 ///|
 /// socketed_pocket_area returns the exact pocket cross-section area at `z`.
 fn socketed_pocket_area(g : SocketGeometry, z : Double) -> Double {
-  if z < g.floor_z - 1.0e-12 || z > g.top_z + 1.0e-12 {
+  if z < g.floor_z - CAD_DEGENERATE_EPS || z > g.top_z + CAD_DEGENERATE_EPS {
     return 0.0
   }
   let lead_span = g.top_z - g.mid_z
-  let t = if lead_span > 1.0e-12 {
+  let t = if lead_span > CAD_DEGENERATE_EPS {
     socket_clamp01((z - g.mid_z) / lead_span)
   } else {
     0.0
@@ -135,7 +137,7 @@ fn socketed_pocket_volume_centroid(g : SocketGeometry) -> (Double, Double) {
   let mut volume = 0.0
   let mut moment = 0.0
   let add_span = fn(z0 : Double, z1 : Double) -> Unit {
-    if z1 <= z0 + 1.0e-12 {
+    if z1 <= z0 + CAD_DEGENERATE_EPS {
       return
     }
     let zm = (z0 + z1) / 2.0
@@ -147,7 +149,7 @@ fn socketed_pocket_volume_centroid(g : SocketGeometry) -> (Double, Double) {
   }
   add_span(g.floor_z, g.mid_z)
   add_span(g.mid_z, g.top_z)
-  if volume <= 1.0e-12 {
+  if volume <= CAD_DEGENERATE_EPS {
     (0.0, 0.0)
   } else {
     (volume, moment / volume)
@@ -180,7 +182,7 @@ pub fn SocketedSolid::centroid(self : SocketedSolid) -> Vec3 {
     Some(g) => {
       let (void_volume, void_z) = socketed_pocket_volume_centroid(g)
       let v = body_volume - void_volume
-      if v <= 1.0e-12 {
+      if v <= CAD_DEGENERATE_EPS {
         (0.0, 0.0, 0.0)
       } else {
         (0.0, 0.0, (body_volume * body_z - void_volume * void_z) / v)
@@ -201,8 +203,8 @@ fn socketed_band(seg : RevSegment) -> RevBandInfo {
         center: None,
         sample: ((a.0 + b.0) / 2.0, (a.1 + b.1) / 2.0),
         normal: rev_line_normal(a, b),
-        radial: (a.1 - b.1).abs() < 1.0e-9,
-        axial: (a.0 - b.0).abs() < 1.0e-9,
+        radial: (a.1 - b.1).abs() < CAD_LENGTH_EPS,
+        axial: (a.0 - b.0).abs() < CAD_LENGTH_EPS,
       }
       info
     }
@@ -301,7 +303,7 @@ pub fn compile_socketed_solid(
       ),
     )
   }
-  let has_mid = g.lead > 1.0e-12
+  let has_mid = g.lead > CAD_DEGENERATE_EPS
   let pts : Array[Vec3] = []
   pts.push_iter(top_pts.iter())
   if has_mid {
@@ -440,7 +442,7 @@ pub fn socketed_solid_mesh(
   let profile = rev_profile_polyline(s.body, arc_segments~)
   let m = profile.length()
   let body_pts : Array[Vec2] = []
-  if m > 0 && profile[m - 1].0 < 1.0e-9 {
+  if m > 0 && profile[m - 1].0 < CAD_LENGTH_EPS {
     for i in 0..<(m - 1) {
       body_pts.push(profile[i])
     }
@@ -464,11 +466,11 @@ pub fn socketed_solid_mesh(
     for i in 0..<(mb - 1) {
       let ra = body_pts[i].0
       let rb = body_pts[i + 1].0
-      if ra < 1.0e-9 && rb < 1.0e-9 {
+      if ra < CAD_LENGTH_EPS && rb < CAD_LENGTH_EPS {
         continue
-      } else if ra < 1.0e-9 {
+      } else if ra < CAD_LENGTH_EPS {
         faces.push([idx(j, i), idx(jn, i + 1), idx(j, i + 1)])
-      } else if rb < 1.0e-9 {
+      } else if rb < CAD_LENGTH_EPS {
         faces.push([idx(j, i), idx(jn, i), idx(jn, i + 1)])
       } else {
         faces.push([idx(j, i), idx(jn, i), idx(jn, i + 1), idx(j, i + 1)])
@@ -490,7 +492,7 @@ pub fn socketed_solid_mesh(
     let r = hex_radius(g.top_hex_radius, th)
     verts.push((r * @math.cos(th), r * @math.sin(th), g.top_z))
   }
-  let mid_base = if g.lead > 1.0e-12 {
+  let mid_base = if g.lead > CAD_DEGENERATE_EPS {
     let b = verts.length()
     for j in 0..<k {
       let th = 2.0 * @math.PI * Double::from_int(j) / Double::from_int(k)

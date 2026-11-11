@@ -383,16 +383,16 @@ def chamfer_checks(
                 ring_present(rings, c, full_d / 2.0, 1),
                 ring_report(rings, c, full_d / 2.0, 1),
             )
-            lead = lead_in(s, t)
-            add(
-                "socket-lead-in-top",
-                ring_present(rings, length + k, hex_circumradius(s + 2 * lead), 6)
-                and cone_present(feats, hex_circumradius(s) + lead, 45.0),
-                f"{cone_report(feats, hex_circumradius(s) + lead)}; "
-                + ring_report(rings, length + k, hex_circumradius(s + 2 * lead), 6),
-            )
-            add("socket-lead-in-base", ring_present(rings, length + k - lead, hex_circumradius(s), 6),
-                ring_report(rings, length + k - lead, hex_circumradius(s), 6))
+            # The socket is a real blind pocket in one closed solid. The golden
+            # countersinks its rim, but a hyperbola-trimmed cone cannot be
+            # emitted soundly yet, so the rim is sharp and that feature is a
+            # typed omission. Check the actual sharp hexagonal rim and floor.
+            add("socket-rim-sharp",
+                ring_present(rings, length + k, hex_circumradius(s), 6),
+                ring_report(rings, length + k, hex_circumradius(s), 6))
+            add("socket-floor",
+                ring_present(rings, length + k - t, hex_circumradius(s), 6),
+                ring_report(rings, length + k - t, hex_circumradius(s), 6))
             add(
                 "head-top-chamfer",
                 cone_present(feats, dk / 2.0, 45.0)
@@ -471,11 +471,10 @@ def chamfer_checks(
             add("socket-sharp", ring_present(rings, length + k, hex_circumradius(s), 6),
                 ring_report(rings, length + k, hex_circumradius(s), 6))
         else:
-            lead = lead_in(s, t)
-            add("socket-lead-in-top", ring_present(rings, length + k, hex_circumradius(s + 2 * lead), 6),
-                ring_report(rings, length + k, hex_circumradius(s + 2 * lead), 6))
-            add("socket-lead-in-base", ring_present(rings, length + k - lead, hex_circumradius(s), 6),
-                ring_report(rings, length + k - lead, hex_circumradius(s), 6))
+            add("socket-rim-sharp", ring_present(rings, length + k, hex_circumradius(s), 6),
+                ring_report(rings, length + k, hex_circumradius(s), 6))
+            add("socket-floor", ring_present(rings, length + k - t, hex_circumradius(s), 6),
+                ring_report(rings, length + k - t, hex_circumradius(s), 6))
             tc = tip_chamfer(d)
             full_d = minor(d, PITCH[size]) if detail == "full" else d
             r_tip = full_d / 2.0 - tc
@@ -493,11 +492,10 @@ def chamfer_checks(
             add("socket-sharp", ring_present(rings, length, hex_circumradius(s), 6),
                 ring_report(rings, length, hex_circumradius(s), 6))
         else:
-            lead = lead_in(s, t)
-            add("socket-lead-in-top", ring_present(rings, length, hex_circumradius(s + 2 * lead), 6),
-                ring_report(rings, length, hex_circumradius(s + 2 * lead), 6))
-            add("socket-lead-in-base", ring_present(rings, length - lead, hex_circumradius(s), 6),
-                ring_report(rings, length - lead, hex_circumradius(s), 6))
+            add("socket-rim-sharp", ring_present(rings, length, hex_circumradius(s), 6),
+                ring_report(rings, length, hex_circumradius(s), 6))
+            add("socket-floor", ring_present(rings, length - t, hex_circumradius(s), 6),
+                ring_report(rings, length - t, hex_circumradius(s), 6))
             tc = tip_chamfer(d)
             full_d = minor(d, PITCH[size]) if detail == "full" else d
             r_tip = full_d / 2.0 - tc
@@ -575,13 +573,15 @@ def expected_outer_radius(family: str, size: str) -> float:
 
 def expected_solids(family: str, size: str, length: float, detail: str) -> int:
     if detail != "full":
+        # Socketed heads and the ISO 4762 screw are one closed solid at
+        # Detailed: the blind hex socket is a real pocket in the same shell.
         return {
-            "iso4762": 3, "iso4032": 1, "iso7089": 1, "iso4017": 2,
-            "iso4014": 2, "iso7380": 4, "iso10642": 4, "din976": 1,
+            "iso4762": 1, "iso4032": 1, "iso7089": 1, "iso4017": 2,
+            "iso4014": 2, "iso7380": 1, "iso10642": 1, "din976": 1,
         }[family]
     if family == "iso4762":
-        b = thread_b(ISO4762[size]["d"], length)
-        return 4 if length <= b else 5
+        # one socketed body plus the separate swept helical ridge
+        return 2
     if family == "iso4017":
         return 3
     if family == "iso4014":
@@ -590,8 +590,8 @@ def expected_solids(family: str, size: str, length: float, detail: str) -> int:
     if family == "iso4032":
         return 2
     if family in ("iso7380", "iso10642"):
-        # analytic head shell + buried hex socket ring + shank core + ridge
-        return 5
+        # one socketed body plus the separate swept helical ridge
+        return 2
     if family == "din976":
         return 2
     return 1

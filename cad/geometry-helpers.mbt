@@ -1,4 +1,21 @@
 ///|
+/// CAD_LENGTH_EPS is the linear coincidence tolerance for boundary checks.
+const CAD_LENGTH_EPS : Double = 1.0e-9
+
+///|
+/// CAD_AREA_EPS is the area/perimeter degeneracy tolerance.
+const CAD_AREA_EPS : Double = 1.0e-12
+
+///|
+/// CAD_ANGLE_EPS is the angular/radius agreement tolerance in radians.
+const CAD_ANGLE_EPS : Double = 1.0e-6
+
+///|
+/// CAD_DEGENERATE_EPS is the threshold below which a length, area, or volume
+/// is treated as zero.
+const CAD_DEGENERATE_EPS : Double = 1.0e-12
+
+///|
 pub fn polygon_area_2d(pts : Array[Vec2]) -> Double {
   let n = pts.length()
   if n < 3 {

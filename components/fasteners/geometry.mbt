@@ -1,4 +1,8 @@
 ///|
+/// FASTENER_EPS is the linear coincidence tolerance for fastener profiles.
+const FASTENER_EPS : Double = 1.0e-9
+
+///|
 /// CircleProfile returns a counter-clockwise circular profile of the given
 /// diameter.
 pub fn circle_profile(

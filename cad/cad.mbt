@@ -375,6 +375,8 @@ fn compile_node_shape(
       compile_calibration_chamfer_block(ctx, node, b, reverse~, parent~)
     ExtrudedProfile(e) =>
       compile_extruded_profile(ctx, node, e, reverse~, parent~)
+    ExtrudedArcProfile(e) =>
+      compile_extruded_arc_profile(ctx, node, e, reverse~, parent~)
     ExtrudedBezierProfile(e) =>
       compile_extruded_bezier_profile(ctx, node, e, reverse~, parent~)
     SweptProfile(s) => compile_swept_profile(ctx, node, s, reverse~, parent~)

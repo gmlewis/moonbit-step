@@ -38,7 +38,7 @@ pub fn hex_nut(
   // The bore is an analytic circular hole, not a sampled polygon.
   let round_bore = ((0.0, 0.0), bore_d)
   let features = nut_feature_record(
-    policy, thread_rep, thread, bore_d, segments,
+    policy, thread_rep, thread, bore_d, s, segments,
   )
   let base = @common.Component::new(
     name~,
@@ -112,7 +112,7 @@ fn nut_chamfer_mm(s : Double, m : Double) -> Double {
 ///|
 fn nut_chamfer_note(policy : @common.DetailPolicy) -> String {
   if policy.include_small_features {
-    " Both bearing faces carry a 45-degree chamfer (engineering default, not a standard dimension)."
+    " Both bearing faces carry a ruled 45-degree parallel-inset chamfer (engineering default, not a standard dimension; the golden's 60-degree conical face chamfer is approximated as a measured ruled band)."
   } else {
     " Face chamfers are omitted in this detail level."
   }
@@ -121,11 +121,17 @@ fn nut_chamfer_note(policy : @common.DetailPolicy) -> String {
 ///|
 /// nut_feature_record builds the machine-readable feature record for an ISO
 /// 4032 hexagon regular nut.
+fn nut_chamfer_deviation_mm(across_flats : Double) -> Double {
+  across_flats * (1.0 / @math.cos(@math.PI / 6.0) - 1.0)
+}
+
+///|
 fn nut_feature_record(
   policy : @common.DetailPolicy,
   thread_rep : @common.ThreadRepresentation,
   thread : @standards.ThreadSpec,
   bore_d : Double,
+  across_flats : Double,
   segments : Int32,
 ) -> @common.FeatureRecord {
   let _ = bore_d
@@ -145,7 +151,16 @@ fn nut_feature_record(
     ],
   )
   let with_chamfer = if policy.include_small_features {
-    base.add_modeled("nut-face-chamfer")
+    base
+    .add_modeled("nut-face-chamfer")
+    .add_approximated(
+      @common.Approximation::new(
+        feature="nut-face-chamfer-band",
+        kind=@common.ApproximationKind::PolygonRevolve,
+        deviation_mm=nut_chamfer_deviation_mm(across_flats),
+        control="parallel-inset hexagon ruled 45-degree chamfer (the golden carries a 60-degree conical face chamfer); maximum radial deviation at the hex corners",
+      ),
+    )
   } else {
     base.add_omitted(
       @common.Omission::new(

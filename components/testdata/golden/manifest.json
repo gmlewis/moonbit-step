@@ -52,11 +52,11 @@
           13.0
         ],
         "volume_mm3": 134.8361,
-        "solids": 3,
+        "solids": 1,
         "source": "components/examples/fasteners --standard iso4762 --size M3 --length 10"
       },
       "verdict": "accepted-envelope",
-      "notes": "Head diameter and overall length match ISO 4762 within 0.01 mm. The parametric screw is layered (shank, floor, socket ring), so volume and solid count are not compared.",
+      "notes": "Head diameter and overall length match ISO 4762 within 0.01 mm. The parametric screw is one closed solid with a blind hex socket; the conical socket rim and drill-point floor are typed omissions, so volume is not compared.",
       "committed": false,
       "generation": {
         "tool": "components/examples/fasteners",
@@ -75,7 +75,7 @@
         "output": "iso4762-M3x10-detailed.step"
       },
       "comparison": {
-        "solids": 3,
+        "solids": 1,
         "bbox_axes": [
           {
             "axis": 0,
@@ -109,7 +109,7 @@
             "{out}"
           ],
           "output": "iso4762-M3x10-simplified.step",
-          "expect_more_advanced_faces": 6
+          "expect_more_advanced_faces": 2
         }
       }
     },
@@ -148,7 +148,7 @@
           24.0
         ],
         "volume_mm3": 389.4569,
-        "solids": 3,
+        "solids": 1,
         "source": "components/examples/fasteners --standard iso4762 --size M4 --length 20"
       },
       "verdict": "accepted-envelope",
@@ -171,7 +171,7 @@
         "output": "iso4762-M4x20-detailed.step"
       },
       "comparison": {
-        "solids": 3,
+        "solids": 1,
         "bbox_axes": [
           {
             "axis": 0,
@@ -205,7 +205,7 @@
             "{out}"
           ],
           "output": "iso4762-M4x20-simplified.step",
-          "expect_more_advanced_faces": 6
+          "expect_more_advanced_faces": 2
         }
       }
     },
@@ -244,7 +244,7 @@
           15.0
         ],
         "volume_mm3": 445.03,
-        "solids": 3,
+        "solids": 1,
         "source": "components/examples/fasteners --standard iso4762 --size M5 --length 10"
       },
       "verdict": "rejected",
@@ -705,7 +705,7 @@
         "output": "iso10642-M3x12-detailed.step"
       },
       "comparison": {
-        "solids": 4,
+        "solids": 1,
         "bbox_axes": [
           {
             "axis": 0,
@@ -1167,11 +1167,11 @@
           12.2
         ],
         "volume_mm3": 194.994,
-        "solids": 3,
+        "solids": 1,
         "source": "components/examples/fasteners --standard iso7380 --size M4 --length 10"
       },
       "verdict": "accepted-envelope",
-      "notes": "Head diameter 7.6 mm and overall length 12.2 mm (= 10 + k 2.2) match ISO 7380. The parametric head is layered (3 solids) and carries a spherical dome, so volume and solid count are not compared.",
+      "notes": "Head diameter 7.6 mm and overall length 12.2 mm (= 10 + k 2.2) match ISO 7380. The parametric head is one closed solid with a spherical dome and a blind hex socket; the conical socket rim and floor are typed omissions, so volume is not compared.",
       "committed": false,
       "generation": {
         "tool": "components/examples/fasteners",
@@ -1190,7 +1190,7 @@
         "output": "iso7380-M4x10-detailed.step"
       },
       "comparison": {
-        "solids": 4,
+        "solids": 1,
         "bbox_axes": [
           {
             "axis": 0,
@@ -1252,7 +1252,7 @@
           14.75
         ],
         "volume_mm3": 372.645,
-        "solids": 3,
+        "solids": 1,
         "source": "components/examples/fasteners --standard iso7380 --size M5 --length 12"
       },
       "verdict": "accepted-envelope",
@@ -1275,7 +1275,7 @@
         "output": "iso7380-M5x12-detailed.step"
       },
       "comparison": {
-        "solids": 4,
+        "solids": 1,
         "bbox_axes": [
           {
             "axis": 0,
@@ -1338,7 +1338,7 @@
           10.0
         ],
         "volume_mm3": 156.25,
-        "solids": 3,
+        "solids": 1,
         "source": "components/examples/fasteners --standard iso10642 --size M4 --length 10"
       },
       "verdict": "accepted-envelope",
@@ -1361,7 +1361,7 @@
         "output": "iso10642-M4x10-detailed.step"
       },
       "comparison": {
-        "solids": 4,
+        "solids": 1,
         "bbox_axes": [
           {
             "axis": 0,
@@ -1428,7 +1428,7 @@
           12.0
         ],
         "volume_mm3": 293.715,
-        "solids": 3,
+        "solids": 1,
         "source": "components/examples/fasteners --standard iso10642 --size M5 --length 12"
       },
       "verdict": "accepted-envelope",
@@ -1451,7 +1451,7 @@
         "output": "iso10642-M5x12-detailed.step"
       },
       "comparison": {
-        "solids": 4,
+        "solids": 1,
         "bbox_axes": [
           {
             "axis": 0,

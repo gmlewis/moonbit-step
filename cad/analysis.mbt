@@ -643,7 +643,7 @@ fn an_prism_section(
 /// including the linear lead-in flare near the mouth.
 fn socketed_pocket_across_flats(g : SocketGeometry, z : Double) -> Double {
   let span = g.top_z - g.mid_z
-  let t = if span > 1.0e-12 {
+  let t = if span > CAD_DEGENERATE_EPS {
     socket_clamp01((z - g.mid_z) / span)
   } else {
     0.0
@@ -668,14 +668,14 @@ fn an_socketed_section(
     Ok(v) => v
     Err(e) => return Err(e)
   }
-  if z < g.floor_z - 1.0e-9 || z > g.top_z + 1.0e-9 {
+  if z < g.floor_z - CAD_LENGTH_EPS || z > g.top_z + CAD_LENGTH_EPS {
     return Ok(base)
   }
   let af_z = socketed_pocket_across_flats(g, z)
   let pocket_area = Double::sqrt(3.0) / 2.0 * af_z * af_z
   let pocket_perimeter = 2.0 * Double::sqrt(3.0) * af_z
   let area = base.area_mm2 - pocket_area
-  if area <= 1.0e-12 {
+  if area <= CAD_AREA_EPS {
     return Err(EmptySection)
   }
   Ok({
@@ -1251,6 +1251,7 @@ fn an_shape_inventory(shape : Shape) -> SurfaceInventory {
       }
       an_inventory(2 + outer_n + hole_n, cylinder, 0, 0, 0, 0, 0, 0)
     }
+    ExtrudedArcProfile(e) => an_extruded_arc_inventory(e)
     ExtrudedBezierProfile(e) => an_bezier_inventory(e)
     SweptProfile(s) => an_swept_inventory(s)
     Fillet(f) => an_shape_inventory(f.base.shape)
@@ -1312,7 +1313,7 @@ fn an_socketed_inventory(s : SocketedSolid) -> SurfaceInventory {
     None => return an_inventory(0, 0, 0, 0, 0, 0, 0, 0)
   }
   let base = an_shape_inventory(Shape::RevolvedProfile(s.body))
-  let lead_faces = if g.lead > 1.0e-12 { 6 } else { 0 }
+  let lead_faces = if g.lead > CAD_DEGENERATE_EPS { 6 } else { 0 }
   an_inventory(
     base.plane - 1 + 8 + lead_faces,
     base.cylinder,
@@ -1380,6 +1381,14 @@ pub fn Shape::analysis_volume(self : Shape) -> Result[Double, AnalysisError] {
         Ok(volume)
       }
     }
+    ExtrudedArcProfile(e) => {
+      let volume = e.volume()
+      if volume <= 0.0 {
+        Err(DegenerateProfile)
+      } else {
+        Ok(volume)
+      }
+    }
     ExtrudedBezierProfile(_) =>
       Err(NotAnalytic("Bezier profile requires tessellation"))
     SweptProfile(_) => Err(NotAnalytic("swept profile requires tessellation"))
@@ -1424,6 +1433,7 @@ pub fn Shape::analysis_centroid(self : Shape) -> Result[Vec3, AnalysisError] {
       let (_volume, c) = an_extruded_volume_centroid(e)
       Ok(c)
     }
+    ExtrudedArcProfile(e) => Ok(e.centroid())
     ExtrudedBezierProfile(_) =>
       Err(NotAnalytic("Bezier profile requires tessellation"))
     SweptProfile(_) => Err(NotAnalytic("swept profile requires tessellation"))
@@ -1492,6 +1502,7 @@ pub fn Shape::section_at_local(
     SocketedSolid(s) => an_socketed_section(s, z)
     CalibrationChamferBlock(b) => an_calib_section(b, z)
     ExtrudedProfile(e) => e.section_at(z)
+    ExtrudedArcProfile(e) => an_extruded_arc_section(e, z)
     ExtrudedBezierProfile(_) =>
       Err(NotAnalytic("Bezier profile requires tessellation"))
     SweptProfile(_) => Err(NotAnalytic("swept profile requires tessellation"))
@@ -1712,6 +1723,12 @@ pub fn Shape::analysis_mesh(
         Err(DegenerateProfile)
       } else {
         Ok(an_extruded_mesh(e))
+      }
+    ExtrudedArcProfile(e) =>
+      if !e.validate() {
+        Err(DegenerateProfile)
+      } else {
+        Ok(extruded_arc_mesh(e))
       }
     Union(u) => {
       let verts : Array[Vec3] = []
