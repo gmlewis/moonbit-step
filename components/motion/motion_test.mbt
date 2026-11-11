@@ -320,3 +320,14 @@ test "bearing with zero rollers is a rings-only envelope" {
   assert_false(features.has_modeled("ball-sphere"))
   assert_true(features.omission_reason("rolling-elements") is Some(_))
 }
+
+///|
+test "bearing 628 is an 8 x 24 x 8 boundary envelope" {
+  let size = match @motion.bearing_size("628") {
+    Ok(s) => s
+    Err(e) => abort(e.message())
+  }
+  assert_true(close(size.bore_mm, 8.0))
+  assert_true(close(size.outer_mm, 24.0))
+  assert_true(close(size.width_mm, 8.0))
+}

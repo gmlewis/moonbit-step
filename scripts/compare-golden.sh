@@ -70,6 +70,17 @@ GOLDEN_DIR = os.path.join(ROOT, "components", "testdata", "golden", "external")
 MANIFEST = os.path.join(ROOT, "components", "testdata", "golden", "manifest.json")
 DEFAULT_OUT = os.path.join(ROOT, "target", "golden-compare")
 
+# Downloaded goldens whose catalog geometry contradicts the designation in the
+# file name. Generate the closest standard envelope for shape review and record
+# the contradiction in the label and in the generation output. The library's
+# own size table stays standard-correct; the golden is not copied.
+GOLDEN_OVERRIDES = {
+    "bearing_6003_open_simple.step": {
+        "bearing": "628",
+        "note": "golden measures 8x24x8 (628-like); ISO 15 6003 is 17x35x10",
+    },
+}
+
 USAGE = """\
 compare-golden.sh — generate and open parametric/golden STEP pairs.
 
@@ -217,8 +228,15 @@ def adjust_for_golden(name, tool, args, detail, detail_explicit):
     passed --detail explicitly, honour it and only drop the rolling elements.
     """
     if tool is None:
-        return tool, args
+        return tool, args, None
     args = list(args)
+    note = None
+    override = GOLDEN_OVERRIDES.get(name)
+    if override and tool.endswith("/bearing"):
+        designation = override.get("bearing")
+        if designation:
+            set_option(args, "--bearing", designation)
+        note = override.get("note")
     if tool.endswith("/bearing") and name.endswith("_open_simple.step"):
         set_option(args, "--rollers", "0")
         if not detail_explicit:
@@ -227,7 +245,7 @@ def adjust_for_golden(name, tool, args, detail, detail_explicit):
         tool.endswith("/fasteners") or tool.endswith("/bearing")
     ):
         set_option(args, "--detail", detail)
-    return tool, args
+    return tool, args, note
 
 
 def describe(tool, args):
@@ -301,7 +319,12 @@ def build_rows(detail, detail_explicit):
             inferred = infer(name, detail)
             if inferred:
                 tool, args = inferred
-        tool, args = adjust_for_golden(name, tool, args, detail, detail_explicit)
+        tool, args, note = adjust_for_golden(
+            name, tool, args, detail, detail_explicit
+        )
+        label = describe(tool, args) if tool else "no parametric equivalent"
+        if note:
+            label += " — " + note
         rows.append(
             {
                 "index": index,
@@ -309,7 +332,8 @@ def build_rows(detail, detail_explicit):
                 "path": path,
                 "tool": tool,
                 "args": args,
-                "label": describe(tool, args) if tool else "no parametric equivalent",
+                "label": label,
+                "note": note,
             }
         )
     return rows
@@ -635,6 +659,8 @@ def main():
                 print("  warning: cannot remove {} ({})".format(out_path, exc))
         cmd = generation_command(row, threads, out_path)
         print("[{:03d}] generating {}".format(row["index"], row["label"]))
+        if row.get("note"):
+            print("  note: " + row["note"])
         proc = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True)
         if proc.returncode != 0 or not os.path.exists(out_path):
             failures += 1

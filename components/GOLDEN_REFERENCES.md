@@ -330,7 +330,11 @@ contradictions:
 - ISO 4762 M2/M2.5/M5 heads exceed the ISO maximum;
 - ISO 4017 overall length is above `L + k`;
 - ISO 7089 washer thickness is about 2.2x the standard;
-- DIN 976 "l025" rods measure 50 mm.
+- DIN 976 "l025" rods measure 50 mm;
+- `bearing_6003_open_simple` is labelled 6003 but measures 8 x 24 x 8 (a
+  628-like envelope); ISO 15 6003 is 17 x 35 x 10. The library keeps 6003
+  standard-correct, and `compare-golden.sh` generates a 628 envelope for shape
+  review with the contradiction printed in its label.
 
 The downloaded corpus has no ISO 4014 (partially threaded) model, so that
 family is `SKIP`. ISO 10642 M4/M5 are below the standard head maximum, which is

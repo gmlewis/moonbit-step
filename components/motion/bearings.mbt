@@ -18,6 +18,7 @@ pub fn bearing_size(
 ) -> Result[BearingSize, @common.SpecError] {
   let (d, outer, width) = match designation {
     "608" => (8.0, 22.0, 7.0)
+    "628" => (8.0, 24.0, 8.0)
     "6000" => (10.0, 26.0, 8.0)
     "6001" => (12.0, 28.0, 8.0)
     "6002" => (15.0, 32.0, 9.0)
@@ -41,7 +42,7 @@ pub fn bearing_size(
     other =>
       return Err(
         @common.InvalidSize(
-          "unsupported bearing designation: \{other}; supported: 608, 6000-6006, 6200-6206, 6300-6305",
+          "unsupported bearing designation: \{other}; supported: 608, 628, 6000-6006, 6200-6206, 6300-6305",
         ),
       )
   }
@@ -52,9 +53,9 @@ pub fn bearing_size(
 /// bearing_designations returns every supported bearing designation.
 pub fn bearing_designations() -> Array[String] {
   [
-    "608", "6000", "6001", "6002", "6003", "6004", "6005", "6006", "6200", "6201",
-    "6202", "6203", "6204", "6205", "6206", "6300", "6301", "6302", "6303", "6304",
-    "6305",
+    "608", "628", "6000", "6001", "6002", "6003", "6004", "6005", "6006", "6200",
+    "6201", "6202", "6203", "6204", "6205", "6206", "6300", "6301", "6302", "6303",
+    "6304", "6305",
   ]
 }
 
