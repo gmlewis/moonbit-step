@@ -36,11 +36,11 @@ struct StepStats {
 fn help_text() -> String {
   [
     "tools/step-stats — parse-only STEP structure inspection", "", "Usage:", "  moon run tools/step-stats -- <file.step> [--json]",
-    "  moon run tools/step-stats -- --self-test", "", "Output:",
-    "  - file path and size", "  - entity counts (ADVANCED_FACE, CLOSED_SHELL, MANIFOLD_SOLID_BREP,",
-    "    CARTESIAN_POINT, EDGE_CURVE, CIRCLE, LINE, VERTEX_POINT, ...)", "  - surface counts (plane, cylinder, cone, sphere, torus, bspline,",
-    "    surface_of_revolution, surface_of_linear_extrusion)", "  - solid and shell counts",
-    "  - bbox_from_points_mm from every CARTESIAN_POINT", "", "Limitation: this is a structural parser. It does not tessellate, trim,",
+    "  moon run tools/step-stats -- --self-test", "", "Output:", "  - file path and size",
+    "  - entity counts (ADVANCED_FACE, CLOSED_SHELL, MANIFOLD_SOLID_BREP,", "    CARTESIAN_POINT, EDGE_CURVE, CIRCLE, LINE, VERTEX_POINT, ...)",
+    "  - surface counts (plane, cylinder, cone, sphere, torus, bspline,", "    surface_of_revolution, surface_of_linear_extrusion)",
+    "  - solid and shell counts", "  - bbox_from_points_mm from every CARTESIAN_POINT",
+    "", "Limitation: this is a structural parser. It does not tessellate, trim,",
     "or compute true sections; bbox_from_points is not a trimmed-geometry", "bounding box. Use scripts/measure_step_*.py for OCCT-authoritative",
     "sections and deviation on imported golden STEP files.",
   ].join("\n")

@@ -31,7 +31,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT_DIR = ROOT / "target" / "analysis-crosscheck"
-MOON = ["moon", "run", ]
+MOON = ["moon", "run"]
 SECTION_TOL = 0.02
 VOLUME_TOL = 0.005
 VOLUME_TOL_LAYERED = 0.02

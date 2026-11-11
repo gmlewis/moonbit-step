@@ -255,7 +255,7 @@ def main():
     # Run moon check first
     print("Running 'moon check'...")
     try:
-        subprocess.run(["moon", "check", ], cwd=root, check=True, capture_output=True, text=True)
+        subprocess.run(["moon", "check"], cwd=root, check=True, capture_output=True, text=True)
         print("  Check: OK")
     except subprocess.CalledProcessError as e:
         print("\nERROR: 'moon check' failed. Please fix the following errors before running this script again:\n")
