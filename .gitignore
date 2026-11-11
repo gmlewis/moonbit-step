@@ -10,6 +10,7 @@ __pycache__
 /*.md
 /.github/*.md
 /.github/skills/**
+/compare-golden.sh
 # Golden STEP files downloaded by the owner from the open-source step.parts corpus.
 /components/testdata/golden/external/
 

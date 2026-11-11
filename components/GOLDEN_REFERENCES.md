@@ -365,6 +365,27 @@ python3 scripts/golden_matrix.py --family iso4762 --size M4
 python3 scripts/golden_matrix.py --self-test
 ```
 
+### Manual side-by-side verification
+
+`scripts/compare-golden.sh` numbers the downloaded golden STEP files in sorted
+file-name order, generates the parametric counterpart for one or more indices,
+and opens each golden/parametric pair in SolidCraft. Generated bodies are
+written to the ignored `target/golden-compare/` directory.
+
+```bash
+./scripts/compare-golden.sh --list
+./scripts/compare-golden.sh 81
+./scripts/compare-golden.sh 1 3
+./scripts/compare-golden.sh --all --batch 8
+./scripts/compare-golden.sh 81 --detail simplified
+./scripts/compare-golden.sh 81 --no-open
+```
+
+Use `--helper` to open through the running SolidCraft GUI with `--up z` (no
+up-axis dialog). SolidCraft caps open designs at 32; each pair uses two tabs,
+so use `--batch N` for a large selection. The numeric checks remain the
+acceptance criterion; this tool is for the visual review.
+
 ### Harness measurement capabilities
 
 - **Vertex rings** (`measure_step_features.py`): `(z, radius, count)` from real
@@ -376,6 +397,7 @@ python3 scripts/golden_matrix.py --self-test
 - **Surface deviation** (`measure_step_mesh.py`): sampled bidirectional
   point-to-triangle distance (Hausdorff-like).
 - **Checks** (`compare_golden.py`): `mass_properties`, `sections`,
-  `surface_deviation`, `vertex_ring`, `sphere_radius_present_mm`.
+  `surface_deviation`, `vertex_ring`, `sphere_radius_present_mm`,
+  `cylinder_radius_present_mm`, `cone_semi_angle_deg`, `cone_min_count`.
 - **Self-test**: 15 checks covering PASS/FAIL/SKIP, checksum, units/frame,
   feature kinds, mass, sections, deviation, and vertex rings.
