@@ -686,7 +686,7 @@
         "length_mm": 12.0
       },
       "verdict": "accepted-envelope",
-      "notes": "The golden is the superseded DIN 7991 size (dk 6.046 mm); ISO 10642:2026 caps dk at 5.81 mm and the socket depth at 1.25 mm, so the golden is non-compliant with the current edition. The parametric part follows ISO 10642:2026.",
+      "notes": "The reference head profile (sharp dk 6.0, k 1.7, edge radius 0.1275, top face 2.6922) is within ISO 10642:2026 and is matched exactly. The reference socket across flats is 2.10 mm, above the ISO maximum 2.08; the parametric part uses 2.08.",
       "committed": false,
       "generation": {
         "tool": "components/examples/fasteners",
@@ -709,7 +709,7 @@
         "bbox_axes": [
           {
             "axis": 0,
-            "expected_mm": 5.81,
+            "expected_mm": 6.104,
             "label": "head diameter"
           },
           {
@@ -730,7 +730,7 @@
           },
           {
             "kind": "max_vertex_radius_mm",
-            "expected": 2.905,
+            "expected": 2.7823,
             "tol_mm": 0.01
           }
         ]
@@ -1342,7 +1342,7 @@
         "source": "components/examples/fasteners --standard iso10642 --size M4 --length 10"
       },
       "verdict": "accepted-envelope",
-      "notes": "The golden is the superseded DIN 7991 size (dk 8.131 mm, socket depth 1.8 mm); ISO 10642:2026 caps dk at 7.96 mm and the socket depth at 1.65 mm, so the golden is non-compliant with the current edition. The parametric part follows ISO 10642:2026.",
+      "notes": "The reference sharp head diameter 8.0 (within ISO 7.53-8.96) and k 2.3 are used. Its edge radius 0.1725 is below the ISO minimum 0.2, so the parametric part uses 0.2; its socket across flats 2.60 and depth 1.8 exceed the ISO maxima 2.58 and 1.65, so the parametric part uses the ISO maxima.",
       "committed": false,
       "generation": {
         "tool": "components/examples/fasteners",
@@ -1365,7 +1365,7 @@
         "bbox_axes": [
           {
             "axis": 0,
-            "expected_mm": 7.96,
+            "expected_mm": 8.0468,
             "label": "head diameter"
           },
           {
@@ -1386,7 +1386,7 @@
           },
           {
             "kind": "max_vertex_radius_mm",
-            "expected": 3.98,
+            "expected": 3.6586,
             "tol_mm": 0.01
           }
         ]
@@ -1432,7 +1432,7 @@
         "source": "components/examples/fasteners --standard iso10642 --size M5 --length 12"
       },
       "verdict": "accepted-envelope",
-      "notes": "The golden is the superseded DIN 7991 size (dk 10.181 mm); ISO 10642:2026 caps dk at 10.07 mm and the socket depth at 2.00 mm, so the golden is non-compliant with the current edition. The parametric part follows ISO 10642:2026.",
+      "notes": "The reference head profile (sharp dk 10.0, k 2.8, edge radius 0.21) matches exactly. Its socket across flats 3.10 and depth 2.3 exceed the ISO maxima 3.08 and 2.00; the parametric part uses the ISO maxima.",
       "committed": false,
       "generation": {
         "tool": "components/examples/fasteners",
@@ -1455,7 +1455,7 @@
         "bbox_axes": [
           {
             "axis": 0,
-            "expected_mm": 10.07,
+            "expected_mm": 10.181,
             "label": "head diameter"
           },
           {
@@ -1476,7 +1476,7 @@
           },
           {
             "kind": "max_vertex_radius_mm",
-            "expected": 5.035,
+            "expected": 4.6415,
             "tol_mm": 0.01
           }
         ]

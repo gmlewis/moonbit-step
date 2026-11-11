@@ -2,16 +2,22 @@
 /// ISO10642Size carries the ISO 10642 countersunk head hexagon socket screw
 /// dimensions for one nominal size.
 ///
-/// `d_k` is the maximum head diameter, `k` the maximum head height, `s` the
-/// socket nominal width across flats, `s_max` its upper limit, and `t` the
-/// maximum socket depth, per ISO 10642:2026. The head has a 90 degree
-/// (45 degree half-angle) countersink. Verify against the standard or a
-/// manufacturer drawing before manufacturing (see `DATA_SOURCES.md`).
+/// `d_k` is the reference sharp head diameter and `d_k_min`/`d_k_max` its ISO
+/// range; `k` is the reference head height (at most the ISO maximum); `r_edge`
+/// is the ISO head edge radius; `s`/`s_max` the socket across flats; and `t`
+/// the socket depth (within the ISO `t_max`/`t_min` range). The head has a
+/// 90 degree (45 degree half-angle) countersink. Reference values are chosen
+/// within the ISO 10642:2026 limits; the downloaded M3/M5 profiles match
+/// exactly, while the M4/M6/M8 references use the ISO minimum edge radius.
+/// See `DATA_SOURCES.md`.
 pub(all) struct ISO10642Size {
   size : MetricSize
   thread : ThreadSpec
   head_diameter_mm : Double
+  head_diameter_min_mm : Double
+  head_diameter_max_mm : Double
   head_height_mm : Double
+  head_edge_radius_mm : Double
   head_angle_deg : Double
   socket_across_flats_mm : Double
   /// Upper ISO limit of the socket width across flats (nominal + tolerance).
@@ -28,14 +34,19 @@ pub fn iso10642_size(
 ) -> Result[ISO10642Size, @common.SpecError] {
   let dims = match size {
     // M3 starts at 5 mm: the downloaded countersunk reference is an M3 x 5.
-    // ISO 10642:2026: dk/k maxima and the socket depth t_max (the socket
-    // must not be deeper). The goldens are the superseded DIN 7991 sizes.
-    M3 => (5.81, 1.860, 2.0, 2.08, 1.25, 5.0, 30.0)
-    M4 => (7.96, 2.480, 2.5, 2.58, 1.65, 6.0, 40.0)
-    M5 => (10.07, 3.100, 3.0, 3.08, 2.00, 8.0, 50.0)
-    M6 => (12.16, 3.720, 4.0, 4.095, 2.50, 10.0, 60.0)
-    M8 => (16.43, 4.960, 5.0, 5.14, 3.20, 12.0, 80.0)
-    M10 => (20.69, 6.200, 6.0, 6.14, 3.90, 20.0, 100.0)
+    // ISO 10642:2026 (dimensional values unchanged from 2019). The reference
+    // head diameter/height/edge radius are within the ISO ranges and reproduce
+    // the downloaded M3/M5 profiles exactly; M4/M6/M8 use the ISO minimum
+    // edge radius (their references are slightly below it), and M4/M5/M8 use
+    // t_max (their references are deeper than the standard allows).
+    // (dk sharp, dk min, dk max, k reference, r edge, s nominal, s max, t,
+    //  min length, max length)
+    M3 => (6.0, 5.54, 6.72, 1.70, 0.1275, 2.0, 2.08, 1.20, 5.0, 30.0)
+    M4 => (8.0, 7.53, 8.96, 2.30, 0.20, 2.5, 2.58, 1.65, 6.0, 40.0)
+    M5 => (10.0, 9.43, 11.20, 2.80, 0.21, 3.0, 3.08, 2.00, 8.0, 50.0)
+    M6 => (12.0, 11.34, 13.44, 3.30, 0.25, 4.0, 4.095, 2.50, 10.0, 60.0)
+    M8 => (16.0, 15.24, 17.92, 4.40, 0.40, 5.0, 5.14, 3.20, 12.0, 80.0)
+    M10 => (20.0, 19.22, 22.40, 5.50, 0.40, 6.0, 6.14, 3.90, 20.0, 100.0)
     _ =>
       return Err(
         @common.SpecError::InvalidSize(
@@ -43,12 +54,15 @@ pub fn iso10642_size(
         ),
       )
   }
-  let (dk, k, s, s_max, t, lo, hi) = dims
+  let (dk, dk_min, dk_max, k, r_edge, s, s_max, t, lo, hi) = dims
   Ok({
     size,
     thread: ThreadSpec::coarse(size),
     head_diameter_mm: dk,
+    head_diameter_min_mm: dk_min,
+    head_diameter_max_mm: dk_max,
     head_height_mm: k,
+    head_edge_radius_mm: r_edge,
     head_angle_deg: 90.0,
     socket_across_flats_mm: s,
     socket_across_flats_max_mm: s_max,

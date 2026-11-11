@@ -61,7 +61,10 @@ pub(all) struct ISO10642Size {
   size : MetricSize
   thread : ThreadSpec
   head_diameter_mm : Double
+  head_diameter_min_mm : Double
+  head_diameter_max_mm : Double
   head_height_mm : Double
+  head_edge_radius_mm : Double
   head_angle_deg : Double
   socket_across_flats_mm : Double
   socket_across_flats_max_mm : Double

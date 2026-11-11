@@ -48,21 +48,30 @@ fn countersunk_screw(
     "head-countersink-cone",
     dims.head_diameter_mm,
     segments,
-  )
+  ).add_modeled("head-edge-radius")
   let base = @common.Component::new(
     name~,
     metadata=spec.metadata(),
-    description="Single closed solid: a solid of revolution (shank, 90-degree countersink cone, flush top face) with a blind hexagonal socket cut into the top; six planar socket walls and a planar hexagonal floor bound the pocket. Without modeled threads the shank uses the ISO 68-1 basic minor diameter D1." +
+    description="Single closed solid: a solid of revolution (shank, 90-degree countersink cone with the ISO head edge radius, flush top face) with a blind hexagonal socket cut into the top; six planar socket walls and a planar hexagonal floor bound the pocket. The cone ends at the sharp head diameter dk and is rounded by r = \{format_length(dims.head_edge_radius_mm)} mm; the reference head height is \{format_length(k)} mm (a modeled thread starts the cone at the thread major diameter). Without modeled threads the shank uses the ISO 68-1 basic minor diameter D1." +
       thread_note(thread_rep),
     features~,
   )
   // A countersunk head is flush with the bearing surface, so ISO 10642
   // measures the nominal length from the top of the head to the shank tip.
-  // The head therefore occupies the top `k` millimetres of that length and the
-  // shank runs below it.
-  let head_z = length - k
-  let cone_axial = if big_r - r_sh < k { big_r - r_sh } else { k }
-  let cyl_h = k - cone_axial
+  // The head is a 90-degree cone ending at the sharp head diameter dk, rounded
+  // at the top edge by the ISO head edge radius r. For the unthreaded envelope
+  // the head base is the reference k below the top; a modeled thread starts the
+  // cone at the thread major diameter so the crest cannot protrude.
+  let r_sharp = big_r
+  let r_edge = dims.head_edge_radius_mm
+  let root2 = Double::sqrt(2.0)
+  let r_top = r_sharp - r_edge * (1.0 + root2)
+  let z_t = -r_edge * (1.0 + 1.0 / root2)
+  let r_t = r_sharp + z_t
+  let threaded = thread_rep is @common.ThreadRepresentation::Helical
+  let head_height = if threaded { r_sharp - r_sh } else { k }
+  let r_base = r_sharp - head_height
+  let head_z = length - head_height
   let tip = if policy.include_small_features {
     let raw = shank_tip_chamfer_mm(d)
     if raw < head_z / 4.0 {
@@ -73,7 +82,6 @@ fn countersunk_screw(
   } else {
     0.0
   }
-  let threaded = thread_rep is @common.ThreadRepresentation::Helical
   let thread_length = head_z
   // Without modeled threads the shank uses the ISO 68-1 basic internal minor
   // diameter D1, matching the downloaded countersunk goldens.
@@ -91,16 +99,19 @@ fn countersunk_screw(
     pts.push((core_r, 0.0))
   }
   pts.push((core_r, head_z))
-  if core_r < r_sh - FASTENER_EPS {
-    pts.push((r_sh, head_z))
+  if core_r < r_base - FASTENER_EPS {
+    pts.push((r_base, head_z))
   }
-  if cyl_h > FASTENER_EPS {
-    pts.push((r_sh, head_z + cyl_h))
+  let segs : Array[@cad.RevSegment] = []
+  for i in 0..<(pts.length() - 1) {
+    segs.push(@cad.RevLine(pts[i], pts[i + 1]))
   }
-  pts.push((big_r, length))
-  pts.push((0.0, length))
-  let body = @cad.RevolvedProfile::polyline(pts)
-  let z_floor = k - t
+  segs.push(@cad.RevLine((r_base, head_z), (r_t, length + z_t)))
+  segs.push(
+    @cad.RevArc((r_t, length + z_t), (r_top, length), (r_top, length - r_edge)),
+  )
+  segs.push(@cad.RevLine((r_top, length), (0.0, length)))
+  let body = @cad.RevolvedProfile::new(segs)
   let socket = @cad.SocketedSolid::new(body, s, length - t)
   let mut component = base.add_layer(
     socket.as_shape(),
@@ -123,7 +134,6 @@ fn countersunk_screw(
       None => ()
     }
   }
-  let _ = z_floor
   let _ = segments
   // Datum: flush top face at z = 0, head -Z, shank further -Z.
   component.translate(z=-length)

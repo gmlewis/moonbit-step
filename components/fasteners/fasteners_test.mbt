@@ -341,9 +341,10 @@ test "iso10642 M4x16 detailed countersunk head dimensions and layers" {
     Err(e) => abort(e.message())
   }
   let (x0, x1, _y0, _y1, z0, z1) = screw.bounding_box()
-  // ISO 10642:2026 M4 head diameter max is 7.96 mm.
-  assert_true(close(x0, -3.98))
-  assert_true(close(x1, 3.98))
+  // ISO 10642:2026 head: sharp dk 8.0, edge radius 0.2; the in-memory
+  // envelope is the head edge torus outer radius.
+  assert_true(close(x0, -3.717142227893211))
+  assert_true(close(x1, 3.717142227893211))
   // Datum is the flush top face: top at 0, tip at -length.
   assert_true(close(z0, -16.0))
   assert_true(close(z1, 0.0))

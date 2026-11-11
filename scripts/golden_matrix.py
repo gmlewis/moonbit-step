@@ -90,10 +90,11 @@ ISO7380 = {
     "M5": dict(d=5.0, dk=9.5, k=2.75, s=3.08, t=1.56),
 }
 ISO10642 = {
-    # ISO 10642:2026: dk/k maxima, socket upper limit s_max, depth t_max.
-    "M3": dict(d=3.0, dk=5.81, k=1.860, s=2.08, t=1.25),
-    "M4": dict(d=4.0, dk=7.96, k=2.480, s=2.58, t=1.65),
-    "M5": dict(d=5.0, dk=10.07, k=3.100, s=3.08, t=2.00),
+    # ISO 10642:2026 reference profile (sharp dk, reference k, s_max, t).
+    # dk here is the measured envelope of the generated cone/edge torus.
+    "M3": dict(d=3.0, dk=6.104, k=1.70, s=2.08, t=1.20),
+    "M4": dict(d=4.0, dk=8.0468, k=2.30, s=2.58, t=1.65),
+    "M5": dict(d=5.0, dk=10.181, k=2.80, s=3.08, t=2.00),
 }
 DIN976 = {
     "M2": dict(d=2.0),
