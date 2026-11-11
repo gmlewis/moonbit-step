@@ -342,3 +342,15 @@ nominal boolean. The section arc is a polyline; its chord deviation is recorded.
 corner. Seat it on the keyway floor at `(-width/2, r - depth, ...)`. Its height
 defaults to the keyway depth (flush with the shaft surface); pass
 `key_height_mm` for a standard parallel key that protrudes into the hub.
+
+## Analytic inspection (2026-11-11)
+
+`cad/analysis.mbt` adds exact horizontal sections, volume and centroid for
+`Cylinder`, `Cuboid`, `RevolvedProfile` (lines, minor arcs, caps and
+open-on-axis profiles), `ExtrudedProfile` (polygonal holes and a round bore),
+`ChamferedPrism` (outer levels, hole levels and round bore), and the
+calibration block. `tools/inspect` reports them per layer with an exact
+surface inventory that mirrors the compilers. Swept and Bezier profiles,
+fillet/chamfer intents, and nominal differences return typed `NotAnalytic`
+results; world-z sections are exact only for translations and pure Z
+rotations. `tools/step-stats` reports parse-only structure for goldens.

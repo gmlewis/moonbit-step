@@ -434,3 +434,15 @@ must equal the outer cap z; otherwise validation returns `PrismBadHole`.
   normal, fixing signed-area cancellation on threaded and multi-body sections.
 - The golden matrix compares against the downloaded golden models; see
   `GOLDEN_REFERENCES.md`.
+
+## Round 9 additions (2026-11-11)
+
+- `cad/analysis.mbt` provides exact analytic sections, volume and centroid for
+  cylindrical, revolved, extruded, prism and cuboid shapes. The section
+  algorithm casts a vertical ray and treats horizontal cap bands as material,
+  so a cap plane returns the closure of the solid (for example the full disc
+  at the floor of a socket).
+- `tools/inspect` analyses in-memory components (text/JSON, sections, volume,
+  OBJ mesh, STEP writer); `tools/step-stats` reports parse-only STEP structure.
+- `scripts/analysis-crosscheck.py` compares the MoonBit tooling with the
+  Python/OCCT harness; see `tools/README.md` for its tolerances and SKIPs.

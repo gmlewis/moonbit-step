@@ -1,0 +1,13 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "gmlewis/step/tools/step-stats"
+
+// Values
+
+// Errors
+
+// Types and methods
+type StepStats
+
+// Type aliases
+
+// Traits

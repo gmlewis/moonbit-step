@@ -106,6 +106,7 @@ Options:
   --reuse           reuse an existing generated file instead of rebuilding
   --no-open         generate only; print the paths
   --commands        print the exact `moon run` command for each selection
+  --inspect         also run tools/inspect on each generated counterpart
   --helper          open through the running SolidCraft GUI helper with
                     --up z (no up-axis dialog), if it is installed
   --app NAME        macOS app name for `open -a` (default SolidCraft)
@@ -524,6 +525,24 @@ def open_paths(paths, app, batch, use_helper):
     return status
 
 
+def inspect_command(args):
+    """Return a tools/inspect command for a generated counterpart, if the
+    example's flags map onto the analysis tool's family flags."""
+    filtered = []
+    i = 0
+    while i < len(args):
+        a = args[i]
+        if a in ("-o", "--out"):
+            i += 2
+            continue
+        if a.startswith("-o=") or a.startswith("--out="):
+            i += 1
+            continue
+        filtered.append(a)
+        i += 1
+    return ["moon", "run", "--target", "native", "tools/inspect", "--"] + filtered + ["--json"]
+
+
 def main():
     mode_list = False
     mode_commands = False
@@ -531,6 +550,7 @@ def main():
     no_open = False
     use_helper = False
     reuse = False
+    inspect = False
     detail = "detailed"
     detail_explicit = False
     threads = None
@@ -557,6 +577,8 @@ def main():
             use_helper = True
         elif arg == "--reuse":
             reuse = True
+        elif arg == "--inspect":
+            inspect = True
         elif arg in ("--detail", "-d"):
             i += 1
             if i >= len(USER):
@@ -707,6 +729,23 @@ def main():
                     print("  " + line)
             continue
         pairs.append((row, out_path))
+        if inspect:
+            mapped = (
+                row["tool"].endswith("/fasteners")
+                or row["tool"].endswith("/bearing")
+                or row["tool"].endswith("/gear_pair")
+            )
+            if not mapped:
+                print("  inspect: unavailable (no analysis-tool family mapping)")
+            else:
+                icmd = inspect_command(row["args"])
+                iproc = subprocess.run(icmd, cwd=ROOT, capture_output=True, text=True)
+                if iproc.returncode == 0 and iproc.stdout.strip():
+                    summary = iproc.stdout.strip().splitlines()[-1]
+                    print("  inspect: " + summary)
+                else:
+                    detail_text = (iproc.stderr or iproc.stdout or "").strip()
+                    print("  inspect: unavailable (" + (detail_text.splitlines()[-1] if detail_text else "no output") + ")")
 
     # Explicitly selected goldens without an equivalent can still be opened on
     # their own; --all stays focused on the pairs that can actually be generated.

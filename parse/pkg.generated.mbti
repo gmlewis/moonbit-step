@@ -23,6 +23,10 @@ pub async fn parse_repository_from_file_result(StringView) -> ParseRepositoryFro
 
 pub fn parse_repository_from_string(String) -> @repository.Repository raise StepParseError
 
+pub fn parse_repository_from_string_lenient(String) -> @repository.Repository raise StepParseError
+
+pub fn parse_repository_from_string_lenient_result(String) -> ParseRepositoryResult
+
 pub fn parse_repository_from_string_result(String) -> ParseRepositoryResult
 
 pub fn split_args(String) -> Array[String]

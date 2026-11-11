@@ -1,0 +1,15 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "gmlewis/step/tools/inspect"
+
+// Values
+
+// Errors
+
+// Types and methods
+type Built
+
+type LayerInfo
+
+// Type aliases
+
+// Traits

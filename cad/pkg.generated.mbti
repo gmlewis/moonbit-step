@@ -101,6 +101,14 @@ pub fn LoaderError::to_string(Self) -> String
 pub impl Show for LoaderError
 
 // Types and methods
+pub(all) enum AnalysisError {
+  NotAnalytic(String)
+  EmptySection
+  UnsupportedTransform(String)
+  DegenerateProfile
+}
+pub fn AnalysisError::message(Self) -> String
+
 pub struct Angle {
   // private fields
 }
@@ -150,7 +158,9 @@ pub struct ChamferedPrism {
 pub fn ChamferedPrism::as_shape(Self) -> Shape
 pub fn ChamferedPrism::from_chamfer(Array[(Double, Double)], Double, bottom_chamfer? : Double, top_chamfer? : Double, chamfer_depth? : Double, hole? : Array[(Double, Double)], round_bore? : ((Double, Double), Double)) -> Self
 pub fn ChamferedPrism::new(Array[(Double, Double)], Array[(Double, Double)], hole? : Array[(Double, Double)], hole_levels? : Array[(Double, Double)], round_bore? : ((Double, Double), Double)) -> Self
+pub fn ChamferedPrism::section_at(Self, Double) -> Result[Section, AnalysisError]
 pub fn ChamferedPrism::validate(Self) -> Result[Unit, PrismError]
+pub fn ChamferedPrism::volume(Self) -> Double
 
 pub struct Cuboid {
   sx : Double
@@ -165,6 +175,8 @@ pub struct Cylinder {
   height : Double
 }
 pub fn Cylinder::new(Double, Double) -> Shape
+pub fn Cylinder::section_at(Self, Double) -> Result[Section, AnalysisError]
+pub fn Cylinder::volume(Self) -> Double
 
 pub struct Design {
   nodes : Array[SceneNode]
@@ -248,6 +260,8 @@ pub struct ExtrudedProfile {
 }
 pub fn ExtrudedProfile::new(Array[(Double, Double)], Double, holes? : Array[Array[(Double, Double)]], round_bore? : ((Double, Double), Double)) -> Shape
 pub fn ExtrudedProfile::on_face(Self, FaceInfo, into? : Bool, offset? : Double, center? : (Double, Double), name? : String, color? : Rgb) -> SceneNode
+pub fn ExtrudedProfile::section_at(Self, Double) -> Result[Section, AnalysisError]
+pub fn ExtrudedProfile::volume(Self) -> Double
 
 pub(all) enum Face {
   Top
@@ -389,6 +403,7 @@ pub struct RevolvedProfile {
   band_colors : Array[(Int32, Rgb)]
 }
 pub fn RevolvedProfile::as_shape(Self) -> Shape
+pub fn RevolvedProfile::centroid(Self) -> (Double, Double, Double)
 pub fn RevolvedProfile::chamfered_cylinder(Double, Double, bottom_chamfer? : Double, top_chamfer? : Double) -> Self
 pub fn RevolvedProfile::chamfered_tube(Double, Double, Double, outer_bottom_chamfer? : Double, outer_top_chamfer? : Double, inner_bottom_chamfer? : Double, inner_top_chamfer? : Double) -> Self
 pub fn RevolvedProfile::cone(Double, Double) -> Self
@@ -398,11 +413,13 @@ pub fn RevolvedProfile::emission_colors(Self) -> Array[Rgb?]
 pub fn RevolvedProfile::frustum(Double, Double, Double) -> Self
 pub fn RevolvedProfile::new(Array[RevSegment]) -> Self
 pub fn RevolvedProfile::polyline(Array[(Double, Double)], closed? : Bool) -> Self
+pub fn RevolvedProfile::section_at(Self, Double) -> Result[Section, AnalysisError]
 pub fn RevolvedProfile::segments(Self) -> Array[RevSegment]
 pub fn RevolvedProfile::sphere(Double) -> Self
 pub fn RevolvedProfile::sphere_cap(Double, Double) -> Self
 pub fn RevolvedProfile::tube(Double, Double, Double) -> Self
 pub fn RevolvedProfile::validate(Self) -> Result[Unit, RevProfileError]
+pub fn RevolvedProfile::volume(Self) -> Double
 pub fn RevolvedProfile::with_band_color(Self, Int32, Rgb) -> Self
 
 #derive(@debug.Debug)
@@ -444,6 +461,20 @@ pub fn SceneNode::translate(Self, x? : Double, y? : Double, z? : Double) -> Self
 pub fn SceneNode::with_color(Self, Rgb) -> Self
 pub fn SceneNode::with_name(Self, String) -> Self
 
+pub(all) struct Section {
+  z_mm : Double
+  area_mm2 : Double
+  perimeter_mm : Double
+  outer_radius_mm : Double
+  inner_radius_mm : Double
+  rings : Array[SectionRing]
+}
+
+pub(all) struct SectionRing {
+  inner_radius_mm : Double
+  outer_radius_mm : Double
+}
+
 pub enum Severity {
   Info
   Warning
@@ -466,7 +497,12 @@ pub enum Shape {
   Union(BooleanUnion)
   Difference(BooleanDifference)
 }
+pub fn Shape::analysis_centroid(Self) -> Result[(Double, Double, Double), AnalysisError]
+pub fn Shape::analysis_mesh(Self) -> Result[(Array[(Double, Double, Double)], Array[Array[Int32]]), AnalysisError]
+pub fn Shape::analysis_volume(Self) -> Result[Double, AnalysisError]
 pub fn Shape::bounding_box(Self) -> (Double, Double, Double, Double, Double, Double)
+pub fn Shape::section_at_local(Self, Double) -> Result[Section, AnalysisError]
+pub fn Shape::surface_inventory(Self) -> SurfaceInventory
 pub fn Shape::with_color(Self, Rgb) -> SceneNode
 pub fn Shape::with_name(Self, String) -> SceneNode
 
@@ -506,6 +542,20 @@ pub fn StepContext::new(snapping? : Double) -> Self
 pub fn StepContext::oriented_edge(Self, @step.Ref, Bool) -> @step.Ref
 pub fn StepContext::vector(Self, @step.Ref, Double) -> @step.Ref
 pub fn StepContext::vertex_point(Self, @step.Ref) -> @step.Ref
+
+pub(all) struct SurfaceInventory {
+  plane : Int32
+  cylinder : Int32
+  cone : Int32
+  sphere : Int32
+  torus : Int32
+  bspline : Int32
+  swept : Int32
+  other : Int32
+}
+pub fn SurfaceInventory::add(Self, Self) -> Self
+pub fn SurfaceInventory::empty() -> Self
+pub fn SurfaceInventory::total(Self) -> Int32
 
 pub(all) struct SweepPath {
   points : Array[(Double, Double, Double)]

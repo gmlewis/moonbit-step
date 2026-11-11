@@ -2858,69 +2858,97 @@ fn parse_measure_with_unit(
 }
 
 ///|
+fn is_complex_ws(ci : Int32) -> Bool {
+  ci == Char::to_int(' ') ||
+  ci == Char::to_int('\t') ||
+  ci == Char::to_int('\n') ||
+  ci == Char::to_int('\r')
+}
+
+///|
+fn is_complex_name_char(ci : Int32) -> Bool {
+  (ci >= Char::to_int('A') && ci <= Char::to_int('Z')) ||
+  (ci >= Char::to_int('0') && ci <= Char::to_int('9')) ||
+  ci == Char::to_int('_')
+}
+
+///|
 fn split_complex_parts(body : String) -> Array[String] {
-  // Split on newlines only when not inside nested parentheses or strings.
+  // A complex instance is a whitespace-separated sequence of
+  // `NAME(<args>)` parts. Parts may be separated by spaces, newlines, or both;
+  // some writers put several parts on one line, so splitting on newlines alone
+  // is not sufficient. Scan each `NAME` and its balanced parenthesised args.
   let out : Array[String] = []
-  let mut depth = 0
-  let mut in_str = false
-  let mut skip_quote = false
-  let mut start = 0
-  for i in 0..<body.length() {
-    let ci = cu_at(body, i)
-    if ci == Char::to_int('\'') {
-      if skip_quote {
-        skip_quote = false
-      } else if in_str {
-        if i + 1 < body.length() && cu_at(body, i + 1) == Char::to_int('\'') {
-          skip_quote = true
-        } else {
-          in_str = false
-        }
-      } else {
-        in_str = true
+  let n = body.length()
+  let quote = Char::to_int('\'')
+  let lparen = Char::to_int('(')
+  let rparen = Char::to_int(')')
+  let mut i = 0
+  while i < n {
+    while i < n && is_complex_ws(cu_at(body, i)) {
+      i = i + 1
+    }
+    if i >= n {
+      break
+    }
+    let start = i
+    while i < n && is_complex_name_char(cu_at(body, i)) {
+      i = i + 1
+    }
+    while i < n && is_complex_ws(cu_at(body, i)) {
+      i = i + 1
+    }
+    if i >= n || cu_at(body, i) != lparen {
+      let rest = substr(body, start, n).trim().to_owned()
+      if rest.length() > 0 {
+        out.push(rest)
       }
-    } else if !in_str {
-      if ci == Char::to_int('(') {
-        depth = depth + 1
-      } else if ci == Char::to_int(')') {
-        if depth > 0 {
-          depth = depth - 1
-        }
-      } else if (ci == Char::to_int('\n') || ci == Char::to_int('\r')) &&
-        depth == 0 {
-        // Some STEP writers break a complex part like:
-        //   REPRESENTATION_CONTEXT
-        //   ('Context #1', ...)
-        // In that case, the newline is NOT a separator between parts.
-        let mut j = i + 1
-        while j < body.length() {
-          let cj = cu_at(body, j)
-          if cj == Char::to_int(' ') ||
-            cj == Char::to_int('\t') ||
-            cj == Char::to_int('\n') ||
-            cj == Char::to_int('\r') {
-            j = j + 1
+      break
+    }
+    let mut depth = 0
+    let mut in_str = false
+    let mut skip_quote = false
+    let mut j = i
+    let mut closed = -1
+    while j < n {
+      let cj = cu_at(body, j)
+      if cj == quote {
+        if skip_quote {
+          skip_quote = false
+        } else if in_str {
+          if j + 1 < n && cu_at(body, j + 1) == quote {
+            skip_quote = true
           } else {
+            in_str = false
+          }
+        } else {
+          in_str = true
+        }
+      } else if !in_str {
+        if cj == lparen {
+          depth = depth + 1
+        } else if cj == rparen {
+          depth = depth - 1
+          if depth == 0 {
+            closed = j
             break
           }
         }
-        let next_is_lparen = j < body.length() &&
-          cu_at(body, j) == Char::to_int('(')
-        if !next_is_lparen {
-          let part = substr(body, start, i).trim().to_owned()
-          if part.length() > 0 {
-            out.push(part)
-          }
-          start = i + 1
-        }
       }
+      j = j + 1
     }
-  }
-  if start <= body.length() {
-    let part = substr(body, start, body.length()).trim().to_owned()
+    if closed < 0 {
+      let rest = substr(body, start, n).trim().to_owned()
+      if rest.length() > 0 {
+        out.push(rest)
+      }
+      break
+    }
+    let part = substr(body, start, closed + 1).trim().to_owned()
     if part.length() > 0 {
       out.push(part)
     }
+    i = closed + 1
   }
   out
 }
@@ -3505,4 +3533,71 @@ pub fn parse_repository_from_string(
     }
   }
   repo.set_header(header)
+}
+
+///|
+/// parse_repository_from_string_lenient parses a STEP file and keeps entities
+/// whose typed parser rejects the standard spelling as lossless `RawEntity`
+/// values. Tokenizer and grammar errors still fail. This is used by
+/// `tools/step-stats` to inspect third-party golden files without weakening
+/// the strict parser used by the library.
+pub fn parse_repository_from_string_lenient(
+  content : String,
+) -> @repository.Repository raise StepParseError {
+  let normalized = content.replace(old="\r", new="")
+  let cleaned = strip_step_comments(normalized)
+  let header = match extract_header_section(cleaned) {
+    Some(h) => parse_header_section(h)
+    None => @header.HeaderSection::empty()
+  }
+  let (data_section, base_line, base_col) = extract_data_section_with_pos(
+    cleaned,
+  )
+  let rows = tokenize_step_data_section_with_base(
+    data_section, base_line, base_col,
+  )
+  let mut repo = @repository.new()
+  for row in rows {
+    match parsers.get(row.name) {
+      Some(parser_fn) => {
+        let entity = parser_fn(row.args) catch {
+          _ =>
+            @repository.any_entity_raw_entity(
+              @step.RawEntity::new(row.name, row.args),
+            )
+        }
+        repo = repo.insert_with_id(row.id, entity)
+      }
+      None =>
+        if row.name == "__COMPLEX__" {
+          let entity = @repository.any_entity_complex_instance(
+            parse_complex_instance(row.args),
+          ) catch {
+            _ =>
+              @repository.any_entity_raw_entity(
+                @step.RawEntity::new(row.name, row.args),
+              )
+          }
+          repo = repo.insert_with_id(row.id, entity)
+        } else {
+          let raw = @step.RawEntity::new(row.name, row.args)
+          repo = repo.insert_with_id(
+            row.id,
+            @repository.any_entity_raw_entity(raw),
+          )
+        }
+    }
+  }
+  repo.set_header(header)
+}
+
+///|
+/// parse_repository_from_string_lenient_result is the non-raising lenient
+/// wrapper used by tooling.
+pub fn parse_repository_from_string_lenient_result(
+  content : String,
+) -> ParseRepositoryResult {
+  ParseRepositoryResult::Ok(parse_repository_from_string_lenient(content)) catch {
+    StepParseError(info) => ParseRepositoryResult::Err(info)
+  }
 }

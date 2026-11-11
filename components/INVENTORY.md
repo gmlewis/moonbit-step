@@ -66,3 +66,6 @@ insufficient). A PASS is never a claim of manufacturing approval.
 - `SESSION_REPORT_07.md` — the round-7 thread-placement fix, chamfer coverage,
   and 108-cell matrix.
 - `scripts/golden_matrix.py` — generates the per-cell matrix results on demand.
+- `tools/inspect` — exact in-memory layer/bbox/surface/section/volume analysis.
+- `tools/step-stats` — parse-only entity and surface counts for STEP files.
+- `scripts/analysis-crosscheck.py` — MoonBit versus Python/OCCT agreement matrix.
