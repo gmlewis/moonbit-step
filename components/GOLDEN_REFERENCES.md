@@ -147,7 +147,7 @@ core region built from 2.75 mm-radius cylindrical/arc surfaces. The generic
 T-slots. The 20 x 20 x 50 envelope matches, but the section does not. Exact
 B-slot6 support is deferred to the next session because it requires an
 arc-capable 2D section representation and verification of the reference's provenance. See
-`KNOWN_ISSUES.md` and `perfect-prompt-03.md`.
+`KNOWN_ISSUES.md`.
 
 The two rejected models are the reason for the "verify the golden models
 themselves" rule: a catalog designation is not proof that the model follows
@@ -322,19 +322,20 @@ Each cell records:
   measured chamfer/lead-in/thread vertex rings (PASS/FAIL).
 - **GOLDEN**: the independent model comparison (PASS/FAIL/SKIP).
 
-Result: **108 cells, NORMATIVE 108 PASS / 0 FAIL; GOLDEN 39 PASS / 54 FAIL /
-15 SKIP; 39 fully validated.** The GOLDEN column compares against the
-downloaded open-source golden model using a rotation-invariant outer radius and
-axial extent. The 54 failures are measured contradictions in the downloaded
-files, not parametric failures:
-- ISO 4762 M2/M2.5/M5 heads exceed the ISO maximum (4.1131 / 4.8708 / 9.2003 mm
-  vs 3.8 / 4.5 / 8.5 mm);
-- ISO 4017/4014 overall length exceeds `L + k` by 0.2–0.24 mm;
-- ISO 7089 washers are 2.2x thicker than the ISO 7089 thickness;
-- DIN 976 "l025" rods measure 50 mm instead of 25 mm.
-ISO 4014 has no downloaded partially-threaded model, so its 15 cells are
-`SKIP`. ISO 10642 M4/M5 are permitted: the standard head diameter is a maximum
-and those models are below it. A missing model is `SKIP`, never a pass.
+The GOLDEN column compares against the downloaded open-source golden model
+using a rotation-invariant outer radius and axial extent. A matching model is
+`PASS`; a model that contradicts its standard is `FAIL` with measured values;
+a family/size with no downloaded model is `SKIP`. Known downloaded-model
+contradictions:
+- ISO 4762 M2/M2.5/M5 heads exceed the ISO maximum;
+- ISO 4017 overall length is above `L + k`;
+- ISO 7089 washer thickness is about 2.2x the standard;
+- DIN 976 "l025" rods measure 50 mm.
+
+The downloaded corpus has no ISO 4014 (partially threaded) model, so that
+family is `SKIP`. ISO 10642 M4/M5 are below the standard head maximum, which is
+permitted. Run the harness for the current per-cell verdicts; the generated
+`matrix.json` and `MATRIX.md` are reproducible outputs and are not tracked.
 
 ### Rotation-invariant comparison
 
@@ -353,33 +354,9 @@ ISO 7380, and ISO 10642 the standard head diameter is a **maximum**, so a model
 below it is recorded as `below-standard-maximum` (permitted) rather than a
 contradiction.
 
-### Results (39 PASS / 54 FAIL / 15 SKIP)
-
-39 cells agree:
-
-| Family | Agreement |
-|---|---|
-| ISO 4032 | M2–M5 across-corners radius and height |
-| ISO 4762 | M3/M4 head diameter and overall length |
-| ISO 7380-1 | M3–M5 head radius and overall length |
-| ISO 10642 | M3 exactly; M4/M5 below the standard maximum (permitted) |
-
-54 cells are rejected with measured evidence:
-
-| Family | Rejection evidence |
-|---|---|
-| ISO 4762 M2/M2.5/M5 | head diameter 4.1131 / 4.8708 / 9.2003 mm vs ISO maxima 3.8 / 4.5 / 8.5 mm |
-| ISO 4017 | overall length exceeds `L + k` by 0.2–0.24 mm (downloaded head height larger than ISO nominal) |
-| ISO 7089 | thickness 0.7/1.1/1.1/1.8/2.2 mm vs ISO 7089 h = 0.3/0.5/0.5/0.8/1.0 mm |
-| DIN 976 | the "l025" model is 50 mm long (2× the label) |
-
-15 cells are `SKIP` because the downloaded corpus has no ISO 4014
-(partially threaded) model. The ISO 4017 files are fully threaded and are not a
-valid ISO 4014 oracle.
-
-The machine-readable record is `components/testdata/golden/matrix.json`; the
-table is `components/testdata/golden/MATRIX.md`. The golden files are
-downloaded from the open-source step.parts corpus by the repository owner.
+The golden files are downloaded from the open-source step.parts corpus by the
+repository owner. `scripts/golden_matrix.py --write <dir>` generates
+`matrix.json` and `MATRIX.md` on demand; they are not tracked.
 
 ```bash
 python3 scripts/golden_matrix.py                        # print the matrix

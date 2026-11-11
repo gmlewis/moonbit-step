@@ -162,6 +162,6 @@ re-encoded in `scripts/golden_matrix.py`:
 The engineering-default chamfer formulas are re-encoded independently in the
 harness (`tip_chamfer`, `lead_in`, `head_chamfer`, `hex_head_chamfer`,
 `nut_chamfer`) so a matrix failure reflects the emitted geometry, not a call
-into the generator. The full development-time verdicts and the rejected
-candidate models are in `GOLDEN_REFERENCES.md` and
-`components/testdata/golden/matrix.json`.
+into the generator. The verdict policy and the rejected candidate models are in
+`GOLDEN_REFERENCES.md`. Run `scripts/golden_matrix.py` for the current
+per-cell results; the generated report is not tracked.

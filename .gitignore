@@ -12,3 +12,7 @@ __pycache__
 /.github/skills/**
 # Golden STEP files downloaded by the owner from the open-source step.parts corpus.
 /components/testdata/golden/external/
+
+# Generated matrix statistics: reproducible with `scripts/golden_matrix.py --write`.
+/components/testdata/golden/matrix.json
+/components/testdata/golden/MATRIX.md

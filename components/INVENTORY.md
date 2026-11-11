@@ -35,7 +35,7 @@ insufficient). A PASS is never a claim of manufacturing approval.
 | Collision/contact validation | `collision` | PASS (conservative) | AABB broad phase + 15-axis OBB narrow phase; clearance/contact/interference/collision; envelope conservative for non-convex sections |
 | Catalogue/query API | `catalog` | PASS | Built from the real builders; feature records and provenance |
 | STEP export | `cad`, `components/examples/output` | PASS | Syntax, references, shells, topology, orientation, planarity, OCCT checkshape/mesh, gmsh mesh; assembly document has no single-shape gate |
-| M2–M5 golden matrix | `scripts/golden_matrix.py` | PASS (normative) | 108 cells (8 families × sizes × 3 detail levels); NORMATIVE 108 PASS, 0 FAIL; GOLDEN 39 PASS / 54 FAIL / 15 SKIP against the downloaded open-source golden models; `components/testdata/golden/matrix.json` |
+| M2–M5 golden matrix | `scripts/golden_matrix.py` | PASS (normative) | 8 families × supported sizes × 3 detail levels; NORMATIVE checks and a comparison against the downloaded open-source golden models; generated results are not tracked |
 
 ## Explicitly not implemented
 
@@ -50,8 +50,7 @@ insufficient). A PASS is never a claim of manufacturing approval.
   fillet/chamfer evaluation is optional and requires OCCT; chamfers are
   single-edge on the DRAW path, fillets support multi-edge `blend`.
 - External golden STEP geometry as committed files: the owner downloads the
-  open-source golden models into the Git-ignored `external/` directory. The
-  matrix measurements are recorded in `matrix.json`.
+  open-source golden models into the Git-ignored `external/` directory.
 - Under-head radii and ISO 4032 bore-edge chamfers: no verified values, recorded
   as typed omissions.
 - Exact B-slot6 extrusion pending verified provenance.
@@ -66,4 +65,4 @@ insufficient). A PASS is never a claim of manufacturing approval.
 - `SESSION_REPORT_06.md` — the round-6 audit and fixes.
 - `SESSION_REPORT_07.md` — the round-7 thread-placement fix, chamfer coverage,
   and 108-cell matrix.
-- `testdata/golden/matrix.json` / `MATRIX.md` — the per-cell matrix results.
+- `scripts/golden_matrix.py` — generates the per-cell matrix results on demand.

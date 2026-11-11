@@ -70,11 +70,13 @@ golden corpus.
 
 ## M2–M5 matrix
 
-`scripts/golden_matrix.py` builds the 108-cell M2–M5 matrix and writes:
+`scripts/golden_matrix.py` builds the 108-cell M2–M5 matrix and, with
+`--write <dir>`, generates:
 
-- `matrix.json` — per-cell `NORMATIVE` and `GOLDEN` statuses, the measured
-  values, and the comparison evidence.
+- `matrix.json` — per-cell `NORMATIVE` and `GOLDEN` statuses and evidence;
 - `MATRIX.md` — the per-family and per-cell tables.
+
+These are reproducible summaries and are not tracked in Git.
 
 The GOLDEN column compares each parametric part with the downloaded golden
 model using a rotation-invariant maximum radius and axial extent. A missing

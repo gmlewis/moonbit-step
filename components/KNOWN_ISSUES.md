@@ -98,8 +98,7 @@ and independent validation. See `AUDIT.md` and `PROGRESS.md` for the evidence.
     bore, and simple T-slots. The two must not be described as equivalent.
     Exact B-slot6 support is deferred to the next session because it requires
     an arc-capable 2D section representation and verification of the
-    reference's provenance. See `GOLDEN_REFERENCES.md` and
-    `perfect-prompt-03.md`.
+    reference's provenance. See `GOLDEN_REFERENCES.md`.
 
 ## API / packaging
 
@@ -222,12 +221,12 @@ approximations are recorded above and in `FEATURES.md`.
 - Severity: low (reference quality), but it must not be misreported.
 - The golden files are downloaded from the open-source step.parts corpus by
   the repository owner; there are no licensing concerns.
-- `scripts/golden_matrix.py` records 108 cells: NORMATIVE 108 PASS. The GOLDEN
-  column compares each part with the downloaded model using a rotation-
-  invariant radius and axial extent. Models that contradict the standard are
-  `FAIL` with measured evidence (ISO 4762 M2/M2.5/M5 oversized heads, ISO 7089
-  thick washers, DIN 976 doubled length, ISO 4017/4014 head height). ISO 4014
-  has no downloaded partially-threaded model and is `SKIP`.
+- `scripts/golden_matrix.py` compares each part with the downloaded model using
+  a rotation-invariant radius and axial extent. Models that contradict the
+  standard are `FAIL` with measured evidence (for example ISO 4762 M2/M2.5/M5
+  oversized heads, ISO 7089 thick washers, DIN 976 doubled length, ISO 4017
+  head height). ISO 4014 has no downloaded partially-threaded model and is
+  `SKIP`. Run the harness for the current per-family verdicts.
 
 ### KI-30 — Timestamp made the flat-export test flaky (fixed)
 

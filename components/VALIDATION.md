@@ -3,23 +3,24 @@
 Environment: macOS, MoonBit `moon 0.1.20261104 (940aa18 2026-11-04)`,
 `moonc v0.10.20+65efd5b93`; OCCT `DRAWEXE` and `gmsh` present.
 
-## Current status (round 8, 2026-11-11)
+## Current status
 
-- `./test-all.sh`: **548 tests, 548 passed, 0 failed**.
-- `python3 scripts/compare_golden.py`: 19 generated fixtures `PASS`, external
-  geometry compared against the downloaded golden models.
-- `python3 scripts/compare_golden.py --self-test`: **15/15 checks PASS**.
-- `python3 scripts/golden_matrix.py`: **108 cells, NORMATIVE 108 PASS / 0 FAIL;
-  GOLDEN 39 PASS / 54 FAIL / 15 SKIP; 39 fully validated**. The GOLDEN failures
-  are measured contradictions in the downloaded files (ISO 4762 M2/M2.5/M5
-  oversized heads, ISO 7089 thickness, DIN 976 doubled length, ISO 4017 head
-  height); ISO 4014 has no downloaded partially-threaded model.
-- `python3 scripts/golden_matrix.py --self-test`: PASS.
-- The corrected thread placement and every new chamfer are measured from the
-  emitted STEP and validated with OCCT `checkshape`; representative files:
-  `iso4762-M4x20-detailed` (3 solids, 275 faces),
-  `iso4017-M4x20-detailed` (2/144), `iso10642-M4x16-detailed` (3/212),
-  `iso4032-M4-fully-modeled` (2/620).
+Run these commands for the current results; the generated reports are not
+tracked because they change on every run.
+
+- `./test-all.sh` — formats, checks, and runs the MoonBit test suite.
+- `python3 scripts/compare_golden.py` — measures the downloaded golden files
+  and reports PASS/FAIL/SKIP per fixture and check.
+- `python3 scripts/compare_golden.py --self-test` — proves the PASS/FAIL/SKIP,
+  checksum, unit/frame, feature, mass, section, deviation, and vertex-ring
+  behaviour.
+- `python3 scripts/golden_matrix.py` — compares every M2–M5 cell with the
+  downloaded golden model. `--write <dir>` generates `matrix.json` and
+  `MATRIX.md` on demand; they are not tracked.
+- `python3 scripts/golden_matrix.py --self-test` — proves matching, mismatched,
+  and missing-golden verdicts.
+- Representative generated STEP files pass `scripts/validate_step.py` including
+  OCCT `checkshape`.
 
 ## Round 6 status (historical)
 
@@ -285,20 +286,12 @@ Final state after these additions: run `./test-all.sh` and
 
 ```bash
 ./test-all.sh
-# 546 tests, 546 passed, 0 failed
 
 python3 scripts/compare_golden.py
-# 19 fixtures PASS, external geometry SKIP, 0 FAIL, exit 0
-
 python3 scripts/compare_golden.py --self-test
-# 15/15 checks PASS (PASS/FAIL/SKIP, checksum, units/frame, feature kinds,
-# mass properties, section area, surface deviation, vertex ring)
 
-python3 scripts/golden_matrix.py --write components/testdata/golden
-# 108 cells, NORMATIVE 108 PASS / 0 FAIL, GOLDEN 39 PASS / 54 FAIL / 15 SKIP
-
+python3 scripts/golden_matrix.py --write /tmp/golden-matrix
 python3 scripts/golden_matrix.py --self-test
-# PASS
 ```
 
 ### Measured chamfer evidence
@@ -342,8 +335,7 @@ iso4032-M4-fully-modeled.step [PASS] same gates, 620 planar faces
 ### Honest skips
 
 - External golden geometry: compared against the downloaded models; a
-  missing file is `SKIP`. The measurements are recorded in
-  `components/testdata/golden/matrix.json`.
+  missing file is `SKIP`. Run the harness for the current measurements.
 - No 3D kinematic gear-contact solver: the planetary check remains a 2D outline
   rotation cycle.
 

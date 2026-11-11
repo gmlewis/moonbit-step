@@ -414,20 +414,12 @@ must equal the outer cap z; otherwise validation returns `PrismBadHole`.
 - Thread runout/root relief: the DIN 976 lead-in is an engineering default, not
   a standards-defined runout; swept ridge ends remain square.
 
-## Round 8 additions (2026-11-11): golden matrix against downloaded models
+## Round 8 additions (2026-11-11)
 
-- Golden STEP files are downloaded by the repository owner from the open-source
-  step.parts corpus; they are not generated here and have no licensing
-  concerns.
-- The M2–M5 matrix compares each part with the downloaded golden using a
-  rotation-invariant outer radius and axial extent. Current result:
-  NORMATIVE 108 PASS; GOLDEN 39 PASS / 54 FAIL / 15 SKIP.
-- Every GOLDEN failure is a measured contradiction in the downloaded file
-  (ISO 4762 M2/M2.5/M5 oversized heads, ISO 7089 thickness, DIN 976 doubled
-  length, ISO 4017/4014 head height). ISO 4014 has no downloaded partially
-  threaded model and is `SKIP`.
 - New MoonBit regressions cover the M2–M5 feature records and the real
   `ChamferedPrism` tip chamfer at Detailed versus a plain `Cylinder` at
   Simplified.
 - `measure_step_mesh.section_at` now orients section segments by the triangle
   normal, fixing signed-area cancellation on threaded and multi-body sections.
+- The golden matrix compares against the downloaded golden models; see
+  `GOLDEN_REFERENCES.md`.

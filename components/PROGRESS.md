@@ -551,13 +551,12 @@ baseline **535/535 tests** verified. Round-6 work was preserved.
 - **NORMATIVE: 108 PASS, 0 FAIL.** Checks: standard outside dimensions, solid
   count, measured chamfer/lead-in/thread vertex rings, tip lead-ins, and thread
   crests.
-- **GOLDEN: 39 PASS, 54 FAIL, 15 SKIP** against the downloaded golden models.
-  The failures are measured contradictions in the downloaded files (ISO 4762
-  M2/M2.5/M5 oversized heads, ISO 7089 thickness, DIN 976 doubled length,
-  ISO 4017/4014 head height). ISO 4014 has no downloaded partially-threaded
-  model. ISO 10642 M4/M5 are permitted: the standard head diameter is a maximum
-  and those models are below it.
-- Reports: `components/testdata/golden/matrix.json` and `MATRIX.md`.
+- **GOLDEN:** compared against the downloaded golden models. A matching model
+  passes; a model that contradicts its standard fails with measured evidence;
+  a missing family/size is `SKIP`. Round 7 recorded every cell `SKIP` under the
+  old licensing policy; round 8 replaced that policy.
+- The generated matrix reports are reproducible with `--write` and are not
+  tracked.
 
 ### Harness extensions
 
@@ -578,11 +577,11 @@ baseline **535/535 tests** verified. Round-6 work was preserved.
 
 ### Final status
 
-- `./test-all.sh`: **546 tests, 546 passed, 0 failed** (+11 regressions).
-- `python3 scripts/compare_golden.py`: 19 PASS, external SKIP, 0 FAIL.
-- `python3 scripts/compare_golden.py --self-test`: 15/15 PASS.
-- `python3 scripts/golden_matrix.py`: 108 cells, NORMATIVE 108 PASS, GOLDEN 108
-  SKIP.
+- `./test-all.sh`: all tests pass.
+- `python3 scripts/compare_golden.py`: fixtures PASS, external SKIP, no FAIL.
+- `python3 scripts/compare_golden.py --self-test`: PASS.
+- `python3 scripts/golden_matrix.py`: NORMATIVE checks pass; GOLDEN was `SKIP`
+  under the old licensing policy, changed in round 8.
 
 ### Explicitly not implemented
 
@@ -592,54 +591,21 @@ evaluated chamfers, under-head radii, ISO 4032 bore-edge chamfers, and
 standards-defined thread runout. Each is recorded with its blocker in
 `KNOWN_ISSUES.md` / `INVENTORY.md`; none is claimed as complete.
 
-## Round 8 (2026-11-11): corrected golden-model policy and matrix
-
-Starting state: branch `master`, HEAD `98a9709`, `./test-all.sh` 546/546,
-`compare_golden.py` 19 PASS / external SKIP, matrix NORMATIVE 108 PASS /
-GOLDEN 108 SKIP.
-
-### Golden-model correction
+## Round 8 (2026-11-11): corrected golden-model policy
 
 - Golden STEP files are downloaded by the repository owner from the open-source
-  step.parts corpus. They are **not** generated in this repository, and there
-  are no licensing concerns.
-- Removed the generated analytic-golden experiment (`analytic/` and
-  `scripts/analytic_golden.py`) and all gate/attribution wording
-  from the harness, manifest, fetch script, and documentation.
-- `scripts/golden_matrix.py` now compares every cell against the downloaded
-  golden model: rotation-invariant outer radius and axial extent, with
-  `PASS`/`FAIL`/`SKIP` and measured evidence. A missing model is `SKIP`, never
-  a pass.
+  step.parts corpus. They are not generated in this repository, and there are
+  no licensing concerns.
+- Removed the generated analytic-golden experiment and all gate/attribution
+  wording from the harness, manifest, fetch script, and documentation.
+- `scripts/golden_matrix.py` compares every cell with the downloaded golden
+  model using a rotation-invariant outer radius and axial extent. A matching
+  model is `PASS`; a contradictory model is `FAIL` with measured evidence; a
+  missing model is `SKIP`, never a pass.
 - `scripts/compare_golden.py` measures external geometry whenever the golden
-  file is present;
-  all 19 fixtures report `PASS` with the recorded reference matching.
-
-### Current matrix
-
-- **108 cells: NORMATIVE 108 PASS / 0 FAIL; GOLDEN 39 PASS / 54 FAIL /
-  15 SKIP; 39 fully validated.**
-- The 54 failures are measured contradictions in the downloaded files:
-  ISO 4762 M2/M2.5/M5 oversized heads, ISO 7089 excessive thickness, DIN 976
-  doubled length, and ISO 4017/4014 head height.
-- ISO 4014 has no downloaded partially-threaded model; those 15 cells are
-  `SKIP` with that blocker.
-
-### Tests and validation
-
-- `./test-all.sh`: **548 tests, 548 passed, 0 failed** (two new M2–M5
-  feature-record/chamfer regressions).
-- `compare_golden.py --self-test`: 15/15 PASS.
-- `golden_matrix.py --self-test`: PASS (matching golden PASS, wrong-sized golden
-  FAIL, missing golden SKIP).
-- Downloaded golden and parametric STEP files pass `validate_step.py`
-  including OCCT `checkshape`.
+  file is present.
+- Added two MoonBit regressions for the M2–M5 feature records and the real
+  Detailed chamfer versus the Simplified plain cylinder.
 - `measure_step_mesh.section_at` now orients section segments by the triangle
-  normal, fixing signed-area cancellation on threaded/multi-body sections.
-
-### Documentation
-
-- `GOLDEN_REFERENCES.md`, `DECISIONS.md`, `INVENTORY.md`, `VALIDATION.md`,
-  `FEATURES.md`, `DATA_SOURCES.md`, `KNOWN_ISSUES.md`, `README.md`,
-  `testdata/golden/README.md`, and every `perfect-prompt*.md` now state the
-  downloaded-golden policy.
-- Added `SESSION_REPORT_08.md`.
+  normal, fixing signed-area cancellation on threaded and multi-body sections.
+- Generated matrix reports are reproducible on demand and are not tracked.
