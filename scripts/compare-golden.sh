@@ -222,6 +222,9 @@ def infer(name, detail):
     m = re.match(r"^din7349_m(\d+(?:p\d+)?)flatwasher\.step$", name)
     if m:
         return fastener("din7349", m.group(1), None, detail)
+    m = re.match(r"^din913_set_screw_m(\d+(?:p\d+)?)x(\d+)\.step$", name)
+    if m:
+        return fastener("din913", m.group(1), m.group(2), detail)
     m = re.match(r"^iso_metric_threaded_rod_m(\d+(?:p\d+)?)_l(\d+)_simple\.step$", name)
     if m:
         return fastener("din976", m.group(1), m.group(2), detail)

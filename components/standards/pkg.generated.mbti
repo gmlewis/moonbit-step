@@ -26,6 +26,10 @@ pub fn din7349_size(MetricSize) -> Result[DIN7349Size, @common.SpecError]
 
 pub fn din7349_spec(MetricSize) -> Result[DIN7349Spec, @common.SpecError]
 
+pub fn din913_size(MetricSize) -> Result[DIN913Size, @common.SpecError]
+
+pub fn din913_spec(MetricSize, Double) -> Result[DIN913Spec, @common.SpecError]
+
 pub fn din976_spec(MetricSize, Double) -> Result[DIN976Spec, @common.SpecError]
 
 pub fn hex_head_size(MetricSize) -> Result[HexHeadSize, @common.SpecError]
@@ -122,6 +126,29 @@ pub fn DIN7349Spec::metadata(Self) -> @common.Metadata
 pub fn DIN7349Spec::size(Self) -> MetricSize
 pub fn DIN7349Spec::source() -> String
 pub fn DIN7349Spec::standard() -> String
+
+pub(all) struct DIN913Size {
+  size : MetricSize
+  thread : ThreadSpec
+  socket_across_flats_mm : Double
+  socket_across_flats_max_mm : Double
+  socket_depth_mm : Double
+  point_flat_diameter_mm : Double
+  point_angle_deg : Double
+  min_length_mm : Double
+  max_length_mm : Double
+}
+
+pub(all) struct DIN913Spec {
+  size_dims : DIN913Size
+  length_mm : Double
+}
+pub fn DIN913Spec::designation(Self) -> String
+pub fn DIN913Spec::metadata(Self) -> @common.Metadata
+pub fn DIN913Spec::size(Self) -> MetricSize
+pub fn DIN913Spec::source() -> String
+pub fn DIN913Spec::standard() -> String
+pub fn DIN913Spec::thread(Self) -> ThreadSpec
 
 pub(all) struct DIN976Spec {
   thread : ThreadSpec

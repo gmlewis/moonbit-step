@@ -22,6 +22,8 @@ pub fn din440_washer(@standards.MetricSize, detail? : @common.DetailLevel, color
 
 pub fn din7349_washer(@standards.MetricSize, detail? : @common.DetailLevel, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
+pub fn din913(@standards.MetricSize, Double, detail? : @common.DetailLevel, threads? : @common.ThreadRepresentation, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
 pub fn din976(@standards.MetricSize, Double, detail? : @common.DetailLevel, threads? : @common.ThreadRepresentation) -> Result[@common.Component, @common.SpecError]
 
 pub fn din976_rod(@standards.DIN976Spec, detail? : @common.DetailLevel, threads? : @common.ThreadRepresentation) -> @common.Component

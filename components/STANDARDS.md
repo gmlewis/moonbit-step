@@ -103,6 +103,16 @@ table (6g/6H limits are not modeled as limits).
 - Data: inner diameter `d1`, outer diameter `d2`, thickness `s`.
 - The washer is an analytic annular solid: two cylinders and two planes.
 
+### DIN 913 — hexagon socket set screws, flat point
+
+- Revision used: DIN 913 (equivalent to ISO 4026).
+- Supported sizes: M3 (other sizes return an unsupported-size error).
+- Data: socket width across flats `s` (nominal and upper limit), socket
+  depth `t`, flat-point diameter `d_p`, 90-degree point cone, and length range.
+- The body is a solid of revolution (flat point, point cone, cylindrical
+  shank) with a blind hexagonal socket. The thread is omitted at Simplified
+  and Detailed and added as a helical ISO 68-1 ridge at FullyModeled.
+
 ### DIN 976-1 — metric threaded rods
 
 - Revision used: DIN 976-1:2016.

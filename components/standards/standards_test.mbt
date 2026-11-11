@@ -314,6 +314,29 @@ test "din 7349 thick washer dimensions" {
 }
 
 ///|
+test "din 913 set screw dimensions" {
+  let m3 = match @standards.din913_size(@standards.M3) {
+    Ok(v) => v
+    Err(e) => abort(e.message())
+  }
+  assert_true(close(m3.socket_across_flats_mm, 1.5))
+  assert_true(close(m3.socket_across_flats_max_mm, 1.545))
+  assert_true(close(m3.socket_depth_mm, 2.0))
+  assert_true(close(m3.point_flat_diameter_mm, 2.0))
+  assert_true(close(m3.point_angle_deg, 90.0))
+  let spec = match @standards.din913_spec(@standards.M3, 5.0) {
+    Ok(v) => v
+    Err(e) => abort(e.message())
+  }
+  assert_true(spec.designation() == "DIN 913 - M3 x 5")
+  assert_true(@standards.DIN913Spec::standard() == "DIN 913")
+  assert_true(
+    spec.metadata().family == "hexagon socket set screw with flat point",
+  )
+  assert_true(@standards.din913_size(@standards.M4) is Err(_))
+}
+
+///|
 test "iso 4017 and iso 4014 hex head dimensions" {
   let h4 = match @standards.hex_head_size(@standards.M4) {
     Ok(v) => v

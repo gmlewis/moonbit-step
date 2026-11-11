@@ -1558,6 +1558,116 @@
       }
     },
     {
+      "fixture_id": "fasteners/din913-m3x5",
+      "part_id": "din913_set_screw_m3x5",
+      "designation": "DIN 913 - M3 x 5",
+      "family": "hexagon socket set screw with flat point",
+      "standard": "DIN 913",
+      "manufacturer": "unspecified step.parts contributor",
+      "source_page": "https://www.step.parts/parts/din913_set_screw_m3x5",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/din913_set_screw_m3x5.step",
+      "local_filename": "external/din913_set_screw_m3x5.step",
+      "sha256": "cd2cf212d016cdb87975b70fe68c15f190b462b805f9f74b8b2e404065b4962a",
+      "byte_size": 31410,
+      "units": "mm",
+      "declared_dimensions": {
+        "diameter_mm": 3.0,
+        "length_mm": 5.0,
+        "socket_across_flats_mm": 1.5,
+        "point_flat_diameter_mm": 2.0
+      },
+      "measured_dimensions": {
+        "bbox_mm": [
+          3.0,
+          3.0,
+          5.0
+        ],
+        "volume_mm3": 30.4471,
+        "solids": 1
+      },
+      "parametric_value": {
+        "bbox_mm": [
+          3.0,
+          3.0,
+          5.0
+        ],
+        "volume_mm3": 30.1613,
+        "solids": 1,
+        "source": "components/examples/fasteners --standard din913 --size M3 --length 5"
+      },
+      "verdict": "accepted-envelope",
+      "notes": "DIN 913 M3 x 5: d 3, socket s 1.5 (upper limit 1.545), socket depth t 2.0, flat point d_p 2.0, 90-degree point cone. The reference uses a 2.2 mm point flat and a 1.5588 mm socket, both above the DIN 913 limits (d_p max 2.0, s max 1.545), so the parametric part uses the standard values and records the difference. Both have the same 11-face topology (1 cylinder, 1 cone, 9 planes; 23 edges, 15 vertices); volume 30.161 vs 30.447 mm3.",
+      "committed": false,
+      "generation": {
+        "tool": "components/examples/fasteners",
+        "args": [
+          "--standard",
+          "din913",
+          "--size",
+          "M3",
+          "--length",
+          "5",
+          "--detail",
+          "detailed",
+          "-o",
+          "{out}"
+        ],
+        "output": "din913-M3x5-detailed.step"
+      },
+      "comparison": {
+        "solids": 1,
+        "bbox_axes": [
+          {
+            "axis": 0,
+            "expected_mm": 3.0,
+            "label": "diameter"
+          },
+          {
+            "axis": 2,
+            "expected_mm": 5.0,
+            "label": "length"
+          }
+        ],
+        "features": [
+          {
+            "kind": "cone_semi_angle_deg",
+            "expected": 45.0,
+            "tol_deg": 0.5
+          },
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 1.5,
+            "tol_mm": 0.01
+          },
+          {
+            "kind": "min_vertex_radius_mm",
+            "expected": 0.892,
+            "tol_mm": 0.01
+          },
+          {
+            "kind": "max_vertex_radius_mm",
+            "expected": 1.5,
+            "tol_mm": 0.01
+          },
+          {
+            "kind": "surface_min",
+            "surface": "plane",
+            "min_count": 9
+          }
+        ],
+        "mass_properties": {
+          "volume_mm3": 30.4471,
+          "volume_relative_tol": 0.02,
+          "center_of_mass_mm": [
+            0.0,
+            0.0,
+            2.346
+          ],
+          "center_of_mass_tol_mm": 0.05
+        }
+      }
+    },
+    {
       "fixture_id": "fasteners/iso7089-m5",
       "part_id": "flat_washer_normal_m5_simple",
       "designation": "ISO 7089 M5",

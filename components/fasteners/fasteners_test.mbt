@@ -353,6 +353,30 @@ test "din 7349 thick washer geometry" {
 }
 
 ///|
+test "din 913 set screw geometry" {
+  let screw = match @fasteners.din913(@standards.M3, 5.0) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  let (x0, x1, y0, y1, z0, z1) = screw.bounding_box()
+  assert_true(close(x0, -1.5))
+  assert_true(close(x1, 1.5))
+  assert_true(close(y0, -1.5))
+  assert_true(close(y1, 1.5))
+  assert_true(close(z0, 0.0))
+  assert_true(close(z1, 5.0))
+  assert_true(screw.name() == "DIN913-M3x5")
+  assert_true(screw.metadata().designation == "DIN 913 - M3 x 5")
+  let features = screw.features()
+  assert_true(features.has_modeled("hex-socket"))
+  assert_true(features.has_modeled("point-cone"))
+  assert_true(features.has_omitted("thread"))
+  let step = screw.to_step(checked=true)
+  assert_true(step.contains("CONICAL_SURFACE"))
+  assert_true(step.contains("CYLINDRICAL_SURFACE"))
+}
+
+///|
 test "fastener step text is non-empty and watertight-looking" {
   let washer = match @fasteners.iso7089_washer(@standards.M3) {
     Ok(c) => c
