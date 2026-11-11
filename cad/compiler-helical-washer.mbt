@@ -25,6 +25,37 @@ fn smooth_round(x : Double) -> Int32 {
 }
 
 ///|
+fn smooth_average(points : Array[Vec3]) -> Vec3 {
+  let mut x = 0.0
+  let mut y = 0.0
+  let mut z = 0.0
+  let n = points.length()
+  for p in points {
+    x = x + p.0
+    y = y + p.1
+    z = z + p.2
+  }
+  let d = n.to_double()
+  (x / d, y / d, z / d)
+}
+
+///|
+fn smooth_polygon_normal(points : Array[Vec3]) -> Vec3 {
+  let mut nx = 0.0
+  let mut ny = 0.0
+  let mut nz = 0.0
+  let n = points.length()
+  for i in 0..<n {
+    let a = points[i]
+    let b = points[(i + 1) % n]
+    nx = nx + (a.1 - b.1) * (a.2 + b.2)
+    ny = ny + (a.2 - b.2) * (a.0 + b.0)
+    nz = nz + (a.0 - b.0) * (a.1 + b.1)
+  }
+  v_norm((nx, ny, nz))
+}
+
+///|
 fn smooth_curve(
   ctx : StepContext,
   corner_pts : Array[Vec3],
@@ -254,6 +285,53 @@ fn compile_smooth_helix(
     }
   }
 
+  // Optional reference corner endpoints: blend the sampled corner curves so
+  // they meet the given high-Z and low-Z cap vertices exactly. The correction
+  // is expressed in the local (radial, axial, tangential) sweep frame so it
+  // rotates with the helix instead of distorting the far side of the ring.
+  match s.corner_override {
+    Some((start_ref, end_ref)) =>
+      if start_ref.length() == 4 && end_ref.length() == 4 {
+        let start_t = xform.apply_dir(v_norm(path.tangents[0]))
+        let start_n = xform.apply_dir(v_norm(path.normals[0]))
+        let start_r = v_norm(v_cross(start_t, start_n))
+        let last = num_path_pts - 1
+        let end_t = xform.apply_dir(v_norm(path.tangents[last]))
+        let end_n = xform.apply_dir(v_norm(path.normals[last]))
+        let end_r = v_norm(v_cross(end_t, end_n))
+        for role in 0..<4 {
+          let j = role_index[role]
+          let start_delta = v_sub(xform.apply(start_ref[role]), corner_pts[j])
+          let end_delta = v_sub(
+            xform.apply(end_ref[role]),
+            corner_pts[last * 4 + j],
+          )
+          let s_lx = v_dot(start_delta, start_r)
+          let s_ly = v_dot(start_delta, start_n)
+          let s_lz = v_dot(start_delta, start_t)
+          let e_lx = v_dot(end_delta, end_r)
+          let e_ly = v_dot(end_delta, end_n)
+          let e_lz = v_dot(end_delta, end_t)
+          for i in 0..<num_path_pts {
+            let t = i.to_double() / last.to_double()
+            let u = 1.0 - t
+            let tangent = xform.apply_dir(v_norm(path.tangents[i]))
+            let normal = xform.apply_dir(v_norm(path.normals[i]))
+            let right = v_norm(v_cross(tangent, normal))
+            let correction = v_add(
+              v_add(
+                v_scale(right, s_lx * u + e_lx * t),
+                v_scale(normal, s_ly * u + e_ly * t),
+              ),
+              v_scale(tangent, s_lz * u + e_lz * t),
+            )
+            corner_pts[i * 4 + j] = v_add(corner_pts[i * 4 + j], correction)
+          }
+        }
+      }
+    None => ()
+  }
+
   // Total sweep angle, then one cubic span per 15 degrees (24 per turn).
   let mut total_angle = 0.0
   for i in 0..<(num_path_pts - 1) {
@@ -437,18 +515,51 @@ fn compile_smooth_helix(
 
   let start_location = xform.apply(path.points[0])
   let end_location = xform.apply(path.points[num_path_pts - 1])
+  let (
+    start_axis,
+    start_center,
+    start_ref_dir,
+    end_axis,
+    end_center,
+    end_ref_dir,
+  ) = match s.corner_override {
+    Some(_) => {
+      let last = it.cps_pos.length() - 1
+      let s_cycle = [it.cps_pos[0], ot.cps_pos[0], ob.cps_pos[0], ib.cps_pos[0]]
+      let e_cycle = [
+        it.cps_pos[last],
+        ot.cps_pos[last],
+        ob.cps_pos[last],
+        ib.cps_pos[last],
+      ]
+      let s_center = smooth_average(s_cycle)
+      let e_center = smooth_average(e_cycle)
+      let mut s_axis = smooth_polygon_normal(s_cycle)
+      if v_dot(s_axis, v_sub(e_center, s_center)) < 0.0 {
+        s_axis = v_scale(s_axis, -1.0)
+      }
+      let mut e_axis = smooth_polygon_normal(e_cycle)
+      if v_dot(e_axis, v_sub(s_center, e_center)) < 0.0 {
+        e_axis = v_scale(e_axis, -1.0)
+      }
+      let s_ref = v_norm(v_sub(s_cycle[1], s_cycle[0]))
+      let e_ref = v_norm(v_sub(e_cycle[1], e_cycle[0]))
+      (s_axis, s_center, s_ref, e_axis, e_center, e_ref)
+    }
+    None =>
+      (
+        start_out,
+        start_location,
+        xform.apply_dir(start_radial_local),
+        end_out,
+        end_location,
+        xform.apply_dir(start_radial_local),
+      )
+  }
   let start_plane = smooth_cap_plane(
-    ctx,
-    start_out,
-    start_location,
-    xform.apply_dir(start_radial_local),
+    ctx, start_axis, start_center, start_ref_dir,
   )
-  let end_plane = smooth_cap_plane(
-    ctx,
-    end_out,
-    end_location,
-    xform.apply_dir(start_radial_local),
-  )
+  let end_plane = smooth_cap_plane(ctx, end_axis, end_center, end_ref_dir)
 
   let flip = fn(same : Bool) -> Bool { if reverse { !same } else { same } }
 

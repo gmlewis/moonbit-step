@@ -76,9 +76,10 @@ table (6g/6H limits are not modeled as limits).
   thickness `s`, and free height `h` (h_min reference).
 - The strip is a radial-vertical rectangle whose width is `(d2 - d1) / 2`;
   the helix pitch is `h - s`. The emitted solid has four native cubic
-  B-spline side surfaces (24 spans per turn) and two planar caps, with the
-  split gap at the reference cap angles and the sweep running clockwise from
-  high Z to low Z.
+  B-spline side surfaces (24 spans per turn) and two planar caps. DIN 127 does
+  not specify the split-gap geometry: the downloaded M4/M5/M6/M8 references
+  supply the eight split-cap vertices, which the parametric part reproduces
+  exactly, with the sweep running clockwise from high Z to low Z.
 
 ### ISO 4017 / ISO 4014 — hexagon head screws and bolts
 

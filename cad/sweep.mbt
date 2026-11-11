@@ -19,6 +19,7 @@ pub fn SweptProfile::new(
   straight_holes~ : Bool = false,
   straight_outline~ : Bool = true,
   smooth_helix~ : Bool = false,
+  corner_override~ : (Array[Vec3], Array[Vec3])? = None,
 ) -> Shape {
   Shape::SweptProfile({
     path,
@@ -28,6 +29,7 @@ pub fn SweptProfile::new(
     straight_holes,
     straight_outline,
     smooth_helix,
+    corner_override,
   })
 }
 

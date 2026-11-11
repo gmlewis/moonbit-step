@@ -79,6 +79,7 @@ pub fn din127_washer(
         profile~,
         straight_outline=false,
         smooth_helix=true,
+        corner_override=@standards.din127_reference_corners(size),
       )
       let deviation = din127_bspline_deviation_mm
       Ok(

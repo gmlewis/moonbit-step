@@ -12,6 +12,8 @@ pub fn din125_size(MetricSize) -> Result[DIN125Size, @common.SpecError]
 
 pub fn din125_spec(MetricSize) -> Result[DIN125Spec, @common.SpecError]
 
+pub fn din127_reference_corners(MetricSize) -> (Array[(Double, Double, Double)], Array[(Double, Double, Double)])?
+
 pub fn din127_size(MetricSize) -> Result[DIN127Size, @common.SpecError]
 
 pub fn din127_spec(MetricSize) -> Result[DIN127Spec, @common.SpecError]

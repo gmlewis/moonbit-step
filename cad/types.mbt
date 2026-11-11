@@ -144,6 +144,11 @@ pub struct SweptProfile {
   /// four B-spline side surfaces and two planar caps (six faces). The mesh,
   /// section, and mass-property analysis keep using the sampled path.
   smooth_helix : Bool
+  /// Optional start/end corner positions (inner-top, inner-bottom, outer-top,
+  /// outer-bottom) that override the sampled corner endpoints. The corner
+  /// curves are blended to meet them, which reproduces a reference's split-cap
+  /// vertices while keeping smooth B-spline sides.
+  corner_override : (Array[Vec3], Array[Vec3])?
 }
 
 ///|

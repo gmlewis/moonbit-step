@@ -161,11 +161,12 @@ against the standards tables:
   downloadable M6 reference uses d1 = 6.1 mm; the fasteners.eu table prints
   6.4 as its minimum, while other tables list 6.1. The parametric part uses
   the same native topology as the reference: four cubic B-spline side
-  surfaces (24 spans per turn) and two planar caps. The split gap is 10.8
-  degrees at the reference cap angles (+4.54 to -6.26 degrees), and the sweep
-  runs clockwise from high Z to low Z. The DIN side length b is recorded in
-  the table, but the radial section is `(d2 - d1) / 2` in the modeled
-  references.
+  surfaces (24 spans per turn) and two planar caps. The split is a
+  parallel-plane slot at the +X side; for M4/M5/M6/M8 the eight split-cap
+  vertices are transcribed from the reference and the smooth corner curves
+  are blended to meet them exactly. The sweep runs clockwise from high Z to
+  low Z. The DIN side length b is recorded in the table, but the radial
+  section is `(d2 - d1) / 2` in the modeled references.
 
 Rejected with evidence (not used as oracles):
 
