@@ -79,44 +79,59 @@ pub fn bearing(
   let d = size.bore_mm
   let outer = size.outer_mm
   let width = size.width_mm
-  let ring_t = match ring_thickness_mm {
+  let space = (outer - d) / 2.0
+  // A rings-only envelope (roller_count = 0) uses the golden references' ring
+  // proportions: the outer ring reaches the pitch radius and a narrow
+  // engineering gap separates it from the slightly thinner inner ring. With
+  // rolling elements, keep the symmetric rings and the wider ball gap.
+  let ring_outer = match ring_thickness_mm {
     Some(v) => v
-    None => (outer - d) / 5.0
+    None => if roller_count == 0 { space / 2.0 } else { (outer - d) / 5.0 }
   }
-  match @common.require_positive("bearing ring thickness", ring_t) {
+  let ring_inner = match ring_thickness_mm {
+    Some(v) => v
+    None =>
+      if roller_count == 0 {
+        space / 2.0 - 0.05 * space
+      } else {
+        (outer - d) / 5.0
+      }
+  }
+  match @common.require_positive("bearing ring thickness", ring_outer) {
     Err(e) => return Err(e)
     Ok(_) => ()
   }
-  if ring_t * 2.0 >= outer - d {
+  match @common.require_positive("bearing inner ring thickness", ring_inner) {
+    Err(e) => return Err(e)
+    Ok(_) => ()
+  }
+  let radial_gap = space - ring_outer - ring_inner
+  if radial_gap <= 0.0 {
     return Err(
       @common.InvalidDimension("bearing ring thickness leaves no radial gap"),
     )
   }
-  if roller_count < 1 {
+  // A zero roller count is a rings-only envelope: it matches the simplified
+  // golden references, which contain the two rings and no rolling elements.
+  if roller_count < 0 {
     return Err(
-      @common.InvalidParameter("bearing roller count must be at least 1"),
-    )
-  }
-  let radial_gap = (outer - d) / 2.0 - 2.0 * ring_t
-  if radial_gap <= 0.0 {
-    return Err(
-      @common.InvalidDimension(
-        "bearing radial gap must be positive; reduce the ring thickness",
-      ),
+      @common.InvalidParameter("bearing roller count must be non-negative"),
     )
   }
   let mid_radius = (outer + d) / 4.0
   // Adjacent ball centres are a chord of the pitch circle. Too many rollers
   // makes the balls overlap even though the count itself is positive.
-  let ball_span = 2.0 *
-    mid_radius *
-    @math.sin(@math.PI / roller_count.to_double())
-  if ball_span < radial_gap {
-    return Err(
-      @common.InvalidParameter(
-        "bearing roller count is too large: adjacent balls overlap (spacing \{ball_span} mm < ball diameter \{radial_gap} mm)",
-      ),
-    )
+  if roller_count > 0 {
+    let ball_span = 2.0 *
+      mid_radius *
+      @math.sin(@math.PI / roller_count.to_double())
+    if ball_span < radial_gap {
+      return Err(
+        @common.InvalidParameter(
+          "bearing roller count is too large: adjacent balls overlap (spacing \{ball_span} mm < ball diameter \{radial_gap} mm)",
+        ),
+      )
+    }
   }
   let policy = @common.DetailPolicy::for_level(detail)
   let segments = if policy.circle_segments < 32 {
@@ -130,7 +145,14 @@ pub fn bearing(
   }
   let use_features = policy.include_small_features
   let name = "bearing-\{size.designation}"
-  let features = bearing_feature_record(policy, outer, d, segments)
+  let features = bearing_feature_record(
+    policy, outer, d, segments, roller_count,
+  )
+  let description = if roller_count > 0 {
+    "Outer and inner rings plus spherical balls (analytic sphere surfaces). Rings are plain tubes at Simplified detail and carry an engineering-default edge chamfer at Detailed and above. Seals and cages are omitted."
+  } else {
+    "Outer and inner rings only (a rings-only envelope with no rolling elements, matching the simplified golden references). Rings are plain tubes at Simplified detail and carry an engineering-default edge chamfer at Detailed and above. Seals, cages, and rolling elements are omitted."
+  }
   let mut component = @common.Component::new(
     name~,
     metadata=@common.Metadata::new(
@@ -140,14 +162,14 @@ pub fn bearing(
       size=size.designation,
       source="Boundary dimensions from common ISO 15 / catalogue tables; internal rings, balls, and chamfers are parametric, not catalogue geometry. See components/DATA_SOURCES.md.",
     ),
-    description="Outer and inner rings plus spherical balls (analytic sphere surfaces). Rings are plain tubes at Simplified detail and carry an engineering-default edge chamfer at Detailed and above. Seals and cages are omitted.",
+    description~,
     features~,
   )
-  let outer_hole = outer - 2.0 * ring_t
-  let inner_outer = d + 2.0 * ring_t
+  let outer_hole = outer - 2.0 * ring_outer
+  let inner_outer = d + 2.0 * ring_inner
   if use_features {
-    let c = bearing_chamfer(width, ring_t)
-    if c >= ring_t || c >= width / 2.0 {
+    let c = bearing_chamfer(width, ring_inner)
+    if c >= ring_inner || c >= width / 2.0 {
       return Err(
         @common.InvalidDimension(
           "bearing ring thickness or width is too small for the default edge chamfer; use Simplified detail or thicker rings",
@@ -241,40 +263,42 @@ fn bearing_feature_record(
   outer : Double,
   bore : Double,
   segments : Int32,
+  roller_count : Int32,
 ) -> @common.FeatureRecord {
-  let approximation = fn(feature : String, radius : Double) {
-    @common.Approximation::new(
-      feature~,
-      kind=@common.ApproximationKind::PolylineArc,
-      deviation_mm=@common.chord_deviation(radius, segments),
-      control="circle_segments=\{segments}",
+  let _ = outer
+  let _ = bore
+  let _ = segments
+  let modeled : Array[String] = ["outer-ring", "inner-ring"]
+  if roller_count > 0 {
+    modeled.push("ball-sphere")
+  }
+  let omitted : Array[@common.Omission] = [
+    @common.Omission::new(
+      feature="seal",
+      reason="seals are not modelled in this envelope",
+    ),
+    @common.Omission::new(
+      feature="cage",
+      reason="rolling-element cages are not modelled",
+    ),
+    @common.Omission::new(
+      feature="race-groove",
+      reason="rolling-element race grooves are not modelled",
+    ),
+    @common.Omission::new(
+      feature="bore-chamfer",
+      reason="the bore and outer edges are not chamfered at Simplified detail",
+    ),
+  ]
+  if roller_count == 0 {
+    omitted.push(
+      @common.Omission::new(
+        feature="rolling-elements",
+        reason="rings-only envelope: the simplified golden reference contains no balls",
+      ),
     )
   }
-  let base = @common.FeatureRecord::new(
-    modeled=["outer-ring", "inner-ring", "ball-sphere"],
-    approximated=[
-      approximation("outer-ring-boundary", outer / 2.0),
-      approximation("inner-ring-bore", bore / 2.0),
-    ],
-    omitted=[
-      @common.Omission::new(
-        feature="seal",
-        reason="seals are not modelled in this envelope",
-      ),
-      @common.Omission::new(
-        feature="cage",
-        reason="rolling-element cages are not modelled",
-      ),
-      @common.Omission::new(
-        feature="race-groove",
-        reason="rolling-element race grooves are not modelled",
-      ),
-      @common.Omission::new(
-        feature="bore-chamfer",
-        reason="the bore and outer edges are not chamfered at Simplified detail",
-      ),
-    ],
-  )
+  let base = @common.FeatureRecord::new(modeled~, approximated=[], omitted~)
   if policy.include_small_features {
     base.add_modeled("ring-edge-chamfer")
   } else {

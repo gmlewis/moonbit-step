@@ -23,8 +23,8 @@ async fn main {
     "rollers": @cli.opt_int(
       8,
       short='r',
-      help="Number of rolling elements",
-      min=1,
+      help="Number of rolling elements (0 = rings only)",
+      min=0,
     ),
     "out": @cli.opt_string(short='o', help="Write STEP to this path"),
     "bbox": @cli.flag(help="Print the bearing bounding box to stderr"),

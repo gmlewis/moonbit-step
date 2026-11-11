@@ -303,3 +303,20 @@ test "bearing rejects overlapping rollers and an impossible chamfer" {
   )
   assert_true(@motion.bearing(size, ring_thickness_mm=0.1) is Err(_))
 }
+
+///|
+test "bearing with zero rollers is a rings-only envelope" {
+  let size = match @motion.bearing_size("608") {
+    Ok(s) => s
+    Err(e) => abort(e.message())
+  }
+  let part = match @motion.bearing(size, roller_count=0) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  assert_eq(part.layers().length(), 2)
+  assert_false(part.to_step().contains("SPHERICAL_SURFACE"))
+  let features = part.features()
+  assert_false(features.has_modeled("ball-sphere"))
+  assert_true(features.omission_reason("rolling-elements") is Some(_))
+}

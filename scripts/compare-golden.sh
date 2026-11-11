@@ -30,6 +30,10 @@
 #   --app NAME          macOS app name for `open -a` (default SolidCraft)
 #   --out DIR           output directory (default target/golden-compare)
 #
+# Golden-specific: step.parts "*_open_simple" bearings are two-ring envelopes
+# with no rolling elements, so they are generated as rings-only at Simplified
+# detail by default. Pass --detail explicitly to override that choice.
+#
 # Output files are written under target/golden-compare/ as
 # `parametric-<golden file name>` so the pair is easy to identify.
 #
@@ -82,6 +86,7 @@ Options:
   --list            list the numbered golden files and their equivalents
   --all             select every golden that has a parametric equivalent
   --detail LEVEL    simplified | detailed (default) | full
+                    (*_open_simple bearings default to simplified, rings-only)
   --threads REP     none | helical | cosmetic (fasteners only)
   --batch N         open N pairs at a time, waiting between batches
   --reuse           reuse an existing generated file instead of rebuilding
@@ -192,6 +197,39 @@ def infer(name, detail):
     return None
 
 
+def set_option(args, key, value):
+    if key in args:
+        i = args.index(key)
+        if i + 1 < len(args):
+            args[i + 1] = value
+        else:
+            args.append(value)
+    else:
+        args += [key, value]
+
+
+def adjust_for_golden(name, tool, args, detail, detail_explicit):
+    """Pick the representation the golden declares, where the family varies.
+
+    The step.parts "*_open_simple" bearings are two-ring envelopes with no
+    rolling elements and sharp ring edges, so generate the matching rings-only
+    simplified parametric model (the builder accepts --rollers 0). If the user
+    passed --detail explicitly, honour it and only drop the rolling elements.
+    """
+    if tool is None:
+        return tool, args
+    args = list(args)
+    if tool.endswith("/bearing") and name.endswith("_open_simple.step"):
+        set_option(args, "--rollers", "0")
+        if not detail_explicit:
+            set_option(args, "--detail", "simplified")
+    if detail_explicit and (
+        tool.endswith("/fasteners") or tool.endswith("/bearing")
+    ):
+        set_option(args, "--detail", detail)
+    return tool, args
+
+
 def describe(tool, args):
     if tool.endswith("/fasteners"):
         standard = arg_value(args, "--standard") or "?"
@@ -203,9 +241,12 @@ def describe(tool, args):
             text += " x " + length
         return "{} [{}]".format(text, detail)
     if tool.endswith("/bearing"):
-        return "bearing {} [{}]".format(
+        text = "bearing {} [{}]".format(
             arg_value(args, "--bearing") or "?", arg_value(args, "--detail") or "detailed"
         )
+        if arg_value(args, "--rollers") == "0":
+            text += " rings-only"
+        return text
     if tool.endswith("/gear_pair"):
         return "spur gear m{} z{} bore {}".format(
             arg_value(args, "--module") or "?",
@@ -238,7 +279,7 @@ def load_manifest_generations():
     return table
 
 
-def build_rows(detail):
+def build_rows(detail, detail_explicit):
     files = sorted(
         glob.glob(os.path.join(GOLDEN_DIR, "*.step")), key=os.path.basename
     )
@@ -260,6 +301,7 @@ def build_rows(detail):
             inferred = infer(name, detail)
             if inferred:
                 tool, args = inferred
+        tool, args = adjust_for_golden(name, tool, args, detail, detail_explicit)
         rows.append(
             {
                 "index": index,
@@ -299,18 +341,12 @@ def parse_selection(tokens, count):
     return sorted(set(selected))
 
 
-def generation_command(row, detail, threads, out_path):
+def generation_command(row, threads, out_path):
     tool = row["tool"]
+    # The row's args already carry the effective detail level (the manifest
+    # value, the inferred value, or the user's explicit --detail, adjusted for
+    # the golden's declared representation).
     args = list(row["args"])
-    if tool.endswith("/fasteners") or tool.endswith("/bearing"):
-        if "--detail" in args:
-            i = args.index("--detail")
-            if i + 1 < len(args):
-                args[i + 1] = detail
-            else:
-                args.append(detail)
-        else:
-            args += ["--detail", detail]
     if threads and tool.endswith("/fasteners"):
         if "--threads" in args:
             i = args.index("--threads")
@@ -453,6 +489,7 @@ def main():
     use_helper = False
     reuse = False
     detail = "detailed"
+    detail_explicit = False
     threads = None
     app = os.environ.get("SOLIDCRAFT_APP", "SolidCraft")
     out_dir = DEFAULT_OUT
@@ -480,8 +517,10 @@ def main():
             if i >= len(USER):
                 fail("--detail needs a value")
             detail = normalize_detail(USER[i])
+            detail_explicit = True
         elif arg.startswith("--detail="):
             detail = normalize_detail(arg.split("=", 1)[1])
+            detail_explicit = True
         elif arg in ("--threads", "-t"):
             i += 1
             if i >= len(USER):
@@ -525,7 +564,7 @@ def main():
     if batch < 0:
         fail("--batch must be positive")
 
-    rows = build_rows(detail)
+    rows = build_rows(detail, detail_explicit)
     count = len(rows)
     supported = sum(1 for row in rows if row["tool"])
 
@@ -594,7 +633,7 @@ def main():
                 os.remove(out_path)
             except OSError as exc:
                 print("  warning: cannot remove {} ({})".format(out_path, exc))
-        cmd = generation_command(row, detail, threads, out_path)
+        cmd = generation_command(row, threads, out_path)
         print("[{:03d}] generating {}".format(row["index"], row["label"]))
         proc = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True)
         if proc.returncode != 0 or not os.path.exists(out_path):
