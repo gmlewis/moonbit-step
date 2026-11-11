@@ -241,6 +241,37 @@ fn add_plane_face_with_edge_loops(
 }
 
 ///|
+/// add_plane_face_from_loops emits a planar face from an already-built outer
+/// edge loop (for example an analytic circle) and zero or more hole loops. The
+/// caller supplies the loop orientations; this helper only attaches them to the
+/// plane. The plane normal is `axis` when `reverse` is false.
+fn add_plane_face_from_loops(
+  ctx : StepContext,
+  origin_cp : @step.Ref,
+  axis : Vec3,
+  refd : Vec3,
+  outer_loop : @step.Ref,
+  hole_loops : Array[@step.Ref],
+  reverse~ : Bool = false,
+) -> @step.Ref {
+  let axis_raw = v_norm(axis)
+  let ref_raw = v_norm(refd)
+  let a2p_ref = ctx.axis2_placement_3d(
+    origin_cp,
+    ctx.direction(axis_raw.0, axis_raw.1, axis_raw.2),
+    ctx.direction(ref_raw.0, ref_raw.1, ref_raw.2),
+  )
+  let plane_ref = ctx.add(
+    @repository.any_entity_plane(@geometry.Plane::new("", a2p_ref)),
+  )
+  let bounds : Array[@step.Ref] = [ctx.face_outer_bound(outer_loop, true)]
+  for loop_ref in hole_loops {
+    bounds.push(ctx.face_bound(loop_ref, true))
+  }
+  ctx.advanced_face(bounds, plane_ref, !reverse)
+}
+
+///|
 pub(all) struct EdgeInfo {
   start : Int32
   end : Int32

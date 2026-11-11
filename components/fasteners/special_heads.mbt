@@ -50,10 +50,10 @@ fn countersunk_screw(
     dims.head_diameter_mm,
     segments,
   )
-  let mut component = @common.Component::new(
+  let base = @common.Component::new(
     name~,
     metadata=spec.metadata(),
-    description="Countersunk head (90-degree included angle) with a hexagon socket. The countersink cone, socket shell, and circular bore are analytic surfaces of revolution; six planar flats form the hex socket." +
+    description="Single closed solid: a solid of revolution (shank, 90-degree countersink cone, flush top face) with a blind hexagonal socket cut into the top; six planar socket walls and a planar hexagonal floor bound the pocket." +
       thread_note(thread_rep),
     features~,
   )
@@ -62,89 +62,69 @@ fn countersunk_screw(
   // The head therefore occupies the top `k` millimetres of that length and the
   // shank runs below it.
   let head_z = length - k
-  let shank_length = head_z
-  component = add_plain_or_threaded_shank(
-    component, thread, shank_length, thread_rep, policy, metal,
-  )
-  // Head geometry, local z from 0 (head base) to k (flush top face).
   let cone_axial = if big_r - r_sh < k { big_r - r_sh } else { k }
   let cyl_h = k - cone_axial
-  let z_floor = k - t
-  let r_of = fn(z : Double) -> Double {
-    if z <= cyl_h {
-      r_sh
+  let tip = if policy.include_small_features {
+    let raw = shank_tip_chamfer_mm(d)
+    if raw < head_z / 4.0 {
+      raw
     } else {
-      let r = r_sh + (z - cyl_h)
-      if r < big_r {
-        r
-      } else {
-        big_r
-      }
+      head_z / 4.0
     }
-  }
-  let r_f = r_of(z_floor)
-  let floor_points : Array[@cad.Vec2] = [(0.0, 0.0), (r_sh, 0.0)]
-  if z_floor <= cyl_h {
-    floor_points.push((r_sh, z_floor))
-  } else {
-    floor_points.push((r_sh, cyl_h))
-    floor_points.push((r_f, z_floor))
-  }
-  floor_points.push((0.0, z_floor))
-  let floor = @cad.RevolvedProfile::polyline(floor_points)
-  component = component.add_layer(
-    floor.as_shape(),
-    name="head-floor",
-    color=metal,
-    placement=@common.Placement::translation(0.0, 0.0, head_z),
-  )
-  let _ = segments
-  // Analytic socket shell: the countersink cone and cylindrical shank band are
-  // real surfaces of revolution, with a circular socket bore. The hexagon ring
-  // then turns that bore into the hex socket without ever polygonalizing the
-  // outer cone.
-  let socket_radius = s / Double::sqrt(3.0)
-  let lead = if policy.include_small_features {
-    socket_lead_in_chamfer_mm(s, t)
   } else {
     0.0
   }
-  let shell_pts : Array[@cad.Vec2] = [(r_f, z_floor)]
-  if z_floor < cyl_h {
-    shell_pts.push((r_sh, cyl_h))
-  }
-  shell_pts.push((big_r, k))
-  if lead > 0.0 {
-    shell_pts.push((socket_radius + lead, k))
-    shell_pts.push((socket_radius, k - lead))
+  let threaded = thread_rep is @common.ThreadRepresentation::Helical
+  let thread_length = head_z
+  let core_d = if threaded { thread.external_minor_diameter_mm() } else { d }
+  let core_r = core_d / 2.0
+  let pts : Array[@cad.Vec2] = [(0.0, 0.0)]
+  if tip > 0.0 && tip < core_r {
+    pts.push((core_r - tip, 0.0))
+    pts.push((core_r, tip))
   } else {
-    shell_pts.push((socket_radius, k))
+    pts.push((core_r, 0.0))
   }
-  shell_pts.push((socket_radius, z_floor))
-  let shell = @cad.RevolvedProfile::polyline(shell_pts, closed=true).as_shape()
-  component = component.add_layer(
-    shell,
-    name="head-shell",
-    color=metal,
-    placement=@common.Placement::translation(0.0, 0.0, head_z),
-  )
-  let outer_radius = if r_f - 0.1 > socket_radius {
-    let cap = r_f - 0.1
-    let target = socket_radius + 0.35 * s
-    if target < cap {
-      target
-    } else {
-      cap
+  if threaded {
+    pts.push((core_r, head_z))
+    if core_r < r_sh - 1.0e-9 {
+      pts.push((r_sh, head_z))
     }
   } else {
-    socket_radius + 0.02
+    pts.push((r_sh, head_z))
   }
-  component.add_layer(
-    hex_socket_ring(s, t, outer_radius, lead),
-    name="head-socket",
-    color=@cad.Rgb::orange(),
-    placement=@common.Placement::translation(0.0, 0.0, head_z + z_floor),
+  if cyl_h > 1.0e-9 {
+    pts.push((r_sh, head_z + cyl_h))
+  }
+  pts.push((big_r, length))
+  pts.push((0.0, length))
+  let body = @cad.RevolvedProfile::polyline(pts)
+  let z_floor = k - t
+  let socket = @cad.SocketedSolid::new(body, s, length - t)
+  let mut component = base.add_layer(
+    socket.as_shape(),
+    name="body",
+    color=metal,
   )
+  if threaded {
+    match
+      external_thread_ridge(
+        thread,
+        thread_length,
+        segments_per_turn=policy.segments_per_turn,
+      ) {
+      Some(shape) =>
+        component = component.add_layer(
+          shape,
+          name="helical-thread",
+          color=@cad.Rgb::cyan(),
+        )
+      None => ()
+    }
+  }
+  let _ = z_floor
+  let _ = segments
+  component
 }
 
 ///|
@@ -179,6 +159,7 @@ fn button_screw(
   }
   let dims = spec.size_dims
   let thread = dims.thread
+  let d = thread.nominal_diameter_mm
   let length = spec.length_mm
   let big_r = dims.head_diameter_mm / 2.0
   let k = dims.head_height_mm
@@ -195,93 +176,79 @@ fn button_screw(
     dims.head_diameter_mm,
     segments,
   )
-  let mut component = @common.Component::new(
+  let base = @common.Component::new(
     name~,
     metadata=spec.metadata(),
-    description="Button head with a spherical-cap dome, flat top, and hexagon socket. The dome shell and circular socket bore are analytic surfaces of revolution; six planar flats form the hex socket." +
+    description="Single closed solid: a solid of revolution (shank, head underside, spherical-cap dome, flat top) with a blind hexagonal socket cut into the flat top; six planar socket walls and a planar hexagonal floor bound the pocket." +
       thread_note(thread_rep),
     features~,
-  )
-  component = add_plain_or_threaded_shank(
-    component, thread, length, thread_rep, policy, metal,
   )
   // Spherical cap through (big_r, 0) and (r_top, k), centred on the axis.
   let r_top = button_flat_radius(big_r, s)
   let c = (k * k + r_top * r_top - big_r * big_r) / (2.0 * k)
-  let rho = Double::sqrt(big_r * big_r + c * c)
-  let z_floor = k - t
-  let r_of = fn(z : Double) -> Double {
-    let v = rho * rho - (z - c) * (z - c)
-    if v <= 0.0 {
-      0.0
+  let tip = if policy.include_small_features {
+    let raw = shank_tip_chamfer_mm(d)
+    if raw < length / 4.0 {
+      raw
     } else {
-      Double::sqrt(v)
+      length / 4.0
     }
-  }
-  let r_f = r_of(z_floor)
-  // Head floor: base disc, dome arc to the socket floor, flat socket floor.
-  let floor = @cad.RevolvedProfile::new([
-    @cad.RevLine((0.0, 0.0), (big_r, 0.0)),
-    @cad.RevArc((big_r, 0.0), (r_f, z_floor), (0.0, c)),
-    @cad.RevLine((r_f, z_floor), (0.0, z_floor)),
-  ])
-  component = component.add_layer(
-    floor.as_shape(),
-    name="head-floor",
-    color=metal,
-    placement=@common.Placement::translation(0.0, 0.0, length),
-  )
-  // Socket band: an analytic spherical shell (the upper dome) with a circular
-  // socket bore, plus a buried hexagon ring that forms the six socket flats.
-  // The dome is therefore a real SPHERICAL_SURFACE, never a facet stack.
-  let _ = segments
-  let _ = r_of
-  let socket_radius = s / Double::sqrt(3.0)
-  let lead = if policy.include_small_features {
-    socket_lead_in_chamfer_mm(s, t)
   } else {
     0.0
   }
-  let shell_segs : Array[@cad.RevSegment] = [
-    @cad.RevArc((r_f, z_floor), (r_top, k), (0.0, c)),
-  ]
-  if lead > 0.0 {
-    shell_segs.push(@cad.RevLine((r_top, k), (socket_radius + lead, k)))
-    shell_segs.push(
-      @cad.RevLine((socket_radius + lead, k), (socket_radius, k - lead)),
-    )
-    shell_segs.push(
-      @cad.RevLine((socket_radius, k - lead), (socket_radius, z_floor)),
-    )
+  let threaded = thread_rep is @common.ThreadRepresentation::Helical
+  let thread_length = length
+  let core_d = if threaded { thread.external_minor_diameter_mm() } else { d }
+  let core_r = core_d / 2.0
+  let pts : Array[@cad.Vec2] = [(0.0, 0.0)]
+  if tip > 0.0 && tip < core_r {
+    pts.push((core_r - tip, 0.0))
+    pts.push((core_r, tip))
   } else {
-    shell_segs.push(@cad.RevLine((r_top, k), (socket_radius, k)))
-    shell_segs.push(@cad.RevLine((socket_radius, k), (socket_radius, z_floor)))
+    pts.push((core_r, 0.0))
   }
-  shell_segs.push(@cad.RevLine((socket_radius, z_floor), (r_f, z_floor)))
-  let shell = @cad.RevolvedProfile::new(shell_segs).as_shape()
-  component = component.add_layer(
-    shell,
-    name="head-shell",
-    color=metal,
-    placement=@common.Placement::translation(0.0, 0.0, length),
-  )
-  let outer_radius = if r_top - 0.1 > socket_radius {
-    let cap = r_top - 0.1
-    let target = socket_radius + 0.35 * s
-    if target < cap {
-      target
-    } else {
-      cap
+  if threaded {
+    pts.push((core_r, length))
+    if core_r < big_r - 1.0e-9 {
+      pts.push((big_r, length))
     }
   } else {
-    socket_radius + 0.02
+    pts.push((big_r, length))
   }
-  component.add_layer(
-    hex_socket_ring(s, t, outer_radius, lead),
-    name="head-socket",
-    color=@cad.Rgb::orange(),
-    placement=@common.Placement::translation(0.0, 0.0, length + z_floor),
+  let segs : Array[@cad.RevSegment] = []
+  for i in 0..<(pts.length() - 1) {
+    segs.push(@cad.RevLine(pts[i], pts[i + 1]))
+  }
+  segs.push(
+    @cad.RevArc((big_r, length), (r_top, length + k), (0.0, length + c)),
   )
+  segs.push(@cad.RevLine((r_top, length + k), (0.0, length + k)))
+  let body = @cad.RevolvedProfile::new(segs)
+  let z_floor = k - t
+  let socket = @cad.SocketedSolid::new(body, s, length + z_floor)
+  let mut component = base.add_layer(
+    socket.as_shape(),
+    name="body",
+    color=metal,
+  )
+  if threaded {
+    match
+      external_thread_ridge(
+        thread,
+        thread_length,
+        segments_per_turn=policy.segments_per_turn,
+      ) {
+      Some(shape) =>
+        component = component.add_layer(
+          shape,
+          name="helical-thread",
+          color=@cad.Rgb::cyan(),
+        )
+      None => ()
+    }
+  }
+  let _ = segments
+  component
 }
 
 ///|
@@ -314,8 +281,7 @@ fn headed_feature_record(
   let _ = segments
   let base = @common.FeatureRecord::new(
     modeled=[
-      "blind-hex-socket", "head-outer-surface-of-revolution", "socket-bore-cylinder",
-      head_feature,
+      "blind-hex-socket", "hex-socket-flats", "socket-floor-plane", head_feature,
     ],
     approximated=[],
     omitted=[
@@ -323,30 +289,20 @@ fn headed_feature_record(
         feature="under-head-radius",
         reason="no verified standard value; a typed omission rather than a guessed fillet",
       ),
+      @common.Omission::new(
+        feature="socket-lead-in-cone",
+        reason="the golden rim is a conical countersink; a true trimmed cone needs hyperbola-bounded cone faces, and a ruled hex flare would misstate the shape, so the rim is sharp",
+      ),
+      @common.Omission::new(
+        feature="socket-floor-cone",
+        reason="the golden socket bottom is a shallow conical drill point; this builder emits a flat floor rather than an unverified cone",
+      ),
     ],
   )
   let with_chamfers = if policy.include_small_features {
-    base
-    .add_modeled("socket-lead-in-chamfer")
-    .add_modeled("socket-lead-in-cone")
-    .add_modeled("shank-tip-chamfer")
-    .add_approximated(
-      @common.Approximation::new(
-        feature="socket-lead-in-hex-facets",
-        kind=@common.ApproximationKind::EngineeringDefault,
-        deviation_mm=0.0,
-        control="the circular bore lead-in is an analytic cone; on the six hex flats it is a ruled taper",
-      ),
-    )
+    base.add_modeled("shank-tip-chamfer")
   } else {
-    base
-    .add_omitted(
-      @common.Omission::new(
-        feature="socket-lead-in-chamfer",
-        reason="omitted at Simplified detail level",
-      ),
-    )
-    .add_omitted(
+    base.add_omitted(
       @common.Omission::new(
         feature="shank-tip-chamfer",
         reason="omitted at Simplified detail level",
@@ -359,60 +315,4 @@ fn headed_feature_record(
     policy,
     thread.pitch_diameter_mm() / 2.0,
   )
-}
-
-///|
-/// add_plain_or_threaded_shank adds the shank layers shared by the new head
-/// families. At Detailed and above the tip carries a 45-degree engineering
-/// chamfer (a real ruled cone ring stack).
-fn add_plain_or_threaded_shank(
-  base : @common.Component,
-  thread : @standards.ThreadSpec,
-  length : Double,
-  thread_rep : @common.ThreadRepresentation,
-  policy : @common.DetailPolicy,
-  metal : @cad.Rgb,
-) -> @common.Component {
-  let d = thread.nominal_diameter_mm
-  let segments = clamp_segments(policy.circle_segments)
-  let tip = if policy.include_small_features {
-    let raw = shank_tip_chamfer_mm(d)
-    if raw < length / 4.0 {
-      raw
-    } else {
-      length / 4.0
-    }
-  } else {
-    0.0
-  }
-  if thread_rep is @common.ThreadRepresentation::Helical {
-    let d3 = thread.external_minor_diameter_mm()
-    match
-      external_thread_ridge(
-        thread,
-        length,
-        segments_per_turn=policy.segments_per_turn,
-      ) {
-      Some(shape) => {
-        let core = base.add_layer(
-          tip_chamfered_cylinder(d3, length, tip, segments~),
-          name="thread-core",
-          color=metal,
-        )
-        core.add_layer(shape, name="helical-thread", color=@cad.Rgb::cyan())
-      }
-      None =>
-        base.add_layer(
-          tip_chamfered_cylinder(d, length, tip, segments~),
-          name="shank",
-          color=metal,
-        )
-    }
-  } else {
-    base.add_layer(
-      tip_chamfered_cylinder(d, length, tip, segments~),
-      name="shank",
-      color=metal,
-    )
-  }
 }

@@ -639,6 +639,58 @@ fn an_prism_section(
 }
 
 ///|
+/// socketed_pocket_across_flats returns the socket width across flats at `z`,
+/// including the linear lead-in flare near the mouth.
+fn socketed_pocket_across_flats(g : SocketGeometry, z : Double) -> Double {
+  let span = g.top_z - g.mid_z
+  let t = if span > 1.0e-12 {
+    socket_clamp01((z - g.mid_z) / span)
+  } else {
+    0.0
+  }
+  g.across_flats + 2.0 * g.lead * t
+}
+
+///|
+/// an_socketed_section returns the exact section of a socketed solid at local
+/// `z`. Inside the socket the section is the body section minus the hexagonal
+/// pocket; the reported inner radius is the hexagon's inradius and the area and
+/// perimeter are exact.
+fn an_socketed_section(
+  s : SocketedSolid,
+  z : Double,
+) -> Result[Section, AnalysisError] {
+  let g = match socketed_geometry(s) {
+    Some(v) => v
+    None => return Err(DegenerateProfile)
+  }
+  let base = match s.body.section_at(z) {
+    Ok(v) => v
+    Err(e) => return Err(e)
+  }
+  if z < g.floor_z - 1.0e-9 || z > g.top_z + 1.0e-9 {
+    return Ok(base)
+  }
+  let af_z = socketed_pocket_across_flats(g, z)
+  let pocket_area = Double::sqrt(3.0) / 2.0 * af_z * af_z
+  let pocket_perimeter = 2.0 * Double::sqrt(3.0) * af_z
+  let area = base.area_mm2 - pocket_area
+  if area <= 1.0e-12 {
+    return Err(EmptySection)
+  }
+  Ok({
+    z_mm: z,
+    area_mm2: area,
+    perimeter_mm: base.perimeter_mm + pocket_perimeter,
+    outer_radius_mm: base.outer_radius_mm,
+    inner_radius_mm: af_z / 2.0,
+    rings: [
+      { inner_radius_mm: af_z / 2.0, outer_radius_mm: base.outer_radius_mm, },
+    ],
+  })
+}
+
+///|
 /// an_prism_breakpoints returns every axial breakpoint of the outer ring stack
 /// and the hole ring stack. Integrating across these sub-bands keeps the net
 /// area piecewise quadratic, so Simpson's rule is exact even when the hole has
@@ -1172,6 +1224,7 @@ fn an_shape_inventory(shape : Shape) -> SurfaceInventory {
       an_inventory(p, cy, co, sp, to, 0, 0, 0)
     }
     ChamferedPrism(p) => an_prism_inventory(p)
+    SocketedSolid(s) => an_socketed_inventory(s)
     CalibrationChamferBlock(b) => {
       let rings = an_calib_rings(b)
       let n = rings.length()
@@ -1250,6 +1303,29 @@ fn an_prism_inventory(p : ChamferedPrism) -> SurfaceInventory {
 }
 
 ///|
+/// an_socketed_inventory mirrors the `compile_socketed_solid` face emission: the
+/// body's analytic revolve faces minus its flat top cap, plus the annular top
+/// face, six socket walls, the optional six ruled lead-in faces, and the floor.
+fn an_socketed_inventory(s : SocketedSolid) -> SurfaceInventory {
+  let g = match socketed_geometry(s) {
+    Some(v) => v
+    None => return an_inventory(0, 0, 0, 0, 0, 0, 0, 0)
+  }
+  let base = an_shape_inventory(Shape::RevolvedProfile(s.body))
+  let lead_faces = if g.lead > 1.0e-12 { 6 } else { 0 }
+  an_inventory(
+    base.plane - 1 + 8 + lead_faces,
+    base.cylinder,
+    base.cone,
+    base.sphere,
+    base.torus,
+    base.bspline,
+    base.swept,
+    base.other,
+  )
+}
+
+///|
 /// Shape::surface_inventory returns the analytic face counts the compiler
 /// emits for this shape.
 pub fn Shape::surface_inventory(self : Shape) -> SurfaceInventory {
@@ -1274,6 +1350,14 @@ pub fn Shape::analysis_volume(self : Shape) -> Result[Double, AnalysisError] {
     }
     ChamferedPrism(p) => {
       let (volume, _c) = an_prism_volume_centroid(p)
+      if volume <= 0.0 {
+        Err(DegenerateProfile)
+      } else {
+        Ok(volume)
+      }
+    }
+    SocketedSolid(s) => {
+      let volume = s.volume()
       if volume <= 0.0 {
         Err(DegenerateProfile)
       } else {
@@ -1331,6 +1415,7 @@ pub fn Shape::analysis_centroid(self : Shape) -> Result[Vec3, AnalysisError] {
       let (_volume, c) = an_prism_volume_centroid(p)
       Ok(c)
     }
+    SocketedSolid(s) => Ok(s.centroid())
     CalibrationChamferBlock(b) => {
       let (_volume, c) = an_calib_volume_centroid(b)
       Ok(c)
@@ -1404,6 +1489,7 @@ pub fn Shape::section_at_local(
     Cylinder(c) => Cylinder::section_at(c, z)
     RevolvedProfile(rev) => rev.section_at(z)
     ChamferedPrism(p) => p.section_at(z)
+    SocketedSolid(s) => an_socketed_section(s, z)
     CalibrationChamferBlock(b) => an_calib_section(b, z)
     ExtrudedProfile(e) => e.section_at(z)
     ExtrudedBezierProfile(_) =>
@@ -1619,6 +1705,7 @@ pub fn Shape::analysis_mesh(
       Ok((verts, faces))
     }
     RevolvedProfile(rev) => Ok(rev_mesh(rev))
+    SocketedSolid(s) => Ok(socketed_solid_mesh(s))
     ChamferedPrism(p) => Ok(chamfered_prism_mesh(p))
     ExtrudedProfile(e) =>
       if e.height_mm <= 0.0 || e.profile.outer.length() < 3 {

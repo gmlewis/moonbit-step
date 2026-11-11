@@ -29,6 +29,8 @@ pub fn compile_extruded_profile(StepContext, SceneNode, ExtrudedProfile, reverse
 
 pub fn compile_revolved_profile(StepContext, SceneNode, RevolvedProfile, reverse? : Bool, parent? : Transform?) -> Array[@step.Ref]
 
+pub fn compile_socketed_solid(StepContext, SceneNode, SocketedSolid, reverse? : Bool, parent? : Transform?) -> Array[@step.Ref]
+
 pub fn csg_eval_script_path(String?) -> String
 
 pub fn cut_on_face(SceneNode, Profile2D, FaceInfo, Double, name? : String, overshoot? : Double, center? : (Double, Double), color? : Rgb) -> SceneNode
@@ -74,6 +76,8 @@ pub fn rev_profile_polyline(RevolvedProfile, arc_segments? : Int32) -> Array[(Do
 pub fn rotate_point((Double, Double, Double), Double, Double, Double) -> (Double, Double, Double)
 
 pub fn snap_double(Double, Double?) -> Double
+
+pub fn socketed_solid_mesh(SocketedSolid, angular_segments? : Int32, arc_segments? : Int32) -> (Array[(Double, Double, Double)], Array[Array[Int32]])
 
 pub fn text_at(String, Double, Double, Double, font~ : @fonts.Font, font_size? : Double, max_width? : Double, emboss_depth? : Double, rx? : Double, ry? : Double, rz? : Double, segments? : Int32) -> Array[SceneNode]
 
@@ -488,6 +492,7 @@ pub enum Shape {
   Cylinder(Cylinder)
   RevolvedProfile(RevolvedProfile)
   ChamferedPrism(ChamferedPrism)
+  SocketedSolid(SocketedSolid)
   CalibrationChamferBlock(CalibrationChamferBlock)
   ExtrudedProfile(ExtrudedProfile)
   ExtrudedBezierProfile(ExtrudedBezierProfile)
@@ -506,6 +511,31 @@ pub fn Shape::section_at_world_z(Self, Matrix3x3, (Double, Double, Double), Doub
 pub fn Shape::surface_inventory(Self) -> SurfaceInventory
 pub fn Shape::with_color(Self, Rgb) -> SceneNode
 pub fn Shape::with_name(Self, String) -> SceneNode
+
+pub(all) struct SocketGeometry {
+  top_z : Double
+  top_radius : Double
+  nominal_radius : Double
+  top_hex_radius : Double
+  mid_z : Double
+  floor_z : Double
+  lead : Double
+  across_flats : Double
+  rotation_deg : Double
+}
+
+pub struct SocketedSolid {
+  body : RevolvedProfile
+  across_flats_mm : Double
+  socket_floor_z_mm : Double
+  lead_in_mm : Double
+  rotation_deg : Double
+}
+pub fn SocketedSolid::as_shape(Self) -> Shape
+pub fn SocketedSolid::body_segments(Self) -> Array[RevSegment]
+pub fn SocketedSolid::centroid(Self) -> (Double, Double, Double)
+pub fn SocketedSolid::new(RevolvedProfile, Double, Double, lead_in_mm? : Double, rotation_deg? : Double) -> Self
+pub fn SocketedSolid::volume(Self) -> Double
 
 pub struct StepContext {
   mut repo : @repository.Repository

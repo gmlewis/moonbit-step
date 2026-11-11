@@ -469,6 +469,7 @@ fn shape_kind(shape : @cad.Shape) -> String {
     Cylinder(_) => "cylinder"
     RevolvedProfile(_) => "revolved-profile"
     ChamferedPrism(_) => "chamfered-prism"
+    SocketedSolid(_) => "socketed-solid"
     CalibrationChamferBlock(_) => "calibration-chamfer-block"
     ExtrudedProfile(_) => "extruded-profile"
     ExtrudedBezierProfile(_) => "extruded-bezier-profile"

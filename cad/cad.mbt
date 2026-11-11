@@ -370,6 +370,7 @@ fn compile_node_shape(
       compile_revolved_profile(ctx, node, r, reverse~, parent~)
     ChamferedPrism(p) =>
       compile_chamfered_prism(ctx, node, p, reverse~, parent~)
+    SocketedSolid(s) => compile_socketed_solid(ctx, node, s, reverse~, parent~)
     CalibrationChamferBlock(b) =>
       compile_calibration_chamfer_block(ctx, node, b, reverse~, parent~)
     ExtrudedProfile(e) =>

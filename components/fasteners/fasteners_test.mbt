@@ -56,40 +56,38 @@ test "m4x20 simplified screw bounding box and metadata" {
 }
 
 ///|
-test "simplified screw has no thread layer but has a blind socket" {
+test "simplified screw is one socketed solid with a blind socket and no thread" {
   let screw = unwrap_screw(@standards.M4, 20.0, Simplified)
   let names = layer_names(screw)
-  assert_true(names.any(fn(n) { n == "ISO4762-M4-20/shank" }))
-  assert_true(names.any(fn(n) { n == "ISO4762-M4-20/head-shell" }))
-  assert_true(names.any(fn(n) { n == "ISO4762-M4-20/head-socket" }))
   assert_false(names.any(fn(n) { n.contains("thread") }))
+  assert_true(names.length() == 1)
+  match layer_shape(screw, "ISO4762-M4-20/body") {
+    Some(@cad.Shape::SocketedSolid(_)) => ()
+    _ => abort("simplified screw should be one socketed solid")
+  }
 }
 
 ///|
-test "fully modeled screw adds a swept helical thread" {
+test "fully modeled screw adds a swept helical thread to one core solid" {
   let screw = unwrap_screw(@standards.M4, 20.0, FullyModeled)
   let names = layer_names(screw)
-  assert_true(names.any(fn(n) { n == "ISO4762-M4-20/plain-shank" }))
-  assert_true(names.any(fn(n) { n == "ISO4762-M4-20/thread-core" }))
+  assert_true(names.any(fn(n) { n == "ISO4762-M4-20/body" }))
   assert_true(names.any(fn(n) { n == "ISO4762-M4-20/helical-thread" }))
-  // The swept-thread bounding box is deliberately conservative, so inspect
-  // the exact analytic core and head layers rather than the whole component.
-  let core = match layer_shape(screw, "ISO4762-M4-20/thread-core") {
+  // The core and head are one closed solid; only the swept ridge is layered on
+  // top of it. Its bounding box covers the whole part.
+  let body = match layer_shape(screw, "ISO4762-M4-20/body") {
     Some(shape) => shape
-    None => abort("missing thread core")
+    None => abort("missing body")
   }
-  let (cx0, cx1, _cy0, _cy1, cz0, cz1) = core.bounding_box()
-  assert_true(cx1 <= 1.6)
-  assert_true(cx0 >= -1.6)
-  assert_true(close(cz0, 0.0))
-  assert_true(close(cz1, 14.0))
-  let head = match layer_shape(screw, "ISO4762-M4-20/head-shell") {
-    Some(shape) => shape
-    None => abort("missing head floor")
+  match body {
+    @cad.Shape::SocketedSolid(_) => ()
+    _ => abort("core and head should be one socketed solid")
   }
-  let (hx0, hx1, _hy0, _hy1, _hz0, _hz1) = head.bounding_box()
+  let (hx0, hx1, _hy0, _hy1, hz0, hz1) = body.bounding_box()
   assert_true(close(hx0, -3.5))
   assert_true(close(hx1, 3.5))
+  assert_true(close(hz0, 0.0))
+  assert_true(close(hz1, 24.0))
 }
 
 ///|
@@ -325,8 +323,11 @@ test "iso7380 M4x16 detailed button head dimensions and layers" {
   assert_true(close(z1, 18.2))
   assert_true(screw.metadata().standard == "ISO 7380-1:2022")
   let names = layer_names(screw)
-  assert_true(names.any(fn(n) { n.contains("head-floor") }))
-  assert_true(names.any(fn(n) { n.contains("head-socket") }))
+  assert_true(names.length() == 1)
+  match layer_shape(screw, "ISO7380-M4-16/body") {
+    Some(@cad.Shape::SocketedSolid(_)) => ()
+    _ => abort("button head should be one socketed solid")
+  }
 }
 
 ///|
@@ -344,16 +345,11 @@ test "iso10642 M4x16 detailed countersunk head dimensions and layers" {
   // extent equals the nominal length (16 mm), not length + head height.
   assert_true(close(z1, 16.0))
   assert_true(screw.metadata().standard == "ISO 10642:2004")
-  // The socket band is a real hex through-hole over an analytic head floor.
-  let floor = layer_shape(screw, "ISO10642-M4-16/head-floor")
-  match floor {
-    Some(@cad.Shape::RevolvedProfile(_)) => ()
-    _ => abort("expected a revolved head floor")
-  }
-  let socket = layer_shape(screw, "ISO10642-M4-16/head-socket")
-  match socket {
-    Some(@cad.Shape::ChamferedPrism(_)) => ()
-    _ => abort("expected a chamfered-prism socket band")
+  // One closed solid carries the countersink cone and the blind hex socket.
+  assert_true(layer_names(screw).length() == 1)
+  match layer_shape(screw, "ISO10642-M4-16/body") {
+    Some(@cad.Shape::SocketedSolid(_)) => ()
+    _ => abort("countersunk head should be one socketed solid")
   }
 }
 
@@ -404,58 +400,84 @@ test "detailed socket screw models the head chamfer" {
   let features = screw.features()
   assert_true(features.has_modeled("head-chamfer"))
   assert_true(features.has_modeled("blind-hex-socket"))
-  assert_true(features.omission_reason("thread") is Some(_))
-  // The socket lead-in and the tip chamfer are now real geometry at Detailed.
-  assert_true(features.has_modeled("socket-lead-in-chamfer"))
   assert_true(features.has_modeled("shank-tip-chamfer"))
-  // The under-head radius is still a typed omission because no verified value
-  // exists.
+  assert_true(features.omission_reason("thread") is Some(_))
+  // The socket rim and floor are typed omissions: the golden's rim is a
+  // conical countersink and its floor a conical drill point, neither of which
+  // can be emitted soundly without hyperbola-bounded cone faces.
+  assert_true(features.has_omitted("socket-lead-in-cone"))
+  assert_true(features.has_omitted("socket-floor-cone"))
   assert_true(features.has_omitted("under-head-radius"))
 }
 
 ///|
-test "detailed screw tip is a real chamfered solid, simplified is a cylinder" {
+test "detailed screw is one solid with conical tip and head breaks" {
   let detailed = unwrap_screw(@standards.M4, 20.0, Detailed)
-  let detailed_shank = match layer_shape(detailed, "ISO4762-M4-20/shank") {
+  let detailed_body = match layer_shape(detailed, "ISO4762-M4-20/body") {
     Some(shape) => shape
-    None => abort("missing detailed shank")
+    None => abort("missing detailed body")
   }
-  match detailed_shank {
-    @cad.Shape::RevolvedProfile(_) => ()
-    _ => abort("detailed shank should carry an analytic conical tip chamfer")
+  match detailed_body {
+    @cad.Shape::SocketedSolid(_) => ()
+    _ => abort("detailed screw should be one socketed solid")
   }
+  let inventory = detailed_body.surface_inventory()
+  assert_true(inventory.cone == 2)
+  assert_true(inventory.cylinder == 2)
   let simplified = unwrap_screw(@standards.M4, 20.0, Simplified)
-  let simplified_shank = match layer_shape(simplified, "ISO4762-M4-20/shank") {
+  let simplified_body = match layer_shape(simplified, "ISO4762-M4-20/body") {
     Some(shape) => shape
-    None => abort("missing simplified shank")
+    None => abort("missing simplified body")
   }
-  match simplified_shank {
-    @cad.Shape::Cylinder(_) => ()
-    _ => abort("simplified shank should be a plain cylinder")
-  }
+  let simple_inventory = simplified_body.surface_inventory()
+  assert_true(simple_inventory.cone == 0)
 }
 
 ///|
 test "ISO 4762 thread length is measured from the tip" {
   // M4 x 20: b = 2d + 6 = 14 mm, so the thread occupies z = 0 .. 14 and the
-  // plain shank is under the head (z = 14 .. 20). A previous build reversed
-  // this, leaving the nut of a bolted joint on an unthreaded tip.
+  // plain shank is under the head (z = 14 .. 20). The single body profile
+  // records that split as an annular step at z = 14.
   let screw = unwrap_screw(@standards.M4, 20.0, FullyModeled)
-  assert_true(close(layer_z(screw, "ISO4762-M4-20/thread-core"), 0.0))
-  assert_true(close(layer_z(screw, "ISO4762-M4-20/plain-shank"), 14.0))
+  let body = match layer_shape(screw, "ISO4762-M4-20/body") {
+    Some(@cad.Shape::SocketedSolid(s)) => s
+    _ => abort("missing socketed body")
+  }
+  let mut step_at_14 = false
+  for seg in body.body_segments() {
+    match seg {
+      @cad.RevSegment::RevLine(a, b) =>
+        if close(a.1, 14.0) && close(b.1, 14.0) && (a.0 - b.0).abs() > 0.1 {
+          step_at_14 = true
+        }
+      @cad.RevSegment::RevArc(_, _, _) => ()
+    }
+  }
+  assert_true(step_at_14)
+  assert_true(close(layer_z(screw, "ISO4762-M4-20/helical-thread"), 0.0))
 }
 
 ///|
 test "ISO 4762 fully modeled core carries a tip chamfer" {
   let screw = unwrap_screw(@standards.M4, 20.0, FullyModeled)
-  let core = match layer_shape(screw, "ISO4762-M4-20/thread-core") {
-    Some(shape) => shape
-    None => abort("missing thread core")
+  let body = match layer_shape(screw, "ISO4762-M4-20/body") {
+    Some(@cad.Shape::SocketedSolid(s)) => s
+    _ => abort("missing socketed body")
   }
-  match core {
-    @cad.Shape::RevolvedProfile(_) => ()
-    _ => abort("fully modeled thread core should carry an analytic tip chamfer")
+  let mut tip_cone = false
+  for seg in body.body_segments() {
+    match seg {
+      @cad.RevSegment::RevLine(a, b) =>
+        if a.1 < 1.0 &&
+          b.1 < 1.0 &&
+          (a.0 - b.0).abs() > 1.0e-6 &&
+          (a.1 - b.1).abs() > 1.0e-6 {
+          tip_cone = true
+        }
+      @cad.RevSegment::RevArc(_, _, _) => ()
+    }
   }
+  assert_true(tip_cone)
 }
 
 ///|
@@ -618,7 +640,8 @@ test "M2-M5 detailed and full detail records the required features" {
     let screw_detailed = unwrap_screw(size, length, Detailed)
     let screw_features = screw_detailed.features()
     assert_true(screw_features.has_modeled("head-chamfer"))
-    assert_true(screw_features.has_modeled("socket-lead-in-chamfer"))
+    assert_true(screw_features.has_modeled("socket-floor-plane"))
+    assert_true(screw_features.has_omitted("socket-lead-in-cone"))
     assert_true(screw_features.has_modeled("shank-tip-chamfer"))
     assert_true(screw_features.has_omitted("under-head-radius"))
     let screw_full = unwrap_screw(size, length, FullyModeled)
@@ -671,14 +694,16 @@ test "M2-M5 detailed and full detail records the required features" {
       Ok(c) => c
       Err(e) => abort(e.message())
     }
-    assert_true(button.features().has_modeled("socket-lead-in-chamfer"))
+    assert_true(button.features().has_modeled("socket-floor-plane"))
+    assert_true(button.features().has_omitted("socket-lead-in-cone"))
     assert_true(button.features().has_modeled("shank-tip-chamfer"))
     let countersunk = match
       @fasteners.iso10642_screw(size, length, detail=Detailed) {
       Ok(c) => c
       Err(e) => abort(e.message())
     }
-    assert_true(countersunk.features().has_modeled("socket-lead-in-chamfer"))
+    assert_true(countersunk.features().has_modeled("socket-floor-plane"))
+    assert_true(countersunk.features().has_omitted("socket-lead-in-cone"))
     assert_true(countersunk.features().has_modeled("shank-tip-chamfer"))
   }
 }
@@ -695,25 +720,22 @@ test "M2-M5 tip chamfer is real geometry at Detailed and absent at Simplified" {
     ] {
     let length = size.nominal_diameter_mm() * 4.0
     let detailed = unwrap_screw(size, length, Detailed)
-    let detailed_shank = match
-      layer_shape(detailed, detailed.name() + "/shank") {
+    let detailed_body = match layer_shape(detailed, detailed.name() + "/body") {
       Some(shape) => shape
-      None => abort("missing detailed shank")
+      None => abort("missing detailed body")
     }
-    match detailed_shank {
-      @cad.Shape::RevolvedProfile(_) => ()
-      _ => abort("detailed " + size.designation() + " shank is not chamfered")
+    match detailed_body {
+      @cad.Shape::SocketedSolid(_) => ()
+      _ => abort("detailed " + size.designation() + " is not one solid")
     }
+    assert_true(detailed_body.surface_inventory().cone >= 1)
     let simplified = unwrap_screw(size, length, Simplified)
-    let simplified_shank = match
-      layer_shape(simplified, simplified.name() + "/shank") {
+    let simplified_body = match
+      layer_shape(simplified, simplified.name() + "/body") {
       Some(shape) => shape
-      None => abort("missing simplified shank")
+      None => abort("missing simplified body")
     }
-    match simplified_shank {
-      @cad.Shape::Cylinder(_) => ()
-      _ => abort("simplified " + size.designation() + " shank is not plain")
-    }
+    assert_true(simplified_body.surface_inventory().cone == 0)
   }
 }
 

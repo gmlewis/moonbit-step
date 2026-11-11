@@ -190,11 +190,36 @@ pub(all) struct EdgeFeature {
 }
 
 ///|
+/// SocketedSolid is a solid of revolution with a blind vertical hexagonal
+/// pocket cut into its flat top face.
+///
+/// `body` is a closed `RevolvedProfile` whose final segment is the radial flat
+/// top cap from `(top_radius, top_z)` to `(0, top_z)`. The compiler suppresses
+/// that cap and replaces it with a true single-shell pocket boundary: an
+/// annular planar top face, six planar socket walls, an optional ruled 45-degree
+/// lead-in, and a planar hexagonal floor. The result is one closed solid, not a
+/// stack of layered bodies, and every surface stays analytic (no polygon
+/// substitutes for the body's cylinders, cones, spheres, or tori).
+///
+/// The socket mouth lies on the body's flat top, so `top_radius` must exceed the
+/// socket circumradius. `lead_in_mm` is a parallel 45-degree break on the six
+/// socket flats; it is a ruled approximation of the conical rim and is recorded
+/// as such by the caller.
+pub struct SocketedSolid {
+  body : RevolvedProfile
+  across_flats_mm : Double
+  socket_floor_z_mm : Double
+  lead_in_mm : Double
+  rotation_deg : Double
+}
+
+///|
 pub enum Shape {
   Cuboid(Cuboid)
   Cylinder(Cylinder)
   RevolvedProfile(RevolvedProfile)
   ChamferedPrism(ChamferedPrism)
+  SocketedSolid(SocketedSolid)
   CalibrationChamferBlock(CalibrationChamferBlock)
   ExtrudedProfile(ExtrudedProfile)
   ExtrudedBezierProfile(ExtrudedBezierProfile)
@@ -357,6 +382,7 @@ pub fn Shape::bounding_box(
       }
       (x0, x1, y0, y1, z0, z1)
     }
+    SocketedSolid(s) => Shape::RevolvedProfile(s.body).bounding_box()
     CalibrationChamferBlock(b) =>
       (0.0, b.length_mm, 0.0, b.width_mm, 0.0, b.height_mm)
     ExtrudedProfile(e) => {
