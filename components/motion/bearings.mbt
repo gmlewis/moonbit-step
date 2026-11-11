@@ -230,6 +230,145 @@ pub fn bearing(
 }
 
 ///|
+/// shielded_bearing builds a single-solid shielded bearing envelope.
+///
+/// The cross-section is a thin-walled annulus with a recessed 45-degree groove
+/// on each face. The groove is the shield seat: the model has no rolling
+/// elements, no cage, and no separate shield plate; the groove floor is the
+/// shield face. The solid is centred on z = 0, matching the common catalogue
+/// reference frame.
+///
+/// The defaults reproduce the downloaded 608-ZZ envelope: shield depth
+/// `width / 28`, outer-ring thickness `2/7 * (outer - bore) / 2`, and
+/// inner-ring thickness `11/28 * (outer - bore) / 2`. The optional arguments
+/// override them. The result is one `RevolvedProfile` solid with two
+/// cylinders, six 45-degree cones, and six planes.
+pub fn shielded_bearing(
+  size : BearingSize,
+  shield_depth_mm? : Double,
+  outer_ring_thickness_mm? : Double,
+  inner_ring_thickness_mm? : Double,
+  detail~ : @common.DetailLevel = Simplified,
+  color? : @cad.Rgb,
+) -> Result[@common.Component, @common.SpecError] {
+  let _ = detail
+  let d = size.bore_mm
+  let outer = size.outer_mm
+  let width = size.width_mm
+  let rb = d / 2.0
+  let ro = outer / 2.0
+  let space = (outer - d) / 2.0
+  let g = match shield_depth_mm {
+    Some(v) => v
+    None => width / 28.0
+  }
+  let outer_t = match outer_ring_thickness_mm {
+    Some(v) => v
+    None => 2.0 / 7.0 * space
+  }
+  let inner_t = match inner_ring_thickness_mm {
+    Some(v) => v
+    None => 11.0 / 28.0 * space
+  }
+  match @common.require_positive("shield depth", g) {
+    Err(e) => return Err(e)
+    Ok(_) => ()
+  }
+  match @common.require_positive("outer ring thickness", outer_t) {
+    Err(e) => return Err(e)
+    Ok(_) => ()
+  }
+  match @common.require_positive("inner ring thickness", inner_t) {
+    Err(e) => return Err(e)
+    Ok(_) => ()
+  }
+  let zf = width / 2.0
+  let zfl = zf - g
+  let r_inner_floor = rb + inner_t
+  let r_outer_floor = ro - outer_t
+  let r_inner_face = r_inner_floor - g
+  let r_outer_face = r_outer_floor + g
+  if zfl <= 0.0 ||
+    r_inner_face <= rb ||
+    r_outer_face >= ro - g ||
+    r_inner_face >= r_outer_floor {
+    return Err(
+      @common.InvalidDimension(
+        "shielded bearing dimensions do not fit the boundary envelope",
+      ),
+    )
+  }
+  let points : Array[@cad.Vec2] = [
+    (rb, -zf),
+    (r_inner_face, -zf),
+    (r_inner_floor, -zfl),
+    (r_outer_floor, -zfl),
+    (r_outer_face, -zf),
+    (ro - g, -zf),
+    (ro, -zfl),
+    (ro, zfl),
+    (ro - g, zf),
+    (r_outer_face, zf),
+    (r_outer_floor, zfl),
+    (r_inner_floor, zfl),
+    (r_inner_face, zf),
+    (rb, zf),
+  ]
+  let body = @cad.RevolvedProfile::polyline(points, closed=true).as_shape()
+  let name = "bearing-\{size.designation}-shielded"
+  let metal = match color {
+    Some(c) => c
+    // The reference's outer ring is light grey; a light body lets the recessed
+    // shield groove read as a darker ring under shading.
+    None => @cad.Rgb::new(0.75, 0.75, 0.75)
+  }
+  let features = shielded_bearing_feature_record()
+  Ok(
+    @common.Component::new(
+      name~,
+      metadata=@common.Metadata::new(
+        designation="Shielded bearing \{size.designation}",
+        standard="ISO 15 boundary dimensions; simplified shielded envelope",
+        family="shielded radial ball bearing (simplified envelope)",
+        size=size.designation,
+        source="Boundary dimensions from common ISO 15 / catalogue tables; the shield groove and ring proportions are parametric envelope geometry, not catalogue internals. See components/DATA_SOURCES.md.",
+      ),
+      description="Single-solid shielded bearing envelope: outer and inner rings joined by a recessed 45-degree shield groove on each face. No rolling elements, cage, or separate shield plate; the groove floor is the shield seat. Centred on z = 0.",
+      features~,
+    ).add_layer(body, name="body", color=metal),
+  )
+}
+
+///|
+/// shielded_bearing_feature_record builds the feature record for the
+/// single-solid shielded envelope.
+fn shielded_bearing_feature_record() -> @common.FeatureRecord {
+  @common.FeatureRecord::new(
+    modeled=[
+      "outer-ring", "inner-ring", "shield-groove", "single-solid-envelope",
+    ],
+    omitted=[
+      @common.Omission::new(
+        feature="rolling-elements",
+        reason="the shielded reference contains no balls; the shields close the bearing",
+      ),
+      @common.Omission::new(
+        feature="cage",
+        reason="rolling-element cages are not modelled",
+      ),
+      @common.Omission::new(
+        feature="separate-shield-plate",
+        reason="the shield is represented by the recessed face groove, not a separate plate",
+      ),
+      @common.Omission::new(
+        feature="shield-face-color",
+        reason="the shield face is a groove; the reference's black face colour is cosmetic and not part of the B-rep",
+      ),
+    ],
+  )
+}
+
+///|
 /// bearing_chamfer returns the engineering-default ring edge chamfer. Bearing
 /// catalogue drawings specify their own chamfers; this keeps the value small
 /// relative to the ring and width.

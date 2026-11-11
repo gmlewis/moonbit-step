@@ -1,0 +1,4762 @@
+{
+  "catalog": "step.parts",
+  "catalog_commit": "c6113328a5695b976a010a203a90fe86191769bf",
+  "api": "https://api.step.parts/v1",
+  "scope": "core",
+  "counts": {
+    "planned": 167,
+    "downloaded": 28,
+    "cached": 139,
+    "failed": 0,
+    "missing": 45
+  },
+  "missing": [
+    "iso7380: no catalog record for M2",
+    "iso7380: no catalog record for M2.5",
+    "iso10642: no catalog record for M2",
+    "iso10642: no catalog record for M2.5",
+    "din913: no catalog record for M2",
+    "din913: no catalog record for M2.5",
+    "din1587: no catalog record for M2",
+    "din1587: no catalog record for M2.5",
+    "din1587: no catalog record for M3",
+    "din557: no catalog record for M2",
+    "din557: no catalog record for M2.5",
+    "din557: no catalog record for M3",
+    "din557: no catalog record for M4",
+    "iso7092: no catalog record for M2",
+    "iso7090: no catalog record for M2",
+    "iso7090: no catalog record for M2.5",
+    "iso7090: no catalog record for M4",
+    "iso7090: no catalog record for M5",
+    "din125: no catalog record for M2",
+    "din125: no catalog record for M2.5",
+    "din125: no catalog record for M4",
+    "din125: no catalog record for M5",
+    "din127: no catalog record for M2",
+    "din127: no catalog record for M2.5",
+    "din127: no catalog record for M3",
+    "din7349: no catalog record for M2",
+    "din7349: no catalog record for M2.5",
+    "din93: no catalog record for M2",
+    "din93: no catalog record for M2.5",
+    "din93: no catalog record for M3",
+    "din93: no catalog record for M5",
+    "din440: no catalog record for M2",
+    "din440: no catalog record for M2.5",
+    "din440: no catalog record for M3",
+    "din440: no catalog record for M4",
+    "iso2338: no catalog record for D1",
+    "iso2338: no catalog record for D1.5",
+    "iso2338: no catalog record for D1.6",
+    "iso2338: no catalog record for D2.5",
+    "iso2338: no catalog record for D3.2",
+    "iso8752: no catalog record for D1",
+    "iso8752: no catalog record for D1.6",
+    "iso8752: no catalog record for D3.2",
+    "iso1234: no catalog record for D1.5",
+    "iso1234: no catalog record for D3"
+  ],
+  "items": [
+    {
+      "group": "iso4762",
+      "selection": "ISO 4762 socket head cap screws",
+      "id": "iso4762_socket_head_cap_screw_m2x3",
+      "name": "ISO 4762 hexagon socket head cap screw, M2 x 3",
+      "standard": {
+        "body": "ISO",
+        "number": "4762",
+        "designation": "ISO 4762"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "socket-head-cap-screw",
+      "size": "M2",
+      "length_mm": 3,
+      "attributes": {
+        "thread": "M2",
+        "lengthMm": 3,
+        "headStyle": "socket-head",
+        "driveStyle": "hex-socket",
+        "nominalSize": "M2 x 3"
+      },
+      "source_page": "https://www.step.parts/parts/iso4762_socket_head_cap_screw_m2x3",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso4762_socket_head_cap_screw_m2x3.step",
+      "filename": "iso4762_socket_head_cap_screw_m2x3.step",
+      "sha256": "ee641ddfe30ae2aeb881b0ac2bab1b9deab2dcfe88dfd9007e5d44b28774f36b",
+      "byte_size": 39368,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso4762",
+      "selection": "ISO 4762 socket head cap screws",
+      "id": "iso4762_socket_head_cap_screw_m2x5",
+      "name": "ISO 4762 hexagon socket head cap screw, M2 x 5",
+      "standard": {
+        "body": "ISO",
+        "number": "4762",
+        "designation": "ISO 4762"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "socket-head-cap-screw",
+      "size": "M2",
+      "length_mm": 5,
+      "attributes": {
+        "thread": "M2",
+        "lengthMm": 5,
+        "headStyle": "socket-head",
+        "driveStyle": "hex-socket",
+        "nominalSize": "M2 x 5"
+      },
+      "source_page": "https://www.step.parts/parts/iso4762_socket_head_cap_screw_m2x5",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso4762_socket_head_cap_screw_m2x5.step",
+      "filename": "iso4762_socket_head_cap_screw_m2x5.step",
+      "sha256": "cf0a8a09f91483ce4aac75ff07b633575b7de799ba25e5f2fe914ffdc73a16b6",
+      "byte_size": 39233,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso4762",
+      "selection": "ISO 4762 socket head cap screws",
+      "id": "iso4762_socket_head_cap_screw_m2x8",
+      "name": "ISO 4762 hexagon socket head cap screw, M2 x 8",
+      "standard": {
+        "body": "ISO",
+        "number": "4762",
+        "designation": "ISO 4762"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "socket-head-cap-screw",
+      "size": "M2",
+      "length_mm": 8,
+      "attributes": {
+        "thread": "M2",
+        "lengthMm": 8,
+        "headStyle": "socket-head",
+        "driveStyle": "hex-socket",
+        "nominalSize": "M2 x 8"
+      },
+      "source_page": "https://www.step.parts/parts/iso4762_socket_head_cap_screw_m2x8",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso4762_socket_head_cap_screw_m2x8.step",
+      "filename": "iso4762_socket_head_cap_screw_m2x8.step",
+      "sha256": "698ba4aa135cbcf3f25d4f38d340a7692346d0c98dc0eef74e7910a17fee93aa",
+      "byte_size": 39312,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso4762",
+      "selection": "ISO 4762 socket head cap screws",
+      "id": "iso4762_socket_head_cap_screw_m2x12",
+      "name": "ISO 4762 hexagon socket head cap screw, M2 x 12",
+      "standard": {
+        "body": "ISO",
+        "number": "4762",
+        "designation": "ISO 4762"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "socket-head-cap-screw",
+      "size": "M2",
+      "length_mm": 12,
+      "attributes": {
+        "thread": "M2",
+        "lengthMm": 12,
+        "headStyle": "socket-head",
+        "driveStyle": "hex-socket",
+        "nominalSize": "M2 x 12"
+      },
+      "source_page": "https://www.step.parts/parts/iso4762_socket_head_cap_screw_m2x12",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso4762_socket_head_cap_screw_m2x12.step",
+      "filename": "iso4762_socket_head_cap_screw_m2x12.step",
+      "sha256": "ea8142d13340831cc99eceed8a2f7959b9fe023df726bab4ae2a76603202bff2",
+      "byte_size": 39247,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso4762",
+      "selection": "ISO 4762 socket head cap screws",
+      "id": "iso4762_socket_head_cap_screw_m2p5x4",
+      "name": "ISO 4762 hexagon socket head cap screw, M2.5 x 4",
+      "standard": {
+        "body": "ISO",
+        "number": "4762",
+        "designation": "ISO 4762"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "socket-head-cap-screw",
+      "size": "M2.5",
+      "length_mm": 4,
+      "attributes": {
+        "thread": "M2.5",
+        "lengthMm": 4,
+        "headStyle": "socket-head",
+        "driveStyle": "hex-socket",
+        "nominalSize": "M2.5 x 4"
+      },
+      "source_page": "https://www.step.parts/parts/iso4762_socket_head_cap_screw_m2p5x4",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso4762_socket_head_cap_screw_m2p5x4.step",
+      "filename": "iso4762_socket_head_cap_screw_m2p5x4.step",
+      "sha256": "db7ab803c014b05541d06a0a52c3aad7fb3e23f7d403f8ab36e39597c12b69c4",
+      "byte_size": 39939,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso4762",
+      "selection": "ISO 4762 socket head cap screws",
+      "id": "iso4762_socket_head_cap_screw_m2p5x6",
+      "name": "ISO 4762 hexagon socket head cap screw, M2.5 x 6",
+      "standard": {
+        "body": "ISO",
+        "number": "4762",
+        "designation": "ISO 4762"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "socket-head-cap-screw",
+      "size": "M2.5",
+      "length_mm": 6,
+      "attributes": {
+        "thread": "M2.5",
+        "lengthMm": 6,
+        "headStyle": "socket-head",
+        "driveStyle": "hex-socket",
+        "nominalSize": "M2.5 x 6"
+      },
+      "source_page": "https://www.step.parts/parts/iso4762_socket_head_cap_screw_m2p5x6",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso4762_socket_head_cap_screw_m2p5x6.step",
+      "filename": "iso4762_socket_head_cap_screw_m2p5x6.step",
+      "sha256": "8bbbe650c53e903556aab7d9efdffc050798c36643a623164e6e83ef99c51a53",
+      "byte_size": 39553,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso4762",
+      "selection": "ISO 4762 socket head cap screws",
+      "id": "iso4762_socket_head_cap_screw_m2p5x10",
+      "name": "ISO 4762 hexagon socket head cap screw, M2.5 x 10",
+      "standard": {
+        "body": "ISO",
+        "number": "4762",
+        "designation": "ISO 4762"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "socket-head-cap-screw",
+      "size": "M2.5",
+      "length_mm": 10,
+      "attributes": {
+        "thread": "M2.5",
+        "lengthMm": 10,
+        "headStyle": "socket-head",
+        "driveStyle": "hex-socket",
+        "nominalSize": "M2.5 x 10"
+      },
+      "source_page": "https://www.step.parts/parts/iso4762_socket_head_cap_screw_m2p5x10",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso4762_socket_head_cap_screw_m2p5x10.step",
+      "filename": "iso4762_socket_head_cap_screw_m2p5x10.step",
+      "sha256": "1e70626722e894bb6f497b9dc9bf917129f4261d1259c55c14ab6460bf47a475",
+      "byte_size": 40084,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso4762",
+      "selection": "ISO 4762 socket head cap screws",
+      "id": "iso4762_socket_head_cap_screw_m2p5x16",
+      "name": "ISO 4762 hexagon socket head cap screw, M2.5 x 16",
+      "standard": {
+        "body": "ISO",
+        "number": "4762",
+        "designation": "ISO 4762"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "socket-head-cap-screw",
+      "size": "M2.5",
+      "length_mm": 16,
+      "attributes": {
+        "thread": "M2.5",
+        "lengthMm": 16,
+        "headStyle": "socket-head",
+        "driveStyle": "hex-socket",
+        "nominalSize": "M2.5 x 16"
+      },
+      "source_page": "https://www.step.parts/parts/iso4762_socket_head_cap_screw_m2p5x16",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso4762_socket_head_cap_screw_m2p5x16.step",
+      "filename": "iso4762_socket_head_cap_screw_m2p5x16.step",
+      "sha256": "41b3d79aec2c6f82e63d69672bfefe600f71ac9e246d4a2d9dfc17ddfcdacceb",
+      "byte_size": 39510,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso4762",
+      "selection": "ISO 4762 socket head cap screws",
+      "id": "socket_head_cap_screw_m3_l0005_simple",
+      "name": "ISO 4762 socket head cap screw, M3 x 5 mm",
+      "standard": {
+        "body": "ISO",
+        "number": "4762",
+        "designation": "ISO 4762"
+      },
+      "standard_status": "catalog standard exact; geometry note: simplified",
+      "family": "socket-head-cap-screw",
+      "size": "M3",
+      "length_mm": 5,
+      "attributes": {
+        "thread": "M3",
+        "lengthMm": 5,
+        "nominalSize": "M3 x 5 mm",
+        "headStyle": "socket-head",
+        "driveStyle": "hex-socket",
+        "threadRepresentation": "simplified"
+      },
+      "source_page": "https://www.step.parts/parts/socket_head_cap_screw_m3_l0005_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/socket_head_cap_screw_m3_l0005_simple.step",
+      "filename": "socket_head_cap_screw_m3_l0005_simple.step",
+      "sha256": "e21df3ea29a761f43b77ea55a1274e513f394032975a0af6b4898d0abda411f8",
+      "byte_size": 34248,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso4762",
+      "selection": "ISO 4762 socket head cap screws",
+      "id": "iso4762_socket_head_cap_screw_m3x8",
+      "name": "ISO 4762 hexagon socket head cap screw, M3 x 8",
+      "standard": {
+        "body": "ISO",
+        "number": "4762",
+        "designation": "ISO 4762"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "socket-head-cap-screw",
+      "size": "M3",
+      "length_mm": 8,
+      "attributes": {
+        "thread": "M3",
+        "lengthMm": 8,
+        "headStyle": "socket-head",
+        "driveStyle": "hex-socket",
+        "nominalSize": "M3 x 8"
+      },
+      "source_page": "https://www.step.parts/parts/iso4762_socket_head_cap_screw_m3x8",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso4762_socket_head_cap_screw_m3x8.step",
+      "filename": "iso4762_socket_head_cap_screw_m3x8.step",
+      "sha256": "be8177f1dad3e8a1c447c7d791171442352dd1668687bb6f27cf981b843f63a4",
+      "byte_size": 39507,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso4762",
+      "selection": "ISO 4762 socket head cap screws",
+      "id": "iso4762_socket_head_cap_screw_m3x12",
+      "name": "ISO 4762 socket head cap screw, M3 x 12",
+      "standard": {
+        "body": "ISO",
+        "number": "4762",
+        "designation": "ISO 4762"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "socket-head-cap-screw",
+      "size": "M3",
+      "length_mm": 12,
+      "attributes": {
+        "thread": "M3",
+        "lengthMm": 12,
+        "nominalSize": "M3 x 12",
+        "headStyle": "socket-head",
+        "driveStyle": "hex-socket"
+      },
+      "source_page": "https://www.step.parts/parts/iso4762_socket_head_cap_screw_m3x12",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso4762_socket_head_cap_screw_m3x12.step",
+      "filename": "iso4762_socket_head_cap_screw_m3x12.step",
+      "sha256": "7720179ea94ed5c4e2b32f6e4c2583a77423240599c602690c5b2b2f5471cc47",
+      "byte_size": 58826,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso4762",
+      "selection": "ISO 4762 socket head cap screws",
+      "id": "iso4762_socket_head_cap_screw_m3x20",
+      "name": "ISO 4762 socket head cap screw, M3 x 20",
+      "standard": {
+        "body": "ISO",
+        "number": "4762",
+        "designation": "ISO 4762"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "socket-head-cap-screw",
+      "size": "M3",
+      "length_mm": 20,
+      "attributes": {
+        "thread": "M3",
+        "lengthMm": 20,
+        "nominalSize": "M3 x 20",
+        "headStyle": "socket-head",
+        "driveStyle": "hex-socket"
+      },
+      "source_page": "https://www.step.parts/parts/iso4762_socket_head_cap_screw_m3x20",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso4762_socket_head_cap_screw_m3x20.step",
+      "filename": "iso4762_socket_head_cap_screw_m3x20.step",
+      "sha256": "09f4d17e743f51db131e5d3a1efd71d3d22a0f34461e9d09961896aa2fcaf5b6",
+      "byte_size": 58827,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso4762",
+      "selection": "ISO 4762 socket head cap screws",
+      "id": "iso4762_socket_head_cap_screw_m4x6",
+      "name": "ISO 4762 socket head cap screw, M4 x 6",
+      "standard": {
+        "body": "ISO",
+        "number": "4762",
+        "designation": "ISO 4762"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "socket-head-cap-screw",
+      "size": "M4",
+      "length_mm": 6,
+      "attributes": {
+        "thread": "M4",
+        "lengthMm": 6,
+        "nominalSize": "M4 x 6",
+        "headStyle": "socket-head",
+        "driveStyle": "hex-socket"
+      },
+      "source_page": "https://www.step.parts/parts/iso4762_socket_head_cap_screw_m4x6",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso4762_socket_head_cap_screw_m4x6.step",
+      "filename": "iso4762_socket_head_cap_screw_m4x6.step",
+      "sha256": "d168034043b4b5626933a6d9eb2515ea411859826cc33d3ee7ad529db270fa06",
+      "byte_size": 154842,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso4762",
+      "selection": "ISO 4762 socket head cap screws",
+      "id": "iso4762_socket_head_cap_screw_m4x10",
+      "name": "ISO 4762 hexagon socket head cap screw, M4 x 10",
+      "standard": {
+        "body": "ISO",
+        "number": "4762",
+        "designation": "ISO 4762"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "socket-head-cap-screw",
+      "size": "M4",
+      "length_mm": 10,
+      "attributes": {
+        "thread": "M4",
+        "lengthMm": 10,
+        "headStyle": "socket-head",
+        "driveStyle": "hex-socket",
+        "nominalSize": "M4 x 10"
+      },
+      "source_page": "https://www.step.parts/parts/iso4762_socket_head_cap_screw_m4x10",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso4762_socket_head_cap_screw_m4x10.step",
+      "filename": "iso4762_socket_head_cap_screw_m4x10.step",
+      "sha256": "12d039f622bbdb1c35b2e4e86836583c5754e800ca8edfc992ad9727adbbe439",
+      "byte_size": 39171,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso4762",
+      "selection": "ISO 4762 socket head cap screws",
+      "id": "iso4762_socket_head_cap_screw_m4x16",
+      "name": "ISO 4762 hexagon socket head cap screw, M4 x 16",
+      "standard": {
+        "body": "ISO",
+        "number": "4762",
+        "designation": "ISO 4762"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "socket-head-cap-screw",
+      "size": "M4",
+      "length_mm": 16,
+      "attributes": {
+        "thread": "M4",
+        "lengthMm": 16,
+        "headStyle": "socket-head",
+        "driveStyle": "hex-socket",
+        "nominalSize": "M4 x 16"
+      },
+      "source_page": "https://www.step.parts/parts/iso4762_socket_head_cap_screw_m4x16",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso4762_socket_head_cap_screw_m4x16.step",
+      "filename": "iso4762_socket_head_cap_screw_m4x16.step",
+      "sha256": "b5c01866b687475f93099b025611fbfea69928940574c990406316eb832640bc",
+      "byte_size": 40050,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso4762",
+      "selection": "ISO 4762 socket head cap screws",
+      "id": "iso4762_socket_head_cap_screw_m4x25",
+      "name": "ISO 4762 hexagon socket head cap screw, M4 x 25",
+      "standard": {
+        "body": "ISO",
+        "number": "4762",
+        "designation": "ISO 4762"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "socket-head-cap-screw",
+      "size": "M4",
+      "length_mm": 25,
+      "attributes": {
+        "thread": "M4",
+        "lengthMm": 25,
+        "headStyle": "socket-head",
+        "driveStyle": "hex-socket",
+        "nominalSize": "M4 x 25"
+      },
+      "source_page": "https://www.step.parts/parts/iso4762_socket_head_cap_screw_m4x25",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso4762_socket_head_cap_screw_m4x25.step",
+      "filename": "iso4762_socket_head_cap_screw_m4x25.step",
+      "sha256": "fe23a5ff4ad2498848424d5e6f92d960099f99fbc093ff66ed5dae5cae74426e",
+      "byte_size": 39033,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso4762",
+      "selection": "ISO 4762 socket head cap screws",
+      "id": "iso4762_socket_head_cap_screw_m5x8",
+      "name": "ISO 4762 hexagon socket head cap screw, M5 x 8",
+      "standard": {
+        "body": "ISO",
+        "number": "4762",
+        "designation": "ISO 4762"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "socket-head-cap-screw",
+      "size": "M5",
+      "length_mm": 8,
+      "attributes": {
+        "thread": "M5",
+        "lengthMm": 8,
+        "headStyle": "socket-head",
+        "driveStyle": "hex-socket",
+        "nominalSize": "M5 x 8"
+      },
+      "source_page": "https://www.step.parts/parts/iso4762_socket_head_cap_screw_m5x8",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso4762_socket_head_cap_screw_m5x8.step",
+      "filename": "iso4762_socket_head_cap_screw_m5x8.step",
+      "sha256": "5ad13f8b82105f29d7b71c74b30037f1f0ecf951439ab36f5ee3ca299affb011",
+      "byte_size": 39311,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso4762",
+      "selection": "ISO 4762 socket head cap screws",
+      "id": "iso4762_socket_head_cap_screw_m5x12",
+      "name": "ISO 4762 hexagon socket head cap screw, M5 x 12",
+      "standard": {
+        "body": "ISO",
+        "number": "4762",
+        "designation": "ISO 4762"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "socket-head-cap-screw",
+      "size": "M5",
+      "length_mm": 12,
+      "attributes": {
+        "thread": "M5",
+        "lengthMm": 12,
+        "headStyle": "socket-head",
+        "driveStyle": "hex-socket",
+        "nominalSize": "M5 x 12"
+      },
+      "source_page": "https://www.step.parts/parts/iso4762_socket_head_cap_screw_m5x12",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso4762_socket_head_cap_screw_m5x12.step",
+      "filename": "iso4762_socket_head_cap_screw_m5x12.step",
+      "sha256": "aa70d50670bc4060ba2019d218adee2033748056be3eb98e4932c6720e8428fe",
+      "byte_size": 39402,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso4762",
+      "selection": "ISO 4762 socket head cap screws",
+      "id": "iso4762_socket_head_cap_screw_m5x20",
+      "name": "ISO 4762 hexagon socket head cap screw, M5 x 20",
+      "standard": {
+        "body": "ISO",
+        "number": "4762",
+        "designation": "ISO 4762"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "socket-head-cap-screw",
+      "size": "M5",
+      "length_mm": 20,
+      "attributes": {
+        "thread": "M5",
+        "lengthMm": 20,
+        "headStyle": "socket-head",
+        "driveStyle": "hex-socket",
+        "nominalSize": "M5 x 20"
+      },
+      "source_page": "https://www.step.parts/parts/iso4762_socket_head_cap_screw_m5x20",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso4762_socket_head_cap_screw_m5x20.step",
+      "filename": "iso4762_socket_head_cap_screw_m5x20.step",
+      "sha256": "bac42c77e9e668699efa72502f61009c8ff6d897a8cf5ea3576254da6fb89c4c",
+      "byte_size": 39514,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso4762",
+      "selection": "ISO 4762 socket head cap screws",
+      "id": "iso4762_socket_head_cap_screw_m5x30",
+      "name": "ISO 4762 hexagon socket head cap screw, M5 x 30",
+      "standard": {
+        "body": "ISO",
+        "number": "4762",
+        "designation": "ISO 4762"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "socket-head-cap-screw",
+      "size": "M5",
+      "length_mm": 30,
+      "attributes": {
+        "thread": "M5",
+        "lengthMm": 30,
+        "headStyle": "socket-head",
+        "driveStyle": "hex-socket",
+        "nominalSize": "M5 x 30"
+      },
+      "source_page": "https://www.step.parts/parts/iso4762_socket_head_cap_screw_m5x30",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso4762_socket_head_cap_screw_m5x30.step",
+      "filename": "iso4762_socket_head_cap_screw_m5x30.step",
+      "sha256": "b0452d734dbd9fde05914f9866c34c69ec9cc253f26e39c04573c02297d82c42",
+      "byte_size": 39364,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso7380",
+      "selection": "ISO 7380 button head screws",
+      "id": "button_head_screw_m3_l0005_simple",
+      "name": "ISO 7380 button head socket screw, M3 x 5 mm",
+      "standard": {
+        "body": "ISO",
+        "number": "7380",
+        "designation": "ISO 7380"
+      },
+      "standard_status": "catalog standard exact; geometry note: simplified",
+      "family": "button-head-screw",
+      "size": "M3",
+      "length_mm": 5,
+      "attributes": {
+        "thread": "M3",
+        "lengthMm": 5,
+        "nominalSize": "M3 x 5 mm",
+        "headStyle": "button-head",
+        "driveStyle": "hex-socket",
+        "threadRepresentation": "simplified"
+      },
+      "source_page": "https://www.step.parts/parts/button_head_screw_m3_l0005_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/button_head_screw_m3_l0005_simple.step",
+      "filename": "button_head_screw_m3_l0005_simple.step",
+      "sha256": "bfbd400d8b5d119443a08e71fa47c4a72055b3e948f33bf25139059d99041b86",
+      "byte_size": 32164,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso7380",
+      "selection": "ISO 7380 button head screws",
+      "id": "button_head_screw_m3_l0008_simple",
+      "name": "ISO 7380 button head socket screw, M3 x 8 mm",
+      "standard": {
+        "body": "ISO",
+        "number": "7380",
+        "designation": "ISO 7380"
+      },
+      "standard_status": "catalog standard exact; geometry note: simplified",
+      "family": "button-head-screw",
+      "size": "M3",
+      "length_mm": 8,
+      "attributes": {
+        "thread": "M3",
+        "lengthMm": 8,
+        "nominalSize": "M3 x 8 mm",
+        "headStyle": "button-head",
+        "driveStyle": "hex-socket",
+        "threadRepresentation": "simplified"
+      },
+      "source_page": "https://www.step.parts/parts/button_head_screw_m3_l0008_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/button_head_screw_m3_l0008_simple.step",
+      "filename": "button_head_screw_m3_l0008_simple.step",
+      "sha256": "3fbc99bc00618f6047c24a7359b7f03b493f65f53cbc519d67431944e37b5f3c",
+      "byte_size": 32164,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso7380",
+      "selection": "ISO 7380 button head screws",
+      "id": "button_head_screw_m3_l0012_simple",
+      "name": "ISO 7380 button head socket screw, M3 x 12 mm",
+      "standard": {
+        "body": "ISO",
+        "number": "7380",
+        "designation": "ISO 7380"
+      },
+      "standard_status": "catalog standard exact; geometry note: simplified",
+      "family": "button-head-screw",
+      "size": "M3",
+      "length_mm": 12,
+      "attributes": {
+        "thread": "M3",
+        "lengthMm": 12,
+        "nominalSize": "M3 x 12 mm",
+        "headStyle": "button-head",
+        "driveStyle": "hex-socket",
+        "threadRepresentation": "simplified"
+      },
+      "source_page": "https://www.step.parts/parts/button_head_screw_m3_l0012_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/button_head_screw_m3_l0012_simple.step",
+      "filename": "button_head_screw_m3_l0012_simple.step",
+      "sha256": "6a91ccbe1547ec4d9262561a7e07ab6b94e346e57b58bb5fd922e229d88258c5",
+      "byte_size": 32173,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso7380",
+      "selection": "ISO 7380 button head screws",
+      "id": "button_head_screw_m4_l0006_simple",
+      "name": "ISO 7380 button head socket screw, M4 x 6 mm",
+      "standard": {
+        "body": "ISO",
+        "number": "7380",
+        "designation": "ISO 7380"
+      },
+      "standard_status": "catalog standard exact; geometry note: simplified",
+      "family": "button-head-screw",
+      "size": "M4",
+      "length_mm": 6,
+      "attributes": {
+        "thread": "M4",
+        "lengthMm": 6,
+        "nominalSize": "M4 x 6 mm",
+        "headStyle": "button-head",
+        "driveStyle": "hex-socket",
+        "threadRepresentation": "simplified"
+      },
+      "source_page": "https://www.step.parts/parts/button_head_screw_m4_l0006_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/button_head_screw_m4_l0006_simple.step",
+      "filename": "button_head_screw_m4_l0006_simple.step",
+      "sha256": "c827f86c7f535421d8c0b036bebde6a3b77184b850459356270275468400081d",
+      "byte_size": 32123,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso7380",
+      "selection": "ISO 7380 button head screws",
+      "id": "button_head_screw_m4_l0010_simple",
+      "name": "ISO 7380 button head socket screw, M4 x 10 mm",
+      "standard": {
+        "body": "ISO",
+        "number": "7380",
+        "designation": "ISO 7380"
+      },
+      "standard_status": "catalog standard exact; geometry note: simplified",
+      "family": "button-head-screw",
+      "size": "M4",
+      "length_mm": 10,
+      "attributes": {
+        "thread": "M4",
+        "lengthMm": 10,
+        "nominalSize": "M4 x 10 mm",
+        "headStyle": "button-head",
+        "driveStyle": "hex-socket",
+        "threadRepresentation": "simplified"
+      },
+      "source_page": "https://www.step.parts/parts/button_head_screw_m4_l0010_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/button_head_screw_m4_l0010_simple.step",
+      "filename": "button_head_screw_m4_l0010_simple.step",
+      "sha256": "cf7a001f917b20d9a81f060c0bc09e7d2aa35cda4f1b0a8b1ed2e9e938c5381e",
+      "byte_size": 32132,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso7380",
+      "selection": "ISO 7380 button head screws",
+      "id": "button_head_screw_m4_l0016_simple",
+      "name": "ISO 7380 button head socket screw, M4 x 16 mm",
+      "standard": {
+        "body": "ISO",
+        "number": "7380",
+        "designation": "ISO 7380"
+      },
+      "standard_status": "catalog standard exact; geometry note: simplified",
+      "family": "button-head-screw",
+      "size": "M4",
+      "length_mm": 16,
+      "attributes": {
+        "thread": "M4",
+        "lengthMm": 16,
+        "nominalSize": "M4 x 16 mm",
+        "headStyle": "button-head",
+        "driveStyle": "hex-socket",
+        "threadRepresentation": "simplified"
+      },
+      "source_page": "https://www.step.parts/parts/button_head_screw_m4_l0016_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/button_head_screw_m4_l0016_simple.step",
+      "filename": "button_head_screw_m4_l0016_simple.step",
+      "sha256": "fa4a60450b3a18a396337b56259043cf29266940029db8bbace874656e0bc998",
+      "byte_size": 32132,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso7380",
+      "selection": "ISO 7380 button head screws",
+      "id": "button_head_screw_m5_l0008_simple",
+      "name": "ISO 7380 button head socket screw, M5 x 8 mm",
+      "standard": {
+        "body": "ISO",
+        "number": "7380",
+        "designation": "ISO 7380"
+      },
+      "standard_status": "catalog standard exact; geometry note: simplified",
+      "family": "button-head-screw",
+      "size": "M5",
+      "length_mm": 8,
+      "attributes": {
+        "thread": "M5",
+        "lengthMm": 8,
+        "nominalSize": "M5 x 8 mm",
+        "headStyle": "button-head",
+        "driveStyle": "hex-socket",
+        "threadRepresentation": "simplified"
+      },
+      "source_page": "https://www.step.parts/parts/button_head_screw_m5_l0008_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/button_head_screw_m5_l0008_simple.step",
+      "filename": "button_head_screw_m5_l0008_simple.step",
+      "sha256": "505de12b0428d2c8d48d716d28ca4090e7b14c42c259eee51ac56da6d812d5e5",
+      "byte_size": 32120,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso7380",
+      "selection": "ISO 7380 button head screws",
+      "id": "button_head_screw_m5_l0012_simple",
+      "name": "ISO 7380 button head socket screw, M5 x 12 mm",
+      "standard": {
+        "body": "ISO",
+        "number": "7380",
+        "designation": "ISO 7380"
+      },
+      "standard_status": "catalog standard exact; geometry note: simplified",
+      "family": "button-head-screw",
+      "size": "M5",
+      "length_mm": 12,
+      "attributes": {
+        "thread": "M5",
+        "lengthMm": 12,
+        "nominalSize": "M5 x 12 mm",
+        "headStyle": "button-head",
+        "driveStyle": "hex-socket",
+        "threadRepresentation": "simplified"
+      },
+      "source_page": "https://www.step.parts/parts/button_head_screw_m5_l0012_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/button_head_screw_m5_l0012_simple.step",
+      "filename": "button_head_screw_m5_l0012_simple.step",
+      "sha256": "8afcd729b3bb98926c8cf208725667e94b379461a6491e1b235db13201912a7a",
+      "byte_size": 32126,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso7380",
+      "selection": "ISO 7380 button head screws",
+      "id": "button_head_screw_m5_l0020_simple",
+      "name": "ISO 7380 button head socket screw, M5 x 20 mm",
+      "standard": {
+        "body": "ISO",
+        "number": "7380",
+        "designation": "ISO 7380"
+      },
+      "standard_status": "catalog standard exact; geometry note: simplified",
+      "family": "button-head-screw",
+      "size": "M5",
+      "length_mm": 20,
+      "attributes": {
+        "thread": "M5",
+        "lengthMm": 20,
+        "nominalSize": "M5 x 20 mm",
+        "headStyle": "button-head",
+        "driveStyle": "hex-socket",
+        "threadRepresentation": "simplified"
+      },
+      "source_page": "https://www.step.parts/parts/button_head_screw_m5_l0020_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/button_head_screw_m5_l0020_simple.step",
+      "filename": "button_head_screw_m5_l0020_simple.step",
+      "sha256": "70c27f452b89481cfa3e3fcd873a0550e4d3776214c976510f5a1fa8f1190b04",
+      "byte_size": 32126,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso10642",
+      "selection": "ISO 10642 countersunk screws",
+      "id": "countersunk_socket_screw_m3_l0005_simple",
+      "name": "ISO 10642 countersunk socket screw, M3 x 5 mm",
+      "standard": {
+        "body": "ISO",
+        "number": "10642",
+        "designation": "ISO 10642"
+      },
+      "standard_status": "catalog standard exact; geometry note: simplified",
+      "family": "countersunk-screw",
+      "size": "M3",
+      "length_mm": 5,
+      "attributes": {
+        "thread": "M3",
+        "lengthMm": 5,
+        "nominalSize": "M3 x 5 mm",
+        "headStyle": "countersunk",
+        "driveStyle": "hex-socket",
+        "threadRepresentation": "simplified"
+      },
+      "source_page": "https://www.step.parts/parts/countersunk_socket_screw_m3_l0005_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/countersunk_socket_screw_m3_l0005_simple.step",
+      "filename": "countersunk_socket_screw_m3_l0005_simple.step",
+      "sha256": "f1317f5969062076a2b68d31061e244beb031af6c9cc64e1bd181a3e472dc70a",
+      "byte_size": 35531,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso10642",
+      "selection": "ISO 10642 countersunk screws",
+      "id": "countersunk_socket_screw_m3_l0008_simple",
+      "name": "ISO 10642 countersunk socket screw, M3 x 8 mm",
+      "standard": {
+        "body": "ISO",
+        "number": "10642",
+        "designation": "ISO 10642"
+      },
+      "standard_status": "catalog standard exact; geometry note: simplified",
+      "family": "countersunk-screw",
+      "size": "M3",
+      "length_mm": 8,
+      "attributes": {
+        "thread": "M3",
+        "lengthMm": 8,
+        "nominalSize": "M3 x 8 mm",
+        "headStyle": "countersunk",
+        "driveStyle": "hex-socket",
+        "threadRepresentation": "simplified"
+      },
+      "source_page": "https://www.step.parts/parts/countersunk_socket_screw_m3_l0008_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/countersunk_socket_screw_m3_l0008_simple.step",
+      "filename": "countersunk_socket_screw_m3_l0008_simple.step",
+      "sha256": "0d2403c11f30d1195509ba7b999949f7d26a4ea6563e96928f293ffd75f02ddb",
+      "byte_size": 35531,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso10642",
+      "selection": "ISO 10642 countersunk screws",
+      "id": "iso10642_socket_countersunk_screw_m3x12",
+      "name": "ISO 10642 hex socket countersunk screw, M3 x 12",
+      "standard": {
+        "body": "ISO",
+        "number": "10642",
+        "designation": "ISO 10642"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "countersunk-screw",
+      "size": "M3",
+      "length_mm": 12,
+      "attributes": {
+        "thread": "M3",
+        "lengthMm": 12,
+        "nominalSize": "M3 x 12",
+        "headStyle": "countersunk",
+        "driveStyle": "hex-socket"
+      },
+      "source_page": "https://www.step.parts/parts/iso10642_socket_countersunk_screw_m3x12",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso10642_socket_countersunk_screw_m3x12.step",
+      "filename": "iso10642_socket_countersunk_screw_m3x12.step",
+      "sha256": "5b4864c7af57e387276f29fb1a3ae5270c749a86e576841ae8a900e080b6ea3c",
+      "byte_size": 90554,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso10642",
+      "selection": "ISO 10642 countersunk screws",
+      "id": "countersunk_socket_screw_m4_l0006_simple",
+      "name": "ISO 10642 countersunk socket screw, M4 x 6 mm",
+      "standard": {
+        "body": "ISO",
+        "number": "10642",
+        "designation": "ISO 10642"
+      },
+      "standard_status": "catalog standard exact; geometry note: simplified",
+      "family": "countersunk-screw",
+      "size": "M4",
+      "length_mm": 6,
+      "attributes": {
+        "thread": "M4",
+        "lengthMm": 6,
+        "nominalSize": "M4 x 6 mm",
+        "headStyle": "countersunk",
+        "driveStyle": "hex-socket",
+        "threadRepresentation": "simplified"
+      },
+      "source_page": "https://www.step.parts/parts/countersunk_socket_screw_m4_l0006_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/countersunk_socket_screw_m4_l0006_simple.step",
+      "filename": "countersunk_socket_screw_m4_l0006_simple.step",
+      "sha256": "b021e4181d55187a3e32132fc13caa609c3bb297d3d1f64b53a674f7ce109fd0",
+      "byte_size": 35496,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso10642",
+      "selection": "ISO 10642 countersunk screws",
+      "id": "countersunk_socket_screw_m4_l0010_simple",
+      "name": "ISO 10642 countersunk socket screw, M4 x 10 mm",
+      "standard": {
+        "body": "ISO",
+        "number": "10642",
+        "designation": "ISO 10642"
+      },
+      "standard_status": "catalog standard exact; geometry note: simplified",
+      "family": "countersunk-screw",
+      "size": "M4",
+      "length_mm": 10,
+      "attributes": {
+        "thread": "M4",
+        "lengthMm": 10,
+        "nominalSize": "M4 x 10 mm",
+        "headStyle": "countersunk",
+        "driveStyle": "hex-socket",
+        "threadRepresentation": "simplified"
+      },
+      "source_page": "https://www.step.parts/parts/countersunk_socket_screw_m4_l0010_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/countersunk_socket_screw_m4_l0010_simple.step",
+      "filename": "countersunk_socket_screw_m4_l0010_simple.step",
+      "sha256": "2d3599314200603dc971a276db5e38f533138d366bc76fbbb77b4f3ebea3407e",
+      "byte_size": 35504,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso10642",
+      "selection": "ISO 10642 countersunk screws",
+      "id": "countersunk_socket_screw_m4_l0016_simple",
+      "name": "ISO 10642 countersunk socket screw, M4 x 16 mm",
+      "standard": {
+        "body": "ISO",
+        "number": "10642",
+        "designation": "ISO 10642"
+      },
+      "standard_status": "catalog standard exact; geometry note: simplified",
+      "family": "countersunk-screw",
+      "size": "M4",
+      "length_mm": 16,
+      "attributes": {
+        "thread": "M4",
+        "lengthMm": 16,
+        "nominalSize": "M4 x 16 mm",
+        "headStyle": "countersunk",
+        "driveStyle": "hex-socket",
+        "threadRepresentation": "simplified"
+      },
+      "source_page": "https://www.step.parts/parts/countersunk_socket_screw_m4_l0016_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/countersunk_socket_screw_m4_l0016_simple.step",
+      "filename": "countersunk_socket_screw_m4_l0016_simple.step",
+      "sha256": "618c3cc10eebf249c53021abc0b8a5dd3bf8d297c8e64f13601952a47b924c73",
+      "byte_size": 35505,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso10642",
+      "selection": "ISO 10642 countersunk screws",
+      "id": "countersunk_socket_screw_m5_l0008_simple",
+      "name": "ISO 10642 countersunk socket screw, M5 x 8 mm",
+      "standard": {
+        "body": "ISO",
+        "number": "10642",
+        "designation": "ISO 10642"
+      },
+      "standard_status": "catalog standard exact; geometry note: simplified",
+      "family": "countersunk-screw",
+      "size": "M5",
+      "length_mm": 8,
+      "attributes": {
+        "thread": "M5",
+        "lengthMm": 8,
+        "nominalSize": "M5 x 8 mm",
+        "headStyle": "countersunk",
+        "driveStyle": "hex-socket",
+        "threadRepresentation": "simplified"
+      },
+      "source_page": "https://www.step.parts/parts/countersunk_socket_screw_m5_l0008_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/countersunk_socket_screw_m5_l0008_simple.step",
+      "filename": "countersunk_socket_screw_m5_l0008_simple.step",
+      "sha256": "86c59cb302b348d96189717f08b9014fc2072c41760f2d84af03f50f173ecbd0",
+      "byte_size": 35528,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso10642",
+      "selection": "ISO 10642 countersunk screws",
+      "id": "countersunk_socket_screw_m5_l0012_simple",
+      "name": "ISO 10642 countersunk socket screw, M5 x 12 mm",
+      "standard": {
+        "body": "ISO",
+        "number": "10642",
+        "designation": "ISO 10642"
+      },
+      "standard_status": "catalog standard exact; geometry note: simplified",
+      "family": "countersunk-screw",
+      "size": "M5",
+      "length_mm": 12,
+      "attributes": {
+        "thread": "M5",
+        "lengthMm": 12,
+        "nominalSize": "M5 x 12 mm",
+        "headStyle": "countersunk",
+        "driveStyle": "hex-socket",
+        "threadRepresentation": "simplified"
+      },
+      "source_page": "https://www.step.parts/parts/countersunk_socket_screw_m5_l0012_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/countersunk_socket_screw_m5_l0012_simple.step",
+      "filename": "countersunk_socket_screw_m5_l0012_simple.step",
+      "sha256": "f6eaca9f5e1ac16f6dac8ab6cc4ac462785f56148d8c3ea343c23b1f1fd81499",
+      "byte_size": 35533,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso10642",
+      "selection": "ISO 10642 countersunk screws",
+      "id": "countersunk_socket_screw_m5_l0020_simple",
+      "name": "ISO 10642 countersunk socket screw, M5 x 20 mm",
+      "standard": {
+        "body": "ISO",
+        "number": "10642",
+        "designation": "ISO 10642"
+      },
+      "standard_status": "catalog standard exact; geometry note: simplified",
+      "family": "countersunk-screw",
+      "size": "M5",
+      "length_mm": 20,
+      "attributes": {
+        "thread": "M5",
+        "lengthMm": 20,
+        "nominalSize": "M5 x 20 mm",
+        "headStyle": "countersunk",
+        "driveStyle": "hex-socket",
+        "threadRepresentation": "simplified"
+      },
+      "source_page": "https://www.step.parts/parts/countersunk_socket_screw_m5_l0020_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/countersunk_socket_screw_m5_l0020_simple.step",
+      "filename": "countersunk_socket_screw_m5_l0020_simple.step",
+      "sha256": "accf2ca447a550c7a45a850ae2dc2f13281cb98d5eec2474ae8a45905c6079e2",
+      "byte_size": 35534,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso4017",
+      "selection": "ISO 4017 hex head screws",
+      "id": "hex_head_bolt_m2_l0004_simple",
+      "name": "ISO 4017 hex-head bolt, M2 x 4 mm",
+      "standard": {
+        "body": "ISO",
+        "number": "4017",
+        "designation": "ISO 4017"
+      },
+      "standard_status": "catalog standard exact; geometry note: simplified",
+      "family": "hex-head-cap-screw",
+      "size": "M2",
+      "length_mm": 4,
+      "attributes": {
+        "thread": "M2",
+        "lengthMm": 4,
+        "nominalSize": "M2 x 4 mm",
+        "headStyle": "hex-head",
+        "driveStyle": "external-hex",
+        "threadRepresentation": "simplified"
+      },
+      "source_page": "https://www.step.parts/parts/hex_head_bolt_m2_l0004_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/hex_head_bolt_m2_l0004_simple.step",
+      "filename": "hex_head_bolt_m2_l0004_simple.step",
+      "sha256": "bf6c71a89eb20773d07e1e7cd4c3cf9942a0ae129d157aad0bc8dbbd4539fbfa",
+      "byte_size": 51024,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso4017",
+      "selection": "ISO 4017 hex head screws",
+      "id": "hex_head_bolt_m2_l0005_simple",
+      "name": "ISO 4017 hex-head bolt, M2 x 5 mm",
+      "standard": {
+        "body": "ISO",
+        "number": "4017",
+        "designation": "ISO 4017"
+      },
+      "standard_status": "catalog standard exact; geometry note: simplified",
+      "family": "hex-head-cap-screw",
+      "size": "M2",
+      "length_mm": 5,
+      "attributes": {
+        "thread": "M2",
+        "lengthMm": 5,
+        "nominalSize": "M2 x 5 mm",
+        "headStyle": "hex-head",
+        "driveStyle": "external-hex",
+        "threadRepresentation": "simplified"
+      },
+      "source_page": "https://www.step.parts/parts/hex_head_bolt_m2_l0005_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/hex_head_bolt_m2_l0005_simple.step",
+      "filename": "hex_head_bolt_m2_l0005_simple.step",
+      "sha256": "4ae57d588af947ea5baa544c190bad097e2602d5f6f20b53844933b01868e34f",
+      "byte_size": 51024,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso4017",
+      "selection": "ISO 4017 hex head screws",
+      "id": "hex_head_bolt_m2_l0008_simple",
+      "name": "ISO 4017 hex-head bolt, M2 x 8 mm",
+      "standard": {
+        "body": "ISO",
+        "number": "4017",
+        "designation": "ISO 4017"
+      },
+      "standard_status": "catalog standard exact; geometry note: simplified",
+      "family": "hex-head-cap-screw",
+      "size": "M2",
+      "length_mm": 8,
+      "attributes": {
+        "thread": "M2",
+        "lengthMm": 8,
+        "nominalSize": "M2 x 8 mm",
+        "headStyle": "hex-head",
+        "driveStyle": "external-hex",
+        "threadRepresentation": "simplified"
+      },
+      "source_page": "https://www.step.parts/parts/hex_head_bolt_m2_l0008_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/hex_head_bolt_m2_l0008_simple.step",
+      "filename": "hex_head_bolt_m2_l0008_simple.step",
+      "sha256": "44f64152d93208aa14fb8358bc49ae2945c2d01b98f42a510d0d7079ea38e922",
+      "byte_size": 51024,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso4017",
+      "selection": "ISO 4017 hex head screws",
+      "id": "hex_head_bolt_m2p5_l0004_simple",
+      "name": "ISO 4017 hex-head bolt, M2.5 x 4 mm",
+      "standard": {
+        "body": "ISO",
+        "number": "4017",
+        "designation": "ISO 4017"
+      },
+      "standard_status": "catalog standard exact; geometry note: simplified",
+      "family": "hex-head-cap-screw",
+      "size": "M2.5",
+      "length_mm": 4,
+      "attributes": {
+        "thread": "M2.5",
+        "lengthMm": 4,
+        "nominalSize": "M2.5 x 4 mm",
+        "headStyle": "hex-head",
+        "driveStyle": "external-hex",
+        "threadRepresentation": "simplified"
+      },
+      "source_page": "https://www.step.parts/parts/hex_head_bolt_m2p5_l0004_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/hex_head_bolt_m2p5_l0004_simple.step",
+      "filename": "hex_head_bolt_m2p5_l0004_simple.step",
+      "sha256": "f6a2bd3908a7c6c73ee749572825e55fae09a79e9d6be479f01424320c5cc7f6",
+      "byte_size": 51018,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso4017",
+      "selection": "ISO 4017 hex head screws",
+      "id": "hex_head_bolt_m2p5_l0006_simple",
+      "name": "ISO 4017 hex-head bolt, M2.5 x 6 mm",
+      "standard": {
+        "body": "ISO",
+        "number": "4017",
+        "designation": "ISO 4017"
+      },
+      "standard_status": "catalog standard exact; geometry note: simplified",
+      "family": "hex-head-cap-screw",
+      "size": "M2.5",
+      "length_mm": 6,
+      "attributes": {
+        "thread": "M2.5",
+        "lengthMm": 6,
+        "nominalSize": "M2.5 x 6 mm",
+        "headStyle": "hex-head",
+        "driveStyle": "external-hex",
+        "threadRepresentation": "simplified"
+      },
+      "source_page": "https://www.step.parts/parts/hex_head_bolt_m2p5_l0006_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/hex_head_bolt_m2p5_l0006_simple.step",
+      "filename": "hex_head_bolt_m2p5_l0006_simple.step",
+      "sha256": "ead41c5d0eef27199f0afd0538ac93e479bb52eaf6389ea532826b2b807e7d28",
+      "byte_size": 51018,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso4017",
+      "selection": "ISO 4017 hex head screws",
+      "id": "hex_head_bolt_m2p5_l0010_simple",
+      "name": "ISO 4017 hex-head bolt, M2.5 x 10 mm",
+      "standard": {
+        "body": "ISO",
+        "number": "4017",
+        "designation": "ISO 4017"
+      },
+      "standard_status": "catalog standard exact; geometry note: simplified",
+      "family": "hex-head-cap-screw",
+      "size": "M2.5",
+      "length_mm": 10,
+      "attributes": {
+        "thread": "M2.5",
+        "lengthMm": 10,
+        "nominalSize": "M2.5 x 10 mm",
+        "headStyle": "hex-head",
+        "driveStyle": "external-hex",
+        "threadRepresentation": "simplified"
+      },
+      "source_page": "https://www.step.parts/parts/hex_head_bolt_m2p5_l0010_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/hex_head_bolt_m2p5_l0010_simple.step",
+      "filename": "hex_head_bolt_m2p5_l0010_simple.step",
+      "sha256": "5c8e3d10d9427930a2b62d5e9163ae79e89419de9ef62d0e6bafd2410d0a7f7a",
+      "byte_size": 51027,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso4017",
+      "selection": "ISO 4017 hex head screws",
+      "id": "hex_head_bolt_m3_l0005_simple",
+      "name": "ISO 4017 hex-head bolt, M3 x 5 mm",
+      "standard": {
+        "body": "ISO",
+        "number": "4017",
+        "designation": "ISO 4017"
+      },
+      "standard_status": "catalog standard exact; geometry note: simplified",
+      "family": "hex-head-cap-screw",
+      "size": "M3",
+      "length_mm": 5,
+      "attributes": {
+        "thread": "M3",
+        "lengthMm": 5,
+        "nominalSize": "M3 x 5 mm",
+        "headStyle": "hex-head",
+        "driveStyle": "external-hex",
+        "threadRepresentation": "simplified"
+      },
+      "source_page": "https://www.step.parts/parts/hex_head_bolt_m3_l0005_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/hex_head_bolt_m3_l0005_simple.step",
+      "filename": "hex_head_bolt_m3_l0005_simple.step",
+      "sha256": "8654f27621f152d5b3b0b15bd2033de6152c41feb3651452ffbc863137ef2eb6",
+      "byte_size": 50819,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso4017",
+      "selection": "ISO 4017 hex head screws",
+      "id": "hex_head_bolt_m3_l0008_simple",
+      "name": "ISO 4017 hex-head bolt, M3 x 8 mm",
+      "standard": {
+        "body": "ISO",
+        "number": "4017",
+        "designation": "ISO 4017"
+      },
+      "standard_status": "catalog standard exact; geometry note: simplified",
+      "family": "hex-head-cap-screw",
+      "size": "M3",
+      "length_mm": 8,
+      "attributes": {
+        "thread": "M3",
+        "lengthMm": 8,
+        "nominalSize": "M3 x 8 mm",
+        "headStyle": "hex-head",
+        "driveStyle": "external-hex",
+        "threadRepresentation": "simplified"
+      },
+      "source_page": "https://www.step.parts/parts/hex_head_bolt_m3_l0008_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/hex_head_bolt_m3_l0008_simple.step",
+      "filename": "hex_head_bolt_m3_l0008_simple.step",
+      "sha256": "47512955283f33d3db8654641eb49eee7975e5071d79050ad13bc83106919242",
+      "byte_size": 50819,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso4017",
+      "selection": "ISO 4017 hex head screws",
+      "id": "hex_head_bolt_m3_l0012_simple",
+      "name": "ISO 4017 hex-head bolt, M3 x 12 mm",
+      "standard": {
+        "body": "ISO",
+        "number": "4017",
+        "designation": "ISO 4017"
+      },
+      "standard_status": "catalog standard exact; geometry note: simplified",
+      "family": "hex-head-cap-screw",
+      "size": "M3",
+      "length_mm": 12,
+      "attributes": {
+        "thread": "M3",
+        "lengthMm": 12,
+        "nominalSize": "M3 x 12 mm",
+        "headStyle": "hex-head",
+        "driveStyle": "external-hex",
+        "threadRepresentation": "simplified"
+      },
+      "source_page": "https://www.step.parts/parts/hex_head_bolt_m3_l0012_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/hex_head_bolt_m3_l0012_simple.step",
+      "filename": "hex_head_bolt_m3_l0012_simple.step",
+      "sha256": "ae4e04486fd73e19663dd9a2ee82fdcd5e853cc0dc5fa0f609ff1bb1c8991b31",
+      "byte_size": 50828,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso4017",
+      "selection": "ISO 4017 hex head screws",
+      "id": "hex_head_bolt_m4_l0006_simple",
+      "name": "ISO 4017 hex-head bolt, M4 x 6 mm",
+      "standard": {
+        "body": "ISO",
+        "number": "4017",
+        "designation": "ISO 4017"
+      },
+      "standard_status": "catalog standard exact; geometry note: simplified",
+      "family": "hex-head-cap-screw",
+      "size": "M4",
+      "length_mm": 6,
+      "attributes": {
+        "thread": "M4",
+        "lengthMm": 6,
+        "nominalSize": "M4 x 6 mm",
+        "headStyle": "hex-head",
+        "driveStyle": "external-hex",
+        "threadRepresentation": "simplified"
+      },
+      "source_page": "https://www.step.parts/parts/hex_head_bolt_m4_l0006_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/hex_head_bolt_m4_l0006_simple.step",
+      "filename": "hex_head_bolt_m4_l0006_simple.step",
+      "sha256": "680eddee1bbf6cbc6b7b3fc0be110931bf640997d0178ba28eca68390307466a",
+      "byte_size": 50819,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso4017",
+      "selection": "ISO 4017 hex head screws",
+      "id": "hex_head_bolt_m4_l0010_simple",
+      "name": "ISO 4017 hex-head bolt, M4 x 10 mm",
+      "standard": {
+        "body": "ISO",
+        "number": "4017",
+        "designation": "ISO 4017"
+      },
+      "standard_status": "catalog standard exact; geometry note: simplified",
+      "family": "hex-head-cap-screw",
+      "size": "M4",
+      "length_mm": 10,
+      "attributes": {
+        "thread": "M4",
+        "lengthMm": 10,
+        "nominalSize": "M4 x 10 mm",
+        "headStyle": "hex-head",
+        "driveStyle": "external-hex",
+        "threadRepresentation": "simplified"
+      },
+      "source_page": "https://www.step.parts/parts/hex_head_bolt_m4_l0010_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/hex_head_bolt_m4_l0010_simple.step",
+      "filename": "hex_head_bolt_m4_l0010_simple.step",
+      "sha256": "bd7487e71f2b3428c6b0b86a0774863015a310f9fd41aa933db8d1dbc2fb8f24",
+      "byte_size": 50828,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso4017",
+      "selection": "ISO 4017 hex head screws",
+      "id": "hex_head_bolt_m4_l0016_simple",
+      "name": "ISO 4017 hex-head bolt, M4 x 16 mm",
+      "standard": {
+        "body": "ISO",
+        "number": "4017",
+        "designation": "ISO 4017"
+      },
+      "standard_status": "catalog standard exact; geometry note: simplified",
+      "family": "hex-head-cap-screw",
+      "size": "M4",
+      "length_mm": 16,
+      "attributes": {
+        "thread": "M4",
+        "lengthMm": 16,
+        "nominalSize": "M4 x 16 mm",
+        "headStyle": "hex-head",
+        "driveStyle": "external-hex",
+        "threadRepresentation": "simplified"
+      },
+      "source_page": "https://www.step.parts/parts/hex_head_bolt_m4_l0016_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/hex_head_bolt_m4_l0016_simple.step",
+      "filename": "hex_head_bolt_m4_l0016_simple.step",
+      "sha256": "a536e1f5638751d106dbf770d0af130a4c8c0d170346f7c348005a896473bcce",
+      "byte_size": 50828,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso4017",
+      "selection": "ISO 4017 hex head screws",
+      "id": "hex_head_bolt_m5_l0008_simple",
+      "name": "ISO 4017 hex-head bolt, M5 x 8 mm",
+      "standard": {
+        "body": "ISO",
+        "number": "4017",
+        "designation": "ISO 4017"
+      },
+      "standard_status": "catalog standard exact; geometry note: simplified",
+      "family": "hex-head-cap-screw",
+      "size": "M5",
+      "length_mm": 8,
+      "attributes": {
+        "thread": "M5",
+        "lengthMm": 8,
+        "nominalSize": "M5 x 8 mm",
+        "headStyle": "hex-head",
+        "driveStyle": "external-hex",
+        "threadRepresentation": "simplified"
+      },
+      "source_page": "https://www.step.parts/parts/hex_head_bolt_m5_l0008_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/hex_head_bolt_m5_l0008_simple.step",
+      "filename": "hex_head_bolt_m5_l0008_simple.step",
+      "sha256": "33bca37faf4c7578e94e902533eab3f95161456da3225b0705f5782e90fb12f9",
+      "byte_size": 50715,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso4017",
+      "selection": "ISO 4017 hex head screws",
+      "id": "hex_head_bolt_m5_l0012_simple",
+      "name": "ISO 4017 hex-head bolt, M5 x 12 mm",
+      "standard": {
+        "body": "ISO",
+        "number": "4017",
+        "designation": "ISO 4017"
+      },
+      "standard_status": "catalog standard exact; geometry note: simplified",
+      "family": "hex-head-cap-screw",
+      "size": "M5",
+      "length_mm": 12,
+      "attributes": {
+        "thread": "M5",
+        "lengthMm": 12,
+        "nominalSize": "M5 x 12 mm",
+        "headStyle": "hex-head",
+        "driveStyle": "external-hex",
+        "threadRepresentation": "simplified"
+      },
+      "source_page": "https://www.step.parts/parts/hex_head_bolt_m5_l0012_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/hex_head_bolt_m5_l0012_simple.step",
+      "filename": "hex_head_bolt_m5_l0012_simple.step",
+      "sha256": "a65a7b4e10fab1aa3b3b56082ca75c2e1a5ccf0b9f5dea15292aef34db48e8dd",
+      "byte_size": 50721,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso4017",
+      "selection": "ISO 4017 hex head screws",
+      "id": "hex_head_bolt_m5_l0020_simple",
+      "name": "ISO 4017 hex-head bolt, M5 x 20 mm",
+      "standard": {
+        "body": "ISO",
+        "number": "4017",
+        "designation": "ISO 4017"
+      },
+      "standard_status": "catalog standard exact; geometry note: simplified",
+      "family": "hex-head-cap-screw",
+      "size": "M5",
+      "length_mm": 20,
+      "attributes": {
+        "thread": "M5",
+        "lengthMm": 20,
+        "nominalSize": "M5 x 20 mm",
+        "headStyle": "hex-head",
+        "driveStyle": "external-hex",
+        "threadRepresentation": "simplified"
+      },
+      "source_page": "https://www.step.parts/parts/hex_head_bolt_m5_l0020_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/hex_head_bolt_m5_l0020_simple.step",
+      "filename": "hex_head_bolt_m5_l0020_simple.step",
+      "sha256": "4ff7c1735737c42a6a3e0b087f6367a750a10a8a698bb15325796eae9dbdb23c",
+      "byte_size": 50721,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "din913",
+      "selection": "DIN 913 socket set screws",
+      "id": "din913_set_screw_m3x5",
+      "name": "DIN 913 set screw, M3 x 5",
+      "standard": {
+        "body": "DIN",
+        "number": "913",
+        "designation": "DIN 913"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "set-screw",
+      "size": "M3",
+      "length_mm": 5,
+      "attributes": {
+        "thread": "M3",
+        "lengthMm": 5,
+        "nominalSize": "M3 x 5",
+        "driveStyle": "hex-socket"
+      },
+      "source_page": "https://www.step.parts/parts/din913_set_screw_m3x5",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/din913_set_screw_m3x5.step",
+      "filename": "din913_set_screw_m3x5.step",
+      "sha256": "cd2cf212d016cdb87975b70fe68c15f190b462b805f9f74b8b2e404065b4962a",
+      "byte_size": 31410,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "din913",
+      "selection": "DIN 913 socket set screws",
+      "id": "set_screw_m3_l0008_cup_point_simple",
+      "name": "Metric set screws, M3 x 8 mm cup point",
+      "standard": {
+        "body": "DIN",
+        "number": "913",
+        "designation": "DIN 913"
+      },
+      "standard_status": "catalog standard exact; geometry note: analytic simplified",
+      "family": "set-screw",
+      "size": "M3",
+      "length_mm": 8,
+      "attributes": {
+        "geometryRepresentation": "analytic simplified",
+        "lengthMm": 8,
+        "majorDiameterMm": 3,
+        "pointStyle": "cup",
+        "driveStyle": "hex_recess",
+        "thread": "M3",
+        "nominalSize": "M3 x 8 mm"
+      },
+      "source_page": "https://www.step.parts/parts/set_screw_m3_l0008_cup_point_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/set_screw_m3_l0008_cup_point_simple.step",
+      "filename": "set_screw_m3_l0008_cup_point_simple.step",
+      "sha256": "f90f1b6c4bc9c0842f87ce8dbe847d32a196b8d4c056e978cd5e08c2615e7253",
+      "byte_size": 33171,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "din913",
+      "selection": "DIN 913 socket set screws",
+      "id": "set_screw_m3_l0012_cup_point_simple",
+      "name": "Metric set screws, M3 x 12 mm cup point",
+      "standard": {
+        "body": "DIN",
+        "number": "913",
+        "designation": "DIN 913"
+      },
+      "standard_status": "catalog standard exact; geometry note: analytic simplified",
+      "family": "set-screw",
+      "size": "M3",
+      "length_mm": 12,
+      "attributes": {
+        "geometryRepresentation": "analytic simplified",
+        "lengthMm": 12,
+        "majorDiameterMm": 3,
+        "pointStyle": "cup",
+        "driveStyle": "hex_recess",
+        "thread": "M3",
+        "nominalSize": "M3 x 12 mm"
+      },
+      "source_page": "https://www.step.parts/parts/set_screw_m3_l0012_cup_point_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/set_screw_m3_l0012_cup_point_simple.step",
+      "filename": "set_screw_m3_l0012_cup_point_simple.step",
+      "sha256": "d29a492112b07f417d2c3b8565ee9b6f83ea98596e8607af67d4d5016975f5d5",
+      "byte_size": 33182,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "din913",
+      "selection": "DIN 913 socket set screws",
+      "id": "set_screw_m4_l0006_cup_point_simple",
+      "name": "Metric set screws, M4 x 6 mm cup point",
+      "standard": {
+        "body": "DIN",
+        "number": "913",
+        "designation": "DIN 913"
+      },
+      "standard_status": "catalog standard exact; geometry note: analytic simplified",
+      "family": "set-screw",
+      "size": "M4",
+      "length_mm": 6,
+      "attributes": {
+        "geometryRepresentation": "analytic simplified",
+        "lengthMm": 6,
+        "majorDiameterMm": 4,
+        "pointStyle": "cup",
+        "driveStyle": "hex_recess",
+        "thread": "M4",
+        "nominalSize": "M4 x 6 mm"
+      },
+      "source_page": "https://www.step.parts/parts/set_screw_m4_l0006_cup_point_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/set_screw_m4_l0006_cup_point_simple.step",
+      "filename": "set_screw_m4_l0006_cup_point_simple.step",
+      "sha256": "3dcc54fc4d70694d5110ea43594f930ec784221646fed2039f17000a9cc47813",
+      "byte_size": 33083,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "din913",
+      "selection": "DIN 913 socket set screws",
+      "id": "set_screw_m4_l0010_cup_point_simple",
+      "name": "Metric set screws, M4 x 10 mm cup point",
+      "standard": {
+        "body": "DIN",
+        "number": "913",
+        "designation": "DIN 913"
+      },
+      "standard_status": "catalog standard exact; geometry note: analytic simplified",
+      "family": "set-screw",
+      "size": "M4",
+      "length_mm": 10,
+      "attributes": {
+        "geometryRepresentation": "analytic simplified",
+        "lengthMm": 10,
+        "majorDiameterMm": 4,
+        "pointStyle": "cup",
+        "driveStyle": "hex_recess",
+        "thread": "M4",
+        "nominalSize": "M4 x 10 mm"
+      },
+      "source_page": "https://www.step.parts/parts/set_screw_m4_l0010_cup_point_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/set_screw_m4_l0010_cup_point_simple.step",
+      "filename": "set_screw_m4_l0010_cup_point_simple.step",
+      "sha256": "1442de50c5d0a4b8165a6f4bce351b424276b71552cb3735601a5ca126c22cbf",
+      "byte_size": 33087,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "din913",
+      "selection": "DIN 913 socket set screws",
+      "id": "set_screw_m4_l0016_cup_point_simple",
+      "name": "Metric set screws, M4 x 16 mm cup point",
+      "standard": {
+        "body": "DIN",
+        "number": "913",
+        "designation": "DIN 913"
+      },
+      "standard_status": "catalog standard exact; geometry note: analytic simplified",
+      "family": "set-screw",
+      "size": "M4",
+      "length_mm": 16,
+      "attributes": {
+        "geometryRepresentation": "analytic simplified",
+        "lengthMm": 16,
+        "majorDiameterMm": 4,
+        "pointStyle": "cup",
+        "driveStyle": "hex_recess",
+        "thread": "M4",
+        "nominalSize": "M4 x 16 mm"
+      },
+      "source_page": "https://www.step.parts/parts/set_screw_m4_l0016_cup_point_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/set_screw_m4_l0016_cup_point_simple.step",
+      "filename": "set_screw_m4_l0016_cup_point_simple.step",
+      "sha256": "53b1b2df241a9a0b88213f72c832235708d1b32cdd7f0898c7a6d36630c1d513",
+      "byte_size": 33090,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "din913",
+      "selection": "DIN 913 socket set screws",
+      "id": "set_screw_m5_l0008_cup_point_simple",
+      "name": "Metric set screws, M5 x 8 mm cup point",
+      "standard": {
+        "body": "DIN",
+        "number": "913",
+        "designation": "DIN 913"
+      },
+      "standard_status": "catalog standard exact; geometry note: analytic simplified",
+      "family": "set-screw",
+      "size": "M5",
+      "length_mm": 8,
+      "attributes": {
+        "geometryRepresentation": "analytic simplified",
+        "lengthMm": 8,
+        "majorDiameterMm": 5,
+        "pointStyle": "cup",
+        "driveStyle": "hex_recess",
+        "thread": "M5",
+        "nominalSize": "M5 x 8 mm"
+      },
+      "source_page": "https://www.step.parts/parts/set_screw_m5_l0008_cup_point_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/set_screw_m5_l0008_cup_point_simple.step",
+      "filename": "set_screw_m5_l0008_cup_point_simple.step",
+      "sha256": "16fc9c9944859c3da4644c0c22db27caef2524c2ed55ad0e8bf65f4e9d04ef6e",
+      "byte_size": 33132,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "din913",
+      "selection": "DIN 913 socket set screws",
+      "id": "set_screw_m5_l0012_cup_point_simple",
+      "name": "Metric set screws, M5 x 12 mm cup point",
+      "standard": {
+        "body": "DIN",
+        "number": "913",
+        "designation": "DIN 913"
+      },
+      "standard_status": "catalog standard exact; geometry note: analytic simplified",
+      "family": "set-screw",
+      "size": "M5",
+      "length_mm": 12,
+      "attributes": {
+        "geometryRepresentation": "analytic simplified",
+        "lengthMm": 12,
+        "majorDiameterMm": 5,
+        "pointStyle": "cup",
+        "driveStyle": "hex_recess",
+        "thread": "M5",
+        "nominalSize": "M5 x 12 mm"
+      },
+      "source_page": "https://www.step.parts/parts/set_screw_m5_l0012_cup_point_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/set_screw_m5_l0012_cup_point_simple.step",
+      "filename": "set_screw_m5_l0012_cup_point_simple.step",
+      "sha256": "caac706ae7e262f2df16bd2181f25ffdae158f129c5be160a0800900eb49263d",
+      "byte_size": 33150,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "din913",
+      "selection": "DIN 913 socket set screws",
+      "id": "set_screw_m5_l0020_cup_point_simple",
+      "name": "Metric set screws, M5 x 20 mm cup point",
+      "standard": {
+        "body": "DIN",
+        "number": "913",
+        "designation": "DIN 913"
+      },
+      "standard_status": "catalog standard exact; geometry note: analytic simplified",
+      "family": "set-screw",
+      "size": "M5",
+      "length_mm": 20,
+      "attributes": {
+        "geometryRepresentation": "analytic simplified",
+        "lengthMm": 20,
+        "majorDiameterMm": 5,
+        "pointStyle": "cup",
+        "driveStyle": "hex_recess",
+        "thread": "M5",
+        "nominalSize": "M5 x 20 mm"
+      },
+      "source_page": "https://www.step.parts/parts/set_screw_m5_l0020_cup_point_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/set_screw_m5_l0020_cup_point_simple.step",
+      "filename": "set_screw_m5_l0020_cup_point_simple.step",
+      "sha256": "e35d2c01a5c401876af5cca1ac30b1bb55be1ef0f99fbba47ecb1926bc40d876",
+      "byte_size": 33150,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso4032",
+      "selection": "ISO 4032 hexagon regular nuts",
+      "id": "hex_nut_m2_simple",
+      "name": "ISO 4032 hex nut, M2",
+      "standard": {
+        "body": "ISO",
+        "number": "4032",
+        "designation": "ISO 4032"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "hex-nut",
+      "size": "M2",
+      "length_mm": null,
+      "attributes": {
+        "thread": "M2",
+        "nominalSize": "M2",
+        "nutStyle": "hex"
+      },
+      "source_page": "https://www.step.parts/parts/hex_nut_m2_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/hex_nut_m2_simple.step",
+      "filename": "hex_nut_m2_simple.step",
+      "sha256": "fb93c27208aecbd1bc3005dc532e8116e90169073c9d95e85dd4691935dc51b6",
+      "byte_size": 107009,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso4032",
+      "selection": "ISO 4032 hexagon regular nuts",
+      "id": "hex_nut_m2p5_simple",
+      "name": "ISO 4032 hex nut, M2.5",
+      "standard": {
+        "body": "ISO",
+        "number": "4032",
+        "designation": "ISO 4032"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "hex-nut",
+      "size": "M2.5",
+      "length_mm": null,
+      "attributes": {
+        "thread": "M2.5",
+        "nominalSize": "M2.5",
+        "nutStyle": "hex"
+      },
+      "source_page": "https://www.step.parts/parts/hex_nut_m2p5_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/hex_nut_m2p5_simple.step",
+      "filename": "hex_nut_m2p5_simple.step",
+      "sha256": "da163b336405706a382bbdbcfacf78982409744e8ee1b6756044b7324ee85f1f",
+      "byte_size": 106990,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso4032",
+      "selection": "ISO 4032 hexagon regular nuts",
+      "id": "iso4032_hex_nut_m3",
+      "name": "ISO 4032 hex nut, M3",
+      "standard": {
+        "body": "ISO",
+        "number": "4032",
+        "designation": "ISO 4032"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "hex-nut",
+      "size": "M3",
+      "length_mm": null,
+      "attributes": {
+        "thread": "M3",
+        "nominalSize": "M3",
+        "nutStyle": "hex"
+      },
+      "source_page": "https://www.step.parts/parts/iso4032_hex_nut_m3",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso4032_hex_nut_m3.step",
+      "filename": "iso4032_hex_nut_m3.step",
+      "sha256": "7de90cc2ca5eb2c38a27e3aee66939f30bdfde4ac47cd6f19f0324fcf93496bd",
+      "byte_size": 117675,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso4032",
+      "selection": "ISO 4032 hexagon regular nuts",
+      "id": "iso4032_hex_nut_m4",
+      "name": "ISO 4032 hex nut, M4",
+      "standard": {
+        "body": "ISO",
+        "number": "4032",
+        "designation": "ISO 4032"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "hex-nut",
+      "size": "M4",
+      "length_mm": null,
+      "attributes": {
+        "thread": "M4",
+        "nominalSize": "M4",
+        "nutStyle": "hex"
+      },
+      "source_page": "https://www.step.parts/parts/iso4032_hex_nut_m4",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso4032_hex_nut_m4.step",
+      "filename": "iso4032_hex_nut_m4.step",
+      "sha256": "2d3a514aaf0e55b6eeabf5d7f3e6ecee2ffeed1f77ed864fb280e07a2bcff2c6",
+      "byte_size": 69309,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso4032",
+      "selection": "ISO 4032 hexagon regular nuts",
+      "id": "iso4032_hex_nut_m5",
+      "name": "ISO 4032 hex nut, M5",
+      "standard": {
+        "body": "ISO",
+        "number": "4032",
+        "designation": "ISO 4032"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "hex-nut",
+      "size": "M5",
+      "length_mm": null,
+      "attributes": {
+        "thread": "M5",
+        "nominalSize": "M5",
+        "nutStyle": "hex"
+      },
+      "source_page": "https://www.step.parts/parts/iso4032_hex_nut_m5",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso4032_hex_nut_m5.step",
+      "filename": "iso4032_hex_nut_m5.step",
+      "sha256": "e1adc81373d9b9855f93b956737aa4b7f6ca5643b0dc0d6f9a0b896875cce9c2",
+      "byte_size": 91189,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso4035",
+      "selection": "ISO 4035 thin hexagon nuts",
+      "id": "thin_jam_nut_m2_simple",
+      "name": "ISO 4035 thin jam nut, M2",
+      "standard": {
+        "body": "ISO",
+        "number": "4035",
+        "designation": "ISO 4035"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "thin-jam-nut",
+      "size": "M2",
+      "length_mm": null,
+      "attributes": {
+        "thread": "M2",
+        "nominalSize": "M2",
+        "nutStyle": "thin-jam"
+      },
+      "source_page": "https://www.step.parts/parts/thin_jam_nut_m2_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/thin_jam_nut_m2_simple.step",
+      "filename": "thin_jam_nut_m2_simple.step",
+      "sha256": "af864b541ca83c59f3cef8e2ac12266a831144519efec0f4fe07bd64875ae013",
+      "byte_size": 107131,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso4035",
+      "selection": "ISO 4035 thin hexagon nuts",
+      "id": "thin_jam_nut_m2p5_simple",
+      "name": "ISO 4035 thin jam nut, M2.5",
+      "standard": {
+        "body": "ISO",
+        "number": "4035",
+        "designation": "ISO 4035"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "thin-jam-nut",
+      "size": "M2.5",
+      "length_mm": null,
+      "attributes": {
+        "thread": "M2.5",
+        "nominalSize": "M2.5",
+        "nutStyle": "thin-jam"
+      },
+      "source_page": "https://www.step.parts/parts/thin_jam_nut_m2p5_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/thin_jam_nut_m2p5_simple.step",
+      "filename": "thin_jam_nut_m2p5_simple.step",
+      "sha256": "e3651f29f3ca928944785a11ce9b535dc3adc1d06fd6061a019e0cf48f967c3c",
+      "byte_size": 107048,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso4035",
+      "selection": "ISO 4035 thin hexagon nuts",
+      "id": "thin_jam_nut_m3_simple",
+      "name": "ISO 4035 thin jam nut, M3",
+      "standard": {
+        "body": "ISO",
+        "number": "4035",
+        "designation": "ISO 4035"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "thin-jam-nut",
+      "size": "M3",
+      "length_mm": null,
+      "attributes": {
+        "thread": "M3",
+        "nominalSize": "M3",
+        "nutStyle": "thin-jam"
+      },
+      "source_page": "https://www.step.parts/parts/thin_jam_nut_m3_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/thin_jam_nut_m3_simple.step",
+      "filename": "thin_jam_nut_m3_simple.step",
+      "sha256": "4e6c969acbd0d7ab690f5a5370c8ea13ad791813c946855dc9c1493f2cb26030",
+      "byte_size": 106578,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso4035",
+      "selection": "ISO 4035 thin hexagon nuts",
+      "id": "thin_jam_nut_m4_simple",
+      "name": "ISO 4035 thin jam nut, M4",
+      "standard": {
+        "body": "ISO",
+        "number": "4035",
+        "designation": "ISO 4035"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "thin-jam-nut",
+      "size": "M4",
+      "length_mm": null,
+      "attributes": {
+        "thread": "M4",
+        "nominalSize": "M4",
+        "nutStyle": "thin-jam"
+      },
+      "source_page": "https://www.step.parts/parts/thin_jam_nut_m4_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/thin_jam_nut_m4_simple.step",
+      "filename": "thin_jam_nut_m4_simple.step",
+      "sha256": "aeb7ae1544c06508860f1e4c29d4bf17944adbf12a0110a1ee12b7497008722b",
+      "byte_size": 107108,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso4035",
+      "selection": "ISO 4035 thin hexagon nuts",
+      "id": "thin_jam_nut_m5_simple",
+      "name": "ISO 4035 thin jam nut, M5",
+      "standard": {
+        "body": "ISO",
+        "number": "4035",
+        "designation": "ISO 4035"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "thin-jam-nut",
+      "size": "M5",
+      "length_mm": null,
+      "attributes": {
+        "thread": "M5",
+        "nominalSize": "M5",
+        "nutStyle": "thin-jam"
+      },
+      "source_page": "https://www.step.parts/parts/thin_jam_nut_m5_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/thin_jam_nut_m5_simple.step",
+      "filename": "thin_jam_nut_m5_simple.step",
+      "sha256": "0fac265dbfa00a8986d4b76ee5c8ce3010b93972b5e7833f886b96eb85874454",
+      "byte_size": 106110,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "din1587",
+      "selection": "DIN 1587 cap nuts",
+      "id": "iso_metric_cap_acorn_nut_m4_simple",
+      "name": "DIN 1587 cap nut, M4",
+      "standard": {
+        "body": "DIN",
+        "number": "1587",
+        "designation": "DIN 1587"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "cap-nut",
+      "size": "M4",
+      "length_mm": null,
+      "attributes": {
+        "thread": "M4",
+        "nominalSize": "M4",
+        "nutStyle": "cap"
+      },
+      "source_page": "https://www.step.parts/parts/iso_metric_cap_acorn_nut_m4_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso_metric_cap_acorn_nut_m4_simple.step",
+      "filename": "iso_metric_cap_acorn_nut_m4_simple.step",
+      "sha256": "7ed4a57b00dfd43a90255820050cd39cc045ec26290f615450bb8cc1de24e534",
+      "byte_size": 86825,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "din1587",
+      "selection": "DIN 1587 cap nuts",
+      "id": "iso_metric_cap_acorn_nut_m5_simple",
+      "name": "DIN 1587 cap nut, M5",
+      "standard": {
+        "body": "DIN",
+        "number": "1587",
+        "designation": "DIN 1587"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "cap-nut",
+      "size": "M5",
+      "length_mm": null,
+      "attributes": {
+        "thread": "M5",
+        "nominalSize": "M5",
+        "nutStyle": "cap"
+      },
+      "source_page": "https://www.step.parts/parts/iso_metric_cap_acorn_nut_m5_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso_metric_cap_acorn_nut_m5_simple.step",
+      "filename": "iso_metric_cap_acorn_nut_m5_simple.step",
+      "sha256": "2eb1fe54b8d76c2355b00d79b22bfd2f6f5bfabef8447866a225683001756a03",
+      "byte_size": 85925,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "din557",
+      "selection": "DIN 557 square nuts",
+      "id": "iso_metric_square_nut_m5_simple",
+      "name": "DIN 557 square nut, M5",
+      "standard": {
+        "body": "DIN",
+        "number": "557",
+        "designation": "DIN 557"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "square-nut",
+      "size": "M5",
+      "length_mm": null,
+      "attributes": {
+        "thread": "M5",
+        "nominalSize": "M5",
+        "nutStyle": "square"
+      },
+      "source_page": "https://www.step.parts/parts/iso_metric_square_nut_m5_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso_metric_square_nut_m5_simple.step",
+      "filename": "iso_metric_square_nut_m5_simple.step",
+      "sha256": "bb4958ff3a0d9afd84c39c5ea8068b33b687407d189d6c43ae8873eb16a4796d",
+      "byte_size": 53985,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso7089",
+      "selection": "ISO 7089 plain washers",
+      "id": "flat_washer_normal_m2_simple",
+      "name": "ISO 7089 flat washer, M2",
+      "standard": {
+        "body": "ISO",
+        "number": "7089",
+        "designation": "ISO 7089"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "flat-washer",
+      "size": "M2",
+      "length_mm": null,
+      "attributes": {
+        "thread": "M2",
+        "nominalSize": "M2",
+        "washerStyle": "flat",
+        "insideDiameterMm": 2.2,
+        "outsideDiameterMm": 5,
+        "thicknessMm": 0.35
+      },
+      "source_page": "https://www.step.parts/parts/flat_washer_normal_m2_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/flat_washer_normal_m2_simple.step",
+      "filename": "flat_washer_normal_m2_simple.step",
+      "sha256": "4ec4d61e3505fef10d647e75854275657c7bffa5bbd85d3dbd81f07764693d8d",
+      "byte_size": 15016,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso7089",
+      "selection": "ISO 7089 plain washers",
+      "id": "flat_washer_normal_m2p5_simple",
+      "name": "ISO 7089 flat washer, M2.5",
+      "standard": {
+        "body": "ISO",
+        "number": "7089",
+        "designation": "ISO 7089"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "flat-washer",
+      "size": "M2.5",
+      "length_mm": null,
+      "attributes": {
+        "thread": "M2.5",
+        "nominalSize": "M2.5",
+        "washerStyle": "flat",
+        "insideDiameterMm": 2.7,
+        "outsideDiameterMm": 6,
+        "thicknessMm": 0.55
+      },
+      "source_page": "https://www.step.parts/parts/flat_washer_normal_m2p5_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/flat_washer_normal_m2p5_simple.step",
+      "filename": "flat_washer_normal_m2p5_simple.step",
+      "sha256": "5309050c326c6515f762fec40d395dc4f450237044548ea9696cabb3deaf1b2f",
+      "byte_size": 15020,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso7089",
+      "selection": "ISO 7089 plain washers",
+      "id": "flat_washer_normal_m3_simple",
+      "name": "ISO 7089 flat washer, M3",
+      "standard": {
+        "body": "ISO",
+        "number": "7089",
+        "designation": "ISO 7089"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "flat-washer",
+      "size": "M3",
+      "length_mm": null,
+      "attributes": {
+        "thread": "M3",
+        "nominalSize": "M3",
+        "washerStyle": "flat",
+        "insideDiameterMm": 3.2,
+        "outsideDiameterMm": 7,
+        "thicknessMm": 0.55
+      },
+      "source_page": "https://www.step.parts/parts/flat_washer_normal_m3_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/flat_washer_normal_m3_simple.step",
+      "filename": "flat_washer_normal_m3_simple.step",
+      "sha256": "6aaad3e26efa4c59d8c081d53fb38053091648aa8f34c031294b50fbd743f409",
+      "byte_size": 15012,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso7089",
+      "selection": "ISO 7089 plain washers",
+      "id": "flat_washer_normal_m4_simple",
+      "name": "ISO 7089 flat washer, M4",
+      "standard": {
+        "body": "ISO",
+        "number": "7089",
+        "designation": "ISO 7089"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "flat-washer",
+      "size": "M4",
+      "length_mm": null,
+      "attributes": {
+        "thread": "M4",
+        "nominalSize": "M4",
+        "washerStyle": "flat",
+        "insideDiameterMm": 4.3,
+        "outsideDiameterMm": 9,
+        "thicknessMm": 0.9
+      },
+      "source_page": "https://www.step.parts/parts/flat_washer_normal_m4_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/flat_washer_normal_m4_simple.step",
+      "filename": "flat_washer_normal_m4_simple.step",
+      "sha256": "9d7fad7997cab30a597a9374f5666dd7506b7c1682601577545d1e0dbf81576c",
+      "byte_size": 15011,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso7089",
+      "selection": "ISO 7089 plain washers",
+      "id": "flat_washer_normal_m5_simple",
+      "name": "ISO 7089 flat washer, M5",
+      "standard": {
+        "body": "ISO",
+        "number": "7089",
+        "designation": "ISO 7089"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "flat-washer",
+      "size": "M5",
+      "length_mm": null,
+      "attributes": {
+        "thread": "M5",
+        "nominalSize": "M5",
+        "washerStyle": "flat",
+        "insideDiameterMm": 5.3,
+        "outsideDiameterMm": 10,
+        "thicknessMm": 1.1
+      },
+      "source_page": "https://www.step.parts/parts/flat_washer_normal_m5_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/flat_washer_normal_m5_simple.step",
+      "filename": "flat_washer_normal_m5_simple.step",
+      "sha256": "51ff899874c1b231d8b120a3c92d5657faf50d085897c2b7fc6d92e27e10fe5a",
+      "byte_size": 14999,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso7091",
+      "selection": "ISO 7091 plain washers (C)",
+      "id": "iso7091_class_c_m2flatwasher",
+      "name": "ISO 7091 class C flat washer, M2",
+      "standard": {
+        "body": "ISO",
+        "number": "7091",
+        "designation": "ISO 7091"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "flat-washer",
+      "size": "M2",
+      "length_mm": null,
+      "attributes": {
+        "thread": "M2",
+        "washerStyle": "flat",
+        "nominalSize": "M2"
+      },
+      "source_page": "https://www.step.parts/parts/iso7091_class_c_m2flatwasher",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso7091_class_c_m2flatwasher.step",
+      "filename": "iso7091_class_c_m2flatwasher.step",
+      "sha256": "3947884824471e16a921aa762d5063e02cf02ee6c6228edb1bbdb8eb53a5cab3",
+      "byte_size": 12368,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso7091",
+      "selection": "ISO 7091 plain washers (C)",
+      "id": "iso7091_class_c_m2_5flatwasher",
+      "name": "ISO 7091 class C flat washer, M2.5",
+      "standard": {
+        "body": "ISO",
+        "number": "7091",
+        "designation": "ISO 7091"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "flat-washer",
+      "size": "M2.5",
+      "length_mm": null,
+      "attributes": {
+        "thread": "M2.5",
+        "washerStyle": "flat",
+        "nominalSize": "M2.5"
+      },
+      "source_page": "https://www.step.parts/parts/iso7091_class_c_m2_5flatwasher",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso7091_class_c_m2_5flatwasher.step",
+      "filename": "iso7091_class_c_m2_5flatwasher.step",
+      "sha256": "56cae2cc34326dcecc87bb331277253a799dd48ee2d31c440ba5d49041e766b1",
+      "byte_size": 12384,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso7091",
+      "selection": "ISO 7091 plain washers (C)",
+      "id": "iso7091_class_c_m3flatwasher",
+      "name": "ISO 7091 class C flat washer, M3",
+      "standard": {
+        "body": "ISO",
+        "number": "7091",
+        "designation": "ISO 7091"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "flat-washer",
+      "size": "M3",
+      "length_mm": null,
+      "attributes": {
+        "thread": "M3",
+        "washerStyle": "flat",
+        "nominalSize": "M3"
+      },
+      "source_page": "https://www.step.parts/parts/iso7091_class_c_m3flatwasher",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso7091_class_c_m3flatwasher.step",
+      "filename": "iso7091_class_c_m3flatwasher.step",
+      "sha256": "9757f85d25eac0e722bf541a705cd4b0c31d00e61302ac1ba9463fe3084742be",
+      "byte_size": 12374,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso7091",
+      "selection": "ISO 7091 plain washers (C)",
+      "id": "iso7091_class_c_m4flatwasher",
+      "name": "ISO 7091 class C flat washer, M4",
+      "standard": {
+        "body": "ISO",
+        "number": "7091",
+        "designation": "ISO 7091"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "flat-washer",
+      "size": "M4",
+      "length_mm": null,
+      "attributes": {
+        "thread": "M4",
+        "washerStyle": "flat",
+        "nominalSize": "M4"
+      },
+      "source_page": "https://www.step.parts/parts/iso7091_class_c_m4flatwasher",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso7091_class_c_m4flatwasher.step",
+      "filename": "iso7091_class_c_m4flatwasher.step",
+      "sha256": "404f487d00059619ed279c8ba50903b8b103d427842edbfd8bdb872bd631e723",
+      "byte_size": 12378,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso7091",
+      "selection": "ISO 7091 plain washers (C)",
+      "id": "iso7091din126_class_c_m5flatwasher",
+      "name": "ISO 7091 / DIN 126 class C flat washer, M5",
+      "standard": {
+        "body": "ISO",
+        "number": "7091",
+        "designation": "ISO 7091"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "flat-washer",
+      "size": "M5",
+      "length_mm": null,
+      "attributes": {
+        "thread": "M5",
+        "washerStyle": "flat",
+        "nominalSize": "M5"
+      },
+      "source_page": "https://www.step.parts/parts/iso7091din126_class_c_m5flatwasher",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso7091din126_class_c_m5flatwasher.step",
+      "filename": "iso7091din126_class_c_m5flatwasher.step",
+      "sha256": "e20ad01b07da5dd90e2feba579edacae774a11684b1089f875873c8088af254b",
+      "byte_size": 12417,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso7092",
+      "selection": "ISO 7092 small plain washers",
+      "id": "iso7092din433_m2_5flatwasher",
+      "name": "ISO 7092 / DIN 433 flat washer, M2.5",
+      "standard": {
+        "body": "ISO",
+        "number": "7092",
+        "designation": "ISO 7092"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "flat-washer",
+      "size": "M2.5",
+      "length_mm": null,
+      "attributes": {
+        "thread": "M2.5",
+        "washerStyle": "flat",
+        "nominalSize": "M2.5"
+      },
+      "source_page": "https://www.step.parts/parts/iso7092din433_m2_5flatwasher",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso7092din433_m2_5flatwasher.step",
+      "filename": "iso7092din433_m2_5flatwasher.step",
+      "sha256": "3d661d51e3bc6aac319535d8b31fcb30ded43cdbf7ecc03a15aa0978523c1ce5",
+      "byte_size": 12390,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso7092",
+      "selection": "ISO 7092 small plain washers",
+      "id": "iso7092din433_m3flatwasher",
+      "name": "ISO 7092 / DIN 433 flat washer, M3",
+      "standard": {
+        "body": "ISO",
+        "number": "7092",
+        "designation": "ISO 7092"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "flat-washer",
+      "size": "M3",
+      "length_mm": null,
+      "attributes": {
+        "thread": "M3",
+        "washerStyle": "flat",
+        "nominalSize": "M3"
+      },
+      "source_page": "https://www.step.parts/parts/iso7092din433_m3flatwasher",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso7092din433_m3flatwasher.step",
+      "filename": "iso7092din433_m3flatwasher.step",
+      "sha256": "cff51f7c525ab62d4981773c2457b04ac12e34830c8740ba50f4a22fb217ed48",
+      "byte_size": 12342,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso7092",
+      "selection": "ISO 7092 small plain washers",
+      "id": "iso7092din433_m4flatwasher",
+      "name": "ISO 7092 / DIN 433 flat washer, M4",
+      "standard": {
+        "body": "ISO",
+        "number": "7092",
+        "designation": "ISO 7092"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "flat-washer",
+      "size": "M4",
+      "length_mm": null,
+      "attributes": {
+        "thread": "M4",
+        "washerStyle": "flat",
+        "nominalSize": "M4"
+      },
+      "source_page": "https://www.step.parts/parts/iso7092din433_m4flatwasher",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso7092din433_m4flatwasher.step",
+      "filename": "iso7092din433_m4flatwasher.step",
+      "sha256": "bea607826f12fdcd493c4b9be909d6112cd066b6c3e2e6249851d124729da30f",
+      "byte_size": 12366,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso7092",
+      "selection": "ISO 7092 small plain washers",
+      "id": "iso7092din433_m5flatwasher",
+      "name": "ISO 7092 / DIN 433 flat washer, M5",
+      "standard": {
+        "body": "ISO",
+        "number": "7092",
+        "designation": "ISO 7092"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "flat-washer",
+      "size": "M5",
+      "length_mm": null,
+      "attributes": {
+        "thread": "M5",
+        "washerStyle": "flat",
+        "nominalSize": "M5"
+      },
+      "source_page": "https://www.step.parts/parts/iso7092din433_m5flatwasher",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso7092din433_m5flatwasher.step",
+      "filename": "iso7092din433_m5flatwasher.step",
+      "sha256": "61d5c2ec0db44996ad982bd8ccb12c87e8e1eb935c92ab1f9ab66d677d6f9d50",
+      "byte_size": 12369,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso7093",
+      "selection": "ISO 7093 large plain washers",
+      "id": "iso7093din9021_m2flatwasher",
+      "name": "ISO 7093 / DIN 9021 large flat washer, M2",
+      "standard": {
+        "body": "ISO",
+        "number": "7093",
+        "designation": "ISO 7093"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "large-washer",
+      "size": "M2",
+      "length_mm": null,
+      "attributes": {
+        "thread": "M2",
+        "washerStyle": "large",
+        "nominalSize": "M2"
+      },
+      "source_page": "https://www.step.parts/parts/iso7093din9021_m2flatwasher",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso7093din9021_m2flatwasher.step",
+      "filename": "iso7093din9021_m2flatwasher.step",
+      "sha256": "81463de5d271e90be9d6e97c8a22a0d920db4657b470222b352d8286e052ed2f",
+      "byte_size": 12354,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso7093",
+      "selection": "ISO 7093 large plain washers",
+      "id": "iso7093din9021_m2_5flatwasher",
+      "name": "ISO 7093 / DIN 9021 large flat washer, M2.5",
+      "standard": {
+        "body": "ISO",
+        "number": "7093",
+        "designation": "ISO 7093"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "large-washer",
+      "size": "M2.5",
+      "length_mm": null,
+      "attributes": {
+        "thread": "M2.5",
+        "washerStyle": "large",
+        "nominalSize": "M2.5"
+      },
+      "source_page": "https://www.step.parts/parts/iso7093din9021_m2_5flatwasher",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso7093din9021_m2_5flatwasher.step",
+      "filename": "iso7093din9021_m2_5flatwasher.step",
+      "sha256": "00d59a481397923cbfc4efc852a4aabd79cba668908307ce4afa8cee7342dc4f",
+      "byte_size": 12378,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso7093",
+      "selection": "ISO 7093 large plain washers",
+      "id": "iso7093din9021_m3flatwasher",
+      "name": "ISO 7093 / DIN 9021 large flat washer, M3",
+      "standard": {
+        "body": "ISO",
+        "number": "7093",
+        "designation": "ISO 7093"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "large-washer",
+      "size": "M3",
+      "length_mm": null,
+      "attributes": {
+        "thread": "M3",
+        "washerStyle": "large",
+        "nominalSize": "M3"
+      },
+      "source_page": "https://www.step.parts/parts/iso7093din9021_m3flatwasher",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso7093din9021_m3flatwasher.step",
+      "filename": "iso7093din9021_m3flatwasher.step",
+      "sha256": "011265a25c69aa7d4934318d53ad37653bec196ec7587d27121c7f58bc79bd76",
+      "byte_size": 12354,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso7093",
+      "selection": "ISO 7093 large plain washers",
+      "id": "iso7093din9021_m4flatwasher",
+      "name": "ISO 7093 / DIN 9021 large flat washer, M4",
+      "standard": {
+        "body": "ISO",
+        "number": "7093",
+        "designation": "ISO 7093"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "large-washer",
+      "size": "M4",
+      "length_mm": null,
+      "attributes": {
+        "thread": "M4",
+        "washerStyle": "large",
+        "nominalSize": "M4"
+      },
+      "source_page": "https://www.step.parts/parts/iso7093din9021_m4flatwasher",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso7093din9021_m4flatwasher.step",
+      "filename": "iso7093din9021_m4flatwasher.step",
+      "sha256": "5ae6374422c6135198ad3a8f1b6ab571cf74d9a398257998431273111a484db4",
+      "byte_size": 12367,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso7093",
+      "selection": "ISO 7093 large plain washers",
+      "id": "iso7093din9021_m5flatwasher",
+      "name": "ISO 7093 / DIN 9021 large flat washer, M5",
+      "standard": {
+        "body": "ISO",
+        "number": "7093",
+        "designation": "ISO 7093"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "large-washer",
+      "size": "M5",
+      "length_mm": null,
+      "attributes": {
+        "thread": "M5",
+        "washerStyle": "large",
+        "nominalSize": "M5"
+      },
+      "source_page": "https://www.step.parts/parts/iso7093din9021_m5flatwasher",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso7093din9021_m5flatwasher.step",
+      "filename": "iso7093din9021_m5flatwasher.step",
+      "sha256": "8ef0ad66310b42f2ffc10589943830d899afba6bb4368b857c1b56d0690b8845",
+      "byte_size": 12394,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso7090",
+      "selection": "ISO 7090 chamfered washers",
+      "id": "iso7090_m3_flat_washer",
+      "name": "ISO 7090 flat washer, M3",
+      "standard": {
+        "body": "ISO",
+        "number": "7090",
+        "designation": "ISO 7090"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "flat-washer",
+      "size": "M3",
+      "length_mm": null,
+      "attributes": {
+        "thread": "M3",
+        "washerStyle": "flat",
+        "nominalSize": "M3"
+      },
+      "source_page": "https://www.step.parts/parts/iso7090_m3_flat_washer",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso7090_m3_flat_washer.step",
+      "filename": "iso7090_m3_flat_washer.step",
+      "sha256": "6832418a88add2449ce4a1f85472955a81231cae9a35affdf173ff5d582a05b3",
+      "byte_size": 12342,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "din125",
+      "selection": "DIN 125 plain washers",
+      "id": "din125_flat_washer_m3",
+      "name": "DIN 125 flat washer, M3",
+      "standard": {
+        "body": "DIN",
+        "number": "125",
+        "designation": "DIN 125"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "flat-washer",
+      "size": "M3",
+      "length_mm": null,
+      "attributes": {
+        "thread": "M3",
+        "nominalSize": "M3",
+        "washerStyle": "flat"
+      },
+      "source_page": "https://www.step.parts/parts/din125_flat_washer_m3",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/din125_flat_washer_m3.step",
+      "filename": "din125_flat_washer_m3.step",
+      "sha256": "df57fbc49f55dd15c2780249a178c36e005ac299762d6def9f2c5b11fc8f7aff",
+      "byte_size": 12337,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "din127",
+      "selection": "DIN 127 spring washers",
+      "id": "din127_spring_washer_m4",
+      "name": "DIN 127 class B spring washer, M4",
+      "standard": {
+        "body": "DIN",
+        "number": "127",
+        "designation": "DIN 127"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "spring-washer",
+      "size": "M4",
+      "length_mm": null,
+      "attributes": {
+        "thread": "M4",
+        "nominalSize": "M4",
+        "washerStyle": "spring",
+        "standardClass": "B"
+      },
+      "source_page": "https://www.step.parts/parts/din127_spring_washer_m4",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/din127_spring_washer_m4.step",
+      "filename": "din127_spring_washer_m4.step",
+      "sha256": "8f07986778f7166cff7cfd56d85177903eef52f2a5640c039d4d32687b05b560",
+      "byte_size": 223174,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "din127",
+      "selection": "DIN 127 spring washers",
+      "id": "din127_spring_washer_m5",
+      "name": "DIN 127 class B spring washer, M5",
+      "standard": {
+        "body": "DIN",
+        "number": "127",
+        "designation": "DIN 127"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "spring-washer",
+      "size": "M5",
+      "length_mm": null,
+      "attributes": {
+        "thread": "M5",
+        "nominalSize": "M5",
+        "washerStyle": "spring",
+        "standardClass": "B"
+      },
+      "source_page": "https://www.step.parts/parts/din127_spring_washer_m5",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/din127_spring_washer_m5.step",
+      "filename": "din127_spring_washer_m5.step",
+      "sha256": "2032eb1afe8025a687db10e8d8daf08da14dd99fb89ee8017ef848c9c13a7825",
+      "byte_size": 223624,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "din7349",
+      "selection": "DIN 7349 thick washers",
+      "id": "din7349_m3flatwasher",
+      "name": "DIN 7349 flat washer, M3",
+      "standard": {
+        "body": "DIN",
+        "number": "7349",
+        "designation": "DIN 7349"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "flat-washer",
+      "size": "M3",
+      "length_mm": null,
+      "attributes": {
+        "thread": "M3",
+        "washerStyle": "flat",
+        "nominalSize": "M3"
+      },
+      "source_page": "https://www.step.parts/parts/din7349_m3flatwasher",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/din7349_m3flatwasher.step",
+      "filename": "din7349_m3flatwasher.step",
+      "sha256": "c8974709cc53c222be463ac375efe59b9e616b7284a9c1748eebfb66a260501d",
+      "byte_size": 12319,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "din7349",
+      "selection": "DIN 7349 thick washers",
+      "id": "din7349_m4flatwasher",
+      "name": "DIN 7349 flat washer, M4",
+      "standard": {
+        "body": "DIN",
+        "number": "7349",
+        "designation": "DIN 7349"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "flat-washer",
+      "size": "M4",
+      "length_mm": null,
+      "attributes": {
+        "thread": "M4",
+        "washerStyle": "flat",
+        "nominalSize": "M4"
+      },
+      "source_page": "https://www.step.parts/parts/din7349_m4flatwasher",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/din7349_m4flatwasher.step",
+      "filename": "din7349_m4flatwasher.step",
+      "sha256": "b84e9472acc8084fd49c0bad0eb7c3cb5ed509668389e24b39b22f77c9ab0d96",
+      "byte_size": 12346,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "din7349",
+      "selection": "DIN 7349 thick washers",
+      "id": "din7349_m5flatwasher",
+      "name": "DIN 7349 flat washer, M5",
+      "standard": {
+        "body": "DIN",
+        "number": "7349",
+        "designation": "DIN 7349"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "flat-washer",
+      "size": "M5",
+      "length_mm": null,
+      "attributes": {
+        "thread": "M5",
+        "washerStyle": "flat",
+        "nominalSize": "M5"
+      },
+      "source_page": "https://www.step.parts/parts/din7349_m5flatwasher",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/din7349_m5flatwasher.step",
+      "filename": "din7349_m5flatwasher.step",
+      "sha256": "3a1a9d6a24c86f4ebbd54088b430b34c805583de7c48a2fc5f57e1d22a8330ed",
+      "byte_size": 12359,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "din93",
+      "selection": "DIN 93 tab washers",
+      "id": "din93_m4tabwasher",
+      "name": "DIN 93 tab washer, M4",
+      "standard": {
+        "body": "DIN",
+        "number": "93",
+        "designation": "DIN 93"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "tab-washer",
+      "size": "M4",
+      "length_mm": null,
+      "attributes": {
+        "thread": "M4",
+        "washerStyle": "tab",
+        "nominalSize": "M4"
+      },
+      "source_page": "https://www.step.parts/parts/din93_m4tabwasher",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/din93_m4tabwasher.step",
+      "filename": "din93_m4tabwasher.step",
+      "sha256": "b4dddb00e456d2ac198936fdf50bc655d9b8c47ef7a6b0ad23a9dbdfc9759f6a",
+      "byte_size": 33046,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "din440",
+      "selection": "DIN 440 large washers",
+      "id": "din440_large_washer_m5",
+      "name": "DIN 440 class V large washer, M5",
+      "standard": {
+        "body": "DIN",
+        "number": "440",
+        "designation": "DIN 440"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "large-washer",
+      "size": "M5",
+      "length_mm": null,
+      "attributes": {
+        "thread": "M5",
+        "nominalSize": "M5",
+        "washerStyle": "large",
+        "standardClass": "V"
+      },
+      "source_page": "https://www.step.parts/parts/din440_large_washer_m5",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/din440_large_washer_m5.step",
+      "filename": "din440_large_washer_m5.step",
+      "sha256": "c0071a403098219a8f36e552920a6ca86a39b96cc28da3693603f74efb4c5ae0",
+      "byte_size": 21146,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso2338",
+      "selection": "ISO 2338 dowel pins",
+      "id": "iso_2338_dowel_pin_d002_l006",
+      "name": "ISO 2338 dowel pin, D2 x 6 mm",
+      "standard": {
+        "body": "ISO",
+        "number": "2338",
+        "designation": "ISO 2338"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "dowel-pin",
+      "size": "D2",
+      "length_mm": 6,
+      "attributes": {
+        "diameterMm": 2,
+        "lengthMm": 6,
+        "nominalSize": "D2 x 6 mm"
+      },
+      "source_page": "https://www.step.parts/parts/iso_2338_dowel_pin_d002_l006",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso_2338_dowel_pin_d002_l006.step",
+      "filename": "iso_2338_dowel_pin_d002_l006.step",
+      "sha256": "36417515d36f3c80e45ad123afe596a2e4bad4c9ac4bd14e666a204453010e9f",
+      "byte_size": 13791,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso2338",
+      "selection": "ISO 2338 dowel pins",
+      "id": "iso_2338_dowel_pin_d002_l020",
+      "name": "ISO 2338 dowel pin, D2 x 20 mm",
+      "standard": {
+        "body": "ISO",
+        "number": "2338",
+        "designation": "ISO 2338"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "dowel-pin",
+      "size": "D2",
+      "length_mm": 20,
+      "attributes": {
+        "diameterMm": 2,
+        "lengthMm": 20,
+        "nominalSize": "D2 x 20 mm"
+      },
+      "source_page": "https://www.step.parts/parts/iso_2338_dowel_pin_d002_l020",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso_2338_dowel_pin_d002_l020.step",
+      "filename": "iso_2338_dowel_pin_d002_l020.step",
+      "sha256": "3a9158fa1041f62dbb1c32213437c894ffce6c61ea1392aeae6f8711661574d1",
+      "byte_size": 13810,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso2338",
+      "selection": "ISO 2338 dowel pins",
+      "id": "iso_2338_dowel_pin_d002_l060",
+      "name": "ISO 2338 dowel pin, D2 x 60 mm",
+      "standard": {
+        "body": "ISO",
+        "number": "2338",
+        "designation": "ISO 2338"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "dowel-pin",
+      "size": "D2",
+      "length_mm": 60,
+      "attributes": {
+        "diameterMm": 2,
+        "lengthMm": 60,
+        "nominalSize": "D2 x 60 mm"
+      },
+      "source_page": "https://www.step.parts/parts/iso_2338_dowel_pin_d002_l060",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso_2338_dowel_pin_d002_l060.step",
+      "filename": "iso_2338_dowel_pin_d002_l060.step",
+      "sha256": "a83f12cf7b669b3be95c1378858964e45dfb39554783eb70838620987fb748a8",
+      "byte_size": 13810,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso2338",
+      "selection": "ISO 2338 dowel pins",
+      "id": "iso_2338_dowel_pin_d003_l006",
+      "name": "ISO 2338 dowel pin, D3 x 6 mm",
+      "standard": {
+        "body": "ISO",
+        "number": "2338",
+        "designation": "ISO 2338"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "dowel-pin",
+      "size": "D3",
+      "length_mm": 6,
+      "attributes": {
+        "diameterMm": 3,
+        "lengthMm": 6,
+        "nominalSize": "D3 x 6 mm"
+      },
+      "source_page": "https://www.step.parts/parts/iso_2338_dowel_pin_d003_l006",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso_2338_dowel_pin_d003_l006.step",
+      "filename": "iso_2338_dowel_pin_d003_l006.step",
+      "sha256": "8d9fa7d3a896075016319303865b2e979f86aa265cc6aba2b9e9433eb331cd2d",
+      "byte_size": 13805,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso2338",
+      "selection": "ISO 2338 dowel pins",
+      "id": "iso_2338_dowel_pin_d003_l020",
+      "name": "ISO 2338 dowel pin, D3 x 20 mm",
+      "standard": {
+        "body": "ISO",
+        "number": "2338",
+        "designation": "ISO 2338"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "dowel-pin",
+      "size": "D3",
+      "length_mm": 20,
+      "attributes": {
+        "diameterMm": 3,
+        "lengthMm": 20,
+        "nominalSize": "D3 x 20 mm"
+      },
+      "source_page": "https://www.step.parts/parts/iso_2338_dowel_pin_d003_l020",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso_2338_dowel_pin_d003_l020.step",
+      "filename": "iso_2338_dowel_pin_d003_l020.step",
+      "sha256": "c7ffda85d4973ab773c9d2d15fdd008cdeb60a03f93e7b908ed9235b32947dbc",
+      "byte_size": 13824,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso2338",
+      "selection": "ISO 2338 dowel pins",
+      "id": "iso_2338_dowel_pin_d003_l060",
+      "name": "ISO 2338 dowel pin, D3 x 60 mm",
+      "standard": {
+        "body": "ISO",
+        "number": "2338",
+        "designation": "ISO 2338"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "dowel-pin",
+      "size": "D3",
+      "length_mm": 60,
+      "attributes": {
+        "diameterMm": 3,
+        "lengthMm": 60,
+        "nominalSize": "D3 x 60 mm"
+      },
+      "source_page": "https://www.step.parts/parts/iso_2338_dowel_pin_d003_l060",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso_2338_dowel_pin_d003_l060.step",
+      "filename": "iso_2338_dowel_pin_d003_l060.step",
+      "sha256": "e4c58535665657412c19dff239477dfe5ea86df1680bd0fe871a47548cb33ff4",
+      "byte_size": 13824,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso2338",
+      "selection": "ISO 2338 dowel pins",
+      "id": "iso_2338_dowel_pin_d004_l008",
+      "name": "ISO 2338 dowel pin, D4 x 8 mm",
+      "standard": {
+        "body": "ISO",
+        "number": "2338",
+        "designation": "ISO 2338"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "dowel-pin",
+      "size": "D4",
+      "length_mm": 8,
+      "attributes": {
+        "diameterMm": 4,
+        "lengthMm": 8,
+        "nominalSize": "D4 x 8 mm"
+      },
+      "source_page": "https://www.step.parts/parts/iso_2338_dowel_pin_d004_l008",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso_2338_dowel_pin_d004_l008.step",
+      "filename": "iso_2338_dowel_pin_d004_l008.step",
+      "sha256": "fdd560b4da7112fbb8ad986f3927eb494bd748a29faa10fad8593699e3cf1c3e",
+      "byte_size": 13791,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso2338",
+      "selection": "ISO 2338 dowel pins",
+      "id": "iso_2338_dowel_pin_d004_l020",
+      "name": "ISO 2338 dowel pin, D4 x 20 mm",
+      "standard": {
+        "body": "ISO",
+        "number": "2338",
+        "designation": "ISO 2338"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "dowel-pin",
+      "size": "D4",
+      "length_mm": 20,
+      "attributes": {
+        "diameterMm": 4,
+        "lengthMm": 20,
+        "nominalSize": "D4 x 20 mm"
+      },
+      "source_page": "https://www.step.parts/parts/iso_2338_dowel_pin_d004_l020",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso_2338_dowel_pin_d004_l020.step",
+      "filename": "iso_2338_dowel_pin_d004_l020.step",
+      "sha256": "f319a08acc1701be57b9687c529cbb6fc565d3979d48f680408ae436f16fcf04",
+      "byte_size": 13807,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso2338",
+      "selection": "ISO 2338 dowel pins",
+      "id": "iso_2338_dowel_pin_d004_l060",
+      "name": "ISO 2338 dowel pin, D4 x 60 mm",
+      "standard": {
+        "body": "ISO",
+        "number": "2338",
+        "designation": "ISO 2338"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "dowel-pin",
+      "size": "D4",
+      "length_mm": 60,
+      "attributes": {
+        "diameterMm": 4,
+        "lengthMm": 60,
+        "nominalSize": "D4 x 60 mm"
+      },
+      "source_page": "https://www.step.parts/parts/iso_2338_dowel_pin_d004_l060",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso_2338_dowel_pin_d004_l060.step",
+      "filename": "iso_2338_dowel_pin_d004_l060.step",
+      "sha256": "b8218642d8fb5d64f5871b4305d0278bb2a26a7340914ad3523857284f867701",
+      "byte_size": 13807,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso2338",
+      "selection": "ISO 2338 dowel pins",
+      "id": "iso_2338_dowel_pin_d005_l010",
+      "name": "ISO 2338 dowel pin, D5 x 10 mm",
+      "standard": {
+        "body": "ISO",
+        "number": "2338",
+        "designation": "ISO 2338"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "dowel-pin",
+      "size": "D5",
+      "length_mm": 10,
+      "attributes": {
+        "diameterMm": 5,
+        "lengthMm": 10,
+        "nominalSize": "D5 x 10 mm"
+      },
+      "source_page": "https://www.step.parts/parts/iso_2338_dowel_pin_d005_l010",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso_2338_dowel_pin_d005_l010.step",
+      "filename": "iso_2338_dowel_pin_d005_l010.step",
+      "sha256": "52bf9ee8ad948989403327dd3132582c6ee2a8e43f4647859adac82cbae31d4c",
+      "byte_size": 13796,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso2338",
+      "selection": "ISO 2338 dowel pins",
+      "id": "iso_2338_dowel_pin_d005_l025",
+      "name": "ISO 2338 dowel pin, D5 x 25 mm",
+      "standard": {
+        "body": "ISO",
+        "number": "2338",
+        "designation": "ISO 2338"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "dowel-pin",
+      "size": "D5",
+      "length_mm": 25,
+      "attributes": {
+        "diameterMm": 5,
+        "lengthMm": 25,
+        "nominalSize": "D5 x 25 mm"
+      },
+      "source_page": "https://www.step.parts/parts/iso_2338_dowel_pin_d005_l025",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso_2338_dowel_pin_d005_l025.step",
+      "filename": "iso_2338_dowel_pin_d005_l025.step",
+      "sha256": "c26e163da7b823fa24e5ad5364c9dd486d868f0779631aaefc63fd8b9e6a8a43",
+      "byte_size": 13806,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso2338",
+      "selection": "ISO 2338 dowel pins",
+      "id": "iso_2338_dowel_pin_d005_l060",
+      "name": "ISO 2338 dowel pin, D5 x 60 mm",
+      "standard": {
+        "body": "ISO",
+        "number": "2338",
+        "designation": "ISO 2338"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "dowel-pin",
+      "size": "D5",
+      "length_mm": 60,
+      "attributes": {
+        "diameterMm": 5,
+        "lengthMm": 60,
+        "nominalSize": "D5 x 60 mm"
+      },
+      "source_page": "https://www.step.parts/parts/iso_2338_dowel_pin_d005_l060",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso_2338_dowel_pin_d005_l060.step",
+      "filename": "iso_2338_dowel_pin_d005_l060.step",
+      "sha256": "9ccd674456b44a378043a873349e7d4bc349cfa6018e568365489a46d34c6d3b",
+      "byte_size": 13806,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso8752",
+      "selection": "ISO 8752 slotted spring pins",
+      "id": "iso_8752_slotted_spring_pin_d1p5_l006_simple",
+      "name": "ISO 8752 slotted spring pin, D1.5 x 6 mm",
+      "standard": {
+        "body": "ISO",
+        "number": "8752",
+        "designation": "ISO 8752"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "slotted-spring-pin",
+      "size": "D1.5",
+      "length_mm": 6,
+      "attributes": {
+        "diameterMm": 1.5,
+        "lengthMm": 6,
+        "nominalSize": "D1.5 x 6 mm"
+      },
+      "source_page": "https://www.step.parts/parts/iso_8752_slotted_spring_pin_d1p5_l006_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso_8752_slotted_spring_pin_d1p5_l006_simple.step",
+      "filename": "iso_8752_slotted_spring_pin_d1p5_l006_simple.step",
+      "sha256": "15b49c309d54c56270b356745a7f2e61cdb63d3e51e9aaa5b8c402bc9ddd3d68",
+      "byte_size": 37284,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso8752",
+      "selection": "ISO 8752 slotted spring pins",
+      "id": "iso_8752_slotted_spring_pin_d1p5_l012_simple",
+      "name": "ISO 8752 slotted spring pin, D1.5 x 12 mm",
+      "standard": {
+        "body": "ISO",
+        "number": "8752",
+        "designation": "ISO 8752"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "slotted-spring-pin",
+      "size": "D1.5",
+      "length_mm": 12,
+      "attributes": {
+        "diameterMm": 1.5,
+        "lengthMm": 12,
+        "nominalSize": "D1.5 x 12 mm"
+      },
+      "source_page": "https://www.step.parts/parts/iso_8752_slotted_spring_pin_d1p5_l012_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso_8752_slotted_spring_pin_d1p5_l012_simple.step",
+      "filename": "iso_8752_slotted_spring_pin_d1p5_l012_simple.step",
+      "sha256": "4912ee4164d0b272874c8f5ffcec8a0413401059d32c98a64f58b9bb7244d0bc",
+      "byte_size": 37306,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso8752",
+      "selection": "ISO 8752 slotted spring pins",
+      "id": "iso_8752_slotted_spring_pin_d1p5_l025_simple",
+      "name": "ISO 8752 slotted spring pin, D1.5 x 25 mm",
+      "standard": {
+        "body": "ISO",
+        "number": "8752",
+        "designation": "ISO 8752"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "slotted-spring-pin",
+      "size": "D1.5",
+      "length_mm": 25,
+      "attributes": {
+        "diameterMm": 1.5,
+        "lengthMm": 25,
+        "nominalSize": "D1.5 x 25 mm"
+      },
+      "source_page": "https://www.step.parts/parts/iso_8752_slotted_spring_pin_d1p5_l025_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso_8752_slotted_spring_pin_d1p5_l025_simple.step",
+      "filename": "iso_8752_slotted_spring_pin_d1p5_l025_simple.step",
+      "sha256": "448271ffb4fd14d30fc2cf500d99141cb6e54fa5530a2f8a734e6ce9c6901115",
+      "byte_size": 37287,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso8752",
+      "selection": "ISO 8752 slotted spring pins",
+      "id": "iso_8752_slotted_spring_pin_d2_l006_simple",
+      "name": "ISO 8752 slotted spring pin, D2 x 6 mm",
+      "standard": {
+        "body": "ISO",
+        "number": "8752",
+        "designation": "ISO 8752"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "slotted-spring-pin",
+      "size": "D2",
+      "length_mm": 6,
+      "attributes": {
+        "diameterMm": 2,
+        "lengthMm": 6,
+        "nominalSize": "D2 x 6 mm"
+      },
+      "source_page": "https://www.step.parts/parts/iso_8752_slotted_spring_pin_d2_l006_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso_8752_slotted_spring_pin_d2_l006_simple.step",
+      "filename": "iso_8752_slotted_spring_pin_d2_l006_simple.step",
+      "sha256": "607770b828460a2986da8abdd1ac7a6fec7961351e3ad25e5013235e607d99c5",
+      "byte_size": 37185,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso8752",
+      "selection": "ISO 8752 slotted spring pins",
+      "id": "iso_8752_slotted_spring_pin_d2_l012_simple",
+      "name": "ISO 8752 slotted spring pin, D2 x 12 mm",
+      "standard": {
+        "body": "ISO",
+        "number": "8752",
+        "designation": "ISO 8752"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "slotted-spring-pin",
+      "size": "D2",
+      "length_mm": 12,
+      "attributes": {
+        "diameterMm": 2,
+        "lengthMm": 12,
+        "nominalSize": "D2 x 12 mm"
+      },
+      "source_page": "https://www.step.parts/parts/iso_8752_slotted_spring_pin_d2_l012_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso_8752_slotted_spring_pin_d2_l012_simple.step",
+      "filename": "iso_8752_slotted_spring_pin_d2_l012_simple.step",
+      "sha256": "b6ca61e1db6ff143266e4382be4adb04bb5b66b5d18f8ba850fe2299427f3329",
+      "byte_size": 37210,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso8752",
+      "selection": "ISO 8752 slotted spring pins",
+      "id": "iso_8752_slotted_spring_pin_d2_l025_simple",
+      "name": "ISO 8752 slotted spring pin, D2 x 25 mm",
+      "standard": {
+        "body": "ISO",
+        "number": "8752",
+        "designation": "ISO 8752"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "slotted-spring-pin",
+      "size": "D2",
+      "length_mm": 25,
+      "attributes": {
+        "diameterMm": 2,
+        "lengthMm": 25,
+        "nominalSize": "D2 x 25 mm"
+      },
+      "source_page": "https://www.step.parts/parts/iso_8752_slotted_spring_pin_d2_l025_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso_8752_slotted_spring_pin_d2_l025_simple.step",
+      "filename": "iso_8752_slotted_spring_pin_d2_l025_simple.step",
+      "sha256": "eddef7e7e5c5f0bbaaff4df3eeb82871d1a4672a959c20bc2bd51279350acf45",
+      "byte_size": 37191,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso8752",
+      "selection": "ISO 8752 slotted spring pins",
+      "id": "iso_8752_slotted_spring_pin_d2p5_l008_simple",
+      "name": "ISO 8752 slotted spring pin, D2.5 x 8 mm",
+      "standard": {
+        "body": "ISO",
+        "number": "8752",
+        "designation": "ISO 8752"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "slotted-spring-pin",
+      "size": "D2.5",
+      "length_mm": 8,
+      "attributes": {
+        "diameterMm": 2.5,
+        "lengthMm": 8,
+        "nominalSize": "D2.5 x 8 mm"
+      },
+      "source_page": "https://www.step.parts/parts/iso_8752_slotted_spring_pin_d2p5_l008_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso_8752_slotted_spring_pin_d2p5_l008_simple.step",
+      "filename": "iso_8752_slotted_spring_pin_d2p5_l008_simple.step",
+      "sha256": "758f93536b621579f7a6f832393c58269fe640dada05492cf2fd90aeb3721902",
+      "byte_size": 37294,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso8752",
+      "selection": "ISO 8752 slotted spring pins",
+      "id": "iso_8752_slotted_spring_pin_d2p5_l016_simple",
+      "name": "ISO 8752 slotted spring pin, D2.5 x 16 mm",
+      "standard": {
+        "body": "ISO",
+        "number": "8752",
+        "designation": "ISO 8752"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "slotted-spring-pin",
+      "size": "D2.5",
+      "length_mm": 16,
+      "attributes": {
+        "diameterMm": 2.5,
+        "lengthMm": 16,
+        "nominalSize": "D2.5 x 16 mm"
+      },
+      "source_page": "https://www.step.parts/parts/iso_8752_slotted_spring_pin_d2p5_l016_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso_8752_slotted_spring_pin_d2p5_l016_simple.step",
+      "filename": "iso_8752_slotted_spring_pin_d2p5_l016_simple.step",
+      "sha256": "e7a227651bea58c68929a526fd79c451142f8355a470108b64b3332f48db6131",
+      "byte_size": 37326,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso8752",
+      "selection": "ISO 8752 slotted spring pins",
+      "id": "iso_8752_slotted_spring_pin_d2p5_l030_simple",
+      "name": "ISO 8752 slotted spring pin, D2.5 x 30 mm",
+      "standard": {
+        "body": "ISO",
+        "number": "8752",
+        "designation": "ISO 8752"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "slotted-spring-pin",
+      "size": "D2.5",
+      "length_mm": 30,
+      "attributes": {
+        "diameterMm": 2.5,
+        "lengthMm": 30,
+        "nominalSize": "D2.5 x 30 mm"
+      },
+      "source_page": "https://www.step.parts/parts/iso_8752_slotted_spring_pin_d2p5_l030_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso_8752_slotted_spring_pin_d2p5_l030_simple.step",
+      "filename": "iso_8752_slotted_spring_pin_d2p5_l030_simple.step",
+      "sha256": "85058290ac228a01eae81299d6c2d1f00b6d8b8b7d56be0f9c682265c3390c32",
+      "byte_size": 37311,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso8752",
+      "selection": "ISO 8752 slotted spring pins",
+      "id": "iso_8752_slotted_spring_pin_d3_l010_simple",
+      "name": "ISO 8752 slotted spring pin, D3 x 10 mm",
+      "standard": {
+        "body": "ISO",
+        "number": "8752",
+        "designation": "ISO 8752"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "slotted-spring-pin",
+      "size": "D3",
+      "length_mm": 10,
+      "attributes": {
+        "diameterMm": 3,
+        "lengthMm": 10,
+        "nominalSize": "D3 x 10 mm"
+      },
+      "source_page": "https://www.step.parts/parts/iso_8752_slotted_spring_pin_d3_l010_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso_8752_slotted_spring_pin_d3_l010_simple.step",
+      "filename": "iso_8752_slotted_spring_pin_d3_l010_simple.step",
+      "sha256": "b8dde104f0709fc10d228b3d1e5f71caaabc8fb08677554d2e95b4a4cfaa7cb7",
+      "byte_size": 37164,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso8752",
+      "selection": "ISO 8752 slotted spring pins",
+      "id": "iso_8752_slotted_spring_pin_d3_l020_simple",
+      "name": "ISO 8752 slotted spring pin, D3 x 20 mm",
+      "standard": {
+        "body": "ISO",
+        "number": "8752",
+        "designation": "ISO 8752"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "slotted-spring-pin",
+      "size": "D3",
+      "length_mm": 20,
+      "attributes": {
+        "diameterMm": 3,
+        "lengthMm": 20,
+        "nominalSize": "D3 x 20 mm"
+      },
+      "source_page": "https://www.step.parts/parts/iso_8752_slotted_spring_pin_d3_l020_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso_8752_slotted_spring_pin_d3_l020_simple.step",
+      "filename": "iso_8752_slotted_spring_pin_d3_l020_simple.step",
+      "sha256": "d0da51784987e19a09e973bb3ce19bc3103322a57621c76eccdc0a22bc11595d",
+      "byte_size": 37220,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso8752",
+      "selection": "ISO 8752 slotted spring pins",
+      "id": "iso_8752_slotted_spring_pin_d3_l040_simple",
+      "name": "ISO 8752 slotted spring pin, D3 x 40 mm",
+      "standard": {
+        "body": "ISO",
+        "number": "8752",
+        "designation": "ISO 8752"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "slotted-spring-pin",
+      "size": "D3",
+      "length_mm": 40,
+      "attributes": {
+        "diameterMm": 3,
+        "lengthMm": 40,
+        "nominalSize": "D3 x 40 mm"
+      },
+      "source_page": "https://www.step.parts/parts/iso_8752_slotted_spring_pin_d3_l040_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso_8752_slotted_spring_pin_d3_l040_simple.step",
+      "filename": "iso_8752_slotted_spring_pin_d3_l040_simple.step",
+      "sha256": "92be85441ded71d1c418e0e67bd9ab54c9040105d175bc0610b4d5946f6f3c93",
+      "byte_size": 37220,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso8752",
+      "selection": "ISO 8752 slotted spring pins",
+      "id": "iso_8752_slotted_spring_pin_d4_l012_simple",
+      "name": "ISO 8752 slotted spring pin, D4 x 12 mm",
+      "standard": {
+        "body": "ISO",
+        "number": "8752",
+        "designation": "ISO 8752"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "slotted-spring-pin",
+      "size": "D4",
+      "length_mm": 12,
+      "attributes": {
+        "diameterMm": 4,
+        "lengthMm": 12,
+        "nominalSize": "D4 x 12 mm"
+      },
+      "source_page": "https://www.step.parts/parts/iso_8752_slotted_spring_pin_d4_l012_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso_8752_slotted_spring_pin_d4_l012_simple.step",
+      "filename": "iso_8752_slotted_spring_pin_d4_l012_simple.step",
+      "sha256": "0d5ba129a5c321cc5f416730358e1eb15640e0d45724aa1468b8e4c1b52efc94",
+      "byte_size": 37197,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso8752",
+      "selection": "ISO 8752 slotted spring pins",
+      "id": "iso_8752_slotted_spring_pin_d4_l025_simple",
+      "name": "ISO 8752 slotted spring pin, D4 x 25 mm",
+      "standard": {
+        "body": "ISO",
+        "number": "8752",
+        "designation": "ISO 8752"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "slotted-spring-pin",
+      "size": "D4",
+      "length_mm": 25,
+      "attributes": {
+        "diameterMm": 4,
+        "lengthMm": 25,
+        "nominalSize": "D4 x 25 mm"
+      },
+      "source_page": "https://www.step.parts/parts/iso_8752_slotted_spring_pin_d4_l025_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso_8752_slotted_spring_pin_d4_l025_simple.step",
+      "filename": "iso_8752_slotted_spring_pin_d4_l025_simple.step",
+      "sha256": "7f453e5b8216edb243baedcfec897190409718e0be9d9036d3e2a97fe03409af",
+      "byte_size": 37178,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso8752",
+      "selection": "ISO 8752 slotted spring pins",
+      "id": "iso_8752_slotted_spring_pin_d4_l050_simple",
+      "name": "ISO 8752 slotted spring pin, D4 x 50 mm",
+      "standard": {
+        "body": "ISO",
+        "number": "8752",
+        "designation": "ISO 8752"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "slotted-spring-pin",
+      "size": "D4",
+      "length_mm": 50,
+      "attributes": {
+        "diameterMm": 4,
+        "lengthMm": 50,
+        "nominalSize": "D4 x 50 mm"
+      },
+      "source_page": "https://www.step.parts/parts/iso_8752_slotted_spring_pin_d4_l050_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso_8752_slotted_spring_pin_d4_l050_simple.step",
+      "filename": "iso_8752_slotted_spring_pin_d4_l050_simple.step",
+      "sha256": "f1eaf643fa8f0b857dc91f317477056d343c52c9d9073790f3730d4d4ae36f54",
+      "byte_size": 37178,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso8752",
+      "selection": "ISO 8752 slotted spring pins",
+      "id": "iso_8752_slotted_spring_pin_d5_l016_simple",
+      "name": "ISO 8752 slotted spring pin, D5 x 16 mm",
+      "standard": {
+        "body": "ISO",
+        "number": "8752",
+        "designation": "ISO 8752"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "slotted-spring-pin",
+      "size": "D5",
+      "length_mm": 16,
+      "attributes": {
+        "diameterMm": 5,
+        "lengthMm": 16,
+        "nominalSize": "D5 x 16 mm"
+      },
+      "source_page": "https://www.step.parts/parts/iso_8752_slotted_spring_pin_d5_l016_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso_8752_slotted_spring_pin_d5_l016_simple.step",
+      "filename": "iso_8752_slotted_spring_pin_d5_l016_simple.step",
+      "sha256": "8ed95e65f24071ecfba5bba431f6264f02f8206daed236c1cffa635952be0736",
+      "byte_size": 37214,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso8752",
+      "selection": "ISO 8752 slotted spring pins",
+      "id": "iso_8752_slotted_spring_pin_d5_l025_simple",
+      "name": "ISO 8752 slotted spring pin, D5 x 25 mm",
+      "standard": {
+        "body": "ISO",
+        "number": "8752",
+        "designation": "ISO 8752"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "slotted-spring-pin",
+      "size": "D5",
+      "length_mm": 25,
+      "attributes": {
+        "diameterMm": 5,
+        "lengthMm": 25,
+        "nominalSize": "D5 x 25 mm"
+      },
+      "source_page": "https://www.step.parts/parts/iso_8752_slotted_spring_pin_d5_l025_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso_8752_slotted_spring_pin_d5_l025_simple.step",
+      "filename": "iso_8752_slotted_spring_pin_d5_l025_simple.step",
+      "sha256": "3540842a23805a5bf5e95f511fe521e59a2ea400b53248bf4c7dc0e43bbc7187",
+      "byte_size": 37183,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso8752",
+      "selection": "ISO 8752 slotted spring pins",
+      "id": "iso_8752_slotted_spring_pin_d5_l050_simple",
+      "name": "ISO 8752 slotted spring pin, D5 x 50 mm",
+      "standard": {
+        "body": "ISO",
+        "number": "8752",
+        "designation": "ISO 8752"
+      },
+      "standard_status": "catalog standard exact",
+      "family": "slotted-spring-pin",
+      "size": "D5",
+      "length_mm": 50,
+      "attributes": {
+        "diameterMm": 5,
+        "lengthMm": 50,
+        "nominalSize": "D5 x 50 mm"
+      },
+      "source_page": "https://www.step.parts/parts/iso_8752_slotted_spring_pin_d5_l050_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso_8752_slotted_spring_pin_d5_l050_simple.step",
+      "filename": "iso_8752_slotted_spring_pin_d5_l050_simple.step",
+      "sha256": "44c7d0b051ff823bfcf4032fbf95fd87c184206aa9f88ddcfb3d7f4a85c9b193",
+      "byte_size": 37183,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso1234",
+      "selection": "ISO 1234 cotter pins",
+      "id": "iso_1234_cotter_pin_d1_l020_simple",
+      "name": "Cotter pins, d=1 mm, L=20 mm",
+      "standard": {
+        "body": "ISO",
+        "number": "1234",
+        "designation": "ISO 1234"
+      },
+      "standard_status": "catalog standard exact; geometry note: analytic simplified",
+      "family": "cotter-pin",
+      "size": "D1",
+      "length_mm": 20,
+      "attributes": {
+        "geometryRepresentation": "analytic simplified",
+        "diameterMm": 1,
+        "lengthMm": 20
+      },
+      "source_page": "https://www.step.parts/parts/iso_1234_cotter_pin_d1_l020_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso_1234_cotter_pin_d1_l020_simple.step",
+      "filename": "iso_1234_cotter_pin_d1_l020_simple.step",
+      "sha256": "8901d77ec03fee0700c7cd3fda3036b6503ab59d94960677c5707431f84e7d65",
+      "byte_size": 27349,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso1234",
+      "selection": "ISO 1234 cotter pins",
+      "id": "iso_1234_cotter_pin_d1p6_l025_simple",
+      "name": "Cotter pins, d=1.6 mm, L=25 mm",
+      "standard": {
+        "body": "ISO",
+        "number": "1234",
+        "designation": "ISO 1234"
+      },
+      "standard_status": "catalog standard exact; geometry note: analytic simplified",
+      "family": "cotter-pin",
+      "size": "D1.6",
+      "length_mm": 25,
+      "attributes": {
+        "geometryRepresentation": "analytic simplified",
+        "diameterMm": 1.6,
+        "lengthMm": 25
+      },
+      "source_page": "https://www.step.parts/parts/iso_1234_cotter_pin_d1p6_l025_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso_1234_cotter_pin_d1p6_l025_simple.step",
+      "filename": "iso_1234_cotter_pin_d1p6_l025_simple.step",
+      "sha256": "2c49a8ff1dbd948e3a7cd0560c72c62379fe887c76b83b5c860e2386f12e0603",
+      "byte_size": 27946,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso1234",
+      "selection": "ISO 1234 cotter pins",
+      "id": "iso_1234_cotter_pin_d2_l032_simple",
+      "name": "Cotter pins, d=2 mm, L=32 mm",
+      "standard": {
+        "body": "ISO",
+        "number": "1234",
+        "designation": "ISO 1234"
+      },
+      "standard_status": "catalog standard exact; geometry note: analytic simplified",
+      "family": "cotter-pin",
+      "size": "D2",
+      "length_mm": 32,
+      "attributes": {
+        "geometryRepresentation": "analytic simplified",
+        "diameterMm": 2,
+        "lengthMm": 32
+      },
+      "source_page": "https://www.step.parts/parts/iso_1234_cotter_pin_d2_l032_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso_1234_cotter_pin_d2_l032_simple.step",
+      "filename": "iso_1234_cotter_pin_d2_l032_simple.step",
+      "sha256": "40df625f51acdc90c3e2b1ae274a52f5e3a0759a580deb97e3a0069e5d1060db",
+      "byte_size": 29296,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso1234",
+      "selection": "ISO 1234 cotter pins",
+      "id": "iso_1234_cotter_pin_d2p5_l040_simple",
+      "name": "Cotter pins, d=2.5 mm, L=40 mm",
+      "standard": {
+        "body": "ISO",
+        "number": "1234",
+        "designation": "ISO 1234"
+      },
+      "standard_status": "catalog standard exact; geometry note: analytic simplified",
+      "family": "cotter-pin",
+      "size": "D2.5",
+      "length_mm": 40,
+      "attributes": {
+        "geometryRepresentation": "analytic simplified",
+        "diameterMm": 2.5,
+        "lengthMm": 40
+      },
+      "source_page": "https://www.step.parts/parts/iso_1234_cotter_pin_d2p5_l040_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso_1234_cotter_pin_d2p5_l040_simple.step",
+      "filename": "iso_1234_cotter_pin_d2p5_l040_simple.step",
+      "sha256": "4f26e20bc89fca6914f11c235d0dfe1cd2017356032c6866e2f3f4571b3b399f",
+      "byte_size": 29390,
+      "status": "downloaded",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso1234",
+      "selection": "ISO 1234 cotter pins",
+      "id": "iso_1234_cotter_pin_d3p2_l050_simple",
+      "name": "Cotter pins, d=3.2 mm, L=50 mm",
+      "standard": {
+        "body": "ISO",
+        "number": "1234",
+        "designation": "ISO 1234"
+      },
+      "standard_status": "catalog standard exact; geometry note: analytic simplified",
+      "family": "cotter-pin",
+      "size": "D3.2",
+      "length_mm": 50,
+      "attributes": {
+        "geometryRepresentation": "analytic simplified",
+        "diameterMm": 3.2,
+        "lengthMm": 50
+      },
+      "source_page": "https://www.step.parts/parts/iso_1234_cotter_pin_d3p2_l050_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso_1234_cotter_pin_d3p2_l050_simple.step",
+      "filename": "iso_1234_cotter_pin_d3p2_l050_simple.step",
+      "sha256": "3d1ad43388cf4b013583dc11ac6d6f481a13874e9c76eecd2910dde5e62318fd",
+      "byte_size": 29371,
+      "status": "downloaded",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso1234",
+      "selection": "ISO 1234 cotter pins",
+      "id": "iso_1234_cotter_pin_d4_l063_simple",
+      "name": "Cotter pins, d=4 mm, L=63 mm",
+      "standard": {
+        "body": "ISO",
+        "number": "1234",
+        "designation": "ISO 1234"
+      },
+      "standard_status": "catalog standard exact; geometry note: analytic simplified",
+      "family": "cotter-pin",
+      "size": "D4",
+      "length_mm": 63,
+      "attributes": {
+        "geometryRepresentation": "analytic simplified",
+        "diameterMm": 4,
+        "lengthMm": 63
+      },
+      "source_page": "https://www.step.parts/parts/iso_1234_cotter_pin_d4_l063_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso_1234_cotter_pin_d4_l063_simple.step",
+      "filename": "iso_1234_cotter_pin_d4_l063_simple.step",
+      "sha256": "002860471834f6b6843328c18ef724f5825413e3ad8c42577111fbf49e4742ae",
+      "byte_size": 29833,
+      "status": "downloaded",
+      "checksum_verified": true
+    },
+    {
+      "group": "iso1234",
+      "selection": "ISO 1234 cotter pins",
+      "id": "iso_1234_cotter_pin_d5_l080_simple",
+      "name": "Cotter pins, d=5 mm, L=80 mm",
+      "standard": {
+        "body": "ISO",
+        "number": "1234",
+        "designation": "ISO 1234"
+      },
+      "standard_status": "catalog standard exact; geometry note: analytic simplified",
+      "family": "cotter-pin",
+      "size": "D5",
+      "length_mm": 80,
+      "attributes": {
+        "geometryRepresentation": "analytic simplified",
+        "diameterMm": 5,
+        "lengthMm": 80
+      },
+      "source_page": "https://www.step.parts/parts/iso_1234_cotter_pin_d5_l080_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso_1234_cotter_pin_d5_l080_simple.step",
+      "filename": "iso_1234_cotter_pin_d5_l080_simple.step",
+      "sha256": "a7f956212bb9c416a941abf58f07c332d82de260b88d0736bab55650c42e110b",
+      "byte_size": 29855,
+      "status": "downloaded",
+      "checksum_verified": true
+    },
+    {
+      "group": "rods",
+      "selection": "Metric threaded rods (DIN 976-compatible)",
+      "id": "iso_metric_threaded_rod_m2_l025_simple",
+      "name": "Metric threaded rod, M2 x 25 mm",
+      "standard": null,
+      "standard_status": "no catalog standard designation; metric coarse thread per ISO 261/ISO 68-1 (DIN 976-compatible)",
+      "family": "metric-threaded-rod",
+      "size": "M2",
+      "length_mm": 25,
+      "attributes": {
+        "thread": "M2",
+        "diameterMm": 2,
+        "lengthMm": 25,
+        "nominalSize": "M2 x 25 mm",
+        "threadRepresentation": "simplified"
+      },
+      "source_page": "https://www.step.parts/parts/iso_metric_threaded_rod_m2_l025_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso_metric_threaded_rod_m2_l025_simple.step",
+      "filename": "iso_metric_threaded_rod_m2_l025_simple.step",
+      "sha256": "2f50aa96de0fccfeb7960a30650ff69f9c0ad4b1d284b95b15d2c5f4fb4c7e26",
+      "byte_size": 8654,
+      "status": "downloaded",
+      "checksum_verified": true
+    },
+    {
+      "group": "rods",
+      "selection": "Metric threaded rods (DIN 976-compatible)",
+      "id": "iso_metric_threaded_rod_m2_l200_simple",
+      "name": "Metric threaded rod, M2 x 200 mm",
+      "standard": null,
+      "standard_status": "no catalog standard designation; metric coarse thread per ISO 261/ISO 68-1 (DIN 976-compatible)",
+      "family": "metric-threaded-rod",
+      "size": "M2",
+      "length_mm": 200,
+      "attributes": {
+        "thread": "M2",
+        "diameterMm": 2,
+        "lengthMm": 200,
+        "nominalSize": "M2 x 200 mm",
+        "threadRepresentation": "simplified"
+      },
+      "source_page": "https://www.step.parts/parts/iso_metric_threaded_rod_m2_l200_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso_metric_threaded_rod_m2_l200_simple.step",
+      "filename": "iso_metric_threaded_rod_m2_l200_simple.step",
+      "sha256": "b7ac5bc9c83336bdcbe8a7ad1a76e7745c098498dcc85170ed55bc79bcd5936f",
+      "byte_size": 8662,
+      "status": "downloaded",
+      "checksum_verified": true
+    },
+    {
+      "group": "rods",
+      "selection": "Metric threaded rods (DIN 976-compatible)",
+      "id": "iso_metric_threaded_rod_m2p5_l025_simple",
+      "name": "Metric threaded rod, M2.5 x 25 mm",
+      "standard": null,
+      "standard_status": "no catalog standard designation; metric coarse thread per ISO 261/ISO 68-1 (DIN 976-compatible)",
+      "family": "metric-threaded-rod",
+      "size": "M2.5",
+      "length_mm": 25,
+      "attributes": {
+        "thread": "M2.5",
+        "diameterMm": 2.5,
+        "lengthMm": 25,
+        "nominalSize": "M2.5 x 25 mm",
+        "threadRepresentation": "simplified"
+      },
+      "source_page": "https://www.step.parts/parts/iso_metric_threaded_rod_m2p5_l025_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso_metric_threaded_rod_m2p5_l025_simple.step",
+      "filename": "iso_metric_threaded_rod_m2p5_l025_simple.step",
+      "sha256": "fc58ee44b075731c09e4c75866809ee0d5a79afb9b94693e7f96f23f00faae65",
+      "byte_size": 8686,
+      "status": "downloaded",
+      "checksum_verified": true
+    },
+    {
+      "group": "rods",
+      "selection": "Metric threaded rods (DIN 976-compatible)",
+      "id": "iso_metric_threaded_rod_m2p5_l200_simple",
+      "name": "Metric threaded rod, M2.5 x 200 mm",
+      "standard": null,
+      "standard_status": "no catalog standard designation; metric coarse thread per ISO 261/ISO 68-1 (DIN 976-compatible)",
+      "family": "metric-threaded-rod",
+      "size": "M2.5",
+      "length_mm": 200,
+      "attributes": {
+        "thread": "M2.5",
+        "diameterMm": 2.5,
+        "lengthMm": 200,
+        "nominalSize": "M2.5 x 200 mm",
+        "threadRepresentation": "simplified"
+      },
+      "source_page": "https://www.step.parts/parts/iso_metric_threaded_rod_m2p5_l200_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso_metric_threaded_rod_m2p5_l200_simple.step",
+      "filename": "iso_metric_threaded_rod_m2p5_l200_simple.step",
+      "sha256": "d7303c6ad96c911cdf8cf27ba491cc71aeed53061e5d178f78a8da687f1d99ef",
+      "byte_size": 8694,
+      "status": "downloaded",
+      "checksum_verified": true
+    },
+    {
+      "group": "rods",
+      "selection": "Metric threaded rods (DIN 976-compatible)",
+      "id": "iso_metric_threaded_rod_m3_l025_simple",
+      "name": "Metric threaded rod, M3 x 25 mm",
+      "standard": null,
+      "standard_status": "no catalog standard designation; metric coarse thread per ISO 261/ISO 68-1 (DIN 976-compatible)",
+      "family": "metric-threaded-rod",
+      "size": "M3",
+      "length_mm": 25,
+      "attributes": {
+        "thread": "M3",
+        "diameterMm": 3,
+        "lengthMm": 25,
+        "nominalSize": "M3 x 25 mm",
+        "threadRepresentation": "simplified"
+      },
+      "source_page": "https://www.step.parts/parts/iso_metric_threaded_rod_m3_l025_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso_metric_threaded_rod_m3_l025_simple.step",
+      "filename": "iso_metric_threaded_rod_m3_l025_simple.step",
+      "sha256": "4eaac1fb024e310e50cbb5c08ffa956e6f3f5dfeb8602c1f5512c4fc3988dd87",
+      "byte_size": 8666,
+      "status": "downloaded",
+      "checksum_verified": true
+    },
+    {
+      "group": "rods",
+      "selection": "Metric threaded rods (DIN 976-compatible)",
+      "id": "iso_metric_threaded_rod_m3_l200_simple",
+      "name": "Metric threaded rod, M3 x 200 mm",
+      "standard": null,
+      "standard_status": "no catalog standard designation; metric coarse thread per ISO 261/ISO 68-1 (DIN 976-compatible)",
+      "family": "metric-threaded-rod",
+      "size": "M3",
+      "length_mm": 200,
+      "attributes": {
+        "thread": "M3",
+        "diameterMm": 3,
+        "lengthMm": 200,
+        "nominalSize": "M3 x 200 mm",
+        "threadRepresentation": "simplified"
+      },
+      "source_page": "https://www.step.parts/parts/iso_metric_threaded_rod_m3_l200_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso_metric_threaded_rod_m3_l200_simple.step",
+      "filename": "iso_metric_threaded_rod_m3_l200_simple.step",
+      "sha256": "5846e4476371e29205dd472d73c52e4036e30fde22e64a78c6e2ec306e6783a0",
+      "byte_size": 8674,
+      "status": "downloaded",
+      "checksum_verified": true
+    },
+    {
+      "group": "rods",
+      "selection": "Metric threaded rods (DIN 976-compatible)",
+      "id": "iso_metric_threaded_rod_m4_l025_simple",
+      "name": "Metric threaded rod, M4 x 25 mm",
+      "standard": null,
+      "standard_status": "no catalog standard designation; metric coarse thread per ISO 261/ISO 68-1 (DIN 976-compatible)",
+      "family": "metric-threaded-rod",
+      "size": "M4",
+      "length_mm": 25,
+      "attributes": {
+        "thread": "M4",
+        "diameterMm": 4,
+        "lengthMm": 25,
+        "nominalSize": "M4 x 25 mm",
+        "threadRepresentation": "simplified"
+      },
+      "source_page": "https://www.step.parts/parts/iso_metric_threaded_rod_m4_l025_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso_metric_threaded_rod_m4_l025_simple.step",
+      "filename": "iso_metric_threaded_rod_m4_l025_simple.step",
+      "sha256": "a50f91459991ff8f9bf518a04a26d412d046a117ef0c2c6fb52490f43bb5c991",
+      "byte_size": 8647,
+      "status": "downloaded",
+      "checksum_verified": true
+    },
+    {
+      "group": "rods",
+      "selection": "Metric threaded rods (DIN 976-compatible)",
+      "id": "iso_metric_threaded_rod_m4_l200_simple",
+      "name": "Metric threaded rod, M4 x 200 mm",
+      "standard": null,
+      "standard_status": "no catalog standard designation; metric coarse thread per ISO 261/ISO 68-1 (DIN 976-compatible)",
+      "family": "metric-threaded-rod",
+      "size": "M4",
+      "length_mm": 200,
+      "attributes": {
+        "thread": "M4",
+        "diameterMm": 4,
+        "lengthMm": 200,
+        "nominalSize": "M4 x 200 mm",
+        "threadRepresentation": "simplified"
+      },
+      "source_page": "https://www.step.parts/parts/iso_metric_threaded_rod_m4_l200_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso_metric_threaded_rod_m4_l200_simple.step",
+      "filename": "iso_metric_threaded_rod_m4_l200_simple.step",
+      "sha256": "bf41976c7fbaf9137dc65bc107c67ade28bee4b9563dfac56f4f07284bd68ef9",
+      "byte_size": 8658,
+      "status": "downloaded",
+      "checksum_verified": true
+    },
+    {
+      "group": "rods",
+      "selection": "Metric threaded rods (DIN 976-compatible)",
+      "id": "iso_metric_threaded_rod_m5_l025_simple",
+      "name": "Metric threaded rod, M5 x 25 mm",
+      "standard": null,
+      "standard_status": "no catalog standard designation; metric coarse thread per ISO 261/ISO 68-1 (DIN 976-compatible)",
+      "family": "metric-threaded-rod",
+      "size": "M5",
+      "length_mm": 25,
+      "attributes": {
+        "thread": "M5",
+        "diameterMm": 5,
+        "lengthMm": 25,
+        "nominalSize": "M5 x 25 mm",
+        "threadRepresentation": "simplified"
+      },
+      "source_page": "https://www.step.parts/parts/iso_metric_threaded_rod_m5_l025_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso_metric_threaded_rod_m5_l025_simple.step",
+      "filename": "iso_metric_threaded_rod_m5_l025_simple.step",
+      "sha256": "d624290f914c330b81b77554a2f9a23963a262f1d88c1fb603c05bed66755b09",
+      "byte_size": 8666,
+      "status": "downloaded",
+      "checksum_verified": true
+    },
+    {
+      "group": "rods",
+      "selection": "Metric threaded rods (DIN 976-compatible)",
+      "id": "iso_metric_threaded_rod_m5_l200_simple",
+      "name": "Metric threaded rod, M5 x 200 mm",
+      "standard": null,
+      "standard_status": "no catalog standard designation; metric coarse thread per ISO 261/ISO 68-1 (DIN 976-compatible)",
+      "family": "metric-threaded-rod",
+      "size": "M5",
+      "length_mm": 200,
+      "attributes": {
+        "thread": "M5",
+        "diameterMm": 5,
+        "lengthMm": 200,
+        "nominalSize": "M5 x 200 mm",
+        "threadRepresentation": "simplified"
+      },
+      "source_page": "https://www.step.parts/parts/iso_metric_threaded_rod_m5_l200_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso_metric_threaded_rod_m5_l200_simple.step",
+      "filename": "iso_metric_threaded_rod_m5_l200_simple.step",
+      "sha256": "5866fc1b99ac39051a4745bedca83ca94629b9a4acabffcae7b1f4a2e74c4aab",
+      "byte_size": 8674,
+      "status": "downloaded",
+      "checksum_verified": true
+    },
+    {
+      "group": "bearings",
+      "selection": "Standard radial ball bearings (ISO 15 boundary)",
+      "id": "bearing_623_open_simple",
+      "name": "Radial ball bearings, 623 open",
+      "standard": null,
+      "standard_status": "no catalog standard designation; ISO 15 boundary dimensions verified against the library table",
+      "family": "deep-groove-ball-bearing",
+      "size": "623",
+      "length_mm": 4,
+      "attributes": {
+        "geometryRepresentation": "analytic simplified",
+        "bearingCode": "623",
+        "boreMm": 3,
+        "outerDiameterMm": 10,
+        "sealType": "open",
+        "variant": "radial",
+        "widthMm": 4,
+        "nominalSize": "623",
+        "flanged": false
+      },
+      "source_page": "https://www.step.parts/parts/bearing_623_open_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/bearing_623_open_simple.step",
+      "filename": "bearing_623_open_simple.step",
+      "sha256": "e22f0418303e44bf668b2cb2cb090ed4954a085b60b76ae06fa1c5d77106af7e",
+      "byte_size": 21286,
+      "status": "downloaded",
+      "checksum_verified": true
+    },
+    {
+      "group": "bearings",
+      "selection": "Standard radial ball bearings (ISO 15 boundary)",
+      "id": "bearing_624_open_simple",
+      "name": "Radial ball bearings, 624 open",
+      "standard": null,
+      "standard_status": "no catalog standard designation; ISO 15 boundary dimensions verified against the library table",
+      "family": "deep-groove-ball-bearing",
+      "size": "624",
+      "length_mm": 5,
+      "attributes": {
+        "geometryRepresentation": "analytic simplified",
+        "bearingCode": "624",
+        "boreMm": 4,
+        "outerDiameterMm": 13,
+        "sealType": "open",
+        "variant": "radial",
+        "widthMm": 5,
+        "nominalSize": "624",
+        "flanged": false
+      },
+      "source_page": "https://www.step.parts/parts/bearing_624_open_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/bearing_624_open_simple.step",
+      "filename": "bearing_624_open_simple.step",
+      "sha256": "b698935d2b5c89babf726e86bbd1a3c289822afb63df4c511784aae9682589aa",
+      "byte_size": 21274,
+      "status": "downloaded",
+      "checksum_verified": true
+    },
+    {
+      "group": "bearings",
+      "selection": "Standard radial ball bearings (ISO 15 boundary)",
+      "id": "bearing_625_open_simple",
+      "name": "Radial ball bearings, 625 open",
+      "standard": null,
+      "standard_status": "no catalog standard designation; ISO 15 boundary dimensions verified against the library table",
+      "family": "deep-groove-ball-bearing",
+      "size": "625",
+      "length_mm": 5,
+      "attributes": {
+        "geometryRepresentation": "analytic simplified",
+        "bearingCode": "625",
+        "boreMm": 5,
+        "outerDiameterMm": 16,
+        "sealType": "open",
+        "variant": "radial",
+        "widthMm": 5,
+        "nominalSize": "625",
+        "flanged": false
+      },
+      "source_page": "https://www.step.parts/parts/bearing_625_open_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/bearing_625_open_simple.step",
+      "filename": "bearing_625_open_simple.step",
+      "sha256": "7ceeacf7fa626868c7d8e28633184eebab3f5db936620589bb438b8175855377",
+      "byte_size": 21282,
+      "status": "downloaded",
+      "checksum_verified": true
+    },
+    {
+      "group": "bearings",
+      "selection": "Standard radial ball bearings (ISO 15 boundary)",
+      "id": "bearing_626_open_simple",
+      "name": "Radial ball bearings, 626 open",
+      "standard": null,
+      "standard_status": "no catalog standard designation; ISO 15 boundary dimensions verified against the library table",
+      "family": "deep-groove-ball-bearing",
+      "size": "626",
+      "length_mm": 6,
+      "attributes": {
+        "geometryRepresentation": "analytic simplified",
+        "bearingCode": "626",
+        "boreMm": 6,
+        "outerDiameterMm": 19,
+        "sealType": "open",
+        "variant": "radial",
+        "widthMm": 6,
+        "nominalSize": "626",
+        "flanged": false
+      },
+      "source_page": "https://www.step.parts/parts/bearing_626_open_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/bearing_626_open_simple.step",
+      "filename": "bearing_626_open_simple.step",
+      "sha256": "d716483086f14be27e5a746fcf7c9ba5ca7aa10a0c3e80d57a6156213010c4f0",
+      "byte_size": 21282,
+      "status": "downloaded",
+      "checksum_verified": true
+    },
+    {
+      "group": "bearings",
+      "selection": "Standard radial ball bearings (ISO 15 boundary)",
+      "id": "bearing_688_open_simple",
+      "name": "Radial ball bearings, 688 open",
+      "standard": null,
+      "standard_status": "no catalog standard designation; ISO 15 boundary dimensions verified against the library table",
+      "family": "deep-groove-ball-bearing",
+      "size": "688",
+      "length_mm": 5,
+      "attributes": {
+        "geometryRepresentation": "analytic simplified",
+        "bearingCode": "688",
+        "boreMm": 8,
+        "outerDiameterMm": 16,
+        "sealType": "open",
+        "variant": "radial",
+        "widthMm": 5,
+        "nominalSize": "688",
+        "flanged": false
+      },
+      "source_page": "https://www.step.parts/parts/bearing_688_open_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/bearing_688_open_simple.step",
+      "filename": "bearing_688_open_simple.step",
+      "sha256": "fcba6f3e3c86dfadffea5b03c3d6e5e467b5b7bce6041400bd6c12b8c4677f27",
+      "byte_size": 21225,
+      "status": "downloaded",
+      "checksum_verified": true
+    },
+    {
+      "group": "bearings",
+      "selection": "Standard radial ball bearings (ISO 15 boundary)",
+      "id": "bearing_608_open_simple",
+      "name": "Radial ball bearings, 608 open",
+      "standard": null,
+      "standard_status": "no catalog standard designation; ISO 15 boundary dimensions verified against the library table",
+      "family": "deep-groove-ball-bearing",
+      "size": "608",
+      "length_mm": 7,
+      "attributes": {
+        "geometryRepresentation": "analytic simplified",
+        "bearingCode": "608",
+        "boreMm": 8,
+        "outerDiameterMm": 22,
+        "sealType": "open",
+        "variant": "radial",
+        "widthMm": 7,
+        "nominalSize": "608",
+        "flanged": false
+      },
+      "source_page": "https://www.step.parts/parts/bearing_608_open_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/bearing_608_open_simple.step",
+      "filename": "bearing_608_open_simple.step",
+      "sha256": "20ec30e7805bfe53cef892e7e1ebbdd5d63a1caf5fd1a89809efcc9a94a5761e",
+      "byte_size": 21260,
+      "status": "downloaded",
+      "checksum_verified": true
+    },
+    {
+      "group": "bearings",
+      "selection": "Standard radial ball bearings (ISO 15 boundary)",
+      "id": "bearing_608zz",
+      "name": "608ZZ ball bearing",
+      "standard": null,
+      "standard_status": "no catalog standard designation; ISO 15 boundary dimensions verified against the library table",
+      "family": "deep-groove-ball-bearing",
+      "size": "608ZZ",
+      "length_mm": null,
+      "attributes": {
+        "bearingCode": "608ZZ",
+        "sealType": "ZZ",
+        "shielded": true,
+        "nominalSize": "608ZZ"
+      },
+      "source_page": "https://www.step.parts/parts/bearing_608zz",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/bearing_608zz.step",
+      "filename": "bearing_608zz.step",
+      "sha256": "62d262cc91fb6e213ae85f182811201787e583d527d9a7718ea30a08e1f19fc9",
+      "byte_size": 39700,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "bearings",
+      "selection": "Standard radial ball bearings (ISO 15 boundary)",
+      "id": "bearing_6000_open_simple",
+      "name": "Radial ball bearings, 6000 open",
+      "standard": null,
+      "standard_status": "no catalog standard designation; ISO 15 boundary dimensions verified against the library table",
+      "family": "deep-groove-ball-bearing",
+      "size": "6000",
+      "length_mm": 8,
+      "attributes": {
+        "geometryRepresentation": "analytic simplified",
+        "bearingCode": "6000",
+        "boreMm": 10,
+        "outerDiameterMm": 26,
+        "sealType": "open",
+        "variant": "radial",
+        "widthMm": 8,
+        "nominalSize": "6000",
+        "flanged": false
+      },
+      "source_page": "https://www.step.parts/parts/bearing_6000_open_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/bearing_6000_open_simple.step",
+      "filename": "bearing_6000_open_simple.step",
+      "sha256": "01c8da21fb04f3db569346d63bfbbb83d21298378f232813c8f3ebb79ed1e60f",
+      "byte_size": 21246,
+      "status": "downloaded",
+      "checksum_verified": true
+    },
+    {
+      "group": "bearings",
+      "selection": "Standard radial ball bearings (ISO 15 boundary)",
+      "id": "bearing_6001_open_simple",
+      "name": "Radial ball bearings, 6001 open",
+      "standard": null,
+      "standard_status": "no catalog standard designation; ISO 15 boundary dimensions verified against the library table",
+      "family": "deep-groove-ball-bearing",
+      "size": "6001",
+      "length_mm": 8,
+      "attributes": {
+        "geometryRepresentation": "analytic simplified",
+        "bearingCode": "6001",
+        "boreMm": 12,
+        "outerDiameterMm": 28,
+        "sealType": "open",
+        "variant": "radial",
+        "widthMm": 8,
+        "nominalSize": "6001",
+        "flanged": false
+      },
+      "source_page": "https://www.step.parts/parts/bearing_6001_open_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/bearing_6001_open_simple.step",
+      "filename": "bearing_6001_open_simple.step",
+      "sha256": "6e6417a4b5c7e2cbee03d5988e8dd16f36d4108d6001f3ddd7e6d41ba7f0d4dc",
+      "byte_size": 21258,
+      "status": "downloaded",
+      "checksum_verified": true
+    },
+    {
+      "group": "bearings",
+      "selection": "Standard radial ball bearings (ISO 15 boundary)",
+      "id": "bearing_6002_open_simple",
+      "name": "Radial ball bearings, 6002 open",
+      "standard": null,
+      "standard_status": "no catalog standard designation; ISO 15 boundary dimensions verified against the library table",
+      "family": "deep-groove-ball-bearing",
+      "size": "6002",
+      "length_mm": 9,
+      "attributes": {
+        "geometryRepresentation": "analytic simplified",
+        "bearingCode": "6002",
+        "boreMm": 15,
+        "outerDiameterMm": 32,
+        "sealType": "open",
+        "variant": "radial",
+        "widthMm": 9,
+        "nominalSize": "6002",
+        "flanged": false
+      },
+      "source_page": "https://www.step.parts/parts/bearing_6002_open_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/bearing_6002_open_simple.step",
+      "filename": "bearing_6002_open_simple.step",
+      "sha256": "98776750c34625edf9134b73916a18777a7c5c8a67893de00d3573b80115a260",
+      "byte_size": 21310,
+      "status": "downloaded",
+      "checksum_verified": true
+    },
+    {
+      "group": "bearings",
+      "selection": "Standard radial ball bearings (ISO 15 boundary)",
+      "id": "bearing_6003_open_simple",
+      "name": "Radial ball bearings, 6003 open",
+      "standard": null,
+      "standard_status": "no catalog standard designation; ISO 15 boundary dimensions verified against the library table",
+      "family": "deep-groove-ball-bearing",
+      "size": "6003",
+      "length_mm": null,
+      "attributes": {
+        "geometryRepresentation": "analytic simplified",
+        "bearingCode": "6003",
+        "sealType": "open",
+        "variant": "radial",
+        "nominalSize": "6003",
+        "flanged": false
+      },
+      "source_page": "https://www.step.parts/parts/bearing_6003_open_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/bearing_6003_open_simple.step",
+      "filename": "bearing_6003_open_simple.step",
+      "sha256": "450b8792e0fdc2f582ff2af819e3a9d9f7e811f38909ae3343666eacf5187132",
+      "byte_size": 21240,
+      "status": "downloaded",
+      "checksum_verified": true
+    },
+    {
+      "group": "bearings",
+      "selection": "Standard radial ball bearings (ISO 15 boundary)",
+      "id": "bearing_6200_open_simple",
+      "name": "Radial ball bearings, 6200 open",
+      "standard": null,
+      "standard_status": "no catalog standard designation; ISO 15 boundary dimensions verified against the library table",
+      "family": "deep-groove-ball-bearing",
+      "size": "6200",
+      "length_mm": 9,
+      "attributes": {
+        "geometryRepresentation": "analytic simplified",
+        "bearingCode": "6200",
+        "boreMm": 10,
+        "outerDiameterMm": 30,
+        "sealType": "open",
+        "variant": "radial",
+        "widthMm": 9,
+        "nominalSize": "6200",
+        "flanged": false
+      },
+      "source_page": "https://www.step.parts/parts/bearing_6200_open_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/bearing_6200_open_simple.step",
+      "filename": "bearing_6200_open_simple.step",
+      "sha256": "c0052815af60a4722a64964d4fd8092dfb89d1344580d7fa2532c83b6f807597",
+      "byte_size": 21264,
+      "status": "downloaded",
+      "checksum_verified": true
+    },
+    {
+      "group": "bearings",
+      "selection": "Standard radial ball bearings (ISO 15 boundary)",
+      "id": "bearing_6201_open_simple",
+      "name": "Radial ball bearings, 6201 open",
+      "standard": null,
+      "standard_status": "no catalog standard designation; ISO 15 boundary dimensions verified against the library table",
+      "family": "deep-groove-ball-bearing",
+      "size": "6201",
+      "length_mm": 10,
+      "attributes": {
+        "geometryRepresentation": "analytic simplified",
+        "bearingCode": "6201",
+        "boreMm": 12,
+        "outerDiameterMm": 32,
+        "sealType": "open",
+        "variant": "radial",
+        "widthMm": 10,
+        "nominalSize": "6201",
+        "flanged": false
+      },
+      "source_page": "https://www.step.parts/parts/bearing_6201_open_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/bearing_6201_open_simple.step",
+      "filename": "bearing_6201_open_simple.step",
+      "sha256": "7819fe06eeacdce83a00b11655c7e632ab0484c247b5733c8ac6c1c60dc09858",
+      "byte_size": 21288,
+      "status": "downloaded",
+      "checksum_verified": true
+    },
+    {
+      "group": "bearings",
+      "selection": "Standard radial ball bearings (ISO 15 boundary)",
+      "id": "bearing_6202_open_simple",
+      "name": "Radial ball bearings, 6202 open",
+      "standard": null,
+      "standard_status": "no catalog standard designation; ISO 15 boundary dimensions verified against the library table",
+      "family": "deep-groove-ball-bearing",
+      "size": "6202",
+      "length_mm": 11,
+      "attributes": {
+        "geometryRepresentation": "analytic simplified",
+        "bearingCode": "6202",
+        "boreMm": 15,
+        "outerDiameterMm": 35,
+        "sealType": "open",
+        "variant": "radial",
+        "widthMm": 11,
+        "nominalSize": "6202",
+        "flanged": false
+      },
+      "source_page": "https://www.step.parts/parts/bearing_6202_open_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/bearing_6202_open_simple.step",
+      "filename": "bearing_6202_open_simple.step",
+      "sha256": "fa7b0d2304d3fa21b2fce6281e968b61ec51222b030e1bb58e7ec72b4aa14b39",
+      "byte_size": 21310,
+      "status": "downloaded",
+      "checksum_verified": true
+    },
+    {
+      "group": "nonstandard",
+      "selection": "Non-standardized gear/profile oracles",
+      "id": "profile_2020_b_slot6_a_l50",
+      "name": "20 x 20 B-type slot-6 aluminum extrusion profile, A, 50 mm length",
+      "standard": null,
+      "standard_status": "nonstandardized catalog oracle; not a normative reference",
+      "family": "t-slot-extrusion",
+      "size": "profile_2020_b_slot6_a_l50",
+      "length_mm": null,
+      "attributes": {
+        "material": "aluminum",
+        "widthMm": 20,
+        "heightMm": 20,
+        "lengthMm": 50,
+        "profileSeries": "2020",
+        "baseProfileId": "profile_2020_b_slot6_a",
+        "nominalSize": "20 x 20 x 50 mm",
+        "slotSizeMm": 6,
+        "profileType": "B-type",
+        "variant": "A"
+      },
+      "source_page": "https://www.step.parts/parts/profile_2020_b_slot6_a_l50",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/profile_2020_b_slot6_a_l50.step",
+      "filename": "profile_2020_b_slot6_a_l50.step",
+      "sha256": "a363e0cc1571dc08107d38d63fcae7ec10b81b9b608089af4a4a3dfb002c0c41",
+      "byte_size": 388736,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "nonstandard",
+      "selection": "Non-standardized gear/profile oracles",
+      "id": "spur_gear_m2_0_20t_bore8",
+      "name": "spur gear M2.0 20t bore8",
+      "standard": null,
+      "standard_status": "nonstandardized catalog oracle; not a normative reference",
+      "family": "spur",
+      "size": "spur_gear_m2_0_20t_bore8",
+      "length_mm": null,
+      "attributes": {
+        "widthMm": 16,
+        "boreMm": 8,
+        "teeth": 20,
+        "module": 2,
+        "gearType": "spur"
+      },
+      "source_page": "https://www.step.parts/parts/spur_gear_m2_0_20t_bore8",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/spur_gear_m2_0_20t_bore8.step",
+      "filename": "spur_gear_m2_0_20t_bore8.step",
+      "sha256": "af9a46d4afe7993a99ec3fd49107e7d85ce189ba0c6717dafddf2e54d150454f",
+      "byte_size": 10957,
+      "status": "cached",
+      "checksum_verified": true
+    },
+    {
+      "group": "nonstandard",
+      "selection": "Non-standardized gear/profile oracles",
+      "id": "spur_gear_m2_0_40t_bore10",
+      "name": "spur gear M2.0 40t bore10",
+      "standard": null,
+      "standard_status": "nonstandardized catalog oracle; not a normative reference",
+      "family": "spur",
+      "size": "spur_gear_m2_0_40t_bore10",
+      "length_mm": null,
+      "attributes": {
+        "widthMm": 16,
+        "boreMm": 10,
+        "teeth": 40,
+        "module": 2,
+        "gearType": "spur"
+      },
+      "source_page": "https://www.step.parts/parts/spur_gear_m2_0_40t_bore10",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/spur_gear_m2_0_40t_bore10.step",
+      "filename": "spur_gear_m2_0_40t_bore10.step",
+      "sha256": "ac836087ad72bab664600fc37ff82f22b2a2363bb9a825d65953f02044c2db65",
+      "byte_size": 10975,
+      "status": "downloaded",
+      "checksum_verified": true
+    }
+  ],
+  "failures": [],
+  "source": "open-source step.parts corpus"
+}

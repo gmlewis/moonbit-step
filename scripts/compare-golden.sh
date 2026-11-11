@@ -237,6 +237,16 @@ def adjust_for_golden(name, tool, args, detail, detail_explicit):
         if designation:
             set_option(args, "--bearing", designation)
         note = override.get("note")
+    if tool.endswith("/bearing") and name.endswith("zz.step"):
+        # A ZZ golden is a shielded bearing: one solid, recessed face shield
+        # grooves, no rolling elements.
+        if "--shielded" not in args:
+            args.append("--shielded")
+        set_option(args, "--detail", "simplified")
+        note = (
+            "golden is a shielded 608ZZ: one solid with recessed face shield "
+            "grooves and no balls"
+        )
     if tool.endswith("/bearing") and name.endswith("_open_simple.step"):
         set_option(args, "--rollers", "0")
         if not detail_explicit:
@@ -259,6 +269,10 @@ def describe(tool, args):
             text += " x " + length
         return "{} [{}]".format(text, detail)
     if tool.endswith("/bearing"):
+        if "--shielded" in args:
+            return "bearing {} shielded (face grooves, no balls)".format(
+                arg_value(args, "--bearing") or "?"
+            )
         text = "bearing {} [{}]".format(
             arg_value(args, "--bearing") or "?", arg_value(args, "--detail") or "detailed"
         )

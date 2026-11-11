@@ -331,3 +331,35 @@ test "bearing 628 is an 8 x 24 x 8 boundary envelope" {
   assert_true(close(size.outer_mm, 24.0))
   assert_true(close(size.width_mm, 8.0))
 }
+
+///|
+fn motion_count_sub(haystack : String, needle : String) -> Int32 {
+  haystack.split(needle).collect().length() - 1
+}
+
+///|
+test "shielded bearing is a single-solid 14-face envelope" {
+  let size = match @motion.bearing_size("608") {
+    Ok(s) => s
+    Err(e) => abort(e.message())
+  }
+  let part = match @motion.shielded_bearing(size) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  assert_eq(part.layers().length(), 1)
+  let (x0, x1, _y0, _y1, z0, z1) = part.bounding_box()
+  assert_true(close(x0, -11.0))
+  assert_true(close(x1, 11.0))
+  assert_true(close(z0, -3.5))
+  assert_true(close(z1, 3.5))
+  let step = part.to_step()
+  assert_eq(motion_count_sub(step, "ADVANCED_FACE("), 14)
+  assert_eq(motion_count_sub(step, "CYLINDRICAL_SURFACE("), 2)
+  assert_eq(motion_count_sub(step, "CONICAL_SURFACE("), 6)
+  assert_eq(motion_count_sub(step, "PLANE("), 6)
+  assert_eq(motion_count_sub(step, "SPHERICAL_SURFACE("), 0)
+  let features = part.features()
+  assert_true(features.has_modeled("shield-groove"))
+  assert_true(features.omission_reason("rolling-elements") is Some(_))
+}

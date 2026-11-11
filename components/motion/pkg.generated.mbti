@@ -33,6 +33,8 @@ pub fn keyed_shaft_cross_section(Double, Double, Double, segments? : Int32) -> R
 
 pub fn shaft(Double, Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
+pub fn shielded_bearing(BearingSize, shield_depth_mm? : Double, outer_ring_thickness_mm? : Double, inner_ring_thickness_mm? : Double, detail? : @common.DetailLevel, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
 pub fn spacer(Double, Double, Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
 pub fn standoff(Double, Double, Double, detail? : @common.DetailLevel) -> Result[@common.Component, @common.SpecError]

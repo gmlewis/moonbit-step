@@ -27,7 +27,7 @@ insufficient). A PASS is never a claim of manufacturing approval.
 | Keyed shafts and keys | `motion` | PASS | Real flat-bottom keyway; key with independent height; `keyed-shaft-20x40.step` |
 | Spacers, bushings, pins, standoffs | `motion` | PASS | Parametric envelopes; no standards table claimed |
 | Compression springs | `motion` | PASS | Helical sweep; exact axial `0..length`; wire/section approximations recorded |
-| Ball bearings | `motion` | PASS | ISO 15 boundary table (21 designations); analytic rings (cylinders/cones) + analytic spheres; envelope internals; roller/chamfer validation |
+| Ball bearings | `motion` | PASS | ISO 15 boundary table (22 designations, including 628); analytic rings (cylinders/cones) + analytic spheres; a single-solid shielded variant with recessed 45° face shield grooves and no balls (matches 608ZZ); envelope internals; roller/chamfer validation |
 | Involute spur gears | `gears` | PASS | Module/teeth/pressure angle/bore/backlash/fillet/chamfer; theoretical involute; undercut limitation recorded |
 | External gear pairs | `gears` | PASS | Standard centre distance + offset; static pose; mesh-cycle tests for several pairs |
 | Exact internal involute ring | `gears` | PASS | Internal relation `psi(r)`; rotation-cycle zero-crossing test; trapezoidal fallback retained |

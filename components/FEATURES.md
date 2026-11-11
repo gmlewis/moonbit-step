@@ -123,6 +123,8 @@ Covered by `fasteners_test.mbt` and `iso10642-M4x16-detailed`.
 |---|---|---|
 | Rings | plain tubes | ring stacks with an engineering-default edge chamfer |
 | Rolling elements | **analytic spheres** (`SPHERICAL_SURFACE`) | analytic spheres |
+| Rings-only variant (`roller_count=0`) | single-solid two-ring envelope | two rings with engineering-default edge chamfers |
+| Shielded variant (`shielded_bearing`) | one solid: rings joined by a recessed 45° shield groove on each face, no rolling elements | same |
 | Bore chamfer / groove | omitted | omitted (hole not chamfered) |
 | Seals / cage | omitted | omitted |
 
@@ -133,6 +135,14 @@ thicker than the engineering-default edge chamfer. The rings are real annular
 solids of revolution, so their outer and bore surfaces are analytic cylinders and
 their chamfers analytic cones; a tangent ball meets the true bore surface with no
 chord sagitta. Covered by `motion_test.mbt` and `motion-608-stack-detailed`.
+
+The rings-only variant matches the step.parts `*_open_simple` envelopes: two
+rings, a narrow face groove, and no rolling elements. The shielded variant
+(`shielded_bearing`) matches the downloaded 608ZZ: one solid of revolution,
+Ø22 × 7, with a recessed 45° shield groove on each face, two cylinders, six
+cones, six planes, and no balls; its volume is 2242.93 mm³. The reference's black
+shield face is the recessed groove; a single-layer STEP body is colored
+uniformly, so that black face colour is cosmetic, not geometric.
 
 ### Shafts
 

@@ -27,6 +27,9 @@ async fn main {
       min=0,
     ),
     "out": @cli.opt_string(short='o', help="Write STEP to this path"),
+    "shielded": @cli.flag(
+      help="Single-solid shielded envelope: recessed face shield grooves, no rolling elements",
+    ),
     "bbox": @cli.flag(help="Print the bearing bounding box to stderr"),
   }
   guard @cli.parse(
@@ -46,12 +49,21 @@ async fn main {
       abort("")
     }
   }
-  let component = match
-    @motion.bearing(size, roller_count=args.int("rollers"), detail~) {
-    Ok(c) => c
-    Err(e) => {
-      @cli.eprintln("error: " + e.message())
-      abort("")
+  let component = if args.flag("shielded") {
+    match @motion.shielded_bearing(size, detail~) {
+      Ok(c) => c
+      Err(e) => {
+        @cli.eprintln("error: " + e.message())
+        abort("")
+      }
+    }
+  } else {
+    match @motion.bearing(size, roller_count=args.int("rollers"), detail~) {
+      Ok(c) => c
+      Err(e) => {
+        @cli.eprintln("error: " + e.message())
+        abort("")
+      }
     }
   }
   if args.flag("bbox") {

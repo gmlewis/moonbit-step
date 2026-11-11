@@ -481,18 +481,19 @@
           22.0,
           7.0
         ],
-        "volume_mm3": 1178.87,
-        "solids": 22,
-        "source": "components/examples/motion_stack --bearing 608 (one bearing outer-ring solid)"
+        "volume_mm3": 2242.93,
+        "solids": 1,
+        "source": "components/examples/bearing --bearing 608 --shielded"
       },
-      "verdict": "accepted-envelope",
-      "notes": "Outer diameter and width match the 608 boundary dimensions. The parametric bearing is a simplified envelope (rings plus cylindrical roller proxies), so volume and internal geometry are not compared.",
+      "verdict": "accepted",
+      "notes": "Shielded 608ZZ: one solid with a recessed 45-degree shield groove on each face and no rolling elements. The parametric shielded envelope matches the golden's solid count, surface classes, vertex rings, and volume.",
       "committed": false,
       "generation": {
         "tool": "components/examples/bearing",
         "args": [
           "--bearing",
           "608",
+          "--shielded",
           "--detail",
           "detailed",
           "-o",
@@ -501,7 +502,7 @@
         "output": "bearing-608-detailed.step"
       },
       "comparison": {
-        "solids": 10,
+        "solids": 1,
         "bbox_axes": [
           {
             "axis": 0,
@@ -517,8 +518,27 @@
         "features": [
           {
             "kind": "surface_min",
-            "surface": "sphere",
-            "min_count": 8
+            "surface": "cylinder",
+            "min_count": 2
+          },
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 4.0,
+            "tol_mm": 0.01
+          },
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 11.0,
+            "tol_mm": 0.01
+          },
+          {
+            "kind": "cone_min_count",
+            "min_count": 6
+          },
+          {
+            "kind": "cone_semi_angle_deg",
+            "expected": 45.0,
+            "tol_deg": 0.5
           },
           {
             "kind": "min_vertex_radius_mm",
@@ -529,13 +549,24 @@
             "kind": "max_vertex_radius_mm",
             "expected": 11.0,
             "tol_mm": 0.01
-          },
-          {
-            "kind": "sphere_radius_present_mm",
-            "expected": 0.7,
-            "tol_mm": 0.01
           }
-        ]
+        ],
+        "mass_properties": {
+          "volume_mm3": 2242.93,
+          "volume_relative_tol": 0.02,
+          "center_of_mass_mm": [0.0, 0.0, 0.0],
+          "center_of_mass_tol_mm": 0.01
+        },
+        "sections": [
+          {
+            "z_mm": 0.0,
+            "area_mm2": 329.13,
+            "area_relative_tol": 0.02,
+            "x_extent_mm": 22.0,
+            "extent_tol_mm": 0.02
+          }
+        ],
+        "section_deflection_mm": 0.01
       }
     },
     {
