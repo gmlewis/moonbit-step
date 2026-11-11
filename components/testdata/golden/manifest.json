@@ -56,7 +56,7 @@
         "source": "components/examples/fasteners --standard iso4762 --size M3 --length 10"
       },
       "verdict": "accepted-envelope",
-      "notes": "Head diameter and overall length match ISO 4762 within 0.01 mm. The parametric screw is one closed solid with a blind hex socket; the conical socket rim and drill-point floor are typed omissions, so volume is not compared.",
+      "notes": "Head diameter and overall length match ISO 4762 within 0.01 mm. The parametric screw is one closed solid with a blind hex socket; the conical socket rim and drill-point floor are typed omissions, so volume is not compared. The golden socket is at the nominal across-flats (below the ISO minimum); the parametric part uses the ISO upper limit s_max, so the sockets intentionally differ.",
       "committed": false,
       "generation": {
         "tool": "components/examples/fasteners",
@@ -152,7 +152,7 @@
         "source": "components/examples/fasteners --standard iso4762 --size M4 --length 20"
       },
       "verdict": "accepted-envelope",
-      "notes": "Head diameter and overall length match ISO 4762 within 0.01 mm.",
+      "notes": "Head diameter and overall length match ISO 4762 within 0.01 mm. The golden socket is at the nominal across-flats (below the ISO minimum); the parametric part uses the ISO upper limit s_max, so the sockets intentionally differ.",
       "committed": false,
       "generation": {
         "tool": "components/examples/fasteners",
@@ -686,7 +686,7 @@
         "length_mm": 12.0
       },
       "verdict": "accepted-envelope",
-      "notes": "Head diameter 6.046 mm matches ISO 10642 M3 dk max 6.0 within 0.05 mm; the conical bearing surface measures a 45 degree half-angle (90 degree included), matching the parametric builder. Envelope/angle cross-check only.",
+      "notes": "Head diameter 6.046 mm matches ISO 10642 M3 dk max 6.0 within 0.05 mm; the conical bearing surface measures a 45 degree half-angle (90 degree included), matching the parametric builder. Envelope/angle cross-check only. The golden socket across flats is above the ISO maximum; the parametric part uses the ISO upper limit s_max.",
       "committed": false,
       "generation": {
         "tool": "components/examples/fasteners",
@@ -1171,7 +1171,7 @@
         "source": "components/examples/fasteners --standard iso7380 --size M4 --length 10"
       },
       "verdict": "accepted-envelope",
-      "notes": "Head diameter 7.6 mm and overall length 12.2 mm (= 10 + k 2.2) match ISO 7380. The parametric head is one closed solid with a spherical dome and a blind hex socket; the conical socket rim and floor are typed omissions, so volume is not compared.",
+      "notes": "Head diameter 7.6 mm and overall length 12.2 mm (= 10 + k 2.2) match ISO 7380. The parametric head is one closed solid with a spherical dome and a blind hex socket; the conical socket rim and floor are typed omissions, so volume is not compared. The golden socket and dome are at the ISO upper limits (s_max, r_f max) and the parametric part matches.",
       "committed": false,
       "generation": {
         "tool": "components/examples/fasteners",
@@ -1206,7 +1206,7 @@
         "features": [
           {
             "kind": "surface_min",
-            "surface": "sphere",
+            "surface": "torus",
             "min_count": 1
           },
           {
@@ -1256,7 +1256,7 @@
         "source": "components/examples/fasteners --standard iso7380 --size M5 --length 12"
       },
       "verdict": "accepted-envelope",
-      "notes": "Head diameter 9.5 mm and overall length 14.75 mm (= 12 + k 2.75) match ISO 7380.",
+      "notes": "Head diameter 9.5 mm and overall length 14.75 mm (= 12 + k 2.75) match ISO 7380. The golden socket and dome are at the ISO upper limits (s_max, r_f max) and the parametric part matches.",
       "committed": false,
       "generation": {
         "tool": "components/examples/fasteners",
@@ -1291,7 +1291,7 @@
         "features": [
           {
             "kind": "surface_min",
-            "surface": "sphere",
+            "surface": "torus",
             "min_count": 1
           },
           {
@@ -1342,7 +1342,7 @@
         "source": "components/examples/fasteners --standard iso10642 --size M4 --length 10"
       },
       "verdict": "accepted-envelope",
-      "notes": "Overall length 10.0 mm matches the nominal length (the head occupies the top k mm). The reference head diameter 8.131 mm is below the nominal dk max 8.4 mm (countersink edge rounding); the 90 deg countersink is present. Envelope and angle cross-check only.",
+      "notes": "Overall length 10.0 mm matches the nominal length (the head occupies the top k mm). The reference head diameter 8.131 mm is below the nominal dk max 8.4 mm (countersink edge rounding); the 90 deg countersink is present. Envelope and angle cross-check only. The golden socket across flats is above the ISO maximum; the parametric part uses the ISO upper limit s_max.",
       "committed": false,
       "generation": {
         "tool": "components/examples/fasteners",
@@ -1432,7 +1432,7 @@
         "source": "components/examples/fasteners --standard iso10642 --size M5 --length 12"
       },
       "verdict": "accepted-envelope",
-      "notes": "Overall length 12.0 mm matches; the reference head diameter 10.181 mm is below the nominal dk max 10.4 mm and the countersink is 90 deg.",
+      "notes": "Overall length 12.0 mm matches; the reference head diameter 10.181 mm is below the nominal dk max 10.4 mm and the countersink is 90 deg. The golden socket across flats is above the ISO maximum; the parametric part uses the ISO upper limit s_max.",
       "committed": false,
       "generation": {
         "tool": "components/examples/fasteners",

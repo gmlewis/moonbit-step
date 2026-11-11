@@ -13,6 +13,8 @@ pub(all) struct ISO4762Size {
   head_diameter_mm : Double
   head_height_mm : Double
   socket_across_flats_mm : Double
+  /// Upper ISO limit of the socket width across flats (nominal + tolerance).
+  socket_across_flats_max_mm : Double
   socket_depth_mm : Double
   min_length_mm : Double
   max_length_mm : Double
@@ -24,25 +26,26 @@ pub fn iso4762_size(
   size : MetricSize,
 ) -> Result[ISO4762Size, @common.SpecError] {
   let dims = match size {
-    M2 => (3.8, 2.0, 1.5, 0.8, 3.0, 30.0)
-    M2_5 => (4.5, 2.5, 2.0, 1.0, 4.0, 40.0)
-    M3 => (5.5, 3.0, 2.5, 1.3, 5.0, 60.0)
-    M4 => (7.0, 4.0, 3.0, 2.0, 6.0, 80.0)
-    M5 => (8.5, 5.0, 4.0, 2.5, 8.0, 100.0)
-    M6 => (10.0, 6.0, 5.0, 3.0, 10.0, 120.0)
-    M8 => (13.0, 8.0, 6.0, 4.0, 12.0, 150.0)
-    M10 => (16.0, 10.0, 8.0, 5.0, 16.0, 200.0)
-    M12 => (18.0, 12.0, 10.0, 6.0, 20.0, 200.0)
-    M16 => (24.0, 16.0, 14.0, 8.0, 25.0, 200.0)
-    M20 => (30.0, 20.0, 17.0, 10.0, 30.0, 200.0)
+    M2 => (3.8, 2.0, 1.5, 1.58, 1.0, 3.0, 30.0)
+    M2_5 => (4.5, 2.5, 2.0, 2.08, 1.1, 4.0, 40.0)
+    M3 => (5.5, 3.0, 2.5, 2.58, 1.3, 5.0, 60.0)
+    M4 => (7.0, 4.0, 3.0, 3.08, 2.0, 6.0, 80.0)
+    M5 => (8.5, 5.0, 4.0, 4.095, 2.5, 8.0, 100.0)
+    M6 => (10.0, 6.0, 5.0, 5.14, 3.0, 10.0, 120.0)
+    M8 => (13.0, 8.0, 6.0, 6.14, 4.0, 12.0, 150.0)
+    M10 => (16.0, 10.0, 8.0, 8.175, 5.0, 16.0, 200.0)
+    M12 => (18.0, 12.0, 10.0, 10.175, 6.0, 20.0, 200.0)
+    M16 => (24.0, 16.0, 14.0, 14.212, 8.0, 25.0, 200.0)
+    M20 => (30.0, 20.0, 17.0, 17.23, 10.0, 30.0, 200.0)
   }
-  let (dk, k, s, t, lo, hi) = dims
+  let (dk, k, s, s_max, t, lo, hi) = dims
   Ok({
     size,
     thread: ThreadSpec::coarse(size),
     head_diameter_mm: dk,
     head_height_mm: k,
     socket_across_flats_mm: s,
+    socket_across_flats_max_mm: s_max,
     socket_depth_mm: t,
     min_length_mm: lo,
     max_length_mm: hi,

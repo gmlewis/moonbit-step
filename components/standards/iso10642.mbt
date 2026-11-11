@@ -14,6 +14,8 @@ pub(all) struct ISO10642Size {
   head_height_mm : Double
   head_angle_deg : Double
   socket_across_flats_mm : Double
+  /// Upper ISO limit of the socket width across flats (nominal + tolerance).
+  socket_across_flats_max_mm : Double
   socket_depth_mm : Double
   min_length_mm : Double
   max_length_mm : Double
@@ -26,12 +28,12 @@ pub fn iso10642_size(
 ) -> Result[ISO10642Size, @common.SpecError] {
   let dims = match size {
     // M3 starts at 5 mm: the downloaded countersunk reference is an M3 x 5.
-    M3 => (6.0, 1.70, 2.0, 1.30, 5.0, 30.0)
-    M4 => (8.4, 2.30, 2.5, 2.00, 6.0, 40.0)
-    M5 => (10.4, 2.80, 3.0, 2.50, 8.0, 50.0)
-    M6 => (12.6, 3.30, 4.0, 3.00, 12.0, 60.0)
-    M8 => (16.8, 4.40, 5.0, 4.00, 16.0, 80.0)
-    M10 => (20.8, 5.50, 6.0, 5.00, 20.0, 100.0)
+    M3 => (6.0, 1.70, 2.0, 2.08, 1.30, 5.0, 30.0)
+    M4 => (8.4, 2.30, 2.5, 2.58, 2.00, 6.0, 40.0)
+    M5 => (10.4, 2.80, 3.0, 3.08, 2.50, 8.0, 50.0)
+    M6 => (12.6, 3.30, 4.0, 4.095, 3.00, 12.0, 60.0)
+    M8 => (16.8, 4.40, 5.0, 5.14, 4.00, 16.0, 80.0)
+    M10 => (20.8, 5.50, 6.0, 6.14, 5.00, 20.0, 100.0)
     _ =>
       return Err(
         @common.SpecError::InvalidSize(
@@ -39,7 +41,7 @@ pub fn iso10642_size(
         ),
       )
   }
-  let (dk, k, s, t, lo, hi) = dims
+  let (dk, k, s, s_max, t, lo, hi) = dims
   Ok({
     size,
     thread: ThreadSpec::coarse(size),
@@ -47,6 +49,7 @@ pub fn iso10642_size(
     head_height_mm: k,
     head_angle_deg: 90.0,
     socket_across_flats_mm: s,
+    socket_across_flats_max_mm: s_max,
     socket_depth_mm: t,
     min_length_mm: lo,
     max_length_mm: hi,

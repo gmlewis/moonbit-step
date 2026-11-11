@@ -64,6 +64,7 @@ pub(all) struct ISO10642Size {
   head_height_mm : Double
   head_angle_deg : Double
   socket_across_flats_mm : Double
+  socket_across_flats_max_mm : Double
   socket_depth_mm : Double
   min_length_mm : Double
   max_length_mm : Double
@@ -126,6 +127,7 @@ pub(all) struct ISO4762Size {
   head_diameter_mm : Double
   head_height_mm : Double
   socket_across_flats_mm : Double
+  socket_across_flats_max_mm : Double
   socket_depth_mm : Double
   min_length_mm : Double
   max_length_mm : Double
@@ -165,6 +167,8 @@ pub(all) struct ISO7380Size {
   thread : ThreadSpec
   head_diameter_mm : Double
   head_height_mm : Double
+  head_dome_radius_mm : Double
+  head_flat_diameter_mm : Double
   socket_across_flats_mm : Double
   socket_across_flats_max_mm : Double
   socket_depth_mm : Double

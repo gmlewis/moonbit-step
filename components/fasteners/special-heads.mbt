@@ -36,7 +36,8 @@ fn countersunk_screw(
   let big_r = dims.head_diameter_mm / 2.0
   let k = dims.head_height_mm
   let t = dims.socket_depth_mm
-  let s = dims.socket_across_flats_mm
+  // ISO socket range is above the nominal; model the upper limit.
+  let s = dims.socket_across_flats_max_mm
   let segments = clamp_segments(policy.circle_segments)
   let name = "ISO10642-\{dims.size.designation()}-\{format_length(length)}"
   let metal = @cad.Rgb::grey()
@@ -131,8 +132,10 @@ fn countersunk_screw(
 ///|
 /// iso7380_screw builds an ISO 7380-1 button head hexagon socket screw.
 ///
-/// The head is a spherical-cap dome (an analytic `SPHERICAL_SURFACE`) with a
-/// flat top face and a real hexagon socket. The datum is the head underside
+/// The head is the ISO 7380-1 circular-arc dome (radius `r_f`) with the
+/// reference flat `d_L` and a real hexagon socket. The arc centre is off-axis,
+/// so the compiler emits an analytic `TOROIDAL_SURFACE` rather than a sphere.
+/// The datum is the head underside
 /// (bearing face): the head occupies `z = 0 .. k` and the shank
 /// `z = -length .. 0`. The socket is modelled at the ISO upper limit of the
 /// across-flats range (for example 2.080 mm for M3, whose range is
@@ -180,20 +183,33 @@ fn button_screw(
     policy,
     thread_rep,
     thread,
-    "head-dome-sphere",
+    "head-dome-revolution",
     dims.head_diameter_mm,
     segments,
   )
   let base = @common.Component::new(
     name~,
     metadata=spec.metadata(),
-    description="Single closed solid: a solid of revolution (shank, head underside, spherical-cap dome, flat top) with a blind hexagonal socket cut into the flat top; six planar socket walls and a planar hexagonal floor bound the pocket. Without modeled threads the shank uses the ISO 68-1 basic minor diameter D1." +
+    description="Single closed solid: a solid of revolution (shank, head underside, ISO circular-arc dome, flat top) with a blind hexagonal socket cut into the flat top; six planar socket walls and a planar hexagonal floor bound the pocket. The dome is the ISO 7380-1 radius r_f (upper limit) with the reference flat d_L. Without modeled threads the shank uses the ISO 68-1 basic minor diameter D1." +
       thread_note(thread_rep),
     features~,
   )
-  // Spherical cap through (big_r, 0) and (r_top, k), centred on the axis.
-  let r_top = button_flat_radius(big_r, s, d)
-  let c = (k * k + r_top * r_top - big_r * big_r) / (2.0 * k)
+  // ISO 7380-1 defines the dome by radius r_f (M3: 3.30-3.70 mm) and a
+  // reference flat diameter d_L (M3: 2.6 mm); the 2022 edition allows the arc
+  // centre to be offset from the axis. Model the upper r_f limit, which is what
+  // the downloaded goldens use. The centre is found from the two endpoints.
+  let r_top = dims.head_flat_diameter_mm / 2.0
+  let rf = dims.head_dome_radius_mm
+  let chord_dr = r_top - big_r
+  let chord_dz = k
+  let chord = Double::sqrt(chord_dr * chord_dr + chord_dz * chord_dz)
+  let half_chord = chord / 2.0
+  let h2 = rf * rf - half_chord * half_chord
+  let h = if h2 > 0.0 { Double::sqrt(h2) } else { 0.0 }
+  let perp_r = -chord_dz / chord
+  let perp_z = chord_dr / chord
+  let arc_cr = (big_r + r_top) / 2.0 + h * perp_r
+  let arc_cz = k / 2.0 + h * perp_z
   let tip = if policy.include_small_features {
     let raw = shank_tip_chamfer_mm(d)
     if raw < length / 4.0 {
@@ -232,7 +248,7 @@ fn button_screw(
     segs.push(@cad.RevLine(pts[i], pts[i + 1]))
   }
   segs.push(
-    @cad.RevArc((big_r, length), (r_top, length + k), (0.0, length + c)),
+    @cad.RevArc((big_r, length), (r_top, length + k), (arc_cr, length + arc_cz)),
   )
   segs.push(@cad.RevLine((r_top, length + k), (0.0, length + k)))
   let body = @cad.RevolvedProfile::new(segs)
@@ -262,26 +278,6 @@ fn button_screw(
   let _ = segments
   // Datum: head underside at z = 0, head +Z, shank -Z.
   component.translate(z=-length)
-}
-
-///|
-/// button_flat_radius returns the flat-top radius of a button head. This is an
-/// engineering choice (large enough for the socket, small enough to leave a
-/// visible dome); it is not a standard dimension. The default
-/// `r = 0.6 d - 0.5` reproduces the downloaded M3/M4/M5 button-head goldens
-/// (1.3, 1.9, 2.5 mm); it is clamped clear of the socket and inside the head.
-fn button_flat_radius(big_r : Double, s : Double, d : Double) -> Double {
-  let socket_circumradius = s / Double::sqrt(3.0)
-  let mut r = 0.6 * d - 0.5
-  let clear_of_socket = socket_circumradius + 0.05
-  if r < clear_of_socket {
-    r = clear_of_socket
-  }
-  let inside_head = 0.95 * big_r
-  if r > inside_head {
-    r = inside_head
-  }
-  r
 }
 
 ///|

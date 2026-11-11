@@ -96,7 +96,9 @@ pub fn socket_head_cap_screw(
   // The blind hex socket is a real pocket in the same closed shell: the body's
   // flat top cap is replaced by an annular top face, six planar walls, and a
   // planar hexagonal floor.
-  let af = dims.socket_across_flats_mm
+  // ISO gives the socket as a range entirely above the nominal; model the
+  // upper limit so a standard hex key fits.
+  let af = dims.socket_across_flats_max_mm
   let floor_height = k - t
   let socket = @cad.SocketedSolid::new(body, af, length + floor_height)
   let mut component = base.add_layer(

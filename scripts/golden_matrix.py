@@ -53,11 +53,13 @@ DETAILS = ["simplified", "detailed", "full"]
 
 # --- Independent standard tables (transcribed from the ISO nominal tables). ---
 ISO4762 = {
-    "M2": dict(d=2.0, dk=3.8, k=2.0, s=1.5, t=0.8),
-    "M2.5": dict(d=2.5, dk=4.5, k=2.5, s=2.0, t=1.0),
-    "M3": dict(d=3.0, dk=5.5, k=3.0, s=2.5, t=1.3),
-    "M4": dict(d=4.0, dk=7.0, k=4.0, s=3.0, t=2.0),
-    "M5": dict(d=5.0, dk=8.5, k=5.0, s=4.0, t=2.5),
+    # s is the ISO socket upper limit (nominal + tolerance), which is what the
+    # builder models. The downloaded goldens use the nominal, below the ISO min.
+    "M2": dict(d=2.0, dk=3.8, k=2.0, s=1.58, t=1.0),
+    "M2.5": dict(d=2.5, dk=4.5, k=2.5, s=2.08, t=1.1),
+    "M3": dict(d=3.0, dk=5.5, k=3.0, s=2.58, t=1.3),
+    "M4": dict(d=4.0, dk=7.0, k=4.0, s=3.08, t=2.0),
+    "M5": dict(d=5.0, dk=8.5, k=5.0, s=4.095, t=2.5),
 }
 ISO4032 = {
     "M2": dict(d=2.0, s=4.0, m=1.6),
@@ -88,9 +90,10 @@ ISO7380 = {
     "M5": dict(d=5.0, dk=9.5, k=2.75, s=3.08, t=1.56),
 }
 ISO10642 = {
-    "M3": dict(d=3.0, dk=6.0, k=1.70, s=2.0, t=1.30),
-    "M4": dict(d=4.0, dk=8.4, k=2.30, s=2.5, t=2.00),
-    "M5": dict(d=5.0, dk=10.4, k=2.80, s=3.0, t=2.50),
+    # s is the ISO socket upper limit; the downloaded goldens are above it.
+    "M3": dict(d=3.0, dk=6.0, k=1.70, s=2.08, t=1.30),
+    "M4": dict(d=4.0, dk=8.4, k=2.30, s=2.58, t=2.00),
+    "M5": dict(d=5.0, dk=10.4, k=2.80, s=3.08, t=2.50),
 }
 DIN976 = {
     "M2": dict(d=2.0),

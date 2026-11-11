@@ -96,10 +96,10 @@ Covered by `fasteners_test.mbt` and `iso4032-M4-detailed`.
 | Feature | Simplified / Detailed / FullyModeled |
 |---|---|
 | Shank | plain cylinder (helical ridge at FullyModeled) |
-| Head | spherical-cap dome (`SPHERICAL_SURFACE`) with a flat top |
+| Head | ISO 7380-1 circular-arc dome (radius `r_f`) with reference flat `d_L`; analytic `TOROIDAL_SURFACE` (off-axis arc) |
 | Socket | real hexagon formed by six planar flats over an analytic circular socket bore |
-| Flat-top radius | engineering choice (`button_flat_radius`); not a standard dimension |
-| Dome band (socket band outer) | **analytic** `SPHERICAL_SURFACE` shell following the dome |
+| Flat-top radius | ISO reference flat `d_L / 2` |
+| Dome band (socket band outer) | **analytic** `TOROIDAL_SURFACE` shell following the ISO dome arc |
 
 Head diameter, head height, socket size, and socket depth are the standard's
 nominal values. Covered by `fasteners_test.mbt` and `iso7380-M4x16-detailed`.
@@ -172,8 +172,9 @@ by `motion_test.mbt` and `filleted-shaft-d10-16.step`.
   polygon approximations of the ideal surface; the facet count is the caller's
   `circle_segments` (64 at Detailed), and the deviation is the polygon chord
   error (well under 0.01 mm at that resolution).
-- **ISO 7380** the head profile (spherical cap and flat-top radius) is an
-  engineering approximation; only `dk`, `k`, `s`, `t` come from the standard.
+- **ISO 7380** the dome uses the standard radius `r_f` (upper limit) and the
+  reference flat `d_L`; the socket uses the standard upper across-flats limit
+  (`s_max`). The head diameter, height and socket depth come from the standard.
 - **Bearing chamfers and ball diameter** are engineering defaults from the
   boundary dimensions, not catalogue internal geometry.
 - **Nominal STEP booleans** remain: the library still layers closed solids

@@ -13,6 +13,10 @@ pub(all) struct ISO7380Size {
   thread : ThreadSpec
   head_diameter_mm : Double
   head_height_mm : Double
+  /// Radius r_f of the domed head (upper ISO limit, e.g. 3.70 mm for M3).
+  head_dome_radius_mm : Double
+  /// Reference diameter d_L of the flat on top of the dome (e.g. 2.6 mm M3).
+  head_flat_diameter_mm : Double
   socket_across_flats_mm : Double
   socket_across_flats_max_mm : Double
   socket_depth_mm : Double
@@ -25,14 +29,14 @@ pub(all) struct ISO7380Size {
 pub fn iso7380_size(
   size : MetricSize,
 ) -> Result[ISO7380Size, @common.SpecError] {
-  // (dk, k, s nominal, s max, t, min length, max length)
+  // (dk, k, r_f max, d_L, s nominal, s max, t, min length, max length)
   let dims = match size {
-    M3 => (5.7, 1.65, 2.0, 2.08, 1.04, 5.0, 30.0)
-    M4 => (7.6, 2.20, 2.5, 2.58, 1.30, 6.0, 40.0)
-    M5 => (9.5, 2.75, 3.0, 3.08, 1.56, 8.0, 50.0)
-    M6 => (10.5, 3.30, 4.0, 4.095, 2.08, 10.0, 60.0)
-    M8 => (14.0, 4.40, 5.0, 5.14, 2.60, 12.0, 80.0)
-    M10 => (17.5, 5.50, 6.0, 6.14, 3.12, 16.0, 100.0)
+    M3 => (5.7, 1.65, 3.70, 2.6, 2.0, 2.08, 1.04, 5.0, 30.0)
+    M4 => (7.6, 2.20, 4.60, 3.8, 2.5, 2.58, 1.30, 6.0, 40.0)
+    M5 => (9.5, 2.75, 5.75, 5.0, 3.0, 3.08, 1.56, 8.0, 50.0)
+    M6 => (10.5, 3.30, 6.15, 6.0, 4.0, 4.095, 2.08, 10.0, 60.0)
+    M8 => (14.0, 4.40, 7.95, 7.7, 5.0, 5.14, 2.60, 12.0, 80.0)
+    M10 => (17.5, 5.50, 9.80, 10.0, 6.0, 6.14, 3.12, 16.0, 100.0)
     _ =>
       return Err(
         @common.SpecError::InvalidSize(
@@ -40,12 +44,14 @@ pub fn iso7380_size(
         ),
       )
   }
-  let (dk, k, s, s_max, t, lo, hi) = dims
+  let (dk, k, r_f, d_l, s, s_max, t, lo, hi) = dims
   Ok({
     size,
     thread: ThreadSpec::coarse(size),
     head_diameter_mm: dk,
     head_height_mm: k,
+    head_dome_radius_mm: r_f,
+    head_flat_diameter_mm: d_l,
     socket_across_flats_mm: s,
     socket_across_flats_max_mm: s_max,
     socket_depth_mm: t,

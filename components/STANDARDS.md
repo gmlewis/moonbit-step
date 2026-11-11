@@ -71,9 +71,9 @@ table (6g/6H limits are not modeled as limits).
 - Supported sizes: M3, M4, M5, M6, M8, M10.
 - Data: head diameter `dk`, head height `k`, socket width across flats `s`,
   socket depth `t`, and a practical length range.
-- The head is a spherical-cap dome with a flat top and a modeled hexagon
-  socket. The flat-top radius and dome profile are engineering approximations;
-  the four dimensions above are the standard's nominal values.
+- The head is the ISO 7380-1 circular-arc dome (radius `r_f`, upper limit)
+  with the reference flat `d_L` and a modeled hexagon socket at the upper
+  across-flats limit `s_max`.
 
 ### ISO 10642 — countersunk head hexagon socket screws
 

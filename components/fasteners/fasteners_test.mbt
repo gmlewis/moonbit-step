@@ -588,7 +588,7 @@ test "button and countersunk heads record analytic dome and cone" {
     Ok(c) => c
     Err(e) => abort(e.message())
   }
-  assert_true(button.features().has_modeled("head-dome-sphere"))
+  assert_true(button.features().has_modeled("head-dome-revolution"))
   let countersunk = match
     @fasteners.iso10642_screw(@standards.M4, 16.0, detail=Detailed) {
     Ok(c) => c
