@@ -386,6 +386,7 @@ pub(all) enum RevSegment {
 
 pub struct RevolvedProfile {
   segments : Array[RevSegment]
+  band_colors : Array[(Int32, Rgb)]
 }
 pub fn RevolvedProfile::as_shape(Self) -> Shape
 pub fn RevolvedProfile::chamfered_cylinder(Double, Double, bottom_chamfer? : Double, top_chamfer? : Double) -> Self
@@ -393,6 +394,7 @@ pub fn RevolvedProfile::chamfered_tube(Double, Double, Double, outer_bottom_cham
 pub fn RevolvedProfile::cone(Double, Double) -> Self
 pub fn RevolvedProfile::cup(Double, Double, Double, Double, top_chamfer? : Double, bore_lead_in? : Double) -> Self
 pub fn RevolvedProfile::cylinder(Double, Double) -> Self
+pub fn RevolvedProfile::emission_colors(Self) -> Array[Rgb?]
 pub fn RevolvedProfile::frustum(Double, Double, Double) -> Self
 pub fn RevolvedProfile::new(Array[RevSegment]) -> Self
 pub fn RevolvedProfile::polyline(Array[(Double, Double)], closed? : Bool) -> Self
@@ -401,6 +403,7 @@ pub fn RevolvedProfile::sphere(Double) -> Self
 pub fn RevolvedProfile::sphere_cap(Double, Double) -> Self
 pub fn RevolvedProfile::tube(Double, Double, Double) -> Self
 pub fn RevolvedProfile::validate(Self) -> Result[Unit, RevProfileError]
+pub fn RevolvedProfile::with_band_color(Self, Int32, Rgb) -> Self
 
 #derive(@debug.Debug)
 pub struct Rgb {

@@ -314,7 +314,14 @@ pub fn shielded_bearing(
     (r_inner_face, zf),
     (rb, zf),
   ]
-  let body = @cad.RevolvedProfile::polyline(points, closed=true).as_shape()
+  // The reference colors the recessed shield groove black and leaves the rings
+  // light grey. Emit the groove faces (both walls and the floor) as face-level
+  // black styles; the solid stays one closed B-rep.
+  let mut profile = @cad.RevolvedProfile::polyline(points, closed=true)
+  for band in [1, 2, 3, 9, 10, 11] {
+    profile = profile.with_band_color(band, @cad.Rgb::black())
+  }
+  let body = profile.as_shape()
   let name = "bearing-\{size.designation}-shielded"
   let metal = match color {
     Some(c) => c
@@ -333,7 +340,7 @@ pub fn shielded_bearing(
         size=size.designation,
         source="Boundary dimensions from common ISO 15 / catalogue tables; the shield groove and ring proportions are parametric envelope geometry, not catalogue internals. See components/DATA_SOURCES.md.",
       ),
-      description="Single-solid shielded bearing envelope: outer and inner rings joined by a recessed 45-degree shield groove on each face. No rolling elements, cage, or separate shield plate; the groove floor is the shield seat. Centred on z = 0.",
+      description="Single-solid shielded bearing envelope: outer and inner rings joined by a recessed 45-degree shield groove on each face. The groove faces are styled black to match the reference; the rings are light grey. No rolling elements, cage, or separate shield plate; the groove floor is the shield seat. Centered on z = 0.",
       features~,
     ).add_layer(body, name="body", color=metal),
   )
@@ -345,7 +352,7 @@ pub fn shielded_bearing(
 fn shielded_bearing_feature_record() -> @common.FeatureRecord {
   @common.FeatureRecord::new(
     modeled=[
-      "outer-ring", "inner-ring", "shield-groove", "single-solid-envelope",
+      "outer-ring", "inner-ring", "shield-groove", "shield-face-black", "single-solid-envelope",
     ],
     omitted=[
       @common.Omission::new(
@@ -359,10 +366,6 @@ fn shielded_bearing_feature_record() -> @common.FeatureRecord {
       @common.Omission::new(
         feature="separate-shield-plate",
         reason="the shield is represented by the recessed face groove, not a separate plate",
-      ),
-      @common.Omission::new(
-        feature="shield-face-color",
-        reason="the shield face is a groove; the reference's black face colour is cosmetic and not part of the B-rep",
       ),
     ],
   )

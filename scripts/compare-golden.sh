@@ -60,6 +60,7 @@ import glob
 import json
 import os
 import re
+import shlex
 import shutil
 import subprocess
 import sys
@@ -92,6 +93,8 @@ Golden files are sorted by name and numbered from 1.
   ./scripts/compare-golden.sh --all --batch 8
   ./scripts/compare-golden.sh 5 --detail simplified
   ./scripts/compare-golden.sh 5 --no-open
+  ./scripts/compare-golden.sh --commands --all
+  ./scripts/compare-golden.sh --commands 1 3
 
 Options:
   --list            list the numbered golden files and their equivalents
@@ -102,6 +105,7 @@ Options:
   --batch N         open N pairs at a time, waiting between batches
   --reuse           reuse an existing generated file instead of rebuilding
   --no-open         generate only; print the paths
+  --commands        print the exact `moon run` command for each selection
   --helper          open through the running SolidCraft GUI helper with
                     --up z (no up-axis dialog), if it is installed
   --app NAME        macOS app name for `open -a` (default SolidCraft)
@@ -522,6 +526,7 @@ def open_paths(paths, app, batch, use_helper):
 
 def main():
     mode_list = False
+    mode_commands = False
     select_all = False
     no_open = False
     use_helper = False
@@ -542,6 +547,8 @@ def main():
             return 0
         if arg == "--list":
             mode_list = True
+        elif arg == "--commands":
+            mode_commands = True
         elif arg == "--all":
             select_all = True
         elif arg == "--no-open":
@@ -622,6 +629,21 @@ def main():
             "Example: ./scripts/compare-golden.sh 1 3   "
             "(or --all, --detail simplified, --no-open)"
         )
+        return 0
+
+    if mode_commands:
+        if select_all or not index_tokens:
+            selected = list(range(1, count + 1))
+        else:
+            selected = parse_selection(index_tokens, count)
+        rows_by_index = {row["index"]: row for row in rows}
+        for index in selected:
+            row = rows_by_index[index]
+            if not row["tool"]:
+                print("# no parametric equivalent: " + row["name"])
+                continue
+            out_path = os.path.join(out_dir, "parametric-" + row["name"])
+            print(shlex.join(generation_command(row, threads, out_path)))
         return 0
 
     if select_all:

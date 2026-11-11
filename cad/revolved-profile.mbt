@@ -22,6 +22,11 @@ pub(all) enum RevSegment {
 /// `SPHERICAL_SURFACE`, and `TOROIDAL_SURFACE` bands, with planar caps.
 pub struct RevolvedProfile {
   segments : Array[RevSegment]
+  /// Optional per-band face colors, indexed by the segment order given to
+  /// `new`/`polyline`. The compiler styles those faces individually (a STEP
+  /// face-level `STYLED_ITEM`) so a single solid can carry more than one
+  /// color, for example a black shield groove on a grey bearing.
+  band_colors : Array[(Int32, Rgb)]
 }
 
 ///|
@@ -56,7 +61,57 @@ pub fn RevProfileError::message(self : RevProfileError) -> String {
 ///|
 /// RevolvedProfile::new stores a chain of segments without validating it.
 pub fn RevolvedProfile::new(segments : Array[RevSegment]) -> RevolvedProfile {
-  { segments, }
+  { segments, band_colors: [], }
+}
+
+///|
+/// RevolvedProfile::with_band_color returns a copy in which the face emitted
+/// for segment `band` carries `color`. Band indices follow the segment order
+/// passed to `new`/`polyline`; the compiler remaps them if it reverses the
+/// profile winding. The flat STEP writer emits a face-level `STYLED_ITEM` for
+/// each colored band, so the solid stays one closed B-rep.
+pub fn RevolvedProfile::with_band_color(
+  self : RevolvedProfile,
+  band : Int32,
+  color : Rgb,
+) -> RevolvedProfile {
+  let colors : Array[(Int32, Rgb)] = []
+  let mut replaced = false
+  for entry in self.band_colors {
+    let (index, _existing) = entry
+    if index == band {
+      colors.push((band, color))
+      replaced = true
+    } else {
+      colors.push(entry)
+    }
+  }
+  if !replaced {
+    colors.push((band, color))
+  }
+  { ..self, band_colors: colors, }
+}
+
+///|
+/// RevolvedProfile::emission_colors returns the per-face colors in the order
+/// the compiler emits the faces. It applies the same winding normalization as
+/// `compile_revolved_profile`, so callers do not have to know whether the
+/// profile was reversed.
+pub fn RevolvedProfile::emission_colors(self : RevolvedProfile) -> Array[Rgb?] {
+  let n = self.segments.length()
+  let out : Array[Rgb?] = []
+  for _i in 0..<n {
+    out.push(None)
+  }
+  let reversed = rev_profile_signed_area(self.segments) < 0.0
+  for entry in self.band_colors {
+    let (band, color) = entry
+    if band >= 0 && band < n {
+      let target = if reversed { n - 1 - band } else { band }
+      out[target] = Some(color)
+    }
+  }
+  out
 }
 
 ///|
@@ -75,7 +130,7 @@ pub fn RevolvedProfile::polyline(
   if closed && n > 2 {
     segments.push(RevLine(points[n - 1], points[0]))
   }
-  { segments, }
+  { segments, band_colors: [], }
 }
 
 ///|

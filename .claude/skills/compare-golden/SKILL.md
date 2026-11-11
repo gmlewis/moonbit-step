@@ -54,6 +54,12 @@ golden file.
    ```
 
    The parametric file is `target/golden-compare/parametric-<golden name>`.
+   To see the exact command without running it:
+
+   ```bash
+   ./compare-golden.sh --commands 4
+   ./compare-golden.sh --commands --all
+   ```
 
 3. **Measure both files.** Do not decide from one number.
 
@@ -140,6 +146,10 @@ golden file.
   tools.
 - Update the feature record and component description to agree with the emitted
   geometry.
+- A single solid can carry per-face colors: `RevolvedProfile::with_band_color`
+  marks a band, and the writer emits a face-level `STYLED_ITEM`. Use that for
+  features such as the black shield groove on the 608ZZ; do not split the solid
+  into extra bodies just for color.
 - Generated files live under `target/golden-compare/` (ignored); do not commit
   them.
 

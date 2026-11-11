@@ -52,18 +52,18 @@ pub fn Design::with_documentation(
 }
 
 ///|
-fn compile_node_geometry_and_styling(
+
+///|
+/// add_styled_item writes one STEP presentation style for `item_ref`. It may
+/// target a whole solid (`MANIFOLD_SOLID_BREP`) or a single face
+/// (`ADVANCED_FACE`).
+fn add_styled_item(
   ctx : StepContext,
-  node : SceneNode,
-  solid_ref : @step.Ref,
-) -> Unit {
-  // Presentation styling
-  let rgb = @presentation.ColorRgb::new(
-    node.name,
-    node.color.r,
-    node.color.g,
-    node.color.b,
-  )
+  name : String,
+  color : Rgb,
+  item_ref : @step.Ref,
+) -> @step.Ref {
+  let rgb = @presentation.ColorRgb::new(name, color.r, color.g, color.b)
   let rgb_ref = ctx.add(@repository.any_entity_color_rgb(rgb))
   let fas_col = @presentation.FillAreaStyleColor::new("", rgb_ref)
   let fas_col_ref = ctx.add(
@@ -81,15 +81,50 @@ fn compile_node_geometry_and_styling(
   let psa_ref = ctx.add(
     @repository.any_entity_presentation_style_assignment(psa),
   )
-  let styled = @presentation.StyledItem::new("", [psa_ref], solid_ref)
-  let styled_ref = ctx.add(@repository.any_entity_styled_item(styled))
+  let styled = @presentation.StyledItem::new("", [psa_ref], item_ref)
+  ctx.add(@repository.any_entity_styled_item(styled))
+}
+
+///|
+fn compile_node_geometry_and_styling(
+  ctx : StepContext,
+  node : SceneNode,
+  solid_ref : @step.Ref,
+  faces~ : Array[@step.Ref] = [],
+) -> Unit {
+  // Presentation styling for the whole solid.
+  let styled_ref = add_styled_item(ctx, node.name, node.color, solid_ref)
+  // A `RevolvedProfile` may carry per-band colors (for example a black shield
+  // groove on a grey bearing). Emit one face-level style for each colored band
+  // so the solid stays a single closed B-rep.
+  let face_styled : Array[@step.Ref] = []
+  match node.shape {
+    RevolvedProfile(rev) => {
+      let colors = rev.emission_colors()
+      let limit = if faces.length() < colors.length() {
+        faces.length()
+      } else {
+        colors.length()
+      }
+      for i in 0..<limit {
+        match colors[i] {
+          Some(color) =>
+            face_styled.push(
+              add_styled_item(ctx, node.name + "-face-\{i}", color, faces[i]),
+            )
+          None => ()
+        }
+      }
+    }
+    _ => ()
+  }
   let layer = @presentation.PresentationLayerAssignment::new("1", "Layer 1", [
     solid_ref,
   ])
   let _ = ctx.add(@repository.any_entity_presentation_layer_assignment(layer))
   let md = @presentation.MechanicalDesignGeometricPresentationRepresentation::new(
     "",
-    [styled_ref],
+    [styled_ref, ..face_styled],
     { id: ctx.repo_ctx_id, },
   )
   let _ = ctx.add(
@@ -107,13 +142,14 @@ fn add_node_to_ctx(
   shape_reps : Array[@step.Ref],
   parent~ : Transform? = None,
 ) -> Unit {
-  let brep_ref = compile_node_to_brep(ctx, node, parent~)
+  let (brep_ref, faces) = compile_node_to_brep_with_faces(ctx, node, parent~)
   add_solid_node_to_ctx(
     ctx,
     node,
     brep_ref,
     product_defs,
     shape_reps,
+    faces~,
     is_csg=false,
   )
 }
@@ -125,9 +161,10 @@ fn add_solid_node_to_ctx(
   solid_ref : @step.Ref,
   product_defs : Array[@step.Ref],
   shape_reps : Array[@step.Ref],
+  faces~ : Array[@step.Ref] = [],
   is_csg~ : Bool,
 ) -> Unit {
-  compile_node_geometry_and_styling(ctx, node, solid_ref)
+  compile_node_geometry_and_styling(ctx, node, solid_ref, faces~)
 
   // Product structure for this part
   let prod_def_ref = ctx.add_product_definition(node.name)
@@ -182,12 +219,12 @@ fn add_solid_node_to_ctx(
 }
 
 ///|
-fn compile_node_to_brep(
+fn compile_node_to_brep_with_faces(
   ctx : StepContext,
   node : SceneNode,
   reverse~ : Bool = false,
   parent~ : Transform? = None,
-) -> @step.Ref {
+) -> (@step.Ref, Array[@step.Ref]) {
   let faces = compile_node_shape(ctx, node, reverse~, parent~)
   if faces.is_empty() {
     abort("shape '\{node.name}' produced no faces")
@@ -195,7 +232,24 @@ fn compile_node_to_brep(
   let shell = @topology.ClosedShell::new("", faces)
   let shell_ref = ctx.add(@repository.any_entity_closed_shell(shell))
   let brep = @topology.ManifoldSolidBrep::new("", shell_ref)
-  ctx.add(@repository.any_entity_manifold_solid_brep(brep))
+  let brep_ref = ctx.add(@repository.any_entity_manifold_solid_brep(brep))
+  (brep_ref, faces)
+}
+
+///|
+fn compile_node_to_brep(
+  ctx : StepContext,
+  node : SceneNode,
+  reverse~ : Bool = false,
+  parent~ : Transform? = None,
+) -> @step.Ref {
+  let (brep_ref, _faces) = compile_node_to_brep_with_faces(
+    ctx,
+    node,
+    reverse~,
+    parent~,
+  )
+  brep_ref
 }
 
 ///|
