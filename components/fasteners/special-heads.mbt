@@ -179,12 +179,12 @@ fn button_screw(
   let base = @common.Component::new(
     name~,
     metadata=spec.metadata(),
-    description="Single closed solid: a solid of revolution (shank, head underside, spherical-cap dome, flat top) with a blind hexagonal socket cut into the flat top; six planar socket walls and a planar hexagonal floor bound the pocket." +
+    description="Single closed solid: a solid of revolution (shank, head underside, spherical-cap dome, flat top) with a blind hexagonal socket cut into the flat top; six planar socket walls and a planar hexagonal floor bound the pocket. Without modeled threads the shank uses the ISO 68-1 basic minor diameter D1." +
       thread_note(thread_rep),
     features~,
   )
   // Spherical cap through (big_r, 0) and (r_top, k), centred on the axis.
-  let r_top = button_flat_radius(big_r, s)
+  let r_top = button_flat_radius(big_r, s, d)
   let c = (k * k + r_top * r_top - big_r * big_r) / (2.0 * k)
   let tip = if policy.include_small_features {
     let raw = shank_tip_chamfer_mm(d)
@@ -198,7 +198,15 @@ fn button_screw(
   }
   let threaded = thread_rep is @common.ThreadRepresentation::Helical
   let thread_length = length
-  let core_d = if threaded { thread.external_minor_diameter_mm() } else { d }
+  // ISO 7380 threads run to the head. Without modeled threads the envelope is
+  // the ISO 68-1 basic internal minor diameter D1 (the table "minor diameter"),
+  // which is the shank the downloaded button-head goldens use. With threads the
+  // core is the external root d3 and the swept ridge reaches the major diameter.
+  let core_d = if threaded {
+    thread.external_minor_diameter_mm()
+  } else {
+    thread.internal_minor_diameter_mm()
+  }
   let core_r = core_d / 2.0
   let pts : Array[@cad.Vec2] = [(0.0, 0.0)]
   if tip > 0.0 && tip < core_r {
@@ -250,16 +258,21 @@ fn button_screw(
 ///|
 /// button_flat_radius returns the flat-top radius of a button head. This is an
 /// engineering choice (large enough for the socket, small enough to leave a
-/// visible dome); it is not a standard dimension.
-fn button_flat_radius(big_r : Double, s : Double) -> Double {
-  let by_socket = s * 0.62
-  let by_head = 0.65 * big_r
-  let r = if by_socket > by_head { by_socket } else { by_head }
-  if r > 0.95 * big_r {
-    0.95 * big_r
-  } else {
-    r
+/// visible dome); it is not a standard dimension. The default
+/// `r = 0.6 d - 0.5` reproduces the downloaded M3/M4/M5 button-head goldens
+/// (1.3, 1.9, 2.5 mm); it is clamped clear of the socket and inside the head.
+fn button_flat_radius(big_r : Double, s : Double, d : Double) -> Double {
+  let socket_circumradius = s / Double::sqrt(3.0)
+  let mut r = 0.6 * d - 0.5
+  let clear_of_socket = socket_circumradius + 0.05
+  if r < clear_of_socket {
+    r = clear_of_socket
   }
+  let inside_head = 0.95 * big_r
+  if r > inside_head {
+    r = inside_head
+  }
+  r
 }
 
 ///|

@@ -220,6 +220,11 @@ def minor(d: float, p: float) -> float:
     return d - 17.0 / 12.0 * (math.sqrt(3.0) / 2.0 * p)
 
 
+def minor_d1(d: float, p: float) -> float:
+    """ISO 68-1 basic internal minor diameter D1 (the table minor diameter)."""
+    return d - 1.25 * (math.sqrt(3.0) / 2.0 * p)
+
+
 def hex_circumradius(across_flats: float) -> float:
     return across_flats / (2.0 * COS30)
 
@@ -474,11 +479,13 @@ def chamfer_checks(
             add("socket-floor", ring_present(rings, length + k - t, hex_circumradius(s), 6),
                 ring_report(rings, length + k - t, hex_circumradius(s), 6))
             tc = tip_chamfer(d)
-            full_d = minor(d, PITCH[size]) if detail == "full" else d
-            r_tip = full_d / 2.0 - tc
+            # Without modeled threads the button-head shank is at D1; with a
+            # swept ridge the core is the external root d3.
+            shank_d = minor(d, PITCH[size]) if detail == "full" else minor_d1(d, PITCH[size])
+            r_tip = shank_d / 2.0 - tc
             add("shank-tip-chamfer",
-                cone_present(feats, full_d / 2.0, 45.0) and ring_present(rings, 0.0, r_tip, 1),
-                f"{cone_report(feats, full_d / 2.0)}; " + ring_report(rings, 0.0, r_tip, 1))
+                cone_present(feats, shank_d / 2.0, 45.0) and ring_present(rings, 0.0, r_tip, 1),
+                f"{cone_report(feats, shank_d / 2.0)}; " + ring_report(rings, 0.0, r_tip, 1))
             if detail == "full":
                 add("thread-crest-ring", ring_radius_count(rings, d / 2.0) >= 8,
                     f"crest r={d/2.0:.4f}: {ring_radius_count(rings, d/2.0)} vertices")
