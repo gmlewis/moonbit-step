@@ -63,6 +63,8 @@ moon run --target native components/examples/fasteners -- \
 
 ## Documented status
 
+- `INVENTORY.md` — component families, explicit PASS/SKIP/NOT IMPLEMENTED
+  status, and evidence entry points.
 - `STANDARDS.md` — standards covered, exact revisions used, supported sizes.
 - `DATA_SOURCES.md` — dimensional provenance and verification notes.
 - `AUDIT.md` — component inventory, defects by severity, and audit results.
@@ -120,8 +122,10 @@ redistribution rights are unverified.
 - STEP booleans remain nominal in this repository. Components that need a blind
   socket or layered construction are built from multiple closed solid bodies
   rather than pretending a nominal boolean trimmed them.
-- Helical threads are swept ridges, not ISO tolerance-class-compliant thread
-  geometry.
+- Helical threads are swept ridges with the ISO 68-1 basic profile (exact
+  radial placement, crest/root widths, 60-degree flanks, pitch, and
+  handedness). They are not ISO tolerance-class-compliant threads and omit
+  runout and root relief.
 - Extrusion profiles are generic engineering envelopes, **not** a claim of
   cross-manufacturer compatibility.
 - Extrusion frames use full-height corner posts and rails cut to the clear

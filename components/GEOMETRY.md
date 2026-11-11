@@ -93,7 +93,9 @@ let reports = assembly.collision_reports(policy~)
 
 A permitted pair keeps its measured penetration depth and region but is
 classified as `InterferenceFit` instead of `Collision`, so it does not appear in
-`collisions()`.
+`collisions(policy~)`. A `Contact` or `Collision` report always carries
+`separation_mm = 0`; aggregation resets a previously measured clearance gap when
+the instance pair is upgraded to a more serious kind.
 
 ### Conservatism for non-convex sections
 
@@ -104,6 +106,12 @@ reported collision is therefore conservative (it may report envelope overlap
 that the slot voids would avoid). At a frame corner the material that meets is
 the solid corner, so the classification is exact for the intended joint. This
 limitation is recorded in `KNOWN_ISSUES.md`.
+
+A swept shape (`SweptProfile`) uses a tight bounding box computed from the
+actual profile vertices in every path frame. It is no longer the old
+path-box-plus-5-mm expansion, so a helical thread or spring no longer reports a
+bounding box 5 mm larger than the part in every direction. The box is still an
+axis-aligned box, so a rotated coil remains conservative.
 
 ## Detail levels
 
@@ -133,26 +141,55 @@ Examples:
 - A socket head cap screw head is a solid floor disc plus a ring with a
   hexagonal through-hole. The socket is blind because the floor body closes it.
 - A shaft with a modeled thread is a plain shank, a minor-diameter threaded
-  core, and a swept helical ridge.
-- A nut with a modeled thread is a hex body with a major-diameter bore plus an
-  internal helical ridge.
+  core, and a swept helical ridge (with the root embedded 0.1 mm into the
+  core, so the solids intersect).
+- A nut with a modeled thread is a hex body with a major-diameter plus
+  clearance bore and an internal helical ridge. The ridge root is shifted
+  outward by the bore clearance and embedded 0.1 mm into the body, so it is
+  attached for every supported size and clearance. An earlier version placed
+  the ridge at the pitch radius; the M20 ridge then floated 0.035 mm inside the
+  bore.
 
 These are separate closed shells in the STEP file. Each is watertight and passes
 the repository validator; together they form the part visually. This is
 documented per component, not hidden.
+
+## Helical thread ridge
+
+The swept ridge is the ISO 68-1 basic profile, not a cosmetic fin:
+
+- External: crest radius `d/2`, root radius `d3/2`, depth `h3 = (17/24)H`.
+  Axial width is `P/8` at the crest and `5P/6` at the root.
+- Internal: crest radius `D1/2`, root radius `D/2`, depth `H1 = (5/8)H`.
+  Axial width is `P/4` at the crest and `7P/8` at the root.
+- Both profiles give a 60-degree included flank angle:
+  `(root_width - crest_width) / (2 * depth) = tan(30 deg)`.
+- The ridge is a swept helix at the standard pitch, with the requested
+  handedness. It is contained within `z = 0 .. length`; the end treatment is a
+  square cut by the swept end caps, so thread runout is not modeled.
+- The external root is embedded into the minor-diameter core and the internal
+  root is embedded into the nut body by `embed_mm` (0.1 mm by default). This is
+  an overlap, not a trimming boolean; the exported files still contain separate
+  closed shells.
+
+`components/fasteners/fasteners_test.mbt` asserts the crest/root radii and the
+60-degree angle for every supported metric size, and checks via the tight
+bounding box that an M20 internal ridge reaches its bore. The repository
+validator and an OCCT `bcommon` check confirm the shells are closed and the
+ridge actually intersects its body.
 
 ## Approximations and their controls
 
 | Feature | Approximation | Control |
 |---|---|---|
 | Circular bores/envelopes | Regular polygon extrusion | `circle_segments` in `DetailPolicy` |
-| Helical thread | Swept trapezoidal ridge along a helix | `segments_per_turn`, pitch, basic profile |
+| Helical thread | Swept ISO 68-1 trapezoid along a helix (60-degree flanks) | `segments_per_turn`, pitch, basic profile |
 | Gear tooth flank | Involute sampled at discrete points | `involute_points` |
 | Gear tip/root arcs | Polygonal arcs | `arc_points` |
 | Bearing rolling elements | Analytic spheres (`SPHERICAL_SURFACE`) | ball diameter = modeled radial gap |
 | Bearing ring chamfers | Parallel-inset ring stack | engineering default `bearing_chamfer` |
 | T-slot section | Generic polygon with tapered T-slot notches and corner webs ("arrows") | profile dimensions, all explicit |
-| Internal ring gear | Trapezoidal internal tooth form | `tooth_fraction`, tip/root arc points |
+| Internal ring gear | Exact internal involute envelope (trapezoidal fallback builder) | involute points, arc points, declared backlash |
 | 2D chamfer/fillet | Straight bevel or sampled circular arc | `distance`/`radius`, `segments`, `angle_deg` |
 | Prism face/edge chamfers | Parallel-inset ring stack (planar facets) | `ChamferedPrism` levels, inset |
 | Head socket bands | High-resolution polygon ring stack | `circle_segments` (64 at Detailed) |
@@ -201,7 +238,11 @@ For the extrusion frame, `scripts/validate_frame_geometry.py` adds an
 independent post-export gate: it re-imports the STEP with OCCT, matches every
 solid to a schedule re-derived in Python from the declared frame semantics,
 checks each volume against `section_area * cut_length`, checks the overall
-outside dimensions, and rejects positive-volume bounding-box overlap.
+outside dimensions, and rejects positive-volume bounding-box overlap. Pass
+`--corner-radius` for a rounded profile; the validator subtracts the polygonal
+corner-fillet area so a rounded frame is checked against its actual section.
+All four committed frame fixtures (400x300x500, 600x300x400, 45x45x45, and the
+rounded 200x200x200) pass.
 
 Gear meshes are checked by 2D tooth-outline crossing tests across a mesh cycle
 (`components/gears/gear_mesh_test.mbt`). A single static pose is not treated as
@@ -266,9 +307,18 @@ The bore boundary is the hole; the ring material lies outside it. Tooth 0 is
 centred on +X, matching the external gear convention. The tip radius must be
 outside the base circle, which at 20° with a standard addendum needs roughly 34
 or more ring teeth; a smaller ring is rejected rather than truncated. Internal
-meshes use a declared circumferential backlash (`0.05 * module` by default) so
-the ring tooth tip clears the planet flank through a full rotation cycle. A
-planetary layout is a static pose; the rotation-cycle test is the kinematic
+meshes use a declared **per-gear** backlash (`0.05 * module` by default), so a
+ring/planet mesh has about `0.1 * module` of total circumferential clearance and
+the ring tooth tip clears the planet flank through a full rotation cycle.
+
+For an odd planet tooth count the planet's sun-side and ring-side phases are
+half a planet pitch apart, so the ring is rotated by `180 / ring_teeth` (half a
+ring pitch). Without that offset a valid odd set such as sun 18 / planet 11 /
+ring 40 has tooth-on-tooth ring contact. Planet-to-planet clearance is checked
+at construction: the adjacent centre chord `2 C sin(pi / count)` must exceed the
+planet tip diameter, and an overlapping set is rejected.
+
+A planetary layout is a static pose; the rotation-cycle test is the kinematic
 evidence, and it is a 2D outline test, not a 3D contact solver.
 
 ## Keyed shaft
@@ -277,5 +327,9 @@ The keyway is a rectangular notch in the shaft cross-section on +Y, with the
 slot sides at `x = +- w/2` and a flat bottom at `y = r - depth`. The section is
 extruded along +Z, so the keyway is real geometric material removal, not a
 nominal boolean. The section arc is a polyline; its chord deviation is recorded.
-A matching key has X = width, Y = height, Z = length and a declared side
-clearance.
+
+`key_for_keyway` returns a cuboid in its own frame: `x = 0..width`,
+`y = 0..height`, `z = 0..length`, with the origin at the bottom-left-near
+corner. Seat it on the keyway floor at `(-width/2, r - depth, ...)`. Its height
+defaults to the keyway depth (flush with the shaft surface); pass
+`key_height_mm` for a standard parallel key that protrudes into the hub.

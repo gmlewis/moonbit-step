@@ -81,11 +81,17 @@ pub fn plate_with_hole(
 /// bottom plate. The plate holes are 0.4 mm larger than the screw so the
 /// shank clears them; the nut bore matches the nominal shank and is a contact,
 /// not a collision.
+///
+/// The default screw length is exactly the nut + plates + washer stack. Pass
+/// `screw_length_mm` to select a standard length; a longer screw protrudes
+/// past the nut and leaves a corresponding gap under the head unless the stack
+/// is shimmed. A length shorter than the stack is rejected.
 pub fn bolted_joint(
   size : @standards.MetricSize,
   plate_width_mm : Double,
   plate_depth_mm : Double,
   plate_thickness_mm : Double,
+  screw_length_mm? : Double,
   detail~ : @common.DetailLevel = Detailed,
 ) -> Result[Assembly, @common.SpecError] {
   let nut = match @fasteners.iso4032_nut(size, detail~) {
@@ -101,7 +107,18 @@ pub fn bolted_joint(
   let diameter = size.nominal_diameter_mm()
   // Overall screw length from shank end to under-head face: nut + plates +
   // washer, so the nut engages the shank and the head clamps the washer.
-  let screw_length = nut_height + 2.0 * plate_thickness_mm + washer_height
+  let required_length = nut_height + 2.0 * plate_thickness_mm + washer_height
+  let screw_length = match screw_length_mm {
+    Some(l) => l
+    None => required_length
+  }
+  if screw_length < required_length {
+    return Err(
+      @common.InvalidDimension(
+        "screw length \{screw_length} mm is shorter than the nut + plates + washer stack \{required_length} mm",
+      ),
+    )
+  }
   let screw = match @fasteners.iso4762_screw(size, screw_length, detail~) {
     Err(e) => return Err(e)
     Ok(c) => c

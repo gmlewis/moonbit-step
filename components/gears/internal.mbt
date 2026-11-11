@@ -88,8 +88,10 @@ fn internal_ring_tooth_half_angle(
 ///
 /// Tooth thickness follows the standard internal involute relation, so a
 /// standard external planet at the internal centre distance meshes with the
-/// space. `backlash_mm` is the circumferential backlash at the pitch circle; it
-/// widens the ring space and thins the tooth. Internal meshes of low-tooth-count
+/// space. `backlash_mm` is a **per-gear** tooth-thickness reduction at the
+/// pitch circle; it widens the ring space and thins the tooth. A mesh of a ring
+/// and planet built with the same value therefore has `2 * backlash_mm` of
+/// total circumferential clearance. Internal meshes of low-tooth-count
 /// planets (for example z = 12 at 20 degrees) need a small declared backlash
 /// (about `0.05 * module`) to clear the ring tooth tip through a full rotation
 /// cycle; `internal_mesh_interference` and the tests check this.
@@ -299,6 +301,15 @@ pub fn internal_mesh_interference(
   let pitch_ring = module_mm * ring_teeth.to_double() / 2.0
   let center = module_mm * (ring_teeth - planet_teeth).to_double() / 2.0
   let phase_deg = 180.0 + 180.0 / planet_teeth.to_double()
+  // For an odd planet tooth count the planet's sun-side and ring-side
+  // orientations are half a planet pitch apart. The phase above is correct for
+  // the sun mesh; the ring then needs a half ring-pitch offset. The planetary
+  // assembly applies the same offset.
+  let ring_phase_deg = if planet_teeth % 2 == 1 {
+    180.0 / ring_teeth.to_double()
+  } else {
+    0.0
+  }
   let steps = if phases < 1 { 1 } else { phases }
   let x_min = center - module_mm
   let x_max = pitch_ring + 4.0 * module_mm
@@ -329,7 +340,7 @@ pub fn internal_mesh_interference(
       planet_teeth.to_double() /
       ring_teeth.to_double()
     let planet_rad = (phase_deg + planet_deg) * @math.PI / 180.0
-    let ring_rad = ring_deg * @math.PI / 180.0
+    let ring_rad = (ring_deg + ring_phase_deg) * @math.PI / 180.0
     let planet_world = planet.map(fn(p) {
       let q = rotate_xy(p, planet_rad)
       (q.0 + center, q.1)

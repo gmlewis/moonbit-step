@@ -25,7 +25,7 @@ pub fn filleted_stepped_shaft(Array[(Double, Double)], fillet_radius_mm? : Doubl
 
 pub fn key(Double, Double, Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
-pub fn key_for_keyway(Double, Double, Double, width_clearance_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+pub fn key_for_keyway(Double, Double, Double, key_height_mm? : Double, width_clearance_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
 pub fn keyed_shaft(Double, Double, Double, Double, segments? : Int32, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 

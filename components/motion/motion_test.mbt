@@ -103,9 +103,15 @@ test "compression spring builds and rejects overlapping coils" {
     Err(e) => abort(e.message())
   }
   assert_eq(spring.layers().length(), 1)
-  let (x0, x1, _y0, _y1, _z0, _z1) = spring.bounding_box()
-  assert_true(x1 >= 5.0)
-  assert_true(x0 <= -5.0)
+  let (x0, x1, y0, y1, z0, z1) = spring.bounding_box()
+  // Mean diameter 10, wire 1: the wire surface spans 4.5..5.5 mm radially and
+  // exactly 0..20 mm axially (the path is inset by the wire radius at each end).
+  assert_true(close(x0, -5.5))
+  assert_true(close(x1, 5.5))
+  assert_true(close(y0, -5.5))
+  assert_true(close(y1, 5.5))
+  assert_true(close(z0, 0.0))
+  assert_true(close(z1, 20.0))
   assert_true(@motion.compression_spring(10.0, 2.0, 5.0, 8) is Err(_))
   assert_true(@motion.compression_spring(1.0, 2.0, 20.0, 8) is Err(_))
 }
@@ -214,4 +220,86 @@ test "filleted shaft feature record lists the shoulder fillet" {
   }
   assert_true(part.features().has_modeled("shoulder-fillet"))
   assert_true(part.features().omission_reason("keyway") is Some(_))
+}
+
+///|
+test "shoulder fillet sits at the re-entrant corner" {
+  let segments : Array[(Double, Double)] = [(10.0, 20.0), (16.0, 15.0)]
+  let part = match
+    @motion.filleted_stepped_shaft(segments, fillet_radius_mm=2.0) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  let step = part.to_step()
+  // Small radius 5, fillet 2: the tangent torus centre is at r = 7, not the
+  // outer rim of the larger cylinder (which the old code reported as r = 6).
+  assert_true(step.contains("TOROIDAL_SURFACE"))
+  assert_true(step.contains(",7.0,2.0);"))
+  assert_false(step.contains(",6.0,2.0);"))
+}
+
+///|
+test "equal diameters and the maximum shoulder fillet build" {
+  // Equal consecutive diameters must not emit a zero-length shoulder line.
+  let equal : Array[(Double, Double)] = [(10.0, 20.0), (10.0, 10.0)]
+  let plain = match @motion.filleted_stepped_shaft(equal) {
+    Ok(c) => c
+    Err(e) => abort("equal-diameter shaft rejected: " + e.message())
+  }
+  assert_false(plain.to_step().contains("TOROIDAL_SURFACE"))
+  // fillet radius == radial step (2 mm) is the largest feasible fillet.
+  let max_fillet : Array[(Double, Double)] = [(10.0, 20.0), (14.0, 15.0)]
+  let part = match
+    @motion.filleted_stepped_shaft(max_fillet, fillet_radius_mm=2.0) {
+    Ok(c) => c
+    Err(e) => abort("maximum fillet rejected: " + e.message())
+  }
+  assert_true(part.to_step().contains("TOROIDAL_SURFACE"))
+  assert_true(part.to_step().contains(",7.0,2.0);"))
+}
+
+///|
+test "no shoulder fillet is claimed when none is modelled" {
+  let decreasing : Array[(Double, Double)] = [(16.0, 15.0), (10.0, 20.0)]
+  let no_fillet = match
+    @motion.filleted_stepped_shaft(decreasing, fillet_radius_mm=2.0) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  assert_false(no_fillet.features().has_modeled("shoulder-fillet"))
+  assert_true(
+    no_fillet.features().omission_reason("shoulder-fillet") is Some(_),
+  )
+  let single : Array[(Double, Double)] = [(10.0, 20.0)]
+  let one_step = match
+    @motion.filleted_stepped_shaft(single, fillet_radius_mm=2.0) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  assert_false(one_step.features().has_modeled("shoulder-fillet"))
+}
+
+///|
+test "bearing rejects overlapping rollers and an impossible chamfer" {
+  let size = match @motion.bearing_size("608") {
+    Ok(s) => s
+    Err(e) => abort(e.message())
+  }
+  assert_true(@motion.bearing(size, roller_count=34) is Err(_))
+  assert_true(@motion.bearing(size, roller_count=33) is Ok(_))
+  // A 0.1 mm ring cannot absorb the 0.2 mm minimum edge chamfer.
+  assert_true(
+    @motion.bearing(
+      size,
+      ring_thickness_mm=0.1,
+      detail=@common.DetailLevel::Detailed,
+    )
+    is Err(_),
+  )
+  // Simplified rings have no chamfer. A thin ring leaves a 6.8 mm ball, so
+  // only six rollers fit around the 7.5 mm pitch radius.
+  assert_true(
+    @motion.bearing(size, ring_thickness_mm=0.1, roller_count=6) is Ok(_),
+  )
+  assert_true(@motion.bearing(size, ring_thickness_mm=0.1) is Err(_))
 }

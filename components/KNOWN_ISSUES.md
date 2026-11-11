@@ -33,10 +33,13 @@ and independent validation. See `AUDIT.md` and `PROGRESS.md` for the evidence.
    runout/lead-in is not modeled.
 4. **No socket lead-in chamfer.** The hexagonal sockets are straight
    through-holes/recesses over a floor; the socket rim is not chamfered.
-5. **Helical thread ridge is an approximation.** It uses the ISO 68-1 basic
-   profile and standard pitch, but does not model tolerance classes, root
-   radius, flank grind, or runout. It is a real swept helix, not a cosmetic
-   texture.
+5. **Helical thread ridge uses the ISO 68-1 basic profile.** The radial
+   placement, axial crest/root widths, 60-degree included angle, pitch, and
+   handedness are exact basic-profile values (tests assert them for every
+   supported size). Remaining approximations: it does not model tolerance
+   classes, the root-radius relief of an actual thread, flank grind, or
+   thread runout; the ends are square swept cuts. It is a real swept helix, not
+   a cosmetic texture.
 6. **Gear root fillet omitted.** Tooth flanks are involute; tip and root arcs
    are polygonal. Root fillets, tip chamfers, profile shift, and helix are not
    modeled.
@@ -110,17 +113,22 @@ and independent validation. See `AUDIT.md` and `PROGRESS.md` for the evidence.
    `Assembly::to_assembly_step()` writes a valid product/occurrence structure
    with `NEXT_ASSEMBLY_USAGE_OCCURRENCE` and
    `ITEM_DEFINED_TRANSFORMATION`. The repository validator checks syntax,
-   references, shells, topology, orientation, and planarity successfully, but
-   its OCCT stage calls `testreadstep <file> a` and reports "a is not a
-   topological shape" for an assembly document. Use a CAD assembly importer or
-   the flat export (`Assembly::to_step()`) when the OCCT gate is required.
-2. **Fully modeled files are large.** An M4x20 fully modeled screw is roughly
-   4 MB at 48 segments per turn. Simplified/detailed files are ~60 KB. Reduce
+   references, shells, topology, orientation, and planarity successfully. Its
+   OCCT stage cannot read an assembly as one topological shape, so
+   `validate_step.py` now detects the assembly entity and reports the
+   single-shape `checkshape`/mesh stages as `SKIP` with the reason instead of a
+   false `FAIL`. Use a CAD assembly importer or the flat export
+   (`Assembly::to_step()`) when a single-shape OCCT gate is required.
+2. **Fully modeled files are large.** An M4x20 fully modeled screw is about
+   2.2 MB at the default 24 segments per turn (it was ~4 MB at 48). A fully
+   modeled nut is ~0.5 MB; simplified/detailed files are ~60 KB. Reduce
    `segments_per_turn` or use `Detailed` for catalog-wide generation when size
    matters.
-3. **Bounding boxes of swept profiles are conservative.** `@cad`'s
-   `SweptProfile` bounding box expands path points by 5 mm; unit tests inspect
-   analytic layers instead of trusting the swept envelope.
+3. **Swept-profile bounding boxes are now tight.** `@cad`'s `SweptProfile`
+   bounding box follows the actual profile vertices through every path frame,
+   so a thread or spring is no longer 5 mm larger in every direction. The box
+   is still axis-aligned, so a rotated coil is conservative. This change makes
+   `Component::size()` and the OBB collision phase meaningful for swept parts.
 4. **Collision uses convex envelopes.** `components/collision` tests the OBB of
    each layer's local bounding box. For a T-slot extrusion the slots and core
    bore are not subtracted, and for a washer or nut the bore is not subtracted.
@@ -145,7 +153,6 @@ and independent validation. See `AUDIT.md` and `PROGRESS.md` for the evidence.
   range.
 - Fine-thread fasteners beyond the first-choice fine pitch per size.
 - Threaded inserts, retaining rings, and additional verified nuts/washers.
-- Exact internal involute ring gears (see the session issue below).
 - Helical gears, bevel gears, worm gears, timing belts/pulleys, sprockets.
 - T-nuts, corner brackets, joining plates, end caps.
 - Motor envelopes and mounting patterns.
@@ -237,3 +244,187 @@ approximations are recorded above and in `FEATURES.md`.
   comparison as `SKIP`. The normative/parametric checks still run and pass. The
   harness `--self-test` proves the PASS/FAIL/SKIP behaviour, including a
   matching external file (a generated stand-in with a verified test licence).
+
+### KI-09 — Internal thread ridge was detached for M16/M20 (fixed)
+
+- Severity: high (engineering-invalid geometry).
+- Reproduction before the fix: `components/examples/fasteners --standard
+  iso4032 --size M20 --detail full`. The internal ridge's outer radius was
+  9.9647 mm inside a 10.0 mm bore, so the "helical-thread" solid floated free
+  of the nut body. The same placement error made every ridge 0.054P too deep
+  at the crest. An OCCT `bcommon` of body and ridge returned mass 0.
+- Root cause: the ridge profile was centred on the pitch diameter, but the
+  internal basic profile spans `D1/2 .. D/2`, whose midpoint is
+  `D/2 - H1/2` (pitch radius plus `0.054P`), and the nut's clearance bore was
+  not applied to the ridge.
+- Fix: `internal_thread_ridge_center_radius_mm` centres the profile between
+  the basic crest and root and accepts `radial_offset_mm`; `hex_nut` passes its
+  bore clearance. The root is embedded 0.1 mm into the body.
+- Regression: `fasteners_test.mbt` checks every size/clearance and the M20
+  bounding box; OCCT `bcommon` now reports a positive common volume (M20
+  ≈ 38 mm³, M4 ≈ 2.4 mm³).
+
+### KI-10 — External thread flanks were not 60 degrees (fixed)
+
+- Severity: high (engineering-invalid thread profile).
+- Reproduction before the fix: the M4 external ridge profile used crest width
+  `P/8` and root width `P/4`. Over the ISO depth `h3 = 17H/24` that gives a
+  flank slope of about 0.10, an included angle of about 11.6 degrees, not 60.
+  The docstring nevertheless claimed the ISO 68-1 basic profile.
+- Root cause: `root_flat_mm()` returned `P/4`, which is neither the external
+  groove root flat (`P/6`) nor the material ridge root width (`5P/6`).
+- Fix: the external ridge uses crest width `P/8` and root width `5P/6`; the
+  internal profile uses `P/4` and `7P/8` (it was already correct). Both give
+  `tan(30 deg) = (root_width - crest_width) / (2 * depth)`.
+- Regression: `standards_test.mbt` asserts the widths and the 60-degree
+  included angle for every supported metric size. The regenerated
+  `iso4762-M4x20-fully-modeled.step` validates and its ridge still intersects
+  the thread core (OCCT common mass ≈ 10.5 mm³).
+- Related consistency fix: `d3`, `D1`, `h3`, and `H1` are now all derived from
+  `H`, so `d3 = d - 2 h3` and `D1 = d - 2 H1` hold exactly.
+
+### KI-11 — Spring axial length exceeded the nominal length (fixed)
+
+- Severity: medium (dimensional semantics).
+- Reproduction before the fix: `compression_spring(10, 1, 20, 8)` had a
+  `z` extent of -0.5 .. 20.5 mm although the docstring and metadata say
+  `z = 0 .. length`.
+- Root cause: the helix path ran from `z = 0` to `z = length`, and the wire
+  profile extends one wire radius beyond each path point.
+- Fix: the path is inset by `wire_radius` at each end and the pitch is based
+  on `length - 2 * wire_radius`, so the finished spring spans exactly
+  `0 .. length`.
+- Regression: `motion_test.mbt` asserts the exact bounding box
+  (`±5.5` mm radially, `0 .. 20` mm axially).
+
+### KI-12 — Rounded frame was not independently validated (fixed, tooling)
+
+- Severity: low (validation gap).
+- `scripts/validate_frame_geometry.py` compared the rounded frame's volume with
+  the sharp-corner section area and failed by 1.03%.
+- Fix: the validator accepts `--corner-radius` and `--corner-segments` and
+  subtracts the polygonal corner-fillet area. `generate_all.sh` now validates
+  the rounded fixture too. It reports a 1.23e-06 relative volume error.
+
+### KI-13 — Disconnected-instance detection depended on insertion order (fixed)
+
+- Severity: medium (floating-member validation could invert its answer).
+- `Assembly::disconnected_instances()` ran a BFS from the first instance. If the
+  first instance was the floating one, it reported every connected member as
+  disconnected and the floating member as the only connected part.
+- Fix: the function now finds connected components (contact, collision, or
+  declared interference) and reports everything outside the largest component.
+  If no instance touches another, every instance is reported.
+- Regression: `assemblies_test.mbt` builds a floating screw inserted before two
+  stacked plates and asserts the screw is the only reported disconnected item.
+
+### KI-14 — Filleted shaft rounded the wrong corner (fixed)
+
+- Severity: high (engineering-invalid geometry).
+- Repro: `filleted_stepped_shaft([(10,20),(16,15)], fillet_radius_mm=2)`.
+  The STEP contained `TOROIDAL_SURFACE('',#axis,6.0,2.0)` — the outer rim of
+  the larger cylinder — while the re-entrant shoulder at r=5 stayed sharp.
+- Fix: the fillet centre is now `(r_small + f, shoulder_z - f)`, tangent to the
+  small cylinder and the shoulder face. The same example reports major radius
+  **7.0**, minor **2.0**. The fit check now uses the small segment's length and
+  skips zero-length lines, so equal consecutive diameters and the maximum
+  feasible fillet (`f = radial step`) build instead of returning an error.
+- Regression: `motion_test.mbt` checks the torus location, equal diameters, the
+  maximum fillet, and that no fillet is claimed when none is modelled.
+- Also fixed: the feature record previously claimed `shoulder-fillet` whenever
+  `f > 0`, even with no shoulder.
+
+### KI-15 — Hardware-kit and fastener-grid nuts were misplaced (fixed)
+
+- Severity: high (real interference for short valid screws).
+- `fastener_grid_plate` placed the nut at `-L + nut_height` (one nut height
+  above the free end). For M4x6 the nut overlapped the washer by 0.8 mm and the
+  head by 0.4 mm. It is now at `-L`.
+- `metric_hardware_kit` used a fixed `nut_z = 2.0`. For M2x3 the nut overlapped
+  the washer and head. It now sits at the free end (`z = 0`).
+- Regressions: short-screw checks for both builders. The existing test that
+  asserted `nut_z == 2.0` was updated to `0.0` for the corrected placement.
+
+### KI-16 — Key frame and height were undocumented/inexact (fixed)
+
+- `key_for_keyway` now documents that the cuboid occupies `0..width`,
+  `0..height`, `0..length` (origin at the bottom-left-near corner), and accepts
+  `key_height_mm` independently of the keyway depth. A taller key is described
+  as protruding into the hub. A negative height is rejected.
+- The keyed-shaft feature record now uses the clamped section segment count.
+
+### KI-17 — Bearing roller spacing and chamfer fit were unvalidated (fixed)
+
+- Added a check that adjacent ball centres are at least one ball diameter apart
+  (608 accepts 33 rollers, rejects 34).
+- At `Detailed`, a ring thinner than the 0.2 mm minimum edge chamfer (or a width
+  below twice the chamfer) is rejected instead of emitting an inverted annulus.
+- Remaining limitation: the rings are polygonal, so a ball that is nominally
+  tangent to the cylindrical envelope can penetrate the faceted bore by the
+  chord sagitta (about 0.018 mm for 608 at 48 segments, 0.010 mm at 64). This is
+  a visual envelope model, not a raceway model.
+
+### KI-18 — Collision aggregation and policy handling (fixed)
+
+- Upgrading a clearance aggregate to `Contact`/`Collision` now resets
+  `separation_mm` to zero; previously a collision could report the old positive
+  gap.
+- `Assembly::collisions(policy~)` now accepts and honours a `ContactPolicy`, so
+  a declared interference pair is excluded from `collisions()` as documented.
+
+### KI-19 — Planetary ring phase was wrong for odd planet tooth counts (fixed)
+
+- Severity: high (tooth-on-tooth contact).
+- Sun 18 / planet 11 / ring 40 (a valid set) had 12 ring/planet crossings at
+  the old ring phase 0 and zero with the ring rotated by half a ring pitch
+  (`180/40 = 4.5 deg`). The planet's sun-side and ring-side phases are half a
+  planet pitch apart for odd tooth counts.
+- Fix: `planetary_gear_set` rotates the ring by `180 / ring_teeth` when the
+  planet tooth count is odd; `internal_mesh_interference` applies the same
+  offset. Existing even-tooth sets are unchanged.
+- Regression: the odd set has zero ring/planet and zero sun/planet crossings,
+  the unrotated ring is a non-vacuous negative control, and the public cycle
+  diagnostic reports zero crossings.
+
+### KI-20 — Planet-to-planet overlap was not validated (fixed)
+
+- `PlanetaryParams::new` now requires the adjacent centre chord
+  `2 C sin(pi / count)` to exceed the planet tip diameter. Sun 18 / planet 18 /
+  6 planets (adjacent 36 mm, tip diameter 40 mm) is rejected.
+- Regression: that case is an error; 18/12/5 remains valid.
+
+### KI-21 — External gear backlash bound and undercut disclosure (fixed)
+
+- `SpurGearParams::new` rejects `backlash_mm >= pi * module / 2`, which would
+  make the tooth thickness negative.
+- `backlash_mm` is a **per-gear** thickness reduction; a mesh of two gears gets
+  twice that as total clearance. The docs now say so.
+- The spur feature record always states the undercut limitation; below the
+  standard no-undercut limit (17 teeth at 20 degrees) it says the profile is the
+  theoretical involute, not a cutter-generated trochoid.
+- Remaining limitation: the external involute-flank and tip/root deviations are
+  conservative circle-chord upper bounds, not measured involute deviations.
+
+### KI-22 — Spring designation and wire approximation (fixed/documented)
+
+- The designation now says "mean dia", not "OD" (the outer diameter is
+  mean + wire).
+- The feature record includes the 12-gon wire-section sagitta. The wire is
+  swept in the radial-axial plane with a horizontal path tangent, so the
+  section normal to the true helix is slightly elliptical; end caps are not
+  ground flat.
+
+### KI-23 — Assembly feature and product-structure documentation (fixed)
+
+- `Assembly::features` now keeps the largest deviation for a repeated
+  approximation name instead of the first.
+- `to_assembly_step` documentation now says one product per materialised
+  **layer**, not per component instance (a screw is several products).
+
+### KI-24 — Bolted joint could not use a longer standard screw (fixed)
+
+- `bolted_joint` accepts `screw_length_mm`. The default is the exact
+  nut + plates + washer length; a longer standard length is accepted (and
+  protrudes past the nut), while a shorter one is rejected. Thin stacks whose
+  exact length is below the ISO 4762 minimum still need the override.
+

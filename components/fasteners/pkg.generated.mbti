@@ -16,7 +16,13 @@ pub fn din976(@standards.MetricSize, Double, detail? : @common.DetailLevel, thre
 
 pub fn din976_rod(@standards.DIN976Spec, detail? : @common.DetailLevel, threads? : @common.ThreadRepresentation) -> @common.Component
 
+pub fn external_thread_crest_radius_mm(@standards.ThreadSpec) -> Double
+
 pub fn external_thread_ridge(@standards.ThreadSpec, Double, segments_per_turn? : Int32, embed_mm? : Double) -> @cad.Shape?
+
+pub fn external_thread_ridge_center_radius_mm(@standards.ThreadSpec) -> Double
+
+pub fn external_thread_root_radius_mm(@standards.ThreadSpec) -> Double
 
 pub fn fastener_thread_features(@common.FeatureRecord, @common.ThreadRepresentation, @common.DetailPolicy, Double) -> @common.FeatureRecord
 
@@ -32,7 +38,13 @@ pub fn hex_profile_across_flats(Double, rotation_deg? : Double) -> Array[(Double
 
 pub fn hole_profile(Double, segments? : Int32) -> Array[(Double, Double)]
 
-pub fn internal_thread_ridge(@standards.ThreadSpec, Double, segments_per_turn? : Int32, embed_mm? : Double) -> @cad.Shape?
+pub fn internal_thread_crest_radius_mm(@standards.ThreadSpec) -> Double
+
+pub fn internal_thread_ridge(@standards.ThreadSpec, Double, segments_per_turn? : Int32, embed_mm? : Double, radial_offset_mm? : Double) -> @cad.Shape?
+
+pub fn internal_thread_ridge_center_radius_mm(@standards.ThreadSpec, radial_offset_mm? : Double) -> Double
+
+pub fn internal_thread_root_radius_mm(@standards.ThreadSpec) -> Double
 
 pub fn iso10642_screw(@standards.MetricSize, Double, detail? : @common.DetailLevel, threads? : @common.ThreadRepresentation) -> Result[@common.Component, @common.SpecError]
 

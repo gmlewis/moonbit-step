@@ -10,12 +10,12 @@ HEADER;
     planet-3 = Spur gear m2-z12 (ISO 21771 involute geometry (parametric))
     ring = Internal ring gear m2 z36 (ISO 53 basic rack internal involute form (zero profile shift))
   Features modeled:      body, involute-tooth-envelope, internal-involute-tooth-envelope
-  Features approximated: involute-flank (PolylineArc, deviation 0 mm, control involute_points=12); tip-and-root-arc (PolylineArc, deviation 0 mm, control arc_points=8); bore (PolylineArc, deviation 0.003613631384482785 mm, control circle_segments=64); internal-involute-flank (PolylineArc, deviation 0 mm, control involute_points=12); outer-boundary (PolylineArc, deviation 0.05239765507500038 mm, control circle_segments=64)
-  Features omitted:      hub (no hub or web is modelled); keyway (not modelled; represent it with an evaluated cut); root-fillet (sharp root corners at this builder); tip-chamfer (not modelled by this builder); profile-shift (zero profile shift; a shifted ring needs a different basic-rack offset)
+  Features approximated: involute-flank (PolylineArc, deviation 0.47703843195304363 mm, control involute_points=12 (upper bound)); tip-and-root-arc (PolylineArc, deviation 2.588095894616251 mm, control arc_points=8); bore (PolylineArc, deviation 0.003613631384482785 mm, control circle_segments=64); internal-involute-flank (PolylineArc, deviation 0 mm, control involute_points=12); outer-boundary (PolylineArc, deviation 0.05239765507500038 mm, control circle_segments=64)
+  Features omitted:      hub (no hub or web is modelled); keyway (not modelled; represent it with an evaluated cut); root-fillet (sharp root corners at this builder); tip-chamfer (not modelled by this builder); undercut (tooth count 12 is below the standard no-undercut limit 17.09726434082606; the profile is the theoretical involute to the base circle, not a cutter-generated trochoid); profile-shift (zero profile shift; a shifted ring needs a different basic-rack offset)
   Feature tolerance:     0.01 mm
 */
 FILE_DESCRIPTION(('Straight-spur planetary set with an exact internal involute ring gear. Static layout; no kinematics.'),'2;1');
-FILE_NAME('planetary-m2-s12-p12-r36-3.step','2026-11-10T13:14:31',('gmlewis'),('gmlewis/step','https://github.com/gmlewis/moonbit-step'),'gmlewis/step','moonbit','none');
+FILE_NAME('planetary-m2-s12-p12-r36-3.step','2026-11-11T01:14:39',('gmlewis'),('gmlewis/step','https://github.com/gmlewis/moonbit-step'),'gmlewis/step','moonbit','none');
 FILE_SCHEMA(('AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }'));
 ENDSEC;
 DATA;

@@ -88,12 +88,13 @@ pub fn keyed_shaft(
     Err(e) => return Err(e)
     Ok(_) => ()
   }
+  let used_segments = if segments < 8 { 8 } else { segments }
   let section = match
     keyed_shaft_cross_section(
       diameter_mm,
       keyway_width_mm,
       keyway_depth_mm,
-      segments~,
+      segments=used_segments,
     ) {
     Ok(p) => p
     Err(e) => return Err(e)
@@ -116,8 +117,11 @@ pub fn keyed_shaft(
           @common.Approximation::new(
             feature="shaft-section-arc",
             kind=@common.ApproximationKind::PolylineArc,
-            deviation_mm=@common.chord_deviation(diameter_mm / 2.0, segments),
-            control="segments=\{segments}",
+            deviation_mm=@common.chord_deviation(
+              diameter_mm / 2.0,
+              used_segments,
+            ),
+            control="segments=\{used_segments}",
           ),
         ],
         omitted=[
@@ -143,16 +147,20 @@ pub fn keyed_shaft(
 /// key_for_keyway builds a rectangular key sized to sit in a keyway of the given
 /// width and depth.
 ///
-/// The key is `keyway_width - width_clearance` wide, `keyway_depth` high, and
-/// `key_length` long. Its axes follow the keyed shaft: X is the key width, Y the
-/// key height, and Z the length along the shaft. A key sits with its bottom on
-/// the keyway floor; this builder models the full keyway depth so the key does
-/// not protrude above the shaft surface. A real parallel key usually protrudes
-/// into the hub; extend `key_height_mm` for that case.
+/// Local frame: the cuboid occupies `x = 0..key_width`, `y = 0..key_height`,
+/// and `z = 0..key_length`. The origin is the bottom-left-near corner, not the
+/// shaft axis. To seat the key on the keyway floor at radius `R - depth`, place
+/// it at `(-key_width/2, R - depth, ...)`; the `keyed_shaft` example does this.
+///
+/// `key_height_mm` defaults to the keyway depth, so the key fills the slot
+/// without protruding above the shaft surface. Pass a larger value for a
+/// standard parallel key that protrudes into the hub; the key width is
+/// `keyway_width - width_clearance`.
 pub fn key_for_keyway(
   keyway_width_mm : Double,
   keyway_depth_mm : Double,
   key_length_mm : Double,
+  key_height_mm~ : Double = 0.0,
   width_clearance_mm~ : Double = 0.1,
   color~ : @cad.Rgb = @cad.Rgb::orange(),
 ) -> Result[@common.Component, @common.SpecError] {
@@ -173,13 +181,31 @@ pub fn key_for_keyway(
     Err(e) => return Err(e)
     Ok(_) => ()
   }
+  match @common.require_non_negative("key height", key_height_mm) {
+    Err(e) => return Err(e)
+    Ok(_) => ()
+  }
+  let key_height = if key_height_mm > 0.0 {
+    key_height_mm
+  } else {
+    keyway_depth_mm
+  }
+  match @common.require_positive("key height", key_height) {
+    Err(e) => return Err(e)
+    Ok(_) => ()
+  }
   let key_width = keyway_width_mm - width_clearance_mm
   if !(key_width > 0.0) {
     return Err(
       @common.InvalidParameter("key width clearance leaves no key material"),
     )
   }
-  let name = "key-\{@cad.fmt_double(key_length_mm, None)}x\{@cad.fmt_double(key_width, None)}x\{@cad.fmt_double(keyway_depth_mm, None)}"
+  let name = "key-\{@cad.fmt_double(key_length_mm, None)}x\{@cad.fmt_double(key_width, None)}x\{@cad.fmt_double(key_height, None)}"
+  let protrusion_note = if key_height > keyway_depth_mm {
+    " The key is taller than the keyway and protrudes into the hub."
+  } else {
+    " The key fills the keyway depth and does not protrude above the shaft surface."
+  }
   Ok(
     @common.Component::new(
       name~,
@@ -188,7 +214,8 @@ pub fn key_for_keyway(
         family="key",
         source="Rectangular key sized from the keyway with a declared side clearance; not a standard key table.",
       ),
-      description="Rectangular key with X = width, Y = height, Z = length, sized to the shaft keyway.",
+      description="Rectangular key with X = width, Y = height, Z = length, sized to the shaft keyway. Local origin is the bottom-left-near corner." +
+        protrusion_note,
       features=@common.FeatureRecord::new(modeled=["body"], omitted=[
         @common.Omission::new(
           feature="edge-rounds",
@@ -196,7 +223,7 @@ pub fn key_for_keyway(
         ),
       ]),
     ).add_layer(
-      @cad.Cuboid::new(key_width, keyway_depth_mm, key_length_mm),
+      @cad.Cuboid::new(key_width, key_height, key_length_mm),
       name="body",
       color~,
     ),

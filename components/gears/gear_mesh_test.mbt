@@ -343,3 +343,149 @@ test "sun and planet have no interference through a full mesh cycle" {
   }
   assert_eq(total, 0)
 }
+
+///|
+test "odd planet tooth count gets a half-pitch ring offset" {
+  // Sun 18 / planet 11 / ring 40 is a valid set, but the planet's sun-side and
+  // ring-side tooth phases differ by half a planet pitch. The ring must be
+  // rotated by half a ring pitch; without it the static pose has ring/planet
+  // tooth-on-tooth crossings.
+  let params = match
+    @gears.PlanetaryParams::new(
+      module_mm=2.0,
+      sun_teeth=18,
+      planet_teeth=11,
+      planet_count=2,
+      face_width_mm=10.0,
+    ) {
+    Ok(p) => p
+    Err(e) => abort(e.message())
+  }
+  let set = match @gears.planetary_gear_set(params) {
+    Ok(a) => a
+    Err(e) => abort(e.message())
+  }
+  let planet = @gears.external_involute_outline(2.0, 11, 20.0, backlash_mm=0.1)
+  let ring = match
+    @gears.internal_involute_ring_profile(2.0, 40, 20.0, backlash_mm=0.1) {
+    Ok(p) => p
+    Err(e) => abort(e.message())
+  }
+  let sun = @gears.external_involute_outline(2.0, 18, 20.0, backlash_mm=0.1)
+  let mut ring_world = ring
+  for item in set.items() {
+    if item.instance_name == "ring" {
+      ring_world = ring.map(fn(p) {
+        let q = item.placement.apply_point((p.0, p.1, 0.0))
+        (q.0, q.1)
+      })
+    }
+  }
+  let mut ring_crossings = 0
+  let mut unphased_crossings = 0
+  let mut sun_crossings = 0
+  for item in set.items() {
+    if item.instance_name.has_prefix("planet-") {
+      let cx = item.placement.trans.0
+      let cy = item.placement.trans.1
+      let theta = @math.atan2(cy, cx)
+      let mesh = (40.0 * @math.cos(theta), 40.0 * @math.sin(theta))
+      let sun_mesh = (18.0 * @math.cos(theta), 18.0 * @math.sin(theta))
+      let world = planet.map(fn(p) {
+        let q = item.placement.apply_point((p.0, p.1, 0.0))
+        (q.0, q.1)
+      })
+      let planet_edges = edges_near(world, mesh, 8.0)
+      ring_crossings = ring_crossings +
+        mesh_crossings(edges_near(ring_world, mesh, 8.0), planet_edges)
+      // Negative control: the unrotated ring must cross, so the zero above is
+      // not vacuous.
+      unphased_crossings = unphased_crossings +
+        mesh_crossings(edges_near(ring, mesh, 8.0), planet_edges)
+      sun_crossings = sun_crossings +
+        mesh_crossings(
+          edges_near(sun, sun_mesh, 6.0),
+          edges_near(world, sun_mesh, 6.0),
+        )
+    }
+  }
+  assert_eq(ring_crossings, 0)
+  assert_eq(sun_crossings, 0)
+  assert_true(unphased_crossings > 0)
+  // The public cycle diagnostic must agree with the assembly.
+  let cycle = match
+    @gears.internal_mesh_interference(
+      2.0,
+      40,
+      11,
+      20.0,
+      backlash_mm=0.1,
+      phases=32,
+    ) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  assert_eq(cycle, 0)
+}
+
+///|
+test "planetary rejects overlapping planets" {
+  // 18/18/6 satisfies (sun + ring) % count == 0 but adjacent planet tips
+  // overlap by 4 mm.
+  assert_true(
+    @gears.PlanetaryParams::new(
+      module_mm=2.0,
+      sun_teeth=18,
+      planet_teeth=18,
+      planet_count=6,
+      face_width_mm=10.0,
+    )
+    is Err(_),
+  )
+  // A near-limit but valid set: chord 35.27 mm, tip diameter 28 mm.
+  assert_true(
+    @gears.PlanetaryParams::new(
+      module_mm=2.0,
+      sun_teeth=18,
+      planet_teeth=12,
+      planet_count=5,
+      face_width_mm=10.0,
+    )
+    is Ok(_),
+  )
+}
+
+///|
+test "external gear rejects a backlash that closes the tooth" {
+  assert_true(
+    @gears.SpurGearParams::new(module_mm=2.0, teeth=20, backlash_mm=3.2)
+    is Err(_),
+  )
+  assert_true(
+    @gears.SpurGearParams::new(module_mm=2.0, teeth=20, backlash_mm=3.0)
+    is Ok(_),
+  )
+}
+
+///|
+test "low-tooth gear records the undercut limitation" {
+  let low = match @gears.SpurGearParams::new(module_mm=2.0, teeth=12) {
+    Ok(p) => p
+    Err(e) => abort(e.message())
+  }
+  let low_gear = match @gears.spur_gear(low) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  let reason = low_gear.features().omission_reason("undercut")
+  assert_true(reason is Some(_))
+  let high = match @gears.SpurGearParams::new(module_mm=2.0, teeth=20) {
+    Ok(p) => p
+    Err(e) => abort(e.message())
+  }
+  let high_gear = match @gears.spur_gear(high) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  assert_true(high_gear.features().omission_reason("undercut") is Some(_))
+}

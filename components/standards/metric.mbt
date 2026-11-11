@@ -236,50 +236,83 @@ pub fn ThreadSpec::height_h_mm(self : ThreadSpec) -> Double {
 
 ///|
 /// ThreadSpec::pitch_diameter_mm returns the basic pitch diameter
-/// `d2 = D2 = d - 0.649519P`.
+/// `d2 = D2 = d - (3/4)H`.
 pub fn ThreadSpec::pitch_diameter_mm(self : ThreadSpec) -> Double {
-  self.nominal_diameter_mm - 0.649519052838329 * self.pitch_mm
+  self.nominal_diameter_mm - 0.75 * self.height_h_mm()
 }
 
 ///|
 /// ThreadSpec::external_minor_diameter_mm returns the basic external minor
-/// diameter `d3 = d - 1.226869P`.
+/// diameter `d3 = d - (17/12)H`, exactly `d - 2 * h3`.
 pub fn ThreadSpec::external_minor_diameter_mm(self : ThreadSpec) -> Double {
-  self.nominal_diameter_mm - 1.226869 * self.pitch_mm
+  self.nominal_diameter_mm - 17.0 / 12.0 * self.height_h_mm()
 }
 
 ///|
 /// ThreadSpec::internal_minor_diameter_mm returns the basic internal minor
-/// diameter `D1 = D - 1.082532P`.
+/// diameter `D1 = D - (5/4)H`, exactly `d - 2 * H1`.
 pub fn ThreadSpec::internal_minor_diameter_mm(self : ThreadSpec) -> Double {
-  self.nominal_diameter_mm - 1.082532 * self.pitch_mm
+  self.nominal_diameter_mm - 1.25 * self.height_h_mm()
 }
 
 ///|
 /// ThreadSpec::external_thread_depth_mm returns the basic external thread
-/// depth `h3 = 0.61343P`.
+/// depth `h3 = (17/24)H = 0.613435P`.
 pub fn ThreadSpec::external_thread_depth_mm(self : ThreadSpec) -> Double {
-  0.61343 * self.pitch_mm
+  17.0 / 24.0 * self.height_h_mm()
 }
 
 ///|
 /// ThreadSpec::internal_thread_depth_mm returns the basic internal thread
-/// depth `H1 = 0.54127P`.
+/// depth `H1 = (5/8)H = 0.541266P`.
 pub fn ThreadSpec::internal_thread_depth_mm(self : ThreadSpec) -> Double {
-  0.54127 * self.pitch_mm
+  5.0 / 8.0 * self.height_h_mm()
 }
 
 ///|
-/// ThreadSpec::crest_flat_mm returns the basic crest flat width `P/8`.
+/// ThreadSpec::crest_flat_mm returns the basic crest flat width `P/8`. This is
+/// also the axial width of the external thread ridge at the major diameter.
 pub fn ThreadSpec::crest_flat_mm(self : ThreadSpec) -> Double {
   self.pitch_mm / 8.0
 }
 
 ///|
-/// ThreadSpec::root_flat_mm returns the approximate basic root flat width
-/// `P/4` used by the swept ridge approximation.
+/// ThreadSpec::root_flat_mm returns the basic external-thread *groove* root
+/// flat `P/6`. Do not confuse it with the material ridge width at the root,
+/// which is `5P/6`; using `P/4` here (as an earlier approximation did) gives a
+/// ~12-degree included flank angle instead of the 60-degree ISO basic profile.
 pub fn ThreadSpec::root_flat_mm(self : ThreadSpec) -> Double {
+  self.pitch_mm / 6.0
+}
+
+///|
+/// ThreadSpec::external_thread_crest_width_mm returns the axial width of the
+/// external thread ridge at the major diameter, `P/8`.
+pub fn ThreadSpec::external_thread_crest_width_mm(self : ThreadSpec) -> Double {
+  self.pitch_mm / 8.0
+}
+
+///|
+/// ThreadSpec::external_thread_root_width_mm returns the axial width of the
+/// external thread ridge at the basic minor diameter, `5P/6`. With the depth
+/// `h3 = 17H/24` this gives the ISO 68-1 60-degree included flank angle.
+pub fn ThreadSpec::external_thread_root_width_mm(self : ThreadSpec) -> Double {
+  5.0 * self.pitch_mm / 6.0
+}
+
+///|
+/// ThreadSpec::internal_thread_crest_width_mm returns the axial width of the
+/// internal thread ridge at the basic minor diameter, `P/4`.
+pub fn ThreadSpec::internal_thread_crest_width_mm(self : ThreadSpec) -> Double {
   self.pitch_mm / 4.0
+}
+
+///|
+/// ThreadSpec::internal_thread_root_width_mm returns the axial width of the
+/// internal thread ridge at the major diameter, `7P/8`. With the depth
+/// `H1 = 5H/8` this gives the ISO 68-1 60-degree included flank angle.
+pub fn ThreadSpec::internal_thread_root_width_mm(self : ThreadSpec) -> Double {
+  7.0 * self.pitch_mm / 8.0
 }
 
 ///|

@@ -53,6 +53,16 @@ pub fn SpurGearParams::new(
     Err(e) => return Err(e)
     Ok(_) => ()
   }
+  // Backlash is a per-gear tooth-thickness reduction. More than half the
+  // circular pitch would make the tooth thickness negative and the outline
+  // self-intersecting (the ring builder already enforces the same bound).
+  if backlash_mm >= @math.PI * module_mm / 2.0 {
+    return Err(
+      @common.InvalidParameter(
+        "gear backlash must be below half the circular pitch (pi * module / 2)",
+      ),
+    )
+  }
   match
     @common.require_non_negative("root fillet radius", root_fillet_radius_mm) {
     Err(e) => return Err(e)
@@ -154,14 +164,22 @@ pub fn spur_gear(
       @common.Approximation::new(
         feature="involute-flank",
         kind=@common.ApproximationKind::PolylineArc,
-        deviation_mm=0.0,
-        control="involute_points=\{params.involute_points}",
+        // Conservative circle-chord upper bound; the actual involute polyline
+        // deviation is smaller. It is never reported as exact (0).
+        deviation_mm=@common.chord_deviation(
+          geom.outer_radius_mm,
+          params.involute_points,
+        ),
+        control="involute_points=\{params.involute_points} (upper bound)",
       ),
       @common.Approximation::new(
         feature="tip-and-root-arc",
         kind=@common.ApproximationKind::PolylineArc,
-        deviation_mm=0.0,
-        control="arc_points=\{params.arc_points}",
+        deviation_mm=@common.chord_deviation(
+          geom.outer_radius_mm,
+          params.arc_points,
+        ),
+        control="arc_points=\{params.arc_points} (upper bound)",
       ),
     ],
     omitted=[
@@ -201,6 +219,23 @@ pub fn spur_gear(
       @common.Omission::new(
         feature="tip-chamfer",
         reason="not modelled by this builder",
+      ),
+    )
+  }
+  let pa = params.pressure_angle_deg * @math.PI / 180.0
+  let z_min = 2.0 / (@math.sin(pa) * @math.sin(pa))
+  if params.teeth.to_double() < z_min {
+    features = features.add_omitted(
+      @common.Omission::new(
+        feature="undercut",
+        reason="tooth count \{params.teeth} is below the standard no-undercut limit \{@cad.fmt_double(z_min, None)}; the profile is the theoretical involute to the base circle, not a cutter-generated trochoid",
+      ),
+    )
+  } else {
+    features = features.add_omitted(
+      @common.Omission::new(
+        feature="undercut",
+        reason="not modelled; the profile is the theoretical involute",
       ),
     )
   }

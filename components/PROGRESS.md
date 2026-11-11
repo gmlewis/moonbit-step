@@ -416,3 +416,103 @@ Starting state: branch `master`, HEAD `b825f5e`, baseline **495/495 tests**.
 - `python3 scripts/compare_golden.py`: 19 fixtures PASS, external geometry
   SKIP, no FAIL.
 - `python3 scripts/compare_golden.py --self-test`: 8/8 cases pass.
+
+## Audit and thread/bbox/spring correctness session (round 6, 2026-11-10)
+
+Starting state: branch `master`, HEAD `f86c6f8`, baseline **511/511 tests**.
+Round-5 work was present in the working tree and was preserved; see
+`SESSION_REPORT_05.md`. This session audited it rather than trusting the
+report.
+
+### Defects found and fixed
+
+1. **Internal helical ridge detached for M16/M20 (high).** The ridge profile was
+   centred on the pitch diameter, so its root did not reach the bore; for M20
+   it floated 0.035 mm inside the nut. A clearance bore made the gap larger for
+   every size. The profile is now centred between `D1/2` and `D/2`, shifted by
+   the bore clearance, and embedded 0.1 mm into the body. OCCT `bcommon`
+   changed from mass 0 to 37.97 mm³ (M20) / 2.43 mm³ (M4).
+2. **External thread flanks were not 60 degrees (high).** The ridge used root
+   width `P/4` instead of `5P/6`, producing roughly an 11.6-degree included
+   angle while claiming the ISO 68-1 basic profile. It now uses crest `P/8`
+   and root `5P/6`; the internal ridge uses `P/4` and `7P/8`. Tests assert
+   `(root - crest) / (2 * depth) = tan(30 degrees)` for every size.
+3. **ISO 68-1 constants disagreed (medium).** `h3 = 0.61343P` versus
+   `d3 = d - 1.226869P` broke `d3 = d - 2h3`. All derived diameters and depths
+   now come from `H`, so the identities hold exactly.
+4. **Spring overall length was `length + wire_diameter` (medium).** The helix
+   path now starts at `wire_radius` and its pitch is based on
+   `length - 2 * wire_radius`, so the spring spans exactly `0 .. length`.
+5. **Swept-profile bounding boxes were inflated by 5 mm (medium).** The box now
+   follows the actual profile vertices in each path frame. This makes
+   `Component::size()` and the OBB collision phase accurate for threads and
+   springs.
+6. **Rounded frame was not independently validated (low).**
+   `validate_frame_geometry.py` gained `--corner-radius`/`--corner-segments`;
+   the rounded 200x200x200 fixture now passes with a 1.23e-06 volume error.
+7. **Disconnected-instance detection was insertion-order dependent (medium).**
+   `Assembly::disconnected_instances()` started its BFS at the first instance,
+   so a floating first item made every connected member look disconnected. It
+   now reports everything outside the largest connected component.
+8. **A valid assembly STEP reported a false `FAIL` (low, tooling).**
+   `validate_step.py` applied the single-shape OCCT gate to a product-structure
+   document. It now detects `NEXT_ASSEMBLY_USAGE_OCCURRENCE` and reports the
+   single-shape `checkshape`/mesh stages as `SKIP`; the syntax, reference,
+   shell, topology, orientation, and planarity checks still run and pass.
+
+### Additional audit repairs (motion, assemblies, gears)
+
+- **Filleted shaft rounded the wrong corner (high).** The torus was on the
+  larger cylinder's outer rim; the re-entrant shoulder stayed sharp. The torus
+  centre is now `(r_small + f, shoulder_z - f)`; the fixture measures major 7.0,
+  minor 2.0. Equal diameters and the maximum feasible fillet now build.
+- **Kit nuts were misplaced (high).** `fastener_grid_plate` put the nut one nut
+  height above the free end; `metric_hardware_kit` used a fixed 2 mm offset.
+  Short valid screws overlapped the washer/head. Both nuts now sit at the free
+  end, with short-screw regressions.
+- **Odd planet tooth counts had a ring half-pitch error (high).** Sun 18 /
+  planet 11 / ring 40 had 12 ring/planet crossings at ring phase 0; the ring is
+  now rotated by `180 / ring_teeth` for odd planet counts, and the cycle
+  diagnostic matches. A non-vacuous unrotated control is tested.
+- **Planet-planet overlap was accepted (high).** Adjacent centre chord must
+  exceed the planet tip diameter; 18/18/6 is now rejected.
+- **Key frame/height (medium).** The key's local origin and extent are
+  documented, `key_height_mm` is an explicit parameter, and a taller key is
+  described as protruding into the hub.
+- **Bearing validation (medium).** Overlapping rollers and rings thinner than
+  the edge chamfer are rejected. The faceted-bore ball sagitta (~0.018 mm for
+  608 at 48 segments) is documented.
+- **Collision reporting (medium).** A collision/contact aggregate now has zero
+  separation, and `Assembly::collisions(policy~)` honours a `ContactPolicy`.
+- **Gear backlash/undercut (medium).** External backlash above half the circular
+  pitch is rejected; backlash is documented as per-gear; the spur feature record
+  states the undercut limitation.
+- **Assembly feature aggregation (low).** Duplicate approximation names keep the
+  largest deviation. `to_assembly_step` documentation now says one product per
+  materialised layer.
+- **Bolted joint length (low).** `screw_length_mm` lets a caller select a
+  standard length; a shorter-than-stack length is rejected.
+- **Spring metadata (low).** The designation says mean diameter (not OD), and
+  the 12-gon wire-section deviation and radial-axial sweep are documented.
+
+### Validation
+
+- `./test-all.sh`: **535 tests, 535 passed, 0 failed** (+24 regressions).
+- `python3 scripts/compare_golden.py`: 19 PASS, external SKIP, 0 FAIL.
+- Regenerated fixtures `iso4032-{M3,M4,M5}-fully-modeled.step`,
+  `iso4762-M4x20-fully-modeled.step`, `spring-10x1x20.step`,
+  `filleted-shaft-d10-16.step`, `kit-M4x20-flat.step`,
+  `assembly-structure/kit-M4x20-assembly.step`, `keyed-shaft-20x40.step`, the
+  three gear-pair/single-gear fixtures, and both planetary fixtures. Every file
+  passes `scripts/validate_step.py --no-mesh`; the assembly document reports
+  the OCCT single-shape stages as `SKIP`.
+- `scripts/measure_step_features.py` on `filleted-shaft-d10-16.step` reports
+  one `TOROIDAL_SURFACE` with major 7.0 mm, minor 2.0 mm.
+- OCCT and SolidCraft independently confirm the fixed M20 ridge reaches the
+  bore. The frame validator passes all four committed frames.
+
+### Remaining
+
+The limitations in `KNOWN_ISSUES.md` still apply: nominal (layered) booleans,
+no thread runout/root relief, OBB collision conservatism for non-convex
+sections, and external golden geometry `SKIP` for licensing reasons.

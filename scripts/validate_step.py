@@ -588,6 +588,21 @@ def _occt_tool() -> str | None:
     return shutil.which("occt-draw") or shutil.which("DRAWEXE")
 
 
+_ASSEMBLY_RE = re.compile(
+    r"^\s*#\d+\s*=\s*NEXT_ASSEMBLY_USAGE_OCCURRENCE\s*\(", re.MULTILINE
+)
+
+
+def is_assembly_document(text: str) -> bool:
+    """Return True for a STEP product-structure (assembly) document.
+
+    Such a file has no single topological shape, so the single-shape OCCT
+    ``testreadstep``/``checkshape`` gate does not apply to it. The per-shell
+    syntax, reference, topology, orientation, and planarity checks still run.
+    """
+    return bool(_ASSEMBLY_RE.search(text))
+
+
 def check_occt_checkshape(path: Path, required: bool) -> Check:
     tool = _occt_tool()
     if tool is None:
@@ -810,11 +825,24 @@ def validate_step_file(
     result.checks.append(check_references(model))
     result.checks.extend(check_topology(model))
     result.checks.append(check_planarity(model, planarity_tol))
-    result.checks.append(check_occt_checkshape(path, required=tessellate))
-    if tessellate:
-        result.checks.append(check_occt_mesh(path, deflection, required=True))
-    if gmsh:
-        result.checks.append(check_gmsh_mesh(path, required=True))
+    assembly = is_assembly_document(text)
+    if assembly:
+        note = (
+            "skipped: STEP assembly product structure has no single topological "
+            "shape; use a CAD assembly importer (the flat export can use the "
+            "single-shape gate)"
+        )
+        result.checks.append(Check("occt checkshape", True, note, skipped=True))
+        if tessellate:
+            result.checks.append(Check("occt mesh", True, note, skipped=True))
+        if gmsh:
+            result.checks.append(Check("gmsh mesh", True, note, skipped=True))
+    else:
+        result.checks.append(check_occt_checkshape(path, required=tessellate))
+        if tessellate:
+            result.checks.append(check_occt_mesh(path, deflection, required=True))
+        if gmsh:
+            result.checks.append(check_gmsh_mesh(path, required=True))
     return result
 
 

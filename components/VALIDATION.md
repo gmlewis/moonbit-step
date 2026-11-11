@@ -3,6 +3,54 @@
 Environment: macOS, MoonBit `moon 0.1.20261104 (940aa18 2026-11-04)`,
 `moonc v0.10.20+65efd5b93`; OCCT `DRAWEXE` and `gmsh` present.
 
+## Current status (round 6, 2026-11-10)
+
+- `./test-all.sh`: **535 tests, 535 passed, 0 failed**.
+- `python3 scripts/compare_golden.py`: 19 generated fixtures `PASS`, external
+  geometry `SKIP` (unverified per-file licences), 0 `FAIL`.
+- `python3 scripts/compare_golden.py --self-test`: PASS.
+- Regenerated fully modeled fasteners and the spring validate with
+  `scripts/validate_step.py` (syntax, references, closed shells, topology,
+  orientation, PLANE planarity, OCCT `checkshape`).
+- Independent OCCT evidence for the thread-ridge repair: a `bcommon` of the nut
+  body and its internal ridge returned mass 0 before the fix and 37.97 mm³
+  (M20) / 2.43 mm³ (M4) after; the external M4 ridge intersects its thread core
+  with mass 10.50 mm³.
+- SolidCraft independently imports the fixed M20 nut with zero errors; the
+  ridge bounding box is ±10.1 mm (it reaches the 10 mm bore).
+- `scripts/validate_frame_geometry.py --corner-radius 1.5` now passes the
+  rounded 200x200x200 frame (volume relative error 1.23e-06).
+- `scripts/validate_step.py` detects a STEP product-structure document and
+  reports the single-shape OCCT `checkshape`/mesh stages as `SKIP` instead of a
+  false `FAIL`; the committed `kit-M4x20-assembly.step` now reports PASS/PASS/
+  PASS/PASS/PASS/PASS/PASS + SKIP + SKIP and exits 0.
+- `python3 scripts/validate_step_test.py`: 10/10 self-tests pass, including the
+  assembly-detection and skip behaviour.
+
+New round-6 regressions:
+
+- `cad/sweep_bbox_wbtest.mbt` — tight swept-profile bounding box and empty-path
+  behaviour.
+- `components/fasteners/fasteners_test.mbt` — ISO 68-1 crest/root radii for all
+  sizes, internal-ridge attachment for every size/clearance, M20 regression,
+  and M4 crest on the nominal major diameter.
+- `components/standards/standards_test.mbt` — `d3 = d - 2h3`,
+  `D1 = d - 2H1`, thread ridge widths, and the 60-degree included angle for
+  every supported size.
+- `components/motion/motion_test.mbt` — exact spring bounding box, shoulder
+  fillet location (torus major 7.0), equal diameters, maximum fillet, bearing
+  roller spacing and chamfer fit.
+- `components/motion/keyed_shaft_test.mbt` — key height is independent of the
+  keyway depth and negative heights are rejected.
+- `components/assemblies/assemblies_test.mbt` — floating-member detection is
+  independent of insertion order; kit/grid short-screw placements; collision
+  policy; largest-deviation feature aggregation; bolted-joint length override.
+- `components/gears/gear_mesh_test.mbt` — odd planet-tooth ring phase with a
+  non-vacuous negative control, planet-to-planet clearance, external backlash
+  bound, and undercut disclosure.
+- `components/collision/collision_test.mbt` — a collision aggregate has zero
+  separation after an earlier clearance pair.
+
 ## Unit tests
 
 ```bash

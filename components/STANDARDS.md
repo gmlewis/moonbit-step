@@ -10,12 +10,16 @@ beyond the stated tables.
 - Sizes: M2, M2.5, M3, M4, M5, M6, M8, M10, M12, M16, M20.
 - Coarse pitch series from ISO 261.
 - One commonly stocked fine pitch per size (ISO 261 fine series).
-- Basic profile dimensions use ISO 68-1:
-  - `H = sqrt(3)/2 * P`
-  - pitch diameter `d2 = D2 = d - 0.649519 P`
-  - external minor `d3 = d - 1.226869 P`
-  - internal minor `D1 = d - 1.082532 P`
-  - external depth `h3 = 0.61343 P`, internal depth `H1 = 0.54127 P`
+- Basic profile dimensions use ISO 68-1. Everything is derived from
+  `H = sqrt(3)/2 * P`, so the diameter/depth pairs are exactly consistent:
+  - pitch diameter `d2 = D2 = d - (3/4) H`
+  - external minor `d3 = d - (17/12) H = d - 2 h3`
+  - internal minor `D1 = d - (5/4) H = d - 2 H1`
+  - external depth `h3 = (17/24) H`, internal depth `H1 = (5/8) H`
+  - flank angle: 60 degrees included. The external ridge is `P/8` wide at the
+    major diameter and `5P/6` at the basic minor diameter; the internal ridge
+    is `P/4` wide at the minor diameter and `7P/8` at the major diameter. These
+    widths give `tan(30 deg) = (root_width - crest_width) / (2 * depth)`.
 - Right-hand and left-hand thread direction are modeled by the swept helix.
 
 The library computes these derived values; it does not embed a full tolerance

@@ -113,3 +113,32 @@ test "declared interference fit is classified separately" {
   assert_true(declared[0].is_interference_fit())
   assert_true(declared[0].penetration_mm > 0.0)
 }
+
+///|
+test "an upgraded collision report has zero separation" {
+  // A1 is clear of B1 by 20 mm, then A1 collides with B2 by 1 mm. The old
+  // aggregation kept separation=20 on the resulting Collision report.
+  let shapes : Array[@collision.PlacedShape] = [
+    { instance_name: "A", layer_name: "a1", obb: unit_box(5.0), },
+    {
+      instance_name: "A",
+      layer_name: "a2",
+      obb: translated_box(unit_box(5.0), 12.0),
+    },
+    {
+      instance_name: "B",
+      layer_name: "b1",
+      obb: translated_box(unit_box(5.0), 30.0),
+    },
+    {
+      instance_name: "B",
+      layer_name: "b2",
+      obb: translated_box(unit_box(5.0), 9.0),
+    },
+  ]
+  let reports = @collision.pair_reports(shapes)
+  assert_eq(reports.length(), 1)
+  assert_true(reports[0].kind is @collision.CollisionKind::Collision)
+  assert_true(reports[0].separation_mm == 0.0)
+  assert_true(reports[0].penetration_mm > 0.0)
+}

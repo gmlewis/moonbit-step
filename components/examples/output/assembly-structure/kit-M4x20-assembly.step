@@ -13,7 +13,7 @@ HEADER;
   Feature tolerance:     0.01 mm
 */
 FILE_DESCRIPTION(('Socket head cap screw with flat washer and hex nut, separated along the screw axis.'),'2;1');
-FILE_NAME('hardware-kit-M4-20.step','2026-11-10T13:14:27',('gmlewis'),('gmlewis/step','https://github.com/gmlewis/moonbit-step'),'gmlewis/step','moonbit','none');
+FILE_NAME('hardware-kit-M4-20.step','2026-11-11T01:14:36',('gmlewis'),('gmlewis/step','https://github.com/gmlewis/moonbit-step'),'gmlewis/step','moonbit','none');
 FILE_SCHEMA(('AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }'));
 ENDSEC;
 DATA;
@@ -5105,10 +5105,10 @@ REPRESENTATION_RELATIONSHIP_WITH_TRANSFORMATION(#3752)
 #5053=PRODUCT_DEFINITION_FORMATION_WITH_SPECIFIED_SOURCE(' ',' ',#5051,.NOT_KNOWN.);
 #5054=PRODUCT_DEFINITION_CONTEXT('part definition',#5048,'design');
 #5055=PRODUCT_DEFINITION(' ','',#5053,#5054);
-#5056=SHAPE_REPRESENTATION('nut/ISO4032-M4/body-SR',(#5047,#75),#8);
+#5056=SHAPE_REPRESENTATION('nut/ISO4032-M4/body-SR',(#5047,#20),#8);
 #5057=PRODUCT_DEFINITION_SHAPE('','',#5055);
 #5058=SHAPE_DEFINITION_REPRESENTATION(#5057,#5056);
-#5059=ITEM_DEFINED_TRANSFORMATION('','',#20,#75);
+#5059=ITEM_DEFINED_TRANSFORMATION('','',#20,#20);
 #5060=(
 REPRESENTATION_RELATIONSHIP('','',#21,#5056)
 REPRESENTATION_RELATIONSHIP_WITH_TRANSFORMATION(#5059)

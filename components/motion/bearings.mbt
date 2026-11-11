@@ -105,6 +105,19 @@ pub fn bearing(
       ),
     )
   }
+  let mid_radius = (outer + d) / 4.0
+  // Adjacent ball centres are a chord of the pitch circle. Too many rollers
+  // makes the balls overlap even though the count itself is positive.
+  let ball_span = 2.0 *
+    mid_radius *
+    @math.sin(@math.PI / roller_count.to_double())
+  if ball_span < radial_gap {
+    return Err(
+      @common.InvalidParameter(
+        "bearing roller count is too large: adjacent balls overlap (spacing \{ball_span} mm < ball diameter \{radial_gap} mm)",
+      ),
+    )
+  }
   let policy = @common.DetailPolicy::for_level(detail)
   let segments = if policy.circle_segments < 32 {
     32
@@ -134,6 +147,13 @@ pub fn bearing(
   let inner_outer = d + 2.0 * ring_t
   if use_features {
     let c = bearing_chamfer(width, ring_t)
+    if c >= ring_t || c >= width / 2.0 {
+      return Err(
+        @common.InvalidDimension(
+          "bearing ring thickness or width is too small for the default edge chamfer; use Simplified detail or thicker rings",
+        ),
+      )
+    }
     component = component.add_layer(
       @cad.ChamferedPrism::from_chamfer(
         @cad.Profile2D::circle(outer, segments~),
@@ -170,7 +190,6 @@ pub fn bearing(
       color=@cad.Rgb::blue(),
     )
   }
-  let mid_radius = (outer + d) / 4.0
   let ball = @cad.RevolvedProfile::sphere(radial_gap)
   for i in 0..<roller_count {
     let angle = 360.0 * Double::from_int(i) / Double::from_int(roller_count)

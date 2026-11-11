@@ -146,3 +146,33 @@ class TopologyTests(unittest.TestCase):
 
 if __name__ == "__main__":
     sys.exit(unittest.main())
+
+
+class AssemblyDocumentTests(unittest.TestCase):
+    def test_assembly_marker_detected(self):
+        self.assertFalse(v.is_assembly_document(wrap("")))
+        text = wrap(
+            "#1=NEXT_ASSEMBLY_USAGE_OCCURRENCE('1','a','b',#2,#3,$);"
+        )
+        self.assertTrue(v.is_assembly_document(text))
+        # A comment or string is not an entity.
+        self.assertFalse(
+            v.is_assembly_document(wrap("/* NEXT_ASSEMBLY_USAGE_OCCURRENCE */"))
+        )
+
+    def test_committed_assembly_skips_single_shape_checks(self):
+        path = (
+            Path(__file__).resolve().parent.parent
+            / "components/examples/output/assembly-structure/kit-M4x20-assembly.step"
+        )
+        if not path.exists():
+            self.skipTest("assembly fixture not present")
+        result = v.validate_step_file(path, tessellate=True)
+        self.assertTrue(result.ok, [c for c in result.checks if not c.ok])
+        skipped = {c.name for c in result.checks if c.skipped}
+        self.assertIn("occt checkshape", skipped)
+        self.assertIn("occt mesh", skipped)
+
+
+if __name__ == "__main__":
+    unittest.main()

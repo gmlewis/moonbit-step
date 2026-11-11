@@ -36,7 +36,18 @@ pub fn compression_spring(
       @common.InvalidDimension("spring mean radius must exceed the wire radius"),
     )
   }
-  let pitch = length_mm / active_coils.to_double()
+  // The wire is swept about the path centreline, so it extends one wire radius
+  // beyond the first and last path points. Inset the path by that radius at
+  // each end so the finished spring still spans exactly z = 0 .. length_mm.
+  let path_length = length_mm - 2.0 * wire_radius
+  if path_length <= 0.0 {
+    return Err(
+      @common.InvalidDimension(
+        "spring length must exceed the wire diameter so the path has positive length",
+      ),
+    )
+  }
+  let pitch = path_length / active_coils.to_double()
   if pitch < wire_diameter_mm {
     return Err(
       @common.InvalidParameter(
@@ -46,7 +57,7 @@ pub fn compression_spring(
   }
   let segments = if segments_per_turn < 8 { 8 } else { segments_per_turn }
   let path = @cad.helix_path(
-    pos=(0.0, 0.0, 0.0),
+    pos=(0.0, 0.0, wire_radius),
     size_per_turn=(radius, radius, pitch),
     num_turns=active_coils.to_double(),
     num_segs_per_turn=segments,
@@ -72,12 +83,12 @@ pub fn compression_spring(
     @common.Component::new(
       name~,
       metadata=@common.Metadata::new(
-        designation="Compression spring OD \{@cad.fmt_double(mean_diameter_mm, None)} / wire \{@cad.fmt_double(wire_diameter_mm, None)} x \{@cad.fmt_double(length_mm, None)}",
+        designation="Compression spring mean dia \{@cad.fmt_double(mean_diameter_mm, None)} / wire \{@cad.fmt_double(wire_diameter_mm, None)} x \{@cad.fmt_double(length_mm, None)}",
         family="compression spring (simplified)",
         length_mm~,
         source="Parametric helical sweep; no spring rate, end-coil, or grinding model.",
       ),
-      description="Open helical spring with circular wire and flat swept end caps. Closed/ground ends and preload are not modeled.",
+      description="Open helical spring with circular wire and flat swept end caps. The wire section is swept in the radial-axial plane and is a 12-gon; the helix tangent used by the sweep has no axial component, so the section normal to the true helix is slightly elliptical. Closed/ground ends and preload are not modeled.",
       features=@common.FeatureRecord::new(
         modeled=["helix-body"],
         approximated=[
@@ -86,6 +97,12 @@ pub fn compression_spring(
             kind=@common.ApproximationKind::SweptSpline,
             deviation_mm=@common.chord_deviation(radius, segments),
             control="segments_per_turn=\{segments}",
+          ),
+          @common.Approximation::new(
+            feature="wire-section",
+            kind=@common.ApproximationKind::PolylineArc,
+            deviation_mm=@common.chord_deviation(wire_radius, wire_segments),
+            control="wire_segments=12",
           ),
         ],
         omitted=[

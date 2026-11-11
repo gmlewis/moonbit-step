@@ -10,7 +10,7 @@ import {
 }
 
 // Values
-pub fn bolted_joint(@standards.MetricSize, Double, Double, Double, detail? : @common.DetailLevel) -> Result[Assembly, @common.SpecError]
+pub fn bolted_joint(@standards.MetricSize, Double, Double, Double, screw_length_mm? : Double, detail? : @common.DetailLevel) -> Result[Assembly, @common.SpecError]
 
 pub fn extrusion_frame(Double, Double, Double, @profiles.TSlotProfile, detail? : @common.DetailLevel) -> Result[Assembly, @common.SpecError]
 
@@ -33,7 +33,7 @@ pub fn Assembly::add_at(Self, @common.Component, x? : Double, y? : Double, z? : 
 pub fn Assembly::bounding_box(Self) -> (Double, Double, Double, Double, Double, Double)
 pub fn Assembly::circular_pattern(Self, @common.Component, Int32, Double, start_angle_deg? : Double, orientation_deg? : Double, instance_name? : String, base? : @common.Placement) -> Self
 pub fn Assembly::collision_reports(Self, tol? : @collision.TolerancePolicy, policy? : @collision.ContactPolicy) -> Array[@collision.CollisionReport]
-pub fn Assembly::collisions(Self, tol? : @collision.TolerancePolicy) -> Array[@collision.CollisionReport]
+pub fn Assembly::collisions(Self, tol? : @collision.TolerancePolicy, policy? : @collision.ContactPolicy) -> Array[@collision.CollisionReport]
 pub fn Assembly::component_names(Self) -> Array[String]
 pub fn Assembly::contacts(Self, tol? : @collision.TolerancePolicy) -> Array[@collision.CollisionReport]
 pub fn Assembly::count(Self) -> Int32

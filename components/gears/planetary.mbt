@@ -193,6 +193,21 @@ pub fn PlanetaryParams::new(
       ),
     )
   }
+  // Adjacent planets must not touch. Their centres are on a circle of radius
+  // C = m (z_sun + z_planet) / 2; the chord between neighbours is
+  // 2 C sin(pi / count), and each planet's tip diameter is m (z_planet + 2).
+  if planet_count > 1 {
+    let center = module_mm * (sun_teeth + planet_teeth).to_double() / 2.0
+    let adjacent = 2.0 * center * @math.sin(@math.PI / planet_count.to_double())
+    let planet_tip_diameter = module_mm * (planet_teeth.to_double() + 2.0)
+    if adjacent <= planet_tip_diameter {
+      return Err(
+        @common.InvalidParameter(
+          "planets overlap: adjacent centre distance \{@cad.fmt_double(adjacent, None)} mm is not greater than the planet tip diameter \{@cad.fmt_double(planet_tip_diameter, None)} mm; use fewer planets or a smaller planet tooth count",
+        ),
+      )
+    }
+  }
   // Validate each gear's own bore and pressure angle.
   let sun = match
     SpurGearParams::new(
@@ -249,11 +264,13 @@ pub fn PlanetaryParams::designation(self : PlanetaryParams) -> String {
 /// PlanetaryParams::internal_mesh_backlash returns the circumferential backlash
 /// used for the internal ring mesh.
 ///
-/// A declared backlash of `0.05 * module` is applied by default. A low planet
-/// tooth count (for example z = 12 at 20 degrees) produces a ring tooth tip
-/// that grazes the planet flank through part of the rotation cycle; the small
-/// backlash clears it. This is a documented engineering default, not a
-/// standards-mandated value. A caller-supplied positive backlash overrides it.
+/// A declared per-gear backlash of `0.05 * module` is applied by default, so a
+/// ring/planet mesh has about `0.1 * module` of total circumferential
+/// clearance. A low planet tooth count (for example z = 12 at 20 degrees)
+/// produces a ring tooth tip that grazes the planet flank through part of the
+/// rotation cycle; the small backlash clears it. This is a documented
+/// engineering default, not a standards-mandated value. A caller-supplied
+/// positive backlash overrides it.
 pub fn PlanetaryParams::internal_mesh_backlash(
   self : PlanetaryParams,
 ) -> Double {
@@ -353,6 +370,21 @@ pub fn planetary_gear_set(
       instance_name="planet-\{j + 1}",
     )
   }
-  assembly = assembly.add(ring, instance_name="ring")
+  // The planet phase above puts a space on the sun side and, for an even
+  // planet tooth count, a space on the ring side too. For an odd tooth count
+  // the two sides are half a planet pitch apart: the ring side then presents a
+  // tooth, so the ring must be rotated by half a ring pitch to present a space
+  // there. Without this, an odd planet set (for example sun 18 / planet 11 /
+  // ring 40) has a tooth-on-tooth ring contact.
+  let ring_phase = if params.planet_teeth % 2 == 1 {
+    180.0 / params.ring_teeth.to_double()
+  } else {
+    0.0
+  }
+  assembly = assembly.add(
+    ring,
+    placement=@common.Placement::rotation_z(ring_phase),
+    instance_name="ring",
+  )
   Ok(assembly)
 }

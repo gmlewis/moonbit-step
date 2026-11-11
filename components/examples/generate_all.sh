@@ -78,6 +78,9 @@ for f in "$OUT"/*.step; do
   echo "== $(basename "$f")"
   python3 "$ROOT/scripts/validate_step.py" --no-mesh "$f"
 done
+echo "== assembly-structure/kit-M4x20-assembly.step"
+python3 "$ROOT/scripts/validate_step.py" --no-mesh \
+  "$OUT/assembly-structure/kit-M4x20-assembly.step"
 
 echo "Independent frame geometry validation (OCCT, optional)..."
 set +e
@@ -93,8 +96,12 @@ python3 "$ROOT/scripts/validate_frame_geometry.py" \
   "$OUT/frame-2020-45x45x45.step" \
   --width 45 --depth 45 --height 45 --series 2020
 small_status=$?
+python3 "$ROOT/scripts/validate_frame_geometry.py" \
+  "$OUT/frame-2020-200x200x200-rounded.step" \
+  --width 200 --depth 200 --height 200 --series 2020 --corner-radius 1.5
+rounded_status=$?
 set -e
-for status in "$main_status" "$wide_status" "$small_status"; do
+for status in "$main_status" "$wide_status" "$small_status" "$rounded_status"; do
   if [ "$status" -eq 2 ]; then
     echo "frame geometry check skipped: OCCT not installed"
   elif [ "$status" -ne 0 ]; then

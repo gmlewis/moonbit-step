@@ -226,11 +226,15 @@ pub fn ThreadSpec::crest_flat_mm(Self) -> Double
 pub fn ThreadSpec::custom(MetricSize, Double, hand? : ThreadHand) -> Result[Self, @common.SpecError]
 pub fn ThreadSpec::designation(Self, external? : Bool) -> String
 pub fn ThreadSpec::external_minor_diameter_mm(Self) -> Double
+pub fn ThreadSpec::external_thread_crest_width_mm(Self) -> Double
 pub fn ThreadSpec::external_thread_depth_mm(Self) -> Double
+pub fn ThreadSpec::external_thread_root_width_mm(Self) -> Double
 pub fn ThreadSpec::fine(MetricSize) -> Self
 pub fn ThreadSpec::height_h_mm(Self) -> Double
 pub fn ThreadSpec::internal_minor_diameter_mm(Self) -> Double
+pub fn ThreadSpec::internal_thread_crest_width_mm(Self) -> Double
 pub fn ThreadSpec::internal_thread_depth_mm(Self) -> Double
+pub fn ThreadSpec::internal_thread_root_width_mm(Self) -> Double
 pub fn ThreadSpec::lead_angle_deg(Self) -> Double
 pub fn ThreadSpec::pitch_diameter_mm(Self) -> Double
 pub fn ThreadSpec::root_flat_mm(Self) -> Double

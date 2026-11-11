@@ -22,7 +22,9 @@ pub fn metric_hardware_kit(
     Ok(c) => c
   }
   let washer_height = washer.size().2
-  let nut_z = 2.0
+  // Put the nut at the free end of the shank. A fixed offset (the old code
+  // used 2 mm) made short valid screws overlap the washer and head.
+  let nut_z = 0.0
   let name = "hardware-kit-\{size.designation()}-\{@fasteners.format_length(screw_length_mm)}"
   let assembly = Assembly::new(
       name~,
@@ -75,7 +77,6 @@ pub fn fastener_grid_plate(
     Ok(c) => c
   }
   let washer_height = washer.size().2
-  let nut_height = nut.size().2
   let name = "fastener-grid-\{size.designation()}-\{cols}x\{rows}"
   let mut assembly = Assembly::new(
     name~,
@@ -111,12 +112,8 @@ pub fn fastener_grid_plate(
         placement=washer_placement,
         instance_name="washer-\{index}",
       )
-      // Nut near the free end.
-      let nut_placement = @common.Placement::translation(
-        x,
-        y,
-        -screw_length_mm + nut_height,
-      )
+      // Nut at the free end: the shank spans z = -L .. 0.
+      let nut_placement = @common.Placement::translation(x, y, -screw_length_mm)
       assembly = assembly.add(
         nut,
         placement=nut_placement,

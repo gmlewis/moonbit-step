@@ -87,9 +87,10 @@ fn clean_polygon(pts : Array[@cad.Vec2], eps2 : Double) -> Array[@cad.Vec2] {
 /// external_involute_outline returns a complete external involute gear boundary
 /// in the XY plane with one tooth centred on +X.
 ///
-/// `backlash_mm` is the circumferential backlash at the pitch circle; it shifts
-/// the tooth flanks apart, so two gears at the standard centre distance have a
-/// small clearance. Use 0 for the nominal basic profile.
+/// `backlash_mm` is a **per-gear** tooth-thickness reduction at the pitch
+/// circle; it shifts each flank by `backlash_mm / 2`. A mesh of two gears built
+/// with the same value therefore has `2 * backlash_mm` of total circumferential
+/// clearance. Use 0 for the nominal basic profile.
 ///
 /// `involute_points` controls the points along each involute flank and
 /// `arc_points` controls the tip and root arcs. The result is a closed polygon

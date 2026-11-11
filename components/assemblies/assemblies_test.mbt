@@ -173,8 +173,10 @@ test "hardware kit coaxial clearance fit and engagement" {
     }
     // Washer top face meets the head underside at z = length.
     assert_true(close(washer_z + washer.thickness_mm, length))
-    // The nut is near the free end and the screw passes fully through it.
-    assert_true(close(nut_z, 2.0))
+    // The nut sits at the free end (z = 0) and the screw passes fully through
+    // it. A fixed 2 mm offset (the old behaviour) overlapped the washer and
+    // head for short valid screws.
+    assert_true(close(nut_z, 0.0))
     assert_true(nut_z + nut.height_mm < length)
   }
 }
@@ -219,4 +221,161 @@ test "bolted joint is a connected mixed-family assembly" {
 test "plate with hole rejects an oversized hole" {
   assert_true(@assemblies.plate_with_hole(20.0, 20.0, 3.0, 25.0) is Err(_))
   assert_true(@assemblies.plate_with_hole(20.0, 20.0, 3.0, 6.0) is Ok(_))
+}
+
+///|
+test "disconnected instances do not depend on insertion order" {
+  let plate = match @assemblies.plate_with_hole(40.0, 30.0, 5.0, 4.4) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  let screw = match @fasteners.iso4762_screw(@standards.M4, 20.0) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  // The floating screw is inserted first. Two stacked plates touch at z = 5.
+  let assembly = @assemblies.Assembly::new(name="floating-first")
+    .add(
+      screw,
+      placement=@common.Placement::translation(100.0, 0.0, 0.0),
+      instance_name="floating-screw",
+    )
+    .add(plate, instance_name="plate-bottom")
+    .add(
+      plate,
+      placement=@common.Placement::translation(0.0, 0.0, 5.0),
+      instance_name="plate-top",
+    )
+  let floating = assembly.disconnected_instances()
+  assert_eq(floating.length(), 1)
+  assert_true(floating[0] == "floating-screw")
+  assert_false(assembly.is_connected())
+}
+
+///|
+fn item_z_span(
+  assembly : @assemblies.Assembly,
+  instance_name : String,
+) -> (Double, Double) {
+  for item in assembly.items() {
+    if item.instance_name == instance_name {
+      let (_, _, _, _, z0, z1) = item.component.bounding_box()
+      let tz = item.placement.trans.2
+      return (tz + z0, tz + z1)
+    }
+  }
+  abort("missing assembly item: " + instance_name)
+}
+
+///|
+test "hardware kit nut at the free end clears the washer for a short screw" {
+  let assembly = match @assemblies.metric_hardware_kit(@standards.M2, 3.0) {
+    Ok(a) => a
+    Err(e) => abort(e.message())
+  }
+  let (nut0, nut1) = item_z_span(assembly, "nut")
+  let (washer0, _washer1) = item_z_span(assembly, "washer")
+  assert_true(close(nut0, 0.0))
+  // M2 nut height 1.6, washer bottom 3.0 - 0.3 = 2.7.
+  assert_true(close(nut1, 1.6))
+  assert_true(nut1 <= washer0)
+}
+
+///|
+test "fastener grid nut sits at the free end for a short screw" {
+  let assembly = match
+    @assemblies.fastener_grid_plate(@standards.M4, 6.0, 1, 1, 20.0, 20.0) {
+    Ok(a) => a
+    Err(e) => abort(e.message())
+  }
+  let (nut0, nut1) = item_z_span(assembly, "nut-1")
+  let (washer0, _washer1) = item_z_span(assembly, "washer-1")
+  assert_true(close(nut0, -6.0))
+  // M4 nut height 3.2; washer spans -0.8 .. 0.
+  assert_true(close(nut1, -2.8))
+  assert_true(nut1 <= washer0)
+}
+
+///|
+test "collisions honours a declared interference policy" {
+  let assembly = kit()
+  let policy = @collision.ContactPolicy::none().permit("screw", "washer")
+  let collisions = assembly.collisions(policy~)
+  let still_reported = collisions.any(fn(r) {
+    (r.instance_a == "screw" && r.instance_b == "washer") ||
+    (r.instance_a == "washer" && r.instance_b == "screw")
+  })
+  assert_false(still_reported)
+  let fits = assembly.interference_fits(policy~)
+  assert_true(
+    fits.any(fn(r) {
+      (r.instance_a == "screw" && r.instance_b == "washer") ||
+      (r.instance_a == "washer" && r.instance_b == "screw")
+    }),
+  )
+}
+
+///|
+fn through_bore_deviation(component : @common.Component) -> Double {
+  for a in component.features().approximated {
+    if a.feature == "through-bore" {
+      return a.deviation_mm
+    }
+  }
+  abort("missing through-bore approximation")
+}
+
+///|
+test "assembly feature aggregation keeps the largest deviation" {
+  let m3 = match @fasteners.iso4032_nut(@standards.M3) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  let m5 = match @fasteners.iso4032_nut(@standards.M5) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  // Add the larger approximation first, then the smaller one: the old
+  // first-wins dedupe kept the smaller value and understated the error.
+  let assembly = @assemblies.Assembly::new(name="aggregate")
+    .add(m5, instance_name="m5")
+    .add(m3, instance_name="m3")
+  let mut found = -1.0
+  for a in assembly.features().approximated {
+    if a.feature == "through-bore" {
+      found = a.deviation_mm
+    }
+  }
+  assert_true(found >= through_bore_deviation(m5) - 1.0e-12)
+  assert_true(found > through_bore_deviation(m3))
+}
+
+///|
+test "bolted joint accepts an explicit standard screw length" {
+  // M3 nut (2.4) + two 1 mm plates + 0.5 mm washer = 4.9 mm, below the ISO
+  // 4762 M3 minimum of 5 mm. The default therefore errors; the caller can
+  // choose the standard 5 mm length.
+  assert_true(
+    @assemblies.bolted_joint(@standards.M3, 40.0, 30.0, 1.0) is Err(_),
+  )
+  assert_true(
+    @assemblies.bolted_joint(
+      @standards.M3,
+      40.0,
+      30.0,
+      1.0,
+      screw_length_mm=5.0,
+    )
+    is Ok(_),
+  )
+  assert_true(
+    @assemblies.bolted_joint(
+      @standards.M3,
+      40.0,
+      30.0,
+      1.0,
+      screw_length_mm=4.0,
+    )
+    is Err(_),
+  )
 }

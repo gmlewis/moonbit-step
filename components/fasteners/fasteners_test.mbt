@@ -114,6 +114,89 @@ test "hex nut dimensions and layers" {
 }
 
 ///|
+test "external thread ridge follows the ISO 68-1 basic profile" {
+  for size in @standards.MetricSize::all() {
+    let thread = @standards.ThreadSpec::coarse(size)
+    let d = size.nominal_diameter_mm()
+    let h3 = thread.external_thread_depth_mm()
+    let crest = @fasteners.external_thread_crest_radius_mm(thread)
+    let root = @fasteners.external_thread_root_radius_mm(thread)
+    let center = @fasteners.external_thread_ridge_center_radius_mm(thread)
+    // Crest on the nominal major diameter, root on the basic minor diameter.
+    assert_true(close(crest, d / 2.0))
+    assert_true(close(root, thread.external_minor_diameter_mm() / 2.0))
+    assert_true(close(center + h3 / 2.0, crest))
+    assert_true(close(center - h3 / 2.0, root))
+  }
+}
+
+///|
+test "internal thread ridge is attached for every size and clearance" {
+  for size in @standards.MetricSize::all() {
+    let thread = @standards.ThreadSpec::coarse(size)
+    let d = size.nominal_diameter_mm()
+    let h1 = thread.internal_thread_depth_mm()
+    let d1 = thread.internal_minor_diameter_mm()
+    assert_true(
+      close(@fasteners.internal_thread_crest_radius_mm(thread), d1 / 2.0),
+    )
+    assert_true(
+      close(@fasteners.internal_thread_root_radius_mm(thread), d / 2.0),
+    )
+    for clearance in [0.0, 0.05, 0.1, 0.2] {
+      let center = @fasteners.internal_thread_ridge_center_radius_mm(
+        thread,
+        radial_offset_mm=clearance,
+      )
+      let crest = center - h1 / 2.0
+      let root = center + h1 / 2.0
+      let bore_radius = d / 2.0 + clearance
+      // The crest is the basic internal minor diameter, shifted by clearance.
+      assert_true(close(crest, d1 / 2.0 + clearance))
+      // The root reaches the modelled bore exactly; the builder then embeds it
+      // by `embed_mm` so the swept ridge is attached to the body.
+      assert_true(close(root, bore_radius))
+    }
+  }
+}
+
+///|
+test "fully modeled M20 nut ridge reaches the bore (regression)" {
+  // Before the ISO 68-1 placement fix the ridge centre sat at the pitch
+  // radius: the M20 ridge's outer radius was 9.9647 mm inside a 10 mm bore, so
+  // the thread solid floated free of the nut body.
+  let nut = match @fasteners.iso4032_nut(@standards.M20, detail=FullyModeled) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  let ridge = match layer_shape(nut, "ISO4032-M20/helical-thread") {
+    Some(shape) => shape
+    None => abort("missing internal helical ridge")
+  }
+  let (x0, x1, _y0, _y1, z0, z1) = ridge.bounding_box()
+  // Root radius 10 mm plus the 0.1 mm embed on both sides.
+  assert_true(x1 > 10.0)
+  assert_true(x1 < 10.11)
+  assert_true(x0 < -10.0)
+  // Axially contained in the nut height.
+  assert_true(z0 >= 0.0)
+  assert_true(z1 <= nut.size().2 + 1.0e-9)
+}
+
+///|
+test "fully modeled M4 screw crest is on the nominal major diameter" {
+  let screw = unwrap_screw(@standards.M4, 20.0, FullyModeled)
+  let ridge = match layer_shape(screw, "ISO4762-M4-20/helical-thread") {
+    Some(shape) => shape
+    None => abort("missing helical ridge")
+  }
+  let (x0, x1, _y0, _y1, _z0, _z1) = ridge.bounding_box()
+  // Crest radius 2.0 (not the 1.9873 mm produced by a pitch-diameter centre).
+  assert_true(close(x1, 2.0))
+  assert_true(close(x0, -2.0))
+}
+
+///|
 test "fully modeled nut adds an internal helical ridge" {
   let nut = match @fasteners.iso4032_nut(@standards.M4, detail=FullyModeled) {
     Ok(c) => c
@@ -354,4 +437,34 @@ test "button and countersunk heads record analytic dome and cone" {
     Err(e) => abort(e.message())
   }
   assert_true(countersunk.features().has_modeled("head-countersink-cone"))
+}
+
+///|
+test "thread ridge handedness changes the swept geometry" {
+  let right = @standards.ThreadSpec::coarse(@standards.M4)
+  let left = right.with_hand(@standards.ThreadHand::Left)
+  let right_shape = match
+    @fasteners.external_thread_ridge(right, 12.0, segments_per_turn=12) {
+    Some(s) => s
+    None => abort("right-hand ridge was not generated")
+  }
+  let left_shape = match
+    @fasteners.external_thread_ridge(left, 12.0, segments_per_turn=12) {
+    Some(s) => s
+    None => abort("left-hand ridge was not generated")
+  }
+  let right_step = @cad.Design::new(name="right")
+    .add(right_shape.with_name("ridge"))
+    .to_step_file()
+  let left_step = @cad.Design::new(name="left")
+    .add(left_shape.with_name("ridge"))
+    .to_step_file()
+  assert_true(right_step.contains("MANIFOLD_SOLID_BREP("))
+  assert_true(left_step.contains("MANIFOLD_SOLID_BREP("))
+  // Compare only the DATA section: the header timestamp would otherwise make
+  // the assertion pass even when the geometry is identical.
+  let right_data = right_step.split("DATA;").collect()
+  let left_data = left_step.split("DATA;").collect()
+  assert_true(right_data.length() == 2 && left_data.length() == 2)
+  assert_true(right_data[1] != left_data[1])
 }

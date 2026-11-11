@@ -63,15 +63,60 @@ test "metric size table" {
 ///|
 test "iso 68-1 derived thread diameters" {
   let thread = @standards.ThreadSpec::coarse(@standards.M4)
-  assert_true(close(thread.height_h_mm(), 0.606217782649107))
-  assert_true(close(thread.pitch_diameter_mm(), 3.54533666301317))
-  assert_true(close(thread.external_minor_diameter_mm(), 3.1411917))
-  assert_true(close(thread.internal_minor_diameter_mm(), 3.2422276))
-  assert_true(close(thread.external_thread_depth_mm(), 0.429401))
+  let h = thread.height_h_mm()
+  assert_true(close(h, 0.606217782649107))
+  assert_true(close(thread.pitch_diameter_mm(), 4.0 - 0.75 * h))
+  assert_true(close(thread.external_minor_diameter_mm(), 4.0 - 17.0 / 12.0 * h))
+  assert_true(close(thread.internal_minor_diameter_mm(), 4.0 - 1.25 * h))
+  assert_true(close(thread.external_thread_depth_mm(), 17.0 / 24.0 * h))
+  assert_true(close(thread.internal_thread_depth_mm(), 5.0 / 8.0 * h))
   assert_true(thread.pitch_diameter_mm() < 4.0)
   assert_true(
     thread.external_minor_diameter_mm() < thread.internal_minor_diameter_mm(),
   )
+  // The basic profile must be self-consistent: diameter = 2 * depth below the
+  // major diameter. The previous constants (0.61343 vs 1.226869) disagreed.
+  for size in @standards.MetricSize::all() {
+    let t = @standards.ThreadSpec::coarse(size)
+    let d = size.nominal_diameter_mm()
+    assert_true(
+      close(
+        t.external_minor_diameter_mm() + 2.0 * t.external_thread_depth_mm(),
+        d,
+      ),
+    )
+    assert_true(
+      close(
+        t.internal_minor_diameter_mm() + 2.0 * t.internal_thread_depth_mm(),
+        d,
+      ),
+    )
+  }
+}
+
+///|
+test "thread ridge profile is the ISO 68-1 60-degree basic profile" {
+  // The flank makes 30 degrees with the radial direction, so
+  // (root_width - crest_width) / 2 / depth = tan(30 degrees).
+  let tan30 = 0.5773502691896258
+  for size in @standards.MetricSize::all() {
+    let t = @standards.ThreadSpec::coarse(size)
+    let p = t.pitch_mm
+    assert_true(close(t.external_thread_crest_width_mm(), p / 8.0))
+    assert_true(close(t.external_thread_root_width_mm(), 5.0 * p / 6.0))
+    assert_true(close(t.internal_thread_crest_width_mm(), p / 4.0))
+    assert_true(close(t.internal_thread_root_width_mm(), 7.0 * p / 8.0))
+    let external_delta = (
+        t.external_thread_root_width_mm() - t.external_thread_crest_width_mm()
+      ) /
+      2.0
+    assert_true(close(external_delta / t.external_thread_depth_mm(), tan30))
+    let internal_delta = (
+        t.internal_thread_root_width_mm() - t.internal_thread_crest_width_mm()
+      ) /
+      2.0
+    assert_true(close(internal_delta / t.internal_thread_depth_mm(), tan30))
+  }
 }
 
 ///|

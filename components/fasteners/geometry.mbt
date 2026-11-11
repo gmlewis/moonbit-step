@@ -41,14 +41,84 @@ pub fn hex_hole_across_flats(
 }
 
 ///|
+/// external_thread_crest_radius_mm returns the basic external-thread crest
+/// (major) radius, `d / 2`.
+pub fn external_thread_crest_radius_mm(
+  thread : @standards.ThreadSpec,
+) -> Double {
+  thread.nominal_diameter_mm / 2.0
+}
+
+///|
+/// external_thread_root_radius_mm returns the basic external-thread root
+/// (minor) radius, `d3 / 2`.
+pub fn external_thread_root_radius_mm(thread : @standards.ThreadSpec) -> Double {
+  thread.external_minor_diameter_mm() / 2.0
+}
+
+///|
+/// external_thread_ridge_center_radius_mm returns the radius of the
+/// crest-to-root midpoint used to place the swept ridge profile. The ISO 68-1
+/// basic profile is not symmetric about the pitch diameter: the crest lies
+/// `3H/8` and the root `H/3` from it, so a pitch-diameter-centre ridge would
+/// put the crest below the nominal major diameter.
+pub fn external_thread_ridge_center_radius_mm(
+  thread : @standards.ThreadSpec,
+) -> Double {
+  (
+    external_thread_crest_radius_mm(thread) +
+    external_thread_root_radius_mm(thread)
+  ) /
+  2.0
+}
+
+///|
+/// internal_thread_crest_radius_mm returns the basic internal-thread crest
+/// (minor) radius, `D1 / 2`.
+pub fn internal_thread_crest_radius_mm(
+  thread : @standards.ThreadSpec,
+) -> Double {
+  thread.internal_minor_diameter_mm() / 2.0
+}
+
+///|
+/// internal_thread_root_radius_mm returns the basic internal-thread root
+/// (major) radius, `D / 2`.
+pub fn internal_thread_root_radius_mm(thread : @standards.ThreadSpec) -> Double {
+  thread.nominal_diameter_mm / 2.0
+}
+
+///|
+/// internal_thread_ridge_center_radius_mm returns the radius of the
+/// crest-to-root midpoint for an internal ridge, shifted outward by
+/// `radial_offset_mm` (the nut bore clearance).
+pub fn internal_thread_ridge_center_radius_mm(
+  thread : @standards.ThreadSpec,
+  radial_offset_mm~ : Double = 0.0,
+) -> Double {
+  (
+    internal_thread_crest_radius_mm(thread) +
+    internal_thread_root_radius_mm(thread)
+  ) /
+  2.0 +
+  radial_offset_mm
+}
+
+///|
 /// external_thread_ridge returns a swept helical ridge for an external metric
-/// thread, or `None` when the requested length is too short for at least one
-/// complete thread turn.
+/// thread, or `None` when the requested length is too short for one thread
+/// turn.
 ///
-/// The ridge is a solid whose crest lies on the nominal major diameter and
-/// whose root is embedded `embed_mm` into the minor-diameter core. It is a
-/// real swept helical form, not a cosmetic texture; the caller must expose
-/// `ThreadRepresentation::Helical` for it.
+/// The ridge is a solid whose crest lies on the nominal major diameter `d` and
+/// whose root lies on the basic external minor diameter `d3`. The profile is
+/// placed at the crest/root midpoint, not at the pitch diameter, so the ISO
+/// 68-1 basic profile is reproduced: the crest is `3H/8` from the pitch
+/// cylinder and the root is `H/3` from it. The root is embedded `embed_mm`
+/// into the minor-diameter core so the sweeping solids overlap.
+///
+/// The ridge is contained within `z = 0 .. length_mm`; the root half-width
+/// sets the axial inset at each end. It is a real swept helical form, not a
+/// cosmetic texture; the caller must expose `ThreadRepresentation::Helical`.
 pub fn external_thread_ridge(
   thread : @standards.ThreadSpec,
   length_mm : Double,
@@ -56,15 +126,17 @@ pub fn external_thread_ridge(
   embed_mm~ : Double = 0.10,
 ) -> @cad.Shape? {
   let pitch = thread.pitch_mm
-  if length_mm <= pitch {
-    return None
-  }
-  let turns = (length_mm - pitch) / pitch
   let depth = thread.external_thread_depth_mm()
   let half_depth = depth / 2.0
-  let crest_half = thread.crest_flat_mm() / 2.0
-  let root_half = thread.root_flat_mm() / 2.0
-  let r_mid = thread.pitch_diameter_mm() / 2.0
+  let crest_half = thread.external_thread_crest_width_mm() / 2.0
+  let root_half = thread.external_thread_root_width_mm() / 2.0
+  let axial_inset = root_half
+  let axial_span = length_mm - 2.0 * axial_inset
+  if axial_span <= 0.0 {
+    return None
+  }
+  let turns = axial_span / pitch
+  let r_mid = external_thread_ridge_center_radius_mm(thread)
   let vertices : Array[@cad.Vec3] = [
     (half_depth, 0.0, crest_half),
     (-half_depth - embed_mm, 0.0, root_half),
@@ -78,7 +150,7 @@ pub fn external_thread_ridge(
   )
   let clockwise = thread.hand is @standards.ThreadHand::Left
   let path = @cad.helix_path(
-    pos=(0.0, 0.0, pitch / 2.0),
+    pos=(0.0, 0.0, axial_inset),
     size_per_turn=(r_mid, r_mid, pitch),
     num_turns=turns,
     num_segs_per_turn=segments_per_turn,
@@ -92,25 +164,31 @@ pub fn external_thread_ridge(
 /// internal_thread_ridge returns a swept helical ridge for an internal metric
 /// thread, or `None` when the nut is too short.
 ///
-/// The nut body is bored at the major diameter; this ridge fills the thread
-/// form inward to the minor diameter, leaving the helical groove. The ridge is
-/// a real swept helical form.
+/// The nut body is bored at `D/2 + radial_offset_mm`; this ridge fills the
+/// thread form inward to the basic internal minor diameter `D1`, leaving the
+/// helical groove. The profile is placed at the crest/root midpoint, shifted
+/// outward by `radial_offset_mm`, and the root is embedded `embed_mm` into the
+/// nut body, so the ridge is attached for every supported size and clearance.
+/// It is a real swept helical form, not a cosmetic texture.
 pub fn internal_thread_ridge(
   thread : @standards.ThreadSpec,
   length_mm : Double,
   segments_per_turn~ : Int32 = 48,
   embed_mm~ : Double = 0.10,
+  radial_offset_mm~ : Double = 0.0,
 ) -> @cad.Shape? {
   let pitch = thread.pitch_mm
-  if length_mm <= pitch {
-    return None
-  }
-  let turns = (length_mm - pitch) / pitch
   let depth = thread.internal_thread_depth_mm()
   let half_depth = depth / 2.0
-  let crest_half = 0.125 * pitch
-  let root_half = 0.4375 * pitch
-  let r_mid = thread.pitch_diameter_mm() / 2.0
+  let crest_half = thread.internal_thread_crest_width_mm() / 2.0
+  let root_half = thread.internal_thread_root_width_mm() / 2.0
+  let axial_inset = root_half
+  let axial_span = length_mm - 2.0 * axial_inset
+  if axial_span <= 0.0 {
+    return None
+  }
+  let turns = axial_span / pitch
+  let r_mid = internal_thread_ridge_center_radius_mm(thread, radial_offset_mm~)
   let vertices : Array[@cad.Vec3] = [
     (-half_depth, 0.0, -crest_half),
     (half_depth + embed_mm, 0.0, -root_half),
@@ -124,7 +202,7 @@ pub fn internal_thread_ridge(
   )
   let clockwise = thread.hand is @standards.ThreadHand::Left
   let path = @cad.helix_path(
-    pos=(0.0, 0.0, pitch / 2.0),
+    pos=(0.0, 0.0, axial_inset),
     size_per_turn=(r_mid, r_mid, pitch),
     num_turns=turns,
     num_segs_per_turn=segments_per_turn,

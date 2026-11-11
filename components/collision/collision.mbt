@@ -558,6 +558,12 @@ fn find_aggregate(
 fn merge_aggregate(agg : Aggregate, geom : PairGeometry) -> Unit {
   if geom.kind.severity() > agg.kind.severity() {
     agg.kind = geom.kind
+    // A contact or collision has no meaningful positive separation. Without
+    // this reset, upgrading a clearance aggregate left the old gap on a
+    // collision report (for example separation=5 on a 1 mm penetration).
+    if !(geom.kind is Clearance) {
+      agg.separation_mm = 0.0
+    }
   }
   match geom.kind {
     Collision => {

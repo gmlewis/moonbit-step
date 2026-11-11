@@ -73,7 +73,7 @@ a real swept/lofted form. A sharp edge is never described as a chamfer.
 | Plain/chamfered shank | plain cylinder | plain cylinder | minor core + swept helical ridge |
 | Blind hex socket | hex through-hole ring over a floor disc | same, with 45° top-edge head chamfer | same (helical body) |
 | Head top chamfer | omitted | **analytic-ish** (real ruled ring stack, planar facets) | omitted on the helical body |
-| Thread | none | none | swept helical ridge (approximation) |
+| Thread | none | none | swept helical ridge, ISO 68-1 basic profile (60° flanks; runout not modeled) |
 
 The head chamfer is a real, measurable ring-stack chamfer (a `ChamferedPrism`
 socket ring), not a relabelled sharp edge. Its size is an engineering default
@@ -84,7 +84,7 @@ socket ring), not a relabelled sharp edge. Its size is an engineering default
 
 | Feature | Simplified | Detailed | FullyModeled |
 |---|---|---|---|
-| Bore | cylindrical | cylindrical | major bore + swept internal ridge |
+| Bore | cylindrical | cylindrical | major bore + clearance + swept internal ridge (root embedded in the body) |
 | Face chamfers | omitted | **real** ring-stack chamfer on both bearing faces | omitted on the helical body |
 
 The face chamfer is an engineering default (`nut_chamfer_mm`), because ISO 4032
@@ -127,26 +127,36 @@ and `iso10642-M4x16-detailed`.
 | Seals / cage | omitted | omitted |
 
 Ball diameter equals the modeled radial gap; it is envelope geometry, not a
-catalogue value. Covered by `motion_test.mbt` and `motion-608-stack-detailed`.
+catalogue value. Adjacent ball centres must be at least one ball diameter apart
+(the builder rejects an overlapping complement), and a `Detailed` ring must be
+thicker than the engineering-default edge chamfer. The rings are polygons, so a
+nominally tangent ball can penetrate the faceted bore by the chord sagitta
+(about 0.018 mm for 608 at 48 segments). Covered by `motion_test.mbt` and
+`motion-608-stack-detailed`.
 
 ### Shafts
 
 | Feature | Plain / stepped shaft | Filleted stepped shaft | Keyed shaft |
 |---|---|---|---|
 | Body | stacked cylinders | one `RevolvedProfile` solid | one notched `ExtrudedProfile` solid |
-| Shoulder fillet | omitted | **analytic** toroidal fillet on increasing steps | no shoulder |
+| Shoulder fillet | omitted | **analytic** toroidal fillet at the re-entrant corner of increasing steps | no shoulder |
 | Keyway | omitted | omitted | **real** flat-bottom rectangular notch |
 | Decreasing steps | sharp | sharp (fillet only where it fits) | — |
 
 `filleted_stepped_shaft(segments, fillet_radius_mm~)` produces a single solid
-with a real `TOROIDAL_SURFACE` fillet (measured major radius = shoulder radius
-− fillet radius, minor radius = fillet radius). Covered by `motion_test.mbt` and
-`filleted-shaft-d10-16.step`.
+with a real `TOROIDAL_SURFACE` fillet. For a small radius `r` and fillet `f` the
+torus centre is at `r + f` (major radius `r + f`, minor radius `f`); the
+shoulder radius is the larger cylinder's radius. `filleted-shaft-d10-16.step`
+measures major 7.0, minor 2.0. Equal consecutive diameters and the maximum
+feasible fillet (`f = radial step`) build without a degenerate segment. Covered
+by `motion_test.mbt` and `filleted-shaft-d10-16.step`.
 
 ## Omitted features and approximations
 
-- **Threads** remain swept helical ridges with the ISO 68-1 basic profile; they
-  are not tolerance-class threads. `FullyModeled` only.
+- **Threads** are swept helical ridges with the ISO 68-1 basic profile: exact
+  radial placement, crest/root widths, pitch, handedness, and the 60-degree
+  included angle. They are not tolerance-class threads and omit runout and root
+  relief. `FullyModeled` only.
 - **Socket bands** on the new heads and the head chamfers on the prisms are
   polygon approximations of the ideal surface; the facet count is the caller's
   `circle_segments` (64 at Detailed), and the deviation is the polygon chord
@@ -275,7 +285,7 @@ approximation (`helical-ridge`).
 |---|---|
 | Internal tooth envelope | **exact** involute flanks from the internal relation `psi(r) = psi_p + inv(a_r) - inv(a_p)` (thickness grows outward) |
 | Tooth tips / roots | polyline-sampled arcs at `r_p - m` and `r_p + 1.25 m` |
-| Backlash | declared circumferential tooth-thickness reduction; internal meshes use `0.05 * module` by default |
+| Backlash | declared **per-gear** tooth-thickness reduction; internal meshes use `0.05 * module` per gear (about `0.1 * module` total clearance) |
 | Profile shift / helix / root fillet | omitted with typed feature-record reasons |
 
 - `internal_involute_ring_profile()` returns the bore boundary with tooth 0 on
@@ -290,6 +300,17 @@ approximation (`helical-ridge`).
   `internal_ring_gear()` remains as an explicit fallback.
 - `planetary_gear_set()` now uses the exact ring and applies the default
   internal-mesh backlash to the sun, planet, and ring.
+- For an odd planet tooth count the ring is rotated by half a ring pitch
+  (`180 / ring_teeth`); the planet's sun-side and ring-side phases are half a
+  planet pitch apart. The cycle diagnostic applies the same offset. A valid odd
+  set (sun 18 / planet 11 / ring 40) is regression-tested with a non-vacuous
+  unrotated negative control.
+- Planet-to-planet overlap is rejected at construction: adjacent centre chord
+  `2 C sin(pi / count)` must exceed the planet tip diameter.
+- `SpurGearParams::new` rejects a backlash at or above `pi * module / 2`
+  (negative tooth thickness). The spur feature record always states the
+  undercut limitation; below 17 teeth at 20° it says the profile is the
+  theoretical involute, not a cutter-generated trochoid.
 - Measured result: the 12/12/36 three-planet and 18/12/42 five-planet static
   layouts have zero planet/ring crossings; the fixed-centre 32-pose cycle has
   zero crossings for modules 1–3 and ring tooth counts 36/42/48.

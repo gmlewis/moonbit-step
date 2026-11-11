@@ -20,6 +20,12 @@ Open CASCADE, Python, or native dependency.
 Usage:
     python3 scripts/validate_frame_geometry.py FRAME.step \
         --width 400 --depth 300 --height 500 --series 2020
+    python3 scripts/validate_frame_geometry.py ROUNDED.step \
+        --width 200 --depth 200 --height 200 --series 2020 --corner-radius 1.5
+
+`--corner-radius` subtracts the polygonal corner-fillet area from the expected
+section area, so a rounded frame is validated against its actual section
+instead of the sharp-corner section.
 
 Exit status is 0 only when every check passes. When OCCT is unavailable the
 script reports the geometric checks as SKIPPED and exits 2.
@@ -66,7 +72,9 @@ class SolidMeasurement:
     bbox: tuple[float, float, float, float, float, float]
 
 
-def section_area(series: str) -> float:
+def section_area(
+    series: str, corner_radius: float = 0.0, corner_segments: int = 8
+) -> float:
     pw, ph, slot_w, neck, depth, cavity, bore, wall = PROFILES[series]
     # The section is a rectangle with one T-slot notch on each of its four
     # sides. If a rectangular cavity would reach the core corner, the cavity
@@ -96,7 +104,26 @@ def section_area(series: str) -> float:
         * bore_radius
         * math.sin(2.0 * math.pi / CIRCLE_SEGMENTS)
     )
-    return base - 4.0 * notch - polygon_area
+    area = base - 4.0 * notch - polygon_area
+    if corner_radius > 0.0:
+        if corner_segments < 1:
+            raise ValueError("corner_segments must be at least 1")
+        if corner_radius > 0.25 * min(pw, ph):
+            raise ValueError(
+                "corner radius must not exceed a quarter of the smaller "
+                "section size"
+            )
+        # Each rounded outer corner removes a square corner minus the area of
+        # the polygonal sector of radius r. With n segments over a quarter turn
+        # that sector area is (n/2) r^2 sin(pi/(2n)); the true circular corner
+        # would use pi r^2 / 4. This matches Profile2D::fillet_vertices(),
+        # which is called with segments=8 by profiles.extrusion().
+        delta = math.pi / (2.0 * corner_segments)
+        removed_per_corner = corner_radius * corner_radius * (
+            1.0 - 0.5 * corner_segments * math.sin(delta)
+        )
+        area -= 4.0 * removed_per_corner
+    return area
 
 
 def expected_members(width: float, depth: float, height: float, series: str) -> list[Member]:
@@ -252,6 +279,18 @@ def main() -> int:
     parser.add_argument("--depth", type=float, required=True)
     parser.add_argument("--height", type=float, required=True)
     parser.add_argument("--series", choices=sorted(PROFILES), default="2020")
+    parser.add_argument(
+        "--corner-radius",
+        type=float,
+        default=0.0,
+        help="outer profile corner radius in mm (0 for sharp corners)",
+    )
+    parser.add_argument(
+        "--corner-segments",
+        type=int,
+        default=8,
+        help="polyline segments per rounded corner (profiles.extrusion uses 8)",
+    )
     parser.add_argument("--linear-tol", type=float, default=1.0e-3)
     parser.add_argument("--volume-rel-tol", type=float, default=2.0e-4)
     parser.add_argument("--overlap-tol", type=float, default=1.0e-3)
@@ -263,7 +302,13 @@ def main() -> int:
         return 1
 
     expected = expected_members(args.width, args.depth, args.height, args.series)
-    area = section_area(args.series)
+    try:
+        area = section_area(
+            args.series, args.corner_radius, args.corner_segments
+        )
+    except ValueError as exc:
+        print(f"FAIL: {exc}")
+        return 1
     measurements, reason = measure_solids(step_path)
     if reason:
         print(f"SKIP: {reason}")
@@ -346,10 +391,16 @@ def main() -> int:
         f"  [{'PASS' if max_bbox_error <= args.linear_tol else 'FAIL'}] "
         f"member bounding boxes matched (worst {max_bbox_error:.3g} mm)"
     )
+    corner_note = (
+        f", corner r={args.corner_radius:g} mm / {args.corner_segments} seg"
+        if args.corner_radius > 0.0
+        else ""
+    )
     print(
         f"  [{'PASS' if max_volume_rel_error <= args.volume_rel_tol else 'FAIL'}] "
         f"volumes match section area x cut length "
-        f"(worst relative error {max_volume_rel_error:.3g}, area {area:.6f} mm^2)"
+        f"(worst relative error {max_volume_rel_error:.3g}, area {area:.6f} mm^2"
+        f"{corner_note})"
     )
     print(
         f"  [{'PASS' if not overlap_pairs else 'FAIL'}] "

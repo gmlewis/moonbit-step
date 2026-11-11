@@ -14,8 +14,12 @@ pub(all) struct AssemblyItem {
 ///
 /// Each item keeps its own rigid placement and parametric component identity.
 /// `to_step()` writes a flat STEP design with one solid per component layer;
-/// `to_assembly_step()` uses the repository's assembly writer so every instance
-/// is a separate product with an `ITEM_DEFINED_TRANSFORMATION`.
+/// `to_assembly_step()` uses the repository's assembly writer, which emits one
+/// product occurrence per **materialised layer** with an
+/// `ITEM_DEFINED_TRANSFORMATION`. A multi-layer component such as a screw
+/// therefore appears as several products, named `instance/layer`; component
+/// instance identity is preserved in that name, not by a one-product-per-instance
+/// grouping.
 pub struct Assembly {
   priv name : String
   priv items : Array[AssemblyItem]
@@ -303,7 +307,19 @@ pub fn Assembly::features(self : Assembly) -> @common.FeatureRecord {
       }
     }
     for a in record.approximated {
-      if !approximated.any(fn(existing) { existing.feature == a.feature }) {
+      let mut replaced = false
+      for i in 0..<approximated.length() {
+        if approximated[i].feature == a.feature {
+          // Keep the largest deviation so the assembly summary never
+          // understates the approximation error under a shared feature name.
+          if a.deviation_mm > approximated[i].deviation_mm {
+            approximated[i] = a
+          }
+          replaced = true
+          break
+        }
+      }
+      if !replaced {
         approximated.push(a)
       }
     }

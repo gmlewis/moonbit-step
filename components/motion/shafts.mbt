@@ -165,10 +165,19 @@ pub fn spacer(
                   modeled=["body"],
                   approximated=[
                     @common.Approximation::new(
-                      feature="through-bore",
+                      feature="outer-boundary",
                       kind=@common.ApproximationKind::PolylineArc,
                       deviation_mm=@common.chord_deviation(
                         outer_diameter_mm / 2.0,
+                        64,
+                      ),
+                      control="circle_segments=64",
+                    ),
+                    @common.Approximation::new(
+                      feature="through-bore",
+                      kind=@common.ApproximationKind::PolylineArc,
+                      deviation_mm=@common.chord_deviation(
+                        inner_diameter_mm / 2.0,
                         64,
                       ),
                       control="circle_segments=64",
@@ -285,29 +294,46 @@ pub fn filleted_stepped_shaft(
   let segs : Array[@cad.RevSegment] = [
     @cad.RevLine((0.0, 0.0), (radii[0], 0.0)),
   ]
-  let mut cur_r = radii[0]
   let mut cur_z = 0.0
+  let mut filleted = 0
   for i in 0..<n {
+    let r = radii[i]
     let top = zs[i + 1]
-    if i > 0 && radii[i] > cur_r + 1.0e-9 {
-      let r_i = radii[i]
-      if f > 0.0 && top - cur_z > f && r_i - f >= cur_r {
-        let rf = r_i - f
-        segs.push(@cad.RevLine((cur_r, cur_z), (rf, cur_z)))
-        segs.push(@cad.RevArc((rf, cur_z), (r_i, cur_z + f), (rf, cur_z + f)))
-        cur_z = cur_z + f
-      } else {
-        segs.push(@cad.RevLine((cur_r, cur_z), (r_i, cur_z)))
+    let has_next = i + 1 < n
+    let next_r = if has_next { radii[i + 1] } else { 0.0 }
+    let step_out = has_next && next_r > r + 1.0e-9
+    // A shoulder fillet is tangent to the small cylinder below the shoulder
+    // and to the annular shoulder face. Its centre is (r + f, top - f); the
+    // previous implementation used (next_r - f, top - f), which rounded the
+    // outer rim of the larger cylinder and left the re-entrant shaft corner
+    // sharp. It also checked the larger segment's length instead of the
+    // smaller one's.
+    let can_fillet = step_out &&
+      f > 0.0 &&
+      top - cur_z >= f - 1.0e-9 &&
+      next_r - r >= f - 1.0e-9
+    if can_fillet {
+      let fillet_start = top - f
+      if fillet_start > cur_z + 1.0e-9 {
+        segs.push(@cad.RevLine((r, cur_z), (r, fillet_start)))
       }
-      cur_r = r_i
-    } else if i > 0 {
-      segs.push(@cad.RevLine((cur_r, cur_z), (radii[i], cur_z)))
-      cur_r = radii[i]
+      segs.push(
+        @cad.RevArc((r, fillet_start), (r + f, top), (r + f, fillet_start)),
+      )
+      if next_r > r + f + 1.0e-9 {
+        segs.push(@cad.RevLine((r + f, top), (next_r, top)))
+      }
+      filleted = filleted + 1
+    } else {
+      segs.push(@cad.RevLine((r, cur_z), (r, top)))
+      // Skip a zero-length shoulder line for equal consecutive diameters.
+      if has_next && (next_r - r).abs() > 1.0e-9 {
+        segs.push(@cad.RevLine((r, top), (next_r, top)))
+      }
     }
-    segs.push(@cad.RevLine((cur_r, cur_z), (cur_r, top)))
     cur_z = top
   }
-  segs.push(@cad.RevLine((cur_r, cur_z), (0.0, cur_z)))
+  segs.push(@cad.RevLine((radii[n - 1], cur_z), (0.0, cur_z)))
   let profile = @cad.RevolvedProfile::new(segs)
   match profile.validate() {
     Err(e) => return Err(@common.InvalidDimension(e.message()))
@@ -320,14 +346,16 @@ pub fn filleted_stepped_shaft(
       reason="not modelled; represent it with an evaluated cut",
     ),
   ])
-  if f > 0.0 {
+  if filleted > 0 {
     shaft_features = shaft_features.add_modeled("shoulder-fillet")
   } else {
+    let reason = if f > 0.0 {
+      "no increasing shoulder has room for this fillet radius"
+    } else {
+      "fillet radius is zero"
+    }
     shaft_features = shaft_features.add_omitted(
-      @common.Omission::new(
-        feature="shoulder-fillet",
-        reason="fillet radius is zero",
-      ),
+      @common.Omission::new(feature="shoulder-fillet", reason~),
     )
   }
   Ok(

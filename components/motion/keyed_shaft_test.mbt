@@ -142,3 +142,20 @@ test "a key sized from the keyway fits inside the keyway envelope" {
   // A keyway with no clearance room is rejected.
   assert_true(@motion.key_for_keyway(0.05, 3.5, 25.0) is Err(_))
 }
+
+///|
+test "key height is independent of the keyway depth" {
+  let key = match @motion.key_for_keyway(6.0, 3.5, 25.0, key_height_mm=6.0) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  let (_x0, _x1, y0, y1, _z0, _z1) = key.bounding_box()
+  assert_true((y0 - 0.0).abs() < 1.0e-9)
+  assert_true((y1 - 6.0).abs() < 1.0e-9)
+  // A local origin at the bottom-left-near corner is documented; the key is
+  // not silently translated to the shaft frame.
+  assert_true(key.description().contains("protrudes into the hub"))
+  assert_true(
+    @motion.key_for_keyway(6.0, 3.5, 25.0, key_height_mm=-1.0) is Err(_),
+  )
+}

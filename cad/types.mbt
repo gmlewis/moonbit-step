@@ -405,34 +405,121 @@ pub fn Shape::bounding_box(
     Fillet(f) => f.base.bounding_box()
     Chamfer(c) => c.base.bounding_box()
     SweptProfile(s) => {
-      let mut x0 = @double.max_value
-      let mut x1 = @double.min_value
-      let mut y0 = @double.max_value
-      let mut y1 = @double.min_value
-      let mut z0 = @double.max_value
-      let mut z1 = @double.min_value
-      for pt in s.path.points {
-        if pt.0 < x0 {
-          x0 = pt.0
+      // Sweep the actual profile vertices through the same frames the STEP
+      // compiler uses. The old implementation expanded the path bounding box by
+      // a fixed 5 mm, which made collision checks and component sizes
+      // needlessly conservative (a thread or spring appeared 5 mm larger in
+      // every direction).
+      let path = s.path
+      let profile = s.profile
+      let n_path = path.points.length()
+      if n_path == 0 || profile.vertices.length() < 3 {
+        (0.0, 0.0, 0.0, 0.0, 0.0, 0.0)
+      } else {
+        // Profile-local frame: X = right_dir, Z = normal_dir, Y = Z x X.
+        let prof_z = v_norm(profile.normal_dir)
+        let prof_x = v_norm(profile.right_dir)
+        let prof_y = v_cross(prof_z, prof_x)
+        let m_global_to_prof = Matrix3x3::{
+          m00: prof_x.0,
+          m01: prof_x.1,
+          m02: prof_x.2,
+          m10: prof_y.0,
+          m11: prof_y.1,
+          m12: prof_y.2,
+          m20: prof_z.0,
+          m21: prof_z.1,
+          m22: prof_z.2,
         }
-        if pt.0 > x1 {
-          x1 = pt.0
+        let loops : Array[Array[Vec3]] = [
+          profile.vertices,
+          ..profile.holes.filter(fn(h) { h.length() >= 3 }),
+        ]
+        let local_verts : Array[Vec3] = []
+        let is_hole : Array[Bool] = []
+        let mut loop_index = 0
+        for lp in loops {
+          for v in lp {
+            local_verts.push(
+              apply_matrix(m_global_to_prof, v_sub(v, profile.center)),
+            )
+            is_hole.push(loop_index > 0)
+          }
+          loop_index = loop_index + 1
         }
-        if pt.1 < y0 {
-          y0 = pt.1
+        // First path frame, used by straight outlines and straight holes.
+        let t0 = v_norm(path.tangents[0])
+        let n0 = v_norm(path.normals[0])
+        let r0 = v_norm(v_cross(t0, n0))
+        let m_start_to_global = Matrix3x3::{
+          m00: r0.0,
+          m01: n0.0,
+          m02: t0.0,
+          m10: r0.1,
+          m11: n0.1,
+          m12: t0.1,
+          m20: r0.2,
+          m21: n0.2,
+          m22: t0.2,
         }
-        if pt.1 > y1 {
-          y1 = pt.1
+        let mut x0 = @double.max_value
+        let mut x1 = @double.min_value
+        let mut y0 = @double.max_value
+        let mut y1 = @double.min_value
+        let mut z0 = @double.max_value
+        let mut z1 = @double.min_value
+        for i in 0..<n_path {
+          let p_origin = path.points[i]
+          let p_tangent = v_norm(path.tangents[i])
+          let p_normal = v_norm(path.normals[i])
+          let p_right = v_norm(v_cross(p_tangent, p_normal))
+          let m_path_to_global = Matrix3x3::{
+            m00: p_right.0,
+            m01: p_normal.0,
+            m02: p_tangent.0,
+            m10: p_right.1,
+            m11: p_normal.1,
+            m12: p_tangent.1,
+            m20: p_right.2,
+            m21: p_normal.2,
+            m22: p_tangent.2,
+          }
+          for j, v in local_verts {
+            let keep_straight = if is_hole[j] {
+              s.straight_holes
+            } else {
+              s.straight_outline
+            }
+            let gv = if keep_straight {
+              apply_matrix(m_start_to_global, v)
+            } else {
+              apply_matrix(m_path_to_global, v)
+            }
+            let px = gv.0 + p_origin.0
+            let py = gv.1 + p_origin.1
+            let pz = gv.2 + p_origin.2
+            if px < x0 {
+              x0 = px
+            }
+            if px > x1 {
+              x1 = px
+            }
+            if py < y0 {
+              y0 = py
+            }
+            if py > y1 {
+              y1 = py
+            }
+            if pz < z0 {
+              z0 = pz
+            }
+            if pz > z1 {
+              z1 = pz
+            }
+          }
         }
-        if pt.2 < z0 {
-          z0 = pt.2
-        }
-        if pt.2 > z1 {
-          z1 = pt.2
-        }
+        (x0, x1, y0, y1, z0, z1)
       }
-      // Expand by a reasonable amount for the profile
-      (x0 - 5.0, x1 + 5.0, y0 - 5.0, y1 + 5.0, z0 - 5.0, z1 + 5.0)
     }
     Union(u) => {
       let mut x0 = @double.max_value

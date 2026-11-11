@@ -55,6 +55,7 @@ pub fn hex_nut(
         thread,
         m,
         segments_per_turn=policy.segments_per_turn,
+        radial_offset_mm=spec.clearance_mm,
       ) {
       Some(shape) =>
         component = component.add_layer(
