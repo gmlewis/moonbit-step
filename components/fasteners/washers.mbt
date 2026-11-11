@@ -140,6 +140,37 @@ pub fn din440_washer(
 }
 
 ///|
+/// din7349_washer builds a DIN 7349 thick flat washer, heavy pattern.
+///
+/// The washer is an analytic annular solid of revolution: two cylindrical
+/// surfaces and two planar faces. DIN 7349 specifies no edge chamfer, so the
+/// sharp edge is standard-correct.
+pub fn din7349_washer(
+  size : @standards.MetricSize,
+  detail~ : @common.DetailLevel = Simplified,
+  color? : @cad.Rgb,
+) -> Result[@common.Component, @common.SpecError] {
+  match @standards.din7349_spec(size) {
+    Err(e) => Err(e)
+    Ok(spec) => {
+      let dims = spec.size_dims
+      Ok(
+        plain_washer(
+          "DIN7349-\{dims.size.designation()}",
+          spec.metadata(),
+          dims.inner_diameter_mm,
+          dims.outer_diameter_mm,
+          dims.thickness_mm,
+          "DIN 7349",
+          detail,
+          color?,
+        ),
+      )
+    }
+  }
+}
+
+///|
 fn edge_chamfer_note(
   detail : @common.DetailLevel,
   standard_label : String,

@@ -289,6 +289,31 @@ test "din 440 v large washer dimensions" {
 }
 
 ///|
+test "din 7349 thick washer dimensions" {
+  let m3 = match @standards.din7349_size(@standards.M3) {
+    Ok(v) => v
+    Err(e) => abort(e.message())
+  }
+  assert_true(close(m3.inner_diameter_mm, 3.2))
+  assert_true(close(m3.outer_diameter_mm, 9.0))
+  assert_true(close(m3.thickness_mm, 1.0))
+  let spec = match @standards.din7349_spec(@standards.M3) {
+    Ok(v) => v
+    Err(e) => abort(e.message())
+  }
+  assert_true(spec.designation() == "DIN 7349 - M3")
+  assert_true(@standards.DIN7349Spec::standard() == "DIN 7349")
+  assert_true(spec.metadata().family == "thick flat washer, heavy pattern")
+  let m8 = match @standards.din7349_size(@standards.M8) {
+    Ok(v) => v
+    Err(e) => abort(e.message())
+  }
+  assert_true(close(m8.inner_diameter_mm, 8.4))
+  assert_true(close(m8.outer_diameter_mm, 21.0))
+  assert_true(close(m8.thickness_mm, 4.0))
+}
+
+///|
 test "iso 4017 and iso 4014 hex head dimensions" {
   let h4 = match @standards.hex_head_size(@standards.M4) {
     Ok(v) => v

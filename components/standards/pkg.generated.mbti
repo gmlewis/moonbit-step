@@ -22,6 +22,10 @@ pub fn din440_size(MetricSize) -> Result[DIN440Size, @common.SpecError]
 
 pub fn din440_spec(MetricSize) -> Result[DIN440Spec, @common.SpecError]
 
+pub fn din7349_size(MetricSize) -> Result[DIN7349Size, @common.SpecError]
+
+pub fn din7349_spec(MetricSize) -> Result[DIN7349Spec, @common.SpecError]
+
 pub fn din976_spec(MetricSize, Double) -> Result[DIN976Spec, @common.SpecError]
 
 pub fn hex_head_size(MetricSize) -> Result[HexHeadSize, @common.SpecError]
@@ -102,6 +106,22 @@ pub fn DIN440Spec::metadata(Self) -> @common.Metadata
 pub fn DIN440Spec::size(Self) -> MetricSize
 pub fn DIN440Spec::source() -> String
 pub fn DIN440Spec::standard() -> String
+
+pub(all) struct DIN7349Size {
+  size : MetricSize
+  inner_diameter_mm : Double
+  outer_diameter_mm : Double
+  thickness_mm : Double
+}
+
+pub(all) struct DIN7349Spec {
+  size_dims : DIN7349Size
+}
+pub fn DIN7349Spec::designation(Self) -> String
+pub fn DIN7349Spec::metadata(Self) -> @common.Metadata
+pub fn DIN7349Spec::size(Self) -> MetricSize
+pub fn DIN7349Spec::source() -> String
+pub fn DIN7349Spec::standard() -> String
 
 pub(all) struct DIN976Spec {
   thread : ThreadSpec

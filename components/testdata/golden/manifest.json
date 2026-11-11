@@ -1451,6 +1451,113 @@
       }
     },
     {
+      "fixture_id": "fasteners/din7349-m3",
+      "part_id": "din7349_m3flatwasher",
+      "designation": "DIN 7349 - M3",
+      "family": "thick flat washer, heavy pattern",
+      "standard": "DIN 7349",
+      "manufacturer": "unspecified step.parts contributor",
+      "source_page": "https://www.step.parts/parts/din7349_m3flatwasher",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/din7349_m3flatwasher.step",
+      "local_filename": "external/din7349_m3flatwasher.step",
+      "sha256": "c8974709cc53c222be463ac375efe59b9e616b7284a9c1748eebfb66a260501d",
+      "byte_size": 12319,
+      "units": "mm",
+      "declared_dimensions": {
+        "inner_diameter_mm": 3.2,
+        "outer_diameter_mm": 9.0,
+        "thickness_mm": 1.0
+      },
+      "measured_dimensions": {
+        "bbox_mm": [
+          9.0,
+          9.0,
+          1.0
+        ],
+        "volume_mm3": 55.5748,
+        "solids": 1
+      },
+      "parametric_value": {
+        "bbox_mm": [
+          9.0,
+          9.0,
+          1.0
+        ],
+        "volume_mm3": 55.5748,
+        "solids": 1,
+        "source": "components/examples/fasteners --standard din7349 --size M3"
+      },
+      "verdict": "accepted",
+      "notes": "DIN 7349 M3: d1 3.2, d2 9, s 1.0. The golden and parametric part are the same analytic annular solid of revolution (two cylinders, two planes); bbox, area, and volume match to rounding.",
+      "committed": false,
+      "generation": {
+        "tool": "components/examples/fasteners",
+        "args": [
+          "--standard",
+          "din7349",
+          "--size",
+          "M3",
+          "--detail",
+          "detailed",
+          "-o",
+          "{out}"
+        ],
+        "output": "din7349-M3-detailed.step"
+      },
+      "comparison": {
+        "solids": 1,
+        "bbox_axes": [
+          {
+            "axis": 0,
+            "expected_mm": 9.0,
+            "label": "outer diameter"
+          },
+          {
+            "axis": 2,
+            "expected_mm": 1.0,
+            "label": "thickness"
+          }
+        ],
+        "features": [
+          {
+            "kind": "min_vertex_radius_mm",
+            "expected": 1.6,
+            "tol_mm": 0.01
+          },
+          {
+            "kind": "max_vertex_radius_mm",
+            "expected": 4.5,
+            "tol_mm": 0.01
+          },
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 4.5,
+            "tol_mm": 0.01
+          }
+        ],
+        "mass_properties": {
+          "volume_mm3": 55.5748,
+          "volume_relative_tol": 0.005,
+          "center_of_mass_mm": [
+            0.0,
+            0.0,
+            0.5
+          ],
+          "center_of_mass_tol_mm": 0.01
+        },
+        "sections": [
+          {
+            "z_mm": 0.5,
+            "area_mm2": 55.575,
+            "area_relative_tol": 0.01,
+            "x_extent_mm": 9.0,
+            "extent_tol_mm": 0.02
+          }
+        ],
+        "section_deflection_mm": 0.01
+      }
+    },
+    {
       "fixture_id": "fasteners/iso7089-m5",
       "part_id": "flat_washer_normal_m5_simple",
       "designation": "ISO 7089 M5",

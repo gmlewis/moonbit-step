@@ -65,6 +65,9 @@ moon run components/examples/fasteners -- \
 moon run components/examples/fasteners -- \
   --standard din440 --size M5 --detail detailed \
   -o "$OUT/din440-M5-detailed.step"
+moon run components/examples/fasteners -- \
+  --standard din7349 --size M3 --detail detailed \
+  -o "$OUT/din7349-M3-detailed.step"
 moon run components/examples/motion_stack -- \
   --bearing 608 --detail detailed -o "$OUT/motion-608-stack-detailed.step"
 moon run components/examples/filleted_shaft -- \

@@ -96,6 +96,13 @@ table (6g/6H limits are not modeled as limits).
 - The outer surface is one analytic cylinder; the hole walls are four planes
   and the end faces are planes with the square hole.
 
+### DIN 7349 — thick flat washers, heavy pattern
+
+- Revision used: DIN 7349.
+- Supported sizes: M3, M4, M5, M6, M8, M10, M12, M16, M20.
+- Data: inner diameter `d1`, outer diameter `d2`, thickness `s`.
+- The washer is an analytic annular solid: two cylinders and two planes.
+
 ### DIN 976-1 — metric threaded rods
 
 - Revision used: DIN 976-1:2016.
