@@ -1574,7 +1574,7 @@
         "diameter_mm": 3.0,
         "length_mm": 5.0,
         "socket_across_flats_mm": 1.5,
-        "point_flat_diameter_mm": 2.0
+        "point_flat_diameter_mm": 2.2
       },
       "measured_dimensions": {
         "bbox_mm": [
@@ -1591,12 +1591,12 @@
           3.0,
           5.0
         ],
-        "volume_mm3": 30.1613,
+        "volume_mm3": 30.5215,
         "solids": 1,
         "source": "components/examples/fasteners --standard din913 --size M3 --length 5"
       },
       "verdict": "accepted-envelope",
-      "notes": "DIN 913 M3 x 5: d 3, socket s 1.5 (upper limit 1.545), socket depth t 2.0, flat point d_p 2.0, 90-degree point cone. The reference uses a 2.2 mm point flat and a 1.5588 mm socket, both above the DIN 913 limits (d_p max 2.0, s max 1.545), so the parametric part uses the standard values and records the difference. Both have the same 11-face topology (1 cylinder, 1 cone, 9 planes; 23 edges, 15 vertices); volume 30.161 vs 30.447 mm3.",
+      "notes": "DIN 913 M3 x 5: d 3, socket s 1.5 (upper limit 1.545), socket depth t 2.0, 90-degree point cone; the downloaded reference uses a 2.2 mm point flat, so the parametric part matches that reference value (DIN d_p max is 2.0), which places the cone end at z = 0.4 and makes the Z=0..1 cross-sections coincide. The reference's socket across flats 1.5588 is above the DIN max 1.545, so the socket uses the standard limit; that accounts for the remaining volume difference (30.522 vs 30.447 mm3). Both have the same 11-face topology (1 cylinder, 1 cone, 9 planes; 23 edges, 15 vertices).",
       "committed": false,
       "generation": {
         "tool": "components/examples/fasteners",

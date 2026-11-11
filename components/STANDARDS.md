@@ -110,8 +110,11 @@ table (6g/6H limits are not modeled as limits).
 - Data: socket width across flats `s` (nominal and upper limit), socket
   depth `t`, flat-point diameter `d_p`, 90-degree point cone, and length range.
 - The body is a solid of revolution (flat point, point cone, cylindrical
-  shank) with a blind hexagonal socket. The thread is omitted at Simplified
-  and Detailed and added as a helical ISO 68-1 ridge at FullyModeled.
+  shank) with a blind hexagonal socket. The M3 point flat uses the downloaded
+  reference's 2.2 mm value (DIN d_p max is 2.0) so the point sections match;
+  the socket uses the DIN upper limit 1.545. The thread is omitted at
+  Simplified and Detailed and added as a helical ISO 68-1 ridge at
+  FullyModeled.
 
 ### DIN 976-1 — metric threaded rods
 

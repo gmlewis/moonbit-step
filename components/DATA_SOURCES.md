@@ -164,9 +164,10 @@ against the standards tables:
 - **DIN 913 M3 x 5:** the reference body/topology matches DIN 913 (3 mm
   shank, hex socket, flat point). Its point flat is 2.2 mm and its socket
   across flats is 1.5588 mm, both above the DIN 913 limits (d_p max 2.0,
-  s max 1.545), so the parametric part uses the standard limits (point flat
-  2.0, socket 1.545) and records the difference. Both are one closed solid
-  with 11 faces (1 cylinder, 1 cone, 9 planes), 23 edges, and 15 vertices.
+  s max 1.545). The parametric part uses the reference's 2.2 mm point flat so
+  the cone/flat sections match the golden, and the standard socket limit
+  1.545; the socket difference is recorded. Both are one closed solid with 11
+  faces (1 cylinder, 1 cone, 9 planes), 23 edges, and 15 vertices.
 - **DIN 7349 M3/M4/M5/M6/M8:** the thick heavy-pattern washers match the
   DIN 7349 table (M3 3.2 / 9 / 1.0, M4 4.3 / 12 / 1.6, M5 5.3 / 15 / 2.0,
   M6 6.4 / 17 / 3.0, M8 8.4 / 21 / 4.0). The M3 reference and parametric part

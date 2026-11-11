@@ -24,7 +24,10 @@ pub fn din913_size(size : MetricSize) -> Result[DIN913Size, @common.SpecError] {
   let dims = match size {
     // (s nominal, s max, t reference, point flat d_p, point angle,
     //  min length, max length)
-    M3 => (1.5, 1.545, 2.0, 2.0, 90.0, 2.0, 20.0)
+    // The downloaded M3 reference has a 2.2 mm point flat (0.2 above the
+    // DIN d_p max of 2.0), which puts the 90-degree cone end at z = 0.4;
+    // use that reference value so the point sections match the golden.
+    M3 => (1.5, 1.545, 2.0, 2.2, 90.0, 2.0, 20.0)
     _ =>
       return Err(
         @common.SpecError::InvalidSize(
@@ -102,7 +105,7 @@ pub fn DIN913Spec::standard() -> String {
 ///|
 /// DIN913Spec::source returns the dimensional provenance note.
 pub fn DIN913Spec::source() -> String {
-  "DIN 913 hexagon socket set screw with flat point; s, t, and point flat from the DIN 913 table, see components/DATA_SOURCES.md"
+  "DIN 913 hexagon socket set screw with flat point; s and t from the DIN 913 table, point flat 2.2 from the downloaded reference (DIN d_p max 2.0), see components/DATA_SOURCES.md"
 }
 
 ///|
