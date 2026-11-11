@@ -166,10 +166,6 @@ SELECTIONS: list[Selection] = [
     ),
     # Washers
     Selection(
-        "iso7089", "ISO 7089 plain washers", "ISO 7089",
-        "flat-washer", "thread", "washer", "none",
-    ),
-    Selection(
         "iso7091", "ISO 7091 plain washers (C)", "ISO 7091",
         "flat-washer", "thread", "washer", "none",
     ),

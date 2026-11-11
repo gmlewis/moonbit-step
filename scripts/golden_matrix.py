@@ -126,13 +126,6 @@ GOLDEN = {
         "M4": ("iso4032_hex_nut_m4.step", 0.0),
         "M5": ("iso4032_hex_nut_m5.step", 0.0),
     },
-    "iso7089": {
-        "M2": ("flat_washer_normal_m2_simple.step", 0.0),
-        "M2.5": ("flat_washer_normal_m2p5_simple.step", 0.0),
-        "M3": ("flat_washer_normal_m3_simple.step", 0.0),
-        "M4": ("flat_washer_normal_m4_simple.step", 0.0),
-        "M5": ("flat_washer_normal_m5_simple.step", 0.0),
-    },
     "iso4017": {
         "M2": ("hex_head_bolt_m2_l0008_simple.step", 8.0),
         "M2.5": ("hex_head_bolt_m2p5_l0010_simple.step", 10.0),

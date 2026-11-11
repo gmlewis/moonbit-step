@@ -123,20 +123,24 @@ External STEP models examined during the correctness audit are recorded in
 - The fetch script selects a comprehensive standardized corpus by standard,
   family, size, and representative length. The default `core` scope covers
   M2-M5 (including ISO 4032/4035 nuts; ISO 4762/4017/7380/10642 and DIN 913
-  screws; ISO 7089/7091/7092/7093 and DIN 125/127/7349/93/440 washers; ISO
+  screws; ISO 7091/7092/7093 and DIN 125/127/7349/93/440 washers; ISO
   2338/8752/1234 pins; common bearings; and labeled DIN 976-compatible rods).
   `--scope extended` adds M6/M8 and `--scope all` selects every catalog
   size/length for the chosen standards.
-- Two candidates were rejected because they contradict the standard they
-  claim: the step.parts ISO 4762 M5 x 10 head diameter is 9.2 mm (ISO maximum
-  8.5 mm), and the step.parts ISO 7089 M4 washer is 1.8 mm thick (ISO 7089
-  normal series is 0.8 mm).
+- One candidate was rejected because it contradicts the standard it claims:
+  the step.parts ISO 4762 M5 x 10 head diameter is 9.2 mm (ISO maximum
+  8.5 mm).
+- The step.parts ISO 7089 flat-washer set (M2–M8) was removed from the corpus
+  and from the fetch selection. All seven have matching bores and outside
+  diameters but wrong thicknesses (0.7 / 1.1 / 1.1 / 1.8 / 2.2 / 3.6 / 3.6 mm
+  against ISO 7089 normal-series 0.3 / 0.5 / 0.5 / 0.8 / 1.0 / 1.6 / 1.6 mm),
+  so they cannot serve as oracles.
 - The locally authored frame fixtures are analytic references, not external
   models, and are labelled as such in the manifest.
 
 ## Golden corpus expansion (2026-11-10)
 
-The manifest now records 30 external references. New acceptances corroborated
+The manifest now records 27 external references. New acceptances corroborated
 against the standards tables:
 
 - **ISO 4032 M3/M5:** the reference plan bounding box is the across-corners
@@ -201,8 +205,6 @@ against the standards tables:
 
 Rejected with evidence (not used as oracles):
 
-- **ISO 7089 M3/M4/M5:** reference thicknesses 1.1 / 1.8 / 2.2 mm against
-  ISO 7089 normal-series 0.5 / 0.8 / 1.0 mm.
 - **"Metric threaded rod M3 x 200":** the model is a 3 x 400 mm cylinder
   (volume 2827.43 mm³), contradicting its 200 mm label.
 

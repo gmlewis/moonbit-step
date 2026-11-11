@@ -207,9 +207,6 @@ def infer(name, detail):
     m = re.match(r"^hex_head_bolt_m(\d+(?:p\d+)?)_l(\d+)_simple\.step$", name)
     if m:
         return fastener("iso4017", m.group(1), m.group(2), detail)
-    m = re.match(r"^flat_washer_normal_m(\d+(?:p\d+)?)_simple\.step$", name)
-    if m:
-        return fastener("iso7089", m.group(1), None, detail)
     m = re.match(r"^din125_flat_washer_m(\d+(?:p\d+)?)(?:_simple)?\.step$", name)
     if m:
         return fastener("din125", m.group(1), None, detail)
