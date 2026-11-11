@@ -1655,3 +1655,35 @@ pub fn Shape::analysis_mesh(
     Difference(_) => Err(NotAnalytic("nominal difference has no trimmed mesh"))
   }
 }
+
+///|
+/// Shape::section_at_world_z applies a rigid placement and returns an exact
+/// world-z section. Only translations and rotations that preserve +Z are
+/// exact; any other rotation returns `UnsupportedTransform` instead of a
+/// silently approximate section.
+pub fn Shape::section_at_world_z(
+  self : Shape,
+  rot : Matrix3x3,
+  trans : Vec3,
+  z : Double,
+) -> Result[Section, AnalysisError] {
+  let z_preserved = rot.m02.abs() < 1.0e-7 &&
+    rot.m12.abs() < 1.0e-7 &&
+    (rot.m22 - 1.0).abs() < 1.0e-7
+  if !z_preserved {
+    return Err(UnsupportedTransform("rotation does not map +Z to +Z"))
+  }
+  let local_z = z - trans.2
+  match self.section_at_local(local_z) {
+    Ok(s) =>
+      Ok({
+        z_mm: z,
+        area_mm2: s.area_mm2,
+        perimeter_mm: s.perimeter_mm,
+        outer_radius_mm: s.outer_radius_mm,
+        inner_radius_mm: s.inner_radius_mm,
+        rings: s.rings,
+      })
+    Err(e) => Err(e)
+  }
+}

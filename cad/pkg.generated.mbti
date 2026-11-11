@@ -502,6 +502,7 @@ pub fn Shape::analysis_mesh(Self) -> Result[(Array[(Double, Double, Double)], Ar
 pub fn Shape::analysis_volume(Self) -> Result[Double, AnalysisError]
 pub fn Shape::bounding_box(Self) -> (Double, Double, Double, Double, Double, Double)
 pub fn Shape::section_at_local(Self, Double) -> Result[Section, AnalysisError]
+pub fn Shape::section_at_world_z(Self, Matrix3x3, (Double, Double, Double), Double) -> Result[Section, AnalysisError]
 pub fn Shape::surface_inventory(Self) -> SurfaceInventory
 pub fn Shape::with_color(Self, Rgb) -> SceneNode
 pub fn Shape::with_name(Self, String) -> SceneNode

@@ -332,3 +332,112 @@ test "analysis typed errors do not silently approximate" {
     Err(_) => abort("expected NotAnalytic for Difference section")
   }
 }
+
+///|
+test "analysis calibration chamfer block is a rectangular stack" {
+  let plain = CalibrationChamferBlock::new(10.0, 10.0, 5.0, chamfer_size_mm=0.0)
+  assert_eq(plain.surface_inventory().plane, 6)
+  let section = match plain.section_at_local(2.5) {
+    Ok(s) => s
+    Err(_) => abort("expected a calibration block section")
+  }
+  an_close(section.area_mm2, 100.0, 1.0e-9)
+  an_close(an_volume(plain), 500.0, 1.0e-9)
+  let centroid = match plain.analysis_centroid() {
+    Ok(c) => c
+    Err(_) => abort("expected a calibration block centroid")
+  }
+  an_close(centroid.0, 5.0, 1.0e-9)
+  an_close(centroid.1, 5.0, 1.0e-9)
+  an_close(centroid.2, 2.5, 1.0e-9)
+  let chamfered = CalibrationChamferBlock::new(
+    10.0,
+    10.0,
+    5.0,
+    chamfer_size_mm=1.0,
+  )
+  assert_eq(chamfered.surface_inventory().plane, 10)
+}
+
+///|
+test "analysis curved Bezier inventory is planes plus linear extrusions" {
+  let curved = ExtrudedBezierProfile::new(
+    [
+      {
+        anchors: [
+          {
+            position: (0.0, 0.0),
+            handle_in: (0.0, 0.0),
+            handle_out: (2.0, 0.0),
+          },
+          {
+            position: (10.0, 0.0),
+            handle_in: (8.0, 0.0),
+            handle_out: (10.0, 0.0),
+          },
+          {
+            position: (10.0, 10.0),
+            handle_in: (10.0, 10.0),
+            handle_out: (10.0, 10.0),
+          },
+          {
+            position: (0.0, 10.0),
+            handle_in: (0.0, 10.0),
+            handle_out: (0.0, 0.0),
+          },
+        ],
+        closed: true,
+        clear: false,
+      },
+    ],
+    3.0,
+  )
+  let inventory = curved.surface_inventory()
+  assert_eq(inventory.plane, 2)
+  assert_eq(inventory.swept, 1)
+  match curved.analysis_volume() {
+    Ok(_) => abort("expected a NotAnalytic Bezier volume")
+    Err(NotAnalytic(_)) => ()
+    Err(_) => abort("expected NotAnalytic for Bezier volume")
+  }
+}
+
+///|
+test "analysis world-z sections reject a general rotation" {
+  let to_x = Matrix3x3::{
+    m00: 0.0,
+    m01: 0.0,
+    m02: 1.0,
+    m10: 0.0,
+    m11: 1.0,
+    m12: 0.0,
+    m20: -1.0,
+    m21: 0.0,
+    m22: 0.0,
+  }
+  match
+    Cylinder::new(10.0, 5.0).section_at_world_z(to_x, (0.0, 0.0, 0.0), 1.0) {
+    Ok(_) => abort("expected UnsupportedTransform")
+    Err(UnsupportedTransform(_)) => ()
+    Err(_) => abort("expected UnsupportedTransform, got another error")
+  }
+  let identity = Matrix3x3::{
+    m00: 1.0,
+    m01: 0.0,
+    m02: 0.0,
+    m10: 0.0,
+    m11: 1.0,
+    m12: 0.0,
+    m20: 0.0,
+    m21: 0.0,
+    m22: 1.0,
+  }
+  match
+    Cylinder::new(10.0, 5.0).section_at_world_z(identity, (0.0, 0.0, 2.0), 3.0) {
+    Ok(s) => {
+      an_close(s.z_mm, 3.0, 1.0e-9)
+      an_close(s.area_mm2, 78.53981633974483, 1.0e-9)
+    }
+    Err(e) => abort("expected a translated section: " + e.message())
+  }
+}

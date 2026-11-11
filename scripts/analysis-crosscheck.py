@@ -24,11 +24,9 @@ from __future__ import annotations
 import argparse
 import importlib.util
 import json
-import math
 import shutil
 import subprocess
 import sys
-import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -466,8 +464,6 @@ def run_part(entry: dict, checker: Checker, mesh_cache: dict, deflection: float)
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--deflection", type=float, default=0.05)
-    parser.add_argument("--keep", action="store_true",
-                        help="Keep generated STEP files (they are under target/ anyway)")
     parser.add_argument("--only", default=None, help="Run only parts matching this substring")
     args = parser.parse_args()
 
