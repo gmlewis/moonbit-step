@@ -379,6 +379,7 @@ fn compile_node_shape(
       compile_extruded_arc_profile(ctx, node, e, reverse~, parent~)
     SquareHoleWasher(w) =>
       compile_square_hole_washer(ctx, node, w, reverse~, parent~)
+    TabWasher(w) => compile_tab_washer(ctx, node, w, reverse~, parent~)
     ExtrudedBezierProfile(e) =>
       compile_extruded_bezier_profile(ctx, node, e, reverse~, parent~)
     SweptProfile(s) => compile_swept_profile(ctx, node, s, reverse~, parent~)

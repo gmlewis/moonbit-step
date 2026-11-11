@@ -1253,6 +1253,7 @@ fn an_shape_inventory(shape : Shape) -> SurfaceInventory {
     }
     ExtrudedArcProfile(e) => an_extruded_arc_inventory(e)
     SquareHoleWasher(w) => an_square_hole_inventory(w)
+    TabWasher(w) => an_tab_inventory(w)
     ExtrudedBezierProfile(e) => an_bezier_inventory(e)
     SweptProfile(s) => an_swept_inventory(s)
     Fillet(f) => an_shape_inventory(f.base.shape)
@@ -1398,6 +1399,15 @@ pub fn Shape::analysis_volume(self : Shape) -> Result[Double, AnalysisError] {
         Ok(volume)
       }
     }
+    TabWasher(w) => {
+      let (material, _c) = tw_area_centroid(w)
+      let volume = material * w.thickness_mm
+      if volume <= 0.0 {
+        Err(DegenerateProfile)
+      } else {
+        Ok(volume)
+      }
+    }
     ExtrudedBezierProfile(_) =>
       Err(NotAnalytic("Bezier profile requires tessellation"))
     SweptProfile(_) => Err(NotAnalytic("swept profile requires tessellation"))
@@ -1444,6 +1454,10 @@ pub fn Shape::analysis_centroid(self : Shape) -> Result[Vec3, AnalysisError] {
     }
     ExtrudedArcProfile(e) => Ok(e.centroid())
     SquareHoleWasher(w) => Ok((0.0, 0.0, w.thickness_mm / 2.0))
+    TabWasher(w) => {
+      let (_material, c) = tw_area_centroid(w)
+      Ok((c.0, c.1, w.thickness_mm / 2.0))
+    }
     ExtrudedBezierProfile(_) =>
       Err(NotAnalytic("Bezier profile requires tessellation"))
     SweptProfile(_) => Err(NotAnalytic("swept profile requires tessellation"))
@@ -1514,6 +1528,7 @@ pub fn Shape::section_at_local(
     ExtrudedProfile(e) => e.section_at(z)
     ExtrudedArcProfile(e) => an_extruded_arc_section(e, z)
     SquareHoleWasher(w) => an_square_hole_section(w, z)
+    TabWasher(w) => an_tab_section(w, z)
     ExtrudedBezierProfile(_) =>
       Err(NotAnalytic("Bezier profile requires tessellation"))
     SweptProfile(_) => Err(NotAnalytic("swept profile requires tessellation"))
@@ -1747,6 +1762,14 @@ pub fn Shape::analysis_mesh(
       } else {
         Ok(square_hole_mesh(w))
       }
+    TabWasher(w) => {
+      let (material, _c) = tw_area_centroid(w)
+      if material <= 0.0 || w.thickness_mm <= 0.0 {
+        Err(DegenerateProfile)
+      } else {
+        Ok(tab_washer_mesh(w))
+      }
+    }
     Union(u) => {
       let verts : Array[Vec3] = []
       let faces : Array[Array[Int32]] = []

@@ -27,6 +27,7 @@ proprietary catalog graphics, or manufacturer part files.
 | Large washers, square hole | DIN 440 V | `d2`, square side `a`, thickness `s` |
 | Thick flat washers, heavy pattern | DIN 7349 | `d1`, `d2`, `s` |
 | Hexagon socket set screws, flat point | DIN 913 | `s`, `t`, point flat `d_p`, length range |
+| Tab washers with long tab | DIN 93 | `d1`, `d2`, tab width `b`, tab length `l`, thickness `s` |
 | Hexagon head screws | ISO 4017:2022 | `s`, `k` |
 | Hexagon head bolts | ISO 4014:2022 | `s`, `k`, thread length `b` |
 | Button head hex socket screws | ISO 7380-1:2022 designation | `dk`, `k`, `s`, `t`, length range |
@@ -60,6 +61,7 @@ the parametric parts use s_max.
 - `components/standards/din440.mbt` — DIN 440 V square-hole large-washer table.
 - `components/standards/din7349.mbt` — DIN 7349 thick flat-washer table.
 - `components/standards/din913.mbt` — DIN 913 set-screw table.
+- `components/standards/din93.mbt` — DIN 93 tab-washer table.
 - `components/standards/hex_heads.mbt` — ISO 4014/4017 head table and DIN 976
   rod validation.
 - `components/motion/bearings.mbt` — bearing boundary table.
@@ -134,7 +136,7 @@ External STEP models examined during the correctness audit are recorded in
 
 ## Golden corpus expansion (2026-11-10)
 
-The manifest now records 29 external references. New acceptances corroborated
+The manifest now records 30 external references. New acceptances corroborated
 against the standards tables:
 
 - **ISO 4032 M3/M5:** the reference plan bounding box is the across-corners
@@ -161,6 +163,12 @@ against the standards tables:
   exactly. The M8 reference is 8.4 / 16 / 1.8 mm; 1.8 mm is the ISO 7089 /
   DIN 125 A h_max (nominal 1.6, limits 1.4..1.8 mm), so it is standard-correct
   and the DIN 125 A M8 reference thickness is taken at h_max.
+- **DIN 93 M4/M6/M8:** the tab-washer table values match DIN 93 (M4
+  4.3 / 14 / b 5 / l 14 / s 0.38, M6 6.4 / 19 / 7 / 18 / 0.5,
+  M8 8.4 / 22 / 8 / 20 / 0.75). The tab transition center is `l/2 + 2` mm,
+  which yields the reference tangent fillet radii (M4 4.25, M6 3.58334,
+  M8 2.7857). The reference and parametric parts have the same 9-face
+  topology (4 cylinders, 5 planes) and match in volume/area to rounding.
 - **DIN 913 M3 x 5:** the reference body/topology matches DIN 913 (3 mm
   shank, hex socket, flat point). Its point flat is 2.2 mm and its socket
   across flats is 1.5588 mm, both above the DIN 913 limits (d_p max 2.0,

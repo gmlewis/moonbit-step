@@ -116,6 +116,16 @@ table (6g/6H limits are not modeled as limits).
   Simplified and Detailed and added as a helical ISO 68-1 ridge at
   FullyModeled.
 
+### DIN 93 — tab washers with long tab
+
+- Revision used: DIN 93 (withdrawn, no replacement).
+- Supported sizes: M4, M5, M6, M8, M10, M12, M16, M20.
+- Data: inner diameter `d1`, outside diameter `d2`, tab width `b`, tab length
+  `l` from the washer axis, and thickness `s`.
+- The tab transition center is at `l/2 + 2` mm; the tangent fillet radius is
+  derived from it, matching the downloaded references. The tab is modeled
+  flat; the in-service bend is not part of the delivered part.
+
 ### DIN 976-1 — metric threaded rods
 
 - Revision used: DIN 976-1:2016.

@@ -1668,6 +1668,135 @@
       }
     },
     {
+      "fixture_id": "fasteners/din93-m4",
+      "part_id": "din93_m4tabwasher",
+      "designation": "DIN 93 - M4",
+      "family": "tab washer with long tab",
+      "standard": "DIN 93",
+      "manufacturer": "unspecified step.parts contributor",
+      "source_page": "https://www.step.parts/parts/din93_m4tabwasher",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/din93_m4tabwasher.step",
+      "local_filename": "external/din93_m4tabwasher.step",
+      "sha256": "b4dddb00e456d2ac198936fdf50bc655d9b8c47ef7a6b0ad23a9dbdfc9759f6a",
+      "byte_size": 33046,
+      "units": "mm",
+      "declared_dimensions": {
+        "inner_diameter_mm": 4.3,
+        "outer_diameter_mm": 14.0,
+        "tab_width_mm": 5.0,
+        "tab_length_mm": 14.0,
+        "thickness_mm": 0.38
+      },
+      "measured_dimensions": {
+        "bbox_mm": [
+          21.0,
+          14.0,
+          0.38
+        ],
+        "volume_mm3": 67.2164,
+        "solids": 1
+      },
+      "parametric_value": {
+        "bbox_mm": [
+          21.0,
+          14.0,
+          0.38
+        ],
+        "volume_mm3": 67.2164,
+        "solids": 1,
+        "source": "components/examples/fasteners --standard din93 --size M4"
+      },
+      "verdict": "accepted",
+      "notes": "DIN 93 M4: d1 4.3, d2 14, tab 5 wide x 14 long, s 0.38. The tab transition center is l/2 + 2 = 9 mm and the tangent fillet radius is 4.25 mm, matching the reference. Both parts have one outer cylinder, two transition cylinders, one bore cylinder, two tab-side planes, a tab-end plane, and two caps (9 faces, 21 edges, 14 vertices); volume and area match to rounding.",
+      "committed": false,
+      "generation": {
+        "tool": "components/examples/fasteners",
+        "args": [
+          "--standard",
+          "din93",
+          "--size",
+          "M4",
+          "--detail",
+          "detailed",
+          "-o",
+          "{out}"
+        ],
+        "output": "din93-M4-detailed.step"
+      },
+      "comparison": {
+        "solids": 1,
+        "bbox_axes": [
+          {
+            "axis": 0,
+            "expected_mm": 21.0,
+            "label": "tab end to washer edge"
+          },
+          {
+            "axis": 1,
+            "expected_mm": 14.0,
+            "label": "washer diameter"
+          },
+          {
+            "axis": 2,
+            "expected_mm": 0.38,
+            "label": "thickness"
+          }
+        ],
+        "features": [
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 7.0,
+            "tol_mm": 0.01
+          },
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 4.25,
+            "tol_mm": 0.01
+          },
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 2.15,
+            "tol_mm": 0.01
+          },
+          {
+            "kind": "min_vertex_radius_mm",
+            "expected": 2.15,
+            "tol_mm": 0.01
+          },
+          {
+            "kind": "max_vertex_radius_mm",
+            "expected": 14.2215,
+            "tol_mm": 0.01
+          },
+          {
+            "kind": "surface_min",
+            "surface": "plane",
+            "min_count": 5
+          }
+        ],
+        "mass_properties": {
+          "volume_mm3": 67.2164,
+          "volume_relative_tol": 0.005,
+          "center_of_mass_mm": [
+            -2.17388,
+            0.0,
+            0.19
+          ],
+          "center_of_mass_tol_mm": 0.01
+        },
+        "sections": [
+          {
+            "z_mm": 0.19,
+            "area_mm2": 176.885,
+            "area_relative_tol": 0.01,
+            "x_extent_mm": 21.0,
+            "extent_tol_mm": 0.02
+          }
+        ],
+        "section_deflection_mm": 0.01
+      }
+    },
+    {
       "fixture_id": "fasteners/iso7089-m5",
       "part_id": "flat_washer_normal_m5_simple",
       "designation": "ISO 7089 M5",

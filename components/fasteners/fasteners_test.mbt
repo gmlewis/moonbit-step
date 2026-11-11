@@ -377,6 +377,30 @@ test "din 913 set screw geometry" {
 }
 
 ///|
+test "din 93 tab washer geometry" {
+  let washer = match @fasteners.din93_tab_washer(@standards.M4) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  let (x0, x1, y0, y1, z0, z1) = washer.bounding_box()
+  assert_true(close(x0, -14.0))
+  assert_true(close(x1, 7.0))
+  assert_true(close(y0, -7.0))
+  assert_true(close(y1, 7.0))
+  assert_true(close(z0, 0.0))
+  assert_true(close(z1, 0.38))
+  assert_true(washer.name() == "DIN93-M4")
+  assert_true(washer.metadata().designation == "DIN 93 - M4")
+  let features = washer.features()
+  assert_true(features.has_modeled("transition-fillets"))
+  assert_true(features.has_modeled("tab"))
+  assert_true(features.has_omitted("service-bend"))
+  let step = washer.to_step(checked=true)
+  assert_true(step.contains("CYLINDRICAL_SURFACE"))
+  assert_true(step.contains("CLOSED_SHELL"))
+}
+
+///|
 test "fastener step text is non-empty and watertight-looking" {
   let washer = match @fasteners.iso7089_washer(@standards.M3) {
     Ok(c) => c

@@ -474,6 +474,7 @@ fn shape_kind(shape : @cad.Shape) -> String {
     ExtrudedProfile(_) => "extruded-profile"
     ExtrudedArcProfile(_) => "extruded-arc-profile"
     SquareHoleWasher(_) => "square-hole-washer"
+    TabWasher(_) => "tab-washer"
     ExtrudedBezierProfile(_) => "extruded-bezier-profile"
     SweptProfile(_) => "swept-profile"
     Fillet(_) => "fillet"

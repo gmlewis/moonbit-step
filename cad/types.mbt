@@ -272,6 +272,45 @@ pub fn SquareHoleWasher::as_shape(self : SquareHoleWasher) -> Shape {
 }
 
 ///|
+/// TabWasher is a plain circular washer with a rectangular external tab. The
+/// tab blends into the washer with two concave analytic cylinders; the bore is
+/// a cylinder and the tab sides/end and the two faces are planes.
+pub struct TabWasher {
+  outer_diameter_mm : Double
+  bore_diameter_mm : Double
+  tab_width_mm : Double
+  tab_length_mm : Double
+  fillet_radius_mm : Double
+  thickness_mm : Double
+}
+
+///|
+/// TabWasher::new builds a tab-washer intent.
+pub fn TabWasher::new(
+  outer_diameter_mm~ : Double,
+  bore_diameter_mm~ : Double,
+  tab_width_mm~ : Double,
+  tab_length_mm~ : Double,
+  fillet_radius_mm~ : Double,
+  thickness_mm~ : Double,
+) -> TabWasher {
+  {
+    outer_diameter_mm,
+    bore_diameter_mm,
+    tab_width_mm,
+    tab_length_mm,
+    fillet_radius_mm,
+    thickness_mm,
+  }
+}
+
+///|
+/// TabWasher::as_shape wraps the tab washer as a Shape.
+pub fn TabWasher::as_shape(self : TabWasher) -> Shape {
+  Shape::TabWasher(self)
+}
+
+///|
 pub enum Shape {
   Cuboid(Cuboid)
   Cylinder(Cylinder)
@@ -282,6 +321,7 @@ pub enum Shape {
   ExtrudedProfile(ExtrudedProfile)
   ExtrudedArcProfile(ExtrudedArcProfile)
   SquareHoleWasher(SquareHoleWasher)
+  TabWasher(TabWasher)
   ExtrudedBezierProfile(ExtrudedBezierProfile)
   SweptProfile(SweptProfile)
   Fillet(EdgeFeature)
@@ -542,6 +582,10 @@ pub fn Shape::bounding_box(
     SquareHoleWasher(w) => {
       let r = w.outer_diameter_mm / 2.0
       (-r, r, -r, r, 0.0, w.thickness_mm)
+    }
+    TabWasher(w) => {
+      let r = w.outer_diameter_mm / 2.0
+      (-w.tab_length_mm, r, -r, r, 0.0, w.thickness_mm)
     }
     ExtrudedBezierProfile(e) => {
       let mut x0 = @double.max_value

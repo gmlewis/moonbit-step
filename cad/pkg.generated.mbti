@@ -35,6 +35,8 @@ pub fn compile_socketed_solid(StepContext, SceneNode, SocketedSolid, reverse? : 
 
 pub fn compile_square_hole_washer(StepContext, SceneNode, SquareHoleWasher, reverse? : Bool, parent? : Transform?) -> Array[@step.Ref]
 
+pub fn compile_tab_washer(StepContext, SceneNode, TabWasher, reverse? : Bool, parent? : Transform?) -> Array[@step.Ref]
+
 pub fn csg_eval_script_path(String?) -> String
 
 pub fn cut_on_face(SceneNode, Profile2D, FaceInfo, Double, name? : String, overshoot? : Double, center? : (Double, Double), color? : Rgb) -> SceneNode
@@ -519,6 +521,7 @@ pub enum Shape {
   ExtrudedProfile(ExtrudedProfile)
   ExtrudedArcProfile(ExtrudedArcProfile)
   SquareHoleWasher(SquareHoleWasher)
+  TabWasher(TabWasher)
   ExtrudedBezierProfile(ExtrudedBezierProfile)
   SweptProfile(SweptProfile)
   Fillet(EdgeFeature)
@@ -646,6 +649,17 @@ pub struct SweptProfile {
   corner_override : (Array[(Double, Double, Double)], Array[(Double, Double, Double)])?
 }
 pub fn SweptProfile::new(path~ : SweepPath, profile~ : SweepProfile, make_start_cap? : Bool, make_end_cap? : Bool, straight_holes? : Bool, straight_outline? : Bool, smooth_helix? : Bool, corner_override? : (Array[(Double, Double, Double)], Array[(Double, Double, Double)])?) -> Shape
+
+pub struct TabWasher {
+  outer_diameter_mm : Double
+  bore_diameter_mm : Double
+  tab_width_mm : Double
+  tab_length_mm : Double
+  fillet_radius_mm : Double
+  thickness_mm : Double
+}
+pub fn TabWasher::as_shape(Self) -> Shape
+pub fn TabWasher::new(outer_diameter_mm~ : Double, bore_diameter_mm~ : Double, tab_width_mm~ : Double, tab_length_mm~ : Double, fillet_radius_mm~ : Double, thickness_mm~ : Double) -> Self
 
 pub(all) struct Transform {
   rot : Matrix3x3

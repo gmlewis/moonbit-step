@@ -338,6 +338,33 @@ test "din 913 set screw dimensions" {
 }
 
 ///|
+test "din 93 tab washer dimensions" {
+  let m4 = match @standards.din93_size(@standards.M4) {
+    Ok(v) => v
+    Err(e) => abort(e.message())
+  }
+  assert_true(close(m4.inner_diameter_mm, 4.3))
+  assert_true(close(m4.outer_diameter_mm, 14.0))
+  assert_true(close(m4.tab_width_mm, 5.0))
+  assert_true(close(m4.tab_length_mm, 14.0))
+  assert_true(close(m4.thickness_mm, 0.38))
+  let spec = match @standards.din93_spec(@standards.M4) {
+    Ok(v) => v
+    Err(e) => abort(e.message())
+  }
+  assert_true(spec.designation() == "DIN 93 - M4")
+  assert_true(@standards.DIN93Spec::standard() == "DIN 93")
+  assert_true(spec.metadata().family == "tab washer with long tab")
+  let m8 = match @standards.din93_size(@standards.M8) {
+    Ok(v) => v
+    Err(e) => abort(e.message())
+  }
+  assert_true(close(m8.outer_diameter_mm, 22.0))
+  assert_true(close(m8.tab_width_mm, 8.0))
+  assert_true(close(m8.tab_length_mm, 20.0))
+}
+
+///|
 test "iso 4017 and iso 4014 hex head dimensions" {
   let h4 = match @standards.hex_head_size(@standards.M4) {
     Ok(v) => v
