@@ -123,8 +123,10 @@ The manifest now records 23 external references. New acceptances corroborated
 against the standards tables:
 
 - **ISO 4032 M3/M5:** the reference plan bounding box is the across-corners
-  span 6.3509 / 9.2376 mm (= `s / cos 30` for `s` 5.5 / 8.0 mm); heights 2.4 /
-  4.0 mm match.
+  span 6.3509 / 9.2376 mm (= `s / cos 30` for `s` 5.5 / 8.0 mm). The M3 height
+  2.4 mm matches ISO 4032:2023; the M5 reference is the older DIN 934 height
+  4.0 mm, while ISO 4032:2023 requires 4.7 mm, so the M5 reference is recorded
+  as non-compliant and the parametric part follows the ISO height.
 - **ISO 7380 M4 x 10 / M5 x 12:** head diameters 7.6 / 9.5 mm and overall
   lengths 12.2 / 14.75 mm (= `L + k`) match `iso7380_size`.
 - **ISO 10642 M4 x 10 / M5 x 12:** overall lengths 10.0 / 12.0 mm and the 90

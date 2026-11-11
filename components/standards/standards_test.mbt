@@ -172,7 +172,8 @@ test "iso 4032 known dimensions" {
   assert_true(close(m4.height_mm, 3.2))
   let m5 = unwrap4032_size(@standards.M5)
   assert_true(close(m5.width_across_flats_mm, 8.0))
-  assert_true(close(m5.height_mm, 4.0))
+  // ISO 4032:2023 M5 height (DIN 934 used 4.0).
+  assert_true(close(m5.height_mm, 4.7))
   let spec = unwrap4032_spec(@standards.M4)
   assert_true(spec.designation() == "ISO 4032 - M4")
 }

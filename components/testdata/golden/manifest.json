@@ -865,7 +865,7 @@
         "source": "components/examples/fasteners --standard iso4032 --size M5"
       },
       "verdict": "accepted-envelope",
-      "notes": "Height 4.0 mm matches and the plan bbox 9.2376 mm is the across-corners span for s = 8.0 mm.",
+      "notes": "The golden is the older DIN 934 height (4.0 mm); ISO 4032:2023 requires 4.7 mm, so the golden is non-compliant with the current edition. The parametric part follows ISO 4032:2023.",
       "committed": false,
       "generation": {
         "tool": "components/examples/fasteners",
@@ -891,7 +891,7 @@
           },
           {
             "axis": 2,
-            "expected_mm": 4.0,
+            "expected_mm": 4.7,
             "label": "nut height"
           }
         ],

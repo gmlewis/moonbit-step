@@ -43,6 +43,11 @@ table (6g/6H limits are not modeled as limits).
 - Revision used: ISO 4032:2023.
 - Supported sizes: M2, M2.5, M3, M4, M5, M6, M8, M10, M12, M16, M20.
 - Data: width across flats `s`, nut height `m`.
+- Heights follow ISO 4032:2023. From M5 upward they differ from the older
+  DIN 934 values (M5 4.7 vs 4.0, M6 5.2 vs 5.0, M8 6.8 vs 6.5, M10 8.4 vs
+  8.0, M12 10.8 vs 10.0, M16 14.8 vs 13.0, M20 18.0 vs 16.0). The downloaded
+  ISO 4032 references use DIN 934 heights and are recorded as non-compliant
+  with the current edition.
 - The modeled bore is a clearance bore or, in fully modeled mode, a helical
   internal thread ridge.
 
@@ -54,7 +59,7 @@ table (6g/6H limits are not modeled as limits).
 
 ### ISO 4017 / ISO 4014 — hexagon head screws and bolts
 
-- Revisions used: ISO 4017:2014 and ISO 4014:2011.
+- Revisions used: ISO 4017:2022 and ISO 4014:2022.
 - Supported sizes: M2, M2.5, M3, M4, M5, M6, M8, M10, M12, M16, M20.
 - Data: width across flats `s`, head height `k`.
 - ISO 4017 is fully threaded. ISO 4014 uses the nominal `b` thread length.
