@@ -16,6 +16,8 @@ pub fn clamp_segments(Int32, minimum? : Int32) -> Int32
 
 pub fn din125_washer(@standards.MetricSize, detail? : @common.DetailLevel, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
+pub fn din127_washer(@standards.MetricSize, detail? : @common.DetailLevel, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
 pub fn din976(@standards.MetricSize, Double, detail? : @common.DetailLevel, threads? : @common.ThreadRepresentation) -> Result[@common.Component, @common.SpecError]
 
 pub fn din976_rod(@standards.DIN976Spec, detail? : @common.DetailLevel, threads? : @common.ThreadRepresentation) -> @common.Component

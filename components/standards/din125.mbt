@@ -76,7 +76,7 @@ pub fn DIN125Spec::standard() -> String {
 ///|
 /// DIN125Spec::source returns the dimensional provenance note.
 pub fn DIN125Spec::source() -> String {
-  "DIN 125 A-series plain washer; dimensions equivalent to ISO 7089 for the modeled sizes, see components/DATA_SOURCES.md"
+  "DIN 125 A-series plain washer; dimensions equivalent to ISO 7089 for the modeled sizes, with the M8 reference thickness at the ISO 7089 h_max (1.8 mm); see components/DATA_SOURCES.md"
 }
 
 ///|

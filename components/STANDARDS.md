@@ -67,6 +67,17 @@ table (6g/6H limits are not modeled as limits).
   1.4..1.8 mm; the reference thickness is taken at h_max = 1.8 mm to reproduce
   the downloaded DIN 125 A M8 reference within the standard.
 
+### DIN 127 B — spring washers, form B
+
+- Revision used: DIN 127 B (withdrawn, no replacement; dimensions retained as
+  the reference).
+- Supported sizes: M2, M2.5, M3, M4, M5, M6, M8, M10, M12, M16, M20.
+- Data: inner diameter `d1`, outer diameter `d2`, side length `b`, section
+  thickness `s`, and free height `h` (h_min reference).
+- The strip is a radial-vertical rectangle whose width is `(d2 - d1) / 2`;
+  the helix pitch is `h - s`. The part is a documented sampled helical sweep
+  (144 chords per turn at Detailed), not an analytic quadric surface.
+
 ### ISO 4017 / ISO 4014 — hexagon head screws and bolts
 
 - Revisions used: ISO 4017:2022 and ISO 4014:2022.

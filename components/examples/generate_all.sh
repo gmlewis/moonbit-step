@@ -59,6 +59,9 @@ moon run components/examples/fasteners -- \
 moon run components/examples/fasteners -- \
   --standard iso7089 --size M4 --detail detailed \
   -o "$OUT/iso7089-M4-detailed.step"
+moon run components/examples/fasteners -- \
+  --standard din127 --size M4 --detail detailed \
+  -o "$OUT/din127-M4-detailed.step"
 moon run components/examples/motion_stack -- \
   --bearing 608 --detail detailed -o "$OUT/motion-608-stack-detailed.step"
 moon run components/examples/filleted_shaft -- \

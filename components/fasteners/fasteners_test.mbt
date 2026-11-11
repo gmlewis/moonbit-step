@@ -280,6 +280,31 @@ test "din 125 a washer dimensions" {
 }
 
 ///|
+test "din 127 b spring washer geometry" {
+  let washer = match @fasteners.din127_washer(@standards.M4) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  let (x0, x1, y0, y1, z0, z1) = washer.bounding_box()
+  // The radial section spans d1 = 4.1 to d2 = 7.6; the split gap shortens the
+  // +X extent slightly. The free height is s + pitch * coverage = 1.7595 mm.
+  assert_true(close(z0, 0.0))
+  assert_true(z1 > 1.75 && z1 < 1.77)
+  assert_true(x1 - x0 > 7.54 && x1 - x0 < 7.60)
+  assert_true(y1 - y0 > 7.58 && y1 - y0 < 7.61)
+  assert_true(washer.name() == "DIN127-M4")
+  assert_true(washer.metadata().designation == "DIN 127 B - M4")
+  assert_true(washer.metadata().standard == "DIN 127 B")
+  let features = washer.features()
+  assert_true(features.has_modeled("split-gap"))
+  assert_true(features.has_approximated("helical-body"))
+  assert_true(features.has_omitted("edge-radius"))
+  let step = washer.to_step(checked=true)
+  assert_true(step.contains("MANIFOLD_SOLID_BREP"))
+  assert_true(step.contains("CLOSED_SHELL"))
+}
+
+///|
 test "fastener step text is non-empty and watertight-looking" {
   let washer = match @fasteners.iso7089_washer(@standards.M3) {
     Ok(c) => c

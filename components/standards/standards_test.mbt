@@ -233,6 +233,35 @@ test "din 125 a known washer dimensions" {
 }
 
 ///|
+test "din 127 b known spring washer dimensions" {
+  let m4 = match @standards.din127_size(@standards.M4) {
+    Ok(v) => v
+    Err(e) => abort(e.message())
+  }
+  assert_true(close(m4.inner_diameter_mm, 4.1))
+  assert_true(close(m4.outer_diameter_mm, 7.6))
+  assert_true(close(m4.side_width_mm, 1.5))
+  assert_true(close(m4.thickness_mm, 0.9))
+  assert_true(close(m4.free_height_mm, 1.8))
+  let spec = match @standards.din127_spec(@standards.M4) {
+    Ok(v) => v
+    Err(e) => abort(e.message())
+  }
+  assert_true(spec.designation() == "DIN 127 B - M4")
+  assert_true(@standards.DIN127Spec::standard() == "DIN 127 B")
+  assert_true(spec.metadata().family == "spring washer, form B")
+  // The downloaded M6 reference uses d1 = 6.1 mm (some tables print 6.4).
+  let m6 = match @standards.din127_size(@standards.M6) {
+    Ok(v) => v
+    Err(e) => abort(e.message())
+  }
+  assert_true(close(m6.inner_diameter_mm, 6.1))
+  assert_true(close(m6.outer_diameter_mm, 11.8))
+  assert_true(close(m6.thickness_mm, 1.6))
+  assert_true(close(m6.free_height_mm, 3.2))
+}
+
+///|
 test "iso 4017 and iso 4014 hex head dimensions" {
   let h4 = match @standards.hex_head_size(@standards.M4) {
     Ok(v) => v
