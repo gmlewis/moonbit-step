@@ -463,7 +463,10 @@ def chamfer_checks(
         d, s, k = p["d"], p["s"], p["k"]
         c = hex_head_chamfer(s, k)
         depth = c / math.tan(math.radians(75.0))
-        r_top = hex_circumradius(s) - c / COS30
+        # The 75 degree conical washer face turns the hexagon into a circle
+        # tangent to every flat, so the top circle's radius is the across-flats
+        # radius (the across-corners radius less the chamfer's radial inset).
+        r_top = hex_circumradius(s) - c
         add("hex-head-top-chamfer", ring_present(rings, length + k, r_top, 6),
             ring_report(rings, length + k, r_top, 6))
         add("hex-head-full-radius", ring_present(rings, length + k - depth, hex_circumradius(s), 6),

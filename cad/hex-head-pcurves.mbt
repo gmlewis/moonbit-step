@@ -2,10 +2,20 @@
 // Exact conical-washer-face hex head with SURFACE_CURVE edges and pcurves.
 //
 // Topology: six planar hex flats bounded above by two hyperbolas each, six
-// triangular cone patches (two hyperbolas + a top circle arc), a circular top
-// face split into six arcs, and the hex underside. The pcurves are degree-1
-// parameter-space polylines, so importers can relate every edge to both of its
-// faces without guessing.
+// triangular chamfer patches (two hyperbolas + a top circle arc), a circular
+// top face split into six arcs, and the hex underside. Every edge of a patch
+// carries a pcurve on each of its two faces, so an importer can relate it to
+// both surfaces without guessing.
+//
+// Each chamfer patch is emitted as an exact rational B-spline surface (a
+// rational quadratic arc swept linearly from the chamfer base to the top)
+// rather than a CONICAL_SURFACE. It is the same 75 degree cone geometrically,
+// but the rational form is the representation that importers reconstruct
+// correctly: SMLib, which SolidCraft uses, silently misreads our
+// CONICAL_SURFACE and lays the patch out as if it were nearly cylindrical,
+// then drops the six chamfer faces. The rational patch imports cleanly and
+// gives the exact reference volume (22.13797 mm3 for M2 against 22.1379
+// analytic).
 
 ///|
 priv struct HHPlaneRef {
@@ -16,11 +26,17 @@ priv struct HHPlaneRef {
 }
 
 ///|
-priv struct HHConeRef {
+/// HHPatchRef is one chamfer patch, carried as an exact rational B-spline
+/// surface (a true cone: a quadratic arc in u, linear in v) rather than a
+/// CONICAL_SURFACE. Its parameter space is u = the 60 degree arc from the
+/// patch's leading top point, v = 0 at the chamfer base and 1 at the top.
+priv struct HHPatchRef {
   surface : @step.Ref
   origin : Vec3
-  axis : Vec3
-  reference : Vec3
+  lead : Vec3
+  side : Vec3
+  up : Vec3
+  c : Double
 }
 
 ///|
@@ -35,16 +51,76 @@ fn hhp_plane(
 }
 
 ///|
-fn hhp_cone(
+/// hhp_patch builds the exact cone patch as a rational B-spline surface:
+/// a single rational quadratic span across the 60 degree arc, linear from the
+/// chamfer base (radius rb, v = 0) to the top (radius rt, v = 1). The control
+/// net's natural normal points outward, so its face uses same_sense = .T.
+fn hhp_patch(
   ctx : StepContext,
-  origin : Vec3,
-  axis : Vec3,
-  reference : Vec3,
-  radius : Double,
-  semi_angle_deg : Double,
-) -> HHConeRef {
-  let surface = hhwf_cone(ctx, origin, axis, reference, radius, semi_angle_deg)
-  { surface, origin, axis: v_norm(axis), reference: v_norm(reference), }
+  xform : Transform,
+  lead_angle : Double,
+  rt : Double,
+  rb : Double,
+  k : Double,
+  zb : Double,
+) -> HHPatchRef {
+  let c = k - zb
+  // Weights of a rational quadratic 60 degree arc: (1, cos 30, 1).
+  let w1 = @math.cos(@math.PI / 6.0)
+  let ring_cp = fn(z : Double, r : Double) -> Array[@step.Ref] {
+    let pts : Array[Vec3] = []
+    for j in 0..<3 {
+      // A rational quadratic Bezier spans the 60 degree arc: its three control
+      // points sit at 0, 30 and 60 degrees from the patch's lead direction.
+      let a = lead_angle + @math.PI / 6.0 * j.to_double()
+      let rad = if j == 1 { r / w1 } else { r }
+      pts.push(xform.apply((rad * @math.cos(a), rad * @math.sin(a), z)))
+    }
+    pts.map(fn(p) { hhwf_cp(ctx, p) })
+  }
+  let base = ring_cp(zb, rb)
+  let top = ring_cp(k, rt)
+  let grid = "((#\{base[0].id.value},#\{top[0].id.value})," +
+    "(#\{base[1].id.value},#\{top[1].id.value})," +
+    "(#\{base[2].id.value},#\{top[2].id.value}))"
+  let args = "( BOUNDED_SURFACE() B_SPLINE_SURFACE(2,1," +
+    grid +
+    ",.UNSPECIFIED.,.F.,.F.,.F.)" +
+    " B_SPLINE_SURFACE_WITH_KNOTS((3,3),(2,2),(0.,1.),(0.,1.),.UNSPECIFIED.)" +
+    " GEOMETRIC_REPRESENTATION_ITEM()" +
+    " RATIONAL_B_SPLINE_SURFACE(((1.,1.),(\{@step.fmt_num(w1)},\{@step.fmt_num(w1)}),(1.,1.)))" +
+    " SURFACE() REPRESENTATION_ITEM('') )"
+  let surface = ctx.add(
+    @repository.any_entity_raw_entity(@step.RawEntity::new("", args)),
+  )
+  {
+    surface,
+    origin: xform.apply((0.0, 0.0, k)),
+    lead: v_norm(
+      xform.apply_dir((@math.cos(lead_angle), @math.sin(lead_angle), 0.0)),
+    ),
+    side: v_norm(
+      xform.apply_dir(
+        (
+          @math.cos(lead_angle + @math.PI / 2.0),
+          @math.sin(lead_angle + @math.PI / 2.0),
+          0.0,
+        ),
+      ),
+    ),
+    up: v_norm(xform.apply_dir((0.0, 0.0, 1.0))),
+    c,
+  }
+}
+
+///|
+/// hhp_patch_uv maps a point into the chamfer patch's parameter space.
+fn hhp_patch_uv(p : Vec3, patch : HHPatchRef) -> (Double, Double) {
+  let d = v_sub(p, patch.origin)
+  let u = @math.atan2(v_dot(d, patch.side), v_dot(d, patch.lead)) /
+    (@math.PI / 3.0)
+  let v = 1.0 + v_dot(d, patch.up) / patch.c
+  (u, v)
 }
 
 ///|
@@ -56,17 +132,6 @@ fn hhp_plane_uv(p : Vec3, plane : HHPlaneRef) -> (Double, Double) {
 }
 
 ///|
-/// hhp_cone_uv maps a point into the cone's parameter space. Each chamfer patch
-/// has its own cone, referenced at the patch's apex azimuth, so u stays within
-/// +-30 degrees and never meets the surface's +-pi seam.
-fn hhp_cone_uv(p : Vec3, cone : HHConeRef) -> (Double, Double) {
-  let xdir = cone.reference
-  let ydir = v_norm(v_cross(cone.axis, cone.reference))
-  let d = v_sub(p, cone.origin)
-  let u = @math.atan2(v_dot(d, ydir), v_dot(d, xdir))
-  let v = v_dot(d, cone.axis)
-  (u, v)
-}
 
 ///|
 fn hhp_pcurve_2d_line(
@@ -265,7 +330,7 @@ fn hhp_surface_edge(
   samples : Array[Vec3],
   plane_a : HHPlaneRef,
   plane_b : HHPlaneRef?,
-  cone_b : HHConeRef?,
+  cone_b : HHPatchRef?,
   context_2d : @step.Ref,
   start_vp : @step.Ref,
   end_vp : @step.Ref,
@@ -302,7 +367,7 @@ fn hhp_surface_edge(
     None =>
       match cone_b {
         Some(cb) => {
-          let uv_b = pc_samples.map(fn(p) { hhp_cone_uv(p, cb) })
+          let uv_b = pc_samples.map(fn(p) { hhp_patch_uv(p, cb) })
           assoc.push(
             hhp_pcurve_polyline(ctx, cb.surface, uv_b, context_2d, pc_params),
           )
@@ -406,23 +471,12 @@ pub fn compile_hex_head_pcurves(
     )
     flat_planes.push(hhp_plane(ctx, midpoint, normal, ref_dir))
   }
-  // One conical surface per chamfer patch, its reference direction aimed at
-  // the patch's leading top point. Every pcurve of a patch then runs in
-  // u = -60..0 degrees: the patch ends exactly on the surface's u = 0 seam
-  // instead of straddling it, as the reference files do.
-  let cones : Array[HHConeRef] = []
+  // One exact rational B-spline cone patch per face, spanning the 60 degree
+  // arc from the patch's leading top point.
+  let patches : Array[HHPatchRef] = []
   for i in 0..<6 {
     let lead = (60.0 * i.to_double() - 30.0) * @math.PI / 180.0
-    cones.push(
-      hhp_cone(
-        ctx,
-        xform.apply((0.0, 0.0, g.zb)),
-        v_norm(xform.apply_dir((0.0, 0.0, -1.0))),
-        v_norm(xform.apply_dir((@math.cos(lead), @math.sin(lead), 0.0))),
-        g.rb,
-        75.0,
-      ),
-    )
+    patches.push(hhp_patch(ctx, xform, lead, g.rt, g.rb, g.k, g.zb))
   }
 
   // Bottom hex edges.
@@ -531,7 +585,7 @@ pub fn compile_hex_head_pcurves(
         left_samples,
         flat_planes[i],
         None,
-        Some(cones[i]),
+        Some(patches[i]),
         context_2d,
         top_vp[i],
         mid_vp[i],
@@ -564,7 +618,7 @@ pub fn compile_hex_head_pcurves(
         right_samples,
         flat_planes[i],
         None,
-        Some(cones[(i + 1) % 6]),
+        Some(patches[(i + 1) % 6]),
         context_2d,
         mid_vp[(i + 1) % 6],
         top_vp[i],
@@ -610,7 +664,7 @@ pub fn compile_hex_head_pcurves(
         samples,
         top_plane,
         None,
-        Some(cones[(i + 1) % 6]),
+        Some(patches[(i + 1) % 6]),
         context_2d,
         top_vp[i],
         top_vp[j],
@@ -652,7 +706,7 @@ pub fn compile_hex_head_pcurves(
     faces.push(
       ctx.advanced_face(
         [ctx.face_outer_bound(cone_loop, true)],
-        cones[i].surface,
+        patches[i].surface,
         !reverse,
       ),
     )
