@@ -26,14 +26,14 @@ and independent validation. See `AUDIT.md` and `PROGRESS.md` for the evidence.
    4762 socket-head screws carry a 45° head top-edge chamfer, a socket lead-in
    chamfer (a tapered hex hole), and a shank tip chamfer at `Detailed` and
    above. ISO 4032 nuts carry 45° face chamfers on both faces at `Detailed` and
-   above, including the fully modeled helical body. ISO 4017/4014 carry a ruled
-   hex-head top chamfer and a tip chamfer; ISO 7380/10642 carry a socket lead-in
-   and tip chamfer; DIN 976 carries engineering lead-in chamfers at both ends.
+   above, including the fully modeled helical body. ISO 4017/4014 carry the
+   exact 75° conical washer face (six rational B-spline cone patches trimmed by
+   the flats, leaving a circular top) and a tip chamfer; ISO 7380/10642 carry a
+   socket lead-in and tip chamfer; DIN 976 carries engineering lead-in chamfers
+   at both ends.
    These are real ruled ring stacks measured from the STEP. The standards do not
    fix most of these sizes, so the insets are declared engineering defaults.
-   Under-head radii are still omitted (no verified value), and the hex-head
-   chamfer is a parallel-inset ruled approximation, not the characteristic
-   conical washer face (recorded as `head-washer-face` omitted).
+   Under-head radii are still omitted (no verified value).
 3. **No standards-defined thread runout or root relief.** The swept ridge ends
    are square cuts. DIN 976 ends carry a clearly labelled engineering lead-in
    chamfer; that is not a tolerance-class runout.
@@ -203,11 +203,13 @@ approximations are recorded above and in `FEATURES.md`.
 ### KI-27 — Hex-head top chamfer was missing (implemented)
 
 - Severity: medium (feature coverage).
-- ISO 4017/4014 hex heads now carry a real ruled top-edge chamfer at
-  `Detailed`+, plus a tip chamfer and a machine-readable feature record.
-- The ruled parallel-inset approximation leaves a smaller hexagon top rather
-  than the standard conical washer face; the deviation and omission are
-  recorded, not hidden.
+- ISO 4017/4014 hex heads carry the exact 75° conical washer face at every
+  detail level, plus a tip chamfer and a machine-readable feature record.
+- The flat/cone intersection is emitted exactly: each flat ends in two
+  hyperbolas, each chamfer patch is a rational B-spline cone bounded by two
+  hyperbolas and a circular top arc, and the top face is the circle of radius
+  `s/2` tangent to every flat. The parametric head's volume matches the
+  reference hex-head bolt exactly (475.479 mm³ for M5 × 20).
 
 ### KI-28 — Fully modeled nut body was not face-chamfered (implemented)
 

@@ -197,7 +197,7 @@ ridge actually intersects its body.
 | Head socket bands | **Analytic** revolved cup (outer cylinder + cone + circular bore) with a buried hexagon ring forming the six flats | `RevolvedProfile::cup`, `hex_socket_ring` |
 | Socket lead-in chamfer | Conical bore lead-in plus a ruled hex taper on the six flats | engineering default `lead = min(0.1 s, 0.5 t)` |
 | Shank tip chamfer | **Analytic** 45° `CONICAL_SURFACE` on a revolved cylinder | engineering default `c = min(0.1 d, 0.5 mm)`, capped at `L/4` |
-| Hex-head top chamfer | Parallel-inset hexagon ruled stack (documented approximation of the conical washer face) | engineering default `c = min(0.1 s, k/3)` |
+| Hex-head top chamfer | **Exact** 75° conical washer face: six rational B-spline cone patches bounded by the flat/cone hyperbolas and circular top arcs, leaving a circular top of radius `s/2` | standard 75° washer-face cone; head height at the ISO upper limit |
 | DIN 976 end lead-in | **Analytic** 45° `CONICAL_SURFACE` at each end | engineering default `c = min(0.1 d, 0.5 mm)` |
 | Nut face chamfer | Parallel-inset hexagon ruled stack (documented approximation) with an **analytic** round bore | `nut_chamfer`, `round_bore` |
 

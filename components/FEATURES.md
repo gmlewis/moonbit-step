@@ -381,7 +381,7 @@ Engineering-default sizes are stated; no standard dimension is invented.
 | ISO 4762 | shank tip chamfer | Detailed, FullyModeled | 45° ruled cone ring stack | ring at `z=0`, `r = r_core - c`, full radius at `z=c` |
 | ISO 4032 | both face chamfers | Detailed, FullyModeled | ruled hex ring stack | inset hex circumradius at both faces |
 | ISO 7089 | **no** edge chamfer | all | sharp extrusion | exact thickness/volume; no intermediate z ring |
-| ISO 4017/4014 | hex-head top chamfer | Detailed, FullyModeled | ruled parallel-inset hexagon stack (approximation of the conical washer face) | top hex circumradius `R - c/cos30` |
+| ISO 4017/4014 | hex-head top chamfer | **all levels** | exact 75° conical washer face as six rational B-spline cone patches | circular top ring at `z = k`, radius `s/2`; chamfer-base ring at the hexagon circumradius |
 | ISO 4017/4014 | shank tip chamfer | Detailed, FullyModeled | 45° ruled cone | same ring check |
 | ISO 7380-1 | socket lead-in chamfer | Detailed, FullyModeled | tapered hex hole | same lead-in ring check |
 | ISO 7380-1 | shank tip chamfer | Detailed, FullyModeled | 45° ruled cone | same ring check |
@@ -397,13 +397,17 @@ swept ridge at `z = 0..b` and the plain shank at `z = b..L`. A previous build
 placed the plain shank at the tip, so a nut at the free end of a bolted joint
 sat on an unthreaded length. Regressions assert the placed layer z positions.
 
-### Hex-head chamfer approximation
+### Hex-head chamfer
 
 The characteristic hexagon-head chamfer is a conical cut leaving a washer face.
-This kernel represents it as a parallel-inset ruled ring stack, whose top face
-is a smaller hexagon. The feature record lists `head-washer-face` as omitted and
-records the ruled approximation with its radial deviation
-`R(1/cos30 - 1)`. No standard fixes the chamfer size.
+The kernel models it exactly: the 75° cone is trimmed by the six flats, so each
+flat ends in two hyperbolas and each chamfer patch is a triangle bounded by two
+hyperbolas and a circular top arc; the top face is the circle of radius `s/2`
+tangent to every flat. Each corner patch is emitted as an exact rational
+B-spline cone surface rather than `CONICAL_SURFACE`, because importers rebuild
+that surface wrongly from this writer (they lay it out nearly cylindrical and
+drop the patch). At every detail level the head is a separate layer above the
+shank, so the `hex-head` layer carries `hex-head-chamfer` as modeled.
 
 ### Washer decision
 
