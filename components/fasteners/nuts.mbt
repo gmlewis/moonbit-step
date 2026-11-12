@@ -97,7 +97,16 @@ pub fn hex_nut(
       bore_diameter_mm=bore_d,
       face_angle_deg=face_angle,
       lead_in_mm=lead,
-      rotation_deg=0.0,
+      // Reference clocking (not a standard dimension): M2/M2.5 and M4 put a
+      // hexagon corner on +X (flat at +Y, matching the M4 reference's top
+      // view), the other M3+ references put a flat on +X (corner at +Y).
+      rotation_deg=if dims.size is @standards.MetricSize::M2 ||
+        dims.size is @standards.MetricSize::M2_5 ||
+        dims.size is @standards.MetricSize::M4 {
+        0.0
+      } else {
+        30.0
+      },
     ).as_shape()
     base.add_layer(body, name="body", color=metal)
   } else {

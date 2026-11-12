@@ -534,3 +534,8 @@ approximations are recorded above and in `FEATURES.md`.
 - The `--unified` hex-head representation's analytic volume, centroid, section
   and inventory are exact; its `analysis_mesh` still uses the head-only proxy
   (Blender visualization omits the shank for that option).
+
+- The ISO 4032 M4 downloaded reference was an octagonal (8-flat) nut, not the
+  standard hexagon. It was deleted on 2026-11-12 and added to
+  `EXCLUDED_PART_IDS` in `scripts/fetch_golden_references.py` so it is never
+  downloaded again; the library keeps the standard hexagon.

@@ -330,12 +330,16 @@ def adjust_for_golden(name, tool, args, detail, detail_explicit):
         if not detail_explicit:
             set_option(args, "--detail", "simplified")
     if tool.endswith("/fasteners") and name.endswith("_simple.step"):
-        # The catalogue's "_simple" models are unthreaded with sharp rims and no
-        # shank-tip break or socket lead-in, but they do carry the head washer
-        # chamfer. The library's Simplified level now matches that feature set,
-        # so use it for the button, countersunk, and hex-head references.
+        # The catalogue's "_simple" models are the unthreaded/sharp-feature
+        # representation. Whether that is the library's Simplified or Detailed
+        # level is family-dependent: the button, countersunk, hex-head,
+        # socket-head, rod and plain-washer references match Simplified, while
+        # the ISO 4032 nut references still carry the conical washer-face cones
+        # that only Detailed emits, so nuts stay Detailed.
         simple_family = (
-            arg_value(args, "--standard") in ("iso7380", "iso10642")
+            arg_value(args, "--standard")
+            in ("iso7380", "iso10642", "iso4762", "din976",
+                "din125", "din127", "din440", "din7349")
             or name.startswith("hex_head_bolt_")
         )
         if simple_family and not detail_explicit:
@@ -426,6 +430,11 @@ def build_rows(detail, detail_explicit):
             name, tool, args, detail, detail_explicit
         )
         label = describe(tool, args) if tool else "no parametric equivalent"
+        if name.endswith("_simple.step"):
+            # The bracket in `describe` is the parametric generation detail, not
+            # the golden's catalogue class; mark the simple references so the
+            # two are not confused.
+            label += " (simple golden)"
         if note:
             label += " — " + note
         rows.append(
@@ -721,8 +730,8 @@ def main():
 
     if mode_list:
         width = max(len(row["name"]) for row in rows)
-        print("{:<4} {:<{w}}  {}".format("idx", "golden file", "parametric equivalent", w=width))
-        print("{:<4} {:<{w}}  {}".format("---", "-" * width, "-" * 30, w=width))
+        print("{:<4} {:<{w}}  {}".format("idx", "golden file", "parametric counterpart [generation detail]", w=width))
+        print("{:<4} {:<{w}}  {}".format("---", "-" * width, "-" * 44, w=width))
         for row in rows:
             print("{:03d}  {:<{w}}  {}".format(row["index"], row["name"], row["label"], w=width))
         print()
@@ -730,6 +739,13 @@ def main():
             "{} golden STEP file(s); {} have a parametric equivalent.".format(
                 count, supported
             )
+        )
+        print(
+            "The bracketed value is the parametric generation detail, not the "
+            "golden's class. `(simple golden)` marks the catalogue's simple "
+            "models; the script uses Simplified where that reproduces their "
+            "feature set and Detailed where the golden still has features our "
+            "Simplified level omits (e.g. the nut washer-face cones)."
         )
         print(
             "Example: ./scripts/compare-golden.sh 1 3   "

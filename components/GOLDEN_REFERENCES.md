@@ -490,3 +490,21 @@ reference matches exactly (1 solid; volume 1040.31 mm3; bidirectional surface
 deviation max 0.0099 mm; SolidCraft imports with no warnings). The non-unified
 layered head+shank build remains for the golden-matrix and cross-check
 generations (which expect two solids).
+
+### ISO 4032 M4 nut reference was octagonal — deleted (2026-11-12)
+
+`iso4032_hex_nut_m4.step` was **not a hexagon**: it had eight equal vertical
+flats at 45-degree spacing (planes at 0, 45, 90, ... at distance 3.538 mm) and a
+square 7.077 x 7.077 mm envelope, i.e. a regular octagon. ISO 4032 M4 is a
+hexagon (across flats 7.0, across corners 8.083); the shape cannot be matched by
+rotation (the bidirectional deviation was 0.5 mm from the shape, not the
+orientation).
+
+Because the reference violates its declared standard, the file and its
+`.bytes`/`.sha256` companions were **deleted** from
+`components/testdata/golden/external/` and the part id
+`iso4032_hex_nut_m4` was added to `EXCLUDED_PART_IDS` in
+`scripts/fetch_golden_references.py`, so it is never downloaded again. The
+manifest fixture and the octagon measurements were removed with it. The other
+nut references are regular hexagons clocked corner-on-+X (M2/M2.5) or
+flat-on-+X (M3, M5, M6, M8).

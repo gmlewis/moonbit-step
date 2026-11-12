@@ -105,6 +105,14 @@ NONSTANDARD_IDS = [
     "spur_gear_m2_0_40t_bore10",
 ]
 
+# Reference models that violate their declared standard are removed from the
+# corpus and must never be downloaded again. `iso4032_hex_nut_m4` is an
+# octagonal model (eight equal flats at 45 degrees, square 7.077 x 7.077 mm
+# envelope), not the ISO 4032 M4 hexagon; it was deleted 2026-11-12.
+EXCLUDED_PART_IDS = {
+    "iso4032_hex_nut_m4",
+}
+
 
 @dataclass(frozen=True)
 class Selection:
@@ -413,6 +421,14 @@ def build_standard_plan(selection: Selection, scope: str,
     if selection.family is not None:
         params["family"] = selection.family
     records = fetch_items(params)
+    excluded = [
+        record for record in records
+        if record.get("id") in EXCLUDED_PART_IDS
+    ]
+    records = [
+        record for record in records
+        if record.get("id") not in EXCLUDED_PART_IDS
+    ]
 
     wanted_standard = (selection.standard or "").strip().lower()
     filtered: list[dict] = []
@@ -472,10 +488,19 @@ def build_standard_plan(selection: Selection, scope: str,
                 }
             )
 
+    excluded_sizes = {
+        parse_size(record, selection.size_field or "thread")
+        for record in excluded
+    }
     if target_sizes is not None:
         for size in target_sizes:
-            if size not in by_size:
+            if size not in by_size and size not in excluded_sizes:
                 missing.append(f"{selection.key}: no catalog record for {size}")
+    for record in excluded:
+        missing.append(
+            f"{selection.key}: excluded by policy (violates its declared "
+            f"standard): {record.get('id')}"
+        )
     return planned, missing
 
 
