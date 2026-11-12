@@ -75,10 +75,10 @@ fn hex_head_shape(
       color=shank_color,
     )
   }
-  // Head washer chamfer: a parallel-inset ruled ring stack whose top hexagon
-  // is inset to the washer-face radius. The analytic trimmed-cone (circular
-  // top + hyperbola) form is not emitted because the flat STEP writer's conic
-  // pcurves are rejected by some importers.
+  // Clean chamfered hex head. The exact conical washer face is implemented
+  // with pcurves in cad/hex-head-pcurves.mbt, but the flat writer's conic
+  // edge/pcurve associations are not yet accepted by every importer, so the
+  // shipping build uses this ruled washer-face approximation.
   let inset = hex_head_chamfer_mm(s, k)
   let depth = inset / @math.tan(75.0 * @math.PI / 180.0)
   let head = @cad.ChamferedPrism::from_chamfer(

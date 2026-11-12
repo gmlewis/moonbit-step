@@ -181,6 +181,15 @@ pub fn CylindricalSurface::new(String, @step.Ref, String) -> Self
 pub fn CylindricalSurface::to_step(Self) -> String
 pub impl @step.Entity for CylindricalSurface
 
+pub struct DefinitionalRepresentation {
+  name : String
+  items : Array[@step.Ref]
+  context_of_items : @step.Ref
+}
+pub fn DefinitionalRepresentation::new(String, Array[@step.Ref], @step.Ref) -> Self
+pub fn DefinitionalRepresentation::to_step(Self) -> String
+pub impl @step.Entity for DefinitionalRepresentation
+
 pub struct Direction {
   name : String
   ratios : Array[Double]
@@ -246,6 +255,15 @@ pub struct OffsetSurface {
 pub fn OffsetSurface::new(String, @step.Ref, Double, Bool) -> Self
 pub fn OffsetSurface::to_step(Self) -> String
 pub impl @step.Entity for OffsetSurface
+
+pub struct PCurve {
+  name : String
+  basis_surface : @step.Ref
+  reference_to_curve : @step.Ref
+}
+pub fn PCurve::new(String, @step.Ref, @step.Ref) -> Self
+pub fn PCurve::to_step(Self) -> String
+pub impl @step.Entity for PCurve
 
 pub struct Parabola {
   name : String
@@ -361,6 +379,16 @@ pub struct SphericalSurface {
 pub fn SphericalSurface::new(String, @step.Ref, String) -> Self
 pub fn SphericalSurface::to_step(Self) -> String
 pub impl @step.Entity for SphericalSurface
+
+pub struct SurfaceCurve {
+  name : String
+  curve_3d : @step.Ref
+  associated_geometry : Array[@step.Ref]
+  master_representation : String
+}
+pub fn SurfaceCurve::new(String, @step.Ref, Array[@step.Ref], String) -> Self
+pub fn SurfaceCurve::to_step(Self) -> String
+pub impl @step.Entity for SurfaceCurve
 
 pub struct SurfaceOfLinearExtrusion {
   name : String

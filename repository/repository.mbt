@@ -13,6 +13,9 @@ pub enum AnyEntity {
   Ellipse(@geometry.Ellipse)
   Parabola(@geometry.Parabola)
   Hyperbola(@geometry.Hyperbola)
+  SurfaceCurve(@geometry.SurfaceCurve)
+  PCurve(@geometry.PCurve)
+  DefinitionalRepresentation(@geometry.DefinitionalRepresentation)
   CylindricalSurface(@geometry.CylindricalSurface)
   ConicalSurface(@geometry.ConicalSurface)
   SphericalSurface(@geometry.SphericalSurface)
@@ -206,6 +209,23 @@ pub fn any_entity_ellipse(e : @geometry.Ellipse) -> AnyEntity {
 ///|
 pub fn any_entity_parabola(p : @geometry.Parabola) -> AnyEntity {
   AnyEntity::Parabola(p)
+}
+
+///|
+pub fn any_entity_surface_curve(c : @geometry.SurfaceCurve) -> AnyEntity {
+  AnyEntity::SurfaceCurve(c)
+}
+
+///|
+pub fn any_entity_pcurve(c : @geometry.PCurve) -> AnyEntity {
+  AnyEntity::PCurve(c)
+}
+
+///|
+pub fn any_entity_definitional_representation(
+  c : @geometry.DefinitionalRepresentation,
+) -> AnyEntity {
+  AnyEntity::DefinitionalRepresentation(c)
 }
 
 ///|
@@ -1043,6 +1063,9 @@ fn entity_to_step(entity : AnyEntity) -> String {
     Ellipse(e) => @step.Entity::to_step(e)
     Parabola(p) => @step.Entity::to_step(p)
     Hyperbola(h) => @step.Entity::to_step(h)
+    SurfaceCurve(c) => @step.Entity::to_step(c)
+    PCurve(c) => @step.Entity::to_step(c)
+    DefinitionalRepresentation(c) => @step.Entity::to_step(c)
     CylindricalSurface(s) => @step.Entity::to_step(s)
     ConicalSurface(s) => @step.Entity::to_step(s)
     SphericalSurface(s) => @step.Entity::to_step(s)

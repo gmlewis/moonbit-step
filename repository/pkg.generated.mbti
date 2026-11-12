@@ -95,6 +95,8 @@ pub fn any_entity_datum(@tolerancing.Datum) -> AnyEntity
 
 pub fn any_entity_datum_feature(@tolerancing.DatumFeature) -> AnyEntity
 
+pub fn any_entity_definitional_representation(@geometry.DefinitionalRepresentation) -> AnyEntity
+
 pub fn any_entity_derived_unit(@units.DerivedUnit) -> AnyEntity
 
 pub fn any_entity_derived_unit_element(@units.DerivedUnitElement) -> AnyEntity
@@ -175,6 +177,8 @@ pub fn any_entity_over_riding_styled_item(@presentation.OverRidingStyledItem) ->
 
 pub fn any_entity_parabola(@geometry.Parabola) -> AnyEntity
 
+pub fn any_entity_pcurve(@geometry.PCurve) -> AnyEntity
+
 pub fn any_entity_person(@product.Person) -> AnyEntity
 
 pub fn any_entity_person_and_organization(@product.PersonAndOrganization) -> AnyEntity
@@ -253,6 +257,8 @@ pub fn any_entity_styled_item(@presentation.StyledItem) -> AnyEntity
 
 pub fn any_entity_subface(@topology.Subface) -> AnyEntity
 
+pub fn any_entity_surface_curve(@geometry.SurfaceCurve) -> AnyEntity
+
 pub fn any_entity_surface_of_linear_extrusion(@geometry.SurfaceOfLinearExtrusion) -> AnyEntity
 
 pub fn any_entity_surface_of_revolution(@geometry.SurfaceOfRevolution) -> AnyEntity
@@ -298,6 +304,9 @@ pub enum AnyEntity {
   Ellipse(@geometry.Ellipse)
   Parabola(@geometry.Parabola)
   Hyperbola(@geometry.Hyperbola)
+  SurfaceCurve(@geometry.SurfaceCurve)
+  PCurve(@geometry.PCurve)
+  DefinitionalRepresentation(@geometry.DefinitionalRepresentation)
   CylindricalSurface(@geometry.CylindricalSurface)
   ConicalSurface(@geometry.ConicalSurface)
   SphericalSurface(@geometry.SphericalSurface)

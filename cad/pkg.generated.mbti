@@ -29,6 +29,8 @@ pub fn compile_extruded_bezier_profile(StepContext, SceneNode, ExtrudedBezierPro
 
 pub fn compile_extruded_profile(StepContext, SceneNode, ExtrudedProfile, reverse? : Bool, parent? : Transform?) -> Array[@step.Ref]
 
+pub fn compile_hex_head_pcurves(StepContext, SceneNode, HexHeadWasherFace, reverse? : Bool, parent? : Transform?) -> Array[@step.Ref]
+
 pub fn compile_hex_head_washer_face(StepContext, SceneNode, HexHeadWasherFace, reverse? : Bool, parent? : Transform?) -> Array[@step.Ref]
 
 pub fn compile_revolved_profile(StepContext, SceneNode, RevolvedProfile, reverse? : Bool, parent? : Transform?) -> Array[@step.Ref]
@@ -607,6 +609,9 @@ pub fn StepContext::add_product_definition(Self, String) -> @step.Ref
 pub fn StepContext::advanced_face(Self, Array[@step.Ref], @step.Ref, Bool) -> @step.Ref
 pub fn StepContext::axis2_placement_3d(Self, @step.Ref, @step.Ref, @step.Ref) -> @step.Ref
 pub fn StepContext::cartesian_point(Self, Double, Double, Double) -> @step.Ref
+pub fn StepContext::cartesian_point_2d(Self, Double, Double) -> @step.Ref
+pub fn StepContext::context_2d(Self) -> @step.Ref
+pub fn StepContext::definitional_representation(Self, Array[@step.Ref], @step.Ref) -> @step.Ref
 pub fn StepContext::direction(Self, Double, Double, Double) -> @step.Ref
 pub fn StepContext::edge_curve(Self, @step.Ref, @step.Ref, @step.Ref, Bool) -> @step.Ref
 pub fn StepContext::edge_loop(Self, Array[@step.Ref]) -> @step.Ref
@@ -616,6 +621,8 @@ pub fn StepContext::init_standard_context(Self, String) -> Unit
 pub fn StepContext::line(Self, @step.Ref, @step.Ref) -> @step.Ref
 pub fn StepContext::new(snapping? : Double) -> Self
 pub fn StepContext::oriented_edge(Self, @step.Ref, Bool) -> @step.Ref
+pub fn StepContext::pcurve(Self, @step.Ref, @step.Ref) -> @step.Ref
+pub fn StepContext::surface_curve(Self, @step.Ref, Array[@step.Ref]) -> @step.Ref
 pub fn StepContext::vector(Self, @step.Ref, Double) -> @step.Ref
 pub fn StepContext::vertex_point(Self, @step.Ref) -> @step.Ref
 

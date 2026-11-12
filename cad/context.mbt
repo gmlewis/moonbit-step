@@ -506,3 +506,74 @@ pub fn StepContext::add_product_definition(
   let prod_def = @product.ProductDefinition::new(" ", "", form_ref, def_ctx_ref)
   self.add(@repository.any_entity_product_definition(prod_def))
 }
+
+///|
+/// StepContext::cartesian_point_2d emits a 2D parameter-space point.
+pub fn StepContext::cartesian_point_2d(
+  self : StepContext,
+  x : Double,
+  y : Double,
+) -> @step.Ref {
+  self.add(
+    @repository.any_entity_cartesian_point(
+      @geometry.CartesianPoint::new("", [x, y]),
+    ),
+  )
+}
+
+///|
+/// StepContext::context_2d emits the 2D parametric representation context used
+/// by pcurve definitional representations.
+pub fn StepContext::context_2d(self : StepContext) -> @step.Ref {
+  let instance = @context.ComplexInstance::new([
+    @context.ComplexPart::Raw("GEOMETRIC_REPRESENTATION_CONTEXT", "(2)"),
+    @context.ComplexPart::Raw("PARAMETRIC_REPRESENTATION_CONTEXT", "()"),
+    @context.ComplexPart::Raw("REPRESENTATION_CONTEXT", "('2D SPACE','')"),
+  ])
+  self.add(@repository.any_entity_complex_instance(instance))
+}
+
+///|
+/// StepContext::definitional_representation wraps pcurve 2D items.
+pub fn StepContext::definitional_representation(
+  self : StepContext,
+  items : Array[@step.Ref],
+  context_of_items : @step.Ref,
+) -> @step.Ref {
+  self.add(
+    @repository.any_entity_definitional_representation(
+      @geometry.DefinitionalRepresentation::new("", items, context_of_items),
+    ),
+  )
+}
+
+///|
+/// StepContext::pcurve emits a PCURVE relating a 2D representation to a basis
+/// surface.
+pub fn StepContext::pcurve(
+  self : StepContext,
+  basis_surface : @step.Ref,
+  reference_to_curve : @step.Ref,
+) -> @step.Ref {
+  self.add(
+    @repository.any_entity_pcurve(
+      @geometry.PCurve::new("", basis_surface, reference_to_curve),
+    ),
+  )
+}
+
+///|
+/// StepContext::surface_curve emits a 3D curve with its pcurves.
+pub fn StepContext::surface_curve(
+  self : StepContext,
+  curve_3d : @step.Ref,
+  associated_geometry : Array[@step.Ref],
+) -> @step.Ref {
+  self.add(
+    @repository.any_entity_surface_curve(
+      @geometry.SurfaceCurve::new(
+        "", curve_3d, associated_geometry, ".PCURVE_S1.",
+      ),
+    ),
+  )
+}

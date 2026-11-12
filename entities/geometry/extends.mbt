@@ -76,6 +76,15 @@ pub extend HalfSpaceSolid with @step.Entity::{to_step}
 pub extend Hyperbola with @step.Entity::{to_step}
 
 ///|
+pub extend SurfaceCurve with @step.Entity::{to_step}
+
+///|
+pub extend PCurve with @step.Entity::{to_step}
+
+///|
+pub extend DefinitionalRepresentation with @step.Entity::{to_step}
+
+///|
 pub extend Line with @step.Entity::{to_step}
 
 ///|
