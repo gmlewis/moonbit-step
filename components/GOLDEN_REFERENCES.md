@@ -458,3 +458,20 @@ Recorded reference contradictions: the M5 reference uses the old DIN 934 height
 radius 3.83 mm instead of the regular hexagon's 4.041 mm (2.8% volume). The
 library keeps the ISO dimensions. The fully-modeled (helical) nut still carries
 the ruled planar face band so the swept ridge stays on a simple envelope.
+
+### ISO 10642 countersunk socket screw (084)
+
+The `iso10642_socket_countersunk_screw_m3x12.step` reference uses a different
+detailed profile from the simpler countersunk references. The Detailed
+unthreaded envelope now models it exactly: a nominal-diameter shank (r = 1.5 for
+M3, not the ISO 68-1 minor diameter used at Simplified), a 45-degree countersink
+with a 22.5-degree conical top-edge break (0.05 mm inset from the sharp dk/2), a
+0.2 mm shank-tip break, and a conical socket (45-degree rim over a hexagon at
+the nominal 2.0 mm across flats, 70-degree drill point) whose hexagon corners
+reach the head underside. Measured: volume 96.4781 vs 96.4878 mm3 (0.01%),
+bidirectional surface deviation max 0.0047 mm, SolidCraft imports with no
+warnings. The reference socket reaches the head underside and its drill point
+enters the shank, deeper than ISO 10642's nominal t = 1.2 mm; the deeper
+reference socket is modeled and both values are recorded. The Simplified and
+fully-threaded variants keep the ISO edge-radius arc and the minor-diameter
+shank that the simpler countersunk references use.

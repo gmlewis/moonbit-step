@@ -1,4 +1,15 @@
 ///|
+/// COUNTERSUNK_HEAD_TOP_INSET_MM is the detailed ISO 10642 reference's flush-top
+/// inset from the sharp head radius. ISO 10642 fixes dk and the edge radius but
+/// not this conical top-edge break; 0.05 mm reproduces the detailed reference.
+const COUNTERSUNK_HEAD_TOP_INSET_MM : Double = 0.05
+
+///|
+/// COUNTERSUNK_TIP_BREAK_MM is the detailed ISO 10642 reference's 45-degree
+/// shank-tip break (ISO 10642 does not fix it).
+const COUNTERSUNK_TIP_BREAK_MM : Double = 0.2
+
+///|
 /// iso10642_screw builds an ISO 10642 countersunk head hexagon socket screw.
 ///
 /// The head is a 90-degree included-angle countersink cone with a flush top
@@ -65,15 +76,22 @@ fn countersunk_screw(
   let r_sharp = big_r
   let r_edge = dims.head_edge_radius_mm
   let root2 = Double::sqrt(2.0)
-  let r_top = r_sharp - r_edge * (1.0 + root2)
-  let z_t = -r_edge * (1.0 + 1.0 / root2)
-  let r_t = r_sharp + z_t
   let threaded = thread_rep is @common.ThreadRepresentation::Helical
+  // The Detailed unthreaded envelope models the shank at the nominal major
+  // diameter and the head as the reference's two-cone profile: a 45-degree
+  // countersink from the shank up to the head edge, then a 22.5-degree conical
+  // top-edge break to the flush top face. The Simplified and threaded variants
+  // keep the ISO head edge radius as a true arc and the ISO 68-1 minor-diameter
+  // shank, matching the simpler downloaded references.
+  let detailed = policy.include_small_features && !threaded
   let head_height = if threaded { r_sharp - r_sh } else { k }
-  let r_base = r_sharp - head_height
   let head_z = length - head_height
   let tip = if policy.include_small_features {
-    let raw = shank_tip_chamfer_mm(d)
+    let raw = if detailed {
+      COUNTERSUNK_TIP_BREAK_MM
+    } else {
+      shank_tip_chamfer_mm(d)
+    }
     if raw < head_z / 4.0 {
       raw
     } else {
@@ -83,10 +101,10 @@ fn countersunk_screw(
     0.0
   }
   let thread_length = head_z
-  // Without modeled threads the shank uses the ISO 68-1 basic internal minor
-  // diameter D1, matching the downloaded countersunk goldens.
   let core_d = if threaded {
     thread.external_minor_diameter_mm()
+  } else if detailed {
+    d
   } else {
     thread.internal_minor_diameter_mm()
   }
@@ -99,20 +117,63 @@ fn countersunk_screw(
     pts.push((core_r, 0.0))
   }
   pts.push((core_r, head_z))
-  if core_r < r_base - FASTENER_EPS {
-    pts.push((r_base, head_z))
+  let body = if detailed {
+    let inset = COUNTERSUNK_HEAD_TOP_INSET_MM
+    let r_top = r_sharp - inset
+    let t225 = @math.tan(22.5 * @math.PI / 180.0)
+    let z_c = (r_top - core_r - k) / (1.0 + t225)
+    let r_c = core_r + k + z_c
+    pts.push((r_c, length + z_c))
+    pts.push((r_top, length))
+    pts.push((0.0, length))
+    let segs : Array[@cad.RevSegment] = []
+    for i in 0..<(pts.length() - 1) {
+      segs.push(@cad.RevLine(pts[i], pts[i + 1]))
+    }
+    @cad.RevolvedProfile::new(segs)
+  } else {
+    let r_top = r_sharp - r_edge * (1.0 + root2)
+    let z_t = -r_edge * (1.0 + 1.0 / root2)
+    let r_t = r_sharp + z_t
+    let r_base = r_sharp - head_height
+    if core_r < r_base - FASTENER_EPS {
+      pts.push((r_base, head_z))
+    }
+    let segs : Array[@cad.RevSegment] = []
+    for i in 0..<(pts.length() - 1) {
+      segs.push(@cad.RevLine(pts[i], pts[i + 1]))
+    }
+    segs.push(@cad.RevLine((r_base, head_z), (r_t, length + z_t)))
+    segs.push(
+      @cad.RevArc(
+        (r_t, length + z_t),
+        (r_top, length),
+        (r_top, length - r_edge),
+      ),
+    )
+    segs.push(@cad.RevLine((r_top, length), (0.0, length)))
+    @cad.RevolvedProfile::new(segs)
   }
-  let segs : Array[@cad.RevSegment] = []
-  for i in 0..<(pts.length() - 1) {
-    segs.push(@cad.RevLine(pts[i], pts[i + 1]))
+  let socket = if detailed {
+    // The reference socket is a conical 45-degree countersink over a hexagon
+    // whose corners reach the head underside, with a 70-degree drill point
+    // continuing into the shank.
+    let s_nom = dims.socket_across_flats_mm
+    let r_corner = s_nom / Double::sqrt(3.0)
+    let tan70 = @math.tan(70.0 * @math.PI / 180.0)
+    let floor_apex = length - k - r_corner / tan70
+    @cad.SocketedSolid::new(
+      body,
+      s_nom,
+      floor_apex,
+      conical=true,
+      rim_angle_deg=45.0,
+      floor_angle_deg=70.0,
+      rotation_deg=0.0,
+    )
+  } else {
+    @cad.SocketedSolid::new(body, s, length - t)
   }
-  segs.push(@cad.RevLine((r_base, head_z), (r_t, length + z_t)))
-  segs.push(
-    @cad.RevArc((r_t, length + z_t), (r_top, length), (r_top, length - r_edge)),
-  )
-  segs.push(@cad.RevLine((r_top, length), (0.0, length)))
-  let body = @cad.RevolvedProfile::new(segs)
-  let socket = @cad.SocketedSolid::new(body, s, length - t)
   let mut component = base.add_layer(
     socket.as_shape(),
     name="body",

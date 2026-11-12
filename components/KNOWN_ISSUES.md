@@ -525,3 +525,8 @@ approximations are recorded above and in `FEATURES.md`.
   uses the ruled planar face band. The M4/M5/M8 downloaded references disagree
   with ISO 4032 on corner rounding (M4) and height (M5, M8); the standard values
   are modeled.
+
+- ISO 10642 Detailed uses the reference's deeper socket (hexagon corners at the
+  head underside, drill point in the shank) rather than the nominal t = 1.2 mm;
+  the Simplified and fully-threaded variants keep the ISO minor-diameter shank
+  and arc edge radius.

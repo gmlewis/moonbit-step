@@ -504,10 +504,11 @@ test "iso10642 M4x16 detailed countersunk head dimensions and layers" {
     Err(e) => abort(e.message())
   }
   let (x0, x1, _y0, _y1, z0, z1) = screw.bounding_box()
-  // ISO 10642:2026 head: sharp dk 8.0, edge radius 0.2; the in-memory
-  // envelope is the head edge torus outer radius.
-  assert_true(close(x0, -3.717142227893211))
-  assert_true(close(x1, 3.717142227893211))
+  // The detailed reference head: a 45-degree countersink with a 22.5-degree
+  // conical top-edge break at 0.05 mm inset. The maximum radius is 4.0525 mm,
+  // within ISO 10642's dk_max/2 = 4.48 mm for M4.
+  assert_true(close(x0, -4.052512626584709))
+  assert_true(close(x1, 4.052512626584709))
   // Datum is the flush top face: top at 0, tip at -length.
   assert_true(close(z0, -16.0))
   assert_true(close(z1, 0.0))
@@ -1014,4 +1015,30 @@ test "detailed M2 nut is the 75-degree reference variant" {
     Err(_) => abort("nut volume unavailable")
   }
   assert_true((volume - 17.079).abs() < 0.01)
+}
+
+///|
+test "detailed ISO 10642 M3x12 uses the reference countersunk profile" {
+  let screw = match
+    @fasteners.iso10642_screw(@standards.M3, 12.0, detail=Detailed) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  let (x0, x1, _y0, _y1, z0, z1) = screw.bounding_box()
+  assert_true(close(x0, -3.0232233047033636))
+  assert_true(close(x1, 3.0232233047033636))
+  assert_true(close(z0, -12.0))
+  assert_true(close(z1, 0.0))
+  let layers = screw.layers()
+  assert_true(layers.length() == 1)
+  let inv = layers[0].shape.surface_inventory()
+  assert_true(inv.plane == 8)
+  assert_true(inv.cone == 5)
+  assert_true(inv.cylinder == 1)
+  let volume = match layers[0].shape.analysis_volume() {
+    Ok(v) => v
+    Err(_) => abort("countersunk volume unavailable")
+  }
+  // The downloaded M3 x 12 countersunk reference is 96.4878 mm3.
+  assert_true((volume - 96.4878).abs() < 0.05)
 }

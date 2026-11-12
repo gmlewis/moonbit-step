@@ -94,10 +94,12 @@ ISO7380 = {
 }
 ISO10642 = {
     # ISO 10642:2026 reference profile (sharp dk, reference k, s_max, t).
-    # dk here is the measured envelope of the generated cone/edge torus.
-    "M3": dict(d=3.0, dk=6.104, k=1.70, s=2.08, t=1.20),
-    "M4": dict(d=4.0, dk=8.0468, k=2.30, s=2.58, t=1.65),
-    "M5": dict(d=5.0, dk=10.181, k=2.80, s=3.08, t=2.00),
+    # dk here is the measured envelope of the simplified cone/edge-torus head.
+    # The Detailed head uses the reference two-cone profile (45-degree
+    # countersink + 22.5-degree top-edge break) and the nominal socket s_nom.
+    "M3": dict(d=3.0, dk=6.104, dk_sharp=6.0, k=1.70, s=2.08, s_nom=2.0, t=1.20),
+    "M4": dict(d=4.0, dk=8.0468, dk_sharp=8.0, k=2.30, s=2.58, s_nom=2.5, t=1.65),
+    "M5": dict(d=5.0, dk=10.181, dk_sharp=10.0, k=2.80, s=3.08, s_nom=3.0, t=2.00),
 }
 DIN976 = {
     "M2": dict(d=2.0),
@@ -199,6 +201,8 @@ def tip_chamfer(d: float) -> float:
 SOCKET_HEAD_BREAK_MM = 0.1
 SOCKET_TIP_BREAK_MIN_MM = 0.4
 SOCKET_DRILL_CLEARANCE_MM = 0.3
+COUNTERSUNK_TIP_BREAK_MM = 0.2
+COUNTERSUNK_HEAD_TOP_INSET_MM = 0.05
 
 
 def socket_tip_chamfer(d: float) -> float:
@@ -568,14 +572,41 @@ def chamfer_checks(
         if detail == "simplified":
             add("socket-sharp", ring_present(rings, length, hex_circumradius(s), 6),
                 ring_report(rings, length, hex_circumradius(s), 6))
+        elif detail == "detailed":
+            # Detailed reference: nominal-diameter shank, a 45-degree
+            # countersink with a 22.5-degree top-edge break, and a conical
+            # socket (45-degree rim over a hexagon whose corners reach the head
+            # underside, 70-degree drill point).
+            s_nom = p["s_nom"]
+            r_corner = hex_circumradius(s_nom)
+            add("socket-rim-corners", ring_present(rings, length, r_corner, 6),
+                ring_report(rings, length, r_corner, 6))
+            add("socket-floor-corners", ring_present(rings, length - k, r_corner, 6),
+                ring_report(rings, length - k, r_corner, 6))
+            add("socket-cones",
+                cone_present(feats, 0.0, 45.0) and cone_present(feats, 0.0, 70.0),
+                f"rim 45: {cone_report(feats, 0.0, 45.0)}; floor 70: {cone_report(feats, 0.0, 70.0)}")
+            add("shank-nominal", cylinder_present(feats, d / 2.0),
+                f"cylinder r={d/2.0:.4f}")
+            add("head-countersink-cone", cone_present(feats, d / 2.0, 45.0),
+                cone_report(feats, d / 2.0, 45.0))
+            t225 = math.tan(math.radians(22.5))
+            r_top = p["dk_sharp"] / 2.0 - 0.05
+            z_c = (r_top - d / 2.0 - k) / (1.0 + t225)
+            r_c = d / 2.0 + k + z_c
+            add("head-edge-cone", cone_present(feats, r_c, 22.5),
+                cone_report(feats, r_c, 22.5))
+            add("shank-tip-chamfer",
+                ring_present(rings, 0.0, d / 2.0 - COUNTERSUNK_TIP_BREAK_MM, 1),
+                ring_report(rings, 0.0, d / 2.0 - COUNTERSUNK_TIP_BREAK_MM, 1))
         else:
             add("socket-rim-sharp", ring_present(rings, length, hex_circumradius(s), 6),
                 ring_report(rings, length, hex_circumradius(s), 6))
             add("socket-floor", ring_present(rings, length - t, hex_circumradius(s), 6),
                 ring_report(rings, length - t, hex_circumradius(s), 6))
             tc = tip_chamfer(d)
-            # Unthreaded shanks are at D1; the swept ridge core is at d3.
-            full_d = minor(d, PITCH[size]) if detail == "full" else minor_d1(d, PITCH[size])
+            # The swept-ridge core is at d3.
+            full_d = minor(d, PITCH[size])
             r_tip = full_d / 2.0 - tc
             add("shank-tip-chamfer",
                 cone_present(feats, full_d / 2.0, 45.0) and ring_present(rings, 0.0, r_tip, 1),
@@ -728,7 +759,7 @@ def compare_cell(
         got = extents(measured["bbox"])
         want = expected_bbox(family, size, length)
         if family in ("iso4017", "iso4014") or (
-            family == "iso4032" and detail == "detailed"
+            family in ("iso4032", "iso10642") and detail == "detailed"
         ):
             # OCCT Bnd_Box uses the untrimmed conical washer face and reports a
             # loose box (extended toward the cone apex). The head-base,

@@ -607,10 +607,11 @@
       "parametric_value": {
         "head_diameter_mm": 6.0,
         "head_angle_deg": 90.0,
-        "length_mm": 12.0
+        "length_mm": 12.0,
+        "volume_mm3": 96.4781
       },
       "verdict": "accepted-envelope",
-      "notes": "The reference head profile (sharp dk 6.0, k 1.7, edge radius 0.1275, top face 2.6922) is within ISO 10642:2026 and is matched exactly. The reference socket across flats is 2.10 mm, above the ISO maximum 2.08; the parametric part uses 2.08.",
+      "notes": "Detailed reference: nominal-diameter shank, a 45-degree countersink with a 22.5-degree conical top-edge break (0.05 mm inset), and a conical socket (45-degree rim over a hexagon at the nominal 2.0 mm across flats, 70-degree drill point). The reference socket reaches the head underside at the hex corners and its drill point enters the shank, deeper than ISO 10642's nominal t = 1.2 mm; the deeper reference socket is modeled and recorded. Volume 96.478 vs 96.488 mm3 (0.01%).",
       "committed": false,
       "generation": {
         "tool": "components/examples/fasteners",
@@ -633,7 +634,7 @@
         "bbox_axes": [
           {
             "axis": 0,
-            "expected_mm": 6.104,
+            "expected_mm": 6.0464,
             "label": "head diameter"
           },
           {
@@ -645,7 +646,7 @@
         "features": [
           {
             "kind": "cone_min_count",
-            "min_count": 1
+            "min_count": 5
           },
           {
             "kind": "cone_semi_angle_deg",
@@ -654,8 +655,13 @@
           },
           {
             "kind": "max_vertex_radius_mm",
-            "expected": 2.7823,
+            "expected": 3.0232,
             "tol_mm": 0.01
+          },
+          {
+            "kind": "cone_semi_angle_deg",
+            "expected": 70.0,
+            "tol_deg": 0.5
           }
         ]
       }
