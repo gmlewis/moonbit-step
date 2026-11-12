@@ -49,6 +49,8 @@ pub fn compile_socketed_solid(StepContext, SceneNode, SocketedSolid, reverse? : 
 
 pub fn compile_square_hole_washer(StepContext, SceneNode, SquareHoleWasher, reverse? : Bool, parent? : Transform?) -> Array[@step.Ref]
 
+pub fn compile_square_nut(StepContext, SceneNode, SquareNut, reverse? : Bool, parent? : Transform?) -> Array[@step.Ref]
+
 pub fn compile_tab_washer(StepContext, SceneNode, TabWasher, reverse? : Bool, parent? : Transform?) -> Array[@step.Ref]
 
 pub fn conical_nut_bounding_box(ConicalNut) -> (Double, Double, Double, Double, Double, Double)
@@ -106,6 +108,10 @@ pub fn slit_tube_mesh(SlitTube, arc_segments? : Int32) -> (Array[(Double, Double
 pub fn snap_double(Double, Double?) -> Double
 
 pub fn socketed_solid_mesh(SocketedSolid, angular_segments? : Int32, arc_segments? : Int32) -> (Array[(Double, Double, Double)], Array[Array[Int32]])
+
+pub fn square_nut_bounding_box(SquareNut) -> (Double, Double, Double, Double, Double, Double)
+
+pub fn square_nut_mesh(SquareNut, angular_segments? : Int32) -> (Array[(Double, Double, Double)], Array[Array[Int32]])
 
 pub fn text_at(String, Double, Double, Double, font~ : @fonts.Font, font_size? : Double, max_width? : Double, emboss_depth? : Double, rx? : Double, ry? : Double, rz? : Double, segments? : Int32) -> Array[SceneNode]
 
@@ -579,6 +585,7 @@ pub enum Shape {
   ConicalNut(ConicalNut)
   SlitTube(SlitTube)
   AcornNut(AcornNut)
+  SquareNut(SquareNut)
   CalibrationChamferBlock(CalibrationChamferBlock)
   ExtrudedProfile(ExtrudedProfile)
   ExtrudedArcProfile(ExtrudedArcProfile)
@@ -648,6 +655,18 @@ pub struct SquareHoleWasher {
 }
 pub fn SquareHoleWasher::as_shape(Self) -> Shape
 pub fn SquareHoleWasher::new(outer_diameter_mm~ : Double, square_side_mm~ : Double, thickness_mm~ : Double) -> Self
+
+pub struct SquareNut {
+  across_flats_mm : Double
+  height_mm : Double
+  bore_diameter_mm : Double
+  face_angle_deg : Double
+  rotation_deg : Double
+}
+pub fn SquareNut::as_shape(Self) -> Shape
+pub fn SquareNut::centroid(Self) -> (Double, Double, Double)
+pub fn SquareNut::new(across_flats_mm~ : Double, height_mm~ : Double, bore_diameter_mm~ : Double, face_angle_deg? : Double, rotation_deg? : Double) -> Self
+pub fn SquareNut::volume(Self) -> Double
 
 pub struct StepContext {
   mut repo : @repository.Repository

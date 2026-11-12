@@ -530,6 +530,13 @@ approximations are recorded above and in `FEATURES.md`.
   6.45 vs 7.42, M5 7.75 vs 9.42, M6 9.75 vs 11.30, M8 12.75 vs 14.30). The
   builder has no golden counterpart; its cap radius fit and 1.0 mm wall are
   recorded engineering defaults, and the thread form is a typed omission.
+
+- DIN 557 square nuts were added on 2026-11-12 (`din557_square_nut`, backed by
+  `cad.SquareNut`) and match their three references. The references cut each
+  vertical corner with a 0.0014 mm-deep coaxial arc and emit it as a cylindrical
+  face; the library keeps the standard sharp corner. That, plus the sampled
+  B-spline hyperbola edges, accounts for the 0.02% STEP volume difference; the
+  analytic volume matches the references to about 0.002 mm3.
 - Gears (spur m2 z20/z40) still use the existing approximating tooth flank;
   the reference volumes differ by about 20%, so they are recorded as an
   approximation, not a match.

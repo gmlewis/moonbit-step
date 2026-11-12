@@ -373,6 +373,7 @@ fn compile_node_shape(
     SocketedSolid(s) => compile_socketed_solid(ctx, node, s, reverse~, parent~)
     ConicalNut(n) => compile_conical_nut(ctx, node, n, reverse~, parent~)
     AcornNut(n) => compile_acorn_nut(ctx, node, n, reverse~, parent~)
+    SquareNut(n) => compile_square_nut(ctx, node, n, reverse~, parent~)
     SlitTube(t) => compile_slit_tube(ctx, node, t, reverse~, parent~)
     CalibrationChamferBlock(b) =>
       compile_calibration_chamfer_block(ctx, node, b, reverse~, parent~)

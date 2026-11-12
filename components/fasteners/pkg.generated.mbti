@@ -22,6 +22,8 @@ pub fn din1587_acorn_nut(@standards.MetricSize, detail? : @common.DetailLevel, c
 
 pub fn din440_washer(@standards.MetricSize, detail? : @common.DetailLevel, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
+pub fn din557_square_nut(@standards.MetricSize, detail? : @common.DetailLevel, clearance_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
 pub fn din7349_washer(@standards.MetricSize, detail? : @common.DetailLevel, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
 pub fn din913(@standards.MetricSize, Double, detail? : @common.DetailLevel, threads? : @common.ThreadRepresentation, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]

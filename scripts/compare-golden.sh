@@ -262,6 +262,9 @@ def infer(name, detail):
     m = re.match(r"^din93_m(\d+(?:p\d+)?)tabwasher\.step$", name)
     if m:
         return fastener("din93", m.group(1), None, detail)
+    m = re.match(r"^iso_metric_square_nut_m(\d+(?:p\d+)?)_simple\.step$", name)
+    if m:
+        return fastener("din557", m.group(1), None, detail)
     m = re.match(r"^iso_metric_threaded_rod_m(\d+(?:p\d+)?)_l(\d+)_simple\.step$", name)
     if m:
         return fastener("din976", m.group(1), m.group(2), detail)
@@ -347,6 +350,12 @@ def adjust_for_golden(name, tool, args, detail, detail_explicit):
             text = ""
         if "TOROIDAL_SURFACE" in text and "--simple-reference" not in args:
             args.append("--simple-reference")
+    if tool.endswith("/fasteners") and arg_value(args, "--standard") == "din557":
+        note = (
+            "reference cuts each vertical corner with a 0.0014 mm coaxial arc "
+            "(4 extra cylindrical faces); the parametric model keeps sharp "
+            "standard corners"
+        )
     if tool.endswith("/fasteners") and name.endswith("_simple.step"):
         # The catalogue's "_simple" models are the unthreaded/sharp-feature
         # representation. Whether that is the library's Simplified or Detailed

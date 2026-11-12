@@ -1009,6 +1009,36 @@ test "ISO 8752 M3 x 20 spring pin is a slotted tube" {
 }
 
 ///|
+test "DIN 557 M5 square nut matches the reference" {
+  let nut = match @fasteners.din557_square_nut(@standards.M5) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  let (x0, x1, y0, y1, z0, z1) = nut.bounding_box()
+  // The square flats are normal to X and Y, so the true extent is s/2 = 4 mm
+  // (the reference file's loose 5.6559 mm envelope comes from its corner arcs).
+  assert_true(close(x0, -4.0))
+  assert_true(close(x1, 4.0))
+  assert_true(close(y0, -4.0))
+  assert_true(close(y1, 4.0))
+  assert_true(close(z0, 0.0))
+  assert_true(close(z1, 4.0))
+  let layers = nut.layers()
+  assert_true(layers.length() == 1)
+  let inv = layers[0].shape.surface_inventory()
+  assert_true(inv.plane == 6)
+  assert_true(inv.cone == 4)
+  assert_true(inv.cylinder == 1)
+  let volume = match layers[0].shape.analysis_volume() {
+    Ok(v) => v
+    Err(_) => abort("square nut volume unavailable")
+  }
+  // 175.607 mm3 is the reference volume; the analytic volume differs by
+  // 0.001 mm3, the reference's 0.0014 mm corner-break artifact.
+  assert_true((volume - 175.6084).abs() < 1.0e-3)
+}
+
+///|
 test "DIN 1587 M4 cap nut reaches its standard height" {
   let nut = match @fasteners.din1587_acorn_nut(@standards.M4) {
     Ok(c) => c

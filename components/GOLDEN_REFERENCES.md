@@ -440,15 +440,17 @@ acceptance criterion; this tool is for the visual review.
   length (`l025` is 50 mm, `l200` is 400 mm). The library follows the label
   (25/200 mm) and its ends carry 45-degree lead-in cones where the references
   are sharp; both differences are recorded, not copied.
-- **Not implemented in this session:** ISO 1234 cotter pins (142-148), square
-  nuts (195-197), the B-slot6 profile (212), cup-point set screws (213-223),
-  and the ISO 10642 socket rims (084). Each needs a non-axisymmetric cut or a
-  socket rim representation that the flat writer did not yet carry safely. The
-  ISO 8752 spring pins (167-190) were built later in this session with a
-  dedicated `SlitTube` construction; their references were deleted (see the
-  spring-pin deletion note below). The DIN 1587 cap nuts (191-194) were built
-  later in this session as `AcornNut`; their references were deleted (see the
-  cap-nut deletion note below).
+- **Not implemented in this session:** ISO 1234 cotter pins (142-148), the
+  B-slot6 profile (212), cup-point set screws (213-223), and the ISO 10642
+  socket rims (084). Each needs a non-axisymmetric cut or a socket rim
+  representation that the flat writer did not yet carry safely. The ISO 8752
+  spring pins (167-190) were built later in this session with a dedicated
+  `SlitTube` construction; their references were deleted (see the spring-pin
+  deletion note below). The DIN 1587 cap nuts (191-194) were built later in
+  this session as `AcornNut`; their references were deleted (see the cap-nut
+  deletion note below). The DIN 557 square nuts (195-197) were built later in
+  this session as `SquareNut`; they match their references (see the square-nut
+  note below).
 
 ### ISO 4032 nuts (082, 083, 086-090) — conical washer faces
 
@@ -649,3 +651,28 @@ spherical cap fitted to `dk` at the body top and `h` at the apex, over a
 concentric spherical cavity with a uniform 1.0 mm wall. The cap radius and wall
 are recorded engineering defaults; DIN 1587 does not fix them. The internal
 thread form is a typed omission. The builder has no golden counterpart.
+
+### DIN 557 square nuts match their references (2026-11-12)
+
+The three `iso_metric_square_nut_*_simple` references are DIN 557 square nuts
+with `s` = 8/10/13 mm, `m` = 4/5/6.5 mm and a single 75-degree conical washer
+face on the top bearing face (the standard chamfers one face only). The
+library's `din557_square_nut` now reproduces them:
+
+| Size | Reference volume | Analytic volume | Reference bbox | Analytic bbox |
+|---|---:|---:|---|---|
+| M5 | 175.607 | 175.6084 | ±5.6559 | ±5.6569 |
+| M6 | 355.010 | 355.0117 | ±7.0701 | ±7.0711 |
+| M8 | 763.826 | 763.8285 | ±9.1914 | ±9.1925 |
+
+The 0.001 mm linear and 0.002 mm3 volume differences are the references'
+corner-break artifact: each vertical corner is cut by a coaxial circular arc of
+radius ~5.6559 mm (sagitta 0.0014 mm) instead of a sharp corner. The references
+model those arcs as four extra `CYLINDRICAL_SURFACE` faces (15 faces: 6 planes,
+5 cylinders, 4 cones); the parametric model keeps the standard sharp corner
+(11 faces: 6 planes, 1 cylinder, 4 cones). Everything else matches: the four
+flats at s/2, the bore, the 75-degree cone, the chamfer depths (0.444/0.554/
+0.721 mm for M5/M6/M8), and the z = 0 and z = m vertex rings. The emitted STEP
+volume measures about 0.02% below the analytic value because the flat/cone
+hyperbola edges are sampled B-splines; the analytic value is the library's
+intent and agrees with the reference.

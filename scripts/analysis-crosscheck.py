@@ -90,6 +90,13 @@ MATRIX = [
         "skip_bbox": "the slot cuts the outer cylinder at y = +/- 0.09 d, so OCCT's tight envelope is narrower than the intent cylinder envelope",
     },
     {
+        "name": "DIN557-M5-detailed",
+        "args": ["--standard", "din557", "--size", "M5", "--detail", "detailed"],
+        "sections": [1.5, 3.8],
+        "skip_bbox": "OCCT Bnd_Box of the untrimmed washer-face cone overestimates the square's extent; the analytic trimmed envelope is authoritative",
+        "skip_extents": "square corners sit at 45 degrees, so the section width is the across-flats size while the analytic outer radius is the corner radius",
+    },
+    {
         "name": "DIN1587-M6-detailed",
         "args": ["--standard", "din1587", "--size", "M6", "--detail", "detailed"],
         "sections": [1.0, 8.0],

@@ -424,6 +424,20 @@ pub struct AcornNut {
 }
 
 ///|
+/// SquareNut is a DIN 557 square nut: a square prism with a conical washer
+/// face on the top bearing face and a circular through bore. The bottom face
+/// is flat, as DIN 557 specifies a chamfer on one face only.
+pub struct SquareNut {
+  across_flats_mm : Double
+  height_mm : Double
+  bore_diameter_mm : Double
+  face_angle_deg : Double
+  /// Corner clocking in degrees (vertices at rotation + 90 i; flats at
+  /// rotation + 45 + 90 i).
+  rotation_deg : Double
+}
+
+///|
 pub enum Shape {
   Cuboid(Cuboid)
   Cylinder(Cylinder)
@@ -433,6 +447,7 @@ pub enum Shape {
   ConicalNut(ConicalNut)
   SlitTube(SlitTube)
   AcornNut(AcornNut)
+  SquareNut(SquareNut)
   CalibrationChamferBlock(CalibrationChamferBlock)
   ExtrudedProfile(ExtrudedProfile)
   ExtrudedArcProfile(ExtrudedArcProfile)
@@ -606,6 +621,7 @@ pub fn Shape::bounding_box(
       (-r, r, -r, r, 0.0, t.length_mm)
     }
     AcornNut(n) => acorn_nut_bounding_box(n)
+    SquareNut(n) => square_nut_bounding_box(n)
     CalibrationChamferBlock(b) =>
       (0.0, b.length_mm, 0.0, b.width_mm, 0.0, b.height_mm)
     ExtrudedProfile(e) => {

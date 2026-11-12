@@ -26,6 +26,10 @@ pub fn din440_size(MetricSize) -> Result[DIN440Size, @common.SpecError]
 
 pub fn din440_spec(MetricSize) -> Result[DIN440Spec, @common.SpecError]
 
+pub fn din557_size(MetricSize) -> Result[DIN557Size, @common.SpecError]
+
+pub fn din557_spec(MetricSize, clearance_mm? : Double) -> Result[DIN557Spec, @common.SpecError]
+
 pub fn din7349_size(MetricSize) -> Result[DIN7349Size, @common.SpecError]
 
 pub fn din7349_spec(MetricSize) -> Result[DIN7349Spec, @common.SpecError]
@@ -153,6 +157,25 @@ pub fn DIN440Spec::metadata(Self) -> @common.Metadata
 pub fn DIN440Spec::size(Self) -> MetricSize
 pub fn DIN440Spec::source() -> String
 pub fn DIN440Spec::standard() -> String
+
+pub(all) struct DIN557Size {
+  size : MetricSize
+  thread : ThreadSpec
+  width_across_flats_mm : Double
+  across_corners_mm : Double
+  height_mm : Double
+}
+
+pub(all) struct DIN557Spec {
+  size_dims : DIN557Size
+  clearance_mm : Double
+}
+pub fn DIN557Spec::designation(Self) -> String
+pub fn DIN557Spec::metadata(Self) -> @common.Metadata
+pub fn DIN557Spec::size(Self) -> MetricSize
+pub fn DIN557Spec::source() -> String
+pub fn DIN557Spec::standard() -> String
+pub fn DIN557Spec::thread(Self) -> ThreadSpec
 
 pub(all) struct DIN7349Size {
   size : MetricSize

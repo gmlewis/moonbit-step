@@ -47,6 +47,27 @@ fn unwrap7089_size(s : @standards.MetricSize) -> @standards.ISO7089Size {
 }
 
 ///|
+test "DIN 557 square nut table" {
+  let m5 = match @standards.din557_size(@standards.M5) {
+    Ok(v) => v
+    Err(e) => abort(e.message())
+  }
+  assert_true(close(m5.width_across_flats_mm, 8.0))
+  assert_true(close(m5.across_corners_mm, 11.3))
+  assert_true(close(m5.height_mm, 4.0))
+  // DIN 557 begins at M5.
+  match @standards.din557_size(@standards.M4) {
+    Ok(_) => abort("M4 must not be a DIN 557 size")
+    Err(_) => ()
+  }
+  let spec = match @standards.din557_spec(@standards.M8) {
+    Ok(v) => v
+    Err(e) => abort(e.message())
+  }
+  assert_true(spec.designation() == "DIN 557 - M8")
+}
+
+///|
 test "DIN 1587 cap nut table" {
   let m4 = match @standards.din1587_size(@standards.M4) {
     Ok(v) => v
