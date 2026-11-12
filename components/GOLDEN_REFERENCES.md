@@ -520,3 +520,23 @@ and added to `EXCLUDED_PART_IDS` in `scripts/fetch_golden_references.py` so they
 are never downloaded again. The remaining ISO 4032 references are
 `hex_nut_m2_simple`, `hex_nut_m2p5_simple`, `iso4032_hex_nut_m3` and
 `iso4032_hex_nut_m6`, whose heights (1.6, 2.0, 2.4, 5.2 mm) match ISO 4032.
+
+### ISO 4762 has two reference constructions — simple representation added
+
+The canonical ISO 4762 references come from two sources. Twenty-seven of the
+thirty carry a **TOROIDAL_SURFACE** and are the simple construction: nominal
+shank, a tip break equal to the thread pitch, a 0.001 mm under-head relief over
+0.2 mm, a head with a 0.0277 mm rounded top edge, and a sharp blind hex socket
+whose across flats is the ISO nominal + 0.06 mm, with a flat floor at that same
+distance below the top. The other three (M3 x 10/12/20, M4 x 6/20, M6 x 40) are
+the detailed construction with a conical socket rim and drill point.
+
+`components/examples/fasteners --standard iso4762 ... --simple-reference`
+reproduces the simple source exactly: for M2.5 x 10 it gives 15 faces
+(plane 10 / cone 2 / cylinder 2 / torus 1), volume 80.5746 mm3 against the
+reference's 80.5746, identical vertex rings and 0.011 mm maximum surface
+deviation. `compare-golden.sh` selects it automatically whenever the golden
+contains a TOROIDAL_SURFACE. The detailed conical references keep the documented
+differences (the reference splits the rim cone into six entities and its
+M4/M6 corners are rounded, so the surface-entity counts differ while the volume
+is within 0.9%).

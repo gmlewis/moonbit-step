@@ -543,3 +543,10 @@ approximations are recorded above and in `FEATURES.md`.
 - The ISO 4032 M5 and M8 downloaded references used the old DIN 934 heights
   (4.0 and 6.5 mm) instead of ISO 4032's 4.7 and 6.8 mm. Both were deleted on
   2026-11-12 and added to `EXCLUDED_PART_IDS`; the library keeps the ISO heights.
+
+- ISO 4762 Detailed now has two representations: the simple reference source
+  (flat socket, rounded head-top edge, pitch tip break; `--simple-reference`)
+  and the detailed conical-socket source. The three detailed conical references
+  (M4 x 6/20, M6 x 40) still split their rim cone into six entities and carry
+  rounded corners, so their surface-entity counts differ from the shared-entity
+  parametric model.

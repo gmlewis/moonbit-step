@@ -78,7 +78,7 @@ pub fn iso4017_screw(@standards.ISO4017Spec, detail? : @common.DetailLevel, thre
 
 pub fn iso4032_nut(@standards.MetricSize, detail? : @common.DetailLevel, threads? : @common.ThreadRepresentation, clearance_mm? : Double) -> Result[@common.Component, @common.SpecError]
 
-pub fn iso4762_screw(@standards.MetricSize, Double, detail? : @common.DetailLevel, threads? : @common.ThreadRepresentation) -> Result[@common.Component, @common.SpecError]
+pub fn iso4762_screw(@standards.MetricSize, Double, detail? : @common.DetailLevel, threads? : @common.ThreadRepresentation, reference? : Bool) -> Result[@common.Component, @common.SpecError]
 
 pub fn iso7089_washer(@standards.MetricSize, detail? : @common.DetailLevel) -> Result[@common.Component, @common.SpecError]
 
@@ -98,7 +98,7 @@ pub fn polyline_circle_approximation(String, Double, Int32) -> @common.Approxima
 
 pub fn shank_tip_chamfer_mm(Double) -> Double
 
-pub fn socket_head_cap_screw(@standards.ISO4762Spec, detail? : @common.DetailLevel, threads? : @common.ThreadRepresentation, color? : @cad.Rgb) -> @common.Component
+pub fn socket_head_cap_screw(@standards.ISO4762Spec, detail? : @common.DetailLevel, threads? : @common.ThreadRepresentation, color? : @cad.Rgb, reference? : Bool) -> @common.Component
 
 pub fn socket_head_cap_screw_assembly_name(@standards.ISO4762Spec) -> String
 

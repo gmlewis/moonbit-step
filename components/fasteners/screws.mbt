@@ -31,6 +31,7 @@ pub fn socket_head_cap_screw(
   detail~ : @common.DetailLevel = Simplified,
   threads? : @common.ThreadRepresentation,
   color? : @cad.Rgb,
+  reference~ : Bool = false,
 ) -> @common.Component {
   let policy = @common.DetailPolicy::for_level(detail)
   let thread_rep = match threads {
@@ -60,6 +61,64 @@ pub fn socket_head_cap_screw(
       thread_note(thread_rep),
     features~,
   )
+  if reference && !(thread_rep is @common.ThreadRepresentation::Helical) {
+    // The simple step.parts reference representation: nominal shank with a
+    // pitch-sized 45-degree tip break and a 0.001 mm under-head relief, a head
+    // with a 0.0277 mm rounded top edge, and a sharp blind hex socket whose
+    // across flats is the ISO nominal + 0.06 mm and whose flat floor is that
+    // same distance below the top.
+    let r = d / 2.0
+    let dk_r = dk / 2.0
+    let c = thread.pitch_mm
+    let af = dims.socket_across_flats_mm + 0.06
+    let edge_r = 0.0277
+    let relief = 0.001
+    let segs : Array[@cad.RevSegment] = [
+      @cad.RevLine((0.0, 0.0), (r - c, 0.0)),
+      @cad.RevLine((r - c, 0.0), (r, c)),
+      @cad.RevLine((r, c), (r, length - 0.2)),
+      @cad.RevLine((r, length - 0.2), (r - relief, length)),
+      @cad.RevLine((r - relief, length), (dk_r, length)),
+      @cad.RevLine((dk_r, length), (dk_r, length + k - edge_r)),
+      @cad.RevArc(
+        (dk_r, length + k - edge_r),
+        (dk_r - edge_r, length + k),
+        (dk_r - edge_r, length + k - edge_r),
+      ),
+      @cad.RevLine((dk_r - edge_r, length + k), (0.0, length + k)),
+    ]
+    let body = @cad.RevolvedProfile::new(segs)
+    let floor_local = length + k - af
+    let socket = @cad.SocketedSolid::new(body, af, floor_local)
+    let ref_features = fastener_thread_features(
+      @common.FeatureRecord::new(
+        modeled=[
+          "head-outer-cylinder", "blind-hex-socket", "hex-socket-flats", "socket-floor-plane",
+          "shank-tip-chamfer", "under-head-relief", "head-top-edge-radius",
+        ],
+        approximated=[],
+        omitted=[
+          @common.Omission::new(
+            feature="socket-rim-chamfer",
+            reason="the simple reference socket rim is sharp; only the detailed reference countersinks it",
+          ),
+        ],
+      ),
+      thread_rep,
+      policy,
+      thread.pitch_diameter_mm() / 2.0,
+    )
+    let ref_base = @common.Component::new(
+      name~,
+      metadata=spec.metadata(),
+      description="Single closed solid in the simple reference representation: shank at the nominal diameter with a pitch-sized 45-degree tip break and a 0.001 mm under-head relief, a head with a 0.0277 mm rounded top edge, and a blind hexagonal socket (across flats = ISO nominal + 0.06 mm) with a flat floor." +
+        thread_note(thread_rep),
+      features=ref_features,
+    )
+    return ref_base
+      .add_layer(socket.as_shape(), name="body", color=metal)
+      .translate(z=-length)
+  }
 
   // One solid of revolution: tip, shank (or thread core plus plain shank),
   // head underside, head outside, and the conical head-top break. ISO 4762
@@ -167,13 +226,14 @@ pub fn iso4762_screw(
   length_mm : Double,
   detail~ : @common.DetailLevel = Simplified,
   threads? : @common.ThreadRepresentation,
+  reference~ : Bool = false,
 ) -> Result[@common.Component, @common.SpecError] {
   match @standards.iso4762_spec(size, length_mm) {
     Err(e) => Err(e)
     Ok(spec) => {
       let component = match threads {
-        Some(t) => socket_head_cap_screw(spec, detail~, threads=t)
-        None => socket_head_cap_screw(spec, detail~)
+        Some(t) => socket_head_cap_screw(spec, detail~, threads=t, reference~)
+        None => socket_head_cap_screw(spec, detail~, reference~)
       }
       Ok(component)
     }

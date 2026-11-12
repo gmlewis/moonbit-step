@@ -1065,3 +1065,32 @@ test "unified ISO 4017 reference is one solid with the washer face" {
   // The downloaded M6 x 25 reference is 1040.31 mm3.
   assert_true((volume - 1040.31).abs() < 0.2)
 }
+
+///|
+test "ISO 4762 simple reference representation matches the M2.5 profile" {
+  let screw = match
+    @fasteners.iso4762_screw(
+      @standards.M2_5,
+      10.0,
+      detail=Detailed,
+      reference=true,
+    ) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  let (x0, x1, _y0, _y1, z0, z1) = screw.bounding_box()
+  assert_true(close(x1 - x0, 4.5))
+  assert_true(close(z0, -10.0))
+  assert_true(close(z1, 2.5))
+  let layers = screw.layers()
+  let inv = layers[0].shape.surface_inventory()
+  assert_true(inv.plane == 10)
+  assert_true(inv.cone == 2)
+  assert_true(inv.cylinder == 2)
+  assert_true(inv.torus == 1)
+  let volume = match layers[0].shape.analysis_volume() {
+    Ok(v) => v
+    Err(_) => abort("reference screw volume unavailable")
+  }
+  assert_true((volume - 80.5746).abs() < 0.05)
+}

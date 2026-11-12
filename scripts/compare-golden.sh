@@ -329,6 +329,24 @@ def adjust_for_golden(name, tool, args, detail, detail_explicit):
         set_option(args, "--rollers", "0")
         if not detail_explicit:
             set_option(args, "--detail", "simplified")
+    if (
+        tool.endswith("/fasteners")
+        and arg_value(args, "--standard") == "iso4762"
+        and not name.endswith("_simple.step")
+    ):
+        # The canonical ISO 4762 references come from two sources: the simple
+        # representation (flat hex socket, rounded head-top edge torus,
+        # pitch-sized tip break, under-head relief) and the detailed one
+        # (conical socket rim and drill point). A torus in the golden identifies
+        # the simple source unambiguously.
+        path = os.path.join(GOLDEN_DIR, name)
+        try:
+            with open(path, errors="replace") as handle:
+                text = handle.read()
+        except OSError:
+            text = ""
+        if "TOROIDAL_SURFACE" in text and "--simple-reference" not in args:
+            args.append("--simple-reference")
     if tool.endswith("/fasteners") and name.endswith("_simple.step"):
         # The catalogue's "_simple" models are the unthreaded/sharp-feature
         # representation. Whether that is the library's Simplified or Detailed

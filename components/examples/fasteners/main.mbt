@@ -41,6 +41,9 @@ async fn main {
     "unified": @cli.flag(
       help="Hex-head screws: one solid with an under-head washer face (reference representation)",
     ),
+    "simple-reference": @cli.flag(
+      help="ISO 4762: the simple reference representation (flat hex socket, rounded head-top edge, pitch-sized tip break)",
+    ),
   }
   guard @cli.parse(
       spec,
@@ -72,8 +75,21 @@ async fn main {
   let result : Result[@common.Component, @common.SpecError] = match standard {
     "iso4762" =>
       match threads {
-        Some(t) => @fcomponents.iso4762_screw(size, length, detail~, threads=t)
-        None => @fcomponents.iso4762_screw(size, length, detail~)
+        Some(t) =>
+          @fcomponents.iso4762_screw(
+            size,
+            length,
+            detail~,
+            threads=t,
+            reference=args.flag("simple-reference"),
+          )
+        None =>
+          @fcomponents.iso4762_screw(
+            size,
+            length,
+            detail~,
+            reference=args.flag("simple-reference"),
+          )
       }
     "iso4032" =>
       match threads {
