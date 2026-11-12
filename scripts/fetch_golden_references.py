@@ -127,7 +127,43 @@ EXCLUDED_PART_IDS = {
     "iso_1234_cotter_pin_d3p2_l050_simple",
     "iso_1234_cotter_pin_d4_l063_simple",
     "iso_1234_cotter_pin_d5_l080_simple",
+    # ISO 2338 dowel pins: the catalog declares lengthMm = d x L, but every
+    # model is twice that length (D2 x 6 measures 12 mm, D3 x 20 measures
+    # 40 mm, D8 x 60 measures 120 mm). The models do not represent the
+    # designated ISO 2338 pins.
+    "iso_2338_dowel_pin_d002_l006",
+    "iso_2338_dowel_pin_d002_l020",
+    "iso_2338_dowel_pin_d002_l060",
+    "iso_2338_dowel_pin_d003_l006",
+    "iso_2338_dowel_pin_d003_l020",
+    "iso_2338_dowel_pin_d003_l060",
+    "iso_2338_dowel_pin_d004_l008",
+    "iso_2338_dowel_pin_d004_l020",
+    "iso_2338_dowel_pin_d004_l060",
+    "iso_2338_dowel_pin_d005_l010",
+    "iso_2338_dowel_pin_d005_l025",
+    "iso_2338_dowel_pin_d005_l060",
+    "iso_2338_dowel_pin_d006_l012",
+    "iso_2338_dowel_pin_d006_l030",
+    "iso_2338_dowel_pin_d006_l060",
+    "iso_2338_dowel_pin_d008_l016",
+    "iso_2338_dowel_pin_d008_l030",
+    "iso_2338_dowel_pin_d008_l060",
 }
+
+# Whole families whose every model is defective are excluded by part-id prefix,
+# so no other size/length can be downloaded either. The ISO 2338 dowel pins are
+# all modelled at twice their declared length; the ISO 1234 cotter pins model
+# two overlapping full round legs instead of a bent half-round wire.
+EXCLUDED_PART_PREFIXES = (
+    "iso_2338_dowel_pin_",
+    "iso_1234_cotter_pin_",
+)
+
+def is_excluded_part(part_id):
+    return part_id in EXCLUDED_PART_IDS or any(
+        part_id.startswith(prefix) for prefix in EXCLUDED_PART_PREFIXES
+    )
 
 
 @dataclass(frozen=True)
@@ -439,11 +475,11 @@ def build_standard_plan(selection: Selection, scope: str,
     records = fetch_items(params)
     excluded = [
         record for record in records
-        if record.get("id") in EXCLUDED_PART_IDS
+        if is_excluded_part(record.get("id") or "")
     ]
     records = [
         record for record in records
-        if record.get("id") not in EXCLUDED_PART_IDS
+        if not is_excluded_part(record.get("id") or "")
     ]
 
     wanted_standard = (selection.standard or "").strip().lower()

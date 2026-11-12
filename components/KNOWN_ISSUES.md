@@ -513,8 +513,9 @@ approximations are recorded above and in `FEATURES.md`.
 - ISO 4762 detailed geometry matches the reference shape and volume; the
   reference family mixes two source constructions. The simpler source (flat
   socket floor, under-head torus, no countersink) is not copied.
-- ISO 2338 dowel-pin and DIN 976 rod reference files are twice their labelled
-  length; the library follows the label.
+- DIN 976 rod reference files are twice their labelled length; the library
+  follows the label. The ISO 2338 dowel-pin references had the same 2x defect
+  and were deleted on 2026-11-12 (see below).
 - ISO 8752 slotted spring pins remain unmodeled: the reference slot is closed
   at the ends and the flat writer has no verified slit-tube construction.
 - Gears (spur m2 z20/z40) still use the existing approximating tooth flank;
@@ -561,3 +562,8 @@ approximations are recorded above and in `FEATURES.md`.
   (about twice the correct half-round wire material, with self-intersecting
   legs), not a bent half-round pin. All seven were deleted on 2026-11-12 and
   added to `EXCLUDED_PART_IDS`; no cotter-pin golden remains.
+
+- The ISO 2338 dowel-pin references were twice their catalog-declared length
+  (D2 x 6 modelled as 12 mm, D3 x 20 as 40 mm, D8 x 60 as 120 mm). All 18 were
+  deleted on 2026-11-12 and added to `EXCLUDED_PART_IDS`; no dowel-pin golden
+  remains. The library builder is unaffected.

@@ -425,10 +425,11 @@ acceptance criterion; this tool is for the visual review.
   `iso7091din126_class_c_m5flatwasher`, whose model uses d1 = 5.55 mm against
   the ISO 7091 class C nominal 5.5 mm (0.8% volume); the standard value is
   modeled and the difference recorded.
-- **ISO 2338 (149-166).** Cylinder with 45-degree end breaks (leg 0.08 d).
-  Every reference file names a half-length: `d003_l020` is a 40 mm model. The
-  library follows the label and ISO 2338 (20 mm); both measurements are
-  recorded, as for the DIN 976 rods below.
+- **ISO 2338 dowel pins.** The 18 references named a length but modelled twice
+  it (`d003_l020` was 40 mm). They were deleted and blacklisted on 2026-11-12;
+  see "ISO 2338 dowel pins are twice their declared length — deleted" below.
+  The library's `iso2338_pin` builder produces a standard pin of the requested
+  length.
 - **DIN 976 (198-211).** Confirmed: every reference is exactly twice its label
   length (`l025` is 50 mm, `l200` is 400 mm). The library follows the label
   (25/200 mm) and its ends carry 45-degree lead-in cones where the references
@@ -572,3 +573,15 @@ Because the references do not represent the standard product, the seven files
 and their `.bytes`/`.sha256` companions were deleted and all seven part ids were
 added to `EXCLUDED_PART_IDS` in `scripts/fetch_golden_references.py`, so they are
 never downloaded again. No cotter-pin golden remains in the corpus.
+
+### ISO 2338 dowel pins are twice their declared length — deleted (2026-11-12)
+
+The step.parts catalog declares each dowel pin by its actual length
+(`iso_2338_dowel_pin_d002_l006` has `lengthMm: 6`, `d003_l020` has 20 mm,
+`d008_l060` has 60 mm), but every downloaded model is twice that length: D2 x 6
+measures 12 mm, D3 x 20 measures 40 mm, D8 x 60 measures 120 mm. The models are
+valid ISO 2338 parallels, but they do not represent the designated pins. All 18
+files and their `.bytes`/`.sha256` companions were deleted and the 18 part ids
+added to `EXCLUDED_PART_IDS` in `scripts/fetch_golden_references.py`, so they are
+never downloaded again. The library's `iso2338_pin` builder still produces a
+standard pin of the requested length; it now has no golden counterpart.
