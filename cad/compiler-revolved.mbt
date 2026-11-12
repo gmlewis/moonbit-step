@@ -430,14 +430,16 @@ fn rev_band_surface(
           ctx.direction(cone_axis.0, cone_axis.1, cone_axis.2),
           ctx.direction(ref_dir.0, ref_dir.1, ref_dir.2),
         )
-        let alpha_deg = alpha * 180.0 / @math.PI
+        // CONICAL_SURFACE's semi-angle is a plane_angle_measure, read in the
+        // global context's plane-angle unit, which this writer declares as the
+        // radian.
         let surface = ctx.add(
           @repository.any_entity_conical_surface(
             @geometry.ConicalSurface::new(
               "",
               a2p,
               @step.fmt_num(ref_r),
-              @step.fmt_num(alpha_deg),
+              @step.fmt_num(alpha),
             ),
           ),
         )

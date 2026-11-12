@@ -377,9 +377,10 @@ pub fn StepContext::init_standard_context(
   let dim_exp = @units.DimensionalExponents::new(
     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
   )
-  let dim_exp_id = self.add(
-      @repository.any_entity_dimensional_exponents(dim_exp),
-    ).id
+  // Kept as a root entity: files from this writer have always carried it, and
+  // tests assert its presence. The radian plane-angle unit below needs no
+  // dimensional exponents.
+  let _ = self.add(@repository.any_entity_dimensional_exponents(dim_exp))
 
   // Radian
   let cx_radian = @context.ComplexInstance::new([
@@ -389,25 +390,12 @@ pub fn StepContext::init_standard_context(
   ])
   let radian_ref = self.add(@repository.any_entity_complex_instance(cx_radian))
 
-  // Degree
-  let pa_meas = @units.PlaneAngleMeasureWithUnit::new(
-    "0.0174532925", radian_ref,
-  )
-  let pa_meas_ref = self.add(
-    @repository.any_entity_plane_angle_measure_with_unit(pa_meas),
-  )
-  let cx_degree = @context.ComplexInstance::new([
-    @context.ComplexPart::ConversionBasedUnit(
-      @units.ConversionBasedUnit::new("DEGREE", pa_meas_ref),
-    ),
-    @context.ComplexPart::NamedUnit(
-      @units.NamedUnit::new("#\{dim_exp_id.value}"),
-    ),
-    @context.ComplexPart::PlaneAngleUnit(@units.PlaneAngleUnit::new()),
-  ])
-  self.plane_angle_unit_id = self.add(
-      @repository.any_entity_complex_instance(cx_degree),
-    ).id
+  // The global context's plane-angle unit must be the radian: every angle this
+  // writer emits (for example CONICAL_SURFACE's semi-angle) is in radians, and
+  // ISO 10303-42 reads a plane_angle_measure in the context's declared unit.
+  // Declaring DEGREE here made importers read 75 as 75 degrees and rebuild
+  // every cone as a near cylinder, dropping cone-bounded faces.
+  self.plane_angle_unit_id = radian_ref.id
 
   // Steradian
   let cx_steradian = @context.ComplexInstance::new([
