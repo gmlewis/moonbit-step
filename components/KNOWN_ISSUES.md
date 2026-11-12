@@ -556,3 +556,8 @@ approximations are recorded above and in `FEATURES.md`.
   M4 x 6/20 detailed references round the socket corners and split the rim cone
   into six entities; their volume agrees within 0.07%, the corner rounding is a
   documented reference artifact.
+
+- The ISO 1234 cotter-pin references modelled two overlapping full round legs
+  (about twice the correct half-round wire material, with self-intersecting
+  legs), not a bent half-round pin. All seven were deleted on 2026-11-12 and
+  added to `EXCLUDED_PART_IDS`; no cotter-pin golden remains.

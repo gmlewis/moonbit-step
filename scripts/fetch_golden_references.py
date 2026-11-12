@@ -115,6 +115,18 @@ EXCLUDED_PART_IDS = {
     "iso4032_hex_nut_m4",
     "iso4032_hex_nut_m5",
     "iso4032_hex_nut_m8",
+    # ISO 1234 cotter pins: the catalogue models two full round legs whose
+    # centres are 0.7 d apart, so the legs overlap (a single bent wire cannot
+    # pass through itself). A cotter pin is a half-round wire whose two legs
+    # together form one round section, so these models have about twice the
+    # material (measured volume 1.89x the correct wire) and are not ISO 1234.
+    "iso_1234_cotter_pin_d1_l020_simple",
+    "iso_1234_cotter_pin_d1p6_l025_simple",
+    "iso_1234_cotter_pin_d2_l032_simple",
+    "iso_1234_cotter_pin_d2p5_l040_simple",
+    "iso_1234_cotter_pin_d3p2_l050_simple",
+    "iso_1234_cotter_pin_d4_l063_simple",
+    "iso_1234_cotter_pin_d5_l080_simple",
 }
 
 

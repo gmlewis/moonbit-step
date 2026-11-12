@@ -555,3 +555,20 @@ parametric model's one shared entity, so the cone-entity count is 10 against 5
 (face count is 21 either way). The M4 x 6/20 detailed references additionally
 round the socket corners and carry two B-spline patches; their volumes agree
 within 0.07% and their corner rounding accounts for a 0.24 mm deviation.
+
+### ISO 1234 cotter pins are not half-round — deleted (2026-11-12)
+
+All seven `iso_1234_cotter_pin_*_simple` references model the two legs as two
+full round rods of diameter d whose centres are 0.7 d apart. The legs therefore
+overlap: the mid-leg cross-section is the union of two Ød circles (for d1 that is
+1.414 mm²; the x extent is 1.7 d), whereas an ISO 1234 cotter pin is made from
+half-round wire whose two legs together form **one** round section of area
+π d²/4 = 0.785 mm² for d1. A single bent wire cannot pass through itself, and the
+modelled volume is 1.89x the correct wire volume (d1 x 20: 29.435 vs 15.708
+mm³; d1.6 x 25: 95.064 vs 50.265; d3.2 x 50: 760.51 vs 402.12). The eye loop is
+also a half-cylinder around the X axis rather than a bend of the wire pair.
+
+Because the references do not represent the standard product, the seven files
+and their `.bytes`/`.sha256` companions were deleted and all seven part ids were
+added to `EXCLUDED_PART_IDS` in `scripts/fetch_golden_references.py`, so they are
+never downloaded again. No cotter-pin golden remains in the corpus.
