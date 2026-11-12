@@ -1254,6 +1254,7 @@ fn an_shape_inventory(shape : Shape) -> SurfaceInventory {
     ExtrudedArcProfile(e) => an_extruded_arc_inventory(e)
     SquareHoleWasher(w) => an_square_hole_inventory(w)
     TabWasher(w) => an_tab_inventory(w)
+    HexHeadWasherFace(_h) => an_inventory(8, 6, 0, 0, 0, 0, 0, 0)
     ExtrudedBezierProfile(e) => an_bezier_inventory(e)
     SweptProfile(s) => an_swept_inventory(s)
     Fillet(f) => an_shape_inventory(f.base.shape)
@@ -1408,6 +1409,18 @@ pub fn Shape::analysis_volume(self : Shape) -> Result[Double, AnalysisError] {
         Ok(volume)
       }
     }
+    HexHeadWasherFace(h) =>
+      match hhwf_proxy(h) {
+        Some(p) => {
+          let volume = p.volume()
+          if volume <= 0.0 {
+            Err(DegenerateProfile)
+          } else {
+            Ok(volume)
+          }
+        }
+        None => Err(DegenerateProfile)
+      }
     ExtrudedBezierProfile(_) =>
       Err(NotAnalytic("Bezier profile requires tessellation"))
     SweptProfile(_) => Err(NotAnalytic("swept profile requires tessellation"))
@@ -1458,6 +1471,14 @@ pub fn Shape::analysis_centroid(self : Shape) -> Result[Vec3, AnalysisError] {
       let (_material, c) = tw_area_centroid(w)
       Ok((c.0, c.1, w.thickness_mm / 2.0))
     }
+    HexHeadWasherFace(h) =>
+      match hhwf_proxy(h) {
+        Some(p) => {
+          let (_volume, c) = an_prism_volume_centroid(p)
+          Ok(c)
+        }
+        None => Err(DegenerateProfile)
+      }
     ExtrudedBezierProfile(_) =>
       Err(NotAnalytic("Bezier profile requires tessellation"))
     SweptProfile(_) => Err(NotAnalytic("swept profile requires tessellation"))
@@ -1529,6 +1550,11 @@ pub fn Shape::section_at_local(
     ExtrudedArcProfile(e) => an_extruded_arc_section(e, z)
     SquareHoleWasher(w) => an_square_hole_section(w, z)
     TabWasher(w) => an_tab_section(w, z)
+    HexHeadWasherFace(h) =>
+      match hhwf_proxy(h) {
+        Some(p) => p.section_at(z)
+        None => Err(DegenerateProfile)
+      }
     ExtrudedBezierProfile(_) =>
       Err(NotAnalytic("Bezier profile requires tessellation"))
     SweptProfile(_) => Err(NotAnalytic("swept profile requires tessellation"))
@@ -1770,6 +1796,11 @@ pub fn Shape::analysis_mesh(
         Ok(tab_washer_mesh(w))
       }
     }
+    HexHeadWasherFace(h) =>
+      match hhwf_proxy(h) {
+        Some(p) => Ok(chamfered_prism_mesh(p))
+        None => Err(DegenerateProfile)
+      }
     Union(u) => {
       let verts : Array[Vec3] = []
       let faces : Array[Array[Int32]] = []

@@ -311,6 +311,30 @@ pub fn TabWasher::as_shape(self : TabWasher) -> Shape {
 }
 
 ///|
+/// HexHeadWasherFace is a hexagon head trimmed by a conical washer face: the
+/// top is a circle of radius `across_flats / 2`, the chamfer is a 75-degree
+/// cone, and the flat/cone intersections are hyperbolas.
+pub struct HexHeadWasherFace {
+  across_flats_mm : Double
+  head_height_mm : Double
+}
+
+///|
+/// HexHeadWasherFace::new builds a conical-washer-face hex head.
+pub fn HexHeadWasherFace::new(
+  across_flats_mm~ : Double,
+  head_height_mm~ : Double,
+) -> HexHeadWasherFace {
+  { across_flats_mm, head_height_mm, }
+}
+
+///|
+/// HexHeadWasherFace::as_shape wraps the head as a Shape.
+pub fn HexHeadWasherFace::as_shape(self : HexHeadWasherFace) -> Shape {
+  Shape::HexHeadWasherFace(self)
+}
+
+///|
 pub enum Shape {
   Cuboid(Cuboid)
   Cylinder(Cylinder)
@@ -322,6 +346,7 @@ pub enum Shape {
   ExtrudedArcProfile(ExtrudedArcProfile)
   SquareHoleWasher(SquareHoleWasher)
   TabWasher(TabWasher)
+  HexHeadWasherFace(HexHeadWasherFace)
   ExtrudedBezierProfile(ExtrudedBezierProfile)
   SweptProfile(SweptProfile)
   Fillet(EdgeFeature)
@@ -586,6 +611,10 @@ pub fn Shape::bounding_box(
     TabWasher(w) => {
       let r = w.outer_diameter_mm / 2.0
       (-w.tab_length_mm, r, -r, r, 0.0, w.thickness_mm)
+    }
+    HexHeadWasherFace(h) => {
+      let r = h.across_flats_mm / Double::sqrt(3.0)
+      (-r, r, -r, r, 0.0, h.head_height_mm)
     }
     ExtrudedBezierProfile(e) => {
       let mut x0 = @double.max_value

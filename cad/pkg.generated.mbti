@@ -29,6 +29,8 @@ pub fn compile_extruded_bezier_profile(StepContext, SceneNode, ExtrudedBezierPro
 
 pub fn compile_extruded_profile(StepContext, SceneNode, ExtrudedProfile, reverse? : Bool, parent? : Transform?) -> Array[@step.Ref]
 
+pub fn compile_hex_head_washer_face(StepContext, SceneNode, HexHeadWasherFace, reverse? : Bool, parent? : Transform?) -> Array[@step.Ref]
+
 pub fn compile_revolved_profile(StepContext, SceneNode, RevolvedProfile, reverse? : Bool, parent? : Transform?) -> Array[@step.Ref]
 
 pub fn compile_socketed_solid(StepContext, SceneNode, SocketedSolid, reverse? : Bool, parent? : Transform?) -> Array[@step.Ref]
@@ -326,6 +328,13 @@ pub(all) enum Fit {
 }
 pub fn Fit::per_face_mm(Self) -> Double
 
+pub struct HexHeadWasherFace {
+  across_flats_mm : Double
+  head_height_mm : Double
+}
+pub fn HexHeadWasherFace::as_shape(Self) -> Shape
+pub fn HexHeadWasherFace::new(across_flats_mm~ : Double, head_height_mm~ : Double) -> Self
+
 pub struct Length {
   // private fields
 }
@@ -522,6 +531,7 @@ pub enum Shape {
   ExtrudedArcProfile(ExtrudedArcProfile)
   SquareHoleWasher(SquareHoleWasher)
   TabWasher(TabWasher)
+  HexHeadWasherFace(HexHeadWasherFace)
   ExtrudedBezierProfile(ExtrudedBezierProfile)
   SweptProfile(SweptProfile)
   Fillet(EdgeFeature)

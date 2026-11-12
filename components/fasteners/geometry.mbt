@@ -268,15 +268,13 @@ pub fn socket_lead_in_chamfer_mm(
 /// the chamfer size.
 pub fn hex_head_chamfer_mm(
   across_flats : Double,
-  head_height : Double,
+  _head_height : Double,
 ) -> Double {
-  let c = 0.1 * across_flats
-  let cap = head_height / 3.0
-  if c > cap {
-    cap
-  } else {
-    c
-  }
+  // The step.parts hex-head references use the standard conical washer face:
+  // the top hexagon is inset from the across-corners radius to the
+  // across-flats radius, with a 75-degree cone half-angle. Return that radial
+  // inset; the builder derives the axial chamfer depth from it.
+  across_flats * (1.0 / Double::sqrt(3.0) - 0.5)
 }
 
 ///|

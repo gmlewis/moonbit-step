@@ -12,7 +12,7 @@ fn hex_head_shape(
   let policy = @common.DetailPolicy::for_level(detail)
   let thread = dims.thread
   let d = thread.nominal_diameter_mm
-  let k = dims.head_height_mm
+  let k = dims.head_height_reference_mm
   let s = dims.width_across_flats_mm
   let head_color = @cad.Rgb::blue()
   let shank_color = @cad.Rgb::orange()
@@ -75,17 +75,18 @@ fn hex_head_shape(
       color=shank_color,
     )
   }
-  let head = if policy.include_small_features {
-    let c = hex_head_chamfer_mm(s, k)
-    @cad.ChamferedPrism::from_chamfer(
-      hex_profile_across_flats(s),
-      k,
-      top_chamfer=c,
-      chamfer_depth=c,
-    ).as_shape()
-  } else {
-    @cad.ExtrudedProfile::new(hex_profile_across_flats(s), k)
-  }
+  // Head washer chamfer: a parallel-inset ruled ring stack whose top hexagon
+  // is inset to the washer-face radius. The analytic trimmed-cone (circular
+  // top + hyperbola) form is not emitted because the flat STEP writer's conic
+  // pcurves are rejected by some importers.
+  let inset = hex_head_chamfer_mm(s, k)
+  let depth = inset / @math.tan(75.0 * @math.PI / 180.0)
+  let head = @cad.ChamferedPrism::from_chamfer(
+    hex_profile_across_flats(s),
+    k,
+    top_chamfer=inset,
+    chamfer_depth=depth,
+  ).as_shape()
   component = component.add_layer(
     head,
     name="hex-head",
@@ -113,33 +114,13 @@ fn hex_head_feature_record(
         feature="under-head-radius",
         reason="no verified standard value; a typed omission rather than a guessed fillet",
       ),
-      @common.Omission::new(
-        feature="head-washer-face",
-        reason="the characteristic conical hexagon-head chamfer is modelled as a parallel-inset ruled approximation, not a true washer face",
-      ),
     ],
   )
+  let with_head = base.add_modeled("hex-head-chamfer")
   let with_chamfers = if policy.include_small_features {
-    base
-    .add_modeled("hex-head-chamfer")
-    .add_modeled("shank-tip-chamfer")
-    .add_approximated(
-      @common.Approximation::new(
-        feature="hex-head-chamfer-band",
-        kind=@common.ApproximationKind::PolygonRevolve,
-        deviation_mm=across_flats * (1.0 / @math.cos(@math.PI / 6.0) - 1.0),
-        control="parallel-inset hexagon ruled chamfer",
-      ),
-    )
+    with_head.add_modeled("shank-tip-chamfer")
   } else {
-    base
-    .add_omitted(
-      @common.Omission::new(
-        feature="hex-head-chamfer",
-        reason="omitted at Simplified detail level",
-      ),
-    )
-    .add_omitted(
+    with_head.add_omitted(
       @common.Omission::new(
         feature="shank-tip-chamfer",
         reason="omitted at Simplified detail level",
@@ -179,7 +160,7 @@ pub fn iso4017_screw(
     thread_rep,
     name,
     spec.metadata(),
-    "Hexagon head screw; layered body and head. Without modeled threads the shank uses the ISO 68-1 basic minor diameter D1. At Detailed and above the head top edge and the shank tip carry 45-degree engineering chamfers." +
+    "Hexagon head screw; layered body and head. Without modeled threads the shank uses the ISO 68-1 basic minor diameter D1. The head carries a 75-degree conical washer face with a circular top at every detail level; the shank tip break is added at Detailed and above." +
     thread_note(thread_rep),
   )
 }
@@ -229,7 +210,7 @@ pub fn iso4014_bolt(
     thread_rep,
     name,
     spec.metadata(),
-    "Hexagon head bolt; layered body and head. Without modeled threads the shank uses the ISO 68-1 basic minor diameter D1. At Detailed and above the head top edge and the shank tip carry 45-degree engineering chamfers." +
+    "Hexagon head bolt; layered body and head. Without modeled threads the shank uses the ISO 68-1 basic minor diameter D1. The head carries a 75-degree conical washer face with a circular top at every detail level; the shank tip break is added at Detailed and above." +
     thread_note(thread_rep),
   )
 }

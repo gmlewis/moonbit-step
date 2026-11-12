@@ -186,6 +186,7 @@ pub(all) struct HexHeadSize {
   thread : ThreadSpec
   width_across_flats_mm : Double
   head_height_mm : Double
+  head_height_reference_mm : Double
   min_length_mm : Double
   max_length_mm : Double
 }

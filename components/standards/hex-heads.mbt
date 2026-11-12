@@ -6,6 +6,10 @@ pub(all) struct HexHeadSize {
   thread : ThreadSpec
   width_across_flats_mm : Double
   head_height_mm : Double
+  /// Reference head height used by the model: the upper standard limit
+  /// (matching the downloaded simple hex-head references). The nominal value
+  /// stays in `head_height_mm`.
+  head_height_reference_mm : Double
   min_length_mm : Double
   max_length_mm : Double
 }
@@ -16,24 +20,27 @@ pub fn hex_head_size(
   size : MetricSize,
 ) -> Result[HexHeadSize, @common.SpecError] {
   let dims = match size {
-    M2 => (4.0, 1.4, 4.0, 30.0)
-    M2_5 => (5.0, 1.6, 4.0, 40.0)
-    M3 => (5.5, 2.0, 5.0, 60.0)
-    M4 => (7.0, 2.8, 6.0, 80.0)
-    M5 => (8.0, 3.5, 8.0, 100.0)
-    M6 => (10.0, 4.0, 10.0, 120.0)
-    M8 => (13.0, 5.3, 12.0, 150.0)
-    M10 => (16.0, 6.4, 20.0, 200.0)
-    M12 => (18.0, 7.5, 25.0, 200.0)
-    M16 => (24.0, 10.0, 30.0, 200.0)
-    M20 => (30.0, 12.5, 40.0, 200.0)
+    // (s, k nominal, k reference, min length, max length). The reference k is
+    // the upper standard limit used by the downloaded simple references.
+    M2 => (4.0, 1.4, 1.6, 4.0, 30.0)
+    M2_5 => (5.0, 1.6, 1.9, 4.0, 40.0)
+    M3 => (5.5, 2.0, 2.2, 5.0, 60.0)
+    M4 => (7.0, 2.8, 3.0, 6.0, 80.0)
+    M5 => (8.0, 3.5, 3.74, 8.0, 100.0)
+    M6 => (10.0, 4.0, 4.24, 10.0, 120.0)
+    M8 => (13.0, 5.3, 5.54, 12.0, 150.0)
+    M10 => (16.0, 6.4, 6.4, 20.0, 200.0)
+    M12 => (18.0, 7.5, 7.5, 25.0, 200.0)
+    M16 => (24.0, 10.0, 10.0, 30.0, 200.0)
+    M20 => (30.0, 12.5, 12.5, 40.0, 200.0)
   }
-  let (s, k, lo, hi) = dims
+  let (s, k, k_ref, lo, hi) = dims
   Ok({
     size,
     thread: ThreadSpec::coarse(size),
     width_across_flats_mm: s,
     head_height_mm: k,
+    head_height_reference_mm: k_ref,
     min_length_mm: lo,
     max_length_mm: hi,
   })

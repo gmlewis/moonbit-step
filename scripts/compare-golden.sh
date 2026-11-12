@@ -293,11 +293,15 @@ def adjust_for_golden(name, tool, args, detail, detail_explicit):
         if not detail_explicit:
             set_option(args, "--detail", "simplified")
     if tool.endswith("/fasteners") and name.endswith("_simple.step"):
-        # The catalogue's "_simple" button and countersunk models have sharp
-        # rims and no tip break or socket lead-in, so the library's Simplified
-        # level matches their feature set. Hex-head "_simple" models do carry
-        # the head washer chamfer, so they stay at Detailed.
-        if arg_value(args, "--standard") in ("iso7380", "iso10642") and not detail_explicit:
+        # The catalogue's "_simple" models are unthreaded with sharp rims and no
+        # shank-tip break or socket lead-in, but they do carry the head washer
+        # chamfer. The library's Simplified level now matches that feature set,
+        # so use it for the button, countersunk, and hex-head references.
+        simple_family = (
+            arg_value(args, "--standard") in ("iso7380", "iso10642")
+            or name.startswith("hex_head_bolt_")
+        )
+        if simple_family and not detail_explicit:
             set_option(args, "--detail", "simplified")
     if detail_explicit and (
         tool.endswith("/fasteners") or tool.endswith("/bearing")

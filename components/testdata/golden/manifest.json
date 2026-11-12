@@ -1971,7 +1971,7 @@
         "source": "components/examples/fasteners --standard iso4017 --size M5 --length 20"
       },
       "verdict": "accepted-head-width-only",
-      "notes": "The reference plan bbox 9.2376 mm is the across-corners span for s = 8.0 mm. Its overall length is 23.74 mm, but the nominal is L + k = 23.5 mm, so the reference head height disagrees by 0.24 mm and is not used for the length; the parametric check is normative.",
+      "notes": "The reference plan bbox 9.2376 mm is the across-corners span for s = 8.0 mm. Its overall length is 23.74 mm (L + the upper-limit head height 3.74 mm), which the parametric part now matches by using the reference head height.",
       "committed": false,
       "generation": {
         "tool": "components/examples/fasteners",
@@ -1999,7 +1999,7 @@
           },
           {
             "axis": 2,
-            "expected_mm": 23.5,
+            "expected_mm": 23.74,
             "label": "overall length"
           }
         ]

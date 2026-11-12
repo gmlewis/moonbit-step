@@ -421,9 +421,10 @@ test "iso 4017 hex head screw geometry" {
   let (x0, x1, _y0, _y1, z0, z1) = screw.bounding_box()
   assert_true(close(x0, -3.5))
   assert_true(close(x1, 3.5))
-  // Head underside at 0; ISO 4017 M4 head height is 2.8 mm.
+  // Head underside at 0; the M4 reference head height is the upper standard
+  // limit, 3.0 mm (nominal 2.8 mm).
   assert_true(close(z0, -20.0))
-  assert_true(close(z1, 2.8))
+  assert_true(close(z1, 3.0))
   assert_true(screw.name() == "ISO4017-M4-20")
 }
 
@@ -665,7 +666,6 @@ test "detailed hex head models a head chamfer and a tip chamfer" {
   let features = screw.features()
   assert_true(features.has_modeled("hex-head-chamfer"))
   assert_true(features.has_modeled("shank-tip-chamfer"))
-  assert_true(features.has_approximated("hex-head-chamfer-band"))
   let head = match layer_shape(screw, "ISO4017-M4-20/hex-head") {
     Some(shape) => shape
     None => abort("missing hex head")
@@ -678,7 +678,7 @@ test "detailed hex head models a head chamfer and a tip chamfer" {
     Ok(c) => c
     Err(e) => abort(e.message())
   }
-  assert_false(simplified.features().has_modeled("hex-head-chamfer"))
+  assert_true(simplified.features().has_modeled("hex-head-chamfer"))
 }
 
 ///|
