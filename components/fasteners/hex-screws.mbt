@@ -75,10 +75,10 @@ fn hex_head_shape(
       color=shank_color,
     )
   }
-  // Clean chamfered hex head. The exact conical washer face is implemented
-  // with pcurves in cad/hex-head-pcurves.mbt, but the flat writer's conic
-  // edge/pcurve associations are not yet accepted by every importer, so the
-  // shipping build uses this ruled washer-face approximation.
+  // Clean chamfered hex head. The exact conical washer face and pcurve support
+  // live in cad/hex-head-pcurves.mbt; SolidCraft's importer still rejects the
+  // conic/pcurve associations, so the shipping build uses the ruled
+  // washer-face approximation.
   let inset = hex_head_chamfer_mm(s, k)
   let depth = inset / @math.tan(75.0 * @math.PI / 180.0)
   let head = @cad.ChamferedPrism::from_chamfer(

@@ -185,6 +185,13 @@ fn hhp_hyperbola_samples(
 }
 
 ///|
+fn hhp_polyline3d(ctx : StepContext, samples : Array[Vec3]) -> @step.Ref {
+  let cps = samples.map(fn(p) { hhwf_cp(ctx, p) })
+  let poly = @geometry.Polyline::new("", cps)
+  ctx.add(@repository.any_entity_polyline(poly))
+}
+
+///|
 /// compile_hex_head_pcurves emits the exact conical-washer-face head.
 pub fn compile_hex_head_pcurves(
   ctx : StepContext,
@@ -334,33 +341,35 @@ pub fn compile_hex_head_pcurves(
       true,
       xform,
     )
+    let curve_left = hyperbola
     // Left half: base vertex i -> top midpoint i.
     hyper_left.push(
       hhp_surface_edge(
         ctx,
-        hyperbola,
+        curve_left,
+        samples_base.rev(),
+        flat_planes[i],
+        None,
+        Some(cone),
+        context_2d,
+        top_vp[i],
+        mid_vp[i],
+      ),
+    )
+    // Right half: top midpoint i -> base vertex i+1.
+    let samples_rev = samples_base.rev()
+    let curve_right = hyperbola
+    hyper_right.push(
+      hhp_surface_edge(
+        ctx,
+        curve_right,
         samples_base,
         flat_planes[i],
         None,
         Some(cone),
         context_2d,
-        mid_vp[i],
-        top_vp[i],
-      ),
-    )
-    // Right half: top midpoint i -> base vertex i+1.
-    let samples_rev = samples_base.rev()
-    hyper_right.push(
-      hhp_surface_edge(
-        ctx,
-        hyperbola,
-        samples_rev,
-        flat_planes[i],
-        None,
-        Some(cone),
-        context_2d,
-        top_vp[i],
         mid_vp[(i + 1) % 6],
+        top_vp[i],
       ),
     )
   }
@@ -408,8 +417,8 @@ pub fn compile_hex_head_pcurves(
         [
           (bottom_edges[i], true),
           (vertical_edges[j], true),
-          (hyper_right[i], false),
-          (hyper_left[i], false),
+          (hyper_right[i], true),
+          (hyper_left[i], true),
           (vertical_edges[i], false),
         ],
         flat_planes[i].surface,
@@ -436,9 +445,9 @@ pub fn compile_hex_head_pcurves(
       hhwf_face(
         ctx,
         [
-          (hyper_left[i], true),
+          (hyper_left[i], false),
           (top_edges[(i + 5) % 6], false),
-          (hyper_right[(i + 5) % 6], true),
+          (hyper_right[(i + 5) % 6], false),
         ],
         cone.surface,
         natural,
