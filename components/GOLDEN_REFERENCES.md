@@ -475,3 +475,18 @@ enters the shank, deeper than ISO 10642's nominal t = 1.2 mm; the deeper
 reference socket is modeled and both values are recorded. The Simplified and
 fully-threaded variants keep the ISO edge-radius arc and the minor-diameter
 shank that the simpler countersunk references use.
+
+### ISO 4017 hexagon head screws (062-081, 085) — unified single solid
+
+The downloaded hex-head references are one closed solid combining the shank,
+the under-head washer face and the conical-washer-face hexagon head. The
+`--unified` build option reproduces that representation: the Detailed variant
+uses a 65-degree face, a raised washer face (diameter s - 1.12 mm, height
+0.15 mm), the nominal shank diameter and a d/6 tip break; the Simplified variant
+uses the 75-degree face, no washer face, the ISO 68-1 minor-diameter shank and a
+sharp tip. All 20 simple references match exactly (1 solid; surface inventory
+plane 9 / cone 6 / cylinder 1; zero volume error) and the detailed M6 x 25
+reference matches exactly (1 solid; volume 1040.31 mm3; bidirectional surface
+deviation max 0.0099 mm; SolidCraft imports with no warnings). The non-unified
+layered head+shank build remains for the golden-matrix and cross-check
+generations (which expect two solids).

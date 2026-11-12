@@ -1058,4 +1058,10 @@ test "unified ISO 4017 reference is one solid with the washer face" {
   let layers = screw.layers()
   assert_true(layers.length() == 1)
   assert_true(layers[0].name.contains("screw"))
+  let volume = match layers[0].shape.analysis_volume() {
+    Ok(v) => v
+    Err(_) => abort("unified screw volume unavailable")
+  }
+  // The downloaded M6 x 25 reference is 1040.31 mm3.
+  assert_true((volume - 1040.31).abs() < 0.2)
 }

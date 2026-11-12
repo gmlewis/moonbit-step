@@ -530,3 +530,7 @@ approximations are recorded above and in `FEATURES.md`.
   head underside, drill point in the shank) rather than the nominal t = 1.2 mm;
   the Simplified and fully-threaded variants keep the ISO minor-diameter shank
   and arc edge radius.
+
+- The `--unified` hex-head representation's analytic volume, centroid, section
+  and inventory are exact; its `analysis_mesh` still uses the head-only proxy
+  (Blender visualization omits the shank for that option).

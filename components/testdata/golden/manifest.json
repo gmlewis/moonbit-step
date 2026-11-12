@@ -2062,23 +2062,37 @@
         "features": [
           {
             "kind": "vertex_ring",
-            "z_mm": 3.74,
+            "z_mm": 3.5,
             "radius_mm": 4.0,
             "min_count": 6,
             "tol_mm": 0.01
           },
           {
             "kind": "vertex_ring",
-            "z_mm": 0.0,
+            "z_mm": 3.2114,
             "radius_mm": 4.6188,
             "min_count": 6,
             "tol_mm": 0.01
           },
           {
             "kind": "vertex_ring",
-            "z_mm": 3.5742,
+            "z_mm": 0.15,
             "radius_mm": 4.6188,
             "min_count": 6,
+            "tol_mm": 0.01
+          },
+          {
+            "kind": "vertex_ring",
+            "z_mm": 0.15,
+            "radius_mm": 3.44,
+            "min_count": 1,
+            "tol_mm": 0.01
+          },
+          {
+            "kind": "vertex_ring",
+            "z_mm": 0.0,
+            "radius_mm": 2.5,
+            "min_count": 1,
             "tol_mm": 0.01
           },
           {

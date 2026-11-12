@@ -1298,8 +1298,28 @@ fn an_shape_inventory(shape : Shape) -> SurfaceInventory {
     SquareHoleWasher(w) => an_square_hole_inventory(w)
     TabWasher(w) => an_tab_inventory(w)
     // Six planar flats, the flat underside, and the circular top: eight planes.
-    // The chamfer is six CONICAL_SURFACE patches, not cylinders.
-    HexHeadWasherFace(_h) => an_inventory(8, 0, 6, 0, 0, 0, 0, 0)
+    // The chamfer is six CONICAL_SURFACE patches, not cylinders. The unified
+    // shank variant adds the underside annulus, washer face, tip disk and
+    // shank/land cylinders.
+    HexHeadWasherFace(h) =>
+      if hhwf_screw_has_shank(h) {
+        let washer = h.washer_face_diameter_mm > 0.0 &&
+          h.washer_face_height_mm > 0.0
+        let tip_cone = h.tip_chamfer_mm > 0.0 &&
+          h.tip_chamfer_mm < h.shank_diameter_mm / 2.0
+        an_inventory(
+          9 + (if washer { 1 } else { 0 }),
+          1 + (if washer { 1 } else { 0 }),
+          6 + (if tip_cone { 1 } else { 0 }),
+          0,
+          0,
+          0,
+          0,
+          0,
+        )
+      } else {
+        an_inventory(8, 0, 6, 0, 0, 0, 0, 0)
+      }
     ExtrudedBezierProfile(e) => an_bezier_inventory(e)
     SweptProfile(s) => an_swept_inventory(s)
     Fillet(f) => an_shape_inventory(f.base.shape)
@@ -1482,16 +1502,25 @@ pub fn Shape::analysis_volume(self : Shape) -> Result[Double, AnalysisError] {
       }
     }
     HexHeadWasherFace(h) =>
-      match hhwf_proxy(h) {
-        Some(p) => {
-          let volume = p.volume()
-          if volume <= 0.0 {
-            Err(DegenerateProfile)
-          } else {
-            Ok(volume)
-          }
+      if hhwf_screw_has_shank(h) {
+        let (volume, _c) = hhwf_screw_volume_centroid(h)
+        if volume <= 0.0 {
+          Err(DegenerateProfile)
+        } else {
+          Ok(volume)
         }
-        None => Err(DegenerateProfile)
+      } else {
+        match hhwf_proxy(h) {
+          Some(p) => {
+            let volume = p.volume()
+            if volume <= 0.0 {
+              Err(DegenerateProfile)
+            } else {
+              Ok(volume)
+            }
+          }
+          None => Err(DegenerateProfile)
+        }
       }
     ExtrudedBezierProfile(_) =>
       Err(NotAnalytic("Bezier profile requires tessellation"))
@@ -1552,12 +1581,17 @@ pub fn Shape::analysis_centroid(self : Shape) -> Result[Vec3, AnalysisError] {
       Ok((c.0, c.1, w.thickness_mm / 2.0))
     }
     HexHeadWasherFace(h) =>
-      match hhwf_proxy(h) {
-        Some(p) => {
-          let (_volume, c) = an_prism_volume_centroid(p)
-          Ok(c)
+      if hhwf_screw_has_shank(h) {
+        let (_volume, zc) = hhwf_screw_volume_centroid(h)
+        Ok((0.0, 0.0, zc))
+      } else {
+        match hhwf_proxy(h) {
+          Some(p) => {
+            let (_volume, c) = an_prism_volume_centroid(p)
+            Ok(c)
+          }
+          None => Err(DegenerateProfile)
         }
-        None => Err(DegenerateProfile)
       }
     ExtrudedBezierProfile(_) =>
       Err(NotAnalytic("Bezier profile requires tessellation"))
@@ -1632,9 +1666,26 @@ pub fn Shape::section_at_local(
     SquareHoleWasher(w) => an_square_hole_section(w, z)
     TabWasher(w) => an_tab_section(w, z)
     HexHeadWasherFace(h) =>
-      match hhwf_proxy(h) {
-        Some(p) => p.section_at(z)
-        None => Err(DegenerateProfile)
+      if hhwf_screw_has_shank(h) {
+        let area = hhwf_screw_area(h, z)
+        if area <= CAD_AREA_EPS {
+          Err(EmptySection)
+        } else {
+          let outer = Double::sqrt(area / @math.PI)
+          Ok({
+            z_mm: z,
+            area_mm2: area,
+            perimeter_mm: hhwf_screw_perimeter(h, z),
+            outer_radius_mm: outer,
+            inner_radius_mm: 0.0,
+            rings: [{ inner_radius_mm: 0.0, outer_radius_mm: outer, }],
+          })
+        }
+      } else {
+        match hhwf_proxy(h) {
+          Some(p) => p.section_at(z)
+          None => Err(DegenerateProfile)
+        }
       }
     ExtrudedBezierProfile(_) =>
       Err(NotAnalytic("Bezier profile requires tessellation"))
