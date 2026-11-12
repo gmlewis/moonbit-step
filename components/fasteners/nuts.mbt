@@ -77,12 +77,27 @@ pub fn hex_nut(
     }
     component
   } else if policy.include_small_features {
-    let c = nut_chamfer_mm(s, m)
-    let depth = c
-    let body = @cad.ChamferedPrism::new(
-      outer,
-      [(0.0, c), (depth, 0.0), (m - depth, 0.0), (m, c)],
-      round_bore~,
+    // A real conical washer face on each bearing face: 75 degrees for the small
+    // sizes and 60 degrees for M3 and above, with the reference bore lead-in
+    // (0.2 mm through M5, 0.5 mm from M6; none for M2/M2.5). These angles and
+    // lead-ins come from the detailed reference family and are recorded as
+    // engineering defaults, not ISO dimensions.
+    let face_angle = match dims.size {
+      @standards.MetricSize::M2 | @standards.MetricSize::M2_5 => 75.0
+      _ => 60.0
+    }
+    let lead = match dims.size {
+      @standards.MetricSize::M2 | @standards.MetricSize::M2_5 => 0.0
+      @standards.MetricSize::M6 | @standards.MetricSize::M8 => 0.5
+      _ => 0.2
+    }
+    let body = @cad.ConicalNut::new(
+      across_flats_mm=s,
+      height_mm=m,
+      bore_diameter_mm=bore_d,
+      face_angle_deg=face_angle,
+      lead_in_mm=lead,
+      rotation_deg=0.0,
     ).as_shape()
     base.add_layer(body, name="body", color=metal)
   } else {
@@ -112,7 +127,7 @@ fn nut_chamfer_mm(s : Double, m : Double) -> Double {
 ///|
 fn nut_chamfer_note(policy : @common.DetailPolicy) -> String {
   if policy.include_small_features {
-    " Both bearing faces carry a ruled 45-degree parallel-inset chamfer (engineering default, not a standard dimension; the golden's 60-degree conical face chamfer is approximated as a measured ruled band)."
+    " Both bearing faces carry a true conical washer face (75 degrees for M2/M2.5, 60 degrees for M3 and above) trimmed by the six flats, plus the reference bore lead-in; these are engineering defaults, not ISO dimensions."
   } else {
     " Face chamfers are omitted in this detail level."
   }
@@ -151,16 +166,22 @@ fn nut_feature_record(
     ],
   )
   let with_chamfer = if policy.include_small_features {
-    base
-    .add_modeled("nut-face-chamfer")
-    .add_approximated(
-      @common.Approximation::new(
-        feature="nut-face-chamfer-band",
-        kind=@common.ApproximationKind::PolygonRevolve,
-        deviation_mm=nut_chamfer_deviation_mm(across_flats),
-        control="parallel-inset hexagon ruled 45-degree chamfer (the golden carries a 60-degree conical face chamfer); maximum radial deviation at the hex corners",
-      ),
-    )
+    if thread_rep is @common.ThreadRepresentation::Helical {
+      // The helical body is still the ruled parallel-inset prism so the swept
+      // ridge stays on a simple envelope.
+      base
+      .add_modeled("nut-face-chamfer")
+      .add_approximated(
+        @common.Approximation::new(
+          feature="nut-face-chamfer-band",
+          kind=@common.ApproximationKind::PolygonRevolve,
+          deviation_mm=nut_chamfer_deviation_mm(across_flats),
+          control="parallel-inset hexagon ruled chamfer on the helical body; the detailed body carries a true conical washer face",
+        ),
+      )
+    } else {
+      base.add_modeled("nut-face-chamfer")
+    }
   } else {
     base.add_omitted(
       @common.Omission::new(

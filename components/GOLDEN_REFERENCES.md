@@ -438,3 +438,23 @@ acceptance criterion; this tool is for the visual review.
   (195-197), the B-slot6 profile (212), cup-point set screws (213-223), and the
   ISO 10642 socket rims (084). Each needs a non-axisymmetric cut or a socket
   rim representation that the flat writer does not yet carry safely.
+
+### ISO 4032 nuts (082, 083, 086-090) — conical washer faces
+
+The Detailed nut is now one closed `ConicalNut` solid: a hex prism with a true
+conical washer face on each bearing face (75 degrees for M2/M2.5, 60 degrees for
+M3 and above) trimmed by the six flats, plus the reference bore lead-in
+(0.2 mm through M5, 0.5 mm from M6, none for M2/M2.5), all with pcurves on both
+adjacent surfaces. Measured against the references: M2 17.0781 vs 17.079,
+M2.5 33.356 vs 33.358, M3 45.149 vs 45.154, M6 296.135 vs 296.161 (all within
+0.01%), and the M2 surface deviation is 0.001 mm. The reference model writes six
+tangent cylindrical corner faces (radius = across-corners) that are volume- and
+deviation-neutral; the library omits those degenerate faces, so its cylinder
+surface count is 1 (the bore) against the reference's 7.
+
+Recorded reference contradictions: the M5 reference uses the old DIN 934 height
+4.0 mm against ISO 4032's 4.7 mm (17.7% volume), and the M8 reference uses
+6.5 mm against ISO 6.8 mm (4.7%); the M4 reference has rounded corners at
+radius 3.83 mm instead of the regular hexagon's 4.041 mm (2.8% volume). The
+library keeps the ISO dimensions. The fully-modeled (helical) nut still carries
+the ruled planar face band so the swept ridge stays on a simple envelope.

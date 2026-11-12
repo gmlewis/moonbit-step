@@ -1260,6 +1260,14 @@ fn an_shape_inventory(shape : Shape) -> SurfaceInventory {
     }
     ChamferedPrism(p) => an_prism_inventory(p)
     SocketedSolid(s) => an_socketed_inventory(s)
+    ConicalNut(n) =>
+      match conical_nut_geometry(n) {
+        Some(g) => {
+          let lead_cones = if g.lead > 0.0 { 2 } else { 0 }
+          an_inventory(8, 1, 12 + lead_cones, 0, 0, 0, 0, 0)
+        }
+        None => an_inventory(0, 0, 0, 0, 0, 0, 0, 0)
+      }
     CalibrationChamferBlock(b) => {
       let rings = an_calib_rings(b)
       let n = rings.length()
@@ -1420,6 +1428,18 @@ pub fn Shape::analysis_volume(self : Shape) -> Result[Double, AnalysisError] {
         Ok(volume)
       }
     }
+    ConicalNut(n) =>
+      match conical_nut_geometry(n) {
+        Some(g) => {
+          let (volume, _zc) = conical_nut_volume_centroid(g)
+          if volume <= 0.0 {
+            Err(DegenerateProfile)
+          } else {
+            Ok(volume)
+          }
+        }
+        None => Err(DegenerateProfile)
+      }
     CalibrationChamferBlock(b) => {
       let (volume, _c) = an_calib_volume_centroid(b)
       if volume <= 0.0 {
@@ -1509,6 +1529,14 @@ pub fn Shape::analysis_centroid(self : Shape) -> Result[Vec3, AnalysisError] {
       Ok(c)
     }
     SocketedSolid(s) => Ok(s.centroid())
+    ConicalNut(n) =>
+      match conical_nut_geometry(n) {
+        Some(g) => {
+          let (_volume, zc) = conical_nut_volume_centroid(g)
+          Ok((0.0, 0.0, zc))
+        }
+        None => Err(DegenerateProfile)
+      }
     CalibrationChamferBlock(b) => {
       let (_volume, c) = an_calib_volume_centroid(b)
       Ok(c)
@@ -1597,6 +1625,7 @@ pub fn Shape::section_at_local(
     RevolvedProfile(rev) => rev.section_at(z)
     ChamferedPrism(p) => p.section_at(z)
     SocketedSolid(s) => an_socketed_section(s, z)
+    ConicalNut(n) => an_conical_nut_section(n, z)
     CalibrationChamferBlock(b) => an_calib_section(b, z)
     ExtrudedProfile(e) => e.section_at(z)
     ExtrudedArcProfile(e) => an_extruded_arc_section(e, z)
@@ -1821,6 +1850,7 @@ pub fn Shape::analysis_mesh(
     }
     RevolvedProfile(rev) => Ok(rev_mesh(rev))
     SocketedSolid(s) => Ok(socketed_solid_mesh(s))
+    ConicalNut(n) => Ok(conical_nut_mesh(n))
     ChamferedPrism(p) => Ok(chamfered_prism_mesh(p))
     ExtrudedProfile(e) =>
       if e.height_mm <= 0.0 || e.profile.outer.length() < 3 {

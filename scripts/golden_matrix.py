@@ -453,7 +453,43 @@ def chamfer_checks(
         d, s, m = p["d"], p["s"], p["m"]
         if detail == "simplified":
             add("face-sharp", ring_present(rings, 0.0, hex_circumradius(s), 6), ring_report(rings, 0.0, hex_circumradius(s), 6))
+        elif detail == "detailed":
+            # Detailed nuts carry a true conical washer face on both bearing
+            # faces (75 deg for M2/M2.5, 60 deg for M3 and above) that turns the
+            # face into a circle tangent to every flat, plus the reference bore
+            # lead-in. These angles/lead-ins are the detailed reference family's
+            # engineering defaults (ISO 4032 fixes only d, s and m).
+            alpha = 75.0 if size in ("M2", "M2.5") else 60.0
+            lead = 0.0 if size in ("M2", "M2.5") else (0.5 if size in ("M6", "M8") else 0.2)
+            r_corner = hex_circumradius(s)
+            rin = s / 2.0
+            rb = d / 2.0
+            zc = (r_corner - rin) / math.tan(math.radians(alpha))
+            add("face-circle-base", ring_present(rings, 0.0, rin, 6), ring_report(rings, 0.0, rin, 6))
+            add("face-circle-top", ring_present(rings, m, rin, 6), ring_report(rings, m, rin, 6))
+            add("corner-ring-base", ring_present(rings, zc, r_corner, 6), ring_report(rings, zc, r_corner, 6))
+            add("corner-ring-top", ring_present(rings, m - zc, r_corner, 6), ring_report(rings, m - zc, r_corner, 6))
+            add("face-chamfer-cone", cone_present(feats, 0.0, alpha), cone_report(feats, 0.0, alpha))
+            if lead > 0.0:
+                add(
+                    "bore-lead-in",
+                    ring_present(rings, 0.0, rb + lead, 1)
+                    and ring_present(rings, lead, rb, 1)
+                    and cone_present(feats, 0.0, 45.0),
+                    f"{cone_report(feats, 0.0, 45.0)}; "
+                    + ring_report(rings, lead, rb, 1),
+                )
+            else:
+                add(
+                    "bore-straight",
+                    ring_present(rings, 0.0, rb, 1)
+                    and ring_present(rings, m, rb, 1)
+                    and cylinder_present(feats, rb),
+                    f"cylinder r={rb:.4f}; " + ring_report(rings, 0.0, rb, 1),
+                )
         else:
+            # FullyModeled still carries the ruled parallel-inset face band
+            # (the swept helical ridge is a separate body).
             c = nut_chamfer(s, m)
             r_ch = hex_circumradius(s) - c / COS30
             add("bottom-face-chamfer", ring_present(rings, 0.0, r_ch, 6), ring_report(rings, 0.0, r_ch, 6))
@@ -691,7 +727,9 @@ def compare_cell(
     if measured is not None:
         got = extents(measured["bbox"])
         want = expected_bbox(family, size, length)
-        if family in ("iso4017", "iso4014"):
+        if family in ("iso4017", "iso4014") or (
+            family == "iso4032" and detail == "detailed"
+        ):
             # OCCT Bnd_Box uses the untrimmed conical washer face and reports a
             # loose box (extended toward the cone apex). The head-base,
             # chamfer-base, top-circle, and cone checks below verify the true

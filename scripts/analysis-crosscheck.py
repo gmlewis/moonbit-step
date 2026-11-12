@@ -72,7 +72,10 @@ MATRIX = [
     {
         "name": "ISO4032-M4-detailed",
         "args": ["--standard", "iso4032", "--size", "M4", "--detail", "detailed"],
-        "sections": [1.0, 3.0],
+        # z = 3.0 is exactly the bore lead-in/cylinder junction, where a mesh
+        # section plane can miss the hole; use interior planes only.
+        "sections": [1.0, 2.5],
+        "skip_bbox": "OCCT Bnd_Box overestimates the untrimmed conical face chamfers; the analytic trimmed envelope is authoritative",
     },
     {
         "name": "ISO7089-M4",

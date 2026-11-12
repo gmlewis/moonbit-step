@@ -977,3 +977,41 @@ test "ISO 2338 M3 x 20 dowel pin has 45-degree end breaks" {
   assert_true(inv.cone == 2)
   assert_true(inv.cylinder == 1)
 }
+
+///|
+test "detailed ISO 4032 nut carries conical washer faces" {
+  let nut = match @fasteners.iso4032_nut(@standards.M3, detail=Detailed) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  let layers = nut.layers()
+  assert_true(layers.length() == 1)
+  let inv = layers[0].shape.surface_inventory()
+  assert_true(inv.plane == 8)
+  assert_true(inv.cone == 14)
+  assert_true(inv.cylinder == 1)
+  let volume = match layers[0].shape.analysis_volume() {
+    Ok(v) => v
+    Err(_) => abort("nut volume unavailable")
+  }
+  // The downloaded M3 nut is 45.1539 mm3 at height 2.4.
+  assert_true((volume - 45.1539).abs() < 0.05)
+}
+
+///|
+test "detailed M2 nut is the 75-degree reference variant" {
+  let nut = match @fasteners.iso4032_nut(@standards.M2, detail=Detailed) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  let layers = nut.layers()
+  let inv = layers[0].shape.surface_inventory()
+  assert_true(inv.plane == 8)
+  assert_true(inv.cone == 12)
+  assert_true(inv.cylinder == 1)
+  let volume = match layers[0].shape.analysis_volume() {
+    Ok(v) => v
+    Err(_) => abort("nut volume unavailable")
+  }
+  assert_true((volume - 17.079).abs() < 0.01)
+}

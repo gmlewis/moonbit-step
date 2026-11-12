@@ -341,12 +341,32 @@ pub fn HexHeadWasherFace::as_shape(self : HexHeadWasherFace) -> Shape {
 }
 
 ///|
+
+///|
+/// ConicalNut is a hexagon nut with a 75/60-degree conical washer face on each
+/// bearing face and a circular through bore. The face chamfer is a true
+/// `CONICAL_SURFACE` trimmed by the six flats (hyperbola edges with pcurves),
+/// not a parallel-inset ring stack.
+pub struct ConicalNut {
+  across_flats_mm : Double
+  height_mm : Double
+  bore_diameter_mm : Double
+  face_angle_deg : Double
+  /// 45-degree bore lead-in depth at each face; 0 for a straight bore.
+  lead_in_mm : Double
+  /// Corner clocking in degrees (vertices at rotation + 60 i; flats at
+  /// rotation + 30 + 60 i).
+  rotation_deg : Double
+}
+
+///|
 pub enum Shape {
   Cuboid(Cuboid)
   Cylinder(Cylinder)
   RevolvedProfile(RevolvedProfile)
   ChamferedPrism(ChamferedPrism)
   SocketedSolid(SocketedSolid)
+  ConicalNut(ConicalNut)
   CalibrationChamferBlock(CalibrationChamferBlock)
   ExtrudedProfile(ExtrudedProfile)
   ExtrudedArcProfile(ExtrudedArcProfile)
@@ -514,6 +534,7 @@ pub fn Shape::bounding_box(
       (x0, x1, y0, y1, z0, z1)
     }
     SocketedSolid(s) => Shape::RevolvedProfile(s.body).bounding_box()
+    ConicalNut(n) => conical_nut_bounding_box(n)
     CalibrationChamferBlock(b) =>
       (0.0, b.length_mm, 0.0, b.width_mm, 0.0, b.height_mm)
     ExtrudedProfile(e) => {

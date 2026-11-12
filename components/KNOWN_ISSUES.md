@@ -520,3 +520,8 @@ approximations are recorded above and in `FEATURES.md`.
 - Gears (spur m2 z20/z40) still use the existing approximating tooth flank;
   the reference volumes differ by about 20%, so they are recorded as an
   approximation, not a match.
+
+- ISO 4032 Detailed nuts are conical; the FullyModeled (helical) variant still
+  uses the ruled planar face band. The M4/M5/M8 downloaded references disagree
+  with ISO 4032 on corner rounding (M4) and height (M5, M8); the standard values
+  are modeled.

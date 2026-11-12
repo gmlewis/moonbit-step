@@ -19,6 +19,8 @@ pub fn compile_calibration_chamfer_block(StepContext, SceneNode, CalibrationCham
 
 pub fn compile_chamfered_prism(StepContext, SceneNode, ChamferedPrism, reverse? : Bool, parent? : Transform?) -> Array[@step.Ref]
 
+pub fn compile_conical_nut(StepContext, SceneNode, ConicalNut, reverse? : Bool, parent? : Transform?) -> Array[@step.Ref]
+
 pub fn compile_conical_socketed_solid(StepContext, SceneNode, SocketedSolid, reverse? : Bool, parent? : Transform?) -> Array[@step.Ref]
 
 pub fn compile_cuboid(StepContext, SceneNode, Cuboid, reverse? : Bool, parent? : Transform?) -> Array[@step.Ref]
@@ -40,6 +42,10 @@ pub fn compile_socketed_solid(StepContext, SceneNode, SocketedSolid, reverse? : 
 pub fn compile_square_hole_washer(StepContext, SceneNode, SquareHoleWasher, reverse? : Bool, parent? : Transform?) -> Array[@step.Ref]
 
 pub fn compile_tab_washer(StepContext, SceneNode, TabWasher, reverse? : Bool, parent? : Transform?) -> Array[@step.Ref]
+
+pub fn conical_nut_bounding_box(ConicalNut) -> (Double, Double, Double, Double, Double, Double)
+
+pub fn conical_nut_mesh(ConicalNut, angular_segments? : Int32) -> (Array[(Double, Double, Double)], Array[Array[Int32]])
 
 pub fn csg_eval_script_path(String?) -> String
 
@@ -177,6 +183,17 @@ pub fn ChamferedPrism::new(Array[(Double, Double)], Array[(Double, Double)], hol
 pub fn ChamferedPrism::section_at(Self, Double) -> Result[Section, AnalysisError]
 pub fn ChamferedPrism::validate(Self) -> Result[Unit, PrismError]
 pub fn ChamferedPrism::volume(Self) -> Double
+
+pub struct ConicalNut {
+  across_flats_mm : Double
+  height_mm : Double
+  bore_diameter_mm : Double
+  face_angle_deg : Double
+  lead_in_mm : Double
+  rotation_deg : Double
+}
+pub fn ConicalNut::as_shape(Self) -> Shape
+pub fn ConicalNut::new(across_flats_mm~ : Double, height_mm~ : Double, bore_diameter_mm~ : Double, face_angle_deg~ : Double, lead_in_mm? : Double, rotation_deg? : Double) -> Self
 
 pub struct Cuboid {
   sx : Double
@@ -528,6 +545,7 @@ pub enum Shape {
   RevolvedProfile(RevolvedProfile)
   ChamferedPrism(ChamferedPrism)
   SocketedSolid(SocketedSolid)
+  ConicalNut(ConicalNut)
   CalibrationChamferBlock(CalibrationChamferBlock)
   ExtrudedProfile(ExtrudedProfile)
   ExtrudedArcProfile(ExtrudedArcProfile)

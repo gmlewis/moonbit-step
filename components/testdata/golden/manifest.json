@@ -293,12 +293,12 @@
           8.0829,
           3.2
         ],
-        "volume_mm3": 95.6951,
+        "volume_mm3": 94.307,
         "solids": 1,
         "source": "components/examples/fasteners --standard iso4032 --size M4"
       },
       "verdict": "accepted-height-only",
-      "notes": "Height matches 3.2027 vs 3.2 mm. The plan bounding box is 7.66 mm, between the across-flats 7.0 mm and across-corners 8.083 mm, which is consistent with a corner-chamfered model in an unknown orientation. Across flats cannot be confirmed from an axis-aligned bounding box; the reference is used only for the height and envelope, not as proof of s = 7.0.",
+      "notes": "Detailed nut: a true conical washer face on each bearing face (60 degrees) trimmed by the six flats, plus the reference bore lead-in. The across-flats is checked from the face-circle vertex ring, because OCCT's Bnd_Box includes the untrimmed conical surfaces and cannot confirm s. The golden M5 uses the old DIN 934 height 4.0 mm against ISO 4032's 4.7 mm; the standard value is modeled.",
       "committed": false,
       "generation": {
         "tool": "components/examples/fasteners",
@@ -318,11 +318,6 @@
         "solids": 1,
         "bbox_axes": [
           {
-            "axis": 0,
-            "expected_mm": 7.0,
-            "label": "width across flats"
-          },
-          {
             "axis": 2,
             "expected_mm": 3.2,
             "label": "nut height"
@@ -330,9 +325,31 @@
         ],
         "features": [
           {
-            "kind": "surface_min",
-            "surface": "plane",
+            "kind": "vertex_ring",
+            "z_mm": 0.0,
+            "radius_mm": 3.5,
+            "min_count": 6
+          },
+          {
+            "kind": "vertex_ring",
+            "z_mm": 3.2,
+            "radius_mm": 3.5,
+            "min_count": 6
+          },
+          {
+            "kind": "vertex_ring",
+            "z_mm": 0.2,
+            "radius_mm": 2.0,
             "min_count": 1
+          },
+          {
+            "kind": "surface_min",
+            "surface": "cone",
+            "min_count": 12
+          },
+          {
+            "kind": "cone_semi_angle_deg",
+            "expected": 60.0
           }
         ],
         "contrast": {
@@ -347,7 +364,7 @@
             "{out}"
           ],
           "output": "iso4032-M4-simplified.step",
-          "expect_more_advanced_faces": 6
+          "expect_more_advanced_faces": 17
         }
       }
     },
@@ -676,12 +693,12 @@
           6.3509,
           2.4
         ],
-        "volume_mm3": 40.557,
+        "volume_mm3": 45.149,
         "solids": 1,
         "source": "components/examples/fasteners --standard iso4032 --size M3"
       },
       "verdict": "accepted-envelope",
-      "notes": "Height 2.4 mm matches. The plan bbox is the across-corners span 6.3509 mm (= 5.5 / cos 30 deg), consistent with s = 5.5; the reference is corner-chamfered so across-flats is not directly observable from an axis-aligned bbox.",
+      "notes": "Detailed nut: a true conical washer face on each bearing face (60 degrees) trimmed by the six flats, plus the reference bore lead-in. The across-flats is checked from the face-circle vertex ring, because OCCT's Bnd_Box includes the untrimmed conical surfaces and cannot confirm s. The golden M5 uses the old DIN 934 height 4.0 mm against ISO 4032's 4.7 mm; the standard value is modeled.",
       "committed": false,
       "generation": {
         "tool": "components/examples/fasteners",
@@ -701,11 +718,6 @@
         "solids": 1,
         "bbox_axes": [
           {
-            "axis": 0,
-            "expected_mm": 5.5,
-            "label": "width across flats"
-          },
-          {
             "axis": 2,
             "expected_mm": 2.4,
             "label": "nut height"
@@ -713,9 +725,31 @@
         ],
         "features": [
           {
-            "kind": "surface_min",
-            "surface": "plane",
+            "kind": "vertex_ring",
+            "z_mm": 0.0,
+            "radius_mm": 2.75,
+            "min_count": 6
+          },
+          {
+            "kind": "vertex_ring",
+            "z_mm": 2.4,
+            "radius_mm": 2.75,
+            "min_count": 6
+          },
+          {
+            "kind": "vertex_ring",
+            "z_mm": 0.2,
+            "radius_mm": 1.5,
             "min_count": 1
+          },
+          {
+            "kind": "surface_min",
+            "surface": "cone",
+            "min_count": 12
+          },
+          {
+            "kind": "cone_semi_angle_deg",
+            "expected": 60.0
           }
         ],
         "contrast": {
@@ -730,7 +764,7 @@
             "{out}"
           ],
           "output": "iso4032-M3-simplified.step",
-          "expect_more_advanced_faces": 6
+          "expect_more_advanced_faces": 17
         }
       }
     },
@@ -767,12 +801,12 @@
           9.2376,
           4.0
         ],
-        "volume_mm3": 126.735,
+        "volume_mm3": 166.446,
         "solids": 1,
         "source": "components/examples/fasteners --standard iso4032 --size M5"
       },
       "verdict": "accepted-envelope",
-      "notes": "The golden is the older DIN 934 height (4.0 mm); ISO 4032:2023 requires 4.7 mm, so the golden is non-compliant with the current edition. The parametric part follows ISO 4032:2023.",
+      "notes": "Detailed nut: a true conical washer face on each bearing face (60 degrees) trimmed by the six flats, plus the reference bore lead-in. The across-flats is checked from the face-circle vertex ring, because OCCT's Bnd_Box includes the untrimmed conical surfaces and cannot confirm s. The golden M5 uses the old DIN 934 height 4.0 mm against ISO 4032's 4.7 mm; the standard value is modeled.",
       "committed": false,
       "generation": {
         "tool": "components/examples/fasteners",
@@ -792,11 +826,6 @@
         "solids": 1,
         "bbox_axes": [
           {
-            "axis": 0,
-            "expected_mm": 8.0,
-            "label": "width across flats"
-          },
-          {
             "axis": 2,
             "expected_mm": 4.7,
             "label": "nut height"
@@ -804,9 +833,31 @@
         ],
         "features": [
           {
-            "kind": "surface_min",
-            "surface": "plane",
+            "kind": "vertex_ring",
+            "z_mm": 0.0,
+            "radius_mm": 4.0,
+            "min_count": 6
+          },
+          {
+            "kind": "vertex_ring",
+            "z_mm": 4.7,
+            "radius_mm": 4.0,
+            "min_count": 6
+          },
+          {
+            "kind": "vertex_ring",
+            "z_mm": 0.2,
+            "radius_mm": 2.5,
             "min_count": 1
+          },
+          {
+            "kind": "surface_min",
+            "surface": "cone",
+            "min_count": 12
+          },
+          {
+            "kind": "cone_semi_angle_deg",
+            "expected": 60.0
           }
         ],
         "contrast": {
@@ -821,7 +872,7 @@
             "{out}"
           ],
           "output": "iso4032-M5-simplified.step",
-          "expect_more_advanced_faces": 6
+          "expect_more_advanced_faces": 17
         }
       }
     },
