@@ -106,11 +106,15 @@ NONSTANDARD_IDS = [
 ]
 
 # Reference models that violate their declared standard are removed from the
-# corpus and must never be downloaded again. `iso4032_hex_nut_m4` is an
-# octagonal model (eight equal flats at 45 degrees, square 7.077 x 7.077 mm
-# envelope), not the ISO 4032 M4 hexagon; it was deleted 2026-11-12.
+# corpus and must never be downloaded again (deleted 2026-11-12):
+#  - iso4032_hex_nut_m4: octagonal model (eight equal flats at 45 degrees,
+#    square 7.077 x 7.077 mm envelope), not the ISO 4032 M4 hexagon.
+#  - iso4032_hex_nut_m5: height 4.0 mm (old DIN 934) against ISO 4032's 4.7 mm.
+#  - iso4032_hex_nut_m8: height 6.5 mm (old DIN 934) against ISO 4032's 6.8 mm.
 EXCLUDED_PART_IDS = {
     "iso4032_hex_nut_m4",
+    "iso4032_hex_nut_m5",
+    "iso4032_hex_nut_m8",
 }
 
 

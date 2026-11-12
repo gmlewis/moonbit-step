@@ -539,3 +539,7 @@ approximations are recorded above and in `FEATURES.md`.
   standard hexagon. It was deleted on 2026-11-12 and added to
   `EXCLUDED_PART_IDS` in `scripts/fetch_golden_references.py` so it is never
   downloaded again; the library keeps the standard hexagon.
+
+- The ISO 4032 M5 and M8 downloaded references used the old DIN 934 heights
+  (4.0 and 6.5 mm) instead of ISO 4032's 4.7 and 6.8 mm. Both were deleted on
+  2026-11-12 and added to `EXCLUDED_PART_IDS`; the library keeps the ISO heights.

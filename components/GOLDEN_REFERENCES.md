@@ -508,3 +508,15 @@ Because the reference violates its declared standard, the file and its
 manifest fixture and the octagon measurements were removed with it. The other
 nut references are regular hexagons clocked corner-on-+X (M2/M2.5) or
 flat-on-+X (M3, M5, M6, M8).
+
+### ISO 4032 M5 and M8 nut references used DIN 934 heights — deleted (2026-11-12)
+
+`iso4032_hex_nut_m5.step` is 4.0 mm high and `iso4032_hex_nut_m8.step` is
+6.5 mm high. Those are the old DIN 934 heights; ISO 4032 specifies 4.7 mm and
+6.8 mm respectively (the library's `iso4032_size` table, see also the M5 note
+in §3.4). Both references therefore violate their declared standard. They were
+deleted with their `.bytes`/`.sha256` companions, removed from the manifest,
+and added to `EXCLUDED_PART_IDS` in `scripts/fetch_golden_references.py` so they
+are never downloaded again. The remaining ISO 4032 references are
+`hex_nut_m2_simple`, `hex_nut_m2p5_simple`, `iso4032_hex_nut_m3` and
+`iso4032_hex_nut_m6`, whose heights (1.6, 2.0, 2.4, 5.2 mm) match ISO 4032.
