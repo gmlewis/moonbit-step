@@ -381,7 +381,7 @@ Engineering-default sizes are stated; no standard dimension is invented.
 | ISO 4762 | shank tip chamfer | Detailed, FullyModeled | 45° ruled cone ring stack | ring at `z=0`, `r = r_core - c`, full radius at `z=c` |
 | ISO 4032 | both face chamfers | Detailed, FullyModeled | ruled hex ring stack | inset hex circumradius at both faces |
 | ISO 7089 | **no** edge chamfer | all | sharp extrusion | exact thickness/volume; no intermediate z ring |
-| ISO 4017/4014 | hex-head top chamfer | **all levels** | exact 75° conical washer face as six rational B-spline cone patches | circular top ring at `z = k`, radius `s/2`; chamfer-base ring at the hexagon circumradius |
+| ISO 4017/4014 | hex-head top chamfer | **all levels** | exact 75° conical washer face: one `CONICAL_SURFACE` per corner patch, trimmed by the flats | circular top ring at `z = k`, radius `s/2`; chamfer-base ring at the hexagon circumradius |
 | ISO 4017/4014 | shank tip chamfer | Detailed, FullyModeled | 45° ruled cone | same ring check |
 | ISO 7380-1 | socket lead-in chamfer | Detailed, FullyModeled | tapered hex hole | same lead-in ring check |
 | ISO 7380-1 | shank tip chamfer | Detailed, FullyModeled | 45° ruled cone | same ring check |

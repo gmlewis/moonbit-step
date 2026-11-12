@@ -1971,7 +1971,7 @@
         "source": "components/examples/fasteners --standard iso4017 --size M5 --length 20"
       },
       "verdict": "accepted-head-width-only",
-      "notes": "The reference plan bbox 9.2376 mm is the across-corners span for s = 8.0 mm. Its overall length is 23.74 mm (L + the upper-limit head height 3.74 mm), which the parametric part matches by using the reference head height. The parametric head carries the exact 75-degree conical washer face and circular top of the reference (six rational B-spline cone patches), so its volume is the reference's 475.479 mm3. The harness's OCCT bounding box is not used as an oracle here: OCCT's Bnd_Box reports the control hull of each rational chamfer patch (10.6667 mm across) instead of the trimmed surface's 9.2376 mm. The dimensions are checked exactly through the vertex rings instead.",
+      "notes": "The reference plan bbox 9.2376 mm is the across-corners span for s = 8.0 mm. Its overall length is 23.74 mm (L + the upper-limit head height 3.74 mm), which the parametric part matches by using the reference head height. The parametric head carries the exact 75-degree conical washer face and circular top of the reference (one 75-degree CONICAL_SURFACE per corner patch, trimmed by the flats), so its volume is the reference's 475.479 mm3. The harness's OCCT bounding box is not used as an oracle here: Bnd_Box extends untrimmed cone surfaces toward the apex, so it reports a loose box. The dimensions are checked exactly through the vertex rings instead.",
       "committed": false,
       "generation": {
         "tool": "components/examples/fasteners",
