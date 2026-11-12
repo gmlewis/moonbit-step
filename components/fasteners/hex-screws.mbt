@@ -18,7 +18,7 @@ fn hex_head_shape(
   let shank_color = @cad.Rgb::orange()
   let thread_color = @cad.Rgb::cyan()
   let segments = clamp_segments(policy.circle_segments)
-  let features = hex_head_feature_record(policy, threads, thread, s)
+  let features = hex_head_feature_record(policy, threads, thread)
   let base = @common.Component::new(name~, metadata~, description~, features~)
   let tip_chamfer = if policy.include_small_features {
     let raw = shank_tip_chamfer_mm(d)
@@ -94,7 +94,6 @@ fn hex_head_feature_record(
   policy : @common.DetailPolicy,
   threads : @common.ThreadRepresentation,
   thread : @standards.ThreadSpec,
-  across_flats : Double,
 ) -> @common.FeatureRecord {
   let base = @common.FeatureRecord::new(
     modeled=["hex-head", "hex-body"],

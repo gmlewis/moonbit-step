@@ -243,6 +243,12 @@ pub struct SocketedSolid {
   socket_floor_z_mm : Double
   lead_in_mm : Double
   rotation_deg : Double
+  /// When true the socket rim and floor are true cones (`rim_angle_deg`,
+  /// `floor_angle_deg`) trimmed by the hexagon flats, and
+  /// `socket_floor_z_mm` is the drill-point apex rather than a flat floor.
+  conical : Bool
+  rim_angle_deg : Double
+  floor_angle_deg : Double
 }
 
 ///|

@@ -19,6 +19,8 @@ pub fn compile_calibration_chamfer_block(StepContext, SceneNode, CalibrationCham
 
 pub fn compile_chamfered_prism(StepContext, SceneNode, ChamferedPrism, reverse? : Bool, parent? : Transform?) -> Array[@step.Ref]
 
+pub fn compile_conical_socketed_solid(StepContext, SceneNode, SocketedSolid, reverse? : Bool, parent? : Transform?) -> Array[@step.Ref]
+
 pub fn compile_cuboid(StepContext, SceneNode, Cuboid, reverse? : Bool, parent? : Transform?) -> Array[@step.Ref]
 
 pub fn compile_cylinder(StepContext, SceneNode, Cylinder, reverse? : Bool, parent? : Transform?) -> Array[@step.Ref]
@@ -30,8 +32,6 @@ pub fn compile_extruded_bezier_profile(StepContext, SceneNode, ExtrudedBezierPro
 pub fn compile_extruded_profile(StepContext, SceneNode, ExtrudedProfile, reverse? : Bool, parent? : Transform?) -> Array[@step.Ref]
 
 pub fn compile_hex_head_pcurves(StepContext, SceneNode, HexHeadWasherFace, reverse? : Bool, parent? : Transform?) -> Array[@step.Ref]
-
-pub fn compile_hex_head_washer_face(StepContext, SceneNode, HexHeadWasherFace, reverse? : Bool, parent? : Transform?) -> Array[@step.Ref]
 
 pub fn compile_revolved_profile(StepContext, SceneNode, RevolvedProfile, reverse? : Bool, parent? : Transform?) -> Array[@step.Ref]
 
@@ -569,11 +569,14 @@ pub struct SocketedSolid {
   socket_floor_z_mm : Double
   lead_in_mm : Double
   rotation_deg : Double
+  conical : Bool
+  rim_angle_deg : Double
+  floor_angle_deg : Double
 }
 pub fn SocketedSolid::as_shape(Self) -> Shape
 pub fn SocketedSolid::body_segments(Self) -> Array[RevSegment]
 pub fn SocketedSolid::centroid(Self) -> (Double, Double, Double)
-pub fn SocketedSolid::new(RevolvedProfile, Double, Double, lead_in_mm? : Double, rotation_deg? : Double) -> Self
+pub fn SocketedSolid::new(RevolvedProfile, Double, Double, lead_in_mm? : Double, rotation_deg? : Double, conical? : Bool, rim_angle_deg? : Double, floor_angle_deg? : Double) -> Self
 pub fn SocketedSolid::volume(Self) -> Double
 
 pub struct SquareHoleWasher {

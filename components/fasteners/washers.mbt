@@ -65,6 +65,73 @@ pub fn flat_washer(
 }
 
 ///|
+/// iso709x_washer builds an ISO 7091 / 7092 / 7093 / 7090 plain washer.
+///
+/// The downloaded references for every one of these series are single analytic
+/// annuli (two cylinders and two planes), so the sharp-edged plain washer is
+/// the standard-correct representation at every detail level.
+pub fn iso709x_washer(
+  series : @standards.IsoWasherSeries,
+  size : @standards.MetricSize,
+  detail~ : @common.DetailLevel = Simplified,
+  color? : @cad.Rgb,
+) -> Result[@common.Component, @common.SpecError] {
+  match @standards.iso709x_size(series, size) {
+    Err(e) => Err(e)
+    Ok(dims) =>
+      Ok(
+        plain_washer(
+          "\{@standards.iso709x_prefix(series)}-\{size.designation()}",
+          @standards.iso709x_metadata(dims),
+          dims.inner_diameter_mm,
+          dims.outer_diameter_mm,
+          dims.thickness_mm,
+          @standards.iso709x_standard(series),
+          detail,
+          color?,
+        ),
+      )
+  }
+}
+
+///|
+/// iso7090_washer builds an ISO 7090 plain washer (chamfered normal series,
+/// sharp-annulus reference).
+pub fn iso7090_washer(
+  size : @standards.MetricSize,
+  detail~ : @common.DetailLevel = Simplified,
+) -> Result[@common.Component, @common.SpecError] {
+  iso709x_washer(@standards.IsoWasherSeries::Iso7090, size, detail~)
+}
+
+///|
+/// iso7091_washer builds an ISO 7091 class C plain washer.
+pub fn iso7091_washer(
+  size : @standards.MetricSize,
+  detail~ : @common.DetailLevel = Simplified,
+) -> Result[@common.Component, @common.SpecError] {
+  iso709x_washer(@standards.IsoWasherSeries::Iso7091ClassC, size, detail~)
+}
+
+///|
+/// iso7092_washer builds an ISO 7092 small-series plain washer.
+pub fn iso7092_washer(
+  size : @standards.MetricSize,
+  detail~ : @common.DetailLevel = Simplified,
+) -> Result[@common.Component, @common.SpecError] {
+  iso709x_washer(@standards.IsoWasherSeries::Iso7092, size, detail~)
+}
+
+///|
+/// iso7093_washer builds an ISO 7093 large-series plain washer.
+pub fn iso7093_washer(
+  size : @standards.MetricSize,
+  detail~ : @common.DetailLevel = Simplified,
+) -> Result[@common.Component, @common.SpecError] {
+  iso709x_washer(@standards.IsoWasherSeries::Iso7093, size, detail~)
+}
+
+///|
 /// din125_washer builds a DIN 125 A plain washer, normal series.
 ///
 /// DIN 125 A is dimensionally identical to ISO 7089 for the modeled sizes and

@@ -26,8 +26,24 @@ pub fn SocketedSolid::new(
   // Vertices at 0/60/... so flats face 30/90/... - the clocking used by the
   // downloaded socket-head goldens.
   rotation_deg~ : Double = 0.0,
+  // Conical pocket: a `rim_angle_deg` countersink at the mouth and a
+  // `floor_angle_deg` drill point whose apex is `socket_floor_z_mm`. The hex
+  // walls are then trimmed by both cones (hyperbola edges with pcurves),
+  // matching the detailed ISO 4762 references.
+  conical~ : Bool = false,
+  rim_angle_deg~ : Double = 45.0,
+  floor_angle_deg~ : Double = 70.0,
 ) -> SocketedSolid {
-  { body, across_flats_mm, socket_floor_z_mm, lead_in_mm, rotation_deg, }
+  {
+    body,
+    across_flats_mm,
+    socket_floor_z_mm,
+    lead_in_mm,
+    rotation_deg,
+    conical,
+    rim_angle_deg,
+    floor_angle_deg,
+  }
 }
 
 ///|
@@ -61,6 +77,9 @@ fn socket_clamp01(v : Double) -> Double {
 /// signed area) whose last segment is the radial flat top cap ending on the
 /// axis. Every shipped `SocketedSolid` is built that way.
 fn socketed_geometry(s : SocketedSolid) -> SocketGeometry? {
+  if s.conical {
+    return None
+  }
   match s.body.validate() {
     Err(_) => return None
     Ok(_) => ()
@@ -162,6 +181,16 @@ fn socketed_pocket_volume_centroid(g : SocketGeometry) -> (Double, Double) {
 /// SocketedSolid::volume returns the exact solid volume in the local frame.
 pub fn SocketedSolid::volume(self : SocketedSolid) -> Double {
   let (body_volume, _zc) = an_rev_volume_centroid(self.body)
+  if self.conical {
+    let v = match conical_socket_geometry(self) {
+      Some(g) => {
+        let (void_volume, _vz) = conical_socket_volume_centroid(g)
+        body_volume - void_volume
+      }
+      None => 0.0
+    }
+    return if v < 0.0 { 0.0 } else { v }
+  }
   match socketed_geometry(self) {
     Some(g) => {
       let (void_volume, _vz) = socketed_pocket_volume_centroid(g)
@@ -180,17 +209,32 @@ pub fn SocketedSolid::volume(self : SocketedSolid) -> Double {
 /// SocketedSolid::centroid returns the exact centroid in the local frame.
 pub fn SocketedSolid::centroid(self : SocketedSolid) -> Vec3 {
   let (body_volume, body_z) = an_rev_volume_centroid(self.body)
-  match socketed_geometry(self) {
-    Some(g) => {
-      let (void_volume, void_z) = socketed_pocket_volume_centroid(g)
-      let v = body_volume - void_volume
-      if v <= CAD_DEGENERATE_EPS {
-        (0.0, 0.0, 0.0)
-      } else {
-        (0.0, 0.0, (body_volume * body_z - void_volume * void_z) / v)
+  if self.conical {
+    match conical_socket_geometry(self) {
+      Some(g) => {
+        let (void_volume, void_z) = conical_socket_volume_centroid(g)
+        let v = body_volume - void_volume
+        if v <= CAD_DEGENERATE_EPS {
+          (0.0, 0.0, 0.0)
+        } else {
+          (0.0, 0.0, (body_volume * body_z - void_volume * void_z) / v)
+        }
       }
+      None => (0.0, 0.0, 0.0)
     }
-    None => (0.0, 0.0, 0.0)
+  } else {
+    match socketed_geometry(self) {
+      Some(g) => {
+        let (void_volume, void_z) = socketed_pocket_volume_centroid(g)
+        let v = body_volume - void_volume
+        if v <= CAD_DEGENERATE_EPS {
+          (0.0, 0.0, 0.0)
+        } else {
+          (0.0, 0.0, (body_volume * body_z - void_volume * void_z) / v)
+        }
+      }
+      None => (0.0, 0.0, 0.0)
+    }
   }
 }
 
@@ -243,6 +287,9 @@ pub fn compile_socketed_solid(
   reverse~ : Bool = false,
   parent~ : Transform? = None,
 ) -> Array[@step.Ref] {
+  if s.conical {
+    return compile_conical_socketed_solid(ctx, node, s, reverse~, parent~)
+  }
   let xform = node_transform(node, parent)
   let g = match socketed_geometry(s) {
     Some(v) => v
@@ -435,6 +482,22 @@ pub fn socketed_solid_mesh(
   angular_segments~ : Int32 = 48,
   arc_segments~ : Int32 = 12,
 ) -> (Array[Vec3], Array[Array[Int32]]) {
+  if s.conical {
+    // Visualization approximation: a flat hex floor at the drill corners. The
+    // STEP exporter and the analysis volume use the true cones.
+    match conical_socket_geometry(s) {
+      Some(g) => {
+        let flat = SocketedSolid::new(
+          s.body,
+          s.across_flats_mm,
+          g.floor_apex + g.r_corner / g.floor_tan,
+          rotation_deg=s.rotation_deg,
+        )
+        return socketed_solid_mesh(flat, angular_segments~, arc_segments~)
+      }
+      None => return ([], [])
+    }
+  }
   let g = match socketed_geometry(s) {
     Some(v) => v
     None => return ([], [])

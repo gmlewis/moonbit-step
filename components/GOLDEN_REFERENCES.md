@@ -405,3 +405,36 @@ acceptance criterion; this tool is for the visual review.
   `cylinder_radius_present_mm`, `cone_semi_angle_deg`, `cone_min_count`.
 - **Self-test**: 15 checks covering PASS/FAIL/SKIP, checksum, units/frame,
   feature kinds, mass, sections, deviation, and vertex rings.
+
+## Session 10: detailed socket, washers, dowel pins, rods (2026-11-11)
+
+- **ISO 4762 (091-120, 224).** The Detailed/FullyModeled builder now emits the
+  reference's conical socket: a 45-degree countersink at the mouth, a 70-degree
+  drill point at the floor, and six flats trimmed by both cones (hyperbola
+  edges with pcurves on flat and cone). Surface entities match the M3 x 10
+  reference exactly (plane 9, cone 5, cylinder 2); volume 128.131 vs 128.119
+  mm3 and SolidCraft imports with no warnings. The reference writes the rim as
+  one cone face; this generator writes six patches of one cone entity, so the
+  advanced-face count is 21 vs 16. About half of the downloaded sizes use a
+  different source construction (flat socket floor, under-head torus fillet,
+  no countersink: M2, M2.5, M3 x 8, M4 x 10/16/25, M5, M6 x 10/16/25, M8). The
+  library keeps the standard-correct detailed construction for every size and
+  records the source variance here rather than copying the simpler artifact.
+- **ISO 7090 / 7091 / 7092 / 7093 (121-141).** Plain analytic annuli. All 21
+  reference volumes match the standard d1/d2/h tables exactly except
+  `iso7091din126_class_c_m5flatwasher`, whose model uses d1 = 5.55 mm against
+  the ISO 7091 class C nominal 5.5 mm (0.8% volume); the standard value is
+  modeled and the difference recorded.
+- **ISO 2338 (149-166).** Cylinder with 45-degree end breaks (leg 0.08 d).
+  Every reference file names a half-length: `d003_l020` is a 40 mm model. The
+  library follows the label and ISO 2338 (20 mm); both measurements are
+  recorded, as for the DIN 976 rods below.
+- **DIN 976 (198-211).** Confirmed: every reference is exactly twice its label
+  length (`l025` is 50 mm, `l200` is 400 mm). The library follows the label
+  (25/200 mm) and its ends carry 45-degree lead-in cones where the references
+  are sharp; both differences are recorded, not copied.
+- **Not implemented in this session:** ISO 1234 cotter pins (142-148),
+  ISO 8752 slotted spring pins (167-190), acorn nuts (191-194), square nuts
+  (195-197), the B-slot6 profile (212), cup-point set screws (213-223), and the
+  ISO 10642 socket rims (084). Each needs a non-axisymmetric cut or a socket
+  rim representation that the flat writer does not yet carry safely.

@@ -53,13 +53,15 @@ DETAILS = ["simplified", "detailed", "full"]
 
 # --- Independent standard tables (transcribed from the ISO nominal tables). ---
 ISO4762 = {
-    # s is the ISO socket upper limit (nominal + tolerance), which is what the
-    # builder models. The downloaded goldens use the nominal, below the ISO min.
-    "M2": dict(d=2.0, dk=3.8, k=2.0, s=1.58, t=1.0),
-    "M2.5": dict(d=2.5, dk=4.5, k=2.5, s=2.08, t=1.1),
-    "M3": dict(d=3.0, dk=5.5, k=3.0, s=2.58, t=1.3),
-    "M4": dict(d=4.0, dk=7.0, k=4.0, s=3.08, t=2.0),
-    "M5": dict(d=5.0, dk=8.5, k=5.0, s=4.095, t=2.5),
+    # s is the ISO socket nominal across-flats. The Detailed construction uses
+    # the nominal (the detailed goldens' corner radius is s/sqrt(3)), while the
+    # Simplified construction uses the ISO upper limit (smax), which is why a
+    # standard hex key still fits the shallower pocket.
+    "M2": dict(d=2.0, dk=3.8, k=2.0, s=1.5, smax=1.58, t=1.0),
+    "M2.5": dict(d=2.5, dk=4.5, k=2.5, s=2.0, smax=2.08, t=1.1),
+    "M3": dict(d=3.0, dk=5.5, k=3.0, s=2.5, smax=2.58, t=1.3),
+    "M4": dict(d=4.0, dk=7.0, k=4.0, s=3.0, smax=3.08, t=2.0),
+    "M5": dict(d=5.0, dk=8.5, k=5.0, s=4.0, smax=4.095, t=2.5),
 }
 ISO4032 = {
     "M2": dict(d=2.0, s=4.0, m=1.6),
@@ -190,6 +192,17 @@ FAMILY_SIZES = {
 # --- Engineering-default chamfer formulas (mirror the declared defaults). ---
 def tip_chamfer(d: float) -> float:
     return min(0.1 * d, 0.5)
+
+
+# Detailed socket-head reference defaults (engineering defaults recorded by the
+# builder; ISO 4762 fixes the head and socket dimensions, not these breaks).
+SOCKET_HEAD_BREAK_MM = 0.1
+SOCKET_TIP_BREAK_MIN_MM = 0.4
+SOCKET_DRILL_CLEARANCE_MM = 0.3
+
+
+def socket_tip_chamfer(d: float) -> float:
+    return max(0.1 * d, SOCKET_TIP_BREAK_MIN_MM)
 
 
 def lead_in(across_flats: float, depth: float) -> float:
@@ -380,7 +393,7 @@ def chamfer_checks(
         if detail == "simplified":
             add("tip-sharp", ring_present(rings, 0.0, d / 2.0, 1), ring_report(rings, 0.0, d / 2.0, 1))
         else:
-            c = tip_chamfer(d)
+            c = socket_tip_chamfer(d)
             full_d = minor(d, PITCH[size]) if detail == "full" else d
             r_tip = full_d / 2.0 - c
             add(
@@ -395,26 +408,36 @@ def chamfer_checks(
                 ring_present(rings, c, full_d / 2.0, 1),
                 ring_report(rings, c, full_d / 2.0, 1),
             )
-            # The socket is a real blind pocket in one closed solid. The golden
-            # countersinks its rim, but a hyperbola-trimmed cone cannot be
-            # emitted soundly yet, so the rim is sharp and that feature is a
-            # typed omission. Check the actual sharp hexagonal rim and floor.
-            add("socket-rim-sharp",
-                ring_present(rings, length + k, hex_circumradius(s), 6),
-                ring_report(rings, length + k, hex_circumradius(s), 6))
-            add("socket-floor",
-                ring_present(rings, length + k - t, hex_circumradius(s), 6),
-                ring_report(rings, length + k - t, hex_circumradius(s), 6))
+            # The Detailed socket is a real blind pocket in one closed solid,
+            # bounded by a 45-degree conical countersink at the mouth and a
+            # 70-degree conical drill point at the floor. The six flats are
+            # trimmed by both cones, so the corners sit on the top plane and on
+            # the drill cone; each cone is one analytic CONICAL_SURFACE.
+            r_hex = hex_circumradius(s)
+            add("socket-rim-corners",
+                ring_present(rings, length + k, r_hex, 6),
+                ring_report(rings, length + k, r_hex, 6))
+            floor_corner_z = length + SOCKET_DRILL_CLEARANCE_MM + r_hex / math.tan(
+                math.radians(70.0)
+            )
+            add("socket-floor-corners",
+                ring_present(rings, floor_corner_z, r_hex, 6),
+                ring_report(rings, floor_corner_z, r_hex, 6))
+            add("socket-countersink-cone",
+                cone_present(feats, 0.0, 45.0) and cone_present(feats, 0.0, 70.0),
+                f"45deg: {cone_report(feats, 0.0, 45.0)}; 70deg: {cone_report(feats, 0.0, 70.0)}")
+            head_r = dk / 2.0 - SOCKET_HEAD_BREAK_MM
             add(
                 "head-top-chamfer",
                 cone_present(feats, dk / 2.0, 45.0)
-                and ring_present(
-                    rings, length + k, dk / 2.0 - head_chamfer(dk, k, t), 1
-                ),
+                and ring_present(rings, length + k, head_r, 1),
                 f"{cone_report(feats, dk / 2.0)}; "
-                + ring_report(
-                    rings, length + k, dk / 2.0 - head_chamfer(dk, k, t), 1
-                ),
+                + ring_report(rings, length + k, head_r, 1),
+            )
+            add(
+                "head-bottom-chamfer",
+                ring_present(rings, length, head_r, 1),
+                ring_report(rings, length, head_r, 1),
             )
         if detail == "full":
             ridge = feats.get("surface_counts", {})

@@ -656,10 +656,45 @@ fn socketed_pocket_across_flats(g : SocketGeometry, z : Double) -> Double {
 /// `z`. Inside the socket the section is the body section minus the hexagonal
 /// pocket; the reported inner radius is the hexagon's inradius and the area and
 /// perimeter are exact.
+fn an_conical_socket_section(
+  s : SocketedSolid,
+  z : Double,
+) -> Result[Section, AnalysisError] {
+  let g = match conical_socket_geometry(s) {
+    Some(v) => v
+    None => return Err(DegenerateProfile)
+  }
+  let base = match s.body.section_at(z) {
+    Ok(v) => v
+    Err(e) => return Err(e)
+  }
+  if z < g.floor_apex - CAD_LENGTH_EPS || z > g.top_z + CAD_LENGTH_EPS {
+    return Ok(base)
+  }
+  let pocket_area = conical_socket_area_at(g, z)
+  let area = base.area_mm2 - pocket_area
+  if area <= CAD_AREA_EPS {
+    return Err(EmptySection)
+  }
+  let inner = Double::sqrt(pocket_area / @math.PI)
+  Ok({
+    z_mm: z,
+    area_mm2: area,
+    perimeter_mm: base.perimeter_mm + conical_socket_void_perimeter(g, z),
+    outer_radius_mm: base.outer_radius_mm,
+    inner_radius_mm: inner,
+    rings: [{ inner_radius_mm: inner, outer_radius_mm: base.outer_radius_mm, }],
+  })
+}
+
+///|
 fn an_socketed_section(
   s : SocketedSolid,
   z : Double,
 ) -> Result[Section, AnalysisError] {
+  if s.conical {
+    return an_conical_socket_section(s, z)
+  }
   let g = match socketed_geometry(s) {
     Some(v) => v
     None => return Err(DegenerateProfile)
@@ -1254,7 +1289,9 @@ fn an_shape_inventory(shape : Shape) -> SurfaceInventory {
     ExtrudedArcProfile(e) => an_extruded_arc_inventory(e)
     SquareHoleWasher(w) => an_square_hole_inventory(w)
     TabWasher(w) => an_tab_inventory(w)
-    HexHeadWasherFace(_h) => an_inventory(8, 6, 0, 0, 0, 0, 0, 0)
+    // Six planar flats, the flat underside, and the circular top: eight planes.
+    // The chamfer is six CONICAL_SURFACE patches, not cylinders.
+    HexHeadWasherFace(_h) => an_inventory(8, 0, 6, 0, 0, 0, 0, 0)
     ExtrudedBezierProfile(e) => an_bezier_inventory(e)
     SweptProfile(s) => an_swept_inventory(s)
     Fillet(f) => an_shape_inventory(f.base.shape)
@@ -1311,11 +1348,26 @@ fn an_prism_inventory(p : ChamferedPrism) -> SurfaceInventory {
 /// body's analytic revolve faces minus its flat top cap, plus the annular top
 /// face, six socket walls, the optional six ruled lead-in faces, and the floor.
 fn an_socketed_inventory(s : SocketedSolid) -> SurfaceInventory {
+  let base = an_shape_inventory(Shape::RevolvedProfile(s.body))
+  if s.conical {
+    // The top cap is replaced by the annular top face and six flat planes; the
+    // rim and drill cones are one surface entity each (shared by their
+    // patches), giving the detailed reference's plane 9 / cone 5 / cylinder 2.
+    return an_inventory(
+      base.plane - 1 + 7,
+      base.cylinder,
+      base.cone + 2,
+      base.sphere,
+      base.torus,
+      base.bspline,
+      base.swept,
+      base.other,
+    )
+  }
   let g = match socketed_geometry(s) {
     Some(v) => v
     None => return an_inventory(0, 0, 0, 0, 0, 0, 0, 0)
   }
-  let base = an_shape_inventory(Shape::RevolvedProfile(s.body))
   let lead_faces = if g.lead > CAD_DEGENERATE_EPS { 6 } else { 0 }
   an_inventory(
     base.plane - 1 + 8 + lead_faces,

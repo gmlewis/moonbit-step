@@ -66,6 +66,8 @@ pub fn internal_thread_root_radius_mm(@standards.ThreadSpec) -> Double
 
 pub fn iso10642_screw(@standards.MetricSize, Double, detail? : @common.DetailLevel, threads? : @common.ThreadRepresentation) -> Result[@common.Component, @common.SpecError]
 
+pub fn iso2338_pin(@standards.MetricSize, Double, detail? : @common.DetailLevel, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
 pub fn iso4014(@standards.MetricSize, Double, detail? : @common.DetailLevel, threads? : @common.ThreadRepresentation) -> Result[@common.Component, @common.SpecError]
 
 pub fn iso4014_bolt(@standards.ISO4014Spec, detail? : @common.DetailLevel, threads? : @common.ThreadRepresentation) -> @common.Component
@@ -79,6 +81,16 @@ pub fn iso4032_nut(@standards.MetricSize, detail? : @common.DetailLevel, threads
 pub fn iso4762_screw(@standards.MetricSize, Double, detail? : @common.DetailLevel, threads? : @common.ThreadRepresentation) -> Result[@common.Component, @common.SpecError]
 
 pub fn iso7089_washer(@standards.MetricSize, detail? : @common.DetailLevel) -> Result[@common.Component, @common.SpecError]
+
+pub fn iso7090_washer(@standards.MetricSize, detail? : @common.DetailLevel) -> Result[@common.Component, @common.SpecError]
+
+pub fn iso7091_washer(@standards.MetricSize, detail? : @common.DetailLevel) -> Result[@common.Component, @common.SpecError]
+
+pub fn iso7092_washer(@standards.MetricSize, detail? : @common.DetailLevel) -> Result[@common.Component, @common.SpecError]
+
+pub fn iso7093_washer(@standards.MetricSize, detail? : @common.DetailLevel) -> Result[@common.Component, @common.SpecError]
+
+pub fn iso709x_washer(@standards.IsoWasherSeries, @standards.MetricSize, detail? : @common.DetailLevel, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
 pub fn iso7380_screw(@standards.MetricSize, Double, detail? : @common.DetailLevel, threads? : @common.ThreadRepresentation) -> Result[@common.Component, @common.SpecError]
 

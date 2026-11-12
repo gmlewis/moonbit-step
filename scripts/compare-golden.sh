@@ -207,6 +207,37 @@ def infer(name, detail):
     m = re.match(r"^hex_head_bolt_m(\d+(?:p\d+)?)_l(\d+)_simple\.step$", name)
     if m:
         return fastener("iso4017", m.group(1), m.group(2), detail)
+    m = re.match(
+        r"^iso4017_hex_head_cap_screw_m(\d+(?:p\d+)?)x(\d+)\.step$", name
+    )
+    if m:
+        return fastener("iso4017", m.group(1), m.group(2), detail)
+    m = re.match(r"^iso_2338_dowel_pin_d(\d+)_l(\d+)\.step$", name)
+    if m:
+        return fastener(
+            "iso2338", str(int(m.group(1))), str(int(m.group(2))), detail
+        )
+    m = re.match(r"^iso7090_m(\d+(?:[p_]\d+)?)_flat_washer\.step$", name)
+    if m:
+        return fastener("iso7090", m.group(1).replace("_", "p"), None, detail)
+    m = re.match(
+        r"^iso7091(?:_class_c_|din126_class_c_)m(\d+(?:[p_]\d+)?)(?:flatwasher|_flat_washer)?\.step$",
+        name,
+    )
+    if m:
+        return fastener("iso7091", m.group(1).replace("_", "p"), None, detail)
+    m = re.match(
+        r"^iso7092(?:_?din433_)?m(\d+(?:[p_]\d+)?)(?:flatwasher|_flat_washer)?\.step$",
+        name,
+    )
+    if m:
+        return fastener("iso7092", m.group(1).replace("_", "p"), None, detail)
+    m = re.match(
+        r"^iso7093(?:_?din9021_)?m(\d+(?:[p_]\d+)?)(?:flatwasher|_flat_washer)?\.step$",
+        name,
+    )
+    if m:
+        return fastener("iso7093", m.group(1).replace("_", "p"), None, detail)
     m = re.match(r"^din125_flat_washer_m(\d+(?:p\d+)?)(?:_simple)?\.step$", name)
     if m:
         return fastener("din125", m.group(1), None, detail)

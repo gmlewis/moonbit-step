@@ -1,4 +1,18 @@
 ///|
+/// Detailed socket-head reference defaults. ISO 4762 fixes the head diameter,
+/// height, socket across-flats, socket depth and thread; it does not fix the
+/// head breaks or drill-point clearance, so these are engineering defaults
+/// taken from the detailed reference family and recorded, never claimed as
+/// standard dimensions.
+const SOCKET_HEAD_BREAK_MM : Double = 0.1
+
+///|
+const SOCKET_TIP_BREAK_MIN_MM : Double = 0.4
+
+///|
+const SOCKET_DRILL_CLEARANCE_MM : Double = 0.3
+
+///|
 /// socket_head_cap_screw builds an ISO 4762 hexagon socket head cap screw.
 ///
 /// The screw axis is +Z with the origin at the centre of the head underside
@@ -41,7 +55,7 @@ pub fn socket_head_cap_screw(
   let base = @common.Component::new(
     name~,
     metadata=spec.metadata(),
-    description="Single closed solid: a solid of revolution (tip break, shank, head underside, head cylinder, conical head top break) with a blind hexagonal socket cut into the head top; six planar socket walls and a planar hexagonal floor bound the pocket." +
+    description="Single closed solid: a solid of revolution (tip break, shank, head underside, head cylinder, conical head breaks) with a blind hexagonal socket cut into the head top; six planar socket walls are trimmed by a 45-degree conical countersink at the mouth and a 70-degree conical drill point at the floor." +
       head_chamfer_note(policy) +
       thread_note(thread_rep),
     features~,
@@ -51,8 +65,15 @@ pub fn socket_head_cap_screw(
   // head underside, head outside, and the conical head-top break. ISO 4762
   // measures the thread length from the tip, so the thread occupies
   // z = 0 .. thread_length and any plain shank sits under the head.
+  // The detailed reference profile uses a 0.4 mm minimum tip break and a
+  // 0.1 mm head break; both are engineering defaults (ISO 4762 does not fix
+  // them) and are recorded as such.
   let tip_chamfer = if policy.include_small_features {
-    let raw = shank_tip_chamfer_mm(d)
+    let raw = if 0.1 * d > SOCKET_TIP_BREAK_MIN_MM {
+      0.1 * d
+    } else {
+      SOCKET_TIP_BREAK_MIN_MM
+    }
     if raw < length / 4.0 {
       raw
     } else {
@@ -61,8 +82,8 @@ pub fn socket_head_cap_screw(
   } else {
     0.0
   }
-  let top_chamfer = if policy.include_small_features {
-    head_chamfer_mm(dk, k, t)
+  let head_break = if policy.include_small_features {
+    SOCKET_HEAD_BREAK_MM
   } else {
     0.0
   }
@@ -84,23 +105,36 @@ pub fn socket_head_cap_screw(
   } else {
     pts.push((core_r, length))
   }
-  pts.push((dk / 2.0, length))
-  if top_chamfer > 0.0 && top_chamfer < dk / 2.0 {
-    pts.push((dk / 2.0, length + k - top_chamfer))
-    pts.push((dk / 2.0 - top_chamfer, length + k))
+  if head_break > 0.0 && head_break < dk / 2.0 {
+    pts.push((dk / 2.0 - head_break, length))
+    pts.push((dk / 2.0, length + head_break))
+    pts.push((dk / 2.0, length + k - head_break))
+    pts.push((dk / 2.0 - head_break, length + k))
   } else {
+    pts.push((dk / 2.0, length))
     pts.push((dk / 2.0, length + k))
   }
   pts.push((0.0, length + k))
   let body = @cad.RevolvedProfile::polyline(pts)
-  // The blind hex socket is a real pocket in the same closed shell: the body's
-  // flat top cap is replaced by an annular top face, six planar walls, and a
-  // planar hexagonal floor.
-  // ISO gives the socket as a range entirely above the nominal; model the
-  // upper limit so a standard hex key fits.
-  let af = dims.socket_across_flats_max_mm
-  let floor_height = k - t
-  let socket = @cad.SocketedSolid::new(body, af, length + floor_height)
+  // The blind hex socket is a real pocket in the same closed shell. At Detailed
+  // and above it is bounded by a 45-degree conical countersink and a 70-degree
+  // conical drill point (hyperbola-trimmed hex walls), matching the detailed
+  // ISO 4762 references. At Simplified detail the socket is the shallow flat
+  // floor with the ISO upper-limit across-flats, so a standard hex key fits.
+  let socket = if policy.include_small_features {
+    @cad.SocketedSolid::new(
+      body,
+      dims.socket_across_flats_mm,
+      length + SOCKET_DRILL_CLEARANCE_MM,
+      conical=true,
+      rim_angle_deg=45.0,
+      floor_angle_deg=70.0,
+    )
+  } else {
+    let af = dims.socket_across_flats_max_mm
+    let floor_height = k - t
+    @cad.SocketedSolid::new(body, af, length + floor_height)
+  }
   let mut component = base.add_layer(
     socket.as_shape(),
     name="body",
@@ -156,24 +190,9 @@ pub fn socket_head_cap_screw_assembly_name(
 }
 
 ///|
-/// head_chamfer_mm returns the engineering-default top-edge chamfer inset for a
-/// socket head cap screw. ISO 4762 does not fix the head chamfer; this keeps it
-/// below a third of the head height and half the socket depth.
-fn head_chamfer_mm(dk : Double, k : Double, t : Double) -> Double {
-  let mut c = 0.1 * dk
-  if c > k / 3.0 {
-    c = k / 3.0
-  }
-  if c > t / 2.0 {
-    c = t / 2.0
-  }
-  c
-}
-
-///|
 fn head_chamfer_note(policy : @common.DetailPolicy) -> String {
   if policy.include_small_features {
-    " The head top edge and the shank tip carry 45-degree conical chamfers (engineering defaults); the socket rim and floor are sharp and flat."
+    " The head top and bottom edges and the shank tip carry 45-degree conical breaks (engineering defaults); the socket mouth is a 45-degree countersink and the floor a 70-degree drill point trimmed by the six flats."
   } else {
     " The head, socket, and shank edges are sharp at this detail level."
   }
@@ -191,26 +210,38 @@ fn screw_feature_record(
 ) -> @common.FeatureRecord {
   let _ = segments
   let _ = dk
-  let base = @common.FeatureRecord::new(
-    modeled=[
-      "head-outer-cylinder", "blind-hex-socket", "hex-socket-flats", "socket-floor-plane",
-    ],
-    approximated=[],
-    omitted=[
-      @common.Omission::new(
-        feature="under-head-radius",
-        reason="ISO 4762 does not give a verified under-head radius for this builder; a typed omission rather than a guessed fillet",
-      ),
-      @common.Omission::new(
-        feature="socket-lead-in-cone",
-        reason="the golden drills a 45-degree conical countersink at the socket rim; a true trimmed cone needs hyperbola-bounded cone faces, and a ruled hex flare would misstate the shape, so the rim is sharp",
-      ),
-      @common.Omission::new(
-        feature="socket-floor-cone",
-        reason="the golden socket bottom is a shallow conical drill point; this builder emits a flat floor rather than an unverified cone",
-      ),
-    ],
+  let under_head = @common.Omission::new(
+    feature="under-head-radius",
+    reason="ISO 4762 does not give a verified under-head radius for this builder; a typed omission rather than a guessed fillet",
   )
+  let base = if policy.include_small_features {
+    @common.FeatureRecord::new(
+      modeled=[
+        "head-outer-cylinder", "blind-hex-socket", "hex-socket-flats", "socket-lead-in-cone",
+        "socket-floor-cone",
+      ],
+      approximated=[],
+      omitted=[under_head],
+    )
+  } else {
+    @common.FeatureRecord::new(
+      modeled=[
+        "head-outer-cylinder", "blind-hex-socket", "hex-socket-flats", "socket-floor-plane",
+      ],
+      approximated=[],
+      omitted=[
+        under_head,
+        @common.Omission::new(
+          feature="socket-lead-in-cone",
+          reason="omitted at Simplified detail level; the rim is sharp",
+        ),
+        @common.Omission::new(
+          feature="socket-floor-cone",
+          reason="omitted at Simplified detail level; the floor is flat",
+        ),
+      ],
+    )
+  }
   let with_chamfers = if policy.include_small_features {
     base.add_modeled("head-chamfer").add_modeled("shank-tip-chamfer")
   } else {

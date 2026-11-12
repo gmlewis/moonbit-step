@@ -507,3 +507,16 @@ approximations are recorded above and in `FEATURES.md`.
   protrudes past the nut), while a shorter one is rejected. Thin stacks whose
   exact length is below the ISO 4762 minimum still need the override.
 
+
+## Session 10 open items (2026-11-11)
+
+- ISO 4762 detailed geometry matches the reference shape and volume; the
+  reference family mixes two source constructions. The simpler source (flat
+  socket floor, under-head torus, no countersink) is not copied.
+- ISO 2338 dowel-pin and DIN 976 rod reference files are twice their labelled
+  length; the library follows the label.
+- ISO 8752 slotted spring pins remain unmodeled: the reference slot is closed
+  at the ends and the flat writer has no verified slit-tube construction.
+- Gears (spur m2 z20/z40) still use the existing approximating tooth flank;
+  the reference volumes differ by about 20%, so they are recorded as an
+  approximation, not a match.

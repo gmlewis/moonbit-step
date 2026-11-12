@@ -51,12 +51,12 @@
           5.5,
           13.0
         ],
-        "volume_mm3": 134.8361,
+        "volume_mm3": 128.1314,
         "solids": 1,
         "source": "components/examples/fasteners --standard iso4762 --size M3 --length 10"
       },
       "verdict": "accepted-envelope",
-      "notes": "Head diameter and overall length match ISO 4762 within 0.01 mm. The parametric screw is one closed solid with a blind hex socket; the conical socket rim and drill-point floor are typed omissions, so volume is not compared. The golden socket is at the nominal across-flats (below the ISO minimum); the parametric part uses the ISO upper limit s_max, so the sockets intentionally differ.",
+      "notes": "Head diameter and overall length match ISO 4762 within 0.01 mm. The parametric detailed screw is one closed solid whose blind hex socket is bounded by a 45-degree conical countersink and a 70-degree conical drill point, each trimmed by the six flats; its volume is 128.131 mm3 against the golden's 128.119 (0.01%). Surface entities match the reference inventory (plane 9, cone 5, cylinder 2); the reference writes one rim-cone face and this generator writes six patches of the same cone entity, so the advanced-face count is 21 against 16.",
       "committed": false,
       "generation": {
         "tool": "components/examples/fasteners",
@@ -92,7 +92,17 @@
           {
             "kind": "surface_min",
             "surface": "plane",
-            "min_count": 1
+            "min_count": 9
+          },
+          {
+            "kind": "surface_min",
+            "surface": "cone",
+            "min_count": 5
+          },
+          {
+            "kind": "surface_min",
+            "surface": "cylinder",
+            "min_count": 2
           }
         ],
         "contrast": {
@@ -109,7 +119,7 @@
             "{out}"
           ],
           "output": "iso4762-M3x10-simplified.step",
-          "expect_more_advanced_faces": 2
+          "expect_more_advanced_faces": 9
         }
       }
     },
@@ -2422,6 +2432,249 @@
       "verdict": "rejected",
       "notes": "The file labelled M3 x 200 models a 3 mm cylinder 400 mm long (volume pi * 1.5^2 * 400 = 2827.43 mm^3), contradicting the 200 mm designation. It is recorded as rejected and is not used as an oracle.",
       "committed": false
+    },
+    {
+      "fixture_id": "fasteners/iso7092-m3",
+      "part_id": "iso7092din433_m3flatwasher",
+      "designation": "ISO 7092 M3",
+      "family": "plain washer",
+      "standard": "ISO 7092",
+      "manufacturer": "unspecified step.parts contributor",
+      "source_page": "https://www.step.parts/parts/iso7092din433_m3flatwasher",
+      "local_filename": "external/iso7092din433_m3flatwasher.step",
+      "sha256": "cff51f7c525ab62d4981773c2457b04ac12e34830c8740ba50f4a22fb217ed48",
+      "byte_size": 12342,
+      "units": "mm",
+      "declared_dimensions": {
+        "inner_diameter_mm": 3.2,
+        "outer_diameter_mm": 6.0,
+        "thickness_mm": 0.5
+      },
+      "measured_dimensions": {
+        "bbox_mm": [
+          6.0,
+          6.0,
+          0.5
+        ],
+        "volume_mm3": 10.116,
+        "solids": 1
+      },
+      "parametric_value": {
+        "bbox_mm": [
+          6.0,
+          6.0,
+          0.5
+        ],
+        "volume_mm3": 10.116,
+        "solids": 1,
+        "source": "components/examples/fasteners --standard iso7092 --size M3 --detail detailed"
+      },
+      "verdict": "accepted",
+      "notes": "Plain analytic annulus: two cylindrical surfaces and two planar faces; the measured volume matches the standard d1/d2/h table exactly.",
+      "committed": false,
+      "generation": {
+        "tool": "components/examples/fasteners",
+        "args": [
+          "--standard",
+          "iso7092",
+          "--size",
+          "M3",
+          "--detail",
+          "detailed",
+          "-o",
+          "{out}"
+        ],
+        "output": "iso7092din433_m3flatwasher-detailed.step"
+      },
+      "comparison": {
+        "solids": 1,
+        "bbox_axes": [
+          {
+            "axis": 0,
+            "expected_mm": 6.0,
+            "label": "outer diameter"
+          },
+          {
+            "axis": 2,
+            "expected_mm": 0.5,
+            "label": "thickness"
+          }
+        ],
+        "features": [
+          {
+            "kind": "surface_min",
+            "surface": "plane",
+            "min_count": 1
+          },
+          {
+            "kind": "surface_min",
+            "surface": "cylinder",
+            "min_count": 2
+          }
+        ]
+      }
+    },
+    {
+      "fixture_id": "fasteners/iso7093-m6",
+      "part_id": "iso7093din9021_m6flatwasher",
+      "designation": "ISO 7093 M6",
+      "family": "plain washer",
+      "standard": "ISO 7093-1",
+      "manufacturer": "unspecified step.parts contributor",
+      "source_page": "https://www.step.parts/parts/iso7093din9021_m6flatwasher",
+      "local_filename": "external/iso7093din9021_m6flatwasher.step",
+      "sha256": "391efa8efcb7b12a68a16305511a80066dcf9f1ae601bb429ec94fbb5207b0aa",
+      "byte_size": 12348,
+      "units": "mm",
+      "declared_dimensions": {
+        "inner_diameter_mm": 6.4,
+        "outer_diameter_mm": 18.0,
+        "thickness_mm": 1.6
+      },
+      "measured_dimensions": {
+        "bbox_mm": [
+          18.0,
+          18.0,
+          1.6
+        ],
+        "volume_mm3": 355.679,
+        "solids": 1
+      },
+      "parametric_value": {
+        "bbox_mm": [
+          18.0,
+          18.0,
+          1.6
+        ],
+        "volume_mm3": 355.679,
+        "solids": 1,
+        "source": "components/examples/fasteners --standard iso7093 --size M6 --detail detailed"
+      },
+      "verdict": "accepted",
+      "notes": "Plain analytic annulus: two cylindrical surfaces and two planar faces; the measured volume matches the standard d1/d2/h table exactly.",
+      "committed": false,
+      "generation": {
+        "tool": "components/examples/fasteners",
+        "args": [
+          "--standard",
+          "iso7093",
+          "--size",
+          "M6",
+          "--detail",
+          "detailed",
+          "-o",
+          "{out}"
+        ],
+        "output": "iso7093din9021_m6flatwasher-detailed.step"
+      },
+      "comparison": {
+        "solids": 1,
+        "bbox_axes": [
+          {
+            "axis": 0,
+            "expected_mm": 18.0,
+            "label": "outer diameter"
+          },
+          {
+            "axis": 2,
+            "expected_mm": 1.6,
+            "label": "thickness"
+          }
+        ],
+        "features": [
+          {
+            "kind": "surface_min",
+            "surface": "plane",
+            "min_count": 1
+          },
+          {
+            "kind": "surface_min",
+            "surface": "cylinder",
+            "min_count": 2
+          }
+        ]
+      }
+    },
+    {
+      "fixture_id": "fasteners/iso7091-m3",
+      "part_id": "iso7091_class_c_m3flatwasher",
+      "designation": "ISO 7091 M3",
+      "family": "plain washer",
+      "standard": "ISO 7091",
+      "manufacturer": "unspecified step.parts contributor",
+      "source_page": "https://www.step.parts/parts/iso7091_class_c_m3flatwasher",
+      "local_filename": "external/iso7091_class_c_m3flatwasher.step",
+      "sha256": "9757f85d25eac0e722bf541a705cd4b0c31d00e61302ac1ba9463fe3084742be",
+      "byte_size": 12374,
+      "units": "mm",
+      "declared_dimensions": {
+        "inner_diameter_mm": 3.4,
+        "outer_diameter_mm": 7.0,
+        "thickness_mm": 0.5
+      },
+      "measured_dimensions": {
+        "bbox_mm": [
+          7.0,
+          7.0,
+          0.5
+        ],
+        "volume_mm3": 14.703,
+        "solids": 1
+      },
+      "parametric_value": {
+        "bbox_mm": [
+          7.0,
+          7.0,
+          0.5
+        ],
+        "volume_mm3": 14.703,
+        "solids": 1,
+        "source": "components/examples/fasteners --standard iso7091 --size M3 --detail detailed"
+      },
+      "verdict": "accepted",
+      "notes": "Plain analytic annulus: two cylindrical surfaces and two planar faces; the measured volume matches the standard d1/d2/h table exactly.",
+      "committed": false,
+      "generation": {
+        "tool": "components/examples/fasteners",
+        "args": [
+          "--standard",
+          "iso7091",
+          "--size",
+          "M3",
+          "--detail",
+          "detailed",
+          "-o",
+          "{out}"
+        ],
+        "output": "iso7091_class_c_m3flatwasher-detailed.step"
+      },
+      "comparison": {
+        "solids": 1,
+        "bbox_axes": [
+          {
+            "axis": 0,
+            "expected_mm": 7.0,
+            "label": "outer diameter"
+          },
+          {
+            "axis": 2,
+            "expected_mm": 0.5,
+            "label": "thickness"
+          }
+        ],
+        "features": [
+          {
+            "kind": "surface_min",
+            "surface": "plane",
+            "min_count": 1
+          },
+          {
+            "kind": "surface_min",
+            "surface": "cylinder",
+            "min_count": 2
+          }
+        ]
+      }
     }
   ],
   "golden_source": {

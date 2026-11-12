@@ -569,11 +569,10 @@ test "detailed socket screw models the head chamfer" {
   assert_true(features.has_modeled("blind-hex-socket"))
   assert_true(features.has_modeled("shank-tip-chamfer"))
   assert_true(features.omission_reason("thread") is Some(_))
-  // The socket rim and floor are typed omissions: the golden's rim is a
-  // conical countersink and its floor a conical drill point, neither of which
-  // can be emitted soundly without hyperbola-bounded cone faces.
-  assert_true(features.has_omitted("socket-lead-in-cone"))
-  assert_true(features.has_omitted("socket-floor-cone"))
+  // The socket rim and floor are real trimmed cones: a 45-degree countersink
+  // and a 70-degree drill point, each bounded by hyperbola edges on the flats.
+  assert_true(features.has_modeled("socket-lead-in-cone"))
+  assert_true(features.has_modeled("socket-floor-cone"))
   assert_true(features.has_omitted("under-head-radius"))
 }
 
@@ -589,7 +588,9 @@ test "detailed screw is one solid with conical tip and head breaks" {
     _ => abort("detailed screw should be one socketed solid")
   }
   let inventory = detailed_body.surface_inventory()
-  assert_true(inventory.cone == 2)
+  // Tip break, head bottom break, head top break, socket countersink, drill
+  // point: five conical surface entities (the detailed reference inventory).
+  assert_true(inventory.cone == 5)
   assert_true(inventory.cylinder == 2)
   let simplified = unwrap_screw(@standards.M4, 20.0, Simplified)
   let simplified_body = match layer_shape(simplified, "ISO4762-M4-20/body") {
@@ -806,8 +807,8 @@ test "M2-M5 detailed and full detail records the required features" {
     let screw_detailed = unwrap_screw(size, length, Detailed)
     let screw_features = screw_detailed.features()
     assert_true(screw_features.has_modeled("head-chamfer"))
-    assert_true(screw_features.has_modeled("socket-floor-plane"))
-    assert_true(screw_features.has_omitted("socket-lead-in-cone"))
+    assert_true(screw_features.has_modeled("socket-floor-cone"))
+    assert_true(screw_features.has_modeled("socket-lead-in-cone"))
     assert_true(screw_features.has_modeled("shank-tip-chamfer"))
     assert_true(screw_features.has_omitted("under-head-radius"))
     let screw_full = unwrap_screw(size, length, FullyModeled)
@@ -917,4 +918,62 @@ test "socket lead-in hole levels span the socket band" {
   let shallow = @fasteners.socket_lead_in_hole_levels(0.0, 0.2, 0.25)
   assert_eq(shallow.length(), 2)
   assert_true(close(shallow[0].1, shallow[1].1))
+}
+
+///|
+test "detailed ISO 4762 M3 x 10 is the conical reference socket" {
+  let screw = unwrap_screw(@standards.M3, 10.0, Detailed)
+  let body = match layer_shape(screw, "ISO4762-M3-10/body") {
+    Some(s) => s
+    None => abort("missing detailed body")
+  }
+  let inv = body.surface_inventory()
+  assert_true(inv.plane == 9)
+  assert_true(inv.cone == 5)
+  assert_true(inv.cylinder == 2)
+  let volume = match body.analysis_volume() {
+    Ok(v) => v
+    Err(_) => abort("detailed socket volume unavailable")
+  }
+  // 128.1187 mm3 is the downloaded M3 x 10 reference volume.
+  assert_true((volume - 128.1187).abs() < 0.02)
+}
+
+///|
+test "ISO 7092 M3 washer is an analytic annulus" {
+  let washer = match @fasteners.iso7092_washer(@standards.M3) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  let (x0, x1, y0, y1, z0, z1) = washer.bounding_box()
+  assert_true(close(x1 - x0, 6.0))
+  assert_true(close(y1 - y0, 6.0))
+  assert_true(close(z0, 0.0))
+  assert_true(close(z1 - z0, 0.5))
+  match layer_shape(washer, "ISO7092-M3/body") {
+    Some(shape) => {
+      let inv = shape.surface_inventory()
+      assert_true(inv.plane == 2)
+      assert_true(inv.cylinder == 2)
+    }
+    None => abort("missing washer body")
+  }
+}
+
+///|
+test "ISO 2338 M3 x 20 dowel pin has 45-degree end breaks" {
+  let pin = match @fasteners.iso2338_pin(@standards.M3, 20.0) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  let (x0, x1, _y0, _y1, z0, z1) = pin.bounding_box()
+  assert_true(close(x1 - x0, 3.0))
+  assert_true(close(z0, -10.0))
+  assert_true(close(z1, 10.0))
+  let layers = pin.layers()
+  assert_true(layers.length() == 1)
+  let inv = layers[0].shape.surface_inventory()
+  assert_true(inv.plane == 2)
+  assert_true(inv.cone == 2)
+  assert_true(inv.cylinder == 1)
 }
