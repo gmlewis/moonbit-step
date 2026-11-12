@@ -1094,3 +1094,23 @@ test "ISO 4762 simple reference representation matches the M2.5 profile" {
   }
   assert_true((volume - 80.5746).abs() < 0.05)
 }
+
+///|
+test "detailed ISO 4762 M6x40 matches its detailed reference profile" {
+  let screw = match
+    @fasteners.iso4762_screw(@standards.M6, 40.0, detail=Detailed) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  let layers = screw.layers()
+  let inv = layers[0].shape.surface_inventory()
+  assert_true(inv.plane == 9)
+  assert_true(inv.cone == 5)
+  assert_true(inv.cylinder == 2)
+  let volume = match layers[0].shape.analysis_volume() {
+    Ok(v) => v
+    Err(_) => abort("M6 x 40 volume unavailable")
+  }
+  // The downloaded M6 x 40 reference is 1501.38 mm3.
+  assert_true((volume - 1501.38).abs() < 0.2)
+}

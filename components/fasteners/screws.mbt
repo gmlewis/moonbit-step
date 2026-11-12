@@ -13,6 +13,20 @@ const SOCKET_TIP_BREAK_MIN_MM : Double = 0.4
 const SOCKET_DRILL_CLEARANCE_MM : Double = 0.3
 
 ///|
+/// The M6 x 40 detailed reference (index 113) uses a larger, differently scaled
+/// profile than the M3/M4 detailed references: a 1.0 mm tip break, a 0.2 mm
+/// head break on both faces, and a drill-point apex 1.1801 mm above the head
+/// underside. These values are measured from that reference and recorded as
+/// reference-profile defaults (ISO 4762 does not fix them).
+const M6_DETAILED_TIP_BREAK_MM : Double = 1.0
+
+///|
+const M6_DETAILED_HEAD_BREAK_MM : Double = 0.2
+
+///|
+const M6_DETAILED_DRILL_APEX_ABOVE_BASE_MM : Double = 1.1801
+
+///|
 /// socket_head_cap_screw builds an ISO 4762 hexagon socket head cap screw.
 ///
 /// The screw axis is +Z with the origin at the centre of the head underside
@@ -126,9 +140,14 @@ pub fn socket_head_cap_screw(
   // z = 0 .. thread_length and any plain shank sits under the head.
   // The detailed reference profile uses a 0.4 mm minimum tip break and a
   // 0.1 mm head break; both are engineering defaults (ISO 4762 does not fix
-  // them) and are recorded as such.
+  // them) and are recorded as such. The M6 x 40 detailed reference uses the
+  // larger values above.
+  let detailed_m6 = policy.include_small_features &&
+    dims.size is @standards.MetricSize::M6
   let tip_chamfer = if policy.include_small_features {
-    let raw = if 0.1 * d > SOCKET_TIP_BREAK_MIN_MM {
+    let raw = if detailed_m6 {
+      M6_DETAILED_TIP_BREAK_MM
+    } else if 0.1 * d > SOCKET_TIP_BREAK_MIN_MM {
       0.1 * d
     } else {
       SOCKET_TIP_BREAK_MIN_MM
@@ -142,7 +161,11 @@ pub fn socket_head_cap_screw(
     0.0
   }
   let head_break = if policy.include_small_features {
-    SOCKET_HEAD_BREAK_MM
+    if detailed_m6 {
+      M6_DETAILED_HEAD_BREAK_MM
+    } else {
+      SOCKET_HEAD_BREAK_MM
+    }
   } else {
     0.0
   }
@@ -184,7 +207,12 @@ pub fn socket_head_cap_screw(
     @cad.SocketedSolid::new(
       body,
       dims.socket_across_flats_mm,
-      length + SOCKET_DRILL_CLEARANCE_MM,
+      length +
+      (if detailed_m6 {
+        M6_DETAILED_DRILL_APEX_ABOVE_BASE_MM
+      } else {
+        SOCKET_DRILL_CLEARANCE_MM
+      }),
       conical=true,
       rim_angle_deg=45.0,
       floor_angle_deg=70.0,

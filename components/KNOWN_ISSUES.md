@@ -550,3 +550,9 @@ approximations are recorded above and in `FEATURES.md`.
   (M4 x 6/20, M6 x 40) still split their rim cone into six entities and carry
   rounded corners, so their surface-entity counts differ from the shared-entity
   parametric model.
+
+- ISO 4762 M6 x 40 detailed now reproduces its reference's larger profile
+  (1.0 mm tip break, 0.2 mm head break, 1.1801 mm drill apex) exactly. The
+  M4 x 6/20 detailed references round the socket corners and split the rim cone
+  into six entities; their volume agrees within 0.07%, the corner rounding is a
+  documented reference artifact.

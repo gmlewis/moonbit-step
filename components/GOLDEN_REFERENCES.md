@@ -540,3 +540,18 @@ contains a TOROIDAL_SURFACE. The detailed conical references keep the documented
 differences (the reference splits the rim cone into six entities and its
 M4/M6 corners are rounded, so the surface-entity counts differ while the volume
 is within 0.9%).
+
+### ISO 4762 M6 x 40 detailed reference (113)
+
+The M6 x 40 detailed conical reference is scaled differently from the M3/M4
+detailed references: a 1.0 mm 45-degree tip break, a 0.2 mm head break on both
+faces, and a drill-point apex 1.1801 mm above the head underside. The detailed
+ISO 4762 build now carries those M6 values (recorded as reference-profile
+defaults, not ISO dimensions). Index 113 matches exactly: 21 faces, volume
+1501.38 mm3 against the reference's 1501.38, identical vertex rings, and
+0.0022 mm maximum surface deviation; SolidCraft imports it with no warnings.
+The reference still splits its rim cone into six surface entities against the
+parametric model's one shared entity, so the cone-entity count is 10 against 5
+(face count is 21 either way). The M4 x 6/20 detailed references additionally
+round the socket corners and carry two B-spline patches; their volumes agree
+within 0.07% and their corner rounding accounts for a 0.24 mm deviation.
