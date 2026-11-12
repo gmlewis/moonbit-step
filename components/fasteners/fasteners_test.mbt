@@ -419,8 +419,10 @@ test "iso 4017 hex head screw geometry" {
     Err(e) => abort(e.message())
   }
   let (x0, x1, _y0, _y1, z0, z1) = screw.bounding_box()
-  assert_true(close(x0, -3.5))
-  assert_true(close(x1, 3.5))
+  // The head hexagon has a vertex on +X (like the reference STEP models), so
+  // the across-corners span is s / cos 30 = 7 / sqrt(3) = 4.04145 for M4.
+  assert_true(close(x0, -7.0 / 1.7320508075688772))
+  assert_true(close(x1, 7.0 / 1.7320508075688772))
   // Head underside at 0; the M4 reference head height is the upper standard
   // limit, 3.0 mm (nominal 2.8 mm).
   assert_true(close(z0, -20.0))
@@ -671,8 +673,8 @@ test "detailed hex head models a head chamfer and a tip chamfer" {
     None => abort("missing hex head")
   }
   match head {
-    @cad.Shape::ChamferedPrism(_) => ()
-    _ => abort("detailed hex head should be a chamfered prism")
+    @cad.Shape::HexHeadWasherFace(_) => ()
+    _ => abort("detailed hex head should be a conical-washer-face head")
   }
   let simplified = match @fasteners.iso4017(@standards.M4, 20.0) {
     Ok(c) => c

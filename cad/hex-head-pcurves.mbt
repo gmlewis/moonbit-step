@@ -21,8 +21,6 @@ priv struct HHConeRef {
   origin : Vec3
   axis : Vec3
   reference : Vec3
-  radius : Double
-  semi_angle_deg : Double
 }
 
 ///|
@@ -46,14 +44,7 @@ fn hhp_cone(
   semi_angle_deg : Double,
 ) -> HHConeRef {
   let surface = hhwf_cone(ctx, origin, axis, reference, radius, semi_angle_deg)
-  {
-    surface,
-    origin,
-    axis: v_norm(axis),
-    reference: v_norm(reference),
-    radius,
-    semi_angle_deg,
-  }
+  { surface, origin, axis: v_norm(axis), reference: v_norm(reference), }
 }
 
 ///|
@@ -65,6 +56,9 @@ fn hhp_plane_uv(p : Vec3, plane : HHPlaneRef) -> (Double, Double) {
 }
 
 ///|
+/// hhp_cone_uv maps a point into the cone's parameter space. Each chamfer patch
+/// has its own cone, referenced at the patch's apex azimuth, so u stays within
+/// +-30 degrees and never meets the surface's +-pi seam.
 fn hhp_cone_uv(p : Vec3, cone : HHConeRef) -> (Double, Double) {
   let xdir = cone.reference
   let ydir = v_norm(v_cross(cone.axis, cone.reference))
@@ -75,15 +69,142 @@ fn hhp_cone_uv(p : Vec3, cone : HHConeRef) -> (Double, Double) {
 }
 
 ///|
+fn hhp_pcurve_2d_line(
+  ctx : StepContext,
+  surface : @step.Ref,
+  a : (Double, Double),
+  b : (Double, Double),
+  context_2d : @step.Ref,
+) -> @step.Ref {
+  let du = b.0 - a.0
+  let dv = b.1 - a.1
+  let len = Double::sqrt(du * du + dv * dv)
+  let direction = if len == 0.0 { (1.0, 0.0) } else { (du / len, dv / len) }
+  let pnt = ctx.cartesian_point_2d(a.0, a.1)
+  let dir = ctx.add(
+    @repository.any_entity_direction(
+      @geometry.Direction::new("", [direction.0, direction.1]),
+    ),
+  )
+  let vec = ctx.add(
+    @repository.any_entity_vector(@geometry.Vector::new("", dir, 1.0)),
+  )
+  let line = ctx.add(
+    @repository.any_entity_line(@geometry.Line::new("", pnt, vec)),
+  )
+  let rep = ctx.definitional_representation([line], context_2d)
+  ctx.pcurve(surface, rep)
+}
+
+///|
+/// hhp_pcurve_circle writes an exact 2D circle pcurve (the reference files'
+/// representation for the top arcs on the top plane).
+fn hhp_pcurve_circle(
+  ctx : StepContext,
+  surface : @step.Ref,
+  center_u : Double,
+  center_v : Double,
+  radius : Double,
+  context_2d : @step.Ref,
+) -> @step.Ref {
+  let location = ctx.cartesian_point_2d(center_u, center_v)
+  let ref_dir = ctx.add(
+    @repository.any_entity_direction(@geometry.Direction::new("", [1.0, 0.0])),
+  )
+  let placement = @geometry.Axis2Placement2D::new(
+    "",
+    location,
+    ref_direction=Some(ref_dir),
+  )
+  let placement_ref = ctx.add(
+    @repository.any_entity_axis2_placement_2d(placement),
+  )
+  let circle = ctx.add(
+    @repository.any_entity_circle(
+      @geometry.Circle::new("", placement_ref, @step.fmt_num(radius)),
+    ),
+  )
+  let rep = ctx.definitional_representation([circle], context_2d)
+  ctx.pcurve(surface, rep)
+}
+
+///|
+/// hhp_pcurve_hyperbola writes the flat/cone intersection as a 2D hyperbola.
+/// The flat plane's u axis is the tangential direction and its v axis points
+/// down, so the transverse axis is +v: ref_direction (0, 1), semi-axis along v.
+fn hhp_pcurve_hyperbola(
+  ctx : StepContext,
+  surface : @step.Ref,
+  center_u : Double,
+  center_v : Double,
+  semi_axis : Double,
+  semi_imag : Double,
+  context_2d : @step.Ref,
+) -> @step.Ref {
+  let location = ctx.cartesian_point_2d(center_u, center_v)
+  let ref_dir = ctx.add(
+    @repository.any_entity_direction(@geometry.Direction::new("", [0.0, 1.0])),
+  )
+  let placement = @geometry.Axis2Placement2D::new(
+    "",
+    location,
+    ref_direction=Some(ref_dir),
+  )
+  let placement_ref = ctx.add(
+    @repository.any_entity_axis2_placement_2d(placement),
+  )
+  let hyperbola = ctx.add(
+    @repository.any_entity_hyperbola(
+      @geometry.Hyperbola::new("", placement_ref, semi_axis, semi_imag),
+    ),
+  )
+  let rep = ctx.definitional_representation([hyperbola], context_2d)
+  ctx.pcurve(surface, rep)
+}
+
+///|
+fn hhp_all_collinear(uv : Array[(Double, Double)]) -> Bool {
+  let n = uv.length()
+  if n < 2 {
+    return false
+  }
+  let du = uv[n - 1].0 - uv[0].0
+  let dv = uv[n - 1].1 - uv[0].1
+  let len = Double::sqrt(du * du + dv * dv)
+  if len < 1.0e-12 {
+    return false
+  }
+  for (u, v) in uv {
+    let cross = (u - uv[0].0) * dv - (v - uv[0].1) * du
+    if Double::abs(cross) / len > 1.0e-9 {
+      return false
+    }
+  }
+  true
+}
+
+///|
+fn hhp_asinh(x : Double) -> Double {
+  @math.ln(x + Double::sqrt(x * x + 1.0))
+}
+
+///|
 fn hhp_pcurve_polyline(
   ctx : StepContext,
   surface : @step.Ref,
   uv : Array[(Double, Double)],
   context_2d : @step.Ref,
+  params : Array[Double]?,
 ) -> @step.Ref {
   let n = uv.length()
   if n < 2 {
     return ctx.pcurve(surface, ctx.definitional_representation([], context_2d))
+  }
+  // A degree-1 LINE pcurve is only equivalent when the pcurve parameter is the
+  // distance along it. With explicit parameters the knots must be those
+  // parameters (the 3D curve's own parameter values), so keep the B-spline.
+  if hhp_all_collinear(uv) && params is None {
+    return hhp_pcurve_2d_line(ctx, surface, uv[0], uv[n - 1], context_2d)
   }
   let cps : Array[@step.Ref] = []
   let mut previous_u = 0.0
@@ -106,11 +227,24 @@ fn hhp_pcurve_polyline(
   }
   mults.push(2)
   let knots : Array[String] = []
-  for i in 0..<n {
-    knots.push(@step.fmt_num(i.to_double()))
+  match params {
+    Some(ps) =>
+      if ps.length() == n {
+        for p in ps {
+          knots.push(@step.fmt_num(p))
+        }
+      } else {
+        for i in 0..<n {
+          knots.push(@step.fmt_num(i.to_double()))
+        }
+      }
+    None =>
+      for i in 0..<n {
+        knots.push(@step.fmt_num(i.to_double()))
+      }
   }
   let curve = @geometry.BSplineCurveWithKnots::new(
-    "", 1, cps, ".UNSPECIFIED.", false, false, mults, knots, ".PIECEWISE_BEZIER_KNOTS.",
+    "", 1, cps, ".UNSPECIFIED.", false, false, mults, knots, ".UNSPECIFIED.",
   )
   let curve_ref = ctx.add(
     @repository.any_entity_b_spline_curve_with_knots(curve),
@@ -120,6 +254,11 @@ fn hhp_pcurve_polyline(
 }
 
 ///|
+/// hhp_surface_edge builds an EDGE_CURVE whose 3D curve carries a pcurve for
+/// each adjacent surface. `samples`/`params` are in the edge's start -> end
+/// order; `edge_forward` says whether that order agrees with the 3D curve's own
+/// parameter direction. Pcurves always follow the 3D curve's parameterization,
+/// so they are reversed when the edge runs against it.
 fn hhp_surface_edge(
   ctx : StepContext,
   curve_3d : @step.Ref,
@@ -130,36 +269,62 @@ fn hhp_surface_edge(
   context_2d : @step.Ref,
   start_vp : @step.Ref,
   end_vp : @step.Ref,
-  reverse_curve~ : Bool = false,
+  flat_hyperbola? : (Double, Double, Double, Double),
+  plane_a_circle? : (Double, Double, Double),
+  params? : Array[Double],
+  edge_forward~ : Bool = true,
 ) -> @step.Ref {
-  let uv_a = samples.map(fn(p) { hhp_plane_uv(p, plane_a) })
-  let pc_a = hhp_pcurve_polyline(ctx, plane_a.surface, uv_a, context_2d)
+  let pc_samples = if edge_forward { samples } else { samples.rev() }
+  let pc_params = match params {
+    Some(ps) => if edge_forward { Some(ps) } else { Some(ps.rev()) }
+    None => None
+  }
+  let uv_a = pc_samples.map(fn(p) { hhp_plane_uv(p, plane_a) })
+  let pc_a = match flat_hyperbola {
+    Some((cu, cv, sa, sb)) =>
+      hhp_pcurve_hyperbola(ctx, plane_a.surface, cu, cv, sa, sb, context_2d)
+    None =>
+      match plane_a_circle {
+        Some((cu, cv, r)) =>
+          hhp_pcurve_circle(ctx, plane_a.surface, cu, cv, r, context_2d)
+        None =>
+          hhp_pcurve_polyline(ctx, plane_a.surface, uv_a, context_2d, pc_params)
+      }
+  }
   let assoc : Array[@step.Ref] = [pc_a]
   match plane_b {
     Some(pb) => {
-      let uv_b = samples.map(fn(p) { hhp_plane_uv(p, pb) })
-      assoc.push(hhp_pcurve_polyline(ctx, pb.surface, uv_b, context_2d))
+      let uv_b = pc_samples.map(fn(p) { hhp_plane_uv(p, pb) })
+      assoc.push(
+        hhp_pcurve_polyline(ctx, pb.surface, uv_b, context_2d, pc_params),
+      )
     }
     None =>
       match cone_b {
         Some(cb) => {
-          let uv_b = samples.map(fn(p) { hhp_cone_uv(p, cb) })
-          assoc.push(hhp_pcurve_polyline(ctx, cb.surface, uv_b, context_2d))
+          let uv_b = pc_samples.map(fn(p) { hhp_cone_uv(p, cb) })
+          assoc.push(
+            hhp_pcurve_polyline(ctx, cb.surface, uv_b, context_2d, pc_params),
+          )
         }
         None => ()
       }
   }
   let sc = ctx.surface_curve(curve_3d, assoc)
-  ctx.edge_curve(start_vp, end_vp, sc, !reverse_curve)
+  ctx.edge_curve(start_vp, end_vp, sc, edge_forward)
 }
 
 ///|
+/// hhp_hyperbola_samples samples one half of the flat/cone hyperbola. `side` is
+/// +1 for the half towards the next base vertex and -1 for the half towards the
+/// previous one; `from_base` selects the traversal direction.
 fn hhp_hyperbola_samples(
   phi : Double,
   rt : Double,
   tan_alpha : Double,
   zb : Double,
   k : Double,
+  side : Double,
   from_base : Bool,
   xform : Transform,
 ) -> Array[Vec3] {
@@ -173,22 +338,14 @@ fn hhp_hyperbola_samples(
     let u = Double::sqrt(
       2.0 * rt * tan_alpha * w + tan_alpha * tan_alpha * w * w,
     )
-    let sign = if from_base { 1.0 } else { -1.0 }
-    let local = (
-      rt * @math.cos(phi) + sign * u * tangent.0,
-      rt * @math.sin(phi) + sign * u * tangent.1,
+    let p_local = (
+      rt * @math.cos(phi) + side * u * tangent.0,
+      rt * @math.sin(phi) + side * u * tangent.1,
       z,
     )
-    pts.push(xform.apply(local))
+    pts.push(xform.apply(p_local))
   }
   pts
-}
-
-///|
-fn hhp_polyline3d(ctx : StepContext, samples : Array[Vec3]) -> @step.Ref {
-  let cps = samples.map(fn(p) { hhwf_cp(ctx, p) })
-  let poly = @geometry.Polyline::new("", cps)
-  ctx.add(@repository.any_entity_polyline(poly))
 }
 
 ///|
@@ -240,18 +397,33 @@ pub fn compile_hex_head_pcurves(
     let midpoint = xform.apply(
       (g.rt * @math.cos(phi), g.rt * @math.sin(phi), 0.0),
     )
-    flat_planes.push(
-      hhp_plane(ctx, midpoint, normal, v_norm(xform.apply_dir((0.0, 0.0, 1.0)))),
+    // The plane's u axis runs backwards along the tangent (towards decreasing
+    // azimuth) and its v axis points down (-Z). That frame makes the flat/cone
+    // intersection a 2D hyperbola with a positive semi-axis, exactly as the
+    // reference files write it.
+    let ref_dir = v_norm(
+      xform.apply_dir((@math.sin(phi), -@math.cos(phi), 0.0)),
+    )
+    flat_planes.push(hhp_plane(ctx, midpoint, normal, ref_dir))
+  }
+  // One conical surface per chamfer patch, its reference direction aimed at
+  // the patch's leading top point. Every pcurve of a patch then runs in
+  // u = -60..0 degrees: the patch ends exactly on the surface's u = 0 seam
+  // instead of straddling it, as the reference files do.
+  let cones : Array[HHConeRef] = []
+  for i in 0..<6 {
+    let lead = (60.0 * i.to_double() - 30.0) * @math.PI / 180.0
+    cones.push(
+      hhp_cone(
+        ctx,
+        xform.apply((0.0, 0.0, g.zb)),
+        v_norm(xform.apply_dir((0.0, 0.0, -1.0))),
+        v_norm(xform.apply_dir((@math.cos(lead), @math.sin(lead), 0.0))),
+        g.rb,
+        75.0,
+      ),
     )
   }
-  let cone = hhp_cone(
-    ctx,
-    xform.apply((0.0, 0.0, g.zb)),
-    v_norm(xform.apply_dir((0.0, 0.0, -1.0))),
-    v_norm(xform.apply_dir((1.0, 0.0, 0.0))),
-    g.rb,
-    75.0,
-  )
 
   // Bottom hex edges.
   let bottom_edges : Array[@step.Ref] = []
@@ -320,7 +492,10 @@ pub fn compile_hex_head_pcurves(
     let center = xform.apply(
       (g.rt * @math.cos(phi), g.rt * @math.sin(phi), g.k + g.rt / g.tan_alpha),
     )
-    let axis = v_norm(xform.apply_dir((-@math.cos(phi), -@math.sin(phi), 0.0)))
+    // Outward axis and a downward reference, as in the reference files: the
+    // curve's Y axis then runs along +tangent, so the parameter grows from
+    // the top tangency point towards either base vertex.
+    let axis = v_norm(xform.apply_dir((@math.cos(phi), @math.sin(phi), 0.0)))
     let reference = v_norm(xform.apply_dir((0.0, 0.0, -1.0)))
     let a2p = ctx.axis2_placement_3d(
       hhwf_cp(ctx, center),
@@ -332,44 +507,75 @@ pub fn compile_hex_head_pcurves(
         @geometry.Hyperbola::new("", a2p, g.rt / g.tan_alpha, g.rt),
       ),
     )
-    let samples_base = hhp_hyperbola_samples(
+    // The flat plane's u axis is -tangent, so the hyperbola parameter is
+    // asinh(-u / rt).
+    let params_for = fn(samples : Array[Vec3]) -> Array[Double] {
+      samples.map(fn(p) { hhp_asinh(-hhp_plane_uv(p, flat_planes[i]).0 / g.rt) })
+    }
+    // Left half: top tangency point i -> base vertex i.
+    let left_samples = hhp_hyperbola_samples(
       phi,
       g.rt,
       g.tan_alpha,
       g.zb,
       g.k,
-      true,
+      -1.0,
+      false,
       xform,
     )
-    let curve_left = hyperbola
-    // Left half: base vertex i -> top midpoint i.
+    let left_params = params_for(left_samples)
     hyper_left.push(
       hhp_surface_edge(
         ctx,
-        curve_left,
-        samples_base.rev(),
+        hyperbola,
+        left_samples,
         flat_planes[i],
         None,
-        Some(cone),
+        Some(cones[i]),
         context_2d,
         top_vp[i],
         mid_vp[i],
+        flat_hyperbola=(
+          0.0,
+          -(g.k + g.rt / g.tan_alpha),
+          g.rt / g.tan_alpha,
+          g.rt,
+        ),
+        params=left_params,
+        edge_forward=false,
       ),
     )
-    // Right half: top midpoint i -> base vertex i+1.
-    let samples_rev = samples_base.rev()
-    let curve_right = hyperbola
+    // Right half: base vertex i+1 -> top tangency point i.
+    let right_samples = hhp_hyperbola_samples(
+      phi,
+      g.rt,
+      g.tan_alpha,
+      g.zb,
+      g.k,
+      1.0,
+      true,
+      xform,
+    )
+    let right_params = params_for(right_samples)
     hyper_right.push(
       hhp_surface_edge(
         ctx,
-        curve_right,
-        samples_base,
+        hyperbola,
+        right_samples,
         flat_planes[i],
         None,
-        Some(cone),
+        Some(cones[(i + 1) % 6]),
         context_2d,
         mid_vp[(i + 1) % 6],
         top_vp[i],
+        flat_hyperbola=(
+          0.0,
+          -(g.k + g.rt / g.tan_alpha),
+          g.rt / g.tan_alpha,
+          g.rt,
+        ),
+        params=right_params,
+        edge_forward=false,
       ),
     )
   }
@@ -378,7 +584,10 @@ pub fn compile_hex_head_pcurves(
   for i in 0..<6 {
     let j = (i + 1) % 6
     let a0 = (30.0 + 60.0 * i.to_double()) * @math.PI / 180.0
-    let a1 = (30.0 + 60.0 * j.to_double()) * @math.PI / 180.0
+    // Always sweep forwards by one sixth of a turn; computing the end angle
+    // from the wrapped vertex index would run the last arc backwards and
+    // produce decreasing pcurve knots.
+    let a1 = a0 + @math.PI / 3.0
     let center_cp = hhwf_cp(ctx, xform.apply((0.0, 0.0, g.k)))
     let a2p = ctx.axis2_placement_3d(center_cp, dir_up, dir_right)
     let circle = ctx.add(
@@ -387,10 +596,12 @@ pub fn compile_hex_head_pcurves(
       ),
     )
     let samples : Array[Vec3] = []
+    let angles : Array[Double] = []
     for s in 0..<=12 {
       let t = s.to_double() / 12.0
       let a = a0 + (a1 - a0) * t
       samples.push(xform.apply((g.rt * @math.cos(a), g.rt * @math.sin(a), g.k)))
+      angles.push(a)
     }
     top_edges.push(
       hhp_surface_edge(
@@ -399,10 +610,12 @@ pub fn compile_hex_head_pcurves(
         samples,
         top_plane,
         None,
-        Some(cone),
+        Some(cones[(i + 1) % 6]),
         context_2d,
         top_vp[i],
         top_vp[j],
+        plane_a_circle=(0.0, 0.0, g.rt),
+        params=angles,
       ),
     )
   }
@@ -429,39 +642,24 @@ pub fn compile_hex_head_pcurves(
   }
   // Cone faces.
   for i in 0..<6 {
-    let j = (i + 1) % 6
-    let natural = v_norm(
-      xform.apply_dir(
-        (
-          @math.cos(60.0 * i.to_double() * @math.PI / 180.0) *
-          @math.cos(15.0 * @math.PI / 180.0),
-          @math.sin(60.0 * i.to_double() * @math.PI / 180.0) *
-          @math.cos(15.0 * @math.PI / 180.0),
-          @math.sin(15.0 * @math.PI / 180.0),
-        ),
-      ),
-    )
+    // The reference cone faces use the same sense as their conical surface
+    // and all three boundary edges reversed; do the same explicitly.
+    let cone_loop = ctx.edge_loop([
+      ctx.oriented_edge(hyper_left[i], false),
+      ctx.oriented_edge(top_edges[(i + 5) % 6], false),
+      ctx.oriented_edge(hyper_right[(i + 5) % 6], false),
+    ])
     faces.push(
-      hhwf_face(
-        ctx,
-        [
-          (hyper_left[i], false),
-          (top_edges[(i + 5) % 6], false),
-          (hyper_right[(i + 5) % 6], false),
-        ],
-        cone.surface,
-        natural,
-        [mid_pos[i], top_pos[(i + 5) % 6], top_pos[i]],
+      ctx.advanced_face(
+        [ctx.face_outer_bound(cone_loop, true)],
+        cones[i].surface,
+        !reverse,
       ),
     )
   }
-  // Underside hex (opposite the flats' bottom edges).
-  let underside_plane = hhwf_plane(
-    ctx,
-    xform.apply((0.0, 0.0, 0.0)),
-    v_norm(xform.apply_dir((0.0, 0.0, -1.0))),
-    v_norm(xform.apply_dir((1.0, 0.0, 0.0))),
-  )
+  // Underside hex (opposite the flats' bottom edges). Reuse the same plane
+  // entity as the bottom edges' pcurves so each pcurve's basis surface is the
+  // face's own surface.
   let underside_oriented : Array[(@step.Ref, Bool)] = []
   let underside_points : Array[Vec3] = []
   for i in 0..<6 {
@@ -472,24 +670,21 @@ pub fn compile_hex_head_pcurves(
     hhwf_face(
       ctx,
       underside_oriented,
-      underside_plane,
-      v_norm(xform.apply_dir((0.0, 0.0, -1.0))),
+      underside.surface,
+      underside.axis,
       underside_points,
     ),
   )
-  // Top circle (forward, opposite the cone faces' top arcs).
+  // Top circle (forward, opposite the cone faces' top arcs). As above, the
+  // face reuses the top plane that the arcs' pcurves reference.
   let top_loop = ctx.edge_loop(
     top_edges.map(fn(e) { ctx.oriented_edge(e, true) }),
   )
   faces.push(
-    add_plane_face_from_loops(
-      ctx,
-      hhwf_cp(ctx, xform.apply((0.0, 0.0, g.k))),
-      up,
-      right,
-      top_loop,
-      [],
-      reverse~,
+    ctx.advanced_face(
+      [ctx.face_outer_bound(top_loop, true)],
+      top_plane.surface,
+      !reverse,
     ),
   )
   faces
