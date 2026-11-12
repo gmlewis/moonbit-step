@@ -1,4 +1,13 @@
 ///|
+/// HEX_HEAD_WASHER_FACE_INSET_MM and HEIGHT are the detailed ISO 4017 reference
+/// under-head washer face: diameter `s - inset`, height 0.15 mm. ISO 4017 does
+/// not fix these in the table used here; they reproduce the detailed reference.
+const HEX_HEAD_WASHER_FACE_INSET_MM : Double = 1.12
+
+///|
+const HEX_HEAD_WASHER_FACE_HEIGHT_MM : Double = 0.15
+
+///|
 fn hex_head_shape(
   dims : @standards.HexHeadSize,
   length_mm : Double,
@@ -8,6 +17,7 @@ fn hex_head_shape(
   name : String,
   metadata : @common.Metadata,
   description : String,
+  unified~ : Bool = false,
 ) -> @common.Component {
   let policy = @common.DetailPolicy::for_level(detail)
   let thread = dims.thread
@@ -20,6 +30,45 @@ fn hex_head_shape(
   let segments = clamp_segments(policy.circle_segments)
   let features = hex_head_feature_record(policy, threads, thread)
   let base = @common.Component::new(name~, metadata~, description~, features~)
+  if unified && !(threads is @common.ThreadRepresentation::Helical) {
+    // Reference representation: one closed solid combining the shank, the
+    // under-head washer face, and the conical-washer-face hexagon head. The
+    // detailed reference family uses a 65-degree face, a raised washer face,
+    // the nominal shank diameter and a d/6 tip break; the simplified variant
+    // uses the 75-degree face, no washer face, the ISO 68-1 minor-diameter
+    // shank and a sharp tip.
+    let detailed = policy.include_small_features
+    let face_angle = if detailed { 65.0 } else { 75.0 }
+    let washer_d = if detailed {
+      s - HEX_HEAD_WASHER_FACE_INSET_MM
+    } else {
+      0.0
+    }
+    let washer_h = if detailed { HEX_HEAD_WASHER_FACE_HEIGHT_MM } else { 0.0 }
+    let shank_d = if detailed { d } else { thread.internal_minor_diameter_mm() }
+    let tip = if detailed { d / 6.0 } else { 0.0 }
+    // The detailed reference uses the nominal head height, not the upper
+    // standard limit the simple references use.
+    let head_h = if detailed { dims.head_height_mm } else { k }
+    let head = @cad.HexHeadWasherFace::new(
+      across_flats_mm=s,
+      head_height_mm=head_h,
+      face_angle_deg=face_angle,
+      shank_diameter_mm=shank_d,
+      shank_length_mm=length_mm,
+      washer_face_diameter_mm=washer_d,
+      washer_face_height_mm=washer_h,
+      tip_chamfer_mm=tip,
+    ).as_shape()
+    let unified_base = @common.Component::new(
+      name~,
+      metadata~,
+      description="Single closed solid: a shank with a 45-degree tip break, an under-head washer face, and a hexagon head with a \{if detailed { "65" } else { "75" }}-degree conical washer face. The head, washer face and shank are one shell, not a layer stack." +
+        thread_note(threads),
+      features~,
+    )
+    return unified_base.add_layer(head, name="screw", color=head_color)
+  }
   let tip_chamfer = if policy.include_small_features {
     let raw = shank_tip_chamfer_mm(d)
     if raw < length_mm / 4.0 {
@@ -133,6 +182,7 @@ pub fn iso4017_screw(
   spec : @standards.ISO4017Spec,
   detail~ : @common.DetailLevel = Simplified,
   threads? : @common.ThreadRepresentation,
+  unified~ : Bool = false,
 ) -> @common.Component {
   let policy = @common.DetailPolicy::for_level(detail)
   let thread_rep = match threads {
@@ -151,6 +201,7 @@ pub fn iso4017_screw(
     spec.metadata(),
     "Hexagon head screw; layered body and head. Without modeled threads the shank uses the ISO 68-1 basic minor diameter D1. The head carries a 75-degree conical washer face with a circular top at every detail level; the shank tip break is added at Detailed and above." +
     thread_note(thread_rep),
+    unified~,
   )
 }
 
@@ -161,14 +212,15 @@ pub fn iso4017(
   length_mm : Double,
   detail~ : @common.DetailLevel = Simplified,
   threads? : @common.ThreadRepresentation,
+  unified~ : Bool = false,
 ) -> Result[@common.Component, @common.SpecError] {
   match @standards.iso4017_spec(size, length_mm) {
     Err(e) => Err(e)
     Ok(spec) =>
       Ok(
         match threads {
-          Some(t) => iso4017_screw(spec, detail~, threads=t)
-          None => iso4017_screw(spec, detail~)
+          Some(t) => iso4017_screw(spec, detail~, threads=t, unified~)
+          None => iso4017_screw(spec, detail~, unified~)
         },
       )
   }
@@ -183,6 +235,7 @@ pub fn iso4014_bolt(
   spec : @standards.ISO4014Spec,
   detail~ : @common.DetailLevel = Simplified,
   threads? : @common.ThreadRepresentation,
+  unified~ : Bool = false,
 ) -> @common.Component {
   let policy = @common.DetailPolicy::for_level(detail)
   let thread_rep = match threads {
@@ -201,6 +254,7 @@ pub fn iso4014_bolt(
     spec.metadata(),
     "Hexagon head bolt; layered body and head. Without modeled threads the shank uses the ISO 68-1 basic minor diameter D1. The head carries a 75-degree conical washer face with a circular top at every detail level; the shank tip break is added at Detailed and above." +
     thread_note(thread_rep),
+    unified~,
   )
 }
 
@@ -211,14 +265,15 @@ pub fn iso4014(
   length_mm : Double,
   detail~ : @common.DetailLevel = Simplified,
   threads? : @common.ThreadRepresentation,
+  unified~ : Bool = false,
 ) -> Result[@common.Component, @common.SpecError] {
   match @standards.iso4014_spec(size, length_mm) {
     Err(e) => Err(e)
     Ok(spec) =>
       Ok(
         match threads {
-          Some(t) => iso4014_bolt(spec, detail~, threads=t)
-          None => iso4014_bolt(spec, detail~)
+          Some(t) => iso4014_bolt(spec, detail~, threads=t, unified~)
+          None => iso4014_bolt(spec, detail~, unified~)
         },
       )
   }

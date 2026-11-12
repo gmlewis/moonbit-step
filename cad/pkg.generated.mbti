@@ -350,9 +350,15 @@ pub fn Fit::per_face_mm(Self) -> Double
 pub struct HexHeadWasherFace {
   across_flats_mm : Double
   head_height_mm : Double
+  face_angle_deg : Double
+  shank_diameter_mm : Double
+  shank_length_mm : Double
+  washer_face_diameter_mm : Double
+  washer_face_height_mm : Double
+  tip_chamfer_mm : Double
 }
 pub fn HexHeadWasherFace::as_shape(Self) -> Shape
-pub fn HexHeadWasherFace::new(across_flats_mm~ : Double, head_height_mm~ : Double) -> Self
+pub fn HexHeadWasherFace::new(across_flats_mm~ : Double, head_height_mm~ : Double, face_angle_deg? : Double, shank_diameter_mm? : Double, shank_length_mm? : Double, washer_face_diameter_mm? : Double, washer_face_height_mm? : Double, tip_chamfer_mm? : Double) -> Self
 
 pub struct Length {
   // private fields

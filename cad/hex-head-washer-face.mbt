@@ -11,24 +11,40 @@ priv struct HHWFGeometry {
   zb : Double
   c : Double
   tan_alpha : Double
+  face_angle_deg : Double
+  z_base : Double
 }
 
 ///|
 fn hhwf_geometry(h : HexHeadWasherFace) -> HHWFGeometry? {
   let s = h.across_flats_mm
   let k = h.head_height_mm
-  if s <= 0.0 || k <= 0.0 {
+  if s <= 0.0 || k <= 0.0 || h.face_angle_deg <= 0.0 {
     return None
   }
   let rb = s / Double::sqrt(3.0)
   let rt = s / 2.0
-  let tan_alpha = @math.tan(75.0 * @math.PI / 180.0)
+  let tan_alpha = @math.tan(h.face_angle_deg * @math.PI / 180.0)
   let c = (rb - rt) / tan_alpha
   let zb = k - c
-  if zb <= 0.0 {
+  let z_base = if h.washer_face_diameter_mm > 0.0 {
+    h.washer_face_height_mm
+  } else {
+    0.0
+  }
+  if zb <= z_base {
     return None
   }
-  Some({ rb, rt, k, zb, c, tan_alpha, })
+  Some({
+    rb,
+    rt,
+    k,
+    zb,
+    c,
+    tan_alpha,
+    face_angle_deg: h.face_angle_deg,
+    z_base,
+  })
 }
 
 ///|

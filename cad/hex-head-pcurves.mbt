@@ -17,6 +17,17 @@
 // as a near cylinder and drop the chamfer faces.
 
 ///|
+/// HHSArc is one circle level split into two half-arcs (u = 0 -> pi and
+/// pi -> 2pi) with the vertices at +X and -X. Bands and annuli share these
+/// edges, so no face needs a seam.
+priv struct HHSArc {
+  v0 : @step.Ref
+  v1 : @step.Ref
+  a : @step.Ref
+  b : @step.Ref
+}
+
+///|
 priv struct HHPlaneRef {
   surface : @step.Ref
   origin : Vec3
@@ -393,7 +404,9 @@ pub fn compile_hex_head_pcurves(
   for i in 0..<6 {
     let a = 60.0 * i.to_double() * @math.PI / 180.0
     let b = (30.0 + 60.0 * i.to_double()) * @math.PI / 180.0
-    base_pos.push(xform.apply((g.rb * @math.cos(a), g.rb * @math.sin(a), 0.0)))
+    base_pos.push(
+      xform.apply((g.rb * @math.cos(a), g.rb * @math.sin(a), g.z_base)),
+    )
     mid_pos.push(xform.apply((g.rb * @math.cos(a), g.rb * @math.sin(a), g.zb)))
     top_pos.push(xform.apply((g.rt * @math.cos(b), g.rt * @math.sin(b), g.k)))
   }
@@ -405,7 +418,7 @@ pub fn compile_hex_head_pcurves(
   let top_vp = top_cp.map(fn(c) { ctx.vertex_point(c) })
 
   // Surfaces.
-  let underside = hhp_plane(ctx, xform.apply((0.0, 0.0, 0.0)), down, right)
+  let underside = hhp_plane(ctx, xform.apply((0.0, 0.0, g.z_base)), down, right)
   let top_plane = hhp_plane(ctx, xform.apply((0.0, 0.0, g.k)), up, right)
   let flat_planes : Array[HHPlaneRef] = []
   for i in 0..<6 {
@@ -435,7 +448,7 @@ pub fn compile_hex_head_pcurves(
         v_norm(xform.apply_dir((0.0, 0.0, -1.0))),
         v_norm(xform.apply_dir((@math.cos(lead), @math.sin(lead), 0.0))),
         g.rb,
-        75.0,
+        g.face_angle_deg,
       ),
     )
   }
@@ -672,24 +685,265 @@ pub fn compile_hex_head_pcurves(
       ),
     )
   }
-  // Underside hex (opposite the flats' bottom edges). Reuse the same plane
-  // entity as the bottom edges' pcurves so each pcurve's basis surface is the
-  // face's own surface.
-  let underside_oriented : Array[(@step.Ref, Bool)] = []
-  let underside_points : Array[Vec3] = []
+  // Underside. Head-only: the full hex underside (opposite the flats' bottom
+  // edges), reusing the plane entity the bottom edges' pcurves reference.
+  // With a shank: an annular underside (or under-head washer face), a land
+  // cylinder, and the shank with its tip break, all in the same closed shell.
+  let has_shank = h.shank_diameter_mm > 0.0 && h.shank_length_mm > 0.0
+  let hex_oriented : Array[@step.Ref] = []
   for i in 0..<6 {
-    underside_oriented.push((bottom_edges[(5 - i) % 6], false))
-    underside_points.push(base_pos[(5 - i) % 6])
+    hex_oriented.push(ctx.oriented_edge(bottom_edges[(5 - i) % 6], false))
   }
-  faces.push(
-    hhwf_face(
-      ctx,
-      underside_oriented,
-      underside.surface,
-      underside.axis,
-      underside_points,
-    ),
-  )
+  if !has_shank {
+    let underside_oriented : Array[(@step.Ref, Bool)] = []
+    let underside_points : Array[Vec3] = []
+    for i in 0..<6 {
+      underside_oriented.push((bottom_edges[(5 - i) % 6], false))
+      underside_points.push(base_pos[(5 - i) % 6])
+    }
+    faces.push(
+      hhwf_face(
+        ctx,
+        underside_oriented,
+        underside.surface,
+        underside.axis,
+        underside_points,
+      ),
+    )
+  } else {
+    let r_h = h.shank_diameter_mm / 2.0
+    let r_w = h.washer_face_diameter_mm / 2.0
+    let has_washer = r_w > 0.0 && h.washer_face_height_mm > 0.0
+    let length = h.shank_length_mm
+    let c_tip = if h.tip_chamfer_mm > 0.0 && h.tip_chamfer_mm < r_h {
+      h.tip_chamfer_mm
+    } else {
+      0.0
+    }
+    let z_shank_bot = -length + c_tip
+    let z_tip = -length
+    let half_level = fn(z : Double, r : Double) -> HHSArc {
+      let center_cp = hhwf_cp(ctx, xform.apply((0.0, 0.0, z)))
+      let a2p = ctx.axis2_placement_3d(center_cp, dir_up, dir_right)
+      let circle = ctx.add(
+        @repository.any_entity_circle(
+          @geometry.Circle::new("", a2p, @step.fmt_num(r)),
+        ),
+      )
+      let cp0 = hhwf_cp(ctx, xform.apply((r, 0.0, z)))
+      let cp1 = hhwf_cp(ctx, xform.apply((-r, 0.0, z)))
+      let v0 = ctx.vertex_point(cp0)
+      let v1 = ctx.vertex_point(cp1)
+      {
+        v0,
+        v1,
+        a: ctx.edge_curve(v0, v1, circle, true),
+        b: ctx.edge_curve(v1, v0, circle, true),
+      }
+    }
+    let cylinder_at = fn(z : Double, r : Double) -> @step.Ref {
+      let center_cp = hhwf_cp(ctx, xform.apply((0.0, 0.0, z)))
+      let a2p = ctx.axis2_placement_3d(center_cp, dir_up, dir_right)
+      ctx.add(
+        @repository.any_entity_cylindrical_surface(
+          @geometry.CylindricalSurface::new("", a2p, @step.fmt_num(r)),
+        ),
+      )
+    }
+    let band = fn(
+      z0 : Double,
+      r0 : Double,
+      lo : HHSArc,
+      z1 : Double,
+      r1 : Double,
+      hi : HHSArc,
+      surface : @step.Ref,
+    ) -> Unit {
+      let dir0 = v_norm(
+        v_sub(xform.apply((r1, 0.0, z1)), xform.apply((r0, 0.0, z0))),
+      )
+      let dir1 = v_norm(
+        v_sub(xform.apply((-r1, 0.0, z1)), xform.apply((-r0, 0.0, z0))),
+      )
+      let seam0 = ctx.edge_curve(
+        lo.v0,
+        hi.v0,
+        ctx.line(
+          hhwf_cp(ctx, xform.apply((r0, 0.0, z0))),
+          ctx.vector(ctx.direction(dir0.0, dir0.1, dir0.2), 1.0),
+        ),
+        true,
+      )
+      let seam1 = ctx.edge_curve(
+        lo.v1,
+        hi.v1,
+        ctx.line(
+          hhwf_cp(ctx, xform.apply((-r0, 0.0, z0))),
+          ctx.vector(ctx.direction(dir1.0, dir1.1, dir1.2), 1.0),
+        ),
+        true,
+      )
+      let loop_a = ctx.edge_loop([
+        ctx.oriented_edge(seam0, true),
+        ctx.oriented_edge(hi.a, true),
+        ctx.oriented_edge(seam1, false),
+        ctx.oriented_edge(lo.a, false),
+      ])
+      let loop_b = ctx.edge_loop([
+        ctx.oriented_edge(seam1, true),
+        ctx.oriented_edge(hi.b, true),
+        ctx.oriented_edge(seam0, false),
+        ctx.oriented_edge(lo.b, false),
+      ])
+      faces.push(
+        ctx.advanced_face(
+          [ctx.face_outer_bound(loop_a, true)],
+          surface,
+          reverse,
+        ),
+      )
+      faces.push(
+        ctx.advanced_face(
+          [ctx.face_outer_bound(loop_b, true)],
+          surface,
+          reverse,
+        ),
+      )
+    }
+    let hex_loop = ctx.edge_loop(hex_oriented)
+    let tip_plane = hhp_plane(ctx, xform.apply((0.0, 0.0, z_tip)), down, right)
+    let l_top = half_level(0.0, r_h)
+    let l_bot = half_level(z_shank_bot, r_h)
+    if has_washer {
+      let under0 = hhp_plane(ctx, xform.apply((0.0, 0.0, 0.0)), down, right)
+      let l_wtop = half_level(h.washer_face_height_mm, r_w)
+      let l_wbot = half_level(0.0, r_w)
+      faces.push(
+        ctx.advanced_face(
+          [
+            ctx.face_outer_bound(hex_loop, true),
+            ctx.face_bound(
+              ctx.edge_loop([
+                ctx.oriented_edge(l_wtop.a, false),
+                ctx.oriented_edge(l_wtop.b, false),
+              ]),
+              true,
+            ),
+          ],
+          underside.surface,
+          !reverse,
+        ),
+      )
+      band(
+        0.0,
+        r_w,
+        l_wbot,
+        h.washer_face_height_mm,
+        r_w,
+        l_wtop,
+        cylinder_at(0.0, r_w),
+      )
+      faces.push(
+        ctx.advanced_face(
+          [
+            ctx.face_outer_bound(
+              ctx.edge_loop([
+                ctx.oriented_edge(l_wbot.a, true),
+                ctx.oriented_edge(l_wbot.b, true),
+              ]),
+              true,
+            ),
+            ctx.face_bound(
+              ctx.edge_loop([
+                ctx.oriented_edge(l_top.a, false),
+                ctx.oriented_edge(l_top.b, false),
+              ]),
+              true,
+            ),
+          ],
+          under0.surface,
+          reverse,
+        ),
+      )
+    } else {
+      faces.push(
+        ctx.advanced_face(
+          [
+            ctx.face_outer_bound(hex_loop, true),
+            ctx.face_bound(
+              ctx.edge_loop([
+                ctx.oriented_edge(l_top.a, false),
+                ctx.oriented_edge(l_top.b, false),
+              ]),
+              true,
+            ),
+          ],
+          underside.surface,
+          !reverse,
+        ),
+      )
+    }
+    band(
+      z_shank_bot,
+      r_h,
+      l_bot,
+      0.0,
+      r_h,
+      l_top,
+      cylinder_at(z_shank_bot, r_h),
+    )
+    if c_tip > 0.0 {
+      let tip_r = r_h - c_tip
+      let l_tip = half_level(z_tip, tip_r)
+      band(
+        z_tip,
+        tip_r,
+        l_tip,
+        z_shank_bot,
+        r_h,
+        l_bot,
+        hhwf_cone(
+          ctx,
+          xform.apply((0.0, 0.0, z_shank_bot - r_h)),
+          up,
+          right,
+          0.0,
+          45.0,
+        ),
+      )
+      faces.push(
+        ctx.advanced_face(
+          [
+            ctx.face_outer_bound(
+              ctx.edge_loop([
+                ctx.oriented_edge(l_tip.a, true),
+                ctx.oriented_edge(l_tip.b, true),
+              ]),
+              true,
+            ),
+          ],
+          tip_plane.surface,
+          reverse,
+        ),
+      )
+    } else {
+      faces.push(
+        ctx.advanced_face(
+          [
+            ctx.face_outer_bound(
+              ctx.edge_loop([
+                ctx.oriented_edge(l_bot.a, true),
+                ctx.oriented_edge(l_bot.b, true),
+              ]),
+              true,
+            ),
+          ],
+          tip_plane.surface,
+          reverse,
+        ),
+      )
+    }
+  }
   // Top circle (forward, opposite the cone faces' top arcs). As above, the
   // face reuses the top plane that the arcs' pcurves reference.
   let top_loop = ctx.edge_loop(

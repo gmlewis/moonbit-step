@@ -68,13 +68,13 @@ pub fn iso10642_screw(@standards.MetricSize, Double, detail? : @common.DetailLev
 
 pub fn iso2338_pin(@standards.MetricSize, Double, detail? : @common.DetailLevel, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
-pub fn iso4014(@standards.MetricSize, Double, detail? : @common.DetailLevel, threads? : @common.ThreadRepresentation) -> Result[@common.Component, @common.SpecError]
+pub fn iso4014(@standards.MetricSize, Double, detail? : @common.DetailLevel, threads? : @common.ThreadRepresentation, unified? : Bool) -> Result[@common.Component, @common.SpecError]
 
-pub fn iso4014_bolt(@standards.ISO4014Spec, detail? : @common.DetailLevel, threads? : @common.ThreadRepresentation) -> @common.Component
+pub fn iso4014_bolt(@standards.ISO4014Spec, detail? : @common.DetailLevel, threads? : @common.ThreadRepresentation, unified? : Bool) -> @common.Component
 
-pub fn iso4017(@standards.MetricSize, Double, detail? : @common.DetailLevel, threads? : @common.ThreadRepresentation) -> Result[@common.Component, @common.SpecError]
+pub fn iso4017(@standards.MetricSize, Double, detail? : @common.DetailLevel, threads? : @common.ThreadRepresentation, unified? : Bool) -> Result[@common.Component, @common.SpecError]
 
-pub fn iso4017_screw(@standards.ISO4017Spec, detail? : @common.DetailLevel, threads? : @common.ThreadRepresentation) -> @common.Component
+pub fn iso4017_screw(@standards.ISO4017Spec, detail? : @common.DetailLevel, threads? : @common.ThreadRepresentation, unified? : Bool) -> @common.Component
 
 pub fn iso4032_nut(@standards.MetricSize, detail? : @common.DetailLevel, threads? : @common.ThreadRepresentation, clearance_mm? : Double) -> Result[@common.Component, @common.SpecError]
 

@@ -323,6 +323,19 @@ pub fn TabWasher::as_shape(self : TabWasher) -> Shape {
 pub struct HexHeadWasherFace {
   across_flats_mm : Double
   head_height_mm : Double
+  /// Conical washer-face semi-angle (75 degrees for the simple hex heads, 65
+  /// for the detailed ISO 4017 references).
+  face_angle_deg : Double
+  /// Optional shank below the head. `shank_diameter_mm <= 0` keeps the
+  /// head-only solid. When positive the head, under-head washer face and shank
+  /// are emitted as one closed shell.
+  shank_diameter_mm : Double
+  shank_length_mm : Double
+  /// Optional under-head washer face `(diameter, height)`. Diameter 0 uses the
+  /// full hexagon underside.
+  washer_face_diameter_mm : Double
+  washer_face_height_mm : Double
+  tip_chamfer_mm : Double
 }
 
 ///|
@@ -330,8 +343,23 @@ pub struct HexHeadWasherFace {
 pub fn HexHeadWasherFace::new(
   across_flats_mm~ : Double,
   head_height_mm~ : Double,
+  face_angle_deg~ : Double = 75.0,
+  shank_diameter_mm~ : Double = 0.0,
+  shank_length_mm~ : Double = 0.0,
+  washer_face_diameter_mm~ : Double = 0.0,
+  washer_face_height_mm~ : Double = 0.0,
+  tip_chamfer_mm~ : Double = 0.0,
 ) -> HexHeadWasherFace {
-  { across_flats_mm, head_height_mm, }
+  {
+    across_flats_mm,
+    head_height_mm,
+    face_angle_deg,
+    shank_diameter_mm,
+    shank_length_mm,
+    washer_face_diameter_mm,
+    washer_face_height_mm,
+    tip_chamfer_mm,
+  }
 }
 
 ///|
@@ -641,7 +669,12 @@ pub fn Shape::bounding_box(
     }
     HexHeadWasherFace(h) => {
       let r = h.across_flats_mm / Double::sqrt(3.0)
-      (-r, r, -r, r, 0.0, h.head_height_mm)
+      let z0 = if h.shank_diameter_mm > 0.0 && h.shank_length_mm > 0.0 {
+        -h.shank_length_mm
+      } else {
+        0.0
+      }
+      (-r, r, -r, r, z0, h.head_height_mm)
     }
     ExtrudedBezierProfile(e) => {
       let mut x0 = @double.max_value

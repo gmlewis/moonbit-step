@@ -206,12 +206,18 @@ def infer(name, detail):
         return fastener("iso7380", m.group(1), m.group(2), detail)
     m = re.match(r"^hex_head_bolt_m(\d+(?:p\d+)?)_l(\d+)_simple\.step$", name)
     if m:
-        return fastener("iso4017", m.group(1), m.group(2), detail)
+        # The references are one closed solid (shank + head); use the unified
+        # representation.
+        tool, gen_args = fastener("iso4017", m.group(1), m.group(2), detail)
+        return (tool, gen_args + ["--unified"])
     m = re.match(
         r"^iso4017_hex_head_cap_screw_m(\d+(?:p\d+)?)x(\d+)\.step$", name
     )
     if m:
-        return fastener("iso4017", m.group(1), m.group(2), detail)
+        # This reference is the single-solid representation: shank, under-head
+        # washer face and hexagon head in one shell (see --unified).
+        tool, gen_args = fastener("iso4017", m.group(1), m.group(2), detail)
+        return (tool, gen_args + ["--unified"])
     m = re.match(r"^iso_2338_dowel_pin_d(\d+)_l(\d+)\.step$", name)
     if m:
         return fastener(

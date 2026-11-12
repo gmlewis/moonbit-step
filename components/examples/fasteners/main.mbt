@@ -38,6 +38,9 @@ async fn main {
       help="Generate the built-in M3/M4/M5 catalog into this directory",
     ),
     "bbox": @cli.flag(help="Print the component bounding box to stderr"),
+    "unified": @cli.flag(
+      help="Hex-head screws: one solid with an under-head washer face (reference representation)",
+    ),
   }
   guard @cli.parse(
       spec,
@@ -100,13 +103,39 @@ async fn main {
       }
     "iso4017" =>
       match threads {
-        Some(t) => @fcomponents.iso4017(size, length, detail~, threads=t)
-        None => @fcomponents.iso4017(size, length, detail~)
+        Some(t) =>
+          @fcomponents.iso4017(
+            size,
+            length,
+            detail~,
+            threads=t,
+            unified=args.flag("unified"),
+          )
+        None =>
+          @fcomponents.iso4017(
+            size,
+            length,
+            detail~,
+            unified=args.flag("unified"),
+          )
       }
     "iso4014" =>
       match threads {
-        Some(t) => @fcomponents.iso4014(size, length, detail~, threads=t)
-        None => @fcomponents.iso4014(size, length, detail~)
+        Some(t) =>
+          @fcomponents.iso4014(
+            size,
+            length,
+            detail~,
+            threads=t,
+            unified=args.flag("unified"),
+          )
+        None =>
+          @fcomponents.iso4014(
+            size,
+            length,
+            detail~,
+            unified=args.flag("unified"),
+          )
       }
     "iso2338" => @fcomponents.iso2338_pin(size, length, detail~)
     "din976" =>

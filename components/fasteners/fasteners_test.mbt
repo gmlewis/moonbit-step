@@ -1042,3 +1042,20 @@ test "detailed ISO 10642 M3x12 uses the reference countersunk profile" {
   // The downloaded M3 x 12 countersunk reference is 96.4878 mm3.
   assert_true((volume - 96.4878).abs() < 0.05)
 }
+
+///|
+test "unified ISO 4017 reference is one solid with the washer face" {
+  let screw = match
+    @fasteners.iso4017(@standards.M6, 25.0, detail=Detailed, unified=true) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  let (x0, x1, _y0, _y1, z0, z1) = screw.bounding_box()
+  assert_true(close(x0, -10.0 / Double::sqrt(3.0)))
+  assert_true(close(x1, 10.0 / Double::sqrt(3.0)))
+  assert_true(close(z0, -25.0))
+  assert_true(close(z1, 4.0))
+  let layers = screw.layers()
+  assert_true(layers.length() == 1)
+  assert_true(layers[0].name.contains("screw"))
+}
