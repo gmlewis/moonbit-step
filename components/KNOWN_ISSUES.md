@@ -516,8 +516,12 @@ approximations are recorded above and in `FEATURES.md`.
 - DIN 976 rod reference files are twice their labelled length; the library
   follows the label. The ISO 2338 dowel-pin references had the same 2x defect
   and were deleted on 2026-11-12 (see below).
-- ISO 8752 slotted spring pins remain unmodeled: the reference slot is closed
-  at the ends and the flat writer has no verified slit-tube construction.
+- ISO 8752 slotted spring pins were added as a standard builder on 2026-11-12
+  (`iso8752_spring_pin`, backed by the new `cad.SlitTube` construction). The 24
+  downloaded references were deleted because they were twice their declared
+  length and their slot terminated inside the pin rather than running the full
+  length (see `GOLDEN_REFERENCES.md`). The builder has no golden counterpart;
+  its slot width and wall are recorded engineering defaults.
 - Gears (spur m2 z20/z40) still use the existing approximating tooth flank;
   the reference volumes differ by about 20%, so they are recorded as an
   approximation, not a match.

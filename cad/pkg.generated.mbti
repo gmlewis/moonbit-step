@@ -37,6 +37,8 @@ pub fn compile_hex_head_pcurves(StepContext, SceneNode, HexHeadWasherFace, rever
 
 pub fn compile_revolved_profile(StepContext, SceneNode, RevolvedProfile, reverse? : Bool, parent? : Transform?) -> Array[@step.Ref]
 
+pub fn compile_slit_tube(StepContext, SceneNode, SlitTube, reverse? : Bool, parent? : Transform?) -> Array[@step.Ref]
+
 pub fn compile_socketed_solid(StepContext, SceneNode, SocketedSolid, reverse? : Bool, parent? : Transform?) -> Array[@step.Ref]
 
 pub fn compile_square_hole_washer(StepContext, SceneNode, SquareHoleWasher, reverse? : Bool, parent? : Transform?) -> Array[@step.Ref]
@@ -92,6 +94,8 @@ pub fn rev_mesh(RevolvedProfile, angular_segments? : Int32, arc_segments? : Int3
 pub fn rev_profile_polyline(RevolvedProfile, arc_segments? : Int32) -> Array[(Double, Double)]
 
 pub fn rotate_point((Double, Double, Double), Double, Double, Double) -> (Double, Double, Double)
+
+pub fn slit_tube_mesh(SlitTube, arc_segments? : Int32) -> (Array[(Double, Double, Double)], Array[Array[Int32]])
 
 pub fn snap_double(Double, Double?) -> Double
 
@@ -552,6 +556,7 @@ pub enum Shape {
   ChamferedPrism(ChamferedPrism)
   SocketedSolid(SocketedSolid)
   ConicalNut(ConicalNut)
+  SlitTube(SlitTube)
   CalibrationChamferBlock(CalibrationChamferBlock)
   ExtrudedProfile(ExtrudedProfile)
   ExtrudedArcProfile(ExtrudedArcProfile)
@@ -574,6 +579,17 @@ pub fn Shape::section_at_world_z(Self, Matrix3x3, (Double, Double, Double), Doub
 pub fn Shape::surface_inventory(Self) -> SurfaceInventory
 pub fn Shape::with_color(Self, Rgb) -> SceneNode
 pub fn Shape::with_name(Self, String) -> SceneNode
+
+pub struct SlitTube {
+  outer_diameter_mm : Double
+  inner_diameter_mm : Double
+  length_mm : Double
+  slot_width_mm : Double
+}
+pub fn SlitTube::as_shape(Self) -> Shape
+pub fn SlitTube::centroid(Self) -> (Double, Double, Double)
+pub fn SlitTube::new(outer_diameter_mm~ : Double, inner_diameter_mm~ : Double, length_mm~ : Double, slot_width_mm~ : Double) -> Self
+pub fn SlitTube::volume(Self) -> Double
 
 pub(all) struct SocketGeometry {
   top_z : Double

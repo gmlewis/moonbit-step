@@ -83,6 +83,13 @@ MATRIX = [
         "sections": [0.4],
     },
     {
+        "name": "ISO8752-M3x20-detailed",
+        "args": ["--standard", "iso8752", "--size", "M3", "--length", "20",
+                 "--detail", "detailed"],
+        "sections": [-5.0, 5.0],
+        "skip_bbox": "the slot cuts the outer cylinder at y = +/- 0.09 d, so OCCT's tight envelope is narrower than the intent cylinder envelope",
+    },
+    {
         "name": "ISO4017-M5x20-detailed",
         "args": ["--standard", "iso4017", "--size", "M5", "--length", "20",
                  "--detail", "detailed"],

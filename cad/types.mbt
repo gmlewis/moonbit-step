@@ -388,6 +388,19 @@ pub struct ConicalNut {
 }
 
 ///|
+/// SlitTube is a straight tube with a full-length parallel-sided slot cut
+/// through one side (an ISO 8752 slotted spring pin). The outer and inner
+/// surfaces are analytic cylinders, the slot walls are planes, and the two end
+/// faces are C-shaped planes. The slot is centred on +X with parallel walls at
+/// `y = +/- slot_width/2`.
+pub struct SlitTube {
+  outer_diameter_mm : Double
+  inner_diameter_mm : Double
+  length_mm : Double
+  slot_width_mm : Double
+}
+
+///|
 pub enum Shape {
   Cuboid(Cuboid)
   Cylinder(Cylinder)
@@ -395,6 +408,7 @@ pub enum Shape {
   ChamferedPrism(ChamferedPrism)
   SocketedSolid(SocketedSolid)
   ConicalNut(ConicalNut)
+  SlitTube(SlitTube)
   CalibrationChamferBlock(CalibrationChamferBlock)
   ExtrudedProfile(ExtrudedProfile)
   ExtrudedArcProfile(ExtrudedArcProfile)
@@ -563,6 +577,10 @@ pub fn Shape::bounding_box(
     }
     SocketedSolid(s) => Shape::RevolvedProfile(s.body).bounding_box()
     ConicalNut(n) => conical_nut_bounding_box(n)
+    SlitTube(t) => {
+      let r = t.outer_diameter_mm / 2.0
+      (-r, r, -r, r, 0.0, t.length_mm)
+    }
     CalibrationChamferBlock(b) =>
       (0.0, b.length_mm, 0.0, b.width_mm, 0.0, b.height_mm)
     ExtrudedProfile(e) => {

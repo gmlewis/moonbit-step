@@ -94,6 +94,8 @@ pub fn iso709x_washer(@standards.IsoWasherSeries, @standards.MetricSize, detail?
 
 pub fn iso7380_screw(@standards.MetricSize, Double, detail? : @common.DetailLevel, threads? : @common.ThreadRepresentation) -> Result[@common.Component, @common.SpecError]
 
+pub fn iso8752_spring_pin(@standards.MetricSize, Double, detail? : @common.DetailLevel, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
 pub fn polyline_circle_approximation(String, Double, Int32) -> @common.Approximation
 
 pub fn shank_tip_chamfer_mm(Double) -> Double

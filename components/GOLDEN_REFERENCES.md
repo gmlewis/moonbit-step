@@ -60,7 +60,9 @@ The core corpus includes:
 - **Washers:** ISO 7089, ISO 7091, ISO 7092, ISO 7093, ISO 7090, DIN 125,
   DIN 127, DIN 7349, DIN 93, DIN 440.
 - **Pins:** ISO 2338 dowel pins, ISO 8752 slotted spring pins, ISO 1234 cotter
-  pins.
+  pins. All three reference families were deleted as non-conforming (twice the
+  declared length, or self-intersecting legs; see the deletion notes below), so
+  the corpus now contains no pin goldens.
 - **Bearings:** common 608/6000/6200-class boundary references.
 - **Rods:** metric threaded rods (clearly labeled as DIN 976-compatible rather
   than catalog-standard-designated).
@@ -301,8 +303,10 @@ no fixture is reported as surface-deviation-verified.
 The curated set is intentionally small. The following families exist in the
 local corpus and have parametric counterparts, but were not promoted with a
 generation/comparison recipe this session: ISO 4014 (partially threaded hex
-bolt), DIN 913 set screws, ISO 4035 thin nuts, ISO 2338 dowel pins, ISO 8752
-spring pins, and DIN 471 retaining rings. The 6300-series bearing reference is
+bolt), DIN 913 set screws, ISO 4035 thin nuts, and DIN 471 retaining rings. The
+ISO 2338 dowel-pin, ISO 8752 spring-pin and ISO 1234 cotter-pin goldens were
+deleted as non-conforming, so those builders now have no golden counterpart. The
+6300-series bearing reference is
 absent from the downloaded core corpus. The 2040/3030/4040 extrusion envelopes
 remain analytically checked in the profile tests, not against an external
 model. These are honest coverage gaps, not passes.
@@ -434,11 +438,13 @@ acceptance criterion; this tool is for the visual review.
   length (`l025` is 50 mm, `l200` is 400 mm). The library follows the label
   (25/200 mm) and its ends carry 45-degree lead-in cones where the references
   are sharp; both differences are recorded, not copied.
-- **Not implemented in this session:** ISO 1234 cotter pins (142-148),
-  ISO 8752 slotted spring pins (167-190), acorn nuts (191-194), square nuts
-  (195-197), the B-slot6 profile (212), cup-point set screws (213-223), and the
-  ISO 10642 socket rims (084). Each needs a non-axisymmetric cut or a socket
-  rim representation that the flat writer does not yet carry safely.
+- **Not implemented in this session:** ISO 1234 cotter pins (142-148), acorn
+  nuts (191-194), square nuts (195-197), the B-slot6 profile (212), cup-point
+  set screws (213-223), and the ISO 10642 socket rims (084). Each needs a
+  non-axisymmetric cut or a socket rim representation that the flat writer did
+  not yet carry safely. The ISO 8752 spring pins (167-190) were built later in
+  this session with a dedicated `SlitTube` construction; their references were
+  deleted (see the spring-pin deletion note below).
 
 ### ISO 4032 nuts (082, 083, 086-090) — conical washer faces
 
@@ -585,3 +591,27 @@ files and their `.bytes`/`.sha256` companions were deleted and the 18 part ids
 added to `EXCLUDED_PART_IDS` in `scripts/fetch_golden_references.py`, so they are
 never downloaded again. The library's `iso2338_pin` builder still produces a
 standard pin of the requested length; it now has no golden counterpart.
+
+### ISO 8752 spring pins are twice their declared length — deleted (2026-11-12)
+
+The step.parts catalog declares the actual length
+(`iso_8752_slotted_spring_pin_d1p5_l006_simple` has `lengthMm: 6`,
+`d3_l020_simple` has 20 mm), but every downloaded model is twice that length:
+D1.5 x 6 spans 12 mm and D3 x 20 spans 40 mm (bbox z -20..20). The references
+also stop the slot inside the body: the D3 model's edge rings sit at
+z = -20, -12, 0, 12, 20, and its six planes are the two ends plus four slot-end
+walls, so the bore is a closed tube near the ends instead of a full-length
+slit. The models do not represent the designated pins, so all 24 files and
+their `.bytes`/`.sha256` companions were deleted and the family prefix
+`iso_8752_slotted_spring_pin_` added to `EXCLUDED_PART_PREFIXES` in
+`scripts/fetch_golden_references.py`, so no size or length of the family is
+downloaded again.
+
+The library now builds the standard part: `iso8752_spring_pin` emits a
+`cad.SlitTube` — one closed solid with two analytic cylinders (outer diameter
+d, bore 0.68 d), two parallel slot-wall planes 0.18 d apart, and two C-shaped
+end planes, centred on the origin along Z. The wall and slot ratios were
+measured from the reference radial geometry; ISO 8752 fixes only d and the
+length, so they are recorded as engineering defaults. The ends are square and
+the customary end chamfer is a typed omission. The builder has no golden
+counterpart.

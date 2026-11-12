@@ -372,6 +372,7 @@ fn compile_node_shape(
       compile_chamfered_prism(ctx, node, p, reverse~, parent~)
     SocketedSolid(s) => compile_socketed_solid(ctx, node, s, reverse~, parent~)
     ConicalNut(n) => compile_conical_nut(ctx, node, n, reverse~, parent~)
+    SlitTube(t) => compile_slit_tube(ctx, node, t, reverse~, parent~)
     CalibrationChamferBlock(b) =>
       compile_calibration_chamfer_block(ctx, node, b, reverse~, parent~)
     ExtrudedProfile(e) =>

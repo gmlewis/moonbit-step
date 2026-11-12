@@ -174,6 +174,7 @@ fn build_fastener(args : Array[String], standard : String) -> Built {
         None => @fcomponents.iso4032_nut(size, detail~)
       }
     "iso7089" => @fcomponents.iso7089_washer(size, detail~)
+    "iso8752" => @fcomponents.iso8752_spring_pin(size, length, detail~)
     "iso7380" =>
       match threads {
         Some(t) => @fcomponents.iso7380_screw(size, length, detail~, threads=t)
@@ -471,6 +472,7 @@ fn shape_kind(shape : @cad.Shape) -> String {
     ChamferedPrism(_) => "chamfered-prism"
     SocketedSolid(_) => "socketed-solid"
     ConicalNut(_) => "conical-nut"
+    SlitTube(_) => "slit-tube"
     CalibrationChamferBlock(_) => "calibration-chamfer-block"
     ExtrudedProfile(_) => "extruded-profile"
     ExtrudedArcProfile(_) => "extruded-arc-profile"

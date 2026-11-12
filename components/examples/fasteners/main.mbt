@@ -14,7 +14,7 @@ async fn main {
   let spec = {
     "standard": @cli.opt_string(
       short='s',
-      help="Standard: iso4762, iso4032, iso7089, iso7090, iso7091, iso7092, iso7093, iso2338, din125, din127, din440, din7349, din913, din93, iso4017, iso4014, iso7380, iso10642, din976",
+      help="Standard: iso4762, iso4032, iso7089, iso7090, iso7091, iso7092, iso7093, iso2338, iso8752, din125, din127, din440, din7349, din913, din93, iso4017, iso4014, iso7380, iso10642, din976",
     ),
     "size": @cli.opt_string(short='m', help="Metric size, e.g. M3, M4, M5"),
     "length": @cli.opt_double(
@@ -154,6 +154,7 @@ async fn main {
           )
       }
     "iso2338" => @fcomponents.iso2338_pin(size, length, detail~)
+    "iso8752" => @fcomponents.iso8752_spring_pin(size, length, detail~)
     "din976" =>
       match threads {
         Some(t) => @fcomponents.din976(size, length, detail~, threads=t)

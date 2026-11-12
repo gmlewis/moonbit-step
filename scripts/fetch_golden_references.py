@@ -158,6 +158,9 @@ EXCLUDED_PART_IDS = {
 EXCLUDED_PART_PREFIXES = (
     "iso_2338_dowel_pin_",
     "iso_1234_cotter_pin_",
+    # ISO 8752 spring pins: every catalogue model is twice its declared length
+    # (D1.5 x 6 measures 12 mm, D3 x 20 measures 40 mm, ratio 2.0 for all 24).
+    "iso_8752_slotted_spring_pin_",
 )
 
 def is_excluded_part(part_id):

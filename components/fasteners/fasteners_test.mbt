@@ -980,6 +980,35 @@ test "ISO 2338 M3 x 20 dowel pin has 45-degree end breaks" {
 }
 
 ///|
+test "ISO 8752 M3 x 20 spring pin is a slotted tube" {
+  let pin = match @fasteners.iso8752_spring_pin(@standards.M3, 20.0) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  let (x0, x1, y0, y1, z0, z1) = pin.bounding_box()
+  assert_true(close(x0, -1.5))
+  // The intent envelope is the full cylinder; the emitted B-rep's far wall
+  // stops at sqrt(1.5^2 - 0.27^2) = 1.4755 where the slot cuts it.
+  assert_true(close(x1, 1.5))
+  assert_true(close(y0, -1.5))
+  assert_true(close(y1, 1.5))
+  assert_true(close(z0, -10.0))
+  assert_true(close(z1, 10.0))
+  let layers = pin.layers()
+  assert_true(layers.length() == 1)
+  let inv = layers[0].shape.surface_inventory()
+  assert_true(inv.plane == 4)
+  assert_true(inv.cylinder == 2)
+  let volume = match layers[0].shape.analysis_volume() {
+    Ok(v) => v
+    Err(_) => abort("spring pin volume unavailable")
+  }
+  // Annulus pi*(1.5^2 - 1.02^2) minus the +X strip |y| < 0.27, over 20 mm.
+  // The analytic value matches the OCCT measurement (70.7753 mm3).
+  assert_true((volume - 70.775285).abs() < 1.0e-3)
+}
+
+///|
 test "detailed ISO 4032 nut carries conical washer faces" {
   let nut = match @fasteners.iso4032_nut(@standards.M3, detail=Detailed) {
     Ok(c) => c
