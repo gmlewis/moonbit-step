@@ -344,6 +344,22 @@ fn emit_node_python(
       )
       (obj_var, next_idx)
     }
+    AcornNut(solid) => {
+      let (verts, faces) = acorn_nut_mesh(solid)
+      let face_str = "[" +
+        faces
+        .map(fn(f) { "[" + f.map(fn(i) { i.to_string() }).join(",") + "]" })
+        .join(",") +
+        "]"
+      let (obj_var, next_idx) = next_var("obj", idx)
+      builder.write_string(
+        (
+          $|    \{obj_var} = finalize_object(create_mesh_object(\{py_string(node.name)}, \{py_mm_vec3_list(verts)}, \{face_str}, collection), get_material(\{py_color(node.color)}), (\{py_mm(node.tx)}, \{py_mm(node.ty)}, \{py_mm(node.tz)}), (\{node.rx}, \{node.ry}, \{node.rz}))
+          $|
+        ),
+      )
+      (obj_var, next_idx)
+    }
     SlitTube(solid) => {
       let (verts, faces) = slit_tube_mesh(solid)
       let face_str = "[" +

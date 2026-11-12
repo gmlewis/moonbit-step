@@ -56,7 +56,8 @@ The core corpus includes:
 
 - **Screws/bolts:** ISO 4762, ISO 4017, ISO 7380 (catalog starts at M3),
   ISO 10642 (catalog starts at M3), DIN 913 (catalog starts at M3).
-- **Nuts:** ISO 4032, ISO 4035, DIN 1587 (M4+), DIN 557 (M5+).
+- **Nuts:** ISO 4032, ISO 4035, DIN 1587 (M4+), DIN 557 (M5+). The DIN 1587
+  cap-nut goldens were deleted as non-conforming (see the deletion note below).
 - **Washers:** ISO 7089, ISO 7091, ISO 7092, ISO 7093, ISO 7090, DIN 125,
   DIN 127, DIN 7349, DIN 93, DIN 440.
 - **Pins:** ISO 2338 dowel pins, ISO 8752 slotted spring pins, ISO 1234 cotter
@@ -304,8 +305,9 @@ The curated set is intentionally small. The following families exist in the
 local corpus and have parametric counterparts, but were not promoted with a
 generation/comparison recipe this session: ISO 4014 (partially threaded hex
 bolt), DIN 913 set screws, ISO 4035 thin nuts, and DIN 471 retaining rings. The
-ISO 2338 dowel-pin, ISO 8752 spring-pin and ISO 1234 cotter-pin goldens were
-deleted as non-conforming, so those builders now have no golden counterpart. The
+ISO 2338 dowel-pin, ISO 8752 spring-pin, ISO 1234 cotter-pin and DIN 1587
+cap-nut goldens were deleted as non-conforming, so those builders now have no
+golden counterpart. The
 6300-series bearing reference is
 absent from the downloaded core corpus. The 2040/3030/4040 extrusion envelopes
 remain analytically checked in the profile tests, not against an external
@@ -438,13 +440,15 @@ acceptance criterion; this tool is for the visual review.
   length (`l025` is 50 mm, `l200` is 400 mm). The library follows the label
   (25/200 mm) and its ends carry 45-degree lead-in cones where the references
   are sharp; both differences are recorded, not copied.
-- **Not implemented in this session:** ISO 1234 cotter pins (142-148), acorn
-  nuts (191-194), square nuts (195-197), the B-slot6 profile (212), cup-point
-  set screws (213-223), and the ISO 10642 socket rims (084). Each needs a
-  non-axisymmetric cut or a socket rim representation that the flat writer did
-  not yet carry safely. The ISO 8752 spring pins (167-190) were built later in
-  this session with a dedicated `SlitTube` construction; their references were
-  deleted (see the spring-pin deletion note below).
+- **Not implemented in this session:** ISO 1234 cotter pins (142-148), square
+  nuts (195-197), the B-slot6 profile (212), cup-point set screws (213-223),
+  and the ISO 10642 socket rims (084). Each needs a non-axisymmetric cut or a
+  socket rim representation that the flat writer did not yet carry safely. The
+  ISO 8752 spring pins (167-190) were built later in this session with a
+  dedicated `SlitTube` construction; their references were deleted (see the
+  spring-pin deletion note below). The DIN 1587 cap nuts (191-194) were built
+  later in this session as `AcornNut`; their references were deleted (see the
+  cap-nut deletion note below).
 
 ### ISO 4032 nuts (082, 083, 086-090) — conical washer faces
 
@@ -615,3 +619,33 @@ measured from the reference radial geometry; ISO 8752 fixes only d and the
 length, so they are recorded as engineering defaults. The ends are square and
 the customary end chamfer is a typed omission. The builder has no golden
 counterpart.
+
+### DIN 1587 cap nuts fall short of the standard height — deleted (2026-11-12)
+
+The catalog names the four `iso_metric_cap_acorn_nut_*_simple` models "DIN 1587
+cap nut". DIN 1587 fixes the overall height `h` as 8/10/12/15 mm (min values
+7.64/9.64/11.57/14.57 mm) for M4/M5/M6/M8, with hexagon body heights `m` of
+3.2/4.0/5.0/6.5 mm and cap diameters `dk` of 6.5/7.5/9.5/12.5 mm. The
+downloaded models reproduce `s`, `m` and `dk`, but model the cap as a
+hemisphere of radius `dk/2` and stop there:
+
+| Size | Model height | DIN 1587 h (max / min) | Shortfall |
+|---|---:|---|---:|
+| M4 | 6.45 | 8.0 / 7.42 | 0.97 below min (13%) |
+| M5 | 7.75 | 10.0 / 9.42 | 1.67 below min (18%) |
+| M6 | 9.75 | 12.0 / 11.30 | 1.55 below min (14%) |
+| M8 | 12.75 | 15.0 / 14.30 | 1.55 below min (11%) |
+
+The cap is 1.55-2.25 mm shorter than the standard overall height, so the models
+are not DIN 1587 cap nuts. All four files and their `.bytes`/`.sha256`
+companions were deleted and the family prefix `iso_metric_cap_acorn_nut_` added
+to `EXCLUDED_PART_PREFIXES` in `scripts/fetch_golden_references.py`, so no size
+is downloaded again.
+
+The library now builds the standard part: `din1587_acorn_nut` emits a
+`cad.AcornNut` — one closed solid with the DIN 1587 hexagon body (`s`, `m`), a
+75-degree conical washer face on each end, a circular through bore, and a
+spherical cap fitted to `dk` at the body top and `h` at the apex, over a
+concentric spherical cavity with a uniform 1.0 mm wall. The cap radius and wall
+are recorded engineering defaults; DIN 1587 does not fix them. The internal
+thread form is a typed omission. The builder has no golden counterpart.

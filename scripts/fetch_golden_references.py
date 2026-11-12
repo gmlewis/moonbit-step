@@ -161,6 +161,11 @@ EXCLUDED_PART_PREFIXES = (
     # ISO 8752 spring pins: every catalogue model is twice its declared length
     # (D1.5 x 6 measures 12 mm, D3 x 20 measures 40 mm, ratio 2.0 for all 24).
     "iso_8752_slotted_spring_pin_",
+    # DIN 1587 cap nuts: the downloaded "simple" models stop the cap at a
+    # hemisphere of radius dk/2, so the overall height is well under the DIN
+    # 1587 h minimum (M4 6.45 vs 7.42, M5 7.75 vs 9.42, M6 9.75 vs 11.30,
+    # M8 12.75 vs 14.30).
+    "iso_metric_cap_acorn_nut_",
 )
 
 def is_excluded_part(part_id):

@@ -401,6 +401,29 @@ pub struct SlitTube {
 }
 
 ///|
+/// AcornNut is a DIN 1587 hexagon domed cap nut: the ISO 4032/DIN 934 hexagon
+/// body with conical washer faces on both ends, a through bore, and a domed
+/// cap. The cap is a spherical cap that starts at the hexagon top rim and
+/// reaches `total_height_mm`; inside it, a concentric spherical cavity leaves
+/// `wall_mm` of cap wall above the bore.
+pub struct AcornNut {
+  across_flats_mm : Double
+  /// Height of the hexagon body (DIN 1587 `m`), excluding the dome.
+  body_height_mm : Double
+  bore_diameter_mm : Double
+  /// Overall height including the dome (DIN 1587 `h`).
+  total_height_mm : Double
+  /// Diameter of the dome where it meets the hexagon top (DIN 1587 `dk`).
+  dome_diameter_mm : Double
+  /// Radial thickness of the domed cap above the bore.
+  wall_mm : Double
+  face_angle_deg : Double
+  /// Corner clocking in degrees (vertices at rotation + 60 i; flats at
+  /// rotation + 30 + 60 i).
+  rotation_deg : Double
+}
+
+///|
 pub enum Shape {
   Cuboid(Cuboid)
   Cylinder(Cylinder)
@@ -409,6 +432,7 @@ pub enum Shape {
   SocketedSolid(SocketedSolid)
   ConicalNut(ConicalNut)
   SlitTube(SlitTube)
+  AcornNut(AcornNut)
   CalibrationChamferBlock(CalibrationChamferBlock)
   ExtrudedProfile(ExtrudedProfile)
   ExtrudedArcProfile(ExtrudedArcProfile)
@@ -581,6 +605,7 @@ pub fn Shape::bounding_box(
       let r = t.outer_diameter_mm / 2.0
       (-r, r, -r, r, 0.0, t.length_mm)
     }
+    AcornNut(n) => acorn_nut_bounding_box(n)
     CalibrationChamferBlock(b) =>
       (0.0, b.length_mm, 0.0, b.width_mm, 0.0, b.height_mm)
     ExtrudedProfile(e) => {

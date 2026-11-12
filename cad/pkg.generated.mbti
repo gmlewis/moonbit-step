@@ -9,11 +9,17 @@ import {
 }
 
 // Values
+pub fn acorn_nut_bounding_box(AcornNut) -> (Double, Double, Double, Double, Double, Double)
+
+pub fn acorn_nut_mesh(AcornNut, angular_segments? : Int32) -> (Array[(Double, Double, Double)], Array[Array[Int32]])
+
 pub fn bolt_circle(Int32, Double, start_angle_deg? : Double) -> Array[(Double, Double)]
 
 pub fn chamfer_edges(SceneNode, Double, angle_deg? : Double, selector? : EdgeSelector, name? : String) -> SceneNode
 
 pub fn chamfered_prism_mesh(ChamferedPrism) -> (Array[(Double, Double, Double)], Array[Array[Int32]])
+
+pub fn compile_acorn_nut(StepContext, SceneNode, AcornNut, reverse? : Bool, parent? : Transform?) -> Array[@step.Ref]
 
 pub fn compile_calibration_chamfer_block(StepContext, SceneNode, CalibrationChamferBlock, reverse? : Bool, parent? : Transform?) -> Array[@step.Ref]
 
@@ -127,6 +133,21 @@ pub fn LoaderError::to_string(Self) -> String
 pub impl Show for LoaderError
 
 // Types and methods
+pub struct AcornNut {
+  across_flats_mm : Double
+  body_height_mm : Double
+  bore_diameter_mm : Double
+  total_height_mm : Double
+  dome_diameter_mm : Double
+  wall_mm : Double
+  face_angle_deg : Double
+  rotation_deg : Double
+}
+pub fn AcornNut::as_shape(Self) -> Shape
+pub fn AcornNut::centroid(Self) -> (Double, Double, Double)
+pub fn AcornNut::new(across_flats_mm~ : Double, body_height_mm~ : Double, bore_diameter_mm~ : Double, total_height_mm~ : Double, dome_diameter_mm~ : Double, wall_mm? : Double, face_angle_deg? : Double, rotation_deg? : Double) -> Self
+pub fn AcornNut::volume(Self) -> Double
+
 pub(all) enum AnalysisError {
   NotAnalytic(String)
   EmptySection
@@ -557,6 +578,7 @@ pub enum Shape {
   SocketedSolid(SocketedSolid)
   ConicalNut(ConicalNut)
   SlitTube(SlitTube)
+  AcornNut(AcornNut)
   CalibrationChamferBlock(CalibrationChamferBlock)
   ExtrudedProfile(ExtrudedProfile)
   ExtrudedArcProfile(ExtrudedArcProfile)

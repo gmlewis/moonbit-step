@@ -18,6 +18,10 @@ pub fn din127_size(MetricSize) -> Result[DIN127Size, @common.SpecError]
 
 pub fn din127_spec(MetricSize) -> Result[DIN127Spec, @common.SpecError]
 
+pub fn din1587_size(MetricSize) -> Result[DIN1587Size, @common.SpecError]
+
+pub fn din1587_spec(MetricSize, clearance_mm? : Double) -> Result[DIN1587Spec, @common.SpecError]
+
 pub fn din440_size(MetricSize) -> Result[DIN440Size, @common.SpecError]
 
 pub fn din440_spec(MetricSize) -> Result[DIN440Spec, @common.SpecError]
@@ -112,6 +116,27 @@ pub fn DIN127Spec::metadata(Self) -> @common.Metadata
 pub fn DIN127Spec::size(Self) -> MetricSize
 pub fn DIN127Spec::source() -> String
 pub fn DIN127Spec::standard() -> String
+
+pub(all) struct DIN1587Size {
+  size : MetricSize
+  thread : ThreadSpec
+  width_across_flats_mm : Double
+  across_corners_mm : Double
+  dome_diameter_mm : Double
+  overall_height_mm : Double
+  body_height_mm : Double
+}
+
+pub(all) struct DIN1587Spec {
+  size_dims : DIN1587Size
+  clearance_mm : Double
+}
+pub fn DIN1587Spec::designation(Self) -> String
+pub fn DIN1587Spec::metadata(Self) -> @common.Metadata
+pub fn DIN1587Spec::size(Self) -> MetricSize
+pub fn DIN1587Spec::source() -> String
+pub fn DIN1587Spec::standard() -> String
+pub fn DIN1587Spec::thread(Self) -> ThreadSpec
 
 pub(all) struct DIN440Size {
   size : MetricSize

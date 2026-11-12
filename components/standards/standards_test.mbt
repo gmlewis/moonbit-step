@@ -47,6 +47,31 @@ fn unwrap7089_size(s : @standards.MetricSize) -> @standards.ISO7089Size {
 }
 
 ///|
+test "DIN 1587 cap nut table" {
+  let m4 = match @standards.din1587_size(@standards.M4) {
+    Ok(v) => v
+    Err(e) => abort(e.message())
+  }
+  assert_true(close(m4.width_across_flats_mm, 7.0))
+  assert_true(close(m4.across_corners_mm, 7.66))
+  assert_true(close(m4.dome_diameter_mm, 6.5))
+  assert_true(close(m4.overall_height_mm, 8.0))
+  assert_true(close(m4.body_height_mm, 3.2))
+  // DIN 1587 starts at M4.
+  match @standards.din1587_size(@standards.M2) {
+    Ok(_) => abort("M2 must not be a DIN 1587 size")
+    Err(_) => ()
+  }
+  // The spec carries a nominal envelope with no clearance by default.
+  let spec = match @standards.din1587_spec(@standards.M8) {
+    Ok(v) => v
+    Err(e) => abort(e.message())
+  }
+  assert_true(close(spec.clearance_mm, 0.0))
+  assert_true(spec.designation() == "DIN 1587 - M8")
+}
+
+///|
 test "metric size table" {
   assert_eq(@standards.MetricSize::all().length(), 11)
   assert_true(@standards.MetricSize::M4.nominal_diameter_mm() == 4.0)

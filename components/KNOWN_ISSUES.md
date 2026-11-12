@@ -522,6 +522,14 @@ approximations are recorded above and in `FEATURES.md`.
   length and their slot terminated inside the pin rather than running the full
   length (see `GOLDEN_REFERENCES.md`). The builder has no golden counterpart;
   its slot width and wall are recorded engineering defaults.
+
+- DIN 1587 cap nuts were added as a standard builder on 2026-11-12
+  (`din1587_acorn_nut`, backed by the new `cad.AcornNut` construction). The four
+  downloaded references were deleted because their caps stop at a hemisphere of
+  radius dk/2 and fall 1.0-1.7 mm below the DIN 1587 minimum overall height (M4
+  6.45 vs 7.42, M5 7.75 vs 9.42, M6 9.75 vs 11.30, M8 12.75 vs 14.30). The
+  builder has no golden counterpart; its cap radius fit and 1.0 mm wall are
+  recorded engineering defaults, and the thread form is a typed omission.
 - Gears (spur m2 z20/z40) still use the existing approximating tooth flank;
   the reference volumes differ by about 20%, so they are recorded as an
   approximation, not a match.

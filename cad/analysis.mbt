@@ -1269,6 +1269,7 @@ fn an_shape_inventory(shape : Shape) -> SurfaceInventory {
         None => an_inventory(0, 0, 0, 0, 0, 0, 0, 0)
       }
     SlitTube(t) => an_slit_tube_inventory(t)
+    AcornNut(n) => an_acorn_nut_inventory(n)
     CalibrationChamferBlock(b) => {
       let rings = an_calib_rings(b)
       let n = rings.length()
@@ -1469,6 +1470,14 @@ pub fn Shape::analysis_volume(self : Shape) -> Result[Double, AnalysisError] {
         Ok(volume)
       }
     }
+    AcornNut(n) => {
+      let volume = n.volume()
+      if volume <= 0.0 {
+        Err(DegenerateProfile)
+      } else {
+        Ok(volume)
+      }
+    }
     CalibrationChamferBlock(b) => {
       let (volume, _c) = an_calib_volume_centroid(b)
       if volume <= 0.0 {
@@ -1576,6 +1585,7 @@ pub fn Shape::analysis_centroid(self : Shape) -> Result[Vec3, AnalysisError] {
         None => Err(DegenerateProfile)
       }
     SlitTube(t) => Ok(t.centroid())
+    AcornNut(n) => Ok(n.centroid())
     CalibrationChamferBlock(b) => {
       let (_volume, c) = an_calib_volume_centroid(b)
       Ok(c)
@@ -1670,6 +1680,7 @@ pub fn Shape::section_at_local(
     ChamferedPrism(p) => p.section_at(z)
     SocketedSolid(s) => an_socketed_section(s, z)
     ConicalNut(n) => an_conical_nut_section(n, z)
+    AcornNut(n) => an_acorn_nut_section(n, z)
     SlitTube(t) => an_slit_tube_section(t, z)
     CalibrationChamferBlock(b) => an_calib_section(b, z)
     ExtrudedProfile(e) => e.section_at(z)
@@ -1913,6 +1924,7 @@ pub fn Shape::analysis_mesh(
     RevolvedProfile(rev) => Ok(rev_mesh(rev))
     SocketedSolid(s) => Ok(socketed_solid_mesh(s))
     ConicalNut(n) => Ok(conical_nut_mesh(n))
+    AcornNut(n) => Ok(acorn_nut_mesh(n))
     SlitTube(t) => Ok(slit_tube_mesh(t))
     ChamferedPrism(p) => Ok(chamfered_prism_mesh(p))
     ExtrudedProfile(e) =>

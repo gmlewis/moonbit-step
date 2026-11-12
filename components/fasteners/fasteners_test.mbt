@@ -1009,6 +1009,35 @@ test "ISO 8752 M3 x 20 spring pin is a slotted tube" {
 }
 
 ///|
+test "DIN 1587 M4 cap nut reaches its standard height" {
+  let nut = match @fasteners.din1587_acorn_nut(@standards.M4) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  let (x0, x1, y0, y1, z0, z1) = nut.bounding_box()
+  assert_true((x0 + 4.041451884327381).abs() < 1.0e-6)
+  assert_true((x1 - 4.041451884327381).abs() < 1.0e-6)
+  assert_true(close(y0, -3.5))
+  assert_true(close(y1, 3.5))
+  assert_true(close(z0, 0.0))
+  // DIN 1587 M4 overall height is 8 mm.
+  assert_true(close(z1, 8.0))
+  let layers = nut.layers()
+  assert_true(layers.length() == 1)
+  let inv = layers[0].shape.surface_inventory()
+  assert_true(inv.plane == 9)
+  assert_true(inv.cone == 12)
+  assert_true(inv.cylinder == 1)
+  assert_true(inv.sphere == 2)
+  let volume = match layers[0].shape.analysis_volume() {
+    Ok(v) => v
+    Err(_) => abort("cap nut volume unavailable")
+  }
+  // The analytic volume matches the OCCT measurement (176.8132 mm3).
+  assert_true((volume - 176.8132).abs() < 0.01)
+}
+
+///|
 test "detailed ISO 4032 nut carries conical washer faces" {
   let nut = match @fasteners.iso4032_nut(@standards.M3, detail=Detailed) {
     Ok(c) => c

@@ -18,6 +18,8 @@ pub fn din125_washer(@standards.MetricSize, detail? : @common.DetailLevel, color
 
 pub fn din127_washer(@standards.MetricSize, detail? : @common.DetailLevel, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
+pub fn din1587_acorn_nut(@standards.MetricSize, detail? : @common.DetailLevel, clearance_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
 pub fn din440_washer(@standards.MetricSize, detail? : @common.DetailLevel, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
 pub fn din7349_washer(@standards.MetricSize, detail? : @common.DetailLevel, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
