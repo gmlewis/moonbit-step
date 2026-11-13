@@ -27,6 +27,14 @@ const M6_DETAILED_HEAD_BREAK_MM : Double = 0.2
 const M6_DETAILED_DRILL_APEX_ABOVE_BASE_MM : Double = 1.1801
 
 ///|
+/// The second simple catalogue source rounds the head-top edge with a 0.225 mm
+/// arc and keeps the shank at the internal thread minor diameter. The head is
+/// modelled at the ISO 4762 maximum diameter; that catalogue family is excluded
+/// from the golden corpus because its M3 head measures 5.68 mm, above the
+/// 5.5 mm limit.
+const SOCKET_REF_B_EDGE_MM : Double = 0.225
+
+///|
 /// socket_head_cap_screw builds an ISO 4762 hexagon socket head cap screw.
 ///
 /// The screw axis is +Z with the origin at the centre of the head underside
@@ -46,6 +54,7 @@ pub fn socket_head_cap_screw(
   threads? : @common.ThreadRepresentation,
   color? : @cad.Rgb,
   reference~ : Bool = false,
+  reference_b~ : Bool = false,
 ) -> @common.Component {
   let policy = @common.DetailPolicy::for_level(detail)
   let thread_rep = match threads {
@@ -127,6 +136,66 @@ pub fn socket_head_cap_screw(
       metadata=spec.metadata(),
       description="Single closed solid in the simple reference representation: shank at the nominal diameter with a pitch-sized 45-degree tip break and a 0.001 mm under-head relief, a head with a 0.0277 mm rounded top edge, and a blind hexagonal socket (across flats = ISO nominal + 0.06 mm) with a flat floor." +
         thread_note(thread_rep),
+      features=ref_features,
+    )
+    return ref_base
+      .add_layer(socket.as_shape(), name="body", color=metal)
+      .translate(z=-length)
+  }
+
+  if reference_b && !(thread_rep is @common.ThreadRepresentation::Helical) {
+    // The second simple catalogue source: a shank at the ISO 68-1 internal
+    // thread minor diameter with a sharp tip, a head whose top edge carries a
+    // 0.225 mm quarter-round, and a blind hex socket at the ISO nominal
+    // across flats. The head is kept at the ISO 4762 maximum diameter; the
+    // reference's 5.68 mm M3 head exceeds the 5.5 mm limit and is not copied.
+    let r_min = thread.internal_minor_diameter_mm() / 2.0
+    let dk_r = dk / 2.0
+    let edge_r = SOCKET_REF_B_EDGE_MM
+    let af = dims.socket_across_flats_mm
+    let segs : Array[@cad.RevSegment] = [
+      @cad.RevLine((0.0, 0.0), (r_min, 0.0)),
+      @cad.RevLine((r_min, 0.0), (r_min, length)),
+      @cad.RevLine((r_min, length), (dk_r, length)),
+      @cad.RevLine((dk_r, length), (dk_r, length + k - edge_r)),
+      @cad.RevArc(
+        (dk_r, length + k - edge_r),
+        (dk_r - edge_r, length + k),
+        (dk_r - edge_r, length + k - edge_r),
+      ),
+      @cad.RevLine((dk_r - edge_r, length + k), (0.0, length + k)),
+    ]
+    let body = @cad.RevolvedProfile::new(segs)
+    let floor_local = length + k - t
+    let socket = @cad.SocketedSolid::new(body, af, floor_local)
+    let ref_features = @common.FeatureRecord::new(
+      modeled=[
+        "head-outer-cylinder", "blind-hex-socket", "hex-socket-flats", "socket-floor-plane",
+        "sharp-tip", "head-top-edge-radius",
+      ],
+      approximated=[
+        @common.Approximation::new(
+          feature="shank-diameter",
+          kind=@common.ApproximationKind::EngineeringDefault,
+          deviation_mm=0.0,
+          control="shank at the ISO 68-1 internal thread minor diameter (simplified thread envelope)",
+        ),
+      ],
+      omitted=[
+        @common.Omission::new(
+          feature="socket-rim-chamfer",
+          reason="the simple reference socket rim is sharp",
+        ),
+        @common.Omission::new(
+          feature="thread",
+          reason="the shank is a simplified thread envelope; the ISO 68-1 thread form is not modeled",
+        ),
+      ],
+    )
+    let ref_base = @common.Component::new(
+      name~,
+      metadata=spec.metadata(),
+      description="Single closed solid in the second simple reference representation: shank at the internal thread minor diameter with a sharp tip, a head with a 0.225 mm rounded top edge, and a blind hexagonal socket at the ISO nominal across flats with a flat floor. The head uses the ISO 4762 maximum diameter.",
       features=ref_features,
     )
     return ref_base
@@ -255,13 +324,21 @@ pub fn iso4762_screw(
   detail~ : @common.DetailLevel = Simplified,
   threads? : @common.ThreadRepresentation,
   reference~ : Bool = false,
+  reference_b~ : Bool = false,
 ) -> Result[@common.Component, @common.SpecError] {
   match @standards.iso4762_spec(size, length_mm) {
     Err(e) => Err(e)
     Ok(spec) => {
       let component = match threads {
-        Some(t) => socket_head_cap_screw(spec, detail~, threads=t, reference~)
-        None => socket_head_cap_screw(spec, detail~, reference~)
+        Some(t) =>
+          socket_head_cap_screw(
+            spec,
+            detail~,
+            threads=t,
+            reference~,
+            reference_b~,
+          )
+        None => socket_head_cap_screw(spec, detail~, reference~, reference_b~)
       }
       Ok(component)
     }

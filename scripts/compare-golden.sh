@@ -186,9 +186,6 @@ def infer(name, detail):
     m = re.match(r"^iso4762_socket_head_cap_screw_m(\d+(?:p\d+)?)x(\d+)\.step$", name)
     if m:
         return fastener("iso4762", m.group(1), m.group(2), detail)
-    m = re.match(r"^socket_head_cap_screw_m(\d+(?:p\d+)?)_l(\d+)_simple\.step$", name)
-    if m:
-        return fastener("iso4762", m.group(1), m.group(2), detail)
     m = re.match(r"^iso4032_hex_nut_m(\d+(?:p\d+)?)\.step$", name)
     if m:
         return fastener("iso4032", m.group(1), None, detail)

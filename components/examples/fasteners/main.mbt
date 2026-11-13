@@ -44,6 +44,9 @@ async fn main {
     "simple-reference": @cli.flag(
       help="ISO 4762: the simple reference representation (flat hex socket, rounded head-top edge, pitch-sized tip break)",
     ),
+    "simple-reference-b": @cli.flag(
+      help="ISO 4762: the second simple catalogue representation (minor-diameter shank, sharp tip, 0.225 mm head-top edge radius)",
+    ),
     "orient-to-reference": @cli.flag(
       help="DIN 916: lay the screw with the socket end at z=0 and the point at z=+L (the reference axis convention)",
     ),
@@ -85,6 +88,7 @@ async fn main {
             detail~,
             threads=t,
             reference=args.flag("simple-reference"),
+            reference_b=args.flag("simple-reference-b"),
           )
         None =>
           @fcomponents.iso4762_screw(
@@ -92,6 +96,7 @@ async fn main {
             length,
             detail~,
             reference=args.flag("simple-reference"),
+            reference_b=args.flag("simple-reference-b"),
           )
       }
     "iso4032" =>

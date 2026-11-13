@@ -170,6 +170,9 @@ EXCLUDED_PART_PREFIXES = (
     # (`lengthMm: 25` measures 50 mm, `lengthMm: 200` measures 400 mm, for all
     # 14 M2-M8 rods).
     "iso_metric_threaded_rod_",
+    # Second simple socket-head cap-screw family: the M3 x 5 model has a
+    # 5.68 mm head diameter, above the ISO 4762 M3 dk maximum of 5.5 mm.
+    "socket_head_cap_screw_",
 )
 
 def is_excluded_part(part_id):

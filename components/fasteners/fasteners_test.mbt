@@ -1039,6 +1039,35 @@ test "DIN 557 M5 square nut matches the reference" {
 }
 
 ///|
+test "ISO 4762 M3 x 5 second simple source keeps the standard head" {
+  let screw = match
+    @fasteners.iso4762_screw(@standards.M3, 5.0, reference_b=true) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  let (x0, x1, y0, y1, z0, z1) = screw.bounding_box()
+  assert_true(close(x0, -2.75))
+  assert_true(close(x1, 2.75))
+  assert_true(close(y0, -2.75))
+  assert_true(close(y1, 2.75))
+  assert_true(close(z0, -5.0))
+  assert_true(close(z1, 3.0))
+  let layers = screw.layers()
+  assert_true(layers.length() == 1)
+  let inv = layers[0].shape.surface_inventory()
+  assert_true(inv.plane == 10)
+  assert_true(inv.cylinder == 2)
+  assert_true(inv.torus == 1)
+  let volume = match layers[0].shape.analysis_volume() {
+    Ok(v) => v
+    Err(_) => abort("simple reference volume unavailable")
+  }
+  // The excluded reference measured 92.5297 mm3 with its oversized 5.68 mm
+  // head; the standard 5.5 mm head gives 87.7943 mm3.
+  assert_true((volume - 87.7943).abs() < 0.02)
+}
+
+///|
 test "DIN 916 M3 x 8 cup-point set screw matches the reference" {
   let screw = match
     @fasteners.din916_cup_point_set_screw(
