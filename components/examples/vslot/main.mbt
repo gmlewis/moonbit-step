@@ -8,12 +8,15 @@
 /// moon run components/examples/vslot -- --part wheel -o vwheel.step
 /// moon run components/examples/vslot -- --part tnut -o tnut.step
 /// moon run components/examples/vslot -- --part plate --length 60 --width 20 --thickness 3 -o plate.step
+/// moon run components/examples/vslot -- --part bracket -o bracket.step
+/// moon run components/examples/vslot -- --part spacer -o spacer.step
+/// moon run components/examples/vslot -- --part eccentric -o eccentric.step
 /// ```
 async fn main {
   let spec = {
     "part": @cli.opt_string(
       short='p',
-      help="Part: profile (default), wheel, tnut, plate",
+      help="Part: profile (default), wheel, tnut, plate, bracket, spacer, eccentric",
     ),
     "profile": @cli.opt_string(help="V-Slot section: 2020 (default) or 2040"),
     "length": @cli.opt_double(100.0, help="Extrusion length in mm", min=0.0),
@@ -73,6 +76,30 @@ async fn main {
         }
       }
     }
+    "bracket" =>
+      match @profiles.vslot_corner_bracket() {
+        Ok(c) => c
+        Err(e) => {
+          @cli.eprintln("error: " + e.message())
+          abort("")
+        }
+      }
+    "spacer" =>
+      match @motion.vslot_spacer() {
+        Ok(c) => c
+        Err(e) => {
+          @cli.eprintln("error: " + e.message())
+          abort("")
+        }
+      }
+    "eccentric" =>
+      match @motion.vslot_eccentric_spacer() {
+        Ok(c) => c
+        Err(e) => {
+          @cli.eprintln("error: " + e.message())
+          abort("")
+        }
+      }
     _ => {
       let profile_name = args.string_opt("profile").unwrap_or("2020")
       let profile = match profile_name {

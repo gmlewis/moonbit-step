@@ -3619,6 +3619,106 @@
           }
         ]
       }
+    },
+    {
+      "fixture_id": "profiles/vslot-corner-bracket-20",
+      "part_id": "vslot_corner_bracket_20",
+      "designation": "V-Slot corner bracket 20 x 20 x 3",
+      "family": "V-Slot corner bracket",
+      "standard": "Generic 20-series V-Slot corner bracket (Xem Studio reference model)",
+      "manufacturer": "Xem Studio reference model",
+      "source_page": "https://xemstudio.com/objects/t-slot-corner-brackets/corner-bracket-20/",
+      "download_url": "https://xemstudio.com/files/hardware/t-slot-brackets-and-nuts/corner-bracket-20.step",
+      "local_filename": "external/corner_bracket_20_xem.step",
+      "sha256": "14a7b53017a632ccaa080be5e82fbe91999386446ef6aa333defddb2fd92feac",
+      "byte_size": 70748,
+      "units": "mm",
+      "license": "CC BY 4.0",
+      "license_evidence_url": "https://xemstudio.com/objects/t-slot-corner-brackets/corner-bracket-20/",
+      "declared_dimensions": {
+        "leg_mm": 20.0,
+        "width_mm": 20.0,
+        "thickness_mm": 3.0,
+        "gusset_thickness_mm": 3.0,
+        "slot_width_mm": 5.5,
+        "slot_length_mm": 10.0
+      },
+      "measured_dimensions": {
+        "bbox_mm": [
+          20.0,
+          20.0,
+          20.0
+        ],
+        "volume_mm3": 2516.95,
+        "solids": 1
+      },
+      "parametric_value": {
+        "bbox_mm": [
+          20.0,
+          20.0,
+          20.0
+        ],
+        "volume_mm3": 2516.955,
+        "solids": 4,
+        "source": "components/examples/vslot --part bracket"
+      },
+      "verdict": "accepted-exact",
+      "notes": "Bounding box, volume (2516.955 vs 2516.95 mm3, 0.0002%), and centre of mass match the Xem Studio corner-bracket-20 reference. The parametric bracket is layered (two slotted legs plus two 45-degree side gussets) and therefore has four touching closed solids where the single-body reference has one; the four bodies touch face-to-face and do not overlap. Casting draft, edge fillets, and the vendor locating tabs are not modelled. The Xem Studio model is CC BY 4.0.",
+      "committed": false,
+      "review": {
+        "automated": "pass",
+        "owner_visual": "verified",
+        "date": "2026-11-13",
+        "reason": "owner LGTM after visual comparison"
+      },
+      "generation": {
+        "tool": "components/examples/vslot",
+        "args": [
+          "--part",
+          "bracket",
+          "-o",
+          "{out}"
+        ],
+        "output": "vslot-corner-bracket.step"
+      },
+      "comparison": {
+        "bbox_axes": [
+          {
+            "axis": 0,
+            "expected_mm": 20.0,
+            "label": "width"
+          },
+          {
+            "axis": 1,
+            "expected_mm": 20.0,
+            "label": "leg"
+          },
+          {
+            "axis": 2,
+            "expected_mm": 20.0,
+            "label": "height"
+          }
+        ],
+        "volume_mm3": 2516.95,
+        "volume_relative_tol": 0.01,
+        "features": [
+          {
+            "kind": "surface_min",
+            "surface": "plane",
+            "min_count": 12
+          },
+          {
+            "kind": "surface_min",
+            "surface": "cylinder",
+            "min_count": 4
+          },
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 2.75,
+            "tol_mm": 0.01
+          }
+        ]
+      }
     }
   ],
   "golden_source": {

@@ -1,0 +1,191 @@
+ISO-10303-21;
+HEADER;
+/*
+  Component:  V-Slot wheel spacer OD 10 / bore 5 x 6
+  Standard:   OpenBuilds aluminum wheel spacer (boundary dimensions)
+  Family:     V-Slot wheel spacer
+  Size:       
+  Length:     6 mm
+  Data source: Plain aluminum spacer: 10 mm OD, 5 mm nominal M5 bore, 6 mm length as listed by OpenBuilds resellers. The bore is nominal; no tolerance class is asserted.
+  Notes:      Plain V-Slot wheel spacer: one analytic annular solid (true outer and inner cylinders). Bore is the nominal M5 clearance quoted by the vendor; no thread, slit, or strength claim.
+  Features modeled:      outer-cylinder, inner-cylinder, flat-ends
+  Features omitted:      bore-tolerance (the vendor quotes a nominal 5 mm bore; no tolerance class is asserted)
+  Feature tolerance:     0.01 mm
+*/
+FILE_DESCRIPTION(('V-Slot wheel spacer OD 10 / bore 5 x 6'),'2;1');
+FILE_NAME('vslot-spacer-10x6.step','2026-11-13T17:46:16',('gmlewis'),('gmlewis/step','https://github.com/gmlewis/moonbit-step'),'gmlewis/step','moonbit','none');
+FILE_SCHEMA(('AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }'));
+ENDSEC;
+DATA;
+#1=DIMENSIONAL_EXPONENTS(0.0,0.0,0.0,0.0,0.0,0.0,0.0);
+#2=(
+NAMED_UNIT(*)
+PLANE_ANGLE_UNIT()
+SI_UNIT($,.RADIAN.)
+);
+#3=(
+NAMED_UNIT(*)
+SI_UNIT($,.STERADIAN.)
+SOLID_ANGLE_UNIT()
+);
+#4=(
+LENGTH_UNIT()
+NAMED_UNIT(*)
+SI_UNIT(.MILLI.,.METRE.)
+);
+#5=UNCERTAINTY_MEASURE_WITH_UNIT(LENGTH_MEASURE(0.00002),#4,'DISTANCE_ACCURACY_VALUE','Maximum Tolerance applied to model');
+#6=(
+GEOMETRIC_REPRESENTATION_CONTEXT(3)
+GLOBAL_UNCERTAINTY_ASSIGNED_CONTEXT((#5))
+GLOBAL_UNIT_ASSIGNED_CONTEXT((#4,#2,#3))
+REPRESENTATION_CONTEXT('vslot-spacer-10x6','TOP_LEVEL_ASSEMBLY_PART')
+);
+#7=DIRECTION('',(0.0,0.0,1.0));
+#8=DIRECTION('',(1.0,0.0,0.0));
+#9=CARTESIAN_POINT('',(5.0,0.0,0.0));
+#10=CARTESIAN_POINT('',(0.0,5.0,0.0));
+#11=CARTESIAN_POINT('',(-5.0,0.0,0.0));
+#12=CARTESIAN_POINT('',(0.0,-5.0,0.0));
+#13=CARTESIAN_POINT('',(5.0,0.0,6.0));
+#14=CARTESIAN_POINT('',(0.0,5.0,6.0));
+#15=CARTESIAN_POINT('',(-5.0,0.0,6.0));
+#16=CARTESIAN_POINT('',(0.0,-5.0,6.0));
+#17=VERTEX_POINT('',#9);
+#18=VERTEX_POINT('',#10);
+#19=VERTEX_POINT('',#11);
+#20=VERTEX_POINT('',#12);
+#21=VERTEX_POINT('',#13);
+#22=VERTEX_POINT('',#14);
+#23=VERTEX_POINT('',#15);
+#24=VERTEX_POINT('',#16);
+#25=CARTESIAN_POINT('',(0.0,0.0,0.0));
+#26=AXIS2_PLACEMENT_3D('',#25, #7, #8);
+#27=CIRCLE('',#26,5.0);
+#28=EDGE_CURVE('',#17,#18,#27,.T.);
+#29=CARTESIAN_POINT('',(0.0,0.0,6.0));
+#30=AXIS2_PLACEMENT_3D('',#29, #7, #8);
+#31=CIRCLE('',#30,5.0);
+#32=EDGE_CURVE('',#21,#22,#31,.T.);
+#33=VECTOR('',#7,1.0);
+#34=LINE('',#9,#33);
+#35=EDGE_CURVE('',#17,#21,#34,.T.);
+#36=CIRCLE('',#26,5.0);
+#37=EDGE_CURVE('',#18,#19,#36,.T.);
+#38=CIRCLE('',#30,5.0);
+#39=EDGE_CURVE('',#22,#23,#38,.T.);
+#40=LINE('',#10,#33);
+#41=EDGE_CURVE('',#18,#22,#40,.T.);
+#42=CIRCLE('',#26,5.0);
+#43=EDGE_CURVE('',#19,#20,#42,.T.);
+#44=CIRCLE('',#30,5.0);
+#45=EDGE_CURVE('',#23,#24,#44,.T.);
+#46=LINE('',#11,#33);
+#47=EDGE_CURVE('',#19,#23,#46,.T.);
+#48=CIRCLE('',#26,5.0);
+#49=EDGE_CURVE('',#20,#17,#48,.T.);
+#50=CIRCLE('',#30,5.0);
+#51=EDGE_CURVE('',#24,#21,#50,.T.);
+#52=LINE('',#12,#33);
+#53=EDGE_CURVE('',#20,#24,#52,.T.);
+#54=ORIENTED_EDGE('',*,*,#32,.T.);
+#55=ORIENTED_EDGE('',*,*,#39,.T.);
+#56=ORIENTED_EDGE('',*,*,#45,.T.);
+#57=ORIENTED_EDGE('',*,*,#51,.T.);
+#58=EDGE_LOOP('',(#54,#55,#56,#57));
+#59=ORIENTED_EDGE('',*,*,#43,.F.);
+#60=ORIENTED_EDGE('',*,*,#37,.F.);
+#61=ORIENTED_EDGE('',*,*,#28,.F.);
+#62=ORIENTED_EDGE('',*,*,#49,.F.);
+#63=EDGE_LOOP('',(#59,#60,#61,#62));
+#64=CARTESIAN_POINT('',(2.5,0.0,0.0));
+#65=VERTEX_POINT('',#64);
+#66=CARTESIAN_POINT('',(2.5,0.0,6.0));
+#67=VERTEX_POINT('',#66);
+#68=CIRCLE('',#26,2.5);
+#69=CIRCLE('',#30,2.5);
+#70=CYLINDRICAL_SURFACE('',#26,2.5);
+#71=LINE('',#64,#33);
+#72=EDGE_CURVE('',#65,#67,#71,.T.);
+#73=EDGE_CURVE('',#65,#65,#68,.T.);
+#74=EDGE_CURVE('',#67,#67,#69,.T.);
+#75=ORIENTED_EDGE('',*,*,#72,.T.);
+#76=ORIENTED_EDGE('',*,*,#74,.T.);
+#77=ORIENTED_EDGE('',*,*,#72,.F.);
+#78=ORIENTED_EDGE('',*,*,#73,.F.);
+#79=EDGE_LOOP('',(#75,#76,#77,#78));
+#80=FACE_OUTER_BOUND('',#79,.T.);
+#81=ADVANCED_FACE('',(#80),#70,.F.);
+#82=ORIENTED_EDGE('',*,*,#73,.T.);
+#83=EDGE_LOOP('',(#82));
+#84=ORIENTED_EDGE('',*,*,#74,.F.);
+#85=EDGE_LOOP('',(#84));
+#86=DIRECTION('',(0.0,0.0,-1.0));
+#87=AXIS2_PLACEMENT_3D('',#9, #86, #8);
+#88=PLANE('',#87);
+#89=FACE_OUTER_BOUND('',#63,.T.);
+#90=FACE_BOUND('',#83,.T.);
+#91=ADVANCED_FACE('',(#89,#90),#88,.T.);
+#92=AXIS2_PLACEMENT_3D('',#13, #7, #8);
+#93=PLANE('',#92);
+#94=FACE_OUTER_BOUND('',#58,.T.);
+#95=FACE_BOUND('',#85,.T.);
+#96=ADVANCED_FACE('',(#94,#95),#93,.T.);
+#97=CYLINDRICAL_SURFACE('',#26,5.0);
+#98=ORIENTED_EDGE('',*,*,#28,.T.);
+#99=ORIENTED_EDGE('',*,*,#41,.T.);
+#100=ORIENTED_EDGE('',*,*,#32,.F.);
+#101=ORIENTED_EDGE('',*,*,#35,.F.);
+#102=EDGE_LOOP('',(#98,#99,#100,#101));
+#103=FACE_OUTER_BOUND('',#102,.T.);
+#104=ADVANCED_FACE('',(#103),#97,.T.);
+#105=CYLINDRICAL_SURFACE('',#26,5.0);
+#106=ORIENTED_EDGE('',*,*,#37,.T.);
+#107=ORIENTED_EDGE('',*,*,#47,.T.);
+#108=ORIENTED_EDGE('',*,*,#39,.F.);
+#109=ORIENTED_EDGE('',*,*,#41,.F.);
+#110=EDGE_LOOP('',(#106,#107,#108,#109));
+#111=FACE_OUTER_BOUND('',#110,.T.);
+#112=ADVANCED_FACE('',(#111),#105,.T.);
+#113=CYLINDRICAL_SURFACE('',#26,5.0);
+#114=ORIENTED_EDGE('',*,*,#43,.T.);
+#115=ORIENTED_EDGE('',*,*,#53,.T.);
+#116=ORIENTED_EDGE('',*,*,#45,.F.);
+#117=ORIENTED_EDGE('',*,*,#47,.F.);
+#118=EDGE_LOOP('',(#114,#115,#116,#117));
+#119=FACE_OUTER_BOUND('',#118,.T.);
+#120=ADVANCED_FACE('',(#119),#113,.T.);
+#121=CYLINDRICAL_SURFACE('',#26,5.0);
+#122=ORIENTED_EDGE('',*,*,#49,.T.);
+#123=ORIENTED_EDGE('',*,*,#35,.T.);
+#124=ORIENTED_EDGE('',*,*,#51,.F.);
+#125=ORIENTED_EDGE('',*,*,#53,.F.);
+#126=EDGE_LOOP('',(#122,#123,#124,#125));
+#127=FACE_OUTER_BOUND('',#126,.T.);
+#128=ADVANCED_FACE('',(#127),#121,.T.);
+#129=CLOSED_SHELL('',(#81,#91,#96,#104,#112,#120,#128));
+#130=MANIFOLD_SOLID_BREP('',#129);
+#131=COLOUR_RGB('vslot-spacer-10x6/body',0.0,0.8,0.0);
+#132=FILL_AREA_STYLE_COLOUR('',#131);
+#133=FILL_AREA_STYLE('',(#132));
+#134=SURFACE_STYLE_FILL_AREA(#133);
+#135=SURFACE_SIDE_STYLE('',(#134));
+#136=SURFACE_STYLE_USAGE(.BOTH.,#135);
+#137=PRESENTATION_STYLE_ASSIGNMENT((#136));
+#138=STYLED_ITEM('',(#137),#130);
+#139=PRESENTATION_LAYER_ASSIGNMENT('1','Layer 1',(#130));
+#140=MECHANICAL_DESIGN_GEOMETRIC_PRESENTATION_REPRESENTATION('',(#138),#6);
+#141=APPLICATION_CONTEXT('core data for automotive mechanical design processes');
+#142=APPLICATION_PROTOCOL_DEFINITION('international standard','automotive_design',2010,#141);
+#143=PRODUCT_CONTEXT(' ',#141,'mechanical');
+#144=PRODUCT('vslot-spacer-10x6/body','vslot-spacer-10x6/body',' ',(#143));
+#145=PRODUCT_RELATED_PRODUCT_CATEGORY('part','',(#144));
+#146=PRODUCT_DEFINITION_FORMATION_WITH_SPECIFIED_SOURCE(' ',' ',#144,.NOT_KNOWN.);
+#147=PRODUCT_DEFINITION_CONTEXT('part definition',#141,'design');
+#148=PRODUCT_DEFINITION(' ','',#146,#147);
+#149=SHAPE_REPRESENTATION('vslot-spacer-10x6/body-None',(#26),#6);
+#150=ADVANCED_BREP_SHAPE_REPRESENTATION('vslot-spacer-10x6/body-None',(#130),#6);
+#151=SHAPE_REPRESENTATION_RELATIONSHIP('None','relationship',#149,#150);
+#152=PRODUCT_DEFINITION_SHAPE('','',#148);
+#153=SHAPE_DEFINITION_REPRESENTATION(#152,#149);
+ENDSEC;
+END-ISO-10303-21;

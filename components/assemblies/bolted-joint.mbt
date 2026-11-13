@@ -37,6 +37,7 @@ pub fn plate_with_hole(
   let outer = @cad.Profile2D::centered_rect(width_mm, depth_mm)
   let hole = @cad.Profile2D::circle(hole_diameter_mm, segments~).rev()
   let body = @cad.ExtrudedProfile::new(outer, thickness_mm, holes=[hole])
+  let face_diameter = if width_mm < depth_mm { width_mm } else { depth_mm }
   Ok(
     @common.Component::new(
       name~,
@@ -67,7 +68,40 @@ pub fn plate_with_hole(
           ),
         ],
       ),
-    ).add_layer(body, name="body", color=@cad.Rgb::grey()),
+    )
+    .add_layer(body, name="body", color=@cad.Rgb::grey())
+    .with_connector_unchecked(
+      @common.MateConnector::new(
+        "face-top",
+        placement=@common.Placement::translation(0.0, 0.0, thickness_mm),
+        axis=(0.0, 0.0, 1.0),
+        kind=@common.MateKind::PlaneFace,
+        diameter_mm=face_diameter,
+        description="top face; outward normal is +Z",
+      ),
+    )
+    .with_connector_unchecked(
+      @common.MateConnector::new(
+        "face-bottom",
+        placement=@common.Placement::translation(0.0, 0.0, 0.0),
+        axis=(0.0, 0.0, -1.0),
+        kind=@common.MateKind::PlaneFace,
+        diameter_mm=face_diameter,
+        description="bottom face; outward normal is -Z",
+      ),
+    )
+    .with_connector_unchecked(
+      @common.MateConnector::new(
+        "hole-1",
+        placement=@common.Placement::translation(0.0, 0.0, 0.0),
+        axis=(0.0, 0.0, 1.0),
+        kind=@common.MateKind::CylindricalBore,
+        gender=@common.MateGender::Female,
+        diameter_mm=hole_diameter_mm,
+        depth_mm=thickness_mm,
+        description="central through hole",
+      ),
+    ),
   )
 }
 

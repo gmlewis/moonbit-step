@@ -50,12 +50,25 @@ moon run components/examples/vslot -- \
   --part profile --profile 2020 --length 100 -o vslot-2020.step
 moon run components/examples/vslot -- --part wheel -o vwheel.step
 moon run components/examples/vslot -- --part tnut -o vslot-tnut.step
+moon run components/examples/vslot -- --part bracket -o bracket.step
+moon run components/examples/vslot -- --part spacer -o spacer.step
+moon run components/examples/vslot -- --part eccentric -o eccentric.step
 
 # EMT tube, shaft collar, and tube mount plate
 moon run components/examples/tubing -- \
   --part emt --trade 1/2 --length 304.8 -o emt.step
 moon run components/examples/tubing -- \
   --part collar --bore 8 --outer 16 --width 8 -o collar.step
+
+# Counterbored plate and smooth idler
+moon run components/examples/stock_primitive -- \
+  --part counterbore --width 50 --height 40 --plateThickness 8 \
+  --holeSpacing 24 --through 5.5 --counterbore 9 --counterboreDepth 2 -o cb.step
+moon run components/examples/stock_primitive -- \
+  --part bearing --width 50 --height 40 --plateThickness 6 \
+  --bearingOD 22 --fit 0.1 --boltDiameter 5.5 --holeSpacing 30 -o bearing.step
+moon run components/examples/idler -- \
+  --outer 20 --bore 8 --width 10 --flangeDiameter 24 --flangeThickness 1.5 -o idler.step
 
 # Built-in M3/M4/M5 fastener catalogue
 mkdir -p components/examples/output
@@ -100,8 +113,14 @@ deliberately carries a twist. With `STEP_CONNECTOR_SIDECAR` set,
 golden and parametric pair in SolidCraft, and adds a named `joint.origin`
 (`connector/<name>`) at every connector frame. SolidCraft's native joint
 origins are the interactive equivalent of OnShape mate connectors; STEP itself
-has no standard visual mate connector. Use `--no-connectors` to disable the
-frames or `--no-helper` to fall back to `open -a` without them.
+has no standard visual mate connector. The `joint.origin` frames are a
+developer visualization only: they are application features in the running
+SolidCraft session, never part geometry, and they do not change the STEP file,
+its volume, bounding box, layer count, or golden measurement. A missing sidecar,
+an unavailable GUI, a refused tab, or a failed `joint.origin` prints a note and
+never fails generation or measurement. Use `--no-connectors` to disable the
+frames or `--no-helper` to fall back to `open -a` without them; automated agents
+use `--headless`.
 
 ## Package map
 
@@ -110,10 +129,10 @@ frames or `--no-helper` to fall back to `open -a` without them.
 | `common` | Units-aware validation, detail levels, thread representation, metadata, placement, `Component`, `MateConnector`, and `MatePair`. |
 | `standards` | Metric thread data and ISO/DIN dimension tables (ISO 4032/4035/4762/7089/709x/7380/8752/10642, DIN 557/913/916/976/1587, …). |
 | `fasteners` | Screws, bolts, nuts, washers, pins, rods, and set screws. |
-| `profiles` | Generic T-slot sections, the vendor 2020 B-slot6 A section, and OpenBuilds-compatible V-Slot 2020/2040 sections with V lips, V-wheel, and slot T-nut parts. |
-| `motion` | Shafts, stepped/keyed shafts, spacers, bushings, shaft collars, keys, dowel pins, standoffs, compression springs, ball bearings, LM-series linear bushings, flanged linear housings, approximated GT2 timing pulleys, V-Slot wheels, and EMT tubing. |
+| `profiles` | Generic T-slot sections, the vendor 2020 B-slot6 A section, OpenBuilds-compatible V-Slot 2020/2040 sections, and a gusseted V-Slot corner bracket. |
+| `motion` | Shafts, stepped/keyed shafts, spacers and V-Slot wheel spacers (plain and eccentric), bushings, shaft collars, keys, dowel pins, standoffs, compression springs, ball bearings, LM-series linear bushings, flanged linear housings, approximated GT2 timing pulleys, smooth idlers, V-Slot wheels, and EMT tubing. |
 | `motors` | NEMA 17 and NEMA 23 stepper-motor envelopes, mounting interfaces, and NEMA mounting plates. |
-| `stock` | EN 10056 angle sections, configurable flat plate blanks with analytic circular holes and obround slots, and tube-to-plate adapter plates. |
+| `stock` | EN 10056 angle sections, configurable flat plate blanks with analytic circular holes and obround slots, counterbored plates, bearing-housing plates, and tube-to-plate adapter plates. |
 | `gears` | Involute spur gears, external pairs, and exact-internal-involute planetary sets. |
 | `assemblies` | Rigid placements, linear/circular patterns, hardware kits, extrusion frames, bolted joints, collision/contact reports, connectivity checks. |
 | `collision` | Kernel-free AABB/OBB collision and contact classification. |
@@ -228,13 +247,15 @@ frames, and plates expose face and per-hole frames.
   retention are not modelled.
 - Heat-set inserts model the two raised knurl bands as cylindrical reliefs, not
   a diamond knurl. Pull-out and torque strength require testing.
-- The EN 10056 angle root fillet is sampled with 16 lines because the arc
-  profile accepts only counter-clockwise minor arcs; its toe radii are analytic.
+- The EN 10056 angle root fillet is one analytic cylindrical surface; its toe
+  radii are analytic arcs.
 - A plate blank is a generic primitive. Hole patterns do not imply a
   standardized commercial part.
-- V-Slot and EMT/conduit-specific mating geometry are not implemented. The
-  available step.parts V-Slot models do not encode the real V lips and were not
-  accepted as golden references.
+- V-Slot has real lip, cavity, web, and core-bore geometry, plus V-wheels,
+  T-nuts, a gusseted corner bracket, and plain/eccentric wheel spacers. The
+  V-Slot section is verified analytically; the wheel and corner-bracket goldens
+  are Xem Studio references (CC BY 4.0). EMT coupling, clamp, and bracket
+  accessories are not implemented yet.
 - GT2 timing pulleys use an approximate trapezoidal tooth form built from the
   published 2 mm pitch, 0.254 mm pitch-line offset, 0.76 mm depth, and 1.49 mm
   width. They are a prototyping approximation, not a licensed exact profile,

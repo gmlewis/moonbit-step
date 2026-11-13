@@ -123,3 +123,31 @@ test "mate pair reports missing instances and connectors" {
     _ => fail("expected missing connector")
   }
 }
+
+///|
+test "plate_with_hole exposes its two faces and central bore" {
+  let plate = match @assemblies.plate_with_hole(50.0, 40.0, 5.0, 6.6) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  let names : Array[String] = []
+  for connector in plate.connectors() {
+    names.push(connector.name)
+  }
+  if names.length() != 3 {
+    abort("expected 3 connectors, got " + names.length().to_string())
+  }
+  for expected in ["face-top", "face-bottom", "hole-1"] {
+    if !names.contains(expected) {
+      abort("plate_with_hole is missing connector " + expected)
+    }
+  }
+  for connector in plate.connectors() {
+    if connector.name == "hole-1" {
+      match connector.diameter_mm {
+        Some(d) => assert_true(mate_near(d, 6.6))
+        None => fail("expected a bore diameter")
+      }
+    }
+  }
+}

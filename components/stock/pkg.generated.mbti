@@ -11,9 +11,13 @@ pub fn angle_bar(AngleSection, Double, color? : @cad.Rgb) -> Result[@common.Comp
 
 pub fn angle_section(leg_a_mm~ : Double, leg_b_mm~ : Double, thickness_mm~ : Double, root_radius_mm~ : Double, toe_radius_mm~ : Double) -> Result[AngleSection, @common.SpecError]
 
+pub fn bearing_plate(Double, Double, Double, Double, Double, Double, Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
 pub fn en10056_equal_angle_40x40x4() -> AngleSection
 
 pub fn plate(Double, Double, Double, holes? : Array[PlateHole], slots? : Array[PlateSlot], detail? : @common.DetailLevel, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn plate_with_counterbores(Double, Double, Double, holes~ : Array[CounterboredHole], color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
 pub fn tube_mount_plate(Double, Double, Double, Double, Double, Double, Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
@@ -28,6 +32,14 @@ pub(all) struct AngleSection {
   thickness_mm : Double
   root_radius_mm : Double
   toe_radius_mm : Double
+}
+
+pub(all) struct CounterboredHole {
+  x_mm : Double
+  y_mm : Double
+  through_diameter_mm : Double
+  counterbore_diameter_mm : Double
+  counterbore_depth_mm : Double
 }
 
 pub(all) struct PlateHole {

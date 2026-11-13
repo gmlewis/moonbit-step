@@ -48,7 +48,7 @@ pub fn hex_nut(
       thread_note(thread_rep),
     features~,
   )
-  if thread_rep is @common.ThreadRepresentation::Helical {
+  let component = if thread_rep is @common.ThreadRepresentation::Helical {
     let body = if policy.include_small_features {
       let c = nut_chamfer_mm(s, m)
       @cad.ChamferedPrism::new(
@@ -117,6 +117,7 @@ pub fn hex_nut(
     ).as_shape()
     base.add_layer(body, name="body", color=metal)
   }
+  with_nut_connectors(component, d, m, s)
 }
 
 ///|
@@ -217,21 +218,13 @@ pub fn iso4032_nut(
 ) -> Result[@common.Component, @common.SpecError] {
   match @standards.iso4032_spec(size, clearance_mm~) {
     Err(e) => Err(e)
-    Ok(spec) => {
-      let component = match threads {
-        Some(t) => hex_nut(spec, detail~, threads=t)
-        None => hex_nut(spec, detail~)
-      }
-      let dims = spec.size_dims
+    Ok(spec) =>
       Ok(
-        with_nut_connectors(
-          component,
-          dims.thread.nominal_diameter_mm,
-          dims.height_mm,
-          dims.width_across_flats_mm,
-        ),
+        match threads {
+          Some(t) => hex_nut(spec, detail~, threads=t)
+          None => hex_nut(spec, detail~)
+        },
       )
-    }
   }
 }
 

@@ -11,6 +11,8 @@ pub fn b_slot6_2020_extrusion(Double, detail? : @common.DetailLevel, orient_to_r
 
 pub fn extrusion(TSlotProfile, Double, detail? : @common.DetailLevel) -> Result[@common.Component, @common.SpecError]
 
+pub fn vslot_corner_bracket(leg_mm? : Double, width_mm? : Double, thickness_mm? : Double, gusset_thickness_mm? : Double, slot_width_mm? : Double, slot_length_mm? : Double, slot_shift_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
 pub fn vslot_extrusion(VSlotProfile, Double, detail? : @common.DetailLevel, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
 // Errors

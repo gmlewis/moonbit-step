@@ -146,3 +146,119 @@ test "heat-set inserts and T-nuts expose thread interfaces" {
   assert_true(has_connector(tnut, "slot-engagement"))
   assert_true(has_connector(tnut, "bearing-face"))
 }
+
+///|
+fn ok_fastener(
+  result : Result[@common.Component, @common.SpecError],
+) -> @common.Component {
+  match result {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+}
+
+///|
+fn[T] ok_spec(result : Result[T, @common.SpecError]) -> T {
+  match result {
+    Ok(s) => s
+    Err(e) => abort(e.message())
+  }
+}
+
+///|
+test "every public fastener builder family exposes a connector" {
+  let m3 = @standards.MetricSize::M3
+  let builders : Array[(@common.Component, String)] = [
+    // Threaded and headed fasteners.
+    (ok_fastener(@fasteners.iso4762_screw(m3, 16.0)), "shaft"),
+    (
+      @fasteners.socket_head_cap_screw(
+        ok_spec(@standards.iso4762_spec(m3, 16.0)),
+      ),
+      "shaft",
+    ),
+    (ok_fastener(@fasteners.iso4017(m3, 16.0)), "shaft"),
+    (
+      @fasteners.iso4017_screw(ok_spec(@standards.iso4017_spec(m3, 16.0))),
+      "shaft",
+    ),
+    (ok_fastener(@fasteners.iso4014(m3, 16.0)), "shaft"),
+    (
+      @fasteners.iso4014_bolt(ok_spec(@standards.iso4014_spec(m3, 16.0))),
+      "shaft",
+    ),
+    (ok_fastener(@fasteners.iso10642_screw(m3, 16.0)), "shaft"),
+    (ok_fastener(@fasteners.iso7380_screw(m3, 16.0)), "shaft"),
+    (ok_fastener(@fasteners.din913(m3, 6.0)), "point"),
+    (ok_fastener(@fasteners.din916_cup_point_set_screw(m3, 6.0)), "point"),
+    (ok_fastener(@fasteners.din976(m3, 100.0)), "thread-end-a"),
+    (
+      @fasteners.din976_rod(ok_spec(@standards.din976_spec(m3, 100.0))),
+      "thread-end-b",
+    ),
+    // Nuts.
+    (ok_fastener(@fasteners.iso4032_nut(m3)), "bore"),
+    (@fasteners.hex_nut(ok_spec(@standards.iso4032_spec(m3))), "bore"),
+    (ok_fastener(@fasteners.iso4035_nut(m3)), "bore"),
+    (
+      ok_fastener(@fasteners.din557_square_nut(@standards.MetricSize::M5)),
+      "bore",
+    ),
+    (
+      ok_fastener(@fasteners.din1587_acorn_nut(@standards.MetricSize::M4)),
+      "bore",
+    ),
+    // Washers.
+    (ok_fastener(@fasteners.iso7089_washer(m3)), "bore"),
+    (@fasteners.flat_washer(ok_spec(@standards.iso7089_spec(m3))), "bore"),
+    (ok_fastener(@fasteners.iso7090_washer(m3)), "bore"),
+    (
+      ok_fastener(
+        @fasteners.iso709x_washer(@standards.IsoWasherSeries::Iso7090, m3),
+      ),
+      "bore",
+    ),
+    (ok_fastener(@fasteners.iso7091_washer(m3)), "bore"),
+    (ok_fastener(@fasteners.iso7092_washer(m3)), "bore"),
+    (ok_fastener(@fasteners.iso7093_washer(m3)), "bore"),
+    (ok_fastener(@fasteners.din125_washer(m3)), "bore"),
+    (ok_fastener(@fasteners.din127_washer(m3)), "bore"),
+    (
+      ok_fastener(@fasteners.din440_washer(@standards.MetricSize::M5)),
+      "square-bore",
+    ),
+    (ok_fastener(@fasteners.din7349_washer(m3)), "bore"),
+    (
+      ok_fastener(@fasteners.din93_tab_washer(@standards.MetricSize::M4)),
+      "bore",
+    ),
+    // Pins.
+    (ok_fastener(@fasteners.iso2338_pin(m3, 20.0)), "shaft-a"),
+    (ok_fastener(@fasteners.iso8752_spring_pin(m3, 20.0)), "shaft-a"),
+    // Inserts and extrusion hardware.
+    (ok_fastener(@fasteners.heat_set_insert_m3("short")), "thread"),
+    (
+      ok_fastener(
+        @fasteners.extrusion_tnut(
+          ok_spec(@fasteners.extrusion_tnut_spec("M3", slot_width_mm=5.0)),
+        ),
+      ),
+      "thread",
+    ),
+    (
+      ok_fastener(
+        @fasteners.vslot_t_nut(@fasteners.SlotTNutSpec::openbuilds_m5()),
+      ),
+      "thread",
+    ),
+  ]
+  for entry in builders {
+    let (part, expected) = entry
+    if part.connectors().length() == 0 {
+      abort("builder produced no connector: " + part.name())
+    }
+    if !has_connector(part, expected) {
+      abort("builder " + part.name() + " is missing connector " + expected)
+    }
+  }
+}

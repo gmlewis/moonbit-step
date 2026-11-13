@@ -245,10 +245,75 @@ pub fn key_for_keyway(
           reason="not modelled by this builder",
         ),
       ]),
-    ).add_layer(
+    )
+    .add_layer(
       @cad.Cuboid::new(key_width, key_height, key_length_mm),
       name="body",
       color~,
+    )
+    .with_connector_unchecked(
+      @common.MateConnector::new(
+        "top-face",
+        placement=@common.Placement::translation(
+          key_width / 2.0,
+          key_height,
+          key_length_mm / 2.0,
+        ),
+        axis=(0.0, 1.0, 0.0),
+        kind=@common.MateKind::PlaneFace,
+        diameter_mm=if key_width < key_length_mm {
+          key_width
+        } else {
+          key_length_mm
+        },
+        description="top face (the face that bears against the hub keyway); outward normal is +Y",
+      ),
+    )
+    .with_connector_unchecked(
+      @common.MateConnector::new(
+        "bottom-face",
+        placement=@common.Placement::translation(
+          key_width / 2.0,
+          0.0,
+          key_length_mm / 2.0,
+        ),
+        axis=(0.0, -1.0, 0.0),
+        kind=@common.MateKind::PlaneFace,
+        diameter_mm=if key_width < key_length_mm {
+          key_width
+        } else {
+          key_length_mm
+        },
+        description="bottom face (the face seated in the shaft keyway); outward normal is -Y",
+      ),
+    )
+    .with_connector_unchecked(
+      @common.MateConnector::new(
+        "end-a",
+        placement=@common.Placement::translation(
+          key_width / 2.0,
+          key_height / 2.0,
+          0.0,
+        ),
+        axis=(0.0, 0.0, -1.0),
+        kind=@common.MateKind::PlaneFace,
+        diameter_mm=if key_width < key_height { key_width } else { key_height },
+        description="near end face; outward normal is -Z",
+      ),
+    )
+    .with_connector_unchecked(
+      @common.MateConnector::new(
+        "end-b",
+        placement=@common.Placement::translation(
+          key_width / 2.0,
+          key_height / 2.0,
+          key_length_mm,
+        ),
+        axis=(0.0, 0.0, 1.0),
+        kind=@common.MateKind::PlaneFace,
+        diameter_mm=if key_width < key_height { key_width } else { key_height },
+        description="far end face; outward normal is +Z",
+      ),
     ),
   )
 }

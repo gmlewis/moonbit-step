@@ -38,9 +38,9 @@ pub fn din976_rod(
   } else {
     0.0
   }
-  if thread_rep is @common.ThreadRepresentation::Helical {
+  let component = if thread_rep is @common.ThreadRepresentation::Helical {
     let d3 = thread.external_minor_diameter_mm()
-    let mut component = base.add_layer(
+    let mut part = base.add_layer(
       chamfered_cylinder_ends(d3, length, lead, lead, segments~),
       name="thread-core",
       color=@cad.Rgb::orange(),
@@ -52,14 +52,14 @@ pub fn din976_rod(
         segments_per_turn=policy.segments_per_turn,
       ) {
       Some(shape) =>
-        component = component.add_layer(
+        part = part.add_layer(
           shape,
           name="helical-thread",
           color=@cad.Rgb::cyan(),
         )
       None => ()
     }
-    component
+    part
   } else {
     base.add_layer(
       chamfered_cylinder_ends(d, length, lead, lead, segments~),
@@ -67,6 +67,7 @@ pub fn din976_rod(
       color=@cad.Rgb::orange(),
     )
   }
+  with_rod_connectors(component, d, length)
 }
 
 ///|
@@ -133,14 +134,10 @@ pub fn din976(
     Err(e) => Err(e)
     Ok(spec) =>
       Ok(
-        with_rod_connectors(
-          match threads {
-            Some(t) => din976_rod(spec, detail~, threads=t)
-            None => din976_rod(spec, detail~)
-          },
-          spec.thread.nominal_diameter_mm,
-          spec.length_mm,
-        ),
+        match threads {
+          Some(t) => din976_rod(spec, detail~, threads=t)
+          None => din976_rod(spec, detail~)
+        },
       )
   }
 }

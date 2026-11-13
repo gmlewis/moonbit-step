@@ -313,7 +313,17 @@ pub fn socket_head_cap_screw(
     }
   }
   // Datum: head underside at z = 0, head +Z, shank -Z.
-  component.translate(z=-length)
+  let placed = component.translate(z=-length)
+  with_screw_connectors(
+    placed,
+    d,
+    length,
+    thread_length,
+    dk,
+    bearing_face_z_mm=0.0,
+    head_top_z_mm=k,
+    tip_z_mm=-length,
+  )
 }
 
 ///|
@@ -328,32 +338,20 @@ pub fn iso4762_screw(
 ) -> Result[@common.Component, @common.SpecError] {
   match @standards.iso4762_spec(size, length_mm) {
     Err(e) => Err(e)
-    Ok(spec) => {
-      let component = match threads {
-        Some(t) =>
-          socket_head_cap_screw(
-            spec,
-            detail~,
-            threads=t,
-            reference~,
-            reference_b~,
-          )
-        None => socket_head_cap_screw(spec, detail~, reference~, reference_b~)
-      }
-      let dims = spec.size_dims
+    Ok(spec) =>
       Ok(
-        with_screw_connectors(
-          component,
-          dims.thread.nominal_diameter_mm,
-          spec.length_mm,
-          spec.thread_length_mm,
-          dims.head_diameter_mm,
-          bearing_face_z_mm=0.0,
-          head_top_z_mm=dims.head_height_mm,
-          tip_z_mm=-spec.length_mm,
-        ),
+        match threads {
+          Some(t) =>
+            socket_head_cap_screw(
+              spec,
+              detail~,
+              threads=t,
+              reference~,
+              reference_b~,
+            )
+          None => socket_head_cap_screw(spec, detail~, reference~, reference_b~)
+        },
       )
-    }
   }
 }
 

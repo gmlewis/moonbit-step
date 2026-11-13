@@ -137,6 +137,21 @@ moon run components/examples/vslot -- --part wheel -o "$OUT/vslot-wheel.step"
 moon run components/examples/vslot -- --part tnut -o "$OUT/vslot-tnut-m5.step"
 moon run components/examples/vslot -- \
   --part plate --length 60 --width 20 --thickness 3 -o "$OUT/vslot-joining-plate.step"
+moon run components/examples/vslot -- --part bracket -o "$OUT/vslot-corner-bracket.step"
+moon run components/examples/vslot -- --part spacer -o "$OUT/vslot-spacer-10x5x6.step"
+moon run components/examples/vslot -- \
+  --part eccentric -o "$OUT/vslot-eccentric-spacer.step"
+moon run components/examples/stock_primitive -- \
+  --part counterbore --width 50 --height 40 --plateThickness 8 \
+  --holeSpacing 24 --through 5.5 --counterbore 9 --counterboreDepth 2 \
+  -o "$OUT/plate-counterbore-50x40x8.step"
+moon run components/examples/stock_primitive -- \
+  --part bearing --width 50 --height 40 --plateThickness 6 \
+  --bearingOD 22 --fit 0.1 --boltDiameter 5.5 --holeSpacing 30 \
+  -o "$OUT/bearing-plate-od22.step"
+moon run components/examples/idler -- \
+  --outer 20 --bore 8 --width 10 --flangeDiameter 24 --flangeThickness 1.5 \
+  -o "$OUT/idler-flanged-20x10.step"
 moon run components/examples/tubing -- \
   --part emt --trade 1/2 --length 304.8 -o "$OUT/emt-1-2in-304.step"
 moon run components/examples/tubing -- \
@@ -144,7 +159,10 @@ moon run components/examples/tubing -- \
 moon run components/examples/tubing -- \
   --part adapter --tubeOD 17.9324 --clearance 0.5 -o "$OUT/tube-mount-plate.step"
 for part in vslot-2020x100 vslot-2040x100 vslot-wheel vslot-tnut-m5 \
-  vslot-joining-plate emt-1-2in-304 shaft-collar-d8 tube-mount-plate; do
+  vslot-joining-plate vslot-corner-bracket vslot-spacer-10x5x6 \
+  vslot-eccentric-spacer plate-counterbore-50x40x8 bearing-plate-od22 \
+  idler-flanged-20x10 \
+  emt-1-2in-304 shaft-collar-d8 tube-mount-plate; do
   python3 "$ROOT/scripts/validate_step.py" --no-mesh "$OUT/$part.step"
 done
 

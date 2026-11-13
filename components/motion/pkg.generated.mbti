@@ -57,6 +57,8 @@ pub fn shaft_collar(Double, Double, Double, chamfer_mm? : Double, color? : @cad.
 
 pub fn shielded_bearing(BearingSize, shield_depth_mm? : Double, outer_ring_thickness_mm? : Double, inner_ring_thickness_mm? : Double, detail? : @common.DetailLevel, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
+pub fn smooth_idler(Double, Double, Double, flange_diameter_mm? : Double, flange_thickness_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
 pub fn spacer(Double, Double, Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
 pub fn standoff(Double, Double, Double, detail? : @common.DetailLevel) -> Result[@common.Component, @common.SpecError]
@@ -64,6 +66,10 @@ pub fn standoff(Double, Double, Double, detail? : @common.DetailLevel) -> Result
 pub fn stepped_shaft(Array[ShaftSegment], color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
 pub fn v_wheel(VWheelSpec, detail? : @common.DetailLevel, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn vslot_eccentric_spacer(across_flats_mm? : Double, hex_height_mm? : Double, pilot_diameter_mm? : Double, pilot_length_mm? : Double, bore_diameter_mm? : Double, eccentricity_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn vslot_spacer(outer_diameter_mm? : Double, bore_diameter_mm? : Double, length_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
 // Errors
 
