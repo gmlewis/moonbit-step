@@ -4058,6 +4058,111 @@
       }
     },
     {
+      "fixture_id": "fasteners/din472-12-retaining-ring",
+      "part_id": "din472_12_internal_retaining_ring",
+      "designation": "DIN 472 12 internal retaining ring",
+      "family": "internal retaining ring",
+      "standard": "DIN 472",
+      "manufacturer": "Innerscene Corp (CC0 1.0 public-domain dedication)",
+      "source_page": "https://www.innerscene.com/tools/library/3d-parts/din-472-internal-circlip-12-mm-68ffe7fe",
+      "download_url": "https://www.innerscene.com/api/library/din-472-internal-circlip-12-mm-68ffe7fe/download",
+      "local_filename": "external/din472_internal_circlip_m12.step",
+      "sha256": "5db60edad5dd440d3bc997ae468e48688cf8172956ca53a146e5698b104682cf",
+      "byte_size": 38580,
+      "units": "mm",
+      "license": "CC0-1.0",
+      "license_evidence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "declared_dimensions": {
+        "bore_diameter_d1_mm": 12.0,
+        "thickness_s_mm": 1.0,
+        "free_outer_diameter_d3_mm": 13.0,
+        "lug_width_a_mm": 3.4,
+        "ring_width_b_mm": 1.7,
+        "lug_hole_d5_mm": 1.5,
+        "groove_diameter_d2_mm": 12.5,
+        "groove_width_m_mm": 1.1
+      },
+      "measured_dimensions": {
+        "bbox_mm": [
+          13.0,
+          12.9788,
+          1.0
+        ],
+        "volume_mm3": 68.0915,
+        "solids": 1,
+        "surfaces": {
+          "plane": 4,
+          "cylinder": 6
+        }
+      },
+      "parametric_value": {
+        "bbox_mm": [
+          13.0,
+          12.9788,
+          1.0
+        ],
+        "volume_mm3": 68.0925,
+        "solids": 1,
+        "source": "components/examples/din472_ring --size 12 --goldenFrame"
+      },
+      "verdict": "accepted-envelope",
+      "notes": "The reference is the Innerscene DIN 472 internal circlip 12 mm model, dedicated to the public domain under CC0 1.0. Its free-state outline is the source of the parametric ring's outline; DIN 472 does not dimension the curve between the back and the lugs. The reference is written in the XY plane with the lugs toward -Y; the din472_ring builder keeps the library XY-plane, z = 0..s, lugs +X frame and the generation recipe uses --goldenFrame to rotate only the comparison output. Bounding box, volume, centre of mass, and plier-hole/bore radii match. The reference writes 6 cylinders and the parametric model 10 because each long arc is split into two minor arcs for the extrusion compiler; the geometry is the same. The 12 mm and 20 mm outlines have licensed references; other DIN 472 sizes expose the groove table but reject din472_ring. Sharp edges, no spring temper, no load rating. The bore groove is declared, not modelled.",
+      "committed": false,
+      "review": {
+        "automated": "pass",
+        "owner_visual": "pending"
+      },
+      "generation": {
+        "tool": "components/examples/din472_ring",
+        "args": [
+          "--size",
+          "12",
+          "--goldenFrame",
+          "-o",
+          "{out}"
+        ],
+        "output": "din472-12.step"
+      },
+      "comparison": {
+        "solids": 1,
+        "bbox_axes": [
+          {
+            "axis": 0,
+            "expected_mm": 13.0,
+            "label": "free outside diameter (d3)"
+          },
+          {
+            "axis": 1,
+            "expected_mm": 12.9788,
+            "label": "back to lug tips"
+          },
+          {
+            "axis": 2,
+            "expected_mm": 1.0,
+            "label": "ring thickness"
+          }
+        ],
+        "volume_mm3": 68.0915,
+        "features": [
+          {
+            "kind": "surface_min",
+            "surface": "plane",
+            "min_count": 4
+          },
+          {
+            "kind": "surface_min",
+            "surface": "cylinder",
+            "min_count": 6
+          },
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 0.75,
+            "tol_mm": 0.01
+          }
+        ]
+      }
+    },
+    {
       "fixture_id": "fasteners/din472-20-retaining-ring",
       "part_id": "din472_20_internal_retaining_ring",
       "designation": "DIN 472 20 internal retaining ring",
@@ -4106,7 +4211,7 @@
         "source": "components/examples/din472_ring --size 20 --goldenFrame"
       },
       "verdict": "accepted-envelope",
-      "notes": "The reference is the Innerscene DIN 472 internal circlip 20 mm model, dedicated to the public domain under CC0 1.0. Its free-state outline is the source of the parametric ring's outline; DIN 472 does not dimension the curve between the back and the lugs. The reference is written in the XY plane with the lugs toward -Y; the din472_ring builder keeps the library XY-plane, z = 0..s, lugs +X frame and the generation recipe uses --goldenFrame to rotate only the comparison output. Bounding box, volume, centre of mass, and plier-hole/bore radii match exactly. The reference writes 6 cylinders and the parametric model 10 because each long arc is split into two minor arcs for the extrusion compiler; the geometry is the same. Only the 20 mm outline has a licensed reference, so other DIN 472 sizes expose the groove table but reject din472_ring. Sharp edges, no spring temper, no load rating. The bore groove is declared, not modelled.",
+      "notes": "The reference is the Innerscene DIN 472 internal circlip 20 mm model, dedicated to the public domain under CC0 1.0. Its free-state outline is the source of the parametric ring's outline; DIN 472 does not dimension the curve between the back and the lugs. The reference is written in the XY plane with the lugs toward -Y; the din472_ring builder keeps the library XY-plane, z = 0..s, lugs +X frame and the generation recipe uses --goldenFrame to rotate only the comparison output. Bounding box, volume, centre of mass, and plier-hole/bore radii match exactly. The reference writes 6 cylinders and the parametric model 10 because each long arc is split into two minor arcs for the extrusion compiler; the geometry is the same. The 12 mm and 20 mm outlines each have a licensed reference, so other DIN 472 sizes expose the groove table but reject din472_ring. Sharp edges, no spring temper, no load rating. The bore groove is declared, not modelled.",
       "committed": false,
       "review": {
         "automated": "pass",

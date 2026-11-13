@@ -112,7 +112,8 @@ moon run components/examples/makerbeam -- --length 250 --cornerRadius 0.2 -o mb.
 # DIN 471 type A external retaining ring (A 10 to A 34)
 moon run components/examples/retaining_ring -- --size 20 -o din471-20.step
 
-# DIN 472 internal retaining ring (verified bore table 8 to 40; encoded outline 20)
+# DIN 472 internal retaining ring (verified bore table 8 to 40; encoded outlines 12 and 20)
+moon run components/examples/din472_ring -- --size 12 -o din472-12.step
 moon run components/examples/din472_ring -- --size 20 -o din472-20.step
 
 # Built-in M3/M4/M5 fastener catalogue
@@ -219,7 +220,7 @@ use `--headless`.
 |---|---|
 | `common` | Units-aware validation, detail levels, thread representation, metadata, placement, `Component`, `MateConnector`, and `MatePair`. |
 | `standards` | Metric thread data and ISO/DIN dimension tables (ISO 4032/4035/4762/7089/709x/7380/8752/10642, DIN 471/472/557/913/916/976/1587, …). |
-| `fasteners` | Screws, bolts, nuts, washers, pins, rods, set screws, generic solid rivets, DIN 471 type A external retaining rings (A 10 to A 34), and DIN 472 internal retaining rings (verified bore table 8 to 40; encoded 20 mm outline). |
+| `fasteners` | Screws, bolts, nuts, washers, pins, rods, set screws, generic solid rivets, DIN 471 type A external retaining rings (A 10 to A 34), and DIN 472 internal retaining rings (verified bore table 8 to 40; encoded 12 mm and 20 mm outlines). |
 | `profiles` | Generic T-slot sections, the vendor 2020 B-slot6 A section, OpenBuilds-compatible V-Slot 2020/2040 sections, the MakerBeam 10 x 10 section, a gusseted V-Slot corner bracket, P1000-style strut channel, and a generic channel nut. |
 | `motion` | Shafts, stepped/keyed shafts, spacers and V-Slot wheel spacers (plain and eccentric), bushings, plain and set-screw shaft collars, keys, dowel pins, standoffs, compression springs, ball bearings, LM-series linear bushings, flanged linear housings, approximated GT2 timing pulleys, smooth idlers, V-Slot wheels, EMT tubing with end caps and split clamps, rigid couplings, and flanged bearing housings. |
 | `motors` | NEMA 17 and NEMA 23 stepper-motor envelopes, mounting interfaces, and NEMA mounting plates. |
@@ -361,10 +362,10 @@ frames, and plates expose face and per-hole frames.
   interface. The DIN 472 table (d1, s, d3, a, b, d5, d2, m, t, n) is
   cross-checked between the Aspen Fasteners sheet, the Stpektas table, and the
   Xem Studio sheet (CC BY 4.0) and covers 8 to 40 mm. The *free-state outline*
-  is not dimensioned by DIN 472; the 20 mm outline is the measured CC0
-  Innerscene reference model, re-encoded as this library's own line/arc loop
-  (volume and bounding box match the reference exactly). Only the 20 mm outline
-  has a licensed reference, so other sizes expose the groove table via
+  is not dimensioned by DIN 472; the 12 mm and 20 mm outlines are the measured
+  CC0 Innerscene reference models, re-encoded as this library's own line/arc
+  loops (volume and bounding box match each reference). Only the 12 mm and 20 mm
+  outlines have licensed references, so other sizes expose the groove table via
   `@standards.din472_size` but reject `din472_ring`. Sharp edges, no edge
   breaks, no spring temper, and no load or fatigue rating. The bore groove is
   declared by the `groove-seat` connector but is not modelled.

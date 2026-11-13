@@ -3,9 +3,9 @@
 ///
 /// DIN 472 fixes the ring's thickness, free outside diameter, lug and back
 /// widths, lug-hole diameter, and groove interface, but it does not dimension
-/// the outline curve between the back and the lugs. The outline used here is
-/// the measured geometry of the CC0 Innerscene "DIN 472 internal circlip
-/// 20 mm" model; it is re-encoded as this library's own line/arc loop in the
+/// the outline curve between the back and the lugs. The outlines used here are
+/// the measured geometry of the CC0 Innerscene "DIN 472 internal circlip"
+/// models; each is re-encoded as this library's own line/arc loop in the
 /// default lugs-toward-+X frame.
 pub(all) struct Din472Outline {
   bore_mm : Double
@@ -13,6 +13,29 @@ pub(all) struct Din472Outline {
   start : @cad.Vec2
   ops : Array[RingOp]
   holes : Array[(Double, Double, Double)]
+}
+
+///|
+/// din472_outline_12 returns the measured 12 mm internal-ring outline in the
+/// default lugs-toward-+X frame.
+///
+/// The loop is counter-clockwise; the two plier holes sit at
+/// `(4.8, +/- 1.65)` with radius 0.75 mm.
+fn din472_outline_12() -> Din472Outline {
+  {
+    bore_mm: 12.0,
+    thickness_mm: 1.0,
+    start: (6.4788, -0.525),
+    ops: [
+      RingLine(3.5255, -0.525),
+      RingArc(3.1179, -1.4042, 3.2568, -2.3632),
+      RingArc(-4.8, 0.0, 3.2568, 2.3632),
+      RingArc(3.1179, 1.4042, 3.5255, 0.525),
+      RingLine(6.4788, 0.525),
+      RingArc(-6.5, 0.0, 6.4788, -0.525),
+    ],
+    holes: [(4.8, 1.65, 0.75), (4.8, -1.65, 0.75)],
+  }
 }
 
 ///|
@@ -41,19 +64,22 @@ fn din472_outline_20() -> Din472Outline {
 ///|
 /// din472_outline returns the free-state outline for a DIN 472 bore size.
 ///
-/// Only the 20 mm free-state outline has a licensed reference model, so this
-/// library encodes that size exactly and rejects the others with an explicit
-/// gap. `@standards.din472_size` still carries the verified groove table for
-/// every supported bore.
+/// The 12 mm and 20 mm free-state outlines each have a licensed reference
+/// model, so this library encodes those sizes exactly and rejects the others
+/// with an explicit gap. `@standards.din472_size` still carries the verified
+/// groove table for every supported bore.
 pub fn din472_outline(
   bore_mm : Double,
 ) -> Result[Din472Outline, @common.SpecError] {
+  if (bore_mm - 12.0).abs() < 1.0e-9 {
+    return Ok(din472_outline_12())
+  }
   if (bore_mm - 20.0).abs() < 1.0e-9 {
     return Ok(din472_outline_20())
   }
   Err(
     @common.SpecError::InvalidSize(
-      "DIN 472 free-state outline is encoded only for the 20 mm bore; other sizes expose the groove table via @standards.din472_size",
+      "DIN 472 free-state outline is encoded only for the 12 mm and 20 mm bores; other sizes expose the groove table via @standards.din472_size",
     ),
   )
 }
@@ -97,10 +123,10 @@ fn din472_segments(
 /// The ring lies in the XY plane from `z = 0` to `z = s`, its axis along +Z,
 /// and its lugs toward +X. The free-state outline and the two plier holes are
 /// modelled; the bore groove is not. The outline is the measured CC0
-/// Innerscene "DIN 472 internal circlip 20 mm" model, re-encoded as this
+/// Innerscene "DIN 472 internal circlip" reference model, re-encoded as this
 /// library's own line/arc loop; DIN 472 does not dimension that curve. Only
-/// the 20 mm size has a licensed reference outline, so other sizes are
-/// rejected. Use `@standards.din472_size` for the groove interface of every
+/// the 12 mm and 20 mm sizes have a licensed reference outline, so other sizes
+/// are rejected. Use `@standards.din472_size` for the groove interface of every
 /// size.
 ///
 /// The ring is a flat stamped part: sharp edges, no edge breaks, no spring
@@ -147,7 +173,7 @@ pub fn din472_ring(
                     feature="outline-between-the-back-and-the-lugs",
                     kind=@common.ApproximationKind::EngineeringDefault,
                     deviation_mm=0.0,
-                    control="measured CC0 Innerscene 20 mm reference outline; DIN 472 does not dimension this curve",
+                    control="measured CC0 Innerscene \{@cad.fmt_double(bore_mm, None)} mm reference outline; DIN 472 does not dimension this curve",
                   ),
                 ],
                 omitted=[

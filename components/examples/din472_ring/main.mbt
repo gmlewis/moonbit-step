@@ -5,19 +5,20 @@
 ///
 /// ```bash
 /// moon run components/examples/din472_ring -- --size 20 -o din472-20.step
+/// moon run components/examples/din472_ring -- --size 12 -o din472-12.step
 /// moon run components/examples/din472_ring -- --size 20 --goldenFrame -o ring-golden.step
 /// ```
 ///
 /// `--goldenFrame` is a comparison-only option: it maps the ring into the
 /// published golden reference frame (ring in XY, z = 0..s, lugs toward -Y)
 /// without changing the builder's default XY-plane, z = 0..s, lugs +X frame.
-/// The free-state outline is the CC0 Innerscene 20 mm reference geometry. The
-/// bore groove is declared by a connector but is not modelled.
+/// The free-state outline is the CC0 Innerscene 12 mm or 20 mm reference
+/// geometry. The bore groove is declared by a connector but is not modelled.
 async fn main {
   let spec = {
     "size": @cli.opt_double(
       20.0,
-      help="Nominal bore diameter in mm (only 20 has an encoded outline)",
+      help="Nominal bore diameter in mm (only 12 and 20 have an encoded outline)",
       min=0.0,
     ),
     "goldenFrame": @cli.flag(

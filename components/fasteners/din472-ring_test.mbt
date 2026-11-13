@@ -126,8 +126,43 @@ test "DIN 472 connectors cover faces, bore, free outer, groove, plier holes" {
 }
 
 ///|
+test "DIN 472 12 mm ring matches the reference envelope" {
+  let part = d472_ok(@fasteners.din472_ring(12.0))
+  let (x0, x1, y0, y1, z0, z1) = part.bounding_box()
+  // Lugs toward +X: the across-lugs span is the X extent.
+  assert_true(d472_close(x1 - x0, 12.979, 0.02))
+  assert_true(d472_close(y1 - y0, 13.0, 0.02))
+  assert_true(d472_close(z0, 0.0, 1.0e-9))
+  assert_true(d472_close(z1, 1.0, 1.0e-9))
+  assert_eq(part.layers().length(), 1)
+  let layer = part.layers()[0]
+  let volume = match layer.shape.analysis_volume() {
+    Ok(v) => v
+    Err(e) => abort(e.message())
+  }
+  assert_true(d472_close(volume, 68.09, 0.3))
+  let inventory = layer.shape.surface_inventory()
+  assert_true(inventory.plane >= 4)
+  assert_true(inventory.cylinder >= 6)
+}
+
+///|
+test "DIN 472 12 mm ring carries the table's lug-hole diameter" {
+  let part = d472_ok(@fasteners.din472_ring(12.0))
+  for name in ["lug-hole-1", "lug-hole-2"] {
+    let connector = d472_connector(part, name)
+    match connector.diameter_mm {
+      Some(d) => assert_true(d472_close(d, 1.5, 1.0e-12))
+      None => fail("plier hole should carry d5")
+    }
+  }
+}
+
+///|
 test "DIN 472 ring rejects unsupported and invalid input" {
   assert_true(@fasteners.din472_ring(10.0) is Err(_))
   assert_true(@fasteners.din472_ring(0.0) is Err(_))
   assert_true(@fasteners.din472_outline(15.0) is Err(_))
+  assert_true(@fasteners.din472_outline(12.0) is Ok(_))
+  assert_true(@fasteners.din472_outline(20.0) is Ok(_))
 }
