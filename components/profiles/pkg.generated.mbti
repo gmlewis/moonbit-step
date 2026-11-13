@@ -13,6 +13,8 @@ pub fn channel_nut(ChannelSection, Double, nut_length_mm? : Double, nut_width_mm
 
 pub fn extrusion(TSlotProfile, Double, detail? : @common.DetailLevel) -> Result[@common.Component, @common.SpecError]
 
+pub fn makerbeam_extrusion(MakerBeamProfile, Double, detail? : @common.DetailLevel, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
 pub fn strut_channel(ChannelSection, Double, punched? : Bool, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
 pub fn vslot_corner_bracket(leg_mm? : Double, width_mm? : Double, thickness_mm? : Double, gusset_thickness_mm? : Double, slot_width_mm? : Double, slot_length_mm? : Double, slot_shift_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
@@ -38,6 +40,27 @@ pub fn ChannelSection::designation(Self) -> String
 pub fn ChannelSection::hole_positions(Self, Double) -> Array[Double]
 pub fn ChannelSection::material_area(Self) -> Double
 pub fn ChannelSection::p1000() -> Self
+
+pub(all) struct MakerBeamProfile {
+  name : String
+  size_mm : Double
+  slot_width_mm : Double
+  lip_thickness_mm : Double
+  core_width_mm : Double
+  bore_diameter_mm : Double
+  lip_undercut_half_mm : Double
+  floor_undercut_half_mm : Double
+  corner_radius_mm : Double
+}
+pub fn MakerBeamProfile::custom(name~ : String, size_mm~ : Double, slot_width_mm~ : Double, lip_thickness_mm~ : Double, core_width_mm~ : Double, bore_diameter_mm~ : Double, lip_undercut_half_mm~ : Double, floor_undercut_half_mm~ : Double, corner_radius_mm? : Double) -> Result[Self, @common.SpecError]
+pub fn MakerBeamProfile::designation(Self) -> String
+pub fn MakerBeamProfile::holes(Self) -> Array[Array[@cad.ProfileSegment]]
+pub fn MakerBeamProfile::mb_1010() -> Self
+pub fn MakerBeamProfile::metadata(Self, Double) -> @common.Metadata
+pub fn MakerBeamProfile::outline(Self) -> Array[@cad.ProfileSegment]
+pub fn MakerBeamProfile::section_area_mm2(Self) -> Double
+pub fn MakerBeamProfile::section_points(Self) -> Array[(Double, Double)]
+pub fn MakerBeamProfile::slot_count(Self) -> Int32
 
 pub(all) struct TSlotProfile {
   name : String

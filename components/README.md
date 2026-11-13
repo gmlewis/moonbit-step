@@ -100,6 +100,13 @@ moon run components/examples/motion_stack -- \
 # Generic solid rivet
 moon run components/examples/rivet -- --shank 3 --length 10 -o rivet.step
 
+# MakerBeam 10 x 10 mm extrusion (drawing article 100168)
+moon run components/examples/makerbeam -- --length 100 -o makerbeam.step
+moon run components/examples/makerbeam -- --length 250 --cornerRadius 0.2 -o mb.step
+
+# DIN 471 type A external retaining ring (A 10 to A 34)
+moon run components/examples/retaining_ring -- --size 20 -o din471-20.step
+
 # Built-in M3/M4/M5 fastener catalogue
 mkdir -p components/examples/output
 moon run components/examples/fasteners -- --catalog components/examples/output
@@ -124,6 +131,16 @@ The V-wheel body is modelled at its published boundary (23.89 mm OD, 10.23 mm
 wide, 90 degree groove, Ø16 bearing pockets, Ø11 mid-lip bore). Bearing pockets
 and core bores are analytic cylinders. Bearings, shims, threads, and structural
 ratings are not modelled.
+
+MakerBeam 10 x 10 mm uses the section of MakerBeam's drawing article 100168: a
+3 mm slot on each face over a 41.1 degree dovetail undercut, a 4 x 4 mm core,
+and a Ø2.5 mm centre bore that is the M3 end-thread tap drill. The section area
+is 48.75 mm². It is **not** the generic T-slot or the OpenBuilds V-Slot section,
+and a generic T-nut does not automatically fit it. MakerBeam's R0.2 drawing
+radii and the M3 x 8 mm end threads are not modelled; the end threads are
+declared by `end-thread-a`/`end-thread-b` connectors only. MakerBeamXL 15 x 15
+and OpenBeam 15 x 15 are not implemented: their dimensioned sections could not
+be obtained under usable terms.
 
 EMT tubes use the measured ANSI C80.3 / UL 797 outside diameter and nominal
 wall (a 1/2 in EMT is 17.9324 mm OD, not 12.7 mm). No coupling, thread, bend, or
@@ -179,8 +196,8 @@ use `--headless`.
 |---|---|
 | `common` | Units-aware validation, detail levels, thread representation, metadata, placement, `Component`, `MateConnector`, and `MatePair`. |
 | `standards` | Metric thread data and ISO/DIN dimension tables (ISO 4032/4035/4762/7089/709x/7380/8752/10642, DIN 557/913/916/976/1587, …). |
-| `fasteners` | Screws, bolts, nuts, washers, pins, rods, set screws, and generic solid rivets. |
-| `profiles` | Generic T-slot sections, the vendor 2020 B-slot6 A section, OpenBuilds-compatible V-Slot 2020/2040 sections, a gusseted V-Slot corner bracket, P1000-style strut channel, and a generic channel nut. |
+| `fasteners` | Screws, bolts, nuts, washers, pins, rods, set screws, generic solid rivets, and DIN 471 type A external retaining rings (A 10 to A 34). |
+| `profiles` | Generic T-slot sections, the vendor 2020 B-slot6 A section, OpenBuilds-compatible V-Slot 2020/2040 sections, the MakerBeam 10 x 10 section, a gusseted V-Slot corner bracket, P1000-style strut channel, and a generic channel nut. |
 | `motion` | Shafts, stepped/keyed shafts, spacers and V-Slot wheel spacers (plain and eccentric), bushings, shaft collars, keys, dowel pins, standoffs, compression springs, ball bearings, LM-series linear bushings, flanged linear housings, approximated GT2 timing pulleys, smooth idlers, V-Slot wheels, EMT tubing with end caps and split clamps, rigid couplings, and flanged bearing housings. |
 | `motors` | NEMA 17 and NEMA 23 stepper-motor envelopes, mounting interfaces, and NEMA mounting plates. |
 | `stock` | EN 10056 angle sections, configurable flat plate blanks with analytic circular holes and obround slots, counterbored and countersunk plates, bearing-housing plates, and tube-to-plate and tube-to-V-Slot adapter brackets. |
@@ -307,6 +324,21 @@ frames, and plates expose face and per-hole frames.
   V-Slot section is verified analytically; the wheel and corner-bracket goldens
   are Xem Studio references (CC BY 4.0). EMT coupling, clamp, and bracket
   accessories are not implemented yet.
+- DIN 471 type A external retaining rings are flat stamped rings with two
+  lugs, plier holes, a free bore, and a declared shaft-groove interface. The
+  DIN 471 table (d1, s, d3, a, b, d5, d2, m, t, n) is cross-checked between two
+  independent sources and covers A 10 to A 34. The *free-state outline*
+  between the back and the lugs is not dimensioned by DIN 471; it is the
+  published FreeCAD-library model geometry (CC BY 3.0, by nachotineo), so the
+  model bore can differ from d3 by up to 0.13 mm. Sharp edges, no edge breaks,
+  no spring temper, and no load or fatigue rating. The shaft groove is
+  declared by the `groove-seat` connector but is not modelled.
+- MakerBeam 10 x 10 is the exact dimensioned section of drawing article 100168
+  (3 mm slot, 1 mm lip, 41.1 degree dovetail, 4 x 4 core, Ø2.5 bore), verified
+  against an independent MIT-licensed implementation of the same drawing. The
+  R0.2 drawing radii and M3 end threads are omitted. MakerBeamXL 15 x 15 and
+  OpenBeam 15 x 15 are not implemented: the drawing folder is access-restricted
+  and no licensed step model matched the published dimensions.
 - GT2 timing pulleys use an approximate trapezoidal tooth form built from the
   published 2 mm pitch, 0.254 mm pitch-line offset, 0.76 mm depth, and 1.49 mm
   width. They are a prototyping approximation, not a licensed exact profile,

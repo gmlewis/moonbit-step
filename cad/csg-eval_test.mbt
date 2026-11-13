@@ -239,3 +239,92 @@ async test "evaluated chamfer yields a valid solid with a conical face" {
   ])
   assert_validator_ok(code, output)
 }
+
+///|
+/// json_member returns an object member, or JSON null when absent.
+fn ev_json_member(j : @json.Json, key : String) -> @json.Json {
+  match j {
+    Object(m) =>
+      match m.get(key) {
+        Some(v) => v
+        None => @json.Json::null()
+      }
+    _ => @json.Json::null()
+  }
+}
+
+///|
+fn ev_json_number(j : @json.Json, key : String) -> Double {
+  match ev_json_member(j, key) {
+    Number(n, ..) => n
+    _ => -1.0
+  }
+}
+
+///|
+fn ev_json_array(j : @json.Json, key : String) -> Array[@json.Json] {
+  match ev_json_member(j, key) {
+    Array(a) => a
+    _ => []
+  }
+}
+
+///|
+fn ev_json_item_number(j : @json.Json) -> Double {
+  match j {
+    Number(n, ..) => n
+    _ => -1.0
+  }
+}
+
+///|
+async test "evaluated counterbored plate is one watertight solid" {
+  if !command_in_path("python3") || !draw_available() {
+    return
+  }
+  let root = repo_root()
+  let dir = @fs.tmpdir(prefix="csg-plate-")
+  defer @fs.rmdir(dir, recursive=true)
+  let plate = @cad.Cuboid::new(50.0, 40.0, 8.0).with_name("plate")
+  let through = @cad.Cylinder::new(5.5, 20.0)
+    .with_name("through")
+    .translate(x=25.0, y=20.0, z=-6.0)
+  let cbore = @cad.Cylinder::new(9.0, 2.0)
+    .with_name("counterbore")
+    .translate(x=25.0, y=20.0, z=6.0)
+  let design = @cad.Design::new(name="counterbored-plate").add(
+    @cad.difference(plate, [through, cbore], name="counterbored-plate"),
+  )
+  let out = dir + "/plate.step"
+  design.write_step_evaluated(Some(out), root=Some(root))
+  let text = @fs.read_file(out).text()
+  assert_true(text.contains("MANIFOLD_SOLID_BREP"))
+  assert_false(text.contains("BOOLEAN_RESULT("))
+  assert_false(text.contains("CSG_SOLID("))
+  // Full validator, including watertight tessellation.
+  let (code, output) = run_validator([root + "/scripts/validate_step.py", out])
+  assert_validator_ok(code, output)
+  assert_true(output.contains("1 solids, 1 closed shells"))
+  assert_true(output.contains("[PASS] occt mesh"))
+  // Measure the evaluated solid.
+  let (mcode, mdata) = @process.collect_output_merged("python3", [
+    root + "/scripts/measure_step_occt.py",
+    out,
+  ])
+  assert_true(mcode == 0)
+  let mout = mdata.text()
+  let doc = @json.parse(mout) catch { _ => fail("invalid measurement JSON") }
+  assert_true(ev_json_number(doc, "solids") == 1.0)
+  // 50*40*8 - pi*2.75^2*8 - pi*(4.5^2-2.75^2)*2 = 15730.216 mm^3.
+  assert_true((ev_json_number(doc, "volume") - 15730.216).abs() < 0.5)
+  let bbox = ev_json_array(doc, "bbox")
+  assert_eq(bbox.length(), 6)
+  let extents : Array[Double] = [
+    ev_json_item_number(bbox[1]) - ev_json_item_number(bbox[0]),
+    ev_json_item_number(bbox[3]) - ev_json_item_number(bbox[2]),
+    ev_json_item_number(bbox[5]) - ev_json_item_number(bbox[4]),
+  ]
+  assert_true((extents[0] - 50.0).abs() < 0.01)
+  assert_true((extents[1] - 40.0).abs() < 0.01)
+  assert_true((extents[2] - 8.0).abs() < 0.01)
+}

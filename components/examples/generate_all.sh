@@ -158,11 +158,16 @@ moon run components/examples/tubing -- \
   --part collar --bore 8 --outer 16 --width 8 -o "$OUT/shaft-collar-d8.step"
 moon run components/examples/tubing -- \
   --part adapter --tubeOD 17.9324 --clearance 0.5 -o "$OUT/tube-mount-plate.step"
+moon run components/examples/makerbeam -- \
+  --length 100 -o "$OUT/makerbeam-1010-l100.step"
+moon run components/examples/retaining_ring -- \
+  --size 20 -o "$OUT/din471-a20.step"
 for part in vslot-2020x100 vslot-2040x100 vslot-wheel vslot-tnut-m5 \
   vslot-joining-plate vslot-corner-bracket vslot-spacer-10x5x6 \
   vslot-eccentric-spacer plate-counterbore-50x40x8 bearing-plate-od22 \
   idler-flanged-20x10 \
-  emt-1-2in-304 shaft-collar-d8 tube-mount-plate; do
+  emt-1-2in-304 shaft-collar-d8 tube-mount-plate \
+  makerbeam-1010-l100 din471-a20; do
   python3 "$ROOT/scripts/validate_step.py" --no-mesh "$OUT/$part.step"
 done
 

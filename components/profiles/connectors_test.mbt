@@ -80,6 +80,17 @@ test "every public profile builder family exposes a connector" {
       },
       "thread",
     ),
+    (
+      match
+        @profiles.makerbeam_extrusion(
+          @profiles.MakerBeamProfile::mb_1010(),
+          100.0,
+        ) {
+        Ok(c) => c
+        Err(e) => abort(e.message())
+      },
+      "slot-x-plus",
+    ),
   ]
   for entry in builders {
     let (part, expected) = entry

@@ -3719,6 +3719,338 @@
           }
         ]
       }
+    },
+    {
+      "fixture_id": "profiles/makerbeam-1010-l100",
+      "part_id": "makerbeam_1010_l100",
+      "designation": "MakerBeam 10 x 10 x 100 (article 100168)",
+      "family": "MakerBeam aluminium extrusion",
+      "standard": "MakerBeam article 100168 technical drawing",
+      "manufacturer": "MakerBeam AS drawing; reference regenerated from the MIT pythonparts model",
+      "source_page": "https://pythonparts.org/p/steve/makerbeam-profile",
+      "download_url": "https://pythonparts.org/p/steve/makerbeam-profile/v/1.0.0/raw/part.py",
+      "local_filename": "external/makerbeam_1010_l100_pythonparts.step",
+      "sha256": "4d0b1422feed0b2d91c35f2629b07e8c2d446b1584cb11e192374641a6de152f",
+      "byte_size": 132484,
+      "units": "mm",
+      "license": "MIT",
+      "license_evidence_url": "https://pythonparts.org/p/steve/makerbeam-profile",
+      "declared_dimensions": {
+        "section_mm": [
+          10.0,
+          10.0
+        ],
+        "slot_width_mm": 3.0,
+        "lip_thickness_mm": 1.0,
+        "core_mm": [
+          4.0,
+          4.0
+        ],
+        "bore_diameter_mm": 2.5,
+        "section_area_mm2": 48.75,
+        "length_mm": 100.0
+      },
+      "measured_dimensions": {
+        "bbox_mm": [
+          10.0,
+          10.0,
+          100.0
+        ],
+        "volume_mm3": 4874.73,
+        "solids": 1,
+        "surfaces": {
+          "plane": 38,
+          "cylinder": 1
+        }
+      },
+      "parametric_value": {
+        "bbox_mm": [
+          10.0,
+          10.0,
+          100.0
+        ],
+        "volume_mm3": 4874.73,
+        "solids": 1,
+        "source": "components/examples/makerbeam -- --length 100"
+      },
+      "verdict": "independent-implementation",
+      "notes": "The reference STEP is regenerated locally with CadQuery from the MIT pythonparts MakerBeam model (part.py), which encodes the section of MakerBeam drawing article 100168 (DXF geometry and printed dimensions). It is an independent implementation reference, not a manufacturer STEP file: the MakerBeam technical-drawing folder is access-restricted. Both models use the sharp dimensioned outline; MakerBeam's R0.2 corner and edge radii and the M3 end threads are omitted. Bounding box, volume, face counts, and the 1.25 mm bore cylinder match exactly. The step.parts MakerBeam model was measured and rejected: its section area is 37.7 mm2 and its X-shaped struts contradict the drawing's 4 x 4 core and 48.75 mm2 area.",
+      "committed": false,
+      "review": {
+        "automated": "pass",
+        "owner_visual": "pending",
+        "date": "2026-11-13"
+      },
+      "reference_generation": {
+        "tool": "CadQuery 2.6.1 (private, not tracked)",
+        "source": "https://pythonparts.org/p/steve/makerbeam-profile/v/1.0.0/raw/part.py",
+        "source_license": "MIT",
+        "outline": "36-point sharp section from the article-100168 DXF, extruded 100 mm along +Z with a 2.5 mm centre bore",
+        "note": "Reproducible from part.py; the generated STEP is held privately in the Git-ignored external directory."
+      },
+      "generation": {
+        "tool": "components/examples/makerbeam",
+        "args": [
+          "--length",
+          "100",
+          "-o",
+          "{out}"
+        ],
+        "output": "makerbeam-1010-l100.step"
+      },
+      "comparison": {
+        "solids": 1,
+        "bbox_axes": [
+          {
+            "axis": 0,
+            "expected_mm": 10.0,
+            "label": "section width"
+          },
+          {
+            "axis": 1,
+            "expected_mm": 10.0,
+            "label": "section height"
+          },
+          {
+            "axis": 2,
+            "expected_mm": 100.0,
+            "label": "length"
+          }
+        ],
+        "features": [
+          {
+            "kind": "surface_min",
+            "surface": "plane",
+            "min_count": 38
+          },
+          {
+            "kind": "surface_min",
+            "surface": "cylinder",
+            "min_count": 1
+          },
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 1.25,
+            "tol_mm": 0.01
+          }
+        ]
+      }
+    },
+    {
+      "fixture_id": "motion/rigid-coupling-od15-bore5-l20",
+      "part_id": "rigid_coupling_od15_bore5_l20",
+      "designation": "Rigid sleeve coupling OD 15 / bore 5 x 20",
+      "family": "rigid shaft coupling",
+      "standard": "step.parts catalog beam_coupling_bore5_to_5 (plain sleeve envelope)",
+      "manufacturer": "step.parts contributor",
+      "source_page": "https://www.step.parts/parts/beam_coupling_bore5_to_5",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/beam_coupling_bore5_to_5.step",
+      "local_filename": "external/beam_coupling_bore5_to_5_simple.step",
+      "sha256": "9383a0a5373adeafedf1727511c483b3aacfbd6a0de1571c034e3d8c92b76526",
+      "byte_size": 11005,
+      "units": "mm",
+      "license": "MIT",
+      "license_evidence_url": "https://github.com/earthtojake/step.parts/blob/c6113328a5695b976a010a203a90fe86191769bf/LICENSE",
+      "declared_dimensions": {
+        "outer_diameter_mm": 15.0,
+        "bore_mm": 5.0,
+        "length_mm": 20.0
+      },
+      "measured_dimensions": {
+        "bbox_mm": [
+          20.0,
+          15.0,
+          15.0
+        ],
+        "volume_mm3": 3141.59,
+        "solids": 1
+      },
+      "parametric_value": {
+        "bbox_mm": [
+          15.0,
+          15.0,
+          20.0
+        ],
+        "volume_mm3": 3141.59,
+        "solids": 1,
+        "source": "components/examples/motion_stack --part coupling --couplingBore 5 --couplingOuter 15 --couplingLength 20"
+      },
+      "verdict": "accepted-envelope",
+      "notes": "The catalogue labels this file a beam coupling, but it is a plain tube: OD 15, bore 5, length 20, with 2 cylinders and 2 planes. It is used only as a plain rigid-sleeve envelope reference and is not treated as a beam-coupling model. The parametric rigid coupling has the same volume (3141.59 mm3), the same 2 cylinder + 2 plane inventory, and bore/outer radii 2.5/7.5 mm. The reference is X-long and the parametric part is Z-long, so the bbox axes are compared per the comparison record, not index-for-index. No keyway, set screw, clamp slit, flexible element, or torque rating is present in either model.",
+      "committed": false,
+      "review": {
+        "automated": "pass",
+        "owner_visual": "pending",
+        "date": "2026-11-13"
+      },
+      "generation": {
+        "tool": "components/examples/motion_stack",
+        "args": [
+          "--part",
+          "coupling",
+          "--couplingBore",
+          "5",
+          "--couplingOuter",
+          "15",
+          "--couplingLength",
+          "20",
+          "-o",
+          "{out}"
+        ],
+        "output": "rigid-coupling-od15-bore5-l20.step"
+      },
+      "comparison": {
+        "solids": 1,
+        "bbox_axes": [
+          {
+            "axis": 0,
+            "expected_mm": 15.0,
+            "label": "outside diameter"
+          },
+          {
+            "axis": 1,
+            "expected_mm": 15.0,
+            "label": "outside diameter"
+          },
+          {
+            "axis": 2,
+            "expected_mm": 20.0,
+            "label": "length"
+          }
+        ],
+        "volume_mm3": 3141.59,
+        "features": [
+          {
+            "kind": "surface_min",
+            "surface": "plane",
+            "min_count": 2
+          },
+          {
+            "kind": "surface_min",
+            "surface": "cylinder",
+            "min_count": 2
+          },
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 2.5,
+            "tol_mm": 0.01
+          },
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 7.5,
+            "tol_mm": 0.01
+          }
+        ]
+      }
+    },
+    {
+      "fixture_id": "fasteners/din471-a20-retaining-ring",
+      "part_id": "din471_a20_retaining_ring",
+      "designation": "DIN 471 A 20 external retaining ring",
+      "family": "external retaining ring",
+      "standard": "DIN 471 type A",
+      "manufacturer": "FreeCAD-library model by nachotineo (CC BY 3.0); distributed by step.parts",
+      "source_page": "https://www.step.parts/parts/din471_retaining_ring_m20",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/din471_retaining_ring_m20.step",
+      "local_filename": "external/din471_retaining_ring_m20.step",
+      "sha256": "e21ee6dd1f32c151044668842d810cd6be34c61c3ce7e8e19a98a90c5f8834d1",
+      "byte_size": 90184,
+      "units": "mm",
+      "license": "CC BY 3.0",
+      "license_evidence_url": "https://github.com/FreeCAD/FreeCAD-library",
+      "declared_dimensions": {
+        "shaft_diameter_d1_mm": 20.0,
+        "thickness_s_mm": 1.2,
+        "free_inner_diameter_d3_mm": 18.5,
+        "model_free_bore_mm": 18.6,
+        "lug_hole_d5_mm": 2.0,
+        "groove_diameter_d2_mm": 19.0,
+        "groove_width_m_mm": 1.3
+      },
+      "measured_dimensions": {
+        "bbox_mm": [
+          1.2,
+          25.1986,
+          22.8
+        ],
+        "volume_mm3": 186.655,
+        "solids": 1,
+        "surfaces": {
+          "plane": 6,
+          "cylinder": 9
+        }
+      },
+      "parametric_value": {
+        "bbox_mm": [
+          25.1986,
+          22.8,
+          1.2
+        ],
+        "volume_mm3": 186.656,
+        "solids": 1,
+        "source": "components/examples/retaining_ring -- --size 20"
+      },
+      "verdict": "accepted-envelope",
+      "notes": "The reference is the FreeCAD-library DIN 471 A20 model (CC BY 3.0, by nachotineo), distributed by step.parts. Its free-state outline is the source of the parametric ring's outline; DIN 471 does not dimension the curve between the back and the lugs. The model's free bore is 18.6 mm against the DIN 471 d3 of 18.5 mm; the builder keeps the model outline and exposes the nominal d3 and groove d2 x m through the standard table and connectors. Bounding box, volume, and lug-hole/bore radii match. The reference writes 9 cylinders and the parametric model 16 because each long arc is split into two minor arcs for the extrusion compiler; the geometry is the same. The shaft groove is declared, not modelled. Sharp edges, no spring temper, no load rating.",
+      "committed": false,
+      "review": {
+        "automated": "pass",
+        "owner_visual": "pending",
+        "date": "2026-11-13"
+      },
+      "generation": {
+        "tool": "components/examples/retaining_ring",
+        "args": [
+          "--size",
+          "20",
+          "-o",
+          "{out}"
+        ],
+        "output": "din471-20.step"
+      },
+      "comparison": {
+        "solids": 1,
+        "bbox_axes": [
+          {
+            "axis": 0,
+            "expected_mm": 25.1986,
+            "label": "across the lugs"
+          },
+          {
+            "axis": 1,
+            "expected_mm": 22.8,
+            "label": "across the ring"
+          },
+          {
+            "axis": 2,
+            "expected_mm": 1.2,
+            "label": "ring thickness"
+          }
+        ],
+        "volume_mm3": 186.655,
+        "features": [
+          {
+            "kind": "surface_min",
+            "surface": "plane",
+            "min_count": 6
+          },
+          {
+            "kind": "surface_min",
+            "surface": "cylinder",
+            "min_count": 8
+          },
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 1.0,
+            "tol_mm": 0.01
+          },
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 9.3,
+            "tol_mm": 0.01
+          }
+        ]
+      }
     }
   ],
   "golden_source": {

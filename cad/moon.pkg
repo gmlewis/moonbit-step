@@ -35,6 +35,7 @@ import {
   "moonbitlang/core/builtin",
   "moonbitlang/core/encoding/utf8" @encoding/utf8,
   "moonbitlang/core/env",
+  "moonbitlang/core/json",
 } for "test"
 
 import {

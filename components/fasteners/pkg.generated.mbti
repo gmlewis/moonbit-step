@@ -22,6 +22,10 @@ pub fn din1587_acorn_nut(@standards.MetricSize, detail? : @common.DetailLevel, c
 
 pub fn din440_washer(@standards.MetricSize, detail? : @common.DetailLevel, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
+pub fn din471_outline(Double) -> Result[Din471Outline, @common.SpecError]
+
+pub fn din471_ring(Double, detail? : @common.DetailLevel, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
 pub fn din557_square_nut(@standards.MetricSize, detail? : @common.DetailLevel, clearance_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
 pub fn din7349_washer(@standards.MetricSize, detail? : @common.DetailLevel, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
@@ -139,6 +143,14 @@ pub fn vslot_t_nut(SlotTNutSpec, detail? : @common.DetailLevel, color? : @cad.Rg
 // Errors
 
 // Types and methods
+pub(all) struct Din471Outline {
+  shaft_mm : Double
+  thickness_mm : Double
+  start : (Double, Double)
+  ops : Array[RingOp]
+  holes : Array[(Double, Double, Double)]
+}
+
 pub(all) struct ExtrusionTNutSpec {
   thread : String
   across_flats_mm : Double
@@ -153,6 +165,11 @@ pub(all) struct HeatSetInsertSpec {
   body_diameter_mm : Double
   knurl_diameter_mm : Double
   bore_diameter_mm : Double
+}
+
+pub(all) enum RingOp {
+  RingLine(Double, Double)
+  RingArc(Double, Double, Double, Double)
 }
 
 pub(all) struct SlotTNutSpec {
