@@ -17,6 +17,10 @@ __pycache__
 # Golden STEP files downloaded by the owner from the open-source step.parts corpus.
 /components/testdata/golden/external/
 
+# Generated example STEP/SVG outputs are local artifacts, never repository inputs.
+# Regenerate them with components/examples/generate_all.sh.
+/components/examples/output/
+
 # Generated matrix statistics: reproducible with `scripts/golden_matrix.py --write`.
 /components/testdata/golden/matrix.json
 /components/testdata/golden/MATRIX.md

@@ -28,11 +28,14 @@ test "step-stats counts solid and surface entities" {
 }
 
 ///|
-async test "step-stats reads a repository-generated file" {
-  let path = "components/examples/output/analytic-cylinder.step"
-  let text = @fs.read_file(path).text() catch {
-    _ => abort("cannot read " + path)
-  }
+test "step-stats reads a generated analytic cylinder" {
+  // Build the cylinder in memory so the test never depends on a committed
+  // example output file. Example STEP files are generated locally and are
+  // intentionally not tracked in this repository.
+  let body = @cad.RevolvedProfile::cylinder(10.0, 20.0)
+    .as_shape()
+    .with_name("body")
+  let text = @cad.Design::new(name="analytic-cylinder").add(body).to_step_file()
   let stats = analyze_text(text, text.length())
   assert_eq(stats.manifold_solid_brep, 1)
   assert_eq(stats.closed_shell, 1)

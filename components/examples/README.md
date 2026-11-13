@@ -29,7 +29,8 @@ All programs use millimetres and Z is up.
 | `rivet` | Generic solid rivet (flat cylindrical head plus straight shank). |
 
 Run `./generate_all.sh` from this directory to regenerate every fixture in
-`output/`.
+`output/`. The `output/` directory is generated locally and Git-ignored; its
+STEP, SVG, and assembly files are never committed to the repository.
 
 ## Preview in SolidCraft without leaving files in the repository
 
