@@ -79,3 +79,33 @@ test "connector sidecar does not change exported geometry" {
   assert_eq(base.layers().length(), with_connector.layers().length())
   assert_true(with_connector.connector_sidecar().contains("face-top"))
 }
+
+///|
+test "connector sidecar preserves an intentional twist" {
+  let component = @common.Component::new(
+    name="twisted",
+    metadata=@common.Metadata::new(designation="twisted"),
+  ).with_connector_unchecked(
+    @common.MateConnector::new(
+      "keyed",
+      placement=@common.Placement::rotation_z(45.0),
+      axis=(0.0, 0.0, 1.0),
+      kind=@common.MateKind::Datum,
+    ),
+  )
+  let rows : Array[StringView] = component
+    .connector_sidecar()
+    .split("\n")
+    .filter(fn(line) { line != "" && !line.contains("#") })
+    .collect()
+  let cols : Array[StringView] = rows[0].split("\t").collect()
+  // A deliberate 45-degree placement keeps its rotated secondary axis.
+  let xx = @string.parse_double(cols[7].to_owned()) catch {
+    _ => abort("bad x")
+  }
+  let xy = @string.parse_double(cols[8].to_owned()) catch {
+    _ => abort("bad y")
+  }
+  assert_true((xx - 0.7071067811865476).abs() < 1.0e-9)
+  assert_true((xy - 0.7071067811865476).abs() < 1.0e-9)
+}

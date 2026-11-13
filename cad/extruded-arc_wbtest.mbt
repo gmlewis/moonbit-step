@@ -120,3 +120,49 @@ test "arc profile compiles to one closed solid with two cylinders" {
   assert_eq(arc_count_sub(step, "CLOSED_SHELL("), 1)
   assert_eq(arc_count_sub(step, "MANIFOLD_SOLID_BREP("), 1)
 }
+
+///|
+fn concave_corner_profile() -> Array[ProfileSegment] {
+  // A 20 x 20 square with a concave quarter-circle (r = 10) cut from one
+  // corner. The arc is traversed clockwise on the counter-clockwise boundary.
+  [
+    SegmentLine((0.0, 0.0), (20.0, 0.0)),
+    SegmentLine((20.0, 0.0), (20.0, 10.0)),
+    SegmentArc((20.0, 10.0), (10.0, 20.0), (20.0, 20.0)),
+    SegmentLine((10.0, 20.0), (0.0, 20.0)),
+    SegmentLine((0.0, 20.0), (0.0, 0.0)),
+  ]
+}
+
+///|
+test "arc profile supports a concave minor arc as one cylinder" {
+  let profile = ExtrudedArcProfile::new(concave_corner_profile(), 5.0)
+  assert_true(profile.validate())
+  let shape = profile.as_shape()
+  let inventory = shape.surface_inventory()
+  assert_eq(inventory.plane, 6)
+  assert_eq(inventory.cylinder, 1)
+  let volume = match shape.analysis_volume() {
+    Ok(v) => v
+    Err(e) => abort(e.message())
+  }
+  // 400 - 25*pi square millimetres, 5 mm long.
+  assert_true((volume - (400.0 - 25.0 * @math.PI) * 5.0).abs() < TEST_VALUE_EPS)
+  let section = match shape.section_at_local(2.5) {
+    Ok(s) => s
+    Err(e) => abort(e.message())
+  }
+  assert_true(
+    (section.area_mm2 - (400.0 - 25.0 * @math.PI)).abs() < TEST_VALUE_EPS,
+  )
+  assert_true(
+    (section.perimeter_mm - (60.0 + 5.0 * @math.PI)).abs() < TEST_VALUE_EPS,
+  )
+  let step = Design::new(name="concave")
+    .add(profile.as_shape().with_name("concave"))
+    .to_step_file()
+  assert_eq(arc_count_sub(step, "ADVANCED_FACE("), 7)
+  assert_eq(arc_count_sub(step, "PLANE("), 6)
+  assert_eq(arc_count_sub(step, "CYLINDRICAL_SURFACE("), 1)
+  assert_eq(arc_count_sub(step, "CLOSED_SHELL("), 1)
+}

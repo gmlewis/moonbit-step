@@ -15,7 +15,8 @@
 #   ./scripts/compare-golden.sh --all
 #   ./scripts/compare-golden.sh --all --batch 8
 #   ./scripts/compare-golden.sh 5 --detail simplified
-#   ./scripts/compare-golden.sh 5 --no-open
+#   ./scripts/compare-golden.sh 5 --detail simplified
+#   ./scripts/compare-golden.sh 5 --headless
 #
 # Options:
 #   --list              list the numbered golden files and their equivalents
@@ -24,12 +25,17 @@
 #   --threads REP       none | helical | cosmetic (fasteners only)
 #   --batch N           open N pairs at a time, waiting between batches
 #   --reuse             reuse an existing generated file instead of rebuilding
-#   --no-open           generate only; print the paths
+#   --headless          generate only; print the paths (agent/automation mode;
+#                       never opens a tab or drives the running SolidCraft)
+#   --no-open           alias of --headless, kept for compatibility
 #   --no-connectors     do not write connector sidecars or add SolidCraft
 #                       joint origins (connectors are shown by default)
 #   --no-helper         open with `open -a` instead of the SolidCraft GUI helper
 #   --helper            open through the running SolidCraft GUI helper with
 #                       --up z (the default when the helper answers)
+#   --foreground        bring SolidCraft to the front after opening
+#                       (default: true for the owner's visual comparison)
+#   --no-foreground     add tabs without raising the SolidCraft window
 #   --app NAME          macOS app name for `open -a` (default SolidCraft)
 #   --out DIR           output directory (default target/golden-compare)
 #
@@ -95,7 +101,7 @@ Golden files are sorted by name and numbered from 1.
   ./scripts/compare-golden.sh --all
   ./scripts/compare-golden.sh --all --batch 8
   ./scripts/compare-golden.sh 5 --detail simplified
-  ./scripts/compare-golden.sh 5 --no-open
+  ./scripts/compare-golden.sh 5 --headless
   ./scripts/compare-golden.sh --commands --all
   ./scripts/compare-golden.sh --commands 1 3
 
@@ -107,7 +113,9 @@ Options:
   --threads REP     none | helical | cosmetic (fasteners only)
   --batch N         open N pairs at a time, waiting between batches
   --reuse           reuse an existing generated file instead of rebuilding
-  --no-open         generate only; print the paths
+  --headless        generate only; print the paths (agent/automation mode;
+                    never opens a tab or drives the running SolidCraft)
+  --no-open         alias of --headless, kept for compatibility
   --commands        print the exact `moon run` command for each selection
   --inspect         also run tools/inspect on each generated counterpart
   --no-connectors   do not write connector sidecars or add SolidCraft joint
@@ -115,13 +123,18 @@ Options:
   --no-helper       open with `open -a` instead of the running SolidCraft GUI
   --helper          open through the running SolidCraft GUI helper (default
                     when the helper is installed and its control port answers)
+  --foreground      bring the SolidCraft window to the front after opening
+                    (default: true)
+  --no-foreground   add tabs without raising the SolidCraft window
   --app NAME        macOS app name for `open -a` (default SolidCraft)
   --out DIR         output directory (default target/golden-compare)
 
 Connectors: by default each parametric part is generated with a
 `<file>.connectors.tsv` sidecar and, when the running SolidCraft GUI is
 reachable through the helper, a named SolidCraft `joint.origin` is added at
-every connector frame. The STEP file itself stays connector-free.
+every connector frame. The STEP file itself stays connector-free. The window is
+brought to the front by default; `--no-foreground` leaves it behind other
+windows. Agents and background automation must use `--headless`.
 """
 
 
@@ -714,6 +727,32 @@ def open_paths(paths, app, batch, use_helper):
     return status
 
 
+def activate_app(app):
+    """Bring the SolidCraft window to the front after helper-driven opens.
+
+    `sc_mcp.py open` adds tabs through the app's control port but does not
+    activate the app, so the old `open -a` foreground behavior would be lost.
+    """
+    if shutil.which("open"):
+        proc = subprocess.run(
+            ["open", "-a", app], capture_output=True, text=True
+        )
+        if proc.returncode == 0:
+            return True
+    if shutil.which("osascript"):
+        proc = subprocess.run(
+            [
+                "osascript",
+                "-e",
+                'tell application "{}" to activate'.format(app),
+            ],
+            capture_output=True,
+            text=True,
+        )
+        return proc.returncode == 0
+    return False
+
+
 def helper_path():
     return os.path.expanduser(
         "~/.claude/skills/solidcraft-app/scripts/sc_mcp.py"
@@ -887,6 +926,7 @@ def main():
     no_open = False
     use_helper = True
     connectors = True
+    foreground = True
     reuse = False
     inspect = False
     detail = "detailed"
@@ -909,8 +949,12 @@ def main():
             mode_commands = True
         elif arg == "--all":
             select_all = True
-        elif arg == "--no-open":
+        elif arg == "--no-open" or arg == "--headless":
+            # Generate only. `--no-open` is a compatibility alias for
+            # `--headless`; both never open a tab or drive the owner's app.
             no_open = True
+            use_helper = False
+            foreground = False
         elif arg == "--helper":
             use_helper = True
         elif arg == "--no-helper":
@@ -919,6 +963,10 @@ def main():
             connectors = True
         elif arg == "--no-connectors":
             connectors = False
+        elif arg == "--foreground":
+            foreground = True
+        elif arg == "--no-foreground":
+            foreground = False
         elif arg == "--reuse":
             reuse = True
         elif arg == "--inspect":
@@ -1000,7 +1048,7 @@ def main():
         )
         print(
             "Example: ./scripts/compare-golden.sh 1 3   "
-            "(or --all, --detail simplified, --no-open)"
+            "(or --all, --detail simplified, --headless)"
         )
         return 0
 
@@ -1200,6 +1248,11 @@ def main():
         extra_status = open_paths(extra_goldens, app, batch, use_helper)
         if extra_status != 0:
             status = extra_status
+    # The helper adds tabs without activating the app. The owner's default is
+    # to raise the window after opening; --no-foreground keeps it behind other
+    # windows, and --headless never opens a tab at all.
+    if foreground:
+        activate_app(app)
     return 0 if status == 0 else 1
 
 

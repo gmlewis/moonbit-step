@@ -50,7 +50,7 @@ golden file.
 2. **Generate without opening first.**
 
    ```bash
-   ./compare-golden.sh 4 --no-open
+   ./compare-golden.sh 4 --headless
    ```
 
    The parametric file is `target/golden-compare/parametric-<golden name>`.
@@ -124,7 +124,7 @@ golden file.
    ./test-all.sh
    python3 scripts/golden_matrix.py
    python3 scripts/compare_golden.py
-   ./compare-golden.sh 4 --no-open
+   ./compare-golden.sh 4 --headless
    python3 scripts/validate_step.py target/golden-compare/parametric-<golden>.step
    ```
 

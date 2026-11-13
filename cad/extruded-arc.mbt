@@ -41,6 +41,25 @@ fn arc_norm_sweep(a : Double) -> Double {
 }
 
 ///|
+/// arc_signed_sweep normalizes an angular difference to `(-pi, pi]`.
+///
+/// A positive sweep is a counter-clockwise minor arc (a convex part of a
+/// counter-clockwise boundary); a negative sweep is a clockwise minor arc (a
+/// concave fillet, such as an angle's root radius). Both are exact circular
+/// arcs and compile to `CYLINDRICAL_SURFACE` faces.
+fn arc_signed_sweep(a : Double) -> Double {
+  let two_pi = 2.0 * @math.PI
+  let mut x = a
+  while x > @math.PI {
+    x = x - two_pi
+  }
+  while x <= -@math.PI {
+    x = x + two_pi
+  }
+  x
+}
+
+///|
 fn arc_seg_start(seg : ProfileSegment) -> Vec2 {
   match seg {
     SegmentLine(a, _) => a
@@ -86,8 +105,9 @@ fn arc_loop_valid(segs : Array[ProfileSegment]) -> Bool {
         }
         let a0 = @math.atan2(a.1 - c.1, a.0 - c.0)
         let a1 = @math.atan2(b.1 - c.1, b.0 - c.0)
-        let delta = arc_norm_sweep(a1 - a0)
-        if delta <= CAD_DEGENERATE_EPS || delta > @math.PI + CAD_ANGLE_EPS {
+        let delta = arc_signed_sweep(a1 - a0)
+        if delta.abs() <= CAD_DEGENERATE_EPS ||
+          delta.abs() > @math.PI + CAD_ANGLE_EPS {
           return false
         }
       }
@@ -133,7 +153,7 @@ fn arc_profile_signed_area(segs : Array[ProfileSegment]) -> Double {
         let rho = arc_dist2(a, c)
         let a0 = @math.atan2(a.1 - c.1, a.0 - c.0)
         let a1 = @math.atan2(b.1 - c.1, b.0 - c.0)
-        let delta = arc_norm_sweep(a1 - a0)
+        let delta = arc_signed_sweep(a1 - a0)
         sum = sum + rho * rho * (delta - @math.sin(delta))
       }
     }
@@ -165,7 +185,7 @@ fn arc_profile_area_moments(
         let rho = arc_dist2(a, c)
         let a0 = @math.atan2(a.1 - c.1, a.0 - c.0)
         let a1 = @math.atan2(b.1 - c.1, b.0 - c.0)
-        let delta = arc_norm_sweep(a1 - a0)
+        let delta = arc_signed_sweep(a1 - a0)
         let t1 = a1
         let t0 = a1 - delta
         let dtsin = @math.sin(t1) - @math.sin(t0)
@@ -209,7 +229,7 @@ fn arc_profile_perimeter(segs : Array[ProfileSegment]) -> Double {
         let rho = arc_dist2(a, c)
         let a0 = @math.atan2(a.1 - c.1, a.0 - c.0)
         let a1 = @math.atan2(b.1 - c.1, b.0 - c.0)
-        total = total + rho * arc_norm_sweep(a1 - a0)
+        total = total + rho * arc_signed_sweep(a1 - a0).abs()
       }
     }
   }
@@ -238,7 +258,7 @@ fn arc_profile_max_radius(segs : Array[ProfileSegment]) -> Double {
         let rho = arc_dist2(a, c)
         let a0 = @math.atan2(a.1 - c.1, a.0 - c.0)
         let a1 = @math.atan2(b.1 - c.1, b.0 - c.0)
-        let delta = arc_norm_sweep(a1 - a0)
+        let delta = arc_signed_sweep(a1 - a0)
         for k in 0..<=32 {
           let t = Double::from_int(k) / 32.0
           let ang = a0 + delta * t
@@ -272,7 +292,7 @@ fn arc_profile_min_radius(segs : Array[ProfileSegment]) -> Double {
         let rho = arc_dist2(a, c)
         let a0 = @math.atan2(a.1 - c.1, a.0 - c.0)
         let a1 = @math.atan2(b.1 - c.1, b.0 - c.0)
-        let delta = arc_norm_sweep(a1 - a0)
+        let delta = arc_signed_sweep(a1 - a0)
         for k in 0..<=32 {
           let t = Double::from_int(k) / 32.0
           let ang = a0 + delta * t
@@ -437,7 +457,7 @@ fn arc_sample_loop(segs : Array[ProfileSegment], n : Int32) -> Array[Vec2] {
         let rho = arc_dist2(a, c)
         let a0 = @math.atan2(a.1 - c.1, a.0 - c.0)
         let a1 = @math.atan2(b.1 - c.1, b.0 - c.0)
-        let delta = arc_norm_sweep(a1 - a0)
+        let delta = arc_signed_sweep(a1 - a0)
         for k in 0..<n {
           let t = Double::from_int(k) / Double::from_int(n)
           let ang = a0 + delta * t
@@ -563,7 +583,13 @@ pub fn compile_extruded_arc_profile(
     edges.push(EdgeInfo::{ start: a, end: b, edge: ec_ref, })
   }
   let add_arc = fn(a : Int32, b : Int32, c : Vec2, z : Double) -> Unit {
-    let rho = arc_dist2(arc_seg_start(segs[a % n]), c)
+    let seg = segs[a % n]
+    let rho = arc_dist2(arc_seg_start(seg), c)
+    let start = arc_seg_start(seg)
+    let end = arc_seg_end(seg)
+    let a0 = @math.atan2(start.1 - c.1, start.0 - c.0)
+    let a1 = @math.atan2(end.1 - c.1, end.0 - c.0)
+    let convex = arc_signed_sweep(a1 - a0) > 0.0
     let center = xform.apply((c.0, c.1, z))
     let center_cp = ctx.cartesian_point(center.0, center.1, center.2)
     let a2p = ctx.axis2_placement_3d(center_cp, dir_up, dir_right)
@@ -572,7 +598,7 @@ pub fn compile_extruded_arc_profile(
         @geometry.Circle::new("", a2p, @step.fmt_num(rho)),
       ),
     )
-    let ec_ref = ctx.edge_curve(vp_refs[a], vp_refs[b], circle, true)
+    let ec_ref = ctx.edge_curve(vp_refs[a], vp_refs[b], circle, convex)
     edges.push(EdgeInfo::{ start: a, end: b, edge: ec_ref, })
   }
   for i in 0..<n {
@@ -716,6 +742,11 @@ pub fn compile_extruded_arc_profile(
         }
         SegmentArc(_, _, c) => {
           let rho = arc_dist2(arc_seg_start(hole[i]), c)
+          let start = arc_seg_start(hole[i])
+          let end = arc_seg_end(hole[i])
+          let a0 = @math.atan2(start.1 - c.1, start.0 - c.0)
+          let a1 = @math.atan2(end.1 - c.1, end.0 - c.0)
+          let convex = arc_signed_sweep(a1 - a0) > 0.0
           let add_hole_arc = fn(a : Int32, b : Int32, z : Double) -> Unit {
             let center = xform.apply((c.0, c.1, z))
             let center_cp = ctx.cartesian_point(center.0, center.1, center.2)
@@ -725,7 +756,7 @@ pub fn compile_extruded_arc_profile(
                 @geometry.Circle::new("", a2p, @step.fmt_num(rho)),
               ),
             )
-            let edge = ctx.edge_curve(vp_refs[a], vp_refs[b], circle, true)
+            let edge = ctx.edge_curve(vp_refs[a], vp_refs[b], circle, convex)
             edges.push(EdgeInfo::{ start: a, end: b, edge, })
           }
           add_hole_arc(b_i, b_j, 0.0)
@@ -769,6 +800,11 @@ pub fn compile_extruded_arc_profile(
         }
         SegmentArc(_, _, c) => {
           let rho = arc_dist2(arc_seg_start(hole[i]), c)
+          let start = arc_seg_start(hole[i])
+          let end = arc_seg_end(hole[i])
+          let a0 = @math.atan2(start.1 - c.1, start.0 - c.0)
+          let a1 = @math.atan2(end.1 - c.1, end.0 - c.0)
+          let convex = arc_signed_sweep(a1 - a0) > 0.0
           let center = xform.apply((c.0, c.1, 0.0))
           let center_cp = ctx.cartesian_point(center.0, center.1, center.2)
           let a2p = ctx.axis2_placement_3d(center_cp, dir_up, dir_right)
@@ -791,7 +827,11 @@ pub fn compile_extruded_arc_profile(
             ctx.advanced_face(
               [ctx.face_outer_bound(loop_ref, true)],
               cylinder,
-              reverse,
+              if convex {
+                reverse
+              } else {
+                !reverse
+              },
             ),
           )
         }
@@ -907,6 +947,13 @@ pub fn compile_extruded_arc_profile(
       }
       SegmentArc(_, _, c) => {
         let rho = arc_dist2(arc_seg_start(segs[i]), c)
+        let start = arc_seg_start(segs[i])
+        let end = arc_seg_end(segs[i])
+        let a0 = @math.atan2(start.1 - c.1, start.0 - c.0)
+        let a1 = @math.atan2(end.1 - c.1, end.0 - c.0)
+        // A concave arc (negative signed sweep) turns the face normal toward
+        // the cylinder axis, opposite the convex case.
+        let convex = arc_signed_sweep(a1 - a0) > 0.0
         let center = xform.apply((c.0, c.1, 0.0))
         let center_cp = ctx.cartesian_point(center.0, center.1, center.2)
         let a2p = ctx.axis2_placement_3d(center_cp, dir_up, dir_right)
@@ -929,7 +976,11 @@ pub fn compile_extruded_arc_profile(
           ctx.advanced_face(
             [ctx.face_outer_bound(loop_ref, true)],
             cylinder,
-            !reverse,
+            if convex {
+              !reverse
+            } else {
+              reverse
+            },
           ),
         )
       }

@@ -19,7 +19,13 @@ test "EN 10056 40x40x4 angle envelope and section" {
   assert_true(stock_close(z1, 50.0))
   assert_eq(part.layers().length(), 1)
   assert_true(part.features().modeled.contains("toe-radii"))
-  assert_true(part.features().approximated.length() > 0)
+  assert_true(part.features().modeled.contains("root-fillet"))
+  // Both radii are analytic now: three cylinders (root + two toes) and no
+  // polyline approximation of the root fillet.
+  assert_eq(part.features().approximated.length(), 0)
+  let inventory = part.layers()[0].shape.surface_inventory()
+  assert_eq(inventory.cylinder, 3)
+  assert_eq(inventory.plane, 8)
 }
 
 ///|

@@ -3262,12 +3262,12 @@
           40.0,
           50.0
         ],
-        "volume_mm3": 15395.4,
+        "volume_mm3": 15393.1,
         "solids": 1,
         "source": "components/examples/stock_primitive --part angle --legA 40 --legB 40 --thickness 4 --rootRadius 6 --toeRadius 3 --length 50"
       },
-      "verdict": "accepted-envelope",
-      "notes": "Legs, thickness, toe radii, and length match; the concave root fillet is sampled with 16 line segments because the kernel's arc-profile path only accepts counter-clockwise minor arcs, so volume is 0.015% high and the reference's analytic root cylinder is replaced by planar facets.",
+      "verdict": "accepted-exact",
+      "notes": "Legs, thickness, toe radii, root radius, and length match exactly. The concave root fillet is one analytic cylindrical surface (the kernel now accepts clockwise minor arcs), so the volume and the three cylinder radii (6, 3, 3) match the reference without facets.",
       "committed": false,
       "generation": {
         "tool": "components/examples/stock_primitive",
@@ -3314,6 +3314,15 @@
           {
             "kind": "cylinder_radius_present_mm",
             "expected": 3.0
+          },
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 6.0
+          },
+          {
+            "kind": "surface_min",
+            "surface": "cylinder",
+            "min_count": 3
           }
         ]
       }

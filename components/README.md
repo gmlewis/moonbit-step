@@ -83,6 +83,26 @@ EMT tubes use the measured ANSI C80.3 / UL 797 outside diameter and nominal
 wall (a 1/2 in EMT is 17.9324 mm OD, not 12.7 mm). No coupling, thread, bend, or
 electrical/structural rating is claimed.
 
+## Named connectors and the golden preview
+
+Every public component builder exposes at least one named `MateConnector`
+(`cylindrical-bore`, `cylindrical-shaft`, `plane-face`, `threaded`,
+`profile-slot`, or `datum`). Connectors are metadata: they never add geometry,
+change the volume or bounding box, or appear in the STEP file.
+
+For developer inspection, `Component::connector_sidecar()` lists each
+connector's origin, primary axis, and a deterministic secondary axis. The
+secondary axis stays on a global axis unless the connector's placement
+deliberately carries a twist. With `STEP_CONNECTOR_SIDECAR` set,
+`Component::write_step` writes a sibling `<out>.connectors.tsv`.
+
+`./compare-golden.sh` uses this by default: it generates the sidecar, opens the
+golden and parametric pair in SolidCraft, and adds a named `joint.origin`
+(`connector/<name>`) at every connector frame. SolidCraft's native joint
+origins are the interactive equivalent of OnShape mate connectors; STEP itself
+has no standard visual mate connector. Use `--no-connectors` to disable the
+frames or `--no-helper` to fall back to `open -a` without them.
+
 ## Package map
 
 | Package | Contents |

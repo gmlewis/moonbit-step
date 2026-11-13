@@ -87,8 +87,9 @@ pub fn en10056_equal_angle_40x40x4() -> AngleSection {
 /// angle_profile returns the line-and-arc outer loop of an angle section.
 ///
 /// The loop starts at the outer corner and runs counter-clockwise. The concave
-/// root fillet is sampled as short lines because the arc profile only accepts
-/// counter-clockwise minor arcs; the convex toe radii stay analytic arcs.
+/// root fillet is a clockwise minor arc on the counter-clockwise boundary; the
+/// arc compiler emits it as one analytic cylindrical surface. The convex toe
+/// radii are counter-clockwise minor arcs, also analytic.
 fn angle_profile(section : AngleSection) -> Array[@cad.ProfileSegment] {
   let a = section.leg_a_mm
   let b = section.leg_b_mm
@@ -110,20 +111,16 @@ fn angle_profile(section : AngleSection) -> Array[@cad.ProfileSegment] {
   }
   segments.push(@cad.SegmentLine((a - r_toe, t), (root_center, t)))
   if r_root > 0.0 {
-    // Concave fillet, traversed clockwise on a counter-clockwise boundary.
-    // Sample it from -90 degrees to -180 degrees about the fillet centre.
-    let steps = 16
-    let mut previous = (root_center, t)
-    for i in 1..<=steps {
-      let angle = -@math.PI / 2.0 -
-        @math.PI / 2.0 * Double::from_int(i) / Double::from_int(steps)
-      let point = (
-        root_center + r_root * @math.cos(angle),
-        root_center + r_root * @math.sin(angle),
-      )
-      segments.push(@cad.SegmentLine(previous, point))
-      previous = point
-    }
+    // Concave root fillet: a clockwise minor arc on a counter-clockwise
+    // boundary. `ExtrudedArcProfile` compiles it to one analytic cylindrical
+    // surface (the same representation the reference uses), not facets.
+    segments.push(
+      @cad.SegmentArc(
+        (root_center, t),
+        (t, root_center),
+        (root_center, root_center),
+      ),
+    )
   } else {
     segments.push(@cad.SegmentLine((root_center, t), (t, root_center)))
   }
@@ -163,20 +160,9 @@ pub fn angle_bar(
       ),
     )
   }
-  let approximations : Array[@common.Approximation] = []
-  if section.root_radius_mm > 0.0 {
-    approximations.push(
-      @common.Approximation::new(
-        feature="root-fillet",
-        kind=@common.ApproximationKind::PolylineArc,
-        deviation_mm=@common.chord_deviation(section.root_radius_mm, 64),
-        control="root_fillet_segments=16 over 90 degrees",
-      ),
-    )
-  }
   let features = @common.FeatureRecord::new(
-    modeled=["body", "leg-a", "leg-b", "toe-radii"],
-    approximated=approximations,
+    modeled=["body", "leg-a", "leg-b", "root-fillet", "toe-radii"],
+    approximated=[],
     omitted=[
       @common.Omission::new(
         feature="mill-scale-and-tolerances",
