@@ -1239,6 +1239,17 @@ fn an_shape_inventory(shape : Shape) -> SurfaceInventory {
         let has_a = a.0 > 1.0e-9
         let has_b = b.0 > 1.0e-9
         if !(has_a || has_b) {
+          // A pole-to-pole band is a full sphere (or a degenerate line band
+          // with no area).
+          match center {
+            Some(c) =>
+              if c.0.abs() < 1.0e-9 {
+                sp = sp + 1
+              } else {
+                to = to + 1
+              }
+            None => ()
+          }
           continue
         }
         match center {

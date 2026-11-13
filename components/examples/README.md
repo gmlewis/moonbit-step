@@ -11,9 +11,9 @@ All programs use millimetres and Z is up.
 | `extrusion_frame` | Generic T-slot rectangular frame with optional SVG views. |
 | `gear_pair` | Two involute spur gears with centre distance and phase. |
 | `planetary` | Sun + equally spaced planets + exact internal involute ring. |
-| `motion_stack` | Shaft + two simplified bearings + spacer, a rigid sleeve coupling, or a flanged bearing housing. |
+| `motion_stack` | Shaft + two full-complement deep-groove bearings + spacer (all analytic surfaces), a rigid sleeve coupling, or a flanged bearing housing. |
 | `spring` | Simplified helical compression spring. |
-| `bearing` | One detailed bearing envelope. |
+| `bearing` | A deep-groove full-complement ball bearing (grooved rings with retaining shoulders, a full ring of watertight balls, rim and shoulder chamfers), the golden envelope (`--representation envelope`), or the single-solid shielded envelope. |
 | `linear_bearing` | LM-series linear bushing envelope or flanged round housing. |
 | `stepper_motor` | NEMA 17/23 stepper-motor envelope with mounting holes, pilot, and shaft. |
 | `extrusion_hardware` | Extrusion T-nut (M3/M4/M5) or M3 heat-set insert (short/long). |
@@ -23,7 +23,7 @@ All programs use millimetres and Z is up.
 | `idler` | Smooth (toothless) idler with optional annular end flanges. |
 | `makerbeam` | MakerBeam 10 x 10 mm extrusion (drawing article 100168), optional outer corner radius. |
 | `retaining_ring` | DIN 471 type A external retaining ring, A 10 to A 34. |
-| `din472_ring` | DIN 472 internal retaining ring (verified bore table 8 to 40; encoded outline 20). |
+| `din472_ring` | DIN 472 internal retaining ring (verified bore table 8 to 40; encoded outlines 12 and 20). |
 | `set_screw_collar` | Set-screw shaft collar with a real trimmed radial hole and a DIN 916 set-screw envelope, exported as one OCCT-evaluated compound. |
 | `clamp_shaft_collar` | One-piece clamp shaft collar with a real slit, clamp-screw clearance passage, and ISO 4762 head counterbore, plus an ISO 4762 clamp-screw envelope, exported as an OCCT-evaluated compound. |
 | `filleted_shaft` | Single-solid stepped shaft with toroidal shoulder fillets. |

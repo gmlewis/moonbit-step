@@ -244,7 +244,7 @@ test "analysis inventory mirrors the analytic compilers" {
   assert_eq(tube.plane, 2)
   assert_eq(tube.cylinder, 2)
   let sphere = RevolvedProfile::sphere(10.0).as_shape().surface_inventory()
-  assert_eq(sphere.sphere, 2)
+  assert_eq(sphere.sphere, 1)
   assert_eq(sphere.plane, 0)
   let frustum = RevolvedProfile::frustum(4.0, 2.0, 6.0)
     .as_shape()

@@ -36,6 +36,7 @@ pub fn Assembly::circular_pattern(Self, @common.Component, Int32, Double, start_
 pub fn Assembly::collision_reports(Self, tol? : @collision.TolerancePolicy, policy? : @collision.ContactPolicy) -> Array[@collision.CollisionReport]
 pub fn Assembly::collisions(Self, tol? : @collision.TolerancePolicy, policy? : @collision.ContactPolicy) -> Array[@collision.CollisionReport]
 pub fn Assembly::component_names(Self) -> Array[String]
+pub fn Assembly::connector_sidecar(Self) -> String
 pub fn Assembly::contacts(Self, tol? : @collision.TolerancePolicy) -> Array[@collision.CollisionReport]
 pub fn Assembly::count(Self) -> Int32
 pub fn Assembly::disconnected_instances(Self, tol? : @collision.TolerancePolicy) -> Array[String]

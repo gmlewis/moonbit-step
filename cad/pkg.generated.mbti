@@ -175,12 +175,14 @@ pub struct BezierAnchor {
   handle_in : (Double, Double)
   handle_out : (Double, Double)
 }
+pub fn BezierAnchor::new((Double, Double), (Double, Double), (Double, Double)) -> Self
 
 pub struct BezierPath {
   anchors : Array[BezierAnchor]
   closed : Bool
   clear : Bool
 }
+pub fn BezierPath::new(Array[BezierAnchor], closed? : Bool, clear? : Bool) -> Self
 
 pub struct BooleanDifference {
   base : SceneNode

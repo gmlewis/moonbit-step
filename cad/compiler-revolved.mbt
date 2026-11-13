@@ -212,15 +212,39 @@ fn rev_compile_band(
       reverse~,
     )
   }
-  if !(has_a || has_b) {
-    return None
-  }
   // Surface + natural normal.
   let (surface_ref, natural) = rev_band_surface(
     ctx, xform, band, axis_dir, ref_dir, sample_world,
   )
   let dot = v_dot(natural, desired_raw)
   let same_sense = if reverse { !(dot > 0.0) } else { dot > 0.0 }
+  if !has_a && !has_b {
+    // A band from one axis pole to the other is a full sphere. Emit one
+    // spherical face whose boundary is the meridian seam traversed once in
+    // each direction. The single face avoids the visible equator crack of a
+    // two-hemisphere sphere.
+    let pa_world = xform.apply((0.0, 0.0, band.a.1))
+    let pb_world = xform.apply((0.0, 0.0, band.b.1))
+    let pa_cp = ctx.cartesian_point(pa_world.0, pa_world.1, pa_world.2)
+    let pb_cp = ctx.cartesian_point(pb_world.0, pb_world.1, pb_world.2)
+    let pa_vp = ctx.vertex_point(pa_cp)
+    let pb_vp = ctx.vertex_point(pb_cp)
+    let seam = rev_seam_geometry(
+      ctx,
+      xform,
+      band.a,
+      band.b,
+      pa_vp,
+      pb_vp,
+      band.center,
+    )
+    let lp = ctx.edge_loop([
+      ctx.oriented_edge(seam, true),
+      ctx.oriented_edge(seam, false),
+    ])
+    let bound = ctx.face_outer_bound(lp, true)
+    return Some(ctx.advanced_face([bound], surface_ref, same_sense))
+  }
   // Bounds.
   if has_a && has_b {
     let ca = rev_get_circle(ctx, xform, ra, band.a.1, circles)

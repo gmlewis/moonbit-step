@@ -427,6 +427,33 @@ pub fn Assembly::to_assembly_step(
 }
 
 ///|
+/// Assembly::connector_sidecar returns a tab-separated description of every
+/// connector on every placed component, named `<instance>/<connector>` and
+/// expressed in the assembly frame. It is written beside the STEP when
+/// `STEP_CONNECTOR_SIDECAR` is set so the viewer can show the mate frames of an
+/// assembly (for example the two bearings in a shaft stack).
+pub fn Assembly::connector_sidecar(self : Assembly) -> String {
+  let mut merged = @common.Component::new(
+    name=self.name,
+    metadata=@common.Metadata::new(
+      designation=self.name,
+      family="assembly",
+      source="Assembly connector sidecar.",
+    ),
+  )
+  for item in self.items {
+    for connector in item.component.connectors() {
+      let placed = connector.transformed(item.placement)
+      merged = merged.with_connector_unchecked({
+        ..placed,
+        name: item.instance_name + "/" + placed.name,
+      })
+    }
+  }
+  merged.connector_sidecar()
+}
+
+///|
 /// Assembly::write_step writes the flat STEP representation to `out_path`, or
 /// stdout when it is `None`.
 pub async fn Assembly::write_step(
@@ -435,6 +462,14 @@ pub async fn Assembly::write_step(
   checked~ : Bool = false,
 ) -> Unit {
   self.to_design().write_step(out_path, checked~)
+  match (out_path, @env.get_env_var("STEP_CONNECTOR_SIDECAR")) {
+    (Some(path), Some(_)) =>
+      @cad.write_text_file(
+        self.connector_sidecar(),
+        Some(path + ".connectors.tsv"),
+      )
+    _ => ()
+  }
 }
 
 ///|
@@ -444,6 +479,14 @@ pub async fn Assembly::write_assembly_step(
   out_path : String?,
 ) -> Unit {
   @cad.write_text_file(self.to_assembly_step(), out_path)
+  match (out_path, @env.get_env_var("STEP_CONNECTOR_SIDECAR")) {
+    (Some(path), Some(_)) =>
+      @cad.write_text_file(
+        self.connector_sidecar(),
+        Some(path + ".connectors.tsv"),
+      )
+    _ => ()
+  }
 }
 
 ///|

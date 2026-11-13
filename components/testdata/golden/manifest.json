@@ -1934,6 +1934,10 @@
         "args": [
           "--bearing",
           "6000",
+          "--representation",
+          "envelope",
+          "--rollers",
+          "8",
           "--detail",
           "detailed",
           "-o",
@@ -2024,6 +2028,10 @@
         "args": [
           "--bearing",
           "6001",
+          "--representation",
+          "envelope",
+          "--rollers",
+          "8",
           "--detail",
           "detailed",
           "-o",
@@ -2114,6 +2122,10 @@
         "args": [
           "--bearing",
           "6200",
+          "--representation",
+          "envelope",
+          "--rollers",
+          "8",
           "--detail",
           "detailed",
           "-o",

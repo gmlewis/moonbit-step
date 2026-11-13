@@ -186,10 +186,9 @@ pub fn RevolvedProfile::cone(
 /// equator circle.
 pub fn RevolvedProfile::sphere(diameter : Double) -> RevolvedProfile {
   let r = diameter / 2.0
-  RevolvedProfile::new([
-    RevArc((0.0, -r), (r, 0.0), (0.0, 0.0)),
-    RevArc((r, 0.0), (0.0, r), (0.0, 0.0)),
-  ])
+  // A single pole-to-pole semicircle compiles to one spherical face with a
+  // seam; two hemisphere bands would add an equator face boundary.
+  RevolvedProfile::new([RevArc((0.0, -r), (0.0, r), (0.0, 0.0))])
 }
 
 ///|

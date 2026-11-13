@@ -158,9 +158,9 @@ pub fn spacer(
               ),
             )
           } else {
-            let body = @cad.tube(
+            let body = @cad.RevolvedProfile::tube(
               outer_diameter_mm, inner_diameter_mm, length_mm,
-            )
+            ).as_shape()
             let name = "spacer-\{@cad.fmt_double(outer_diameter_mm, None)}x\{@cad.fmt_double(inner_diameter_mm, None)}x\{@cad.fmt_double(length_mm, None)}"
             Ok(
               with_bushing_connectors(
@@ -172,29 +172,10 @@ pub fn spacer(
                     length_mm~,
                     source="Parametric tube; no standard table is implied.",
                   ),
-                  description="Plain cylindrical spacer with a through bore.",
+                  description="Plain cylindrical spacer with a through bore; both surfaces are exact analytic cylinders.",
                   features=@common.FeatureRecord::new(
-                    modeled=["body"],
-                    approximated=[
-                      @common.Approximation::new(
-                        feature="outer-boundary",
-                        kind=@common.ApproximationKind::PolylineArc,
-                        deviation_mm=@common.chord_deviation(
-                          outer_diameter_mm / 2.0,
-                          64,
-                        ),
-                        control="circle_segments=64",
-                      ),
-                      @common.Approximation::new(
-                        feature="through-bore",
-                        kind=@common.ApproximationKind::PolylineArc,
-                        deviation_mm=@common.chord_deviation(
-                          inner_diameter_mm / 2.0,
-                          64,
-                        ),
-                        control="circle_segments=64",
-                      ),
-                    ],
+                    modeled=["body", "outside-cylinder", "through-bore"],
+                    approximated=[],
                     omitted=[
                       @common.Omission::new(
                         feature="edge-chamfer",

@@ -301,8 +301,13 @@ pub fn PlanetaryParams::internal_mesh_backlash(
 pub fn planetary_gear_set(
   params : PlanetaryParams,
   detail~ : @common.DetailLevel = Detailed,
+  smooth~ : Bool = false,
 ) -> Result[@assemblies.Assembly, @common.SpecError] {
   let backlash = params.internal_mesh_backlash()
+  // A smooth outline needs only a few samples per span; keeping the count low
+  // keeps the single B-spline curve within importers' control-point limits.
+  let outline_involute_points = if smooth { SMOOTH_INVOLUTE_POINTS } else { 12 }
+  let outline_arc_points = if smooth { SMOOTH_ARC_POINTS } else { 8 }
   let sun = match
     SpurGearParams::new(
       module_mm=params.module_mm,
@@ -311,6 +316,8 @@ pub fn planetary_gear_set(
       face_width_mm=params.face_width_mm,
       bore_diameter_mm=params.sun_bore_mm,
       backlash_mm=backlash,
+      involute_points=outline_involute_points,
+      arc_points=outline_arc_points,
     ) {
     Err(e) => return Err(e)
     Ok(p) => p
@@ -323,15 +330,17 @@ pub fn planetary_gear_set(
       face_width_mm=params.face_width_mm,
       bore_diameter_mm=params.planet_bore_mm,
       backlash_mm=backlash,
+      involute_points=outline_involute_points,
+      arc_points=outline_arc_points,
     ) {
     Err(e) => return Err(e)
     Ok(p) => p
   }
-  let sun_component = match spur_gear(sun, detail~) {
+  let sun_component = match spur_gear(sun, detail~, smooth~) {
     Err(e) => return Err(e)
     Ok(c) => c
   }
-  let planet_component = match spur_gear(planet, detail~) {
+  let planet_component = match spur_gear(planet, detail~, smooth~) {
     Err(e) => return Err(e)
     Ok(c) => c
   }
@@ -342,7 +351,10 @@ pub fn planetary_gear_set(
       params.face_width_mm,
       pressure_angle_deg=params.pressure_angle_deg,
       backlash_mm=backlash,
+      involute_points=outline_involute_points,
+      arc_points=outline_arc_points,
       detail~,
+      smooth~,
     ) {
     Err(e) => return Err(e)
     Ok(c) => c

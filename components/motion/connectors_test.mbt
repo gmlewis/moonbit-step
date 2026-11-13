@@ -141,6 +141,12 @@ test "every public motion builder family exposes a connector" {
       ok_motion(@motion.bearing(ok_motion_spec(@motion.bearing_size("608")))),
       "bore",
     ),
+    (
+      ok_motion(
+        @motion.deep_groove_bearing(ok_motion_spec(@motion.bearing_size("608"))),
+      ),
+      "outer-seat",
+    ),
     (ok_motion(@motion.bearing_by_designation("608")), "bore"),
     (
       ok_motion(

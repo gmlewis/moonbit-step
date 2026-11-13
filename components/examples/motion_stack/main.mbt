@@ -19,8 +19,9 @@
 /// published golden reference frame (X-long, origin-centred) without changing
 /// the builder's default Z-up, z = 0..length convention.
 ///
-/// The bearings are simplified envelopes: rings plus cylindrical roller
-/// proxies, not exact catalogue internals.
+/// The bearings are full-complement deep-groove bearings: grooved rings with
+/// retaining shoulders and watertight balls. They are engineering envelopes,
+/// not exact catalogue internals.
 async fn main {
   let spec = {
     "bearing": @cli.opt_string(
@@ -53,7 +54,7 @@ async fn main {
     ),
     "detail": @cli.opt_string(
       short='D',
-      help="Bearing detail: simplified (default), detailed, full",
+      help="Bearing detail: detailed (default), simplified, full",
     ),
     "part": @cli.opt_string(
       short='P',
@@ -184,18 +185,18 @@ async fn main {
     }
   }
   let bearing_detail = parse_bearing_detail(
-    args.string_opt("detail").unwrap_or("simplified"),
+    args.string_opt("detail").unwrap_or("detailed"),
   )
-  let bearing = match
-    @motion.bearing_by_designation(bearing_name, detail=bearing_detail) {
-    Ok(c) => c
+  let bearing_size = match @motion.bearing_size(bearing_name) {
+    Ok(s) => s
     Err(e) => {
       @cli.eprintln("error: " + e.message())
       abort("")
     }
   }
-  let bearing_size = match @motion.bearing_size(bearing_name) {
-    Ok(s) => s
+  let bearing = match
+    @motion.deep_groove_bearing(bearing_size, detail=bearing_detail) {
+    Ok(c) => c
     Err(e) => {
       @cli.eprintln("error: " + e.message())
       abort("")
@@ -230,7 +231,7 @@ async fn main {
   let name = "motion-stack-\{bearing_name}"
   let assembly = @assemblies.Assembly::new(
       name~,
-      description="Shaft with two simplified bearings and a spacer. Bearing rolling elements are cylindrical proxies.",
+      description="Shaft with two full-complement deep-groove bearings and a spacer. The balls are retained by grooved ring shoulders.",
     )
     .add(shaft, instance_name="shaft")
     .add(

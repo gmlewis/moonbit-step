@@ -50,7 +50,7 @@ test "revolved cone terminates at an axis pole" {
 }
 
 ///|
-test "revolved sphere is two spherical faces sharing the equator" {
+test "revolved sphere is one spherical face with a seam" {
   let shape = RevolvedProfile::sphere(10.0).as_shape()
   let (x0, x1, _y0, _y1, z0, z1) = shape.bounding_box()
   assert_true((x0 - -5.0).abs() < 1.0e-6)
@@ -60,10 +60,10 @@ test "revolved sphere is two spherical faces sharing the equator" {
   let step = Design::new(name="rev-sphere")
     .add(shape.with_name("ball"))
     .to_step_file()
-  assert_eq(rev_count(step, "SPHERICAL_SURFACE("), 2)
-  assert_eq(rev_count(step, "ADVANCED_FACE("), 2)
-  // The equator circle plus one meridian seam circle per hemisphere.
-  assert_eq(rev_count(step, "CIRCLE("), 3)
+  assert_eq(rev_count(step, "SPHERICAL_SURFACE("), 1)
+  assert_eq(rev_count(step, "ADVANCED_FACE("), 1)
+  // One meridian seam circle; no equator circle.
+  assert_eq(rev_count(step, "CIRCLE("), 1)
   assert_eq(rev_count(step, "PLANE("), 0)
 }
 

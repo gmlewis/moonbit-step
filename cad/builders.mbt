@@ -357,6 +357,27 @@ pub fn ExtrudedBezierProfile::new(
 }
 
 ///|
+/// BezierAnchor::new builds one cubic anchor. `handle_in` and `handle_out` are
+/// absolute positions (not offsets).
+pub fn BezierAnchor::new(
+  position : Vec2,
+  handle_in : Vec2,
+  handle_out : Vec2,
+) -> BezierAnchor {
+  { position, handle_in, handle_out, }
+}
+
+///|
+/// BezierPath::new builds a cubic Bezier path. `clear` marks a hole contour.
+pub fn BezierPath::new(
+  anchors : Array[BezierAnchor],
+  closed~ : Bool = true,
+  clear~ : Bool = false,
+) -> BezierPath {
+  { anchors, closed, clear, }
+}
+
+///|
 fn collect_profiles(
   g : @draw.Graphic,
   segments : Int32,

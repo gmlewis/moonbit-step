@@ -8,6 +8,12 @@ import {
 }
 
 // Values
+pub const SMOOTH_ARC_POINTS : Int32 = 2
+
+pub const SMOOTH_INVOLUTE_POINTS : Int32 = 4
+
+pub fn bezier_circle_path(Double, clear? : Bool) -> @cad.BezierPath
+
 pub fn external_involute_outline(Double, Int32, Double, backlash_mm? : Double, involute_points? : Int32, arc_points? : Int32) -> Array[(Double, Double)]
 
 pub fn external_involute_outline_ex(Double, Int32, Double, backlash_mm? : Double, involute_points? : Int32, arc_points? : Int32, root_fillet_radius_mm? : Double, tip_chamfer_mm? : Double, fillet_segments? : Int32) -> Result[Array[(Double, Double)], @common.SpecError]
@@ -28,7 +34,7 @@ pub fn internal_mesh_interference(Double, Int32, Int32, Double, backlash_mm? : D
 
 pub fn internal_ring_gear(Double, Int32, Double, pressure_angle_deg? : Double, outer_wall_mm? : Double, tooth_fraction? : Double, detail? : @common.DetailLevel) -> Result[@common.Component, @common.SpecError]
 
-pub fn internal_ring_gear_exact(Double, Int32, Double, pressure_angle_deg? : Double, outer_wall_mm? : Double, backlash_mm? : Double, addendum_factor? : Double, dedendum_factor? : Double, involute_points? : Int32, arc_points? : Int32, detail? : @common.DetailLevel) -> Result[@common.Component, @common.SpecError]
+pub fn internal_ring_gear_exact(Double, Int32, Double, pressure_angle_deg? : Double, outer_wall_mm? : Double, backlash_mm? : Double, addendum_factor? : Double, dedendum_factor? : Double, involute_points? : Int32, arc_points? : Int32, detail? : @common.DetailLevel, smooth? : Bool) -> Result[@common.Component, @common.SpecError]
 
 pub fn internal_ring_gear_profile(Double, Int32, tooth_fraction? : Double, tip_points? : Int32, root_points? : Int32) -> Array[(Double, Double)]
 
@@ -38,9 +44,11 @@ pub fn involute_gear_geometry(Double, Int32, Double) -> InvoluteGearGeometry
 
 pub fn involute_outline_area(Array[(Double, Double)]) -> Double
 
-pub fn planetary_gear_set(PlanetaryParams, detail? : @common.DetailLevel) -> Result[@assemblies.Assembly, @common.SpecError]
+pub fn planetary_gear_set(PlanetaryParams, detail? : @common.DetailLevel, smooth? : Bool) -> Result[@assemblies.Assembly, @common.SpecError]
 
-pub fn spur_gear(SpurGearParams, detail? : @common.DetailLevel, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+pub fn smooth_outline_path(Array[(Double, Double)], clear? : Bool) -> @cad.BezierPath
+
+pub fn spur_gear(SpurGearParams, detail? : @common.DetailLevel, color? : @cad.Rgb, smooth? : Bool) -> Result[@common.Component, @common.SpecError]
 
 pub fn spur_gear_envelope(SpurGearParams, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 

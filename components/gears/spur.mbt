@@ -126,6 +126,7 @@ pub fn spur_gear(
   params : SpurGearParams,
   detail~ : @common.DetailLevel = Detailed,
   color~ : @cad.Rgb = @cad.Rgb::orange(),
+  smooth~ : Bool = false,
 ) -> Result[@common.Component, @common.SpecError] {
   let geom = params.geometry()
   if geom.root_radius_mm <= 0.0 {
@@ -148,9 +149,15 @@ pub fn spur_gear(
     Err(e) => return Err(e)
   }
   let _ = policy
-  // The toothed outline is genuinely polygonal; the bore is a real circular
-  // hole compiled to an analytic CYLINDRICAL_SURFACE.
-  let body = if params.bore_diameter_mm > 0.0 {
+  // The polyline outline is faceted; `smooth` turns it into one closed cubic
+  // B-spline contour (and a Bezier bore) extruded as a single smooth solid.
+  let body = if smooth {
+    let paths = [smooth_outline_path(outline)]
+    if params.bore_diameter_mm > 0.0 {
+      paths.push(bezier_circle_path(params.bore_diameter_mm, clear=true))
+    }
+    @cad.ExtrudedBezierProfile::new(paths, params.face_width_mm)
+  } else if params.bore_diameter_mm > 0.0 {
     @cad.ExtrudedProfile::new(
       outline,
       params.face_width_mm,

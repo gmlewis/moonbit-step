@@ -382,6 +382,7 @@ pub fn internal_ring_gear_exact(
   involute_points~ : Int32 = 12,
   arc_points~ : Int32 = 8,
   detail~ : @common.DetailLevel = Detailed,
+  smooth~ : Bool = false,
 ) -> Result[@common.Component, @common.SpecError] {
   match @common.require_positive("ring module", module_mm) {
     Err(e) => return Err(e)
@@ -425,7 +426,17 @@ pub fn internal_ring_gear_exact(
     policy.circle_segments
   }
   let outer = @cad.Profile2D::circle(2.0 * outer_radius, segments~)
-  let body = @cad.ExtrudedProfile::new(outer, face_width_mm, holes=[bore])
+  let body = if smooth {
+    @cad.ExtrudedBezierProfile::new(
+      [
+        bezier_circle_path(2.0 * outer_radius),
+        smooth_outline_path(bore, clear=true),
+      ],
+      face_width_mm,
+    )
+  } else {
+    @cad.ExtrudedProfile::new(outer, face_width_mm, holes=[bore])
+  }
   let name = "ring-gear-m\{@cad.fmt_double(module_mm, None)}-z\{teeth}"
   Ok(
     with_gear_connectors(

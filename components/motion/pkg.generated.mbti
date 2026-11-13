@@ -22,6 +22,10 @@ pub fn clamp_shaft_collar(Double, Double, Double, thread? : @standards.MetricSiz
 
 pub fn compression_spring(Double, Double, Double, Int32, segments_per_turn? : Int32, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
+pub fn deep_groove_bearing(BearingSize, ball_count? : Int32, detail? : @common.DetailLevel, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn deep_groove_bearing_spec(BearingSize, ball_count? : Int32) -> Result[DeepGrooveBearingSpec, @common.SpecError]
+
 pub fn dowel_pin(Double, Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
 pub fn emt_end_cap(EmtSize, Double, Double, plug_clearance_mm? : Double, cap_diameter_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
@@ -92,6 +96,20 @@ pub(all) struct BearingSize {
   bore_mm : Double
   outer_mm : Double
   width_mm : Double
+}
+
+pub(all) struct DeepGrooveBearingSpec {
+  size : BearingSize
+  ball_diameter_mm : Double
+  ball_count : Int32
+  pitch_radius_mm : Double
+  groove_radius_mm : Double
+  inner_shoulder_radius_mm : Double
+  outer_shoulder_radius_mm : Double
+  inner_groove_bottom_mm : Double
+  outer_groove_bottom_mm : Double
+  shoulder_land_mm : Double
+  min_ring_wall_mm : Double
 }
 
 pub(all) struct EmtSize {

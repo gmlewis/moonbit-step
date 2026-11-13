@@ -82,7 +82,7 @@ async fn main {
       abort("")
     }
   }
-  let set = match @gears.planetary_gear_set(params) {
+  let set = match @gears.planetary_gear_set(params, smooth=false) {
     Ok(a) => a
     Err(e) => {
       @cli.eprintln("error: " + e.message())

@@ -1,15 +1,19 @@
 ///|
 /// components/examples/bearing
 ///
-/// Generate a single radial ball bearing envelope:
+/// Generate a radial ball bearing. The default is a physically plausible
+/// full-complement deep-groove bearing: grooved rings with retaining
+/// shoulders and a full ring of balls. `--representation envelope` reproduces
+/// the thin ring/ball envelope used by the golden references.
 ///
 /// ```bash
 /// moon run components/examples/bearing -- \
 ///   --bearing 608 --detail detailed -o bearing.step
 /// ```
 ///
-/// Rolling elements are analytic spheres; ring proportions, ball diameter, and
-/// ring chamfers are parametric envelope geometry, not catalogue internals.
+/// Ball size, count, raceway conformity, and shoulder retention are
+/// engineering defaults, not catalogue internals. Use `--shielded` for the
+/// single-solid shielded envelope.
 async fn main {
   let spec = {
     "bearing": @cli.opt_string(
@@ -18,12 +22,15 @@ async fn main {
     ),
     "detail": @cli.opt_string(
       short='d',
-      help="Detail: simplified (default), detailed, full",
+      help="Detail: detailed (default), simplified, full",
+    ),
+    "representation": @cli.opt_string(
+      help="Representation: deep-groove (default, full complement with grooved rings) or envelope",
     ),
     "rollers": @cli.opt_int(
-      8,
+      0,
       short='r',
-      help="Number of rolling elements (0 = rings only)",
+      help="Number of balls (0 = full complement for deep-groove, rings only for envelope)",
       min=0,
     ),
     "out": @cli.opt_string(short='o', help="Write STEP to this path"),
@@ -35,13 +42,24 @@ async fn main {
   guard @cli.parse(
       spec,
       prog="components/examples/bearing",
-      description="Generate a single radial ball bearing envelope.",
+      description="Generate a radial ball bearing with grooved rings and a full ball complement (or the golden envelope).",
     )
     is Some(args) else {
     return
   }
   let designation = args.string_opt("bearing").unwrap_or("608")
-  let detail = parse_detail(args.string_opt("detail").unwrap_or("simplified"))
+  let detail = parse_detail(args.string_opt("detail").unwrap_or("detailed"))
+  let representation = args
+    .string_opt("representation")
+    .unwrap_or("deep-groove")
+  if representation != "deep-groove" && representation != "envelope" {
+    @cli.eprintln(
+      "error: unknown representation: " +
+      representation +
+      " (expected deep-groove or envelope)",
+    )
+    abort("")
+  }
   let size = match @motion.bearing_size(designation) {
     Ok(s) => s
     Err(e) => {
@@ -57,8 +75,17 @@ async fn main {
         abort("")
       }
     }
-  } else {
+  } else if representation == "envelope" {
     match @motion.bearing(size, roller_count=args.int("rollers"), detail~) {
+      Ok(c) => c
+      Err(e) => {
+        @cli.eprintln("error: " + e.message())
+        abort("")
+      }
+    }
+  } else {
+    match
+      @motion.deep_groove_bearing(size, ball_count=args.int("rollers"), detail~) {
       Ok(c) => c
       Err(e) => {
         @cli.eprintln("error: " + e.message())
