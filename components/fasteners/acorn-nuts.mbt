@@ -65,18 +65,23 @@ pub fn din1587_acorn_nut(
         ],
       )
       Ok(
-        @common.Component::new(
-          name="DIN1587-\{size.designation()}",
-          metadata=@common.Metadata::new(
-            designation=spec.designation(),
-            standard=@standards.DIN1587Spec::standard(),
-            family="hexagon domed cap nut",
-            size=size.designation(),
-            source=@standards.DIN1587Spec::source(),
-          ),
-          description="Hexagon domed cap nut: one closed solid with a hexagon body, a 75-degree conical washer face on each end, a circular through bore, and a spherical cap over a concentric spherical cavity.",
-          features~,
-        ).add_layer(body, name="body", color~),
+        with_nut_connectors(
+          @common.Component::new(
+            name="DIN1587-\{size.designation()}",
+            metadata=@common.Metadata::new(
+              designation=spec.designation(),
+              standard=@standards.DIN1587Spec::standard(),
+              family="hexagon domed cap nut",
+              size=size.designation(),
+              source=@standards.DIN1587Spec::source(),
+            ),
+            description="Hexagon domed cap nut: one closed solid with a hexagon body, a 75-degree conical washer face on each end, a circular through bore, and a spherical cap over a concentric spherical cavity.",
+            features~,
+          ).add_layer(body, name="body", color~),
+          d,
+          dims.body_height_mm,
+          dims.width_across_flats_mm,
+        ),
       )
     }
   }

@@ -298,7 +298,113 @@ pub fn nema_stepper_motor(
       body_length_mm + pilot_length,
     ),
   )
-  Ok(component)
+  let front_z = body_length_mm
+  let shaft_z = body_length_mm + pilot_length
+  Ok(
+    component
+    .with_connector_unchecked(
+      @common.MateConnector::new(
+        "mounting-face",
+        placement=@common.Placement::translation(0.0, 0.0, front_z),
+        axis=(0.0, 0.0, 1.0),
+        kind=@common.MateKind::PlaneFace,
+        diameter_mm=frame.frame_mm,
+        description="front mounting face; outward normal is +Z",
+      ),
+    )
+    .with_connector_unchecked(
+      @common.MateConnector::new(
+        "mounting-pattern",
+        placement=@common.Placement::translation(0.0, 0.0, front_z),
+        axis=(0.0, 0.0, 1.0),
+        kind=@common.MateKind::Datum,
+        diameter_mm=frame.bolt_spacing_mm,
+        description="four-hole mounting pattern datum; +X/+Y is the (+,+) hole",
+      ),
+    )
+    .with_connector_unchecked(
+      @common.MateConnector::new(
+        "pilot",
+        placement=@common.Placement::translation(0.0, 0.0, front_z),
+        axis=(0.0, 0.0, 1.0),
+        kind=@common.MateKind::CylindricalShaft,
+        gender=@common.MateGender::Male,
+        diameter_mm=pilot_diameter,
+        depth_mm=pilot_length,
+        description="pilot boss that enters the mating plate bore",
+      ),
+    )
+    .with_connector_unchecked(
+      @common.MateConnector::new(
+        "shaft",
+        placement=@common.Placement::translation(0.0, 0.0, shaft_z),
+        axis=(0.0, 0.0, 1.0),
+        kind=@common.MateKind::CylindricalShaft,
+        gender=@common.MateGender::Male,
+        diameter_mm=shaft_diameter,
+        depth_mm=shaft_length,
+        description="plain output shaft, pointing +Z",
+      ),
+    )
+    .with_connector_unchecked(
+      @common.MateConnector::new(
+        "rear-face",
+        placement=@common.Placement::translation(0.0, 0.0, 0.0),
+        axis=(0.0, 0.0, -1.0),
+        kind=@common.MateKind::PlaneFace,
+        diameter_mm=frame.frame_mm,
+        description="rear face; outward normal is -Z",
+      ),
+    )
+    .with_connector_unchecked(
+      @common.MateConnector::new(
+        "bolt-hole-1",
+        placement=@common.Placement::translation(half, half, 0.0),
+        axis=(0.0, 0.0, 1.0),
+        kind=@common.MateKind::CylindricalBore,
+        gender=@common.MateGender::Female,
+        diameter_mm=frame.mounting_hole_diameter_mm,
+        depth_mm=body_length_mm,
+        description="mounting hole at (+X,+Y)",
+      ),
+    )
+    .with_connector_unchecked(
+      @common.MateConnector::new(
+        "bolt-hole-2",
+        placement=@common.Placement::translation(-half, half, 0.0),
+        axis=(0.0, 0.0, 1.0),
+        kind=@common.MateKind::CylindricalBore,
+        gender=@common.MateGender::Female,
+        diameter_mm=frame.mounting_hole_diameter_mm,
+        depth_mm=body_length_mm,
+        description="mounting hole at (-X,+Y)",
+      ),
+    )
+    .with_connector_unchecked(
+      @common.MateConnector::new(
+        "bolt-hole-3",
+        placement=@common.Placement::translation(-half, -half, 0.0),
+        axis=(0.0, 0.0, 1.0),
+        kind=@common.MateKind::CylindricalBore,
+        gender=@common.MateGender::Female,
+        diameter_mm=frame.mounting_hole_diameter_mm,
+        depth_mm=body_length_mm,
+        description="mounting hole at (-X,-Y)",
+      ),
+    )
+    .with_connector_unchecked(
+      @common.MateConnector::new(
+        "bolt-hole-4",
+        placement=@common.Placement::translation(half, -half, 0.0),
+        axis=(0.0, 0.0, 1.0),
+        kind=@common.MateKind::CylindricalBore,
+        gender=@common.MateGender::Female,
+        diameter_mm=frame.mounting_hole_diameter_mm,
+        depth_mm=body_length_mm,
+        description="mounting hole at (+X,-Y)",
+      ),
+    ),
+  )
 }
 
 ///|

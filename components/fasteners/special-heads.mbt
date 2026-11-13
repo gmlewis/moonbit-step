@@ -24,7 +24,21 @@ pub fn iso10642_screw(
 ) -> Result[@common.Component, @common.SpecError] {
   match @standards.iso10642_spec(size, length_mm) {
     Err(e) => Err(e)
-    Ok(spec) => Ok(countersunk_screw(spec, detail~, threads?))
+    Ok(spec) => {
+      let dims = spec.size_dims
+      Ok(
+        with_screw_connectors(
+          countersunk_screw(spec, detail~, threads?),
+          dims.thread.nominal_diameter_mm,
+          spec.length_mm - dims.head_height_mm,
+          spec.length_mm - dims.head_height_mm,
+          dims.head_diameter_mm,
+          bearing_face_z_mm=-dims.head_height_mm,
+          head_top_z_mm=0.0,
+          tip_z_mm=-spec.length_mm,
+        ),
+      )
+    }
   }
 }
 
@@ -222,7 +236,21 @@ pub fn iso7380_screw(
 ) -> Result[@common.Component, @common.SpecError] {
   match @standards.iso7380_spec(size, length_mm) {
     Err(e) => Err(e)
-    Ok(spec) => Ok(button_screw(spec, detail~, threads?))
+    Ok(spec) => {
+      let dims = spec.size_dims
+      Ok(
+        with_screw_connectors(
+          button_screw(spec, detail~, threads?),
+          dims.thread.nominal_diameter_mm,
+          spec.length_mm,
+          spec.length_mm,
+          dims.head_diameter_mm,
+          bearing_face_z_mm=0.0,
+          head_top_z_mm=dims.head_height_mm,
+          tip_z_mm=-spec.length_mm,
+        ),
+      )
+    }
   }
 }
 

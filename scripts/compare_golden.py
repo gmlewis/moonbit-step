@@ -849,7 +849,11 @@ def run_self_tests(root: Path, tolerance: dict, have_occt: bool, have_moon: bool
                         "kind": "vertex_ring",
                         "z_mm": 0.0,
                         "radius_mm": 4.5,
-                        "min_count": 32,
+                        # The ISO 7089 washer is an analytic solid of
+                        # revolution: each rim ring has one vertex, not the
+                        # 32 vertices a polygonal ring would have. The old
+                        # min_count=32 expectation was stale.
+                        "min_count": 1,
                     },
                     wf,
                     tolerance,

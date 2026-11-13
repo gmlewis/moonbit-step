@@ -21,6 +21,7 @@ All programs use millimetres and Z is up.
 | `filleted_shaft` | Single-solid stepped shaft with toroidal shoulder fillets. |
 | `keyed_shaft` | Shaft with a real rectangular keyway plus the matching key. |
 | `bolted_joint` | Two plates clamped by a screw, washer, and nut. |
+| `mate_assembly` | A screw placed in a nut by named `MateConnector`/`MatePair` records. |
 | `revolution` | Analytic solids of revolution (cylinder, cone, sphere, torus, ring, dome, frustum). |
 
 Run `./generate_all.sh` from this directory to regenerate every fixture in

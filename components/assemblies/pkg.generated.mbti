@@ -30,6 +30,7 @@ pub struct Assembly {
 }
 pub fn Assembly::add(Self, @common.Component, placement? : @common.Placement, instance_name? : String) -> Self
 pub fn Assembly::add_at(Self, @common.Component, x? : Double, y? : Double, z? : Double, rx? : Double, ry? : Double, rz? : Double, instance_name? : String) -> Self
+pub fn Assembly::add_mate_pair(Self, String, @common.Component, @common.MatePair, instance_name? : String) -> Result[(Self, @common.MateAlignment), @common.MatePairError]
 pub fn Assembly::bounding_box(Self) -> (Double, Double, Double, Double, Double, Double)
 pub fn Assembly::circular_pattern(Self, @common.Component, Int32, Double, start_angle_deg? : Double, orientation_deg? : Double, instance_name? : String, base? : @common.Placement) -> Self
 pub fn Assembly::collision_reports(Self, tol? : @collision.TolerancePolicy, policy? : @collision.ContactPolicy) -> Array[@collision.CollisionReport]

@@ -15,6 +15,9 @@ moon run components/examples/fasteners -- \
 # Screw + washer + nut kit
 moon run components/examples/hardware_kit -- --size M4 --length 20 -o kit.step
 
+# Screw placed in a nut by named mate connectors
+moon run components/examples/mate_assembly -- --size M4 --length 20 -o mate.step
+
 # Generic 2020 T-slot frame
 moon run components/examples/extrusion_frame -- \
   --width 400 --depth 300 --height 500 --series 2020 -o frame.step
@@ -54,12 +57,12 @@ axes documented in each builder.
 
 | Package | Contents |
 |---|---|
-| `common` | Units-aware validation, detail levels, thread representation, metadata, placement, `Component`. |
+| `common` | Units-aware validation, detail levels, thread representation, metadata, placement, `Component`, `MateConnector`, and `MatePair`. |
 | `standards` | Metric thread data and ISO/DIN dimension tables (ISO 4032/4035/4762/7089/709x/7380/8752/10642, DIN 557/913/916/976/1587, …). |
 | `fasteners` | Screws, bolts, nuts, washers, pins, rods, and set screws. |
 | `profiles` | Generic T-slot sections and the vendor 2020 B-slot6 A section. |
-| `motion` | Shafts, stepped/keyed shafts, spacers, bushings, keys, dowel pins, standoffs, compression springs, ball bearings, LM-series linear bushings, and flanged linear housings. |
-| `motors` | NEMA 17 and NEMA 23 stepper-motor envelopes and mounting interfaces. |
+| `motion` | Shafts, stepped/keyed shafts, spacers, bushings, keys, dowel pins, standoffs, compression springs, ball bearings, LM-series linear bushings, flanged linear housings, and approximated GT2 timing pulleys. |
+| `motors` | NEMA 17 and NEMA 23 stepper-motor envelopes, mounting interfaces, and NEMA mounting plates. |
 | `stock` | EN 10056 angle sections and configurable flat plate blanks with through holes. |
 | `gears` | Involute spur gears, external pairs, and exact-internal-involute planetary sets. |
 | `assemblies` | Rigid placements, linear/circular patterns, hardware kits, extrusion frames, bolted joints, collision/contact reports, connectivity checks. |
@@ -90,6 +93,57 @@ let collisions = assembly.collisions()
 let contacts = assembly.contacts()
 let floating = assembly.disconnected_instances()
 ```
+
+## Mate connectors and pairs
+
+`MateConnector` is a named attachment frame on one component. `MatePair` is the
+relationship between two named connectors. Both types are defined once in
+`components/common`; `gmlewis/urdf` and `gmlewis/cad` import them rather than
+keeping local copies.
+
+```moonbit
+let hole = @common.MateConnector::new(
+  "bore",
+  placement=@common.Placement::translation(0.0, 0.0, 0.0),
+  axis=(0.0, 0.0, 1.0),
+  kind=@common.MateKind::CylindricalBore,
+  gender=@common.MateGender::Female,
+  diameter_mm=5.0,
+  depth_mm=10.0,
+)
+
+let pair = @common.MatePair::new(parent="bore", child="shaft", offset_mm=2.0)
+let alignment = pair.resolve(parent_connector, child_connector)
+```
+
+- **Units.** The connector stores a `Placement` in millimetres and degrees. At a
+  URDF boundary use `from_m_rad` and `to_m_rad`, which convert to and from
+  metres/radians.
+- **Axis.** `axis` is an independent unit direction in the component-local
+  frame, not the placement's +Z. It is the insertion, approach, or joint axis.
+- **Names.** Names are stable, unique within a component, and lower-case
+  kebab-case (`shaft`, `bore`, `mount-front`, `bolt-hole-1`).
+- **Kinds and genders.** `MateKind` classifies the interface; `MateGender`
+  describes geometric engagement, never strength. A bore is female, a shaft is
+  male, and datum/plane/slot frames are neutral.
+- **Fit.** `fit` reuses `@cad.Fit`; it records declared clearance intent and does
+  not change the nominal STEP geometry.
+- **Snapping.** `snap_connectors` reproduces the URDF offset/twist/flip frame
+  snap. `MatePair::resolve` additionally checks kind, gender, diameter, and fit,
+  and records any interface-convention axis flip in `MateAlignment`.
+- **Assembly.** `Assembly::add_mate_pair(parent_instance, child, pair)` resolves
+  the pair against a placed parent and returns the updated assembly plus the
+  alignment.
+
+Connectors are metadata: adding one, rebasing a component to a connector, or
+resolving a pair never changes exported STEP geometry, layer count, or volume.
+A geometric mate is not a structural-strength or safety claim.
+
+Every implemented family exposes at least one named connector: fasteners expose
+shaft/thread/head or bore/bearing-face frames, bearings expose bore and
+outer-seat frames, shafts expose end frames, extrusions expose four face slots
+and end datums, NEMA motors expose mounting, pilot, shaft, rear, and per-hole
+frames, and plates expose face and per-hole frames.
 
 ## Limitations
 
@@ -128,10 +182,16 @@ let floating = assembly.disconnected_instances()
   profile accepts only counter-clockwise minor arcs; its toe radii are analytic.
 - A plate blank is a generic primitive. Hole patterns do not imply a
   standardized commercial part.
-- V-Slot extrusion profiles, GT2 timing pulleys, and EMT/conduit fittings are
-  not implemented. The available MIT-licensed step.parts V-Slot and GT2 models
-  are smooth or simplified envelopes and do not encode the real mating geometry,
-  so they were not accepted as golden references.
+- V-Slot and EMT/conduit-specific mating geometry are not implemented. The
+  available step.parts V-Slot models do not encode the real V lips and were not
+  accepted as golden references.
+- GT2 timing pulleys use an approximate trapezoidal tooth form built from the
+  published 2 mm pitch, 0.254 mm pitch-line offset, 0.76 mm depth, and 1.49 mm
+  width. They are a prototyping approximation, not a licensed exact profile,
+  and carry no torque or belt-life rating.
+- NEMA mounting plates are generic plate blanks with the frame bolt pattern and
+  pilot clearance bore. Plate size, thickness, and clearance are caller
+  parameters; no stiffness or strength rating is implied.
 
 ## License
 

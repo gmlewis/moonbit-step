@@ -450,12 +450,19 @@ pub fn extrusion(
         )
       }
       Ok(
-        @common.Component::new(
-          name~,
-          metadata=profile.metadata(length_mm),
-          description="Generic T-slot extrusion with four centred slots, a central core bore, and optional rounded outer corners. No end machining.",
-          features~,
-        ).add_layer(body, name="body", color=@cad.Rgb::cyan()),
+        with_extrusion_connectors(
+          @common.Component::new(
+            name~,
+            metadata=profile.metadata(length_mm),
+            description="Generic T-slot extrusion with four centred slots, a central core bore, and optional rounded outer corners. No end machining.",
+            features~,
+          ).add_layer(body, name="body", color=@cad.Rgb::cyan()),
+          profile.width_mm,
+          profile.height_mm,
+          length_mm,
+          profile.slot_width_mm,
+          profile.core_bore_diameter_mm,
+        ),
       )
     }
   }

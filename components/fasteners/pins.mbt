@@ -51,11 +51,15 @@ pub fn iso2338_pin(
     ],
   )
   Ok(
-    @common.Component::new(
-      name="ISO2338-\{size.designation()}x\{length_mm}",
-      metadata=@standards.iso2338_metadata(dims, length_mm),
-      description="Parallel dowel pin: one closed solid of revolution, a cylinder with 45-degree conical end breaks; the nominal diameter follows ISO 2338 and the chamfer is the reference 0.08 d, retained at every detail level.",
-      features~,
-    ).add_layer(body.as_shape(), name="body", color~),
+    with_pin_connectors(
+      @common.Component::new(
+        name="ISO2338-\{size.designation()}x\{length_mm}",
+        metadata=@standards.iso2338_metadata(dims, length_mm),
+        description="Parallel dowel pin: one closed solid of revolution, a cylinder with 45-degree conical end breaks; the nominal diameter follows ISO 2338 and the chamfer is the reference 0.08 d, retained at every detail level.",
+        features~,
+      ).add_layer(body.as_shape(), name="body", color~),
+      dims.diameter_mm,
+      length_mm,
+    ),
   )
 }

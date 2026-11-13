@@ -133,10 +133,14 @@ pub fn din976(
     Err(e) => Err(e)
     Ok(spec) =>
       Ok(
-        match threads {
-          Some(t) => din976_rod(spec, detail~, threads=t)
-          None => din976_rod(spec, detail~)
-        },
+        with_rod_connectors(
+          match threads {
+            Some(t) => din976_rod(spec, detail~, threads=t)
+            None => din976_rod(spec, detail~)
+          },
+          spec.thread.nominal_diameter_mm,
+          spec.length_mm,
+        ),
       )
   }
 }

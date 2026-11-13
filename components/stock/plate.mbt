@@ -118,5 +118,13 @@ pub fn plate(
     description="Rectangular flat plate blank centered on the XY origin with optional circular through holes. No edge treatment or material tolerance is asserted.",
     features~,
   ).add_layer(body, name="body", color~)
-  Ok(component.translate(z=-thickness_mm / 2.0))
+  Ok(
+    with_plate_connectors(
+      component.translate(z=-thickness_mm / 2.0),
+      width_mm,
+      height_mm,
+      thickness_mm,
+      holes,
+    ),
+  )
 }

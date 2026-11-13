@@ -138,6 +138,7 @@ pub fn rotate_point(p : Vec3, rx : Double, ry : Double, rz : Double) -> Vec3 {
 }
 
 ///|
+#derive(Debug, Eq)
 pub(all) struct Matrix3x3 {
   m00 : Double
   m01 : Double
@@ -149,6 +150,12 @@ pub(all) struct Matrix3x3 {
   m21 : Double
   m22 : Double
 }
+
+///|
+pub extend Matrix3x3 with @debug.Debug::{to_repr}
+
+///|
+pub extend Matrix3x3 with Eq::{not_equal, equal}
 
 ///|
 fn rotation_matrix(rx : Double, ry : Double, rz : Double) -> Matrix3x3 {

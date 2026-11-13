@@ -43,34 +43,39 @@ pub fn din93_tab_washer(
       ).as_shape()
       let _ = detail
       Ok(
-        @common.Component::new(
-          name="DIN93-\{dims.size.designation()}",
-          metadata=spec.metadata(),
-          description="DIN 93 tab washer: one analytic outer cylinder, two concave analytic transition cylinders, a cylindrical bore, two planar tab sides, a planar tab end, and two planar faces.",
-          features=@common.FeatureRecord::new(
-            modeled=[
-              "body", "outer-cylinder", "transition-fillets", "bore", "tab", "end-faces",
-            ],
-            approximated=[
-              @common.Approximation::new(
-                feature="transition-radius",
-                kind=@common.ApproximationKind::EngineeringDefault,
-                deviation_mm=0.0,
-                control="transition center = tab_length/2 + 2 mm",
-              ),
-            ],
-            omitted=[
-              @common.Omission::new(
-                feature="edge-chamfer",
-                reason="DIN 93 specifies no edge chamfer; the sharp edge is standard-correct",
-              ),
-              @common.Omission::new(
-                feature="service-bend",
-                reason="the tab is modeled flat; the in-service bend of the tab is not part of the delivered part",
-              ),
-            ],
-          ),
-        ).add_layer(body, name="body", color~),
+        with_washer_connectors(
+          @common.Component::new(
+            name="DIN93-\{dims.size.designation()}",
+            metadata=spec.metadata(),
+            description="DIN 93 tab washer: one analytic outer cylinder, two concave analytic transition cylinders, a cylindrical bore, two planar tab sides, a planar tab end, and two planar faces.",
+            features=@common.FeatureRecord::new(
+              modeled=[
+                "body", "outer-cylinder", "transition-fillets", "bore", "tab", "end-faces",
+              ],
+              approximated=[
+                @common.Approximation::new(
+                  feature="transition-radius",
+                  kind=@common.ApproximationKind::EngineeringDefault,
+                  deviation_mm=0.0,
+                  control="transition center = tab_length/2 + 2 mm",
+                ),
+              ],
+              omitted=[
+                @common.Omission::new(
+                  feature="edge-chamfer",
+                  reason="DIN 93 specifies no edge chamfer; the sharp edge is standard-correct",
+                ),
+                @common.Omission::new(
+                  feature="service-bend",
+                  reason="the tab is modeled flat; the in-service bend of the tab is not part of the delivered part",
+                ),
+              ],
+            ),
+          ).add_layer(body, name="body", color~),
+          dims.inner_diameter_mm,
+          dims.outer_diameter_mm,
+          dims.thickness_mm,
+        ),
       )
     }
   }

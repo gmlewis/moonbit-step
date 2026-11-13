@@ -196,19 +196,23 @@ pub fn angle_bar(
   }
   let name = "angle-\{suffix}-\{@cad.fmt_double(section.leg_a_mm, None)}x\{@cad.fmt_double(section.leg_b_mm, None)}x\{@cad.fmt_double(section.thickness_mm, None)}-L\{@cad.fmt_double(length_mm, None)}"
   Ok(
-    @common.Component::new(
-      name~,
-      metadata=@common.Metadata::new(
-        designation="\{suffix} angle \{@cad.fmt_double(section.leg_a_mm, None)} x \{@cad.fmt_double(section.leg_b_mm, None)} x \{@cad.fmt_double(section.thickness_mm, None)}, L=\{@cad.fmt_double(length_mm, None)}",
-        standard~,
-        family="steel angle section",
-        size="\{@cad.fmt_double(section.leg_a_mm, None)}x\{@cad.fmt_double(section.leg_b_mm, None)}x\{@cad.fmt_double(section.thickness_mm, None)}",
-        length_mm~,
-        material="steel (label only; not a structural claim)",
-        source="Angle-section geometry with a root fillet and toe radii. The 40 x 40 x 4 EN 10056 preset uses root radius 6 mm and toe radius 3 mm, confirmed against the step.parts reference.",
-      ),
-      description="Steel angle section with legs along +X and +Y, a concave root fillet, and rounded toe flats. End cuts, holes, and rolling tolerances are not modelled.",
-      features~,
-    ).add_layer(body.as_shape(), name="body", color~),
+    with_angle_connectors(
+      @common.Component::new(
+        name~,
+        metadata=@common.Metadata::new(
+          designation="\{suffix} angle \{@cad.fmt_double(section.leg_a_mm, None)} x \{@cad.fmt_double(section.leg_b_mm, None)} x \{@cad.fmt_double(section.thickness_mm, None)}, L=\{@cad.fmt_double(length_mm, None)}",
+          standard~,
+          family="steel angle section",
+          size="\{@cad.fmt_double(section.leg_a_mm, None)}x\{@cad.fmt_double(section.leg_b_mm, None)}x\{@cad.fmt_double(section.thickness_mm, None)}",
+          length_mm~,
+          material="steel (label only; not a structural claim)",
+          source="Angle-section geometry with a root fillet and toe radii. The 40 x 40 x 4 EN 10056 preset uses root radius 6 mm and toe radius 3 mm, confirmed against the step.parts reference.",
+        ),
+        description="Steel angle section with legs along +X and +Y, a concave root fillet, and rounded toe flats. End cuts, holes, and rolling tolerances are not modelled.",
+        features~,
+      ).add_layer(body.as_shape(), name="body", color~),
+      section,
+      length_mm,
+    ),
   )
 }

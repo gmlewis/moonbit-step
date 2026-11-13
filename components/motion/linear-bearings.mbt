@@ -156,6 +156,12 @@ pub fn linear_bearing(
     description="LM-series linear ball-bushing envelope: outside diameter with end retaining grooves and a plain bore with end counterbores. Rolling elements, cage, seals, and recirculation grooves are omitted.",
     features~,
   ).add_layer(body, name="body", color~)
+  let component = with_bushing_connectors(
+    component,
+    size.bore_mm,
+    size.outer_mm,
+    length,
+  )
   if orient_to_reference {
     Ok(component.translate(z=-length / 2.0))
   } else {
@@ -262,6 +268,12 @@ pub fn flanged_linear_bearing(
     description="Flanged round linear-bushing housing: one flange, a body, and a through bore. Mounting holes, seals, and rolling elements are omitted.",
     features~,
   ).add_layer(body, name="body", color~)
+  let component = with_bushing_connectors(
+    component,
+    size.bore_mm,
+    size.outer_mm,
+    total,
+  )
   if orient_to_reference {
     Ok(
       component

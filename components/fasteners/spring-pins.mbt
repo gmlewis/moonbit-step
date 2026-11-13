@@ -54,20 +54,24 @@ pub fn iso8752_spring_pin(
     ],
   )
   Ok(
-    @common.Component::new(
-      name="ISO8752-\{size.designation()}x\{length_mm}",
-      metadata=@common.Metadata::new(
-        designation="ISO8752-\{size.designation()}x\{length_mm}",
-        standard="ISO 8752:2009",
-        family="slotted spring pin, heavy duty",
-        size=size.designation(),
-        length_mm~,
-        source="ISO 8752:2009 d and length; internal diameter 0.68 d and slot 0.18 d measured from the reference family (engineering defaults)",
-      ),
-      description="Slotted spring pin: one closed solid, a straight tube with a full-length parallel-sided slot (outer and inner analytic cylinders, two slot-wall planes and two C-shaped end planes). The ends are square; the customary end chamfer is a typed omission.",
-      features~,
-    )
-    .add_layer(tube.as_shape(), name="body", color~)
-    .translate(z=-length_mm / 2.0),
+    with_pin_connectors(
+      @common.Component::new(
+        name="ISO8752-\{size.designation()}x\{length_mm}",
+        metadata=@common.Metadata::new(
+          designation="ISO8752-\{size.designation()}x\{length_mm}",
+          standard="ISO 8752:2009",
+          family="slotted spring pin, heavy duty",
+          size=size.designation(),
+          length_mm~,
+          source="ISO 8752:2009 d and length; internal diameter 0.68 d and slot 0.18 d measured from the reference family (engineering defaults)",
+        ),
+        description="Slotted spring pin: one closed solid, a straight tube with a full-length parallel-sided slot (outer and inner analytic cylinders, two slot-wall planes and two C-shaped end planes). The ends are square; the customary end chamfer is a typed omission.",
+        features~,
+      )
+      .add_layer(tube.as_shape(), name="body", color~)
+      .translate(z=-length_mm / 2.0),
+      d,
+      length_mm,
+    ),
   )
 }

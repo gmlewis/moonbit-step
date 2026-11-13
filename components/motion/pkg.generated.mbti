@@ -25,6 +25,10 @@ pub fn filleted_stepped_shaft(Array[(Double, Double)], fillet_radius_mm? : Doubl
 
 pub fn flanged_linear_bearing(LinearBearingSize, flange_diameter_mm? : Double, flange_thickness_mm? : Double, orient_to_reference? : Bool, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
+pub fn gt2_geometry(Int32) -> Result[GT2Geometry, @common.SpecError]
+
+pub fn gt2_pulley(Int32, Double, Double, flanges? : Bool, flange_thickness_mm? : Double, flange_diameter_mm? : Double, detail? : @common.DetailLevel, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
 pub fn key(Double, Double, Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
 pub fn key_for_keyway(Double, Double, Double, key_height_mm? : Double, width_clearance_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
@@ -59,6 +63,13 @@ pub(all) struct BearingSize {
   bore_mm : Double
   outer_mm : Double
   width_mm : Double
+}
+
+pub(all) struct GT2Geometry {
+  teeth : Int32
+  pitch_diameter_mm : Double
+  outside_diameter_mm : Double
+  root_diameter_mm : Double
 }
 
 pub(all) struct LinearBearingSize {

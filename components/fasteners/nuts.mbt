@@ -222,7 +222,15 @@ pub fn iso4032_nut(
         Some(t) => hex_nut(spec, detail~, threads=t)
         None => hex_nut(spec, detail~)
       }
-      Ok(component)
+      let dims = spec.size_dims
+      Ok(
+        with_nut_connectors(
+          component,
+          dims.thread.nominal_diameter_mm,
+          dims.height_mm,
+          dims.width_across_flats_mm,
+        ),
+      )
     }
   }
 }
@@ -277,12 +285,17 @@ pub fn iso4035_nut(
         ],
       )
       Ok(
-        @common.Component::new(
-          name="ISO4035-\{size.designation()}",
-          metadata=spec.metadata(),
-          description="Thin hexagon nut: one closed solid with a hexagon body, a 75-degree conical washer face on each end, and a circular through bore.",
-          features~,
-        ).add_layer(body, name="body", color~),
+        with_nut_connectors(
+          @common.Component::new(
+            name="ISO4035-\{size.designation()}",
+            metadata=spec.metadata(),
+            description="Thin hexagon nut: one closed solid with a hexagon body, a 75-degree conical washer face on each end, and a circular through bore.",
+            features~,
+          ).add_layer(body, name="body", color~),
+          d,
+          dims.height_mm,
+          dims.width_across_flats_mm,
+        ),
       )
     }
   }

@@ -3,18 +3,35 @@ package "gmlewis/step/components/common"
 
 import {
   "gmlewis/step/cad",
+  "moonbitlang/core/debug",
 }
 
 // Values
 pub fn chord_deviation(Double, Int32) -> Double
 
+pub fn dir_dot((Double, Double, Double), (Double, Double, Double)) -> Double
+
 pub fn[T] expect_ok(Result[T, SpecError]) -> T
 
+pub fn fit_token(@cad.Fit) -> String
+
+pub fn fits_compatible(@cad.Fit, @cad.Fit, @cad.Fit) -> Bool
+
+pub fn genders_compatible(MateKind, MateGender, MateKind, MateGender) -> Bool
+
+pub fn interface_anti_parallel(MateKind, MateKind) -> Bool
+
 pub fn is_finite(Double) -> Bool
+
+pub fn is_mate_name_valid(String) -> Bool
+
+pub fn kinds_compatible(MateKind, MateKind) -> Bool
 
 pub fn length_mm(String, @cad.Length) -> Result[Double, SpecError]
 
 pub fn near(Double, Double, tol? : Double) -> Bool
+
+pub fn normalize_dir((Double, Double, Double)) -> (Double, Double, Double)
 
 pub fn require_in_range(String, Double, Double, Double) -> Result[Unit, SpecError]
 
@@ -23,6 +40,8 @@ pub fn require_non_negative(String, Double) -> Result[Unit, SpecError]
 pub fn require_positive(String, Double) -> Result[Unit, SpecError]
 
 pub fn rotation_matrix_deg(Double, Double, Double) -> @cad.Matrix3x3
+
+pub fn snap_connectors(MateConnector, MateConnector, offset_mm? : Double, twist_rad? : Double, flip_axis? : Bool) -> (Placement, (Double, Double, Double))
 
 // Errors
 
@@ -50,6 +69,9 @@ pub struct Component {
 pub fn Component::add_layer(Self, @cad.Shape, name? : String, color? : @cad.Rgb, placement? : Placement) -> Self
 pub fn Component::add_layers(Self, Array[ComponentLayer]) -> Self
 pub fn Component::bounding_box(Self) -> (Double, Double, Double, Double, Double, Double)
+pub fn Component::connector(Self, String) -> Result[MateConnector, MateError]
+pub fn Component::connector_placed(Self, String, Placement) -> Result[MateConnector, MateError]
+pub fn Component::connectors(Self) -> Array[MateConnector]
 pub fn Component::description(Self) -> String
 pub fn Component::documentation(Self) -> String
 pub fn Component::features(Self) -> FeatureRecord
@@ -59,6 +81,7 @@ pub fn Component::name(Self) -> String
 pub fn Component::new(name~ : String, metadata~ : Metadata, description? : String, features? : FeatureRecord) -> Self
 pub fn Component::nodes(Self) -> Array[@cad.SceneNode]
 pub fn Component::nodes_under(Self, Placement) -> Array[@cad.SceneNode]
+pub fn Component::rebase_to_connector(Self, String) -> Result[Self, MateError]
 pub fn Component::rotate_x(Self, Double) -> Self
 pub fn Component::rotate_y(Self, Double) -> Self
 pub fn Component::rotate_z(Self, Double) -> Self
@@ -67,6 +90,9 @@ pub fn Component::to_design(Self, name? : String, documentation? : String) -> @c
 pub fn Component::to_step(Self, checked? : Bool) -> String
 pub fn Component::transform_with(Self, Placement) -> Self
 pub fn Component::translate(Self, x? : Double, y? : Double, z? : Double) -> Self
+pub fn Component::with_connector(Self, MateConnector) -> Result[Self, MateError]
+pub fn Component::with_connector_unchecked(Self, MateConnector) -> Self
+pub fn Component::with_connectors(Self, Array[MateConnector]) -> Result[Self, MateError]
 pub fn Component::with_description(Self, String) -> Self
 pub fn Component::with_features(Self, FeatureRecord) -> Self
 pub fn Component::with_metadata(Self, Metadata) -> Self
@@ -117,6 +143,118 @@ pub fn FeatureRecord::with_modeled(Self, Array[String]) -> Self
 pub fn FeatureRecord::with_omitted(Self, Array[Omission]) -> Self
 pub fn FeatureRecord::with_tolerance(Self, Double) -> Self
 
+#derive(Eq, @debug.Debug)
+pub(all) struct MateAlignment {
+  placement : Placement
+  axis : (Double, Double, Double)
+  parent_connector : MateConnector
+  child_connector : MateConnector
+  fit : @cad.Fit
+  insertion_anti_parallel : Bool
+  axis_flipped : Bool
+}
+pub fn MateAlignment::declared_clearance_mm(Self) -> Double
+pub fn MateAlignment::equal(Self, Self) -> Bool
+pub fn MateAlignment::nominal_diameter_gap_mm(Self) -> Double
+pub fn MateAlignment::not_equal(Self, Self) -> Bool
+pub fn MateAlignment::to_repr(Self) -> @debug.Repr
+
+#derive(Eq, @debug.Debug)
+pub(all) struct MateConnector {
+  name : String
+  placement : Placement
+  axis : (Double, Double, Double)
+  kind : MateKind
+  gender : MateGender
+  diameter_mm : Double?
+  depth_mm : Double?
+  fit : @cad.Fit
+  description : String
+}
+pub fn MateConnector::documentation(Self) -> String
+pub fn MateConnector::equal(Self, Self) -> Bool
+pub fn MateConnector::from_m_rad(String, (Double, Double, Double), (Double, Double, Double), axis? : (Double, Double, Double), kind? : MateKind, gender? : MateGender, diameter_mm? : Double, depth_mm? : Double, fit? : @cad.Fit, description? : String) -> Self
+pub fn MateConnector::from_mm_deg(String, x? : Double, y? : Double, z? : Double, rx_deg? : Double, ry_deg? : Double, rz_deg? : Double, axis? : (Double, Double, Double), kind? : MateKind, gender? : MateGender, diameter_mm? : Double, depth_mm? : Double, fit? : @cad.Fit, description? : String) -> Self
+pub fn MateConnector::new(String, placement? : Placement, axis? : (Double, Double, Double), kind? : MateKind, gender? : MateGender, diameter_mm? : Double, depth_mm? : Double, fit? : @cad.Fit, description? : String) -> Self
+pub fn MateConnector::not_equal(Self, Self) -> Bool
+pub fn MateConnector::to_m_rad(Self) -> ((Double, Double, Double), (Double, Double, Double))
+pub fn MateConnector::to_repr(Self) -> @debug.Repr
+pub fn MateConnector::transformed(Self, Placement) -> Self
+pub fn MateConnector::validate(Self) -> Result[Unit, MateError]
+
+#derive(Eq, @debug.Debug)
+pub(all) enum MateError {
+  UnknownConnector(String)
+  DuplicateConnector(String)
+  InvalidConnector(String)
+}
+pub fn MateError::equal(Self, Self) -> Bool
+pub fn MateError::message(Self) -> String
+pub fn MateError::not_equal(Self, Self) -> Bool
+pub fn MateError::to_repr(Self) -> @debug.Repr
+pub fn MateError::to_string(Self) -> String
+
+#derive(Eq, @debug.Debug)
+pub(all) enum MateGender {
+  Neutral
+  Male
+  Female
+}
+pub fn MateGender::equal(Self, Self) -> Bool
+pub fn MateGender::not_equal(Self, Self) -> Bool
+pub fn MateGender::to_repr(Self) -> @debug.Repr
+pub fn MateGender::to_string(Self) -> String
+
+#derive(Eq, @debug.Debug)
+pub(all) enum MateKind {
+  PlaneFace
+  CylindricalBore
+  CylindricalShaft
+  Threaded
+  ProfileSlot
+  Datum
+}
+pub fn MateKind::equal(Self, Self) -> Bool
+pub fn MateKind::not_equal(Self, Self) -> Bool
+pub fn MateKind::requires_gender(Self) -> Bool
+pub fn MateKind::to_repr(Self) -> @debug.Repr
+pub fn MateKind::to_string(Self) -> String
+
+#derive(Eq, @debug.Debug)
+pub(all) struct MatePair {
+  parent : String
+  child : String
+  offset_mm : Double
+  twist_deg : Double
+  flip_axis : Bool
+  fit : @cad.Fit
+  description : String
+}
+pub fn MatePair::equal(Self, Self) -> Bool
+pub fn MatePair::new(parent~ : String, child~ : String, offset_mm? : Double, twist_deg? : Double, flip_axis? : Bool, fit? : @cad.Fit, description? : String) -> Self
+pub fn MatePair::not_equal(Self, Self) -> Bool
+pub fn MatePair::resolve(Self, MateConnector, MateConnector) -> Result[MateAlignment, MatePairError]
+pub fn MatePair::to_repr(Self) -> @debug.Repr
+pub fn MatePair::validate(Self, MateConnector, MateConnector) -> Result[Unit, MatePairError]
+
+#derive(Eq, @debug.Debug)
+pub(all) enum MatePairError {
+  MissingConnector(String)
+  MissingInstance(String)
+  ConnectorNameMismatch(String, String)
+  IncompatibleKind(String, String)
+  IncompatibleGender(String, String)
+  DiameterMismatch(Double, Double)
+  FitMismatch(String)
+  InvalidConnector(String)
+  InvalidPair(String)
+}
+pub fn MatePairError::equal(Self, Self) -> Bool
+pub fn MatePairError::message(Self) -> String
+pub fn MatePairError::not_equal(Self, Self) -> Bool
+pub fn MatePairError::to_repr(Self) -> @debug.Repr
+pub fn MatePairError::to_string(Self) -> String
+
 pub(all) struct Metadata {
   designation : String
   standard : String
@@ -138,6 +276,7 @@ pub(all) struct Omission {
 pub fn Omission::documentation(Self) -> String
 pub fn Omission::new(feature~ : String, reason~ : String) -> Self
 
+#derive(Eq, @debug.Debug)
 pub(all) struct Placement {
   rot : @cad.Matrix3x3
   trans : (Double, Double, Double)
@@ -146,13 +285,17 @@ pub fn Placement::apply_dir(Self, (Double, Double, Double)) -> (Double, Double, 
 pub fn Placement::apply_point(Self, (Double, Double, Double)) -> (Double, Double, Double)
 pub fn Placement::at(Double, Double, Double, rx? : Double, ry? : Double, rz? : Double) -> Self
 pub fn Placement::compose(Self, Self) -> Self
+pub fn Placement::equal(Self, Self) -> Bool
 pub fn Placement::identity() -> Self
 pub fn Placement::inverse(Self) -> Self
+pub fn Placement::not_equal(Self, Self) -> Bool
+pub fn Placement::rotation_axis_angle((Double, Double, Double), Double) -> Self
 pub fn Placement::rotation_deg(Double, Double, Double) -> Self
 pub fn Placement::rotation_x(Double) -> Self
 pub fn Placement::rotation_y(Double) -> Self
 pub fn Placement::rotation_z(Double) -> Self
 pub fn Placement::to_euler(Self) -> (Double, Double, Double)
+pub fn Placement::to_repr(Self) -> @debug.Repr
 pub fn Placement::translation(Double, Double, Double) -> Self
 
 pub(all) enum SpecError {

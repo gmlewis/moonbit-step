@@ -102,7 +102,15 @@ pub fn din913(
           None => ()
         }
       }
-      Ok(component)
+      Ok(
+        with_set_screw_connectors(
+          component,
+          d,
+          spec.length_mm,
+          point_z_mm=0.0,
+          top_z_mm=spec.length_mm,
+        ),
+      )
     }
   }
 }
@@ -216,9 +224,25 @@ pub fn din916_cup_point_set_screw(
         features~,
       ).add_layer(socket.as_shape(), name="body", color~)
       if orient_to_reference {
-        Ok(component.rotate_x(180.0).translate(z=spec.length_mm))
+        Ok(
+          with_set_screw_connectors(
+            component.rotate_x(180.0).translate(z=spec.length_mm),
+            d,
+            spec.length_mm,
+            point_z_mm=spec.length_mm,
+            top_z_mm=0.0,
+          ),
+        )
       } else {
-        Ok(component)
+        Ok(
+          with_set_screw_connectors(
+            component,
+            d,
+            spec.length_mm,
+            point_z_mm=0.0,
+            top_z_mm=spec.length_mm,
+          ),
+        )
       }
     }
   }

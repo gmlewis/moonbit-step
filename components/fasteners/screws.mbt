@@ -340,7 +340,19 @@ pub fn iso4762_screw(
           )
         None => socket_head_cap_screw(spec, detail~, reference~, reference_b~)
       }
-      Ok(component)
+      let dims = spec.size_dims
+      Ok(
+        with_screw_connectors(
+          component,
+          dims.thread.nominal_diameter_mm,
+          spec.length_mm,
+          spec.thread_length_mm,
+          dims.head_diameter_mm,
+          bearing_face_z_mm=0.0,
+          head_top_z_mm=dims.head_height_mm,
+          tip_z_mm=-spec.length_mm,
+        ),
+      )
     }
   }
 }

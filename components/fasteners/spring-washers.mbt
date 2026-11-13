@@ -83,30 +83,35 @@ pub fn din127_washer(
       )
       let deviation = din127_bspline_deviation_mm
       Ok(
-        @common.Component::new(
-          name="DIN127-\{dims.size.designation()}",
-          metadata=spec.metadata(),
-          description="DIN 127 B spring washer, form B: a helical split ring with a rectangular radial-vertical section and a 10.8-degree split gap. The four sides are native cubic B-spline surfaces (24 spans per turn) between the corner helices, with two planar end caps; the DIN edge radius r is not modeled.",
-          features=@common.FeatureRecord::new(
-            modeled=[
-              "rectangular-section", "split-gap", "end-faces", "b-spline-helicoid",
-            ],
-            approximated=[
-              @common.Approximation::new(
-                feature="helical-body",
-                kind=@common.ApproximationKind::SweptSpline,
-                deviation_mm=deviation,
-                control="cubic B-spline, 24 spans per turn",
-              ),
-            ],
-            omitted=[
-              @common.Omission::new(
-                feature="edge-radius",
-                reason="DIN 127 B specifies an edge radius r; the square-cut section is the nominal representation and no edge radius is modeled",
-              ),
-            ],
-          ),
-        ).add_layer(body, name="body", color~),
+        with_washer_connectors(
+          @common.Component::new(
+            name="DIN127-\{dims.size.designation()}",
+            metadata=spec.metadata(),
+            description="DIN 127 B spring washer, form B: a helical split ring with a rectangular radial-vertical section and a 10.8-degree split gap. The four sides are native cubic B-spline surfaces (24 spans per turn) between the corner helices, with two planar end caps; the DIN edge radius r is not modeled.",
+            features=@common.FeatureRecord::new(
+              modeled=[
+                "rectangular-section", "split-gap", "end-faces", "b-spline-helicoid",
+              ],
+              approximated=[
+                @common.Approximation::new(
+                  feature="helical-body",
+                  kind=@common.ApproximationKind::SweptSpline,
+                  deviation_mm=deviation,
+                  control="cubic B-spline, 24 spans per turn",
+                ),
+              ],
+              omitted=[
+                @common.Omission::new(
+                  feature="edge-radius",
+                  reason="DIN 127 B specifies an edge radius r; the square-cut section is the nominal representation and no edge radius is modeled",
+                ),
+              ],
+            ),
+          ).add_layer(body, name="body", color~),
+          dims.inner_diameter_mm,
+          dims.outer_diameter_mm,
+          dims.free_height_mm,
+        ),
       )
     }
   }

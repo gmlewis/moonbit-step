@@ -371,13 +371,17 @@ pub fn FaceSet::length(Self) -> Int32
 pub fn FaceSet::sort_by_z(Self, ascending? : Bool) -> Self
 pub fn FaceSet::to_array(Self) -> Array[FaceInfo]
 
+#derive(Eq, @debug.Debug)
 pub(all) enum Fit {
   Nominal
   Close
   Free
   Press
 }
+pub fn Fit::equal(Self, Self) -> Bool
+pub fn Fit::not_equal(Self, Self) -> Bool
 pub fn Fit::per_face_mm(Self) -> Double
+pub fn Fit::to_repr(Self) -> @debug.Repr
 
 pub struct HexHeadWasherFace {
   across_flats_mm : Double
@@ -408,6 +412,7 @@ pub impl Add for Length
 pub impl Neg for Length
 pub impl Sub for Length
 
+#derive(Eq, @debug.Debug)
 pub(all) struct Matrix3x3 {
   m00 : Double
   m01 : Double
@@ -419,6 +424,9 @@ pub(all) struct Matrix3x3 {
   m21 : Double
   m22 : Double
 }
+pub fn Matrix3x3::equal(Self, Self) -> Bool
+pub fn Matrix3x3::not_equal(Self, Self) -> Bool
+pub fn Matrix3x3::to_repr(Self) -> @debug.Repr
 
 pub(all) enum PrismError {
   PrismTooFewVertices

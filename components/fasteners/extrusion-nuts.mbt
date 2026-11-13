@@ -132,19 +132,25 @@ pub fn extrusion_tnut(
   )
   let name = "TNUT-\{spec.thread}-slot\{@cad.fmt_double(spec.slot_width_mm, None)}"
   Ok(
-    @common.Component::new(
-      name~,
-      metadata=@common.Metadata::new(
-        designation="Extrusion T-nut \{spec.thread}, slot \{@cad.fmt_double(spec.slot_width_mm, None)} mm",
-        standard="generic extrusion T-nut envelope (step.parts dimensions)",
-        family="extrusion T-nut",
-        size=spec.thread,
-        length_mm=spec.thickness_mm,
-        material="steel (label only; not a structural claim)",
-        source="Hex body across flats and thickness from the step.parts extrusion-nut envelope; slot width is an engagement parameter. All catalogue styles share this body.",
-      ),
-      description="Generic hex-body extrusion T-nut: regular hexagonal prism with a central thread-envelope hole. The reference catalogue uses the same body for slide-in, drop-in, and hammer styles, so no style-specific retention feature is claimed.",
-      features~,
-    ).add_layer(body, name="body", color~),
+    with_tnut_connectors(
+      @common.Component::new(
+        name~,
+        metadata=@common.Metadata::new(
+          designation="Extrusion T-nut \{spec.thread}, slot \{@cad.fmt_double(spec.slot_width_mm, None)} mm",
+          standard="generic extrusion T-nut envelope (step.parts dimensions)",
+          family="extrusion T-nut",
+          size=spec.thread,
+          length_mm=spec.thickness_mm,
+          material="steel (label only; not a structural claim)",
+          source="Hex body across flats and thickness from the step.parts extrusion-nut envelope; slot width is an engagement parameter. All catalogue styles share this body.",
+        ),
+        description="Generic hex-body extrusion T-nut: regular hexagonal prism with a central thread-envelope hole. The reference catalogue uses the same body for slide-in, drop-in, and hammer styles, so no style-specific retention feature is claimed.",
+        features~,
+      ).add_layer(body, name="body", color~),
+      spec.thread,
+      spec.thickness_mm,
+      spec.across_flats_mm,
+      spec.slot_width_mm,
+    ),
   )
 }

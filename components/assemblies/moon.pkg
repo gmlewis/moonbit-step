@@ -12,8 +12,11 @@ import {
 import {
   "gmlewis/step/components/collision",
   "gmlewis/step/components/fasteners",
+  "gmlewis/step/components/motion",
+  "gmlewis/step/components/motors",
   "gmlewis/step/components/profiles",
   "gmlewis/step/components/standards",
+  "gmlewis/step/components/stock",
   "gmlewis/step/parse",
   "moonbitlang/core/builtin",
 } for "test"

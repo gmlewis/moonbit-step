@@ -80,47 +80,51 @@ pub fn compression_spring(
   let body = @cad.SweptProfile::new(path~, profile~, straight_outline=false)
   let name = "spring-\{@cad.fmt_double(mean_diameter_mm, None)}x\{@cad.fmt_double(wire_diameter_mm, None)}x\{@cad.fmt_double(length_mm, None)}"
   Ok(
-    @common.Component::new(
-      name~,
-      metadata=@common.Metadata::new(
-        designation="Compression spring mean dia \{@cad.fmt_double(mean_diameter_mm, None)} / wire \{@cad.fmt_double(wire_diameter_mm, None)} x \{@cad.fmt_double(length_mm, None)}",
-        family="compression spring (simplified)",
-        length_mm~,
-        source="Parametric helical sweep; no spring rate, end-coil, or grinding model.",
-      ),
-      description="Open helical spring with circular wire and flat swept end caps. The wire section is swept in the radial-axial plane and is a 12-gon; the helix tangent used by the sweep has no axial component, so the section normal to the true helix is slightly elliptical. Closed/ground ends and preload are not modeled.",
-      features=@common.FeatureRecord::new(
-        modeled=["helix-body"],
-        approximated=[
-          @common.Approximation::new(
-            feature="helical-wire",
-            kind=@common.ApproximationKind::SweptSpline,
-            deviation_mm=@common.chord_deviation(radius, segments),
-            control="segments_per_turn=\{segments}",
-          ),
-          @common.Approximation::new(
-            feature="wire-section",
-            kind=@common.ApproximationKind::PolylineArc,
-            deviation_mm=@common.chord_deviation(wire_radius, wire_segments),
-            control="wire_segments=12",
-          ),
-        ],
-        omitted=[
-          @common.Omission::new(
-            feature="closed-end-coils",
-            reason="not modelled by this builder",
-          ),
-          @common.Omission::new(
-            feature="ground-ends",
-            reason="not modelled by this builder",
-          ),
-          @common.Omission::new(
-            feature="spring-rate",
-            reason="geometry only; no spring rate or preload model",
-          ),
-        ],
-      ),
-    ).add_layer(body, name="body", color~),
+    with_spring_connectors(
+      @common.Component::new(
+        name~,
+        metadata=@common.Metadata::new(
+          designation="Compression spring mean dia \{@cad.fmt_double(mean_diameter_mm, None)} / wire \{@cad.fmt_double(wire_diameter_mm, None)} x \{@cad.fmt_double(length_mm, None)}",
+          family="compression spring (simplified)",
+          length_mm~,
+          source="Parametric helical sweep; no spring rate, end-coil, or grinding model.",
+        ),
+        description="Open helical spring with circular wire and flat swept end caps. The wire section is swept in the radial-axial plane and is a 12-gon; the helix tangent used by the sweep has no axial component, so the section normal to the true helix is slightly elliptical. Closed/ground ends and preload are not modeled.",
+        features=@common.FeatureRecord::new(
+          modeled=["helix-body"],
+          approximated=[
+            @common.Approximation::new(
+              feature="helical-wire",
+              kind=@common.ApproximationKind::SweptSpline,
+              deviation_mm=@common.chord_deviation(radius, segments),
+              control="segments_per_turn=\{segments}",
+            ),
+            @common.Approximation::new(
+              feature="wire-section",
+              kind=@common.ApproximationKind::PolylineArc,
+              deviation_mm=@common.chord_deviation(wire_radius, wire_segments),
+              control="wire_segments=12",
+            ),
+          ],
+          omitted=[
+            @common.Omission::new(
+              feature="closed-end-coils",
+              reason="not modelled by this builder",
+            ),
+            @common.Omission::new(
+              feature="ground-ends",
+              reason="not modelled by this builder",
+            ),
+            @common.Omission::new(
+              feature="spring-rate",
+              reason="geometry only; no spring rate or preload model",
+            ),
+          ],
+        ),
+      ).add_layer(body, name="body", color~),
+      mean_diameter_mm + wire_diameter_mm,
+      length_mm,
+    ),
   )
 }
 
@@ -161,40 +165,45 @@ pub fn standoff(
   let body = @cad.ExtrudedProfile::new(outer, length_mm, holes=[hole])
   let name = "standoff-\{@cad.fmt_double(across_flats_mm, None)}x\{@cad.fmt_double(length_mm, None)}"
   Ok(
-    @common.Component::new(
-      name~,
-      metadata=@common.Metadata::new(
-        designation="Hex standoff AF \{@cad.fmt_double(across_flats_mm, None)} x \{@cad.fmt_double(length_mm, None)}",
-        family="hex standoff",
-        length_mm~,
-        source="Parametric hex tube; threads and chamfers are not modeled.",
-      ),
-      description="Hexagonal standoff with a plain through bore. Threads and chamfers are not modeled.",
-      features=@common.FeatureRecord::new(
-        modeled=["hex-body"],
-        approximated=[
-          @common.Approximation::new(
-            feature="through-bore",
-            kind=@common.ApproximationKind::PolylineArc,
-            deviation_mm=@common.chord_deviation(
-              bore_diameter_mm / 2.0,
-              segments,
+    with_bore_and_faces(
+      @common.Component::new(
+        name~,
+        metadata=@common.Metadata::new(
+          designation="Hex standoff AF \{@cad.fmt_double(across_flats_mm, None)} x \{@cad.fmt_double(length_mm, None)}",
+          family="hex standoff",
+          length_mm~,
+          source="Parametric hex tube; threads and chamfers are not modeled.",
+        ),
+        description="Hexagonal standoff with a plain through bore. Threads and chamfers are not modeled.",
+        features=@common.FeatureRecord::new(
+          modeled=["hex-body"],
+          approximated=[
+            @common.Approximation::new(
+              feature="through-bore",
+              kind=@common.ApproximationKind::PolylineArc,
+              deviation_mm=@common.chord_deviation(
+                bore_diameter_mm / 2.0,
+                segments,
+              ),
+              control="circle_segments=\{segments}",
             ),
-            control="circle_segments=\{segments}",
-          ),
-        ],
-        omitted=[
-          @common.Omission::new(
-            feature="thread",
-            reason="no thread geometry in this builder",
-          ),
-          @common.Omission::new(
-            feature="edge-chamfer",
-            reason="not modelled by this builder",
-          ),
-        ],
-      ),
-    ).add_layer(body, name="body", color=@cad.Rgb::green()),
+          ],
+          omitted=[
+            @common.Omission::new(
+              feature="thread",
+              reason="no thread geometry in this builder",
+            ),
+            @common.Omission::new(
+              feature="edge-chamfer",
+              reason="not modelled by this builder",
+            ),
+          ],
+        ),
+      ).add_layer(body, name="body", color=@cad.Rgb::green()),
+      bore_diameter_mm,
+      across_flats_mm,
+      length_mm,
+    ),
   )
 }
 

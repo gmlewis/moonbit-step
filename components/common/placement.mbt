@@ -11,10 +11,17 @@
 /// ```text
 /// compose(outer, inner).apply_point(p) == outer.apply_point(inner.apply_point(p))
 /// ```
+#derive(Debug, Eq)
 pub(all) struct Placement {
   rot : @cad.Matrix3x3
   trans : @cad.Vec3
 }
+
+///|
+pub extend Placement with @debug.Debug::{to_repr}
+
+///|
+pub extend Placement with Eq::{not_equal, equal}
 
 ///|
 /// Placement::identity is the no-op placement.
@@ -67,6 +74,45 @@ pub fn Placement::rotation_y(angle_deg : Double) -> Placement {
 /// Placement::rotation_z rotates about +Z by `angle_deg`.
 pub fn Placement::rotation_z(angle_deg : Double) -> Placement {
   Placement::rotation_deg(0.0, 0.0, angle_deg)
+}
+
+///|
+/// Placement::rotation_axis_angle rotates about `axis` by `angle_rad` using
+/// Rodrigues' formula. A zero-length axis yields the identity rotation.
+///
+/// This is the rotation used by the mate-snapping helper: `MatePair` twist is
+/// expressed about the parent connector axis, which is not generally one of the
+/// Euler axes. The matrix convention remains the `Rz * Ry * Rx` layout of
+/// `Placement`, so the result composes exactly like every other placement.
+pub fn Placement::rotation_axis_angle(
+  axis : @cad.Vec3,
+  angle_rad : Double,
+) -> Placement {
+  let (ax, ay, az) = axis
+  let len = (ax * ax + ay * ay + az * az).sqrt()
+  if len < 1.0e-15 {
+    return Placement::identity()
+  }
+  let ux = ax / len
+  let uy = ay / len
+  let uz = az / len
+  let c = @math.cos(angle_rad)
+  let s = @math.sin(angle_rad)
+  let t = 1.0 - c
+  {
+    rot: @cad.Matrix3x3::{
+      m00: t * ux * ux + c,
+      m01: t * ux * uy - s * uz,
+      m02: t * ux * uz + s * uy,
+      m10: t * ux * uy + s * uz,
+      m11: t * uy * uy + c,
+      m12: t * uy * uz - s * ux,
+      m20: t * ux * uz - s * uy,
+      m21: t * uy * uz + s * ux,
+      m22: t * uz * uz + c,
+    },
+    trans: (0.0, 0.0, 0.0),
+  }
 }
 
 ///|

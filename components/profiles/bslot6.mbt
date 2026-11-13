@@ -200,6 +200,9 @@ pub fn b_slot6_2020_extrusion(
         description="20 x 20 aluminium T-slot extrusion (B-slot6 A): four 6 mm-neck slots with 6.8 mm mouths, 1 mm rounded outer corners, four diagonal corner webs, and a lobed central bore. No end machining.",
         features~,
       ).add_layer(body, name="body", color~)
+      let component = with_extrusion_connectors(
+        component, 20.0, 20.0, length_mm, 6.0, 5.0,
+      )
       if orient_to_reference {
         Ok(component.rotate_x(90.0))
       } else {

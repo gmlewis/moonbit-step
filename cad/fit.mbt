@@ -9,6 +9,7 @@
 ///
 /// STEP export stays nominal: `fit` changes the modelled void, not a printer
 /// compensation layer, so do not treat it as printer calibration.
+#derive(Debug, Eq)
 pub(all) enum Fit {
   /// 0.00 mm per face.
   Nominal
@@ -22,6 +23,12 @@ pub(all) enum Fit {
 
 ///|
 /// Fit::per_face_mm returns the radial clearance implied by the fit.
+pub extend Fit with @debug.Debug::{to_repr}
+
+///|
+pub extend Fit with Eq::{not_equal, equal}
+
+///|
 pub fn Fit::per_face_mm(self : Fit) -> Double {
   match self {
     Nominal => 0.0

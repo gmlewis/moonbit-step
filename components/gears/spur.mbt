@@ -260,18 +260,24 @@ pub fn spur_gear(
     )
   }
   Ok(
-    @common.Component::new(
-      name~,
-      metadata=@common.Metadata::new(
-        designation="Spur gear \{params.designation()}",
-        standard="ISO 21771 involute geometry (parametric)",
-        family="external involute spur gear",
-        size=params.designation(),
-        source="Involute gear formulas follow ISO 21771 / standard gear practice. Tip/root arcs are polygonal approximations.",
-      ),
-      description="External involute spur gear with optional central bore. Sharp root corners; no hub, keyway, or fillet.",
-      features~,
-    ).add_layer(body, name="body", color~),
+    with_gear_connectors(
+      @common.Component::new(
+        name~,
+        metadata=@common.Metadata::new(
+          designation="Spur gear \{params.designation()}",
+          standard="ISO 21771 involute geometry (parametric)",
+          family="external involute spur gear",
+          size=params.designation(),
+          source="Involute gear formulas follow ISO 21771 / standard gear practice. Tip/root arcs are polygonal approximations.",
+        ),
+        description="External involute spur gear with optional central bore. Sharp root corners; no hub, keyway, or fillet.",
+        features~,
+      ).add_layer(body, name="body", color~),
+      params.bore_diameter_mm,
+      2.0 * geom.pitch_radius_mm,
+      2.0 * geom.outer_radius_mm,
+      params.face_width_mm,
+    ),
   )
 }
 
@@ -305,19 +311,26 @@ pub fn spur_gear_envelope(
     ],
   )
   Ok(
-    @common.Component::new(
-      name="spur-gear-envelope-\{params.designation()}",
-      metadata=@common.Metadata::new(
-        designation="Spur gear blank \{params.designation()}",
-        standard="ISO 21771 tip-diameter envelope",
-        family="external spur gear blank",
-        size=params.designation(),
-        source="tip diameter = module * (teeth + 2); plain cylinder with central bore",
-      ),
-      description="Spur gear blank envelope: a plain cylinder at the tip diameter with an optional central bore. No tooth form.",
-      features~,
-    )
-    .add_layer(body.as_shape(), name="body", color~)
-    .translate(z=-params.face_width_mm / 2.0),
+    with_gear_connectors(
+      @common.Component::new(
+        name="spur-gear-envelope-\{params.designation()}",
+        metadata=@common.Metadata::new(
+          designation="Spur gear blank \{params.designation()}",
+          standard="ISO 21771 tip-diameter envelope",
+          family="external spur gear blank",
+          size=params.designation(),
+          source="tip diameter = module * (teeth + 2); plain cylinder with central bore",
+        ),
+        description="Spur gear blank envelope: a plain cylinder at the tip diameter with an optional central bore. No tooth form.",
+        features~,
+      )
+      .add_layer(body.as_shape(), name="body", color~)
+      .translate(z=-params.face_width_mm / 2.0),
+      params.bore_diameter_mm,
+      2.0 * geom.pitch_radius_mm,
+      tip_diameter,
+      params.face_width_mm,
+      base_z_mm=-params.face_width_mm / 2.0,
+    ),
   )
 }

@@ -116,34 +116,52 @@ pub fn keyed_shaft(
   ]
   let name = "keyed-shaft-d\{@cad.fmt_double(diameter_mm, None)}x\{@cad.fmt_double(length_mm, None)}-kw\{@cad.fmt_double(keyway_width_mm, None)}x\{@cad.fmt_double(keyway_depth_mm, None)}"
   Ok(
-    @common.Component::new(
-      name~,
-      metadata=@common.Metadata::new(
-        designation="Keyed shaft d\{@cad.fmt_double(diameter_mm, None)} x \{@cad.fmt_double(length_mm, None)}, keyway \{@cad.fmt_double(keyway_width_mm, None)} x \{@cad.fmt_double(keyway_depth_mm, None)}",
-        family="keyed shaft",
-        size="d\{@cad.fmt_double(diameter_mm, None)}",
-        length_mm~,
-        source="Parametric shaft with a flat-bottom keyway generated from the section; verify the key size against the applicable shaft standard.",
+    with_shaft_connectors(
+      @common.Component::new(
+        name~,
+        metadata=@common.Metadata::new(
+          designation="Keyed shaft d\{@cad.fmt_double(diameter_mm, None)} x \{@cad.fmt_double(length_mm, None)}, keyway \{@cad.fmt_double(keyway_width_mm, None)} x \{@cad.fmt_double(keyway_depth_mm, None)}",
+          family="keyed shaft",
+          size="d\{@cad.fmt_double(diameter_mm, None)}",
+          length_mm~,
+          source="Parametric shaft with a flat-bottom keyway generated from the section; verify the key size against the applicable shaft standard.",
+        ),
+        description="Cylindrical shaft with a real flat-bottomed rectangular keyway on +Y, running the full length. The shaft is an analytic cylinder (two circular-arc side faces) and the keyway is a geometric notch in the extruded section; it is not a nominal boolean.",
+        features=@common.FeatureRecord::new(
+          modeled=["body", "keyway", "shaft-circular-section"],
+          approximated=[],
+          omitted=[
+            @common.Omission::new(
+              feature="keyway-end-radius",
+              reason="the keyway ends are square; an end-milled keyway has a cutter-radius bottom",
+            ),
+            @common.Omission::new(
+              feature="shaft-chamfer",
+              reason="not modelled by this builder",
+            ),
+          ],
+        ),
+      ).add_layer(
+        @cad.ExtrudedArcProfile::new(arc_segments, length_mm).as_shape(),
+        name="body",
+        color~,
       ),
-      description="Cylindrical shaft with a real flat-bottomed rectangular keyway on +Y, running the full length. The shaft is an analytic cylinder (two circular-arc side faces) and the keyway is a geometric notch in the extruded section; it is not a nominal boolean.",
-      features=@common.FeatureRecord::new(
-        modeled=["body", "keyway", "shaft-circular-section"],
-        approximated=[],
-        omitted=[
-          @common.Omission::new(
-            feature="keyway-end-radius",
-            reason="the keyway ends are square; an end-milled keyway has a cutter-radius bottom",
-          ),
-          @common.Omission::new(
-            feature="shaft-chamfer",
-            reason="not modelled by this builder",
-          ),
-        ],
+      diameter_mm,
+      length_mm,
+    ).with_connector_unchecked(
+      @common.MateConnector::new(
+        "keyway-datum",
+        placement=@common.Placement::translation(
+          0.0,
+          radius - keyway_depth_mm / 2.0,
+          length_mm / 2.0,
+        ),
+        axis=(0.0, 1.0, 0.0),
+        kind=@common.MateKind::Datum,
+        diameter_mm=keyway_width_mm,
+        depth_mm=length_mm,
+        description="keyway centre plane; axis points out of the +Y slot",
       ),
-    ).add_layer(
-      @cad.ExtrudedArcProfile::new(arc_segments, length_mm).as_shape(),
-      name="body",
-      color~,
     ),
   )
 }

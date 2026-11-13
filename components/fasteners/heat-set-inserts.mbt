@@ -145,20 +145,25 @@ pub fn heat_set_insert(
   )
   let name = "HEATSET-\{spec.thread}-\{@cad.fmt_double(length, None)}"
   Ok(
-    @common.Component::new(
-      name~,
-      metadata=@common.Metadata::new(
-        designation="Heat-set insert \{spec.thread}, \{@cad.fmt_double(length, None)} mm",
-        standard="generic heat-set insert envelope (step.parts dimensions)",
-        family="heat-set threaded insert",
-        size=spec.thread,
-        length_mm=length,
-        material="brass (label only; not a strength claim)",
-        source="Step.parts M3 short and long heat-set insert envelopes: 6.0 mm body, 6.48 mm knurl, 2.25 mm bore, knurl bands at 20-32% and 68-80% of length.",
-      ),
-      description="Heat-set threaded-insert envelope: plain body with two raised cylindrical knurl bands and a through bore. The bore is a thread envelope; diamond knurl and pull-out strength are not modeled.",
-      features~,
-    ).add_layer(body, name="body", color~),
+    with_insert_connectors(
+      @common.Component::new(
+        name~,
+        metadata=@common.Metadata::new(
+          designation="Heat-set insert \{spec.thread}, \{@cad.fmt_double(length, None)} mm",
+          standard="generic heat-set insert envelope (step.parts dimensions)",
+          family="heat-set threaded insert",
+          size=spec.thread,
+          length_mm=length,
+          material="brass (label only; not a strength claim)",
+          source="Step.parts M3 short and long heat-set insert envelopes: 6.0 mm body, 6.48 mm knurl, 2.25 mm bore, knurl bands at 20-32% and 68-80% of length.",
+        ),
+        description="Heat-set threaded-insert envelope: plain body with two raised cylindrical knurl bands and a through bore. The bore is a thread envelope; diamond knurl and pull-out strength are not modeled.",
+        features~,
+      ).add_layer(body, name="body", color~),
+      spec.thread,
+      length,
+      spec.body_diameter_mm,
+    ),
   )
 }
 

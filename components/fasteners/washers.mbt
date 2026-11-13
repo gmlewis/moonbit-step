@@ -29,15 +29,20 @@ fn plain_washer(
       ),
     ],
   )
-  @common.Component::new(
-    name~,
-    metadata~,
-    description="Plain washer, normal series; a single extrusion with a circular bore. " +
-      standard_label +
-      " specifies no edge chamfer, so the sharp edge is modeled at every detail level and no chamfer is claimed." +
-      edge_chamfer_note(detail, standard_label),
-    features~,
-  ).add_layer(body, name="body", color=metal)
+  with_washer_connectors(
+    @common.Component::new(
+      name~,
+      metadata~,
+      description="Plain washer, normal series; a single extrusion with a circular bore. " +
+        standard_label +
+        " specifies no edge chamfer, so the sharp edge is modeled at every detail level and no chamfer is claimed." +
+        edge_chamfer_note(detail, standard_label),
+      features~,
+    ).add_layer(body, name="body", color=metal),
+    inner_diameter_mm,
+    outer_diameter_mm,
+    thickness_mm,
+  )
 }
 
 ///|
@@ -200,7 +205,43 @@ pub fn din440_washer(
               ),
             ],
           ),
-        ).add_layer(body, name="body", color~),
+        )
+        .add_layer(body, name="body", color~)
+        .with_connector_unchecked(
+          @common.MateConnector::new(
+            "square-bore",
+            placement=@common.Placement::translation(0.0, 0.0, 0.0),
+            axis=(0.0, 0.0, 1.0),
+            kind=@common.MateKind::ProfileSlot,
+            diameter_mm=dims.square_side_mm,
+            depth_mm=dims.thickness_mm,
+            description="square clearance hole, centred on the origin",
+          ),
+        )
+        .with_connector_unchecked(
+          @common.MateConnector::new(
+            "face-bottom",
+            placement=@common.Placement::translation(0.0, 0.0, 0.0),
+            axis=(0.0, 0.0, -1.0),
+            kind=@common.MateKind::PlaneFace,
+            diameter_mm=dims.outer_diameter_mm,
+            description="bearing face at z = 0",
+          ),
+        )
+        .with_connector_unchecked(
+          @common.MateConnector::new(
+            "face-top",
+            placement=@common.Placement::translation(
+              0.0,
+              0.0,
+              dims.thickness_mm,
+            ),
+            axis=(0.0, 0.0, 1.0),
+            kind=@common.MateKind::PlaneFace,
+            diameter_mm=dims.outer_diameter_mm,
+            description="bearing face at z = thickness",
+          ),
+        ),
       )
     }
   }

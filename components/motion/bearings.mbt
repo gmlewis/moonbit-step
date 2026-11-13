@@ -231,7 +231,7 @@ pub fn bearing(
       placement~,
     )
   }
-  Ok(component)
+  Ok(with_bushing_connectors(component, d, outer, width))
 }
 
 ///|
@@ -336,18 +336,24 @@ pub fn shielded_bearing(
   }
   let features = shielded_bearing_feature_record()
   Ok(
-    @common.Component::new(
-      name~,
-      metadata=@common.Metadata::new(
-        designation="Shielded bearing \{size.designation}",
-        standard="ISO 15:2017 boundary dimensions; simplified shielded envelope",
-        family="shielded radial ball bearing (simplified envelope)",
-        size=size.designation,
-        source="Boundary dimensions from ISO 15:2017 / catalogue tables; the shield groove and ring proportions are parametric envelope geometry, not catalogue internals.",
-      ),
-      description="Single-solid shielded bearing envelope: outer and inner rings joined by a recessed 45-degree shield groove on each face. The flat shield faces are styled black to match the reference; the 45-degree groove walls and the rings stay light metal. No rolling elements, cage, or separate shield plate; the groove floor is the shield seat. Centered on z = 0.",
-      features~,
-    ).add_layer(body, name="body", color=metal),
+    with_bushing_connectors(
+      @common.Component::new(
+        name~,
+        metadata=@common.Metadata::new(
+          designation="Shielded bearing \{size.designation}",
+          standard="ISO 15:2017 boundary dimensions; simplified shielded envelope",
+          family="shielded radial ball bearing (simplified envelope)",
+          size=size.designation,
+          source="Boundary dimensions from ISO 15:2017 / catalogue tables; the shield groove and ring proportions are parametric envelope geometry, not catalogue internals.",
+        ),
+        description="Single-solid shielded bearing envelope: outer and inner rings joined by a recessed 45-degree shield groove on each face. The flat shield faces are styled black to match the reference; the 45-degree groove walls and the rings stay light metal. No rolling elements, cage, or separate shield plate; the groove floor is the shield seat. Centered on z = 0.",
+        features~,
+      ).add_layer(body, name="body", color=metal),
+      d,
+      outer,
+      width,
+      base_z_mm=-width / 2.0,
+    ),
   )
 }
 

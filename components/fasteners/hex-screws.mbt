@@ -191,17 +191,26 @@ pub fn iso4017_screw(
   }
   let dims = spec.size_dims
   let name = "ISO4017-\{dims.size.designation()}-\{format_length(spec.length_mm)}"
-  hex_head_shape(
-    dims,
+  with_screw_connectors(
+    hex_head_shape(
+      dims,
+      spec.length_mm,
+      spec.length_mm,
+      detail,
+      thread_rep,
+      name,
+      spec.metadata(),
+      "Hexagon head screw; layered body and head. Without modeled threads the shank uses the ISO 68-1 basic minor diameter D1. The head carries a 75-degree conical washer face with a circular top at every detail level; the shank tip break is added at Detailed and above." +
+      thread_note(thread_rep),
+      unified~,
+    ),
+    dims.thread.nominal_diameter_mm,
     spec.length_mm,
     spec.length_mm,
-    detail,
-    thread_rep,
-    name,
-    spec.metadata(),
-    "Hexagon head screw; layered body and head. Without modeled threads the shank uses the ISO 68-1 basic minor diameter D1. The head carries a 75-degree conical washer face with a circular top at every detail level; the shank tip break is added at Detailed and above." +
-    thread_note(thread_rep),
-    unified~,
+    dims.width_across_flats_mm,
+    bearing_face_z_mm=0.0,
+    head_top_z_mm=dims.head_height_mm,
+    tip_z_mm=-spec.length_mm,
   )
 }
 
@@ -244,17 +253,26 @@ pub fn iso4014_bolt(
   }
   let dims = spec.size_dims
   let name = "ISO4014-\{dims.size.designation()}-\{format_length(spec.length_mm)}"
-  hex_head_shape(
-    dims,
+  with_screw_connectors(
+    hex_head_shape(
+      dims,
+      spec.length_mm,
+      spec.thread_length_mm,
+      detail,
+      thread_rep,
+      name,
+      spec.metadata(),
+      "Hexagon head bolt; layered body and head. Without modeled threads the shank uses the ISO 68-1 basic minor diameter D1. The head carries a 75-degree conical washer face with a circular top at every detail level; the shank tip break is added at Detailed and above." +
+      thread_note(thread_rep),
+      unified~,
+    ),
+    dims.thread.nominal_diameter_mm,
     spec.length_mm,
     spec.thread_length_mm,
-    detail,
-    thread_rep,
-    name,
-    spec.metadata(),
-    "Hexagon head bolt; layered body and head. Without modeled threads the shank uses the ISO 68-1 basic minor diameter D1. The head carries a 75-degree conical washer face with a circular top at every detail level; the shank tip break is added at Detailed and above." +
-    thread_note(thread_rep),
-    unified~,
+    dims.width_across_flats_mm,
+    bearing_face_z_mm=0.0,
+    head_top_z_mm=dims.head_height_mm,
+    tip_z_mm=-spec.length_mm,
   )
 }
 

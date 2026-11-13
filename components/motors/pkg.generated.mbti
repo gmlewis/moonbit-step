@@ -13,6 +13,8 @@ pub fn nema_frame(String) -> Result[NemaFrame, @common.SpecError]
 
 pub fn nema_motor_by_designation(String, Double, detail? : @common.DetailLevel) -> Result[@common.Component, @common.SpecError]
 
+pub fn nema_mounting_plate(NemaFrame, Double, Double, Double, hole_clearance_mm? : Double, detail? : @common.DetailLevel) -> Result[@common.Component, @common.SpecError]
+
 pub fn nema_stepper_motor(NemaFrame, Double, shaft_length_mm? : Double, shaft_diameter_mm? : Double, pilot_diameter_mm? : Double, pilot_length_mm? : Double, detail? : @common.DetailLevel, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
 // Errors

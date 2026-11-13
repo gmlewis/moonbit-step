@@ -15,35 +15,39 @@ pub fn shaft(
         Ok(_) => {
           let name = "shaft-d\{@cad.fmt_double(diameter_mm, None)}x\{@cad.fmt_double(length_mm, None)}"
           Ok(
-            @common.Component::new(
-              name~,
-              metadata=@common.Metadata::new(
-                designation="Shaft \{@cad.fmt_double(diameter_mm, None)} x \{@cad.fmt_double(length_mm, None)}",
-                standard="",
-                family="shaft",
-                size="d\{@cad.fmt_double(diameter_mm, None)}",
-                length_mm~,
-                source="Parametric cylinder; no standard table is implied.",
+            with_shaft_connectors(
+              @common.Component::new(
+                name~,
+                metadata=@common.Metadata::new(
+                  designation="Shaft \{@cad.fmt_double(diameter_mm, None)} x \{@cad.fmt_double(length_mm, None)}",
+                  standard="",
+                  family="shaft",
+                  size="d\{@cad.fmt_double(diameter_mm, None)}",
+                  length_mm~,
+                  source="Parametric cylinder; no standard table is implied.",
+                ),
+                description="Plain cylindrical shaft with no keyway, shoulder, or chamfer.",
+                features=@common.FeatureRecord::new(modeled=["body"], omitted=[
+                  @common.Omission::new(
+                    feature="keyway",
+                    reason="not modelled; represent it with an evaluated cut",
+                  ),
+                  @common.Omission::new(
+                    feature="shaft-chamfer",
+                    reason="not modelled by this builder",
+                  ),
+                  @common.Omission::new(
+                    feature="shoulder-fillet",
+                    reason="a plain shaft has no shoulder",
+                  ),
+                ]),
+              ).add_layer(
+                @cad.Cylinder::new(diameter_mm, length_mm),
+                name="body",
+                color~,
               ),
-              description="Plain cylindrical shaft with no keyway, shoulder, or chamfer.",
-              features=@common.FeatureRecord::new(modeled=["body"], omitted=[
-                @common.Omission::new(
-                  feature="keyway",
-                  reason="not modelled; represent it with an evaluated cut",
-                ),
-                @common.Omission::new(
-                  feature="shaft-chamfer",
-                  reason="not modelled by this builder",
-                ),
-                @common.Omission::new(
-                  feature="shoulder-fillet",
-                  reason="a plain shaft has no shoulder",
-                ),
-              ]),
-            ).add_layer(
-              @cad.Cylinder::new(diameter_mm, length_mm),
-              name="body",
-              color~,
+              diameter_mm,
+              length_mm,
             ),
           )
         }
@@ -123,7 +127,14 @@ pub fn stepped_shaft(
     )
     z = z + segment.length_mm
   }
-  Ok(component)
+  Ok(
+    with_stepped_shaft_connectors(
+      component,
+      segments[0].diameter_mm,
+      segments[segments.length() - 1].diameter_mm,
+      z,
+    ),
+  )
 }
 
 ///|
@@ -152,45 +163,50 @@ pub fn spacer(
             )
             let name = "spacer-\{@cad.fmt_double(outer_diameter_mm, None)}x\{@cad.fmt_double(inner_diameter_mm, None)}x\{@cad.fmt_double(length_mm, None)}"
             Ok(
-              @common.Component::new(
-                name~,
-                metadata=@common.Metadata::new(
-                  designation="Spacer OD \{@cad.fmt_double(outer_diameter_mm, None)} / ID \{@cad.fmt_double(inner_diameter_mm, None)} x \{@cad.fmt_double(length_mm, None)}",
-                  family="spacer",
-                  length_mm~,
-                  source="Parametric tube; no standard table is implied.",
-                ),
-                description="Plain cylindrical spacer with a through bore.",
-                features=@common.FeatureRecord::new(
-                  modeled=["body"],
-                  approximated=[
-                    @common.Approximation::new(
-                      feature="outer-boundary",
-                      kind=@common.ApproximationKind::PolylineArc,
-                      deviation_mm=@common.chord_deviation(
-                        outer_diameter_mm / 2.0,
-                        64,
+              with_bushing_connectors(
+                @common.Component::new(
+                  name~,
+                  metadata=@common.Metadata::new(
+                    designation="Spacer OD \{@cad.fmt_double(outer_diameter_mm, None)} / ID \{@cad.fmt_double(inner_diameter_mm, None)} x \{@cad.fmt_double(length_mm, None)}",
+                    family="spacer",
+                    length_mm~,
+                    source="Parametric tube; no standard table is implied.",
+                  ),
+                  description="Plain cylindrical spacer with a through bore.",
+                  features=@common.FeatureRecord::new(
+                    modeled=["body"],
+                    approximated=[
+                      @common.Approximation::new(
+                        feature="outer-boundary",
+                        kind=@common.ApproximationKind::PolylineArc,
+                        deviation_mm=@common.chord_deviation(
+                          outer_diameter_mm / 2.0,
+                          64,
+                        ),
+                        control="circle_segments=64",
                       ),
-                      control="circle_segments=64",
-                    ),
-                    @common.Approximation::new(
-                      feature="through-bore",
-                      kind=@common.ApproximationKind::PolylineArc,
-                      deviation_mm=@common.chord_deviation(
-                        inner_diameter_mm / 2.0,
-                        64,
+                      @common.Approximation::new(
+                        feature="through-bore",
+                        kind=@common.ApproximationKind::PolylineArc,
+                        deviation_mm=@common.chord_deviation(
+                          inner_diameter_mm / 2.0,
+                          64,
+                        ),
+                        control="circle_segments=64",
                       ),
-                      control="circle_segments=64",
-                    ),
-                  ],
-                  omitted=[
-                    @common.Omission::new(
-                      feature="edge-chamfer",
-                      reason="not modelled by this builder",
-                    ),
-                  ],
-                ),
-              ).add_layer(body, name="body", color~),
+                    ],
+                    omitted=[
+                      @common.Omission::new(
+                        feature="edge-chamfer",
+                        reason="not modelled by this builder",
+                      ),
+                    ],
+                  ),
+                ).add_layer(body, name="body", color~),
+                inner_diameter_mm,
+                outer_diameter_mm,
+                length_mm,
+              ),
             )
           }
       }
@@ -242,10 +258,47 @@ pub fn key(
                       reason="not modelled by this builder",
                     ),
                   ]),
-                ).add_layer(
+                )
+                .add_layer(
                   @cad.Cuboid::new(length_mm, width_mm, height_mm),
                   name="body",
                   color~,
+                )
+                .with_connector_unchecked(
+                  @common.MateConnector::new(
+                    "top-face",
+                    placement=@common.Placement::translation(
+                      length_mm / 2.0,
+                      width_mm / 2.0,
+                      height_mm,
+                    ),
+                    axis=(0.0, 0.0, 1.0),
+                    kind=@common.MateKind::PlaneFace,
+                    diameter_mm=if length_mm < width_mm {
+                      length_mm
+                    } else {
+                      width_mm
+                    },
+                    description="top face; outward normal is +Z",
+                  ),
+                )
+                .with_connector_unchecked(
+                  @common.MateConnector::new(
+                    "bottom-face",
+                    placement=@common.Placement::translation(
+                      length_mm / 2.0,
+                      width_mm / 2.0,
+                      0.0,
+                    ),
+                    axis=(0.0, 0.0, -1.0),
+                    kind=@common.MateKind::PlaneFace,
+                    diameter_mm=if length_mm < width_mm {
+                      length_mm
+                    } else {
+                      width_mm
+                    },
+                    description="bottom face; outward normal is -Z",
+                  ),
                 ),
               )
             }
@@ -359,17 +412,22 @@ pub fn filleted_stepped_shaft(
     )
   }
   Ok(
-    @common.Component::new(
-      name~,
-      metadata=@common.Metadata::new(
-        designation="Filleted stepped shaft",
-        standard="",
-        family="stepped shaft",
-        size="\{n} steps",
-        source="Parametric solid of revolution with circular shoulder fillets; no standard table is implied.",
-      ),
-      description="Stepped shaft with toroidal shoulder fillets on increasing steps. Decreasing steps and steps too short for the fillet stay sharp.",
-      features=shaft_features,
-    ).add_layer(profile.as_shape(), name="body", color~),
+    with_stepped_shaft_connectors(
+      @common.Component::new(
+        name~,
+        metadata=@common.Metadata::new(
+          designation="Filleted stepped shaft",
+          standard="",
+          family="stepped shaft",
+          size="\{n} steps",
+          source="Parametric solid of revolution with circular shoulder fillets; no standard table is implied.",
+        ),
+        description="Stepped shaft with toroidal shoulder fillets on increasing steps. Decreasing steps and steps too short for the fillet stay sharp.",
+        features=shaft_features,
+      ).add_layer(profile.as_shape(), name="body", color~),
+      radii[0] * 2.0,
+      radii[n - 1] * 2.0,
+      cur_z,
+    ),
   )
 }

@@ -133,6 +133,53 @@ pub fn Assembly::add_at(
 }
 
 ///|
+/// find_item returns the placed instance with `instance_name`, if any.
+fn find_item(assembly : Assembly, instance_name : String) -> AssemblyItem? {
+  for item in assembly.items {
+    if item.instance_name == instance_name {
+      return Some(item)
+    }
+  }
+  None
+}
+
+///|
+/// Assembly::add_mate_pair places `child` by resolving `pair` between a named
+/// connector on an already-placed parent instance and a named connector on the
+/// child.
+///
+/// The parent connector is transformed into the assembly frame first. The
+/// returned `MateAlignment` reports the resolved child placement, the child-frame
+/// axis, and any interface-convention axis flip. The pair is geometric: this
+/// places a part, it does not claim structural strength.
+pub fn Assembly::add_mate_pair(
+  self : Assembly,
+  parent_instance : String,
+  child : @common.Component,
+  pair : @common.MatePair,
+  instance_name~ : String = "",
+) -> Result[(Assembly, @common.MateAlignment), @common.MatePairError] {
+  let parent_item = match find_item(self, parent_instance) {
+    Some(item) => item
+    None => return Err(@common.MatePairError::MissingInstance(parent_instance))
+  }
+  let parent_connector = match parent_item.component.connector(pair.parent) {
+    Ok(connector) => connector.transformed(parent_item.placement)
+    Err(_) => return Err(@common.MatePairError::MissingConnector(pair.parent))
+  }
+  let child_connector = match child.connector(pair.child) {
+    Ok(connector) => connector
+    Err(_) => return Err(@common.MatePairError::MissingConnector(pair.child))
+  }
+  let alignment = match pair.resolve(parent_connector, child_connector) {
+    Ok(alignment) => alignment
+    Err(e) => return Err(e)
+  }
+  let assembly = self.add(child, placement=alignment.placement, instance_name~)
+  Ok((assembly, alignment))
+}
+
+///|
 /// Assembly::linear_pattern places `count` instances in a straight line.
 ///
 /// Item `i` is at `base + i * (dx, dy, dz)`. `base` is applied first, so a

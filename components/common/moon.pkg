@@ -1,10 +1,12 @@
 import {
   "gmlewis/step/cad",
   "moonbitlang/core/builtin",
+  "moonbitlang/core/debug",
   "moonbitlang/core/math",
 }
 
 import {
   "gmlewis/step/cad",
   "moonbitlang/core/builtin",
+  "moonbitlang/core/math",
 } for "test"

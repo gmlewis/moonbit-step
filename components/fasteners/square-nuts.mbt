@@ -49,18 +49,23 @@ pub fn din557_square_nut(
         ],
       )
       Ok(
-        @common.Component::new(
-          name="DIN557-\{size.designation()}",
-          metadata=@common.Metadata::new(
-            designation=spec.designation(),
-            standard=@standards.DIN557Spec::standard(),
-            family="square nut",
-            size=size.designation(),
-            source=@standards.DIN557Spec::source(),
-          ),
-          description="Square nut: one closed solid with a square prism body, a 75-degree conical washer face on the top bearing face trimmed by the four flats, a flat bottom bearing face, and a circular through bore.",
-          features~,
-        ).add_layer(body, name="body", color~),
+        with_nut_connectors(
+          @common.Component::new(
+            name="DIN557-\{size.designation()}",
+            metadata=@common.Metadata::new(
+              designation=spec.designation(),
+              standard=@standards.DIN557Spec::standard(),
+              family="square nut",
+              size=size.designation(),
+              source=@standards.DIN557Spec::source(),
+            ),
+            description="Square nut: one closed solid with a square prism body, a 75-degree conical washer face on the top bearing face trimmed by the four flats, a flat bottom bearing face, and a circular through bore.",
+            features~,
+          ).add_layer(body, name="body", color~),
+          d,
+          dims.height_mm,
+          dims.width_across_flats_mm,
+        ),
       )
     }
   }

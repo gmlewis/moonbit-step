@@ -26,6 +26,7 @@ pub struct Component {
   priv layers : Array[ComponentLayer]
   priv description : String
   priv features : FeatureRecord
+  priv connectors : Array[MateConnector]
 }
 
 ///|
@@ -43,7 +44,7 @@ pub fn Component::new(
     Some(f) => f
     None => FeatureRecord::empty()
   }
-  { name, metadata, layers: [], description, features: record, }
+  { name, metadata, layers: [], description, features: record, connectors: [], }
 }
 
 ///|
@@ -118,6 +119,121 @@ pub fn Component::layers(self : Component) -> Array[ComponentLayer] {
 }
 
 ///|
+/// Component::with_connector registers a named mate connector.
+///
+/// The component is immutable; a successful call returns a copy with one more
+/// connector. Invalid connectors and duplicate names are rejected with a typed
+/// error. Registering a connector never changes layers, geometry, or metadata.
+pub fn Component::with_connector(
+  self : Component,
+  connector : MateConnector,
+) -> Result[Component, MateError] {
+  match connector.validate() {
+    Err(e) => return Err(e)
+    Ok(_) => ()
+  }
+  for existing in self.connectors {
+    if existing.name == connector.name {
+      return Err(DuplicateConnector(connector.name))
+    }
+  }
+  let connectors = self.connectors.copy()
+  connectors.push(connector)
+  Ok({ ..self, connectors, })
+}
+
+///|
+/// Component::with_connectors registers several connectors, rejecting the first
+/// invalid or duplicate name. Nothing is changed when any connector fails.
+pub fn Component::with_connectors(
+  self : Component,
+  connectors : Array[MateConnector],
+) -> Result[Component, MateError] {
+  let mut component = self
+  for connector in connectors {
+    match component.with_connector(connector) {
+      Ok(next) => component = next
+      Err(e) => return Err(e)
+    }
+  }
+  Ok(component)
+}
+
+///|
+/// Component::with_connector_unchecked registers a connector that the caller has
+/// already constructed correctly.
+///
+/// Component builders use this for their own documented metadata, where a
+/// failure means the builder itself is broken rather than the caller's
+/// parameters. Caller-supplied connectors should use `with_connector`.
+pub fn Component::with_connector_unchecked(
+  self : Component,
+  connector : MateConnector,
+) -> Component {
+  match self.with_connector(connector) {
+    Ok(component) => component
+    Err(e) => abort(e.message())
+  }
+}
+
+///|
+/// Component::connectors returns a copy of the component's mate connectors.
+pub fn Component::connectors(self : Component) -> Array[MateConnector] {
+  self.connectors.copy()
+}
+
+///|
+/// Component::connector looks up a connector by name.
+pub fn Component::connector(
+  self : Component,
+  name : String,
+) -> Result[MateConnector, MateError] {
+  for connector in self.connectors {
+    if connector.name == name {
+      return Ok(connector)
+    }
+  }
+  Err(UnknownConnector(name))
+}
+
+///|
+/// Component::connector_placed returns a connector transformed by `parent`,
+/// for snapping against a component that is already placed in an assembly.
+pub fn Component::connector_placed(
+  self : Component,
+  name : String,
+  parent : Placement,
+) -> Result[MateConnector, MateError] {
+  match self.connector(name) {
+    Ok(connector) => Ok(connector.transformed(parent))
+    Err(e) => Err(e)
+  }
+}
+
+///|
+/// Component::rebase_to_connector applies the inverse of a named connector's
+/// placement to every layer and every connector, making that connector frame the
+/// component origin.
+///
+/// Only frames move. Layer geometry, volume, layer count, and shape identity are
+/// unchanged, as are the relative positions of all connectors.
+pub fn Component::rebase_to_connector(
+  self : Component,
+  name : String,
+) -> Result[Component, MateError] {
+  let connector = match self.connector(name) {
+    Ok(c) => c
+    Err(e) => return Err(e)
+  }
+  let inv = Placement::inverse(connector.placement)
+  let layers = self.layers.map(fn(layer) {
+    { ..layer, placement: Placement::compose(inv, layer.placement), }
+  })
+  let connectors = self.connectors.map(fn(c) { c.transformed(inv) })
+  Ok({ ..self, layers, connectors, })
+}
+
+///|
 /// Component::with_name returns a copy with a new name.
 ///
 /// Existing layer names are not rewritten; callers that need a fully consistent
@@ -186,7 +302,10 @@ pub fn Component::transform_with(
   let layers = self.layers.map(fn(layer) {
     { ..layer, placement: Placement::compose(outer, layer.placement), }
   })
-  { ..self, layers, }
+  let connectors = self.connectors.map(fn(connector) {
+    connector.transformed(outer)
+  })
+  { ..self, layers, connectors, }
 }
 
 ///|
