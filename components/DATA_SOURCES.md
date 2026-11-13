@@ -123,8 +123,10 @@ External STEP models examined during the correctness audit are recorded in
 - The fetch script selects a comprehensive standardized corpus by standard,
   family, size, and representative length. The default `core` scope covers
   M2-M5 (including ISO 4032/4035 nuts; ISO 4762/4017/7380/10642 and DIN 913
-  screws; ISO 7091/7092/7093 and DIN 125/127/7349/93/440 washers; ISO
-  2338/8752/1234 pins; common bearings; and labeled DIN 976-compatible rods).
+  screws; ISO 7091/7092/7093 and DIN 125/127/7349/93/440 washers; common
+  bearings). The pin and rod families were dropped from the corpus after their
+  references were found to be non-conforming; their family prefixes are
+  blacklisted.
   `--scope extended` adds M6/M8 and `--scope all` selects every catalog
   size/length for the chosen standards.
 - One candidate was rejected because it contradicts the standard it claims:
@@ -206,7 +208,9 @@ against the standards tables:
 Rejected with evidence (not used as oracles):
 
 - **"Metric threaded rod M3 x 200":** the model is a 3 x 400 mm cylinder
-  (volume 2827.43 mm³), contradicting its 200 mm label.
+  (volume 2827.43 mm³), contradicting its 200 mm label. The whole DIN 976 rod
+  family was found to be twice its catalogue length and deleted on 2026-11-12;
+  the family prefix is blacklisted in `scripts/fetch_golden_references.py`.
 
 The harness verifies each file's SHA-256 and byte size. The golden files are
 downloaded by the repository owner into the Git-ignored `external/` directory.

@@ -2258,39 +2258,6 @@
       }
     },
     {
-      "fixture_id": "rods/metric-threaded-rod-m3x200",
-      "part_id": "iso_metric_threaded_rod_m3_l200_simple",
-      "designation": "Metric threaded rod M3 x 200 (catalog label)",
-      "family": "threaded rod",
-      "standard": "none (catalog label only)",
-      "manufacturer": "unspecified step.parts contributor",
-      "source_page": "https://www.step.parts/parts/iso_metric_threaded_rod_m3_l200_simple",
-      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/iso_metric_threaded_rod_m3_l200_simple.step",
-      "local_filename": "external/iso_metric_threaded_rod_m3_l200_simple.step",
-      "sha256": "5846e4476371e29205dd472d73c52e4036e30fde22e64a78c6e2ec306e6783a0",
-      "byte_size": 8674,
-      "units": "mm",
-      "declared_dimensions": {
-        "nominal_diameter_mm": 3.0,
-        "nominal_length_mm": 200.0
-      },
-      "measured_dimensions": {
-        "bbox_mm": [
-          3.0,
-          3.0,
-          400.0
-        ],
-        "volume_mm3": 2827.43,
-        "solids": 1
-      },
-      "parametric_value": {
-        "note": "not generated; the reference contradicts its 200 mm designation"
-      },
-      "verdict": "rejected",
-      "notes": "The file labelled M3 x 200 models a 3 mm cylinder 400 mm long (volume pi * 1.5^2 * 400 = 2827.43 mm^3), contradicting the 200 mm designation. It is recorded as rejected and is not used as an oracle.",
-      "committed": false
-    },
-    {
       "fixture_id": "fasteners/iso7092-m3",
       "part_id": "iso7092din433_m3flatwasher",
       "designation": "ISO 7092 M3",

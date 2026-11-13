@@ -66,7 +66,8 @@ The core corpus includes:
   the corpus now contains no pin goldens.
 - **Bearings:** common 608/6000/6200-class boundary references.
 - **Rods:** metric threaded rods (clearly labeled as DIN 976-compatible rather
-  than catalog-standard-designated).
+  than catalog-standard-designated). The 14 rod goldens were deleted as
+  non-conforming (twice their catalogue length; see the deletion note below).
 - **Retaining rings:** DIN 471 is included in `--scope all` because the catalog
   starts at M10.
 - **Non-standardized oracles:** a 2020 extrusion profile and two spur gears,
@@ -251,11 +252,11 @@ downloaded by the owner into `external/`.
 | Bearings 608 / 6000 / 6001 / 6200 | bore, OD, width | matches ISO 15 boundary dims | accepted-envelope |
 | Spur gear m2 z20 / z40 | tip dia, face width, bore, root dia | matches | accepted-envelope |
 | 2020 B-slot6 profile | 20 x 20 x 50 envelope | section differs | envelope-only |
-| Metric threaded rod "M3 x 200" | model is 3 mm x **400 mm** | contradicts 200 mm label | **rejected** |
+| Metric threaded rod "M3 x 200" | model is 3 mm x **400 mm** | contradicts 200 mm label | **rejected and deleted** |
 
 The washer and rod rejections are deliberate: a catalogue designation is not
-proof that the model follows its standard. They are recorded, not used as
-oracles. The ISO 4032 plan bounding box is the across-corners span
+proof that the model follows its standard. They were recorded, not used as
+oracles; the threaded-rod family was later deleted and blacklisted. The ISO 4032 plan bounding box is the across-corners span
 (`s / cos 30°`), so it is consistent with the standard across-flats but cannot
 prove it from an axis-aligned bbox.
 
@@ -336,7 +337,7 @@ contradictions:
 - ISO 4762 M2/M2.5/M5 heads exceed the ISO maximum;
 - ISO 4017 overall length is above `L + k`;
 - ISO 7089 washer thickness is about 2.2x the standard;
-- DIN 976 "l025" rods measure 50 mm;
+- DIN 976 "l025" rods measured 50 mm (deleted on 2026-11-12);
 - `bearing_6003_open_simple` is labelled 6003 but measures 8 x 24 x 8 (a
   628-like envelope); ISO 15 6003 is 17 x 35 x 10. The library keeps 6003
   standard-correct, and `compare-golden.sh` generates a 628 envelope for shape
@@ -437,9 +438,10 @@ acceptance criterion; this tool is for the visual review.
   The library's `iso2338_pin` builder produces a standard pin of the requested
   length.
 - **DIN 976 (198-211).** Confirmed: every reference is exactly twice its label
-  length (`l025` is 50 mm, `l200` is 400 mm). The library follows the label
-  (25/200 mm) and its ends carry 45-degree lead-in cones where the references
-  are sharp; both differences are recorded, not copied.
+  length (`l025` is 50 mm, `l200` is 400 mm), and the catalogue declares
+  `lengthMm` 25/200. All 14 were deleted and blacklisted on 2026-11-12; see the
+  threaded-rod deletion note below. The library follows the label (25/200 mm)
+  and its ends carry 45-degree lead-in cones where the references are sharp.
 - **Not implemented in this session:** ISO 1234 cotter pins (142-148), the
   B-slot6 profile (212), cup-point set screws (213-223), and the ISO 10642
   socket rims (084). Each needs a non-axisymmetric cut or a socket rim
@@ -676,3 +678,25 @@ flats at s/2, the bore, the 75-degree cone, the chamfer depths (0.444/0.554/
 volume measures about 0.02% below the analytic value because the flat/cone
 hyperbola edges are sampled B-splines; the analytic value is the library's
 intent and agrees with the reference.
+
+### DIN 976 threaded rods are twice their catalogue length — deleted (2026-11-12)
+
+The step.parts catalogue declares `lengthMm` 25 for the `_l025` rods and 200
+for the `_l200` rods, but every model is twice that length:
+
+| Rod | Catalogue length | Model span |
+|---|---:|---:|
+| M2 / M2.5 / M3 / M4 / M5 / M6 / M8 x l025 | 25 | 50 (z -25..25) |
+| M2 / M2.5 / M3 / M4 / M5 / M6 / M8 x l200 | 200 | 400 (z -200..200) |
+
+Every model is a plain cylinder of the nominal diameter (the catalogue's
+`threadRepresentation: simplified`), so the defect is purely the length. The
+models do not represent the designated rods. All 14 files and their
+`.bytes`/`.sha256` companions were deleted, the family prefix
+`iso_metric_threaded_rod_` added to `EXCLUDED_PART_PREFIXES` in
+`scripts/fetch_golden_references.py`, and the manifest's rejected
+`rods/metric-threaded-rod-m3x200` fixture entry removed.
+
+The library's `din976` builder is unchanged: it follows the requested length
+and its ends carry 45-degree lead-in cones where the references are sharp; it
+now has no golden counterpart.

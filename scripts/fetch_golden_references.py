@@ -166,6 +166,10 @@ EXCLUDED_PART_PREFIXES = (
     # 1587 h minimum (M4 6.45 vs 7.42, M5 7.75 vs 9.42, M6 9.75 vs 11.30,
     # M8 12.75 vs 14.30).
     "iso_metric_cap_acorn_nut_",
+    # DIN 976 threaded rods: every model is twice its catalogue length
+    # (`lengthMm: 25` measures 50 mm, `lengthMm: 200` measures 400 mm, for all
+    # 14 M2-M8 rods).
+    "iso_metric_threaded_rod_",
 )
 
 def is_excluded_part(part_id):

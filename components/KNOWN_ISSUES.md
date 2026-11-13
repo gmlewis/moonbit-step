@@ -513,9 +513,11 @@ approximations are recorded above and in `FEATURES.md`.
 - ISO 4762 detailed geometry matches the reference shape and volume; the
   reference family mixes two source constructions. The simpler source (flat
   socket floor, under-head torus, no countersink) is not copied.
-- DIN 976 rod reference files are twice their labelled length; the library
-  follows the label. The ISO 2338 dowel-pin references had the same 2x defect
-  and were deleted on 2026-11-12 (see below).
+- DIN 976 rod reference files were twice their labelled (and catalogue-declared)
+  length; the library follows the requested length. The ISO 2338 dowel-pin
+  references had the same 2x defect and were deleted on 2026-11-12 (see below).
+  The 14 DIN 976 rod references were deleted and blacklisted on 2026-11-12 as
+  well; the `din976` builder now has no golden counterpart.
 - ISO 8752 slotted spring pins were added as a standard builder on 2026-11-12
   (`iso8752_spring_pin`, backed by the new `cad.SlitTube` construction). The 24
   downloaded references were deleted because they were twice their declared
