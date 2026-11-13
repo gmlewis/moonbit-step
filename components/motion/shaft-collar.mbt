@@ -128,6 +128,7 @@ pub fn set_screw_shaft_collar(
     )
   }
   let thread_spec = @standards.ThreadSpec::coarse(thread)
+  let drill_is_default = drill_diameter_mm is None
   let drill = match drill_diameter_mm {
     Some(d) => d
     None => thread_spec.internal_minor_diameter_mm()
@@ -203,7 +204,7 @@ pub fn set_screw_shaft_collar(
           designation="Set-screw shaft collar \{@cad.fmt_double(bore_mm, None)} bore x \{@cad.fmt_double(outer_diameter_mm, None)} OD x \{@cad.fmt_double(width_mm, None)}, \{thread_spec.size.designation()} set screw",
           family="shaft collar",
           size="\{@cad.fmt_double(bore_mm, None)}x\{@cad.fmt_double(outer_diameter_mm, None)}x\{@cad.fmt_double(width_mm, None)}",
-          source="Parametric collar with a real radial tap-drill hole; thread data from the ISO metric table. The free-state shape is not a standard table.",
+          source="Parametric collar with a real radial set-screw hole; thread data from the ISO metric table. The free-state shape is not a standard table.",
         ),
         description="Set-screw shaft collar with analytic bore, outside cylinder, 45 degree rim chamfers, and one radial set-screw hole. The ISO metric thread is declared by a connector, not modelled. Use write_step_evaluated for the trimmed solid.",
         features~,
@@ -214,6 +215,7 @@ pub fn set_screw_shaft_collar(
       thread_spec,
       drill,
       wall,
+      drill_is_default,
     ),
   )
 }
@@ -229,12 +231,18 @@ fn with_set_screw_collar_connectors(
   thread_spec : @standards.ThreadSpec,
   drill_mm : Double,
   wall_mm : Double,
+  drill_is_default : Bool,
 ) -> @common.Component {
   let outer_radius = outer_diameter_mm / 2.0
   let mid_width = width_mm / 2.0
   let hole_placement = @common.Placement::translation(
     0.0, outer_radius, mid_width,
   )
+  let hole_note = if drill_is_default {
+    "ISO tap drill \{@cad.fmt_double(drill_mm, None)} mm"
+  } else {
+    "modeled hole \{@cad.fmt_double(drill_mm, None)} mm (caller-supplied envelope)"
+  }
   with_shaft_collar_connectors(component, bore_mm, outer_diameter_mm, width_mm)
   .with_connector_unchecked(
     @common.MateConnector::new(
@@ -245,7 +253,7 @@ fn with_set_screw_collar_connectors(
       gender=@common.MateGender::Female,
       diameter_mm=thread_spec.nominal_diameter_mm,
       depth_mm=wall_mm,
-      description="\{thread_spec.designation(external=false)} tapped hole; tap drill \{@cad.fmt_double(drill_mm, None)} mm, threads not modelled",
+      description="\{thread_spec.designation(external=false)} declared thread; \{hole_note}; threads not modelled",
     ),
   )
   .with_connector_unchecked(

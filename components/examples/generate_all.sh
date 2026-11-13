@@ -169,7 +169,8 @@ if command -v python3 >/dev/null 2>&1 &&
   { command -v DRAWEXE >/dev/null 2>&1 ||
     command -v occt-draw >/dev/null 2>&1; }; then
   moon run components/examples/set_screw_collar -- \
-    --bore 8 --outer 16 --width 8 --thread M5 \
+    --bore 8 --outer 16 --width 8 --thread M4 --drill 4.1 \
+    --screw M4 --screwLength 4.0 \
     -o "$OUT/set-screw-collar-d8.step"
   python3 "$ROOT/scripts/validate_step.py" "$OUT/set-screw-collar-d8.step"
 else

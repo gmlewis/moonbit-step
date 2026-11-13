@@ -60,9 +60,10 @@ moon run components/examples/tubing -- \
 moon run components/examples/tubing -- \
   --part collar --bore 8 --outer 16 --width 8 -o collar.step
 
-# Set-screw shaft collar with a real trimmed radial hole (OCCT-evaluated)
+# Set-screw shaft collar with a real trimmed radial hole and a set screw
+# (OCCT-evaluated compound)
 moon run components/examples/set_screw_collar -- \
-  --bore 8 --outer 16 --width 8 --thread M5 -o set-screw-collar.step
+  --bore 8 --outer 16 --width 8 --thread M4 --drill 4.1 -o set-screw-collar.step
 
 # Counterbored plate and smooth idler
 moon run components/examples/stock_primitive -- \
@@ -182,8 +183,9 @@ The default layered `to_step` / `write_step` output is unchanged. A
 single-layer flat component is already one closed solid and is returned
 unchanged. The evaluated file keeps the component description and the
 machine-readable feature record in its header; only the geometry is replaced by
-OCCT's trimmed result. The set-screw shaft collar makes this evaluated solid its
-primary artifact because the flat writer cannot trim its radial hole.
+OCCT's trimmed result. The set-screw shaft collar makes this evaluated result
+its primary artifact because the flat writer cannot trim its radial hole; the
+example's set screw is a second, disjoint solid in the same evaluated compound.
 
 ## Named connectors and the golden preview
 
@@ -377,12 +379,15 @@ frames, and plates expose face and per-hole frames.
   width. They are a prototyping approximation, not a licensed exact profile,
   and carry no torque or belt-life rating.
 - Set-screw shaft collars are one boolean difference (a chamfered annular body
-  minus a radial drill). Their primary artifact is the OCCT-evaluated single
-  trimmed solid from `write_step_evaluated`; the flat writer cannot trim the
-  radial hole and is not the accepted output. The hole defaults to the ISO
-  metric internal minor diameter (tap drill) of the declared thread; the thread
-  itself is declared by the `set-screw-thread` connector and is never modelled.
-  No set screw, holding torque, material, or strength rating is included.
+  minus a radial hole). Their primary artifact is the OCCT-evaluated trimmed
+  solid from `write_step_evaluated`; the flat writer cannot trim the radial hole
+  and is not the accepted output. The builder's hole diameter defaults to the
+  ISO metric internal minor diameter (tap drill) of the declared thread; a
+  caller may pass a measured clearance hole instead. The thread itself is
+  declared by the `set-screw-thread` connector and is never modelled. The
+  example additionally places a DIN 916 plain-envelope set screw in the hole;
+  `--noScrew` exports the collar alone. No holding torque, material, or strength
+  rating is included.
 - NEMA mounting plates are generic plate blanks with the frame bolt pattern and
   pilot clearance bore. Plate size, thickness, and clearance are caller
   parameters; no stiffness or strength rating is implied.

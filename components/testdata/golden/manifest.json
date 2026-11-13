@@ -4219,41 +4219,41 @@
       },
       "parametric_value": {
         "bbox_mm": [
-          16.0,
-          16.0,
-          8.0
+          16.0000002,
+          16.0074851,
+          8.0000002
         ],
-        "volume_mm3": 1148.72,
-        "solids": 1,
-        "source": "components/examples/set_screw_collar --bore 8 --outer 16 --width 8 --thread M5"
+        "volume_mm3": 1194.2442,
+        "solids": 2,
+        "source": "components/examples/set_screw_collar --thread M4 --drill 4.1 --screw M4 --screwLength 4.0"
       },
       "verdict": "accepted-envelope",
-      "notes": "The reference is the CC0 Innerscene 8 mm set-screw shaft collar. Its file contains two solids: the collar body (volume 1150.77 mm^3) and a separate threaded set screw (32.34 mm^3). This library models only the collar body, with a clean radial tap-drill hole that opens into the bore; the set screw is a separate part and the thread is declared by the set-screw-thread connector, never modelled. The reference hole measures 4.1 mm and its drill stops 0.07 mm inside the bore, leaving two thin flat floor slivers (the reference body has 4 planes); the parametric hole defaults to the ISO M5 x 0.8 internal minor diameter (4.1339746 mm) and opens cleanly into the bore, so the body has 2 planes. Volume differs by 2.05 mm^3 (0.18%). The outside diameter, bore, width, 45 degree rim chamfers, and surface types otherwise match. The evaluated solid is the primary artifact because the flat writer cannot trim the radial hole. No holding torque, material, or strength claim is made. Owner visual review is pending.",
+      "notes": "The reference is the CC0 Innerscene 8 mm set-screw shaft collar. Its file contains two solids: the collar body (volume 1150.77 mm^3) and a set screw (32.34 mm^3) whose thread is a large modeled helical surface. This library models the collar body with a clean radial hole and adds a DIN 916 M4 x 4 plain-envelope set screw (44.61 mm^3) placed coaxially in that hole; the thread is declared by connectors and never modelled, so the parametric set screw is a smooth envelope rather than the reference's thread. The recipe passes --thread M4 --drill 4.1 to reproduce the reference's measured 4.1 mm hole; the reference drill stops 0.07 mm inside the bore and leaves 4 planes, while the parametric hole opens cleanly into the bore. Totals: 2 solids, bbox 16 x 16 x 8 mm (the evaluated collar's hole-axis extent is 16.0075 from OCCT's boolean tolerance), volume 1194.24 vs 1183.11 mm^3 (0.94%), 5 cylinders + 4 cones + 12 planes. The evaluated compound is the primary artifact because the flat writer cannot trim the radial hole. No holding torque, material, or strength claim is made. Owner visual review verified 2026-11-13: reported 'absolutely beautiful - better than the golden'.",
       "committed": false,
       "review": {
         "automated": "pass",
-        "owner_visual": "pending",
+        "owner_visual": "verified",
         "date": "2026-11-13",
-        "reason": "new golden; awaiting the owner's visual comparison"
+        "reason": "owner reported 'absolutely beautiful - better than the golden' after the side-by-side comparison"
       },
       "generation": {
         "tool": "components/examples/set_screw_collar",
         "args": [
-          "--bore",
-          "8",
-          "--outer",
-          "16",
-          "--width",
-          "8",
           "--thread",
-          "M5",
+          "M4",
+          "--drill",
+          "4.1",
+          "--screw",
+          "M4",
+          "--screwLength",
+          "4.0",
           "-o",
           "{out}"
         ],
         "output": "set-screw-collar-8mm.step"
       },
       "comparison": {
-        "solids": 1,
+        "solids": 2,
         "bbox_axes": [
           {
             "axis": 0,
@@ -4263,7 +4263,8 @@
           {
             "axis": 1,
             "expected_mm": 16.0,
-            "label": "outside diameter (hole axis)"
+            "tol_mm": 0.02,
+            "label": "outside diameter (hole axis; evaluated boolean tolerance)"
           },
           {
             "axis": 2,
@@ -4271,7 +4272,7 @@
             "label": "collar width"
           }
         ],
-        "volume_mm3": 1150.77,
+        "volume_mm3": 1183.1123,
         "features": [
           {
             "kind": "surface_min",
@@ -4281,7 +4282,7 @@
           {
             "kind": "surface_min",
             "surface": "cylinder",
-            "min_count": 3
+            "min_count": 5
           },
           {
             "kind": "surface_min",
@@ -4300,7 +4301,12 @@
           },
           {
             "kind": "cylinder_radius_present_mm",
-            "expected": 2.0669873,
+            "expected": 2.05,
+            "tol_mm": 0.001
+          },
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 2.0,
             "tol_mm": 0.001
           }
         ]
