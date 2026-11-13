@@ -6,15 +6,6 @@ package "gmlewis/step/examples/38-planetary-gearbox"
 // Errors
 
 // Types and methods
-type GearDims
-
-type GearParams
-
-type GearboxConfig
-
-type PlanetPlacement
-
-type RingGeometry
 
 // Type aliases
 

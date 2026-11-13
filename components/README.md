@@ -232,6 +232,7 @@ use `--headless`.
 | `motors` | NEMA 17 and NEMA 23 stepper-motor envelopes, mounting interfaces, and NEMA mounting plates. |
 | `stock` | EN 10056 angle sections, configurable flat plate blanks with analytic circular holes and obround slots, counterbored and countersunk plates, bearing-housing plates, and tube-to-plate and tube-to-V-Slot adapter brackets. |
 | `gears` | Involute spur gears, external pairs, and exact-internal-involute planetary sets. |
+| `planetary` | Fully parametric herringbone planetary gearbox (sun, equally spaced planets, inward-facing ring) with every generator option as a parameter, exact line/arc extrusions when `num_elbows` is 0, and named mate connectors on every gear. |
 | `assemblies` | Rigid placements, linear/circular patterns, hardware kits, extrusion frames, bolted joints, collision/contact reports, connectivity checks. |
 | `collision` | Kernel-free AABB/OBB collision and contact classification. |
 | `catalog` | Machine-readable catalogue/query API over the component families. |

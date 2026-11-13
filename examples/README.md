@@ -59,7 +59,7 @@ reproduce it.
 ## Working examples
 
 - [12-bifilar-electromagnet](./12-bifilar-electromagnet) - A bifilar electromagnet with a PEEC/FastHenry export path and derived electrical geometry reporting.
-- [38-planetary-gearbox](./38-planetary-gearbox) - A print-in-place herringbone planetary gearbox (sun, planets, and internal ring gear) with configurable elbows; used by `gen-planetary-gears.sh`.
+- [38-planetary-gearbox](./38-planetary-gearbox) - A print-in-place herringbone planetary gearbox (sun, planets, and internal ring gear) with configurable elbows; the full algorithm now lives in `components/planetary` and the example only parses the CLI. Used by `gen-planetary-gears.sh`.
 
 ## Shared support
 

@@ -1,10 +1,11 @@
 import {
-  "gmlewis/step/cad",
   "gmlewis/step/cli",
+  "gmlewis/step/components/common" @step_common,
+  "gmlewis/step/components/planetary",
   "gmlewis/step/examples/common",
   "moonbitlang/async",
   "moonbitlang/core/builtin",
-  "moonbitlang/core/math",
+  "moonbitlang/core/env",
 }
 
 pkgtype(kind: "executable")

@@ -1,0 +1,74 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "gmlewis/step/components/planetary"
+
+import {
+  "gmlewis/step/components/common",
+}
+
+// Values
+pub fn herringbone_planetary_gearbox(HerringbonePlanetaryParams, y_up? : Bool) -> Result[@common.Component, @common.SpecError]
+
+pub fn herringbone_planetary_layout(HerringbonePlanetaryParams) -> HerringbonePlanetaryLayout
+
+// Errors
+
+// Types and methods
+pub(all) struct HerringboneGearDims {
+  num_teeth : Int32
+  pitch_radius_mm : Double
+  base_radius_mm : Double
+  root_radius_mm : Double
+  outer_radius_mm : Double
+}
+
+pub(all) struct HerringbonePlanetPlacement {
+  x : Double
+  z : Double
+  phi_deg : Double
+}
+
+pub(all) struct HerringbonePlanetaryLayout {
+  module_mm : Double
+  gear_length_mm : Double
+  helix_angle_deg : Double
+  helix_angle_sun_deg : Double
+  pressure_angle_deg : Double
+  num_elbows : Int32
+  resolution : Int32
+  hole_type : String
+  hole_radius_mm : Double
+  tolerance_mm : Double
+  outer_thickness_mm : Double
+  sun : HerringboneGearDims
+  planet : HerringboneGearDims
+  ring : HerringboneGearDims
+  ring_teeth : Int32
+  center_distance_mm : Double
+  center_delta_mm : Double
+  ring_outer_radius_mm : Double
+  sun_direction : Double
+  planet_direction : Double
+  planets : Array[HerringbonePlanetPlacement]
+}
+
+pub(all) struct HerringbonePlanetaryParams {
+  module_mm : Double
+  gear_length_mm : Double
+  helix_angle_deg : Double
+  pressure_angle_deg : Double
+  num_elbows : Int32
+  resolution : Int32
+  hole_type : String
+  hole_radius_mm : Double
+  tolerance_mm : Double
+  outer_thickness_mm : Double
+  sun_teeth : Int32
+  planet_count : Int32
+  planet_teeth : Int32
+  ring_teeth : Int32
+}
+pub fn HerringbonePlanetaryParams::new(module_mm~ : Double, gear_length_mm~ : Double, helix_angle_deg? : Double, pressure_angle_deg? : Double, num_elbows? : Int32, resolution? : Int32, hole_type? : String, hole_radius_mm? : Double, tolerance_mm? : Double, outer_thickness_mm? : Double, sun_teeth? : Int32, planet_count? : Int32, planet_teeth? : Int32, ring_teeth? : Int32) -> Result[Self, @common.SpecError]
+
+// Type aliases
+
+// Traits

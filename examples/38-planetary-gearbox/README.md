@@ -11,6 +11,14 @@ and Blackjack's `HerringboneGear` node (`herringbone_gear.lua`).
 The intent is that you can run the code here to emit a STEP file, open it in a
 CAD viewer, and/or import it into your slicer to 3D print and iterate.
 
+The full parametric algorithm lives in the
+`gmlewis/step/components/planetary` component
+(`herringbone_planetary_gearbox`); this example only parses the command line
+and writes the result. All options are component parameters. The default
+`--numElbows 4` keeps the original swept herringbone geometry, so existing
+printed parts line up (identical volumes). `--numElbows 0` builds straight
+gears as exact line/arc extrusions — the smooth planetary style.
+
 ## What this example demonstrates
 - porting a mesh generator to a B-Rep model
 - defining each gear's outline **once** and sweeping it through
