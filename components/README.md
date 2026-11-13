@@ -1,109 +1,68 @@
-# Parametric Mechanical Components for MoonBit
+# Parametric Mechanical Components
 
-A MoonBit-native library for generating dimensioned mechanical components and
-assemblies and exporting them as valid STEP files through the existing
-`gmlewis/step` CAD pipeline.
-
-Everything here is under `components/` and builds on the repository's existing
-`@cad.Design`, `Shape`, and STEP writer. No C, C++, Open CASCADE, Python, or
-other native runtime is required to use the component packages.
+A pure-MoonBit library for dimensioned mechanical components and assemblies that
+export to STEP through the `gmlewis/step` CAD pipeline. The component packages
+depend only on the root module: no native runtime, OCCT, or Python is required
+to build models.
 
 ## Quick start
 
-Generate a single ISO 4762 M4 x 20 socket head cap screw:
-
 ```bash
+# One ISO 4762 M4 x 20 socket head cap screw
 moon run components/examples/fasteners -- \
   --standard iso4762 --size M4 --length 20 --detail detailed -o M4x20.step
-```
 
-Generate a screw + washer + nut kit:
+# Screw + washer + nut kit
+moon run components/examples/hardware_kit -- --size M4 --length 20 -o kit.step
 
-```bash
-moon run components/examples/hardware_kit -- \
-  --size M4 --length 20 -o kit.step
-```
-
-Generate a generic 2020 T-slot frame:
-
-```bash
+# Generic 2020 T-slot frame
 moon run components/examples/extrusion_frame -- \
   --width 400 --depth 300 --height 500 --series 2020 -o frame.step
-```
 
-Build and validate the M2–M5 fastener golden matrix (108 cells):
-
-```bash
-python3 scripts/golden_matrix.py --write components/testdata/golden
-```
-
-Generate an involute gear pair:
-
-```bash
+# Involute gear pair
 moon run components/examples/gear_pair -- \
   --module 2 --teeth 20 --mateTeeth 40 -o gear-pair.step
-```
 
-Generate the built-in M3/M4/M5 fastener catalog:
-
-```bash
+# Built-in M3/M4/M5 fastener catalogue
 mkdir -p components/examples/output
-moon run components/examples/fasteners -- \
-  --catalog components/examples/output
+moon run components/examples/fasteners -- --catalog components/examples/output
 ```
+
+All dimensions are millimetres, Z is up, and components use the origins and
+axes documented in each builder.
 
 ## Package map
 
-| Package | Purpose |
+| Package | Contents |
 |---|---|
-| `components/common` | Units-aware validation, detail levels, thread representation, metadata, rigid placement, `Component`. |
-| `components/standards` | Metric thread data and ISO/DIN dimension tables. |
-| `components/fasteners` | ISO 4762 socket head cap screws, ISO 4032 hex nuts, ISO 7089 washers, ISO 4014/4017 hex head screws/bolts, ISO 7380-1 button head screws, ISO 10642 countersunk head screws, DIN 976 threaded rods. |
-| `components/profiles` | Generic T-slot extrusion sections and cut-to-length profiles. |
-| `components/motion` | Shafts, stepped and keyed shafts, spacers, bushings, keys, dowel pins, standoffs, compression springs, ball bearings with analytic spheres. |
-| `components/gears` | Involute spur gears, external gear pairs, and exact-internal-involute planetary sets. |
-| `components/assemblies` | Rigid placements, linear/circular patterns, hardware kits, extrusion frames, bolted joints, collision/contact reports, and connectivity checks. |
-| `components/collision` | Kernel-free AABB/OBB collision and contact classification with a named tolerance policy. |
-| `components/catalog` | Machine-readable catalogue/query API over the component families, including supported parameters, detail levels, feature records, and provenance. |
-| `components/examples/*` | Runnable generation programs and generated STEP output. |
+| `common` | Units-aware validation, detail levels, thread representation, metadata, placement, `Component`. |
+| `standards` | Metric thread data and ISO/DIN dimension tables (ISO 4032/4762/7089/709x/7380/8752/10642, DIN 557/913/916/976/1587, …). |
+| `fasteners` | Screws, bolts, nuts, washers, pins, rods, and set screws. |
+| `profiles` | Generic T-slot sections and the vendor 2020 B-slot6 A section. |
+| `motion` | Shafts, stepped/keyed shafts, spacers, bushings, keys, dowel pins, standoffs, compression springs, ball bearings. |
+| `gears` | Involute spur gears, external pairs, and exact-internal-involute planetary sets. |
+| `assemblies` | Rigid placements, linear/circular patterns, hardware kits, extrusion frames, bolted joints, collision/contact reports, connectivity checks. |
+| `collision` | Kernel-free AABB/OBB collision and contact classification. |
+| `catalog` | Machine-readable catalogue/query API over the component families. |
+| `examples/*` | Runnable generation programs and generated STEP output. |
 
-## Documented status
-
-- `INVENTORY.md` — component families, explicit PASS/SKIP/NOT IMPLEMENTED
-  status, and evidence entry points.
-- `STANDARDS.md` — standards covered, exact revisions used, supported sizes.
-- `DATA_SOURCES.md` — dimensional provenance and verification notes.
-- `AUDIT.md` — component inventory, defects by severity, and audit results.
-- `GOLDEN_REFERENCES.md` — golden reference source, comparison rules, and
-  verdicts.
-- `GEOMETRY.md` — units, axes, origins, frame semantics, detail levels,
-  approximations, and collision policy.
-- `ASSEMBLIES.md` — assembly model, placements, patterns, contacts, and
-  connectivity.
-- `PROGRESS.md` — current status and next tasks.
-- `DECISIONS.md` — architecture decisions.
-- `KNOWN_ISSUES.md` — defects, unsupported cases, deferred features.
-
-## Testing and validation
+## Verification
 
 ```bash
 ./test-all.sh
-python3 scripts/compare_golden.py            # PASS/FAIL/SKIP against the manifest
-python3 scripts/compare_golden.py --self-test # prove the harness behaviour
+python3 scripts/compare_golden.py             # fixtures against the downloaded corpus
 python3 scripts/validate_step.py components/examples/output/iso4762-M4x20.step
 python3 scripts/validate_frame_geometry.py \
   components/examples/output/frame-2020-400x300x500.step \
   --width 400 --depth 300 --height 500 --series 2020
 ```
 
-`scripts/validate_step.py` checks ISO 10303-21 syntax, references, per-shell
-topology/orientation, PLANE planarity, OCCT `checkshape`, and watertight
-tessellation. `scripts/validate_frame_geometry.py` re-imports a frame with OCCT
-and independently checks every solid's position, dimensions, volume, and
-pairwise overlap. OCCT, gmsh, and the validators are optional external tools;
-the component library itself does not depend on them.
+`validate_step.py` checks ISO 10303-21 syntax, references, per-shell topology
+and orientation, PLANE planarity, OCCT `checkshape`, and watertight
+tessellation. The validators and OCCT are optional development tools; the
+library itself does not depend on them.
 
-Assembly interference checks are available in MoonBit:
+Assembly checks are available in MoonBit:
 
 ```moonbit
 let collisions = assembly.collisions()
@@ -111,48 +70,28 @@ let contacts = assembly.contacts()
 let floating = assembly.disconnected_instances()
 ```
 
-Visual diagnostics for the frame:
+## Limitations
 
-```bash
-moon run components/examples/extrusion_frame -- \
-  --width 400 --depth 300 --height 500 --series 2020 \
-  --views components/examples/output/views
-```
-
-Golden references are documented in `GOLDEN_REFERENCES.md`. The golden files
-are downloaded by the owner from the open-source step.parts corpus.
-
-## Important limitations
-
-- STEP booleans remain nominal in this repository. Components that need a blind
-  socket or layered construction are built from multiple closed solid bodies
-  rather than pretending a nominal boolean trimmed them.
-- Helical threads are swept ridges with the ISO 68-1 basic profile (exact
-  radial placement, crest/root widths, 60-degree flanks, pitch, and
-  handedness). They are not ISO tolerance-class-compliant threads and omit
-  runout and root relief.
-- Extrusion profiles are generic engineering envelopes, **not** a claim of
-  cross-manufacturer compatibility.
-- Extrusion frames use full-height corner posts and rails cut to the clear
-  inner span; joints are square butt contacts. Brackets, T-nuts, and end
-  machining are not modeled.
+- STEP booleans are nominal: geometry that needs a blind socket or a real trim
+  is built as one closed solid with explicit faces, not as an untrimmed stack.
+- Helical threads use the ISO 68-1 basic profile as a swept ridge. They are not
+  tolerance-class threads and omit runout and root relief.
+- Generic T-slot profiles are engineering envelopes, not a claim of
+  cross-manufacturer compatibility. The 2020 B-slot6 A section is a faithful
+  reproduction of its vendor reference.
+- Extrusion frames use full-height posts and rails cut to the clear span;
+  brackets, T-nuts, and end machining are not modelled.
 - Bearing rolling elements are analytic spheres; ball diameter and ring
-  chamfers are envelope/engineering geometry, not catalogue internals.
-- Chamfers on ISO 4032 and ISO 4762 at `Detailed` and above are real ruled
-  chamfers with engineering-default sizes; ISO 7380/10642 socket bands are
-  high-resolution polygons. See `FEATURES.md`.
-- Every component carries a machine-readable feature record (modeled /
-  approximated with deviation / omitted with reason) in the STEP header. See
-  `FEATURES.md`.
-- Evaluated 3D edge fillets/chamfers are optional (OCCT); the kernel-free flat
-  writer refuses them with a typed error.
-- The internal ring gear uses an exact internal involute envelope and is
-  validated over a rotation cycle; internal meshes carry a declared
-  `0.05 * module` backlash, and the old trapezoidal profile remains an explicit
-  fallback. Profile shift, helix, and ring root fillets are omitted.
-- `keyed_shaft` cuts a real flat-bottomed rectangular keyway into the extruded
-  section (one watertight solid); the keyway ends are square, not end-milled.
-- See `KNOWN_ISSUES.md` for the full list.
+  chamfers are envelope geometry.
+- Detailed fastener chamfers are real ruled or conical faces with
+  engineering-default sizes where the standard leaves them open.
+- Every component carries a machine-readable feature record (modeled,
+  approximated with deviation, omitted with reason) in the STEP header.
+- Evaluated 3D fillets/chamfers are optional (OCCT); the flat writer refuses
+  them with a typed error.
+- The internal ring gear uses an exact involute envelope with a declared
+  `0.05 * module` backlash; profile shift, helix, and ring root fillets are
+  omitted.
 
 ## License
 

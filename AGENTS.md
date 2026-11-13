@@ -90,6 +90,17 @@ The `cad` package follows an **intent-based architecture**. Do not revert to eag
 - Note that an agent should _NEVER_ have to call `./update.sh` as that is used
   by the package maintainer when it is known that external dependencies have been updated.
 
+## Documentation
+
+- Committed Markdown is for end users and agents using the repository, not a
+  project journal. Keep it concise, task-focused, and free of progress logs,
+  dated change notes, and first-person narratives.
+- User documentation lives in `README.md`, `components/README.md`,
+  `examples/`, and `tools/README.md`.
+- Development-only reference material (golden corpus details, provenance,
+  audits, known issues, and progress notes) lives in the ignored `devnotes/`
+  directory and is not published.
+
 ## Error Handling
 
 - **CLI/Main**: Never use `println` for errors. Use `@cli.eprintln("msg")` followed by `abort("")` to ensure non-zero exit codes and proper short-circuiting in shell chains (`&&`).

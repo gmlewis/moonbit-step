@@ -40,8 +40,8 @@ Exact sections and volume/centroid:
 - `RevolvedProfile` (line and arc bands; caps; open-on-axis and annular
   profiles).
 - `ExtrudedProfile` (polygonal holes and an analytic round bore).
-- `ExtrudedArcProfile` (line and minor-arc outer loops; analytic cylindrical
-  side faces; optional round bore).
+- `ExtrudedArcProfile` (line and minor-arc outer and inner loops; analytic
+  cylindrical side faces; optional round bore).
 - `ChamferedPrism` (outer level stack, hole levels, and round bore), with
   prismatoid band integration.
 - `SocketedSolid` (revolved body with a blind hexagonal pocket; area and

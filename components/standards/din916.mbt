@@ -26,6 +26,7 @@ pub fn din916_size(size : MetricSize) -> Result[DIN916Size, @common.SpecError] {
     M3 => (1.65, 1.9, 1.32, 2.0, 20.0)
     M4 => (2.2, 2.5, 1.76, 3.0, 30.0)
     M5 => (2.75, 3.1, 2.2, 3.0, 40.0)
+    M6 => (3.3, 3.7, 2.64, 4.0, 60.0)
     _ =>
       return Err(
         @common.SpecError::InvalidSize(

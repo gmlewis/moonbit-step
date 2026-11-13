@@ -106,7 +106,7 @@ golden file.
      and still honour an explicit `--detail`.
    - **Golden contradicts the standard.** Measure both and keep the library
      standard-correct. Record the contradiction in
-     `components/GOLDEN_REFERENCES.md` and add a `GOLDEN_OVERRIDES` entry in
+     `devnotes/components/GOLDEN_REFERENCES.md` and add a `GOLDEN_OVERRIDES` entry in
      `scripts/compare-golden.sh` when a closest standard envelope makes the
      manual shape comparison meaningful. Example: `bearing_6003_open_simple`
      measures 8x24x8 (628-like) although ISO 15 6003 is 17x35x10; the script

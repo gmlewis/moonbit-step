@@ -1,12 +1,14 @@
 # Component Examples
 
 Each directory is a MoonBit executable that parses parameters and writes STEP.
+All programs use millimetres and Z is up.
 
 | Program | What it generates |
 |---|---|
-| `fasteners` | One metric fastener, or the built-in M3/M4/M5 catalog. |
+| `fasteners` | One metric fastener (`--standard iso4762`, `din916`, …), or the built-in M3/M4/M5 catalog. |
+| `profile_extrusion` | One extrusion profile section (`2020-b-slot6-a`). |
 | `hardware_kit` | ISO 4762 screw + ISO 7089 washer + ISO 4032 nut. |
-| `extrusion_frame` | Generic T-slot rectangular frame, optional SVG views, and the four audited frame sizes (including a rounded section). |
+| `extrusion_frame` | Generic T-slot rectangular frame with optional SVG views. |
 | `gear_pair` | Two involute spur gears with centre distance and phase. |
 | `planetary` | Sun + equally spaced planets + exact internal involute ring. |
 | `motion_stack` | Shaft + two simplified bearings + spacer. |
@@ -18,15 +20,4 @@ Each directory is a MoonBit executable that parses parameters and writes STEP.
 | `revolution` | Analytic solids of revolution (cylinder, cone, sphere, torus, ring, dome, frustum). |
 
 Run `./generate_all.sh` from this directory to regenerate every fixture in
-`output/` and validate the flat exports with the repository gate.
-
-The M2–M5 fastener matrix is generated and measured by
-`scripts/golden_matrix.py` (not an example program):
-
-```bash
-python3 scripts/golden_matrix.py --write components/testdata/golden
-python3 scripts/golden_matrix.py --self-test
-```
-
-All programs use millimetres and the Z-up component conventions documented in
-`../GEOMETRY.md`.
+`output/`.
