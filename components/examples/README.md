@@ -26,3 +26,13 @@ All programs use millimetres and Z is up.
 
 Run `./generate_all.sh` from this directory to regenerate every fixture in
 `output/`.
+
+## Preview in SolidCraft without leaving files in the repository
+
+```bash
+./run-example.sh 1 --view
+```
+
+`--view` writes the STEP to `/tmp/<example>.step` and opens it in SolidCraft. If
+`-o` is supplied, that path is opened instead. The flag is available in the
+`gmlewis/step`, `gmlewis/urdf`, and `gmlewis/cad` example launchers.

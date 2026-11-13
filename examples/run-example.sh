@@ -17,6 +17,10 @@ Wrapper options:
   --eval[=<path>]       Evaluate booleans with OCCT and write a real, trimmed
                         STEP file (default: <example>.step). Requires
                         occt-draw or DRAWEXE; overrides nominal STEP output.
+  --view[=<path>]       Write the STEP to /tmp/<example>.step (or <path>) and
+                        open it in SolidCraft. With -o, opens that path instead.
+                        Cannot be combined with --blend, --bpy, --gltf, or
+                        --nostep, which suppress STEP output.
   --                     Optional separator (ignored).
 
 Output formats for quick previewing:
@@ -41,6 +45,7 @@ Examples:
   ./examples/run-example.sh 39 -o fits.step --png=preview.png
   ./examples/run-example.sh 03 --name Susan --emboss -o tag.step
   ./examples/run-example.sh 39 --gltf fits.gltf
+  ./examples/run-example.sh 01 --view          # write /tmp/01-...step and open it
   ./examples/run-example.sh 01 -- --help      # example-specific options
   ./examples/run-example.sh 01 > cube.step    # STEP to stdout
 
@@ -155,6 +160,9 @@ PNG_OUT_ARG=""
 PNG_OUT=""
 STEP_OUT=""
 EVAL_OUT=""
+VIEW_REQUESTED=0
+VIEW_PATH_ARG=""
+VIEW_STEP=""
 NO_STEP_OUTPUT=0
 FORWARD_ARGS=()
 ARGS=("$@")
@@ -200,6 +208,13 @@ while (( i < ${#ARGS[@]} )); do
       EVAL_OUT="${arg#*=}"
       FORWARD_ARGS+=("$arg")
       ;;
+    --view)
+      VIEW_REQUESTED=1
+      ;;
+    --view=*)
+      VIEW_REQUESTED=1
+      VIEW_PATH_ARG="${arg#*=}"
+      ;;
     --blend | --blend=* | --bpy | --bpy=* | --gltf | --gltf=* | --nostep)
       # These options make the example skip STEP output entirely.
       NO_STEP_OUTPUT=1
@@ -215,6 +230,34 @@ done
 # An evaluated export replaces the nominal STEP file, so derive previews from it.
 if [[ -n "$EVAL_OUT" ]]; then
   STEP_OUT="$EVAL_OUT"
+fi
+
+# --- View in SolidCraft -----------------------------------------------------
+if (( VIEW_REQUESTED )); then
+  if (( NO_STEP_OUTPUT )); then
+    echo "Error: --view cannot be combined with --blend, --bpy, --gltf, or --nostep" >&2
+    echo "       because those options suppress the STEP output." >&2
+    exit 1
+  fi
+  if [[ -n "$VIEW_PATH_ARG" ]] && [[ -n "$STEP_OUT" ]]; then
+    echo "Error: use either --view=<path> or -o <path>, not both." >&2
+    exit 1
+  fi
+  if [[ -n "$VIEW_PATH_ARG" ]]; then
+    VIEW_STEP="$VIEW_PATH_ARG"
+    STEP_OUT="$VIEW_STEP"
+    FORWARD_ARGS+=(-o "$VIEW_STEP")
+  elif [[ -n "$STEP_OUT" ]]; then
+    VIEW_STEP="$STEP_OUT"
+  else
+    VIEW_STEP="/tmp/$EXAMPLE_NAME.step"
+    STEP_OUT="$VIEW_STEP"
+    FORWARD_ARGS+=(-o "$VIEW_STEP")
+  fi
+  if [[ -z "$VIEW_STEP" || ! -d "$(dirname "$VIEW_STEP")" ]]; then
+    echo "Error: view output directory does not exist: $(dirname "$VIEW_STEP")" >&2
+    exit 1
+  fi
 fi
 
 # --- Checked derived outputs ------------------------------------------------
@@ -289,6 +332,25 @@ find_occt() {
   printf '%s' "$tool"
 }
 
+# open_in_solidcraft opens a STEP file in the SolidCraft desktop app.
+open_in_solidcraft() {
+  local step_path="$1"
+  if [[ ! -s "$step_path" ]]; then
+    echo "Error: no STEP was written at $step_path; cannot open it in SolidCraft." >&2
+    exit 1
+  fi
+  if ! command -v open >/dev/null 2>&1; then
+    echo "Error: the macOS 'open' command is unavailable." >&2
+    exit 1
+  fi
+  echo "Opening $step_path in SolidCraft" >&2
+  if ! open -a SolidCraft "$step_path"; then
+    echo "Error: could not open SolidCraft. Is the app installed?" >&2
+    echo "The STEP file is at: $step_path" >&2
+    exit 1
+  fi
+}
+
 # Quote a string for a TCL command.
 tcl_quote() {
   local s="${1//\\/\\\\}"
@@ -335,6 +397,10 @@ if (( ${#FORWARD_ARGS[@]} )); then
 else
   MOONBIT_STEP_ROOT="$ROOT_DIR" \
     moon run --quiet "$ROOT_DIR/$EXAMPLE_PATH_REL"
+fi
+
+if (( VIEW_REQUESTED )); then
+  open_in_solidcraft "$VIEW_STEP"
 fi
 
 if (( STL_REQUESTED )); then
