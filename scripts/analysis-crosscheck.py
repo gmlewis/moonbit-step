@@ -90,6 +90,13 @@ MATRIX = [
         "skip_bbox": "the slot cuts the outer cylinder at y = +/- 0.09 d, so OCCT's tight envelope is narrower than the intent cylinder envelope",
     },
     {
+        "name": "profile-2020-b-slot6-a-l50",
+        "args": ["--profile", "2020-b-slot6-a", "--length", "50",
+                 "--detail", "detailed"],
+        "sections": [25.0],
+        "skip_extents": "the non-axisymmetric section's outer radius is a rounded corner, not half the section width",
+    },
+    {
         "name": "DIN557-M5-detailed",
         "args": ["--standard", "din557", "--size", "M5", "--detail", "detailed"],
         "sections": [1.5, 3.8],

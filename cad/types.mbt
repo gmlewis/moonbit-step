@@ -130,6 +130,9 @@ pub struct ExtrudedArcProfile {
   segments : Array[ProfileSegment]
   height_mm : Double
   round_bore : (Vec2, Double)?
+  /// Closed counter-clockwise inner loops of lines and minor arcs, each a
+  /// through-hole with analytic cylindrical faces on its arcs.
+  holes : Array[Array[ProfileSegment]]
 }
 
 ///|

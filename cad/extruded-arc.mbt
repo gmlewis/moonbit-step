@@ -4,8 +4,13 @@ pub fn ExtrudedArcProfile::new(
   segments : Array[ProfileSegment],
   height_mm : Double,
   round_bore? : (Vec2, Double),
+  holes? : Array[Array[ProfileSegment]],
 ) -> ExtrudedArcProfile {
-  { segments, height_mm, round_bore, }
+  let hole_loops = match holes {
+    Some(hs) => hs
+    None => []
+  }
+  { segments, height_mm, round_bore, holes: hole_loops, }
 }
 
 ///|
@@ -57,12 +62,11 @@ fn arc_close2(a : Vec2, b : Vec2) -> Bool {
 }
 
 ///|
-/// ExtrudedArcProfile::validate checks that the segments form one closed
-/// counter-clockwise loop of lines and counter-clockwise minor arcs.
-pub fn ExtrudedArcProfile::validate(self : ExtrudedArcProfile) -> Bool {
-  let segs = self.segments
+/// arc_loop_valid checks that `segs` is one closed counter-clockwise loop of
+/// lines and counter-clockwise minor arcs with a positive enclosed area.
+fn arc_loop_valid(segs : Array[ProfileSegment]) -> Bool {
   let n = segs.length()
-  if n < 3 || self.height_mm <= 0.0 {
+  if n < 3 {
     return false
   }
   for i in 0..<n {
@@ -96,6 +100,22 @@ pub fn ExtrudedArcProfile::validate(self : ExtrudedArcProfile) -> Bool {
     return false
   }
   arc_profile_signed_area(segs) > CAD_DEGENERATE_EPS
+}
+
+///|
+/// ExtrudedArcProfile::validate checks that the outer loop and every hole loop
+/// are closed counter-clockwise loops of lines and counter-clockwise minor
+/// arcs.
+pub fn ExtrudedArcProfile::validate(self : ExtrudedArcProfile) -> Bool {
+  if self.height_mm <= 0.0 || !arc_loop_valid(self.segments) {
+    return false
+  }
+  for hole in self.holes {
+    if !arc_loop_valid(hole) {
+      return false
+    }
+  }
+  true
 }
 
 ///|
@@ -231,10 +251,52 @@ fn arc_profile_max_radius(segs : Array[ProfileSegment]) -> Double {
 }
 
 ///|
+/// arc_profile_min_radius returns the smallest distance from the local origin
+/// to the boundary (sampling arcs).
+fn arc_profile_min_radius(segs : Array[ProfileSegment]) -> Double {
+  let mut rmin = @double.max_value
+  let take = fn(x : Double, y : Double) -> Unit {
+    let r = Double::sqrt(x * x + y * y)
+    if r < rmin {
+      rmin = r
+    }
+  }
+  for seg in segs {
+    let a = arc_seg_start(seg)
+    let b = arc_seg_end(seg)
+    take(a.0, a.1)
+    take(b.0, b.1)
+    match seg {
+      SegmentLine(_, _) => ()
+      SegmentArc(_, _, c) => {
+        let rho = arc_dist2(a, c)
+        let a0 = @math.atan2(a.1 - c.1, a.0 - c.0)
+        let a1 = @math.atan2(b.1 - c.1, b.0 - c.0)
+        let delta = arc_norm_sweep(a1 - a0)
+        for k in 0..<=32 {
+          let t = Double::from_int(k) / 32.0
+          let ang = a0 + delta * t
+          take(c.0 + rho * @math.cos(ang), c.1 + rho * @math.sin(ang))
+        }
+      }
+    }
+  }
+  if rmin == @double.max_value {
+    0.0
+  } else {
+    rmin
+  }
+}
+
+///|
 /// ExtrudedArcProfile::volume returns the exact volume.
 pub fn ExtrudedArcProfile::volume(self : ExtrudedArcProfile) -> Double {
   let (area, _mx, _my) = arc_profile_area_moments(self.segments)
   let mut a = area
+  for hole in self.holes {
+    let (hole_area, _hx, _hy) = arc_profile_area_moments(hole)
+    a = a - hole_area
+  }
   match self.round_bore {
     Some((_c, d)) => {
       let rb = d / 2.0
@@ -256,6 +318,12 @@ pub fn ExtrudedArcProfile::centroid(self : ExtrudedArcProfile) -> Vec3 {
   let mut a = area
   let mut mx2 = mx
   let mut my2 = my
+  for hole in self.holes {
+    let (hole_area, hx, hy) = arc_profile_area_moments(hole)
+    a = a - hole_area
+    mx2 = mx2 - hx
+    my2 = my2 - hy
+  }
   match self.round_bore {
     Some((c, d)) => {
       let rb = d / 2.0
@@ -287,6 +355,14 @@ fn an_extruded_arc_inventory(e : ExtrudedArcProfile) -> SurfaceInventory {
       SegmentArc(_, _, _) => cylinders = cylinders + 1
     }
   }
+  for hole in e.holes {
+    for seg in hole {
+      match seg {
+        SegmentLine(_, _) => planes = planes + 1
+        SegmentArc(_, _, _) => cylinders = cylinders + 1
+      }
+    }
+  }
   match e.round_bore {
     Some((_c, d)) => if d > 0.0 { cylinders = cylinders + 1 }
     None => ()
@@ -311,11 +387,24 @@ fn an_extruded_arc_section(
   let mut p = arc_profile_perimeter(e.segments)
   let outer = arc_profile_max_radius(e.segments)
   let mut inner = 0.0
+  let rings : Array[SectionRing] = []
+  for hole in e.holes {
+    let (hole_area, _hx, _hy) = arc_profile_area_moments(hole)
+    a = a - hole_area
+    p = p + arc_profile_perimeter(hole)
+    let hole_outer = arc_profile_max_radius(hole)
+    rings.push({ inner_radius_mm: 0.0, outer_radius_mm: hole_outer, })
+    let hole_inner = arc_profile_min_radius(hole)
+    if inner == 0.0 || hole_inner < inner {
+      inner = hole_inner
+    }
+  }
   match e.round_bore {
     Some((_c, d)) => {
       let rb = d / 2.0
       a = a - @math.PI * rb * rb
       p = p + 2.0 * @math.PI * rb
+      rings.push({ inner_radius_mm: 0.0, outer_radius_mm: rb, })
       inner = rb
     }
     None => ()
@@ -323,14 +412,41 @@ fn an_extruded_arc_section(
   if a <= CAD_DEGENERATE_EPS {
     return Err(EmptySection)
   }
+  if rings.is_empty() {
+    rings.push({ inner_radius_mm: 0.0, outer_radius_mm: outer, })
+  }
   Ok({
     z_mm: z,
     area_mm2: a,
     perimeter_mm: p,
     outer_radius_mm: outer,
     inner_radius_mm: inner,
-    rings: [{ inner_radius_mm: inner, outer_radius_mm: outer, }],
+    rings,
   })
+}
+
+///|
+/// arc_sample_loop samples a line-plus-arc loop into a polygon, emitting the
+/// start point of every line and `n` points per arc.
+fn arc_sample_loop(segs : Array[ProfileSegment], n : Int32) -> Array[Vec2] {
+  let out : Array[Vec2] = []
+  for seg in segs {
+    match seg {
+      SegmentLine(a, _) => out.push(a)
+      SegmentArc(a, b, c) => {
+        let rho = arc_dist2(a, c)
+        let a0 = @math.atan2(a.1 - c.1, a.0 - c.0)
+        let a1 = @math.atan2(b.1 - c.1, b.0 - c.0)
+        let delta = arc_norm_sweep(a1 - a0)
+        for k in 0..<n {
+          let t = Double::from_int(k) / Double::from_int(n)
+          let ang = a0 + delta * t
+          out.push((c.0 + rho * @math.cos(ang), c.1 + rho * @math.sin(ang)))
+        }
+      }
+    }
+  }
+  out
 }
 
 ///|
@@ -340,24 +456,11 @@ pub fn extruded_arc_mesh(
   arc_segments~ : Int32 = 24,
 ) -> (Array[Vec3], Array[Array[Int32]]) {
   let n = if arc_segments < 2 { 2 } else { arc_segments }
-  let outer : Array[Vec2] = []
-  for seg in e.segments {
-    match seg {
-      SegmentLine(a, _) => outer.push(a)
-      SegmentArc(a, b, c) => {
-        let rho = arc_dist2(a, c)
-        let a0 = @math.atan2(a.1 - c.1, a.0 - c.0)
-        let a1 = @math.atan2(b.1 - c.1, b.0 - c.0)
-        let delta = arc_norm_sweep(a1 - a0)
-        for k in 0..<n {
-          let t = Double::from_int(k) / Double::from_int(n)
-          let ang = a0 + delta * t
-          outer.push((c.0 + rho * @math.cos(ang), c.1 + rho * @math.sin(ang)))
-        }
-      }
-    }
-  }
+  let outer = arc_sample_loop(e.segments, n)
   let holes : Array[Array[Vec2]] = []
+  for hole in e.holes {
+    holes.push(arc_sample_loop(hole, n).rev())
+  }
   match e.round_bore {
     Some((c, d)) => {
       let rb = d / 2.0
@@ -470,6 +573,142 @@ pub fn compile_extruded_arc_profile(
   // Analytic circular bore, if any.
   let bottom_holes : Array[@step.Ref] = []
   let top_holes : Array[@step.Ref] = []
+  // Through-holes bounded by lines and arcs. Each hole's lateral faces point
+  // into the void, and its bottom/top loops become inner bounds of the caps.
+  for hole in e.holes {
+    let hm = hole.length()
+    let hbase = pts.length()
+    for seg in hole {
+      let p = arc_seg_start(seg)
+      let pt = xform.apply((p.0, p.1, 0.0))
+      pts.push(pt)
+      let cp = ctx.cartesian_point(pt.0, pt.1, pt.2)
+      cp_refs.push(cp)
+      vp_refs.push(ctx.vertex_point(cp))
+    }
+    for seg in hole {
+      let p = arc_seg_start(seg)
+      let pt = xform.apply((p.0, p.1, h))
+      pts.push(pt)
+      let cp = ctx.cartesian_point(pt.0, pt.1, pt.2)
+      cp_refs.push(cp)
+      vp_refs.push(ctx.vertex_point(cp))
+    }
+    for i in 0..<hm {
+      let j = (i + 1) % hm
+      let b_i = hbase + i
+      let b_j = hbase + j
+      let t_i = hbase + hm + i
+      let t_j = hbase + hm + j
+      match hole[i] {
+        SegmentLine(_, _) => {
+          let add_hole_line = fn(a : Int32, b : Int32) -> Unit {
+            let dir = v_norm(v_sub(pts[b], pts[a]))
+            let line = ctx.line(
+              cp_refs[a],
+              ctx.vector(ctx.direction(dir.0, dir.1, dir.2), 1.0),
+            )
+            let edge = ctx.edge_curve(vp_refs[a], vp_refs[b], line, true)
+            edges.push(EdgeInfo::{ start: a, end: b, edge, })
+          }
+          add_hole_line(b_i, b_j)
+          add_hole_line(t_i, t_j)
+        }
+        SegmentArc(_, _, c) => {
+          let rho = arc_dist2(arc_seg_start(hole[i]), c)
+          let add_hole_arc = fn(a : Int32, b : Int32, z : Double) -> Unit {
+            let center = xform.apply((c.0, c.1, z))
+            let center_cp = ctx.cartesian_point(center.0, center.1, center.2)
+            let a2p = ctx.axis2_placement_3d(center_cp, dir_up, dir_right)
+            let circle = ctx.add(
+              @repository.any_entity_circle(
+                @geometry.Circle::new("", a2p, @step.fmt_num(rho)),
+              ),
+            )
+            let edge = ctx.edge_curve(vp_refs[a], vp_refs[b], circle, true)
+            edges.push(EdgeInfo::{ start: a, end: b, edge, })
+          }
+          add_hole_arc(b_i, b_j, 0.0)
+          add_hole_arc(t_i, t_j, h)
+        }
+      }
+      // Vertical edge at this profile vertex.
+      let vdir = v_norm(v_sub(pts[t_i], pts[b_i]))
+      let vline = ctx.line(
+        cp_refs[b_i],
+        ctx.vector(ctx.direction(vdir.0, vdir.1, vdir.2), 1.0),
+      )
+      let vedge = ctx.edge_curve(vp_refs[b_i], vp_refs[t_i], vline, true)
+      edges.push(EdgeInfo::{ start: b_i, end: t_i, edge: vedge, })
+    }
+    // Lateral faces, with normals pointing into the hole.
+    for i in 0..<hm {
+      let j = (i + 1) % hm
+      let b_i = hbase + i
+      let b_j = hbase + j
+      let t_i = hbase + hm + i
+      let t_j = hbase + hm + j
+      match hole[i] {
+        SegmentLine(_, _) => {
+          let p0 = pts[b_i]
+          let p1 = pts[b_j]
+          let p2 = pts[t_i]
+          let right = v_norm(v_cross(v_sub(p1, p0), v_sub(p2, p0)))
+          let expected = v_scale(right, -1.0)
+          faces.push(
+            add_plane_face_oriented(
+              ctx,
+              edges,
+              pts,
+              cp_refs,
+              [b_j, b_i, t_i, t_j],
+              expected,
+              reverse~,
+            ),
+          )
+        }
+        SegmentArc(_, _, c) => {
+          let rho = arc_dist2(arc_seg_start(hole[i]), c)
+          let center = xform.apply((c.0, c.1, 0.0))
+          let center_cp = ctx.cartesian_point(center.0, center.1, center.2)
+          let a2p = ctx.axis2_placement_3d(center_cp, dir_up, dir_right)
+          let cylinder = ctx.add(
+            @repository.any_entity_cylindrical_surface(
+              @geometry.CylindricalSurface::new("", a2p, @step.fmt_num(rho)),
+            ),
+          )
+          let (eb, _) = find_edge(edges, b_i, b_j)
+          let (et, _) = find_edge(edges, t_i, t_j)
+          let (ve_i, _) = find_edge(edges, b_i, t_i)
+          let (ve_j, _) = find_edge(edges, t_j, b_j)
+          let loop_ref = ctx.edge_loop([
+            ctx.oriented_edge(eb, false),
+            ctx.oriented_edge(ve_i, true),
+            ctx.oriented_edge(et, true),
+            ctx.oriented_edge(ve_j, false),
+          ])
+          faces.push(
+            ctx.advanced_face(
+              [ctx.face_outer_bound(loop_ref, true)],
+              cylinder,
+              reverse,
+            ),
+          )
+        }
+      }
+    }
+    // Cap inner bounds: bottom forward, top reversed.
+    let hb : Array[Int32] = []
+    for i in 0..<hm {
+      hb.push(hbase + i)
+    }
+    bottom_holes.push(face_loop(ctx, edges, hb))
+    let ht : Array[Int32] = []
+    for i in 0..<hm {
+      ht.push(hbase + hm + (hm - 1 - i))
+    }
+    top_holes.push(face_loop(ctx, edges, ht))
+  }
   match e.round_bore {
     Some((center, diameter)) => {
       let rb = diameter / 2.0

@@ -315,10 +315,11 @@ pub struct ExtrudedArcProfile {
   segments : Array[ProfileSegment]
   height_mm : Double
   round_bore : ((Double, Double), Double)?
+  holes : Array[Array[ProfileSegment]]
 }
 pub fn ExtrudedArcProfile::as_shape(Self) -> Shape
 pub fn ExtrudedArcProfile::centroid(Self) -> (Double, Double, Double)
-pub fn ExtrudedArcProfile::new(Array[ProfileSegment], Double, round_bore? : ((Double, Double), Double)) -> Self
+pub fn ExtrudedArcProfile::new(Array[ProfileSegment], Double, round_bore? : ((Double, Double), Double), holes? : Array[Array[ProfileSegment]]) -> Self
 pub fn ExtrudedArcProfile::validate(Self) -> Bool
 pub fn ExtrudedArcProfile::volume(Self) -> Double
 

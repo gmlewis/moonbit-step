@@ -4,6 +4,57 @@ fn close(a : Double, b : Double) -> Bool {
 }
 
 ///|
+test "B-slot6 2020 extrusion matches the reference section" {
+  let part = match @profiles.b_slot6_2020_extrusion(50.0) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  let (x0, x1, y0, y1, z0, z1) = part.bounding_box()
+  assert_true(close(x0, -10.0))
+  assert_true(close(x1, 10.0))
+  assert_true(close(y0, -10.0))
+  assert_true(close(y1, 10.0))
+  assert_true(close(z0, 0.0))
+  assert_true(close(z1, 50.0))
+  let layers = part.layers()
+  assert_eq(layers.length(), 1)
+  let inventory = layers[0].shape.surface_inventory()
+  // Six cap/side planes plus one plane per outer line segment, and four outer
+  // corner radii plus eight bore arcs as analytic cylinders.
+  assert_eq(inventory.plane, 86)
+  assert_eq(inventory.cylinder, 12)
+  let volume = match layers[0].shape.analysis_volume() {
+    Ok(v) => v
+    Err(e) => abort(e.message())
+  }
+  // 174.3364 mm^2 x 50 mm; the step.parts reference measures 8716.82 mm^3.
+  assert_true((volume - 8716.82).abs() < 0.01)
+  let section = match layers[0].shape.section_at_local(25.0) {
+    Ok(s) => s
+    Err(e) => abort(e.message())
+  }
+  assert_true((section.area_mm2 - 174.3364).abs() < 1.0e-3)
+  assert_true((section.perimeter_mm - 182.0957).abs() < 1.0e-2)
+  assert_true((section.inner_radius_mm - 2.75).abs() < 1.0e-9)
+}
+
+///|
+test "B-slot6 2020 extrusion can match the reference axis convention" {
+  let part = match
+    @profiles.b_slot6_2020_extrusion(50.0, orient_to_reference=true) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  let (x0, x1, y0, y1, z0, z1) = part.bounding_box()
+  assert_true(close(x0, -10.0))
+  assert_true(close(x1, 10.0))
+  assert_true(close(y0, -50.0))
+  assert_true(close(y1, 0.0))
+  assert_true(close(z0, -10.0))
+  assert_true(close(z1, 10.0))
+}
+
+///|
 test "generic 2020 section outline" {
   let profile = @profiles.TSlotProfile::generic_2020()
   let outline = profile.outline()

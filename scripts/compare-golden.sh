@@ -265,6 +265,13 @@ def infer(name, detail):
     m = re.match(r"^iso_metric_square_nut_m(\d+(?:p\d+)?)_simple\.step$", name)
     if m:
         return fastener("din557", m.group(1), None, detail)
+    m = re.match(r"^profile_2020_b_slot6_a_l(\d+)\.step$", name)
+    if m:
+        return (
+            "components/examples/profile_extrusion",
+            ["--profile", "2020-b-slot6-a", "--length", str(int(m.group(1))),
+             "--detail", detail, "--orient-to-reference"],
+        )
     m = re.match(r"^iso_metric_threaded_rod_m(\d+(?:p\d+)?)_l(\d+)_simple\.step$", name)
     if m:
         return fastener("din976", m.group(1), m.group(2), detail)
@@ -404,6 +411,12 @@ def describe(tool, args):
             arg_value(args, "--module") or "?",
             arg_value(args, "--teeth") or "?",
             arg_value(args, "--bore") or "0",
+        )
+    if tool.endswith("/profile_extrusion"):
+        return "PROFILE {} x {} [{}]".format(
+            arg_value(args, "--profile") or "?",
+            arg_value(args, "--length") or "?",
+            arg_value(args, "--detail") or "detailed",
         )
     return " ".join(args)
 

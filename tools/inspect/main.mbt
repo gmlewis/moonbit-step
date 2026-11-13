@@ -306,15 +306,21 @@ fn build_motion(args : Array[String]) -> Built {
 
 ///|
 fn build_profile(args : Array[String], series : String) -> Built {
-  let profile = match profile_from_name(series) {
-    Some(p) => p
-    None => abort("error: unsupported profile series: " + series)
-  }
   let length = match get_opt(args, "length") {
     Some(s) => num(s)
     None => 50.0
   }
   let detail = parse_detail(get_opt(args, "detail").unwrap_or("simplified"))
+  if series == "2020-b-slot6-a" {
+    match @profiles.b_slot6_2020_extrusion(length, detail~) {
+      Ok(c) => return Built::Comp(c)
+      Err(e) => abort("error: " + e.message())
+    }
+  }
+  let profile = match profile_from_name(series) {
+    Some(p) => p
+    None => abort("error: unsupported profile series: " + series)
+  }
   match @profiles.extrusion(profile, length, detail~) {
     Ok(c) => Built::Comp(c)
     Err(e) => abort("error: " + e.message())
