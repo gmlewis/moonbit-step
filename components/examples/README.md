@@ -21,6 +21,8 @@ All programs use millimetres and Z is up.
 | `vslot` | OpenBuilds-compatible V-Slot 2020/2040 profile, V-wheel, slot T-nut, joining plate, gusseted corner bracket, and plain/eccentric wheel spacers. |
 | `tubing` | EMT cut length, EMT end cap, EMT split clamp, plain shaft collar, or tube mount plate adapter. |
 | `idler` | Smooth (toothless) idler with optional annular end flanges. |
+| `makerbeam` | MakerBeam 10 x 10 mm extrusion (drawing article 100168), optional outer corner radius. |
+| `retaining_ring` | DIN 471 type A external retaining ring, A 10 to A 34. |
 | `filleted_shaft` | Single-solid stepped shaft with toroidal shoulder fillets. |
 | `keyed_shaft` | Shaft with a real rectangular keyway plus the matching key. |
 | `bolted_joint` | Two plates clamped by a screw, washer, and nut. |

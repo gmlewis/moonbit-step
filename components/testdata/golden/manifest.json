@@ -3867,21 +3867,22 @@
       },
       "parametric_value": {
         "bbox_mm": [
+          20.0,
           15.0,
-          15.0,
-          20.0
+          15.0
         ],
         "volume_mm3": 3141.59,
         "solids": 1,
-        "source": "components/examples/motion_stack --part coupling --couplingBore 5 --couplingOuter 15 --couplingLength 20"
+        "source": "components/examples/motion_stack --part coupling --couplingBore 5 --couplingOuter 15 --couplingLength 20 --goldenFrame"
       },
       "verdict": "accepted-envelope",
-      "notes": "The catalogue labels this file a beam coupling, but it is a plain tube: OD 15, bore 5, length 20, with 2 cylinders and 2 planes. It is used only as a plain rigid-sleeve envelope reference and is not treated as a beam-coupling model. The parametric rigid coupling has the same volume (3141.59 mm3), the same 2 cylinder + 2 plane inventory, and bore/outer radii 2.5/7.5 mm. The reference is X-long and the parametric part is Z-long, so the bbox axes are compared per the comparison record, not index-for-index. No keyway, set screw, clamp slit, flexible element, or torque rating is present in either model.",
+      "notes": "The catalogue labels this file a beam coupling, but it is a plain tube: OD 15, bore 5, length 20, with 2 cylinders and 2 planes. It is used only as a plain rigid-sleeve envelope reference and is not treated as a beam-coupling model. The parametric rigid coupling has the same volume (3141.59 mm3), the same 2 cylinder + 2 plane inventory, and bore/outer radii 2.5/7.5 mm. The generation recipe uses --goldenFrame so the comparison output matches the reference's X-long, origin-centred frame; the rigid_coupling builder itself keeps the library Z-up, z = 0..length frame. No keyway, set screw, clamp slit, flexible element, or torque rating is present in either model.",
       "committed": false,
       "review": {
         "automated": "pass",
-        "owner_visual": "pending",
-        "date": "2026-11-13"
+        "owner_visual": "verified",
+        "date": "2026-11-13",
+        "reason": "owner reported 'look perfect' after the shared-frame visual comparison"
       },
       "generation": {
         "tool": "components/examples/motion_stack",
@@ -3894,6 +3895,7 @@
           "15",
           "--couplingLength",
           "20",
+          "--goldenFrame",
           "-o",
           "{out}"
         ],
@@ -3904,8 +3906,8 @@
         "bbox_axes": [
           {
             "axis": 0,
-            "expected_mm": 15.0,
-            "label": "outside diameter"
+            "expected_mm": 20.0,
+            "label": "length"
           },
           {
             "axis": 1,
@@ -3914,8 +3916,8 @@
           },
           {
             "axis": 2,
-            "expected_mm": 20.0,
-            "label": "length"
+            "expected_mm": 15.0,
+            "label": "outside diameter"
           }
         ],
         "volume_mm3": 3141.59,
@@ -3982,27 +3984,29 @@
       },
       "parametric_value": {
         "bbox_mm": [
+          1.2,
           25.1986,
-          22.8,
-          1.2
+          22.8
         ],
         "volume_mm3": 186.656,
         "solids": 1,
-        "source": "components/examples/retaining_ring -- --size 20"
+        "source": "components/examples/retaining_ring --size 20 --goldenFrame"
       },
       "verdict": "accepted-envelope",
-      "notes": "The reference is the FreeCAD-library DIN 471 A20 model (CC BY 3.0, by nachotineo), distributed by step.parts. Its free-state outline is the source of the parametric ring's outline; DIN 471 does not dimension the curve between the back and the lugs. The model's free bore is 18.6 mm against the DIN 471 d3 of 18.5 mm; the builder keeps the model outline and exposes the nominal d3 and groove d2 x m through the standard table and connectors. Bounding box, volume, and lug-hole/bore radii match. The reference writes 9 cylinders and the parametric model 16 because each long arc is split into two minor arcs for the extrusion compiler; the geometry is the same. The shaft groove is declared, not modelled. Sharp edges, no spring temper, no load rating.",
+      "notes": "The reference is the FreeCAD-library DIN 471 A20 model (CC BY 3.0, by nachotineo), distributed by step.parts. Its free-state outline is the source of the parametric ring's outline; DIN 471 does not dimension the curve between the back and the lugs. The model's free bore is 18.6 mm against the DIN 471 d3 of 18.5 mm; the builder keeps the model outline and exposes the nominal d3 and groove d2 x m through the standard table and connectors. Bounding box, volume, and lug-hole/bore radii match. The reference writes 9 cylinders and the parametric model 16 because each long arc is split into two minor arcs for the extrusion compiler; the geometry is the same. The shaft groove is declared, not modelled. Sharp edges, no spring temper, no load rating. The generation recipe uses --goldenFrame so the comparison output matches the reference's YZ ring plane, +Y lugs, and x = s/2 near face; the din471_ring builder itself keeps the library XY-plane, z = 0..s frame.",
       "committed": false,
       "review": {
         "automated": "pass",
-        "owner_visual": "pending",
-        "date": "2026-11-13"
+        "owner_visual": "verified",
+        "date": "2026-11-13",
+        "reason": "owner reported 'look perfect' after the shared-frame visual comparison"
       },
       "generation": {
         "tool": "components/examples/retaining_ring",
         "args": [
           "--size",
           "20",
+          "--goldenFrame",
           "-o",
           "{out}"
         ],
@@ -4013,18 +4017,18 @@
         "bbox_axes": [
           {
             "axis": 0,
+            "expected_mm": 1.2,
+            "label": "ring thickness"
+          },
+          {
+            "axis": 1,
             "expected_mm": 25.1986,
             "label": "across the lugs"
           },
           {
-            "axis": 1,
+            "axis": 2,
             "expected_mm": 22.8,
             "label": "across the ring"
-          },
-          {
-            "axis": 2,
-            "expected_mm": 1.2,
-            "label": "ring thickness"
           }
         ],
         "volume_mm3": 186.655,

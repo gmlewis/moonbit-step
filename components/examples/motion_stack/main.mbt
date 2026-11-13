@@ -10,7 +10,14 @@
 ///   --part coupling --couplingBore 8 --couplingOuter 16 --couplingLength 20 -o coupling.step
 /// moon run components/examples/motion_stack -- \
 ///   --part flange-housing --housingBearingOD 22 --housingBearingWidth 7 -o housing.step
+/// moon run components/examples/motion_stack -- \
+///   --part coupling --couplingBore 5 --couplingOuter 15 --couplingLength 20 \
+///   --goldenFrame -o coupling-golden.step
 /// ```
+///
+/// `--goldenFrame` is a comparison-only option: it maps the part into the
+/// published golden reference frame (X-long, origin-centred) without changing
+/// the builder's default Z-up, z = 0..length convention.
 ///
 /// The bearings are simplified envelopes: rings plus cylindrical roller
 /// proxies, not exact catalogue internals.
@@ -102,6 +109,9 @@ async fn main {
       min=0.0,
     ),
     "housingBolts": @cli.opt_int(4, help="Flanged housing bolt-hole count"),
+    "goldenFrame": @cli.flag(
+      help="Emit the coupling in the published golden reference frame (X axis, centred; comparison only)",
+    ),
     "out": @cli.opt_string(short='o', help="Write STEP to this path"),
     "bbox": @cli.flag(help="Print the assembly bounding box to stderr"),
   }
@@ -115,7 +125,7 @@ async fn main {
   }
   let part_kind = args.string_opt("part").unwrap_or("stack")
   if part_kind == "coupling" || part_kind == "flange-housing" {
-    let component = if part_kind == "coupling" {
+    let mut component = if part_kind == "coupling" {
       match
         @motion.rigid_coupling(
           args.double("couplingBore"),
@@ -146,6 +156,14 @@ async fn main {
           abort("")
         }
       }
+    }
+    if args.flag("goldenFrame") && part_kind == "coupling" {
+      // The step.parts plain-sleeve reference is X-long and centred on the
+      // origin. Keep the library's default Z-up, z = 0..length frame and map
+      // only the golden-comparison output into the reference frame.
+      component = component
+        .rotate_y(90.0)
+        .translate(x=-args.double("couplingLength") / 2.0)
     }
     if args.flag("bbox") {
       let (x0, x1, y0, y1, z0, z1) = component.bounding_box()
