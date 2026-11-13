@@ -3398,6 +3398,202 @@
           }
         ]
       }
+    },
+    {
+      "fixture_id": "motion/vslot-vwheel-openbuilds-23-9",
+      "part_id": "vslot_vwheel_openbuilds_23_9",
+      "designation": "OpenBuilds solid V-wheel 23.90 x 10.23",
+      "family": "V-Slot wheel",
+      "standard": "OpenBuilds V-Slot wheel (manufacturer part)",
+      "manufacturer": "Xem Studio reference model",
+      "source_page": "https://xemstudio.com/objects/v-wheel/",
+      "download_url": "https://xemstudio.com/files/hardware/bearing-housings-and-rod-supports/vwheel-openbuilds-23-9.step",
+      "local_filename": "external/vwheel_openbuilds_23-9_xem.step",
+      "sha256": "073868148e6e67bdde5856b464553b700195bdffd507665568f80821db3a64af",
+      "byte_size": 27142,
+      "units": "mm",
+      "license": "CC BY 4.0",
+      "license_evidence_url": "https://xemstudio.com/objects/v-wheel/",
+      "declared_dimensions": {
+        "outer_diameter_mm": 23.89,
+        "width_mm": 10.23,
+        "bearing_seat_mm": 16.0,
+        "axle_bore_mm": 11.0,
+        "groove_min_diameter_mm": 17.49
+      },
+      "measured_dimensions": {
+        "bbox_mm": [
+          23.89,
+          23.89,
+          10.23
+        ],
+        "volume_mm3": 1934.87,
+        "solids": 1
+      },
+      "parametric_value": {
+        "bbox_mm": [
+          23.89,
+          23.89,
+          10.23
+        ],
+        "volume_mm3": 1934.87,
+        "solids": 1,
+        "source": "components/examples/vslot --part wheel"
+      },
+      "verdict": "accepted-exact",
+      "notes": "V-Slot wheel body only; the 625 bearings and shims are separate parts. The Xem Studio model is CC BY 4.0. Bounding box, volume, surface counts, and the 45 degree groove cones match.",
+      "committed": false,
+      "generation": {
+        "tool": "components/examples/vslot",
+        "args": [
+          "--part",
+          "wheel",
+          "-o",
+          "{out}"
+        ],
+        "output": "vslot-vwheel.step"
+      },
+      "comparison": {
+        "solids": 1,
+        "bbox_axes": [
+          {
+            "axis": 0,
+            "expected_mm": 23.89,
+            "label": "outer diameter"
+          },
+          {
+            "axis": 2,
+            "expected_mm": 10.23,
+            "label": "width"
+          }
+        ],
+        "features": [
+          {
+            "kind": "surface_min",
+            "surface": "plane",
+            "min_count": 4
+          },
+          {
+            "kind": "surface_min",
+            "surface": "cylinder",
+            "min_count": 5
+          },
+          {
+            "kind": "cone_min_count",
+            "min_count": 2
+          },
+          {
+            "kind": "cone_semi_angle_deg",
+            "expected": 45.0,
+            "tol_deg": 0.5
+          },
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 11.945,
+            "tol_mm": 0.01
+          },
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 8.0,
+            "tol_mm": 0.01
+          },
+          {
+            "kind": "vertex_radius_present_mm",
+            "expected": 8.0,
+            "tol_mm": 0.01
+          }
+        ]
+      }
+    },
+    {
+      "fixture_id": "motion/emt-conduit-1-2in-12in",
+      "part_id": "emt_conduit_1_2in_12in",
+      "designation": "EMT conduit 1/2 in x 12 in (304.8 mm)",
+      "family": "electrical metallic tubing",
+      "standard": "ANSI C80.3 / UL 797 EMT boundary dimensions",
+      "manufacturer": "Xem Studio reference model",
+      "source_page": "https://xemstudio.com/objects/emt-conduit/",
+      "download_url": "https://xemstudio.com/files/hardware/emt-conduit/emt-1-2in-12in.step",
+      "local_filename": "external/emt_1-2in_12in_xem.step",
+      "sha256": "bde6935578cf485a6b8fa25d9b0f479682ceacf452467220cfa5df58a0e57493",
+      "byte_size": 9644,
+      "units": "mm",
+      "license": "CC BY 4.0",
+      "license_evidence_url": "https://xemstudio.com/objects/emt-conduit/",
+      "declared_dimensions": {
+        "trade_size": "1/2",
+        "outside_diameter_mm": 17.9324,
+        "wall_mm": 1.0668,
+        "length_mm": 304.8
+      },
+      "measured_dimensions": {
+        "bbox_mm": [
+          17.9324,
+          17.9324,
+          304.8
+        ],
+        "volume_mm3": 17228.6,
+        "solids": 1
+      },
+      "parametric_value": {
+        "bbox_mm": [
+          17.9324,
+          17.9324,
+          304.8
+        ],
+        "volume_mm3": 17228.6,
+        "solids": 1,
+        "source": "components/examples/tubing --part emt --trade 1/2 --length 304.8"
+      },
+      "verdict": "accepted-exact",
+      "notes": "Plain cut-length tube only; couplings, threads, bends, and structural ratings are not modelled. Bounding box, volume, and surface counts match exactly.",
+      "committed": false,
+      "generation": {
+        "tool": "components/examples/tubing",
+        "args": [
+          "--part",
+          "emt",
+          "--trade",
+          "1/2",
+          "--length",
+          "304.8",
+          "-o",
+          "{out}"
+        ],
+        "output": "emt-1-2in-12in.step"
+      },
+      "comparison": {
+        "solids": 1,
+        "bbox_axes": [
+          {
+            "axis": 0,
+            "expected_mm": 17.9324,
+            "label": "outside diameter"
+          },
+          {
+            "axis": 2,
+            "expected_mm": 304.8,
+            "label": "length"
+          }
+        ],
+        "features": [
+          {
+            "kind": "surface_min",
+            "surface": "plane",
+            "min_count": 2
+          },
+          {
+            "kind": "surface_min",
+            "surface": "cylinder",
+            "min_count": 2
+          },
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 8.9662,
+            "tol_mm": 0.01
+          }
+        ]
+      }
     }
   ],
   "golden_source": {

@@ -45,6 +45,18 @@ moon run components/examples/extrusion_hardware -- \
 moon run components/examples/stock_primitive -- \
   --part angle --legA 40 --legB 40 --thickness 4 --length 50 -o angle.step
 
+# OpenBuilds V-Slot system
+moon run components/examples/vslot -- \
+  --part profile --profile 2020 --length 100 -o vslot-2020.step
+moon run components/examples/vslot -- --part wheel -o vwheel.step
+moon run components/examples/vslot -- --part tnut -o vslot-tnut.step
+
+# EMT tube, shaft collar, and tube mount plate
+moon run components/examples/tubing -- \
+  --part emt --trade 1/2 --length 304.8 -o emt.step
+moon run components/examples/tubing -- \
+  --part collar --bore 8 --outer 16 --width 8 -o collar.step
+
 # Built-in M3/M4/M5 fastener catalogue
 mkdir -p components/examples/output
 moon run components/examples/fasteners -- --catalog components/examples/output
@@ -53,6 +65,24 @@ moon run components/examples/fasteners -- --catalog components/examples/output
 All dimensions are millimetres, Z is up, and components use the origins and
 axes documented in each builder.
 
+## Construction systems and commodity tubing
+
+`profile` V-Slot parts use the OpenBuilds 20-series cross-section: 20 x 20 or
+20 x 40, a 9.16 mm V mouth narrowing to a 6.25 mm neck, 90 degree included V
+lips, an 11 mm cavity, 1.5 mm diagonal webs, and 4.2 mm core bores. V-Slot is
+**not** the generic T-slot envelope in `profiles/tslot.mbt` and is not
+interchangeable with a vendor B-slot6 section; keep the mating geometry with
+the intended rail.
+
+The V-wheel body is modelled at its published boundary (23.89 mm OD, 10.23 mm
+wide, 90 degree groove, Ø16 bearing pockets, Ø11 mid-lip bore). Bearing pockets
+and core bores are analytic cylinders. Bearings, shims, threads, and structural
+ratings are not modelled.
+
+EMT tubes use the measured ANSI C80.3 / UL 797 outside diameter and nominal
+wall (a 1/2 in EMT is 17.9324 mm OD, not 12.7 mm). No coupling, thread, bend, or
+electrical/structural rating is claimed.
+
 ## Package map
 
 | Package | Contents |
@@ -60,10 +90,10 @@ axes documented in each builder.
 | `common` | Units-aware validation, detail levels, thread representation, metadata, placement, `Component`, `MateConnector`, and `MatePair`. |
 | `standards` | Metric thread data and ISO/DIN dimension tables (ISO 4032/4035/4762/7089/709x/7380/8752/10642, DIN 557/913/916/976/1587, …). |
 | `fasteners` | Screws, bolts, nuts, washers, pins, rods, and set screws. |
-| `profiles` | Generic T-slot sections and the vendor 2020 B-slot6 A section. |
-| `motion` | Shafts, stepped/keyed shafts, spacers, bushings, keys, dowel pins, standoffs, compression springs, ball bearings, LM-series linear bushings, flanged linear housings, and approximated GT2 timing pulleys. |
+| `profiles` | Generic T-slot sections, the vendor 2020 B-slot6 A section, and OpenBuilds-compatible V-Slot 2020/2040 sections with V lips, V-wheel, and slot T-nut parts. |
+| `motion` | Shafts, stepped/keyed shafts, spacers, bushings, shaft collars, keys, dowel pins, standoffs, compression springs, ball bearings, LM-series linear bushings, flanged linear housings, approximated GT2 timing pulleys, V-Slot wheels, and EMT tubing. |
 | `motors` | NEMA 17 and NEMA 23 stepper-motor envelopes, mounting interfaces, and NEMA mounting plates. |
-| `stock` | EN 10056 angle sections and configurable flat plate blanks with through holes. |
+| `stock` | EN 10056 angle sections, configurable flat plate blanks with analytic circular holes and obround slots, and tube-to-plate adapter plates. |
 | `gears` | Involute spur gears, external pairs, and exact-internal-involute planetary sets. |
 | `assemblies` | Rigid placements, linear/circular patterns, hardware kits, extrusion frames, bolted joints, collision/contact reports, connectivity checks. |
 | `collision` | Kernel-free AABB/OBB collision and contact classification. |

@@ -11,6 +11,8 @@ pub fn b_slot6_2020_extrusion(Double, detail? : @common.DetailLevel, orient_to_r
 
 pub fn extrusion(TSlotProfile, Double, detail? : @common.DetailLevel) -> Result[@common.Component, @common.SpecError]
 
+pub fn vslot_extrusion(VSlotProfile, Double, detail? : @common.DetailLevel, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
 // Errors
 
 // Types and methods
@@ -41,6 +43,32 @@ pub fn TSlotProfile::metadata(Self, Double) -> @common.Metadata
 pub fn TSlotProfile::outline(Self) -> Array[(Double, Double)]
 pub fn TSlotProfile::size(Self) -> (Double, Double)
 pub fn TSlotProfile::with_corner_radius(Self, Double) -> Result[Self, @common.SpecError]
+
+pub(all) struct VSlotProfile {
+  name : String
+  width_mm : Double
+  height_mm : Double
+  slot_mouth_mm : Double
+  slot_neck_mm : Double
+  lip_thickness_mm : Double
+  cavity_width_mm : Double
+  cavity_depth_mm : Double
+  corner_web_mm : Double
+  core_bore_diameter_mm : Double
+  corner_radius_mm : Double
+  floor_relief_mm : Double
+  cell_pitch_mm : Double
+  cells : Int32
+}
+pub fn VSlotProfile::custom(name~ : String, width_mm~ : Double, height_mm~ : Double, slot_mouth_mm? : Double, slot_neck_mm? : Double, lip_thickness_mm? : Double, cavity_width_mm? : Double, cavity_depth_mm? : Double, corner_web_mm? : Double, core_bore_diameter_mm? : Double, corner_radius_mm? : Double, floor_relief_mm? : Double, cell_pitch_mm? : Double) -> Result[Self, @common.SpecError]
+pub fn VSlotProfile::designation(Self) -> String
+pub fn VSlotProfile::holes(Self) -> Array[Array[@cad.ProfileSegment]]
+pub fn VSlotProfile::metadata(Self, Double) -> @common.Metadata
+pub fn VSlotProfile::outline(Self) -> Array[@cad.ProfileSegment]
+pub fn VSlotProfile::size(Self) -> (Double, Double)
+pub fn VSlotProfile::slot_count(Self) -> Int32
+pub fn VSlotProfile::vslot_2020() -> Self
+pub fn VSlotProfile::vslot_2040() -> Self
 
 // Type aliases
 

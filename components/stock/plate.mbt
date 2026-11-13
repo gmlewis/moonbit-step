@@ -8,21 +8,81 @@ pub(all) struct PlateHole {
 }
 
 ///|
-/// plate builds a rectangular flat plate with optional circular through holes.
+/// PlateSlot is one obround through slot in a plate, in the plate's local XY
+/// coordinates. The slot's long axis is X.
+pub(all) struct PlateSlot {
+  x_mm : Double
+  y_mm : Double
+  length_mm : Double
+  width_mm : Double
+}
+
+///|
+/// plate_rect_loop returns a counter-clockwise rectangular outer loop.
+fn plate_rect_loop(
+  width_mm : Double,
+  height_mm : Double,
+) -> Array[@cad.ProfileSegment] {
+  let hw = width_mm / 2.0
+  let hh = height_mm / 2.0
+  [
+    @cad.SegmentLine((-hw, -hh), (hw, -hh)),
+    @cad.SegmentLine((hw, -hh), (hw, hh)),
+    @cad.SegmentLine((hw, hh), (-hw, hh)),
+    @cad.SegmentLine((-hw, hh), (-hw, -hh)),
+  ]
+}
+
+///|
+/// plate_circle_loop returns a counter-clockwise full circle as four arcs.
 ///
-/// Geometry: the plate is centered on the XY origin and on `z = 0`, with its
-/// faces at `z = +/- thickness / 2`. This matches the common plate-blank
-/// reference frame. Holes are through holes in the +Z direction.
-///
-/// The plate is a generic blank: it does not imply a standardized commercial
-/// part, and hole patterns are the caller's responsibility.
-pub fn plate(
+/// `ExtrudedArcProfile` merges a full circular loop into one analytic
+/// cylindrical face, so plate holes are true cylinders rather than polygons.
+fn plate_circle_loop(
+  cx : Double,
+  cy : Double,
+  radius : Double,
+) -> Array[@cad.ProfileSegment] {
+  let centre = (cx, cy)
+  [
+    @cad.SegmentArc((cx + radius, cy), (cx, cy + radius), centre),
+    @cad.SegmentArc((cx, cy + radius), (cx - radius, cy), centre),
+    @cad.SegmentArc((cx - radius, cy), (cx, cy - radius), centre),
+    @cad.SegmentArc((cx, cy - radius), (cx + radius, cy), centre),
+  ]
+}
+
+///|
+/// plate_slot_loop returns a counter-clockwise obround loop with its long axis
+/// along X.
+fn plate_slot_loop(
+  cx : Double,
+  cy : Double,
+  length_mm : Double,
+  width_mm : Double,
+) -> Array[@cad.ProfileSegment] {
+  let r = width_mm / 2.0
+  let lcx = cx - (length_mm / 2.0 - r)
+  let rcx = cx + (length_mm / 2.0 - r)
+  [
+    @cad.SegmentLine((lcx, cy - r), (rcx, cy - r)),
+    @cad.SegmentArc((rcx, cy - r), (rcx, cy + r), (rcx, cy)),
+    @cad.SegmentLine((rcx, cy + r), (lcx, cy + r)),
+    @cad.SegmentArc((lcx, cy + r), (lcx, cy - r), (lcx, cy)),
+  ]
+}
+
+///|
+
+///|
+/// plate_impl validates and builds the plate body without connectors.
+fn plate_impl(
   width_mm : Double,
   height_mm : Double,
   thickness_mm : Double,
-  holes~ : Array[PlateHole] = [],
-  detail~ : @common.DetailLevel = @common.DetailLevel::Detailed,
-  color~ : @cad.Rgb = @cad.Rgb::grey(),
+  holes : Array[PlateHole],
+  slots : Array[PlateSlot],
+  color : @cad.Rgb,
 ) -> Result[@common.Component, @common.SpecError] {
   let checks : Array[Result[Unit, @common.SpecError]] = [
     @common.require_positive("plate width", width_mm),
@@ -34,12 +94,6 @@ pub fn plate(
       Err(e) => return Err(e)
       Ok(_) => ()
     }
-  }
-  let policy = @common.DetailPolicy::for_level(detail)
-  let segments = if policy.circle_segments < 32 {
-    32
-  } else {
-    policy.circle_segments
   }
   for i, hole in holes {
     match @common.require_positive("plate hole diameter", hole.diameter_mm) {
@@ -65,6 +119,33 @@ pub fn plate(
         ),
       )
     }
+  }
+  for i, slot in slots {
+    match @common.require_positive("plate slot width", slot.width_mm) {
+      Err(e) => return Err(e)
+      Ok(_) => ()
+    }
+    if slot.length_mm < slot.width_mm {
+      return Err(
+        @common.InvalidParameter("plate slot length must be at least its width"),
+      )
+    }
+    let r = slot.width_mm / 2.0
+    let half_length = slot.length_mm / 2.0
+    if slot.x_mm - half_length < -width_mm / 2.0 ||
+      slot.x_mm + half_length > width_mm / 2.0 ||
+      slot.y_mm - r < -height_mm / 2.0 ||
+      slot.y_mm + r > height_mm / 2.0 {
+      return Err(
+        @common.InvalidDimension(
+          "plate slot \{i} lies outside the plate boundary",
+        ),
+      )
+    }
+  }
+  // Pairwise overlap checks: holes as circles, slots as capsules along X.
+  for i, hole in holes {
+    let hr = hole.diameter_mm / 2.0
     for j, other in holes {
       if j <= i {
         continue
@@ -78,23 +159,71 @@ pub fn plate(
         )
       }
     }
+    for j, slot in slots {
+      let sr = slot.width_mm / 2.0
+      let sx0 = slot.x_mm - (slot.length_mm / 2.0 - sr)
+      let sx1 = slot.x_mm + (slot.length_mm / 2.0 - sr)
+      let nearest_x = if hole.x_mm < sx0 {
+        sx0
+      } else if hole.x_mm > sx1 {
+        sx1
+      } else {
+        hole.x_mm
+      }
+      let dx = hole.x_mm - nearest_x
+      let dy = hole.y_mm - slot.y_mm
+      if (dx * dx + dy * dy).sqrt() < hr + sr {
+        return Err(
+          @common.InvalidParameter("plate hole \{i} and slot \{j} overlap"),
+        )
+      }
+    }
   }
-  let outer = @cad.Profile2D::centered_rect(width_mm, height_mm)
-  let hole_profiles = holes.map(fn(hole) {
-    let circle = @cad.Profile2D::circle(hole.diameter_mm, segments~).rev()
-    @cad.translate_pts(circle, hole.x_mm, hole.y_mm)
+  for i, slot in slots {
+    let sr = slot.width_mm / 2.0
+    let sx0 = slot.x_mm - (slot.length_mm / 2.0 - sr)
+    let sx1 = slot.x_mm + (slot.length_mm / 2.0 - sr)
+    for j, other in slots {
+      if j <= i {
+        continue
+      }
+      let or = other.width_mm / 2.0
+      let ox0 = other.x_mm - (other.length_mm / 2.0 - or)
+      let ox1 = other.x_mm + (other.length_mm / 2.0 - or)
+      // Conservative: compare the two capsule segments on their centre lines.
+      let ax0 = sx0
+      let ax1 = sx1
+      let bx0 = ox0
+      let bx1 = ox1
+      let gap = if ax1 < bx0 {
+        bx0 - ax1
+      } else if bx1 < ax0 {
+        ax0 - bx1
+      } else {
+        0.0
+      }
+      let dy = slot.y_mm - other.y_mm
+      if (gap * gap + dy * dy).sqrt() < sr + or {
+        return Err(
+          @common.InvalidParameter("plate slots \{i} and \{j} overlap"),
+        )
+      }
+    }
+  }
+  let hole_loops = holes.map(fn(hole) {
+    plate_circle_loop(hole.x_mm, hole.y_mm, hole.diameter_mm / 2.0)
   })
-  let body = @cad.ExtrudedProfile::new(outer, thickness_mm, holes=hole_profiles)
+  let slot_loops = slots.map(fn(slot) {
+    plate_slot_loop(slot.x_mm, slot.y_mm, slot.length_mm, slot.width_mm)
+  })
+  let body = @cad.ExtrudedArcProfile::new(
+    plate_rect_loop(width_mm, height_mm),
+    thickness_mm,
+    holes=[..hole_loops, ..slot_loops],
+  ).as_shape()
   let features = @common.FeatureRecord::new(
-    modeled=["body", "through-holes"],
-    approximated=holes.map(fn(hole) {
-      @common.Approximation::new(
-        feature="through-hole",
-        kind=@common.ApproximationKind::PolylineArc,
-        deviation_mm=@common.chord_deviation(hole.diameter_mm / 2.0, segments),
-        control="circle_segments=\{segments}",
-      )
-    }),
+    modeled=["body", "through-holes", "through-slots"],
+    approximated=[],
     omitted=[
       @common.Omission::new(
         feature="edge-chamfers",
@@ -113,18 +242,40 @@ pub fn plate(
       designation="Plate \{@cad.fmt_double(width_mm, None)} x \{@cad.fmt_double(height_mm, None)} x \{@cad.fmt_double(thickness_mm, None)}",
       family="flat plate blank",
       size="\{@cad.fmt_double(width_mm, None)}x\{@cad.fmt_double(height_mm, None)}x\{@cad.fmt_double(thickness_mm, None)}",
-      source="Parametric rectangular plate centered on the origin; hole patterns are caller-supplied.",
+      source="Parametric rectangular plate centered on the origin; hole and slot patterns are caller-supplied.",
     ),
-    description="Rectangular flat plate blank centered on the XY origin with optional circular through holes. No edge treatment or material tolerance is asserted.",
+    description="Rectangular flat plate blank centered on the XY origin with optional analytic circular through holes and obround through slots. No edge treatment or material tolerance is asserted.",
     features~,
   ).add_layer(body, name="body", color~)
-  Ok(
-    with_plate_connectors(
-      component.translate(z=-thickness_mm / 2.0),
-      width_mm,
-      height_mm,
-      thickness_mm,
-      holes,
-    ),
-  )
+  Ok(component.translate(z=-thickness_mm / 2.0))
+}
+
+///|
+/// plate builds a rectangular flat plate with optional circular through holes
+/// and obround through slots.
+///
+/// Geometry: the plate is centered on the XY origin and on `z = 0`, with its
+/// faces at `z = +/- thickness / 2`. Holes and slots are through cuts in the
+/// +Z direction and compile to analytic cylinders and slot caps. The plate is a
+/// generic blank: it does not imply a standardized commercial part, and
+/// hole/slot patterns are the caller's responsibility.
+pub fn plate(
+  width_mm : Double,
+  height_mm : Double,
+  thickness_mm : Double,
+  holes~ : Array[PlateHole] = [],
+  slots~ : Array[PlateSlot] = [],
+  detail~ : @common.DetailLevel = @common.DetailLevel::Detailed,
+  color~ : @cad.Rgb = @cad.Rgb::grey(),
+) -> Result[@common.Component, @common.SpecError] {
+  let _ = detail
+  match plate_impl(width_mm, height_mm, thickness_mm, holes, slots, color) {
+    Err(e) => Err(e)
+    Ok(component) =>
+      Ok(
+        with_plate_connectors(
+          component, width_mm, height_mm, thickness_mm, holes, slots,
+        ),
+      )
+  }
 }

@@ -128,6 +128,26 @@ echo "== assembly-structure/kit-M4x20-assembly.step"
 python3 "$ROOT/scripts/validate_step.py" --no-mesh \
   "$OUT/assembly-structure/kit-M4x20-assembly.step"
 
+# Construction-system, tubing, and adapter primitives.
+moon run components/examples/vslot -- \
+  --part profile --profile 2020 --length 100 -o "$OUT/vslot-2020x100.step"
+moon run components/examples/vslot -- \
+  --part profile --profile 2040 --length 100 -o "$OUT/vslot-2040x100.step"
+moon run components/examples/vslot -- --part wheel -o "$OUT/vslot-wheel.step"
+moon run components/examples/vslot -- --part tnut -o "$OUT/vslot-tnut-m5.step"
+moon run components/examples/vslot -- \
+  --part plate --length 60 --width 20 --thickness 3 -o "$OUT/vslot-joining-plate.step"
+moon run components/examples/tubing -- \
+  --part emt --trade 1/2 --length 304.8 -o "$OUT/emt-1-2in-304.step"
+moon run components/examples/tubing -- \
+  --part collar --bore 8 --outer 16 --width 8 -o "$OUT/shaft-collar-d8.step"
+moon run components/examples/tubing -- \
+  --part adapter --tubeOD 17.9324 --clearance 0.5 -o "$OUT/tube-mount-plate.step"
+for part in vslot-2020x100 vslot-2040x100 vslot-wheel vslot-tnut-m5 \
+  vslot-joining-plate emt-1-2in-304 shaft-collar-d8 tube-mount-plate; do
+  python3 "$ROOT/scripts/validate_step.py" --no-mesh "$OUT/$part.step"
+done
+
 echo "Independent frame geometry validation (OCCT, optional)..."
 set +e
 python3 "$ROOT/scripts/validate_frame_geometry.py" \

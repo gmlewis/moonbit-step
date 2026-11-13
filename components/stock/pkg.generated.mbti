@@ -13,7 +13,11 @@ pub fn angle_section(leg_a_mm~ : Double, leg_b_mm~ : Double, thickness_mm~ : Dou
 
 pub fn en10056_equal_angle_40x40x4() -> AngleSection
 
-pub fn plate(Double, Double, Double, holes? : Array[PlateHole], detail? : @common.DetailLevel, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+pub fn plate(Double, Double, Double, holes? : Array[PlateHole], slots? : Array[PlateSlot], detail? : @common.DetailLevel, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn tube_mount_plate(Double, Double, Double, Double, Double, Double, Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn vslot_joining_plate(Double, Double, Double, Double, Double, Double) -> Result[@common.Component, @common.SpecError]
 
 // Errors
 
@@ -30,6 +34,13 @@ pub(all) struct PlateHole {
   x_mm : Double
   y_mm : Double
   diameter_mm : Double
+}
+
+pub(all) struct PlateSlot {
+  x_mm : Double
+  y_mm : Double
+  length_mm : Double
+  width_mm : Double
 }
 
 // Type aliases

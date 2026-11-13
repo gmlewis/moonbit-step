@@ -37,3 +37,22 @@ test "angle bar exposes outer faces and end datums" {
   assert_true(has_stock_connector(part, "end-b"))
   assert_true(has_stock_connector(part, "inner-corner"))
 }
+
+///|
+test "plate exposes one connector per slot" {
+  let slots : Array[@stock.PlateSlot] = [
+    @stock.PlateSlot::{
+      x_mm: -10.0,
+      y_mm: 0.0,
+      length_mm: 10.0,
+      width_mm: 5.5,
+    },
+    @stock.PlateSlot::{ x_mm: 10.0, y_mm: 0.0, length_mm: 10.0, width_mm: 5.5, },
+  ]
+  let part = match @stock.plate(60.0, 20.0, 3.0, slots~) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  assert_true(has_stock_connector(part, "slot-1"))
+  assert_true(has_stock_connector(part, "slot-2"))
+}

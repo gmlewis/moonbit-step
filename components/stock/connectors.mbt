@@ -10,6 +10,7 @@ fn with_plate_connectors(
   height_mm : Double,
   thickness_mm : Double,
   holes : Array[PlateHole],
+  slots : Array[PlateSlot],
 ) -> @common.Component {
   let half = thickness_mm / 2.0
   let face_size = if width_mm < height_mm { width_mm } else { height_mm }
@@ -45,6 +46,19 @@ fn with_plate_connectors(
         diameter_mm=hole.diameter_mm,
         depth_mm=thickness_mm,
         description="through hole through the plate",
+      ),
+    )
+  }
+  for i, slot in slots {
+    out = out.with_connector_unchecked(
+      @common.MateConnector::new(
+        "slot-\{i + 1}",
+        placement=@common.Placement::translation(slot.x_mm, slot.y_mm, -half),
+        axis=(0.0, 0.0, 1.0),
+        kind=@common.MateKind::ProfileSlot,
+        diameter_mm=slot.width_mm,
+        depth_mm=thickness_mm,
+        description="obround through slot; long axis is +X",
       ),
     )
   }

@@ -21,6 +21,12 @@ pub fn compression_spring(Double, Double, Double, Int32, segments_per_turn? : In
 
 pub fn dowel_pin(Double, Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
+pub fn emt_size(String) -> Result[EmtSize, @common.SpecError]
+
+pub fn emt_trade_sizes() -> Array[String]
+
+pub fn emt_tube(EmtSize, Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
 pub fn filleted_stepped_shaft(Array[(Double, Double)], fillet_radius_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
 pub fn flanged_linear_bearing(LinearBearingSize, flange_diameter_mm? : Double, flange_thickness_mm? : Double, orient_to_reference? : Bool, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
@@ -47,6 +53,8 @@ pub fn linear_bearing_size(String) -> Result[LinearBearingSize, @common.SpecErro
 
 pub fn shaft(Double, Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
+pub fn shaft_collar(Double, Double, Double, chamfer_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
 pub fn shielded_bearing(BearingSize, shield_depth_mm? : Double, outer_ring_thickness_mm? : Double, inner_ring_thickness_mm? : Double, detail? : @common.DetailLevel, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
 pub fn spacer(Double, Double, Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
@@ -54,6 +62,8 @@ pub fn spacer(Double, Double, Double, color? : @cad.Rgb) -> Result[@common.Compo
 pub fn standoff(Double, Double, Double, detail? : @common.DetailLevel) -> Result[@common.Component, @common.SpecError]
 
 pub fn stepped_shaft(Array[ShaftSegment], color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn v_wheel(VWheelSpec, detail? : @common.DetailLevel, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
 // Errors
 
@@ -63,6 +73,12 @@ pub(all) struct BearingSize {
   bore_mm : Double
   outer_mm : Double
   width_mm : Double
+}
+
+pub(all) struct EmtSize {
+  trade_size : String
+  outside_diameter_mm : Double
+  wall_mm : Double
 }
 
 pub(all) struct GT2Geometry {
@@ -84,6 +100,17 @@ pub(all) struct ShaftSegment {
   length_mm : Double
 }
 pub fn ShaftSegment::new(Double, Double) -> Result[Self, @common.SpecError]
+
+pub(all) struct VWheelSpec {
+  designation : String
+  outer_diameter_mm : Double
+  width_mm : Double
+  groove_min_diameter_mm : Double
+  bearing_seat_diameter_mm : Double
+  axle_bore_mm : Double
+  mid_lip_mm : Double
+}
+pub fn VWheelSpec::openbuilds_solid_v() -> Self
 
 // Type aliases
 

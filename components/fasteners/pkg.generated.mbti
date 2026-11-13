@@ -132,6 +132,8 @@ pub fn thread_note(@common.ThreadRepresentation) -> String
 
 pub fn tip_chamfered_cylinder(Double, Double, Double, segments? : Int32) -> @cad.Shape
 
+pub fn vslot_t_nut(SlotTNutSpec, detail? : @common.DetailLevel, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
 // Errors
 
 // Types and methods
@@ -150,6 +152,16 @@ pub(all) struct HeatSetInsertSpec {
   knurl_diameter_mm : Double
   bore_diameter_mm : Double
 }
+
+pub(all) struct SlotTNutSpec {
+  designation : String
+  length_mm : Double
+  width_mm : Double
+  height_mm : Double
+  thread_diameter_mm : Double
+  tap_drill_mm : Double
+}
+pub fn SlotTNutSpec::openbuilds_m5() -> Self
 
 // Type aliases
 
