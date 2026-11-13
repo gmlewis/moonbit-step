@@ -419,12 +419,13 @@
           20.0,
           20.0
         ],
-        "section_area_mm2": 192.3451,
-        "note": "Generic four-slot envelope, not the B-type section",
-        "source": "components/profiles TSlotProfile::generic_2020"
+        "section_area_mm2": 174.3364,
+        "volume_mm3": 8716.82,
+        "note": "Exact B-slot6 section with analytic corner and bore arcs",
+        "source": "components/profiles b_slot6_2020_extrusion"
       },
-      "verdict": "envelope-only",
-      "notes": "The 20 x 20 x 50 envelope matches. The reference is a manufacturer-specific B-type slot-6 section; the parametric generic profile is not claimed to be section-compatible, so slot, cavity, wall, and bore geometry are not compared.",
+      "verdict": "accepted",
+      "notes": "The 20 x 20 x 50 envelope matches, and the dedicated b_slot6_2020_extrusion builder reproduces the manufacturer-specific section: 174.3364 mm^2, 12 cylindrical faces at radii 1.0 and 2.75 mm, and zero bidirectional surface deviation. The reference splits each end cap into four coplanar faces (96 plane entities); the parametric model has two cap faces (86 plane entities).",
       "committed": false
     },
     {

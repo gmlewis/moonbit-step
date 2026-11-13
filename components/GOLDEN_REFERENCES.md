@@ -139,19 +139,21 @@ parametric values are in `components/testdata/golden/manifest.json`.
 | `fasteners/iso4032-m4` | ISO 4032 M4 | 7.66 x 7.66 x 3.2027 | 7.0 x 8.0829 x 3.2 | height accepted; across-flats not confirmable from bbox |
 | `fasteners/iso7089-m4` | ISO 7089 M4 | 9.0 x 9.0 x 1.8 | 9.0 x 9.0 x 0.8 | **rejected** — thickness contradicts ISO 7089 h = 0.8 |
 | `bearings/608zz` | 608ZZ | 22.0 x 22.0 x 7.0 | 22.0 x 22.0 x 7.0 | accepted (envelope) |
-| `profiles/b-slot6-2020-l50` | 20 x 20 B-type slot-6, 50 mm | 20.0 x 50.0 x 20.0 | generic 20 x 20 section | **section differs materially**; envelope only, exact B-slot6 profile deferred |
+| `profiles/b-slot6-2020-l50` | 20 x 20 B-type slot-6, 50 mm | 20.0 x 50.0 x 20.0 | 20.0 x 50.0 x 20.0 | **accepted** — exact section, 12 analytic cylinders, volume 8716.82 |
 | `gears/spur-m2-z20-bore8` | m2.0, z20, width 16, bore 8 | 44.0 x 44.0 x 16.0 | 44.0 x 44.0 x 16.0 | accepted (envelope) |
 
-The 2020 profile reference is an important known discrepancy, not an accepted
-section match. `profile_2020_b_slot6_a_l50` is a manufacturer-specific B-type
-slot-6 section with a measured volume of 8716.82 mm^3 over 50 mm, so its solid
-section area is about 174.336 mm^2. It has rounded outer corners and a lobed
-core region built from 2.75 mm-radius cylindrical/arc surfaces. The generic
-2020 envelope is 192.345108 mm^2 with sharp corners, a 4.2 mm bore, and simple
-T-slots. The 20 x 20 x 50 envelope matches, but the section does not. Exact
-B-slot6 support is deferred to the next session because it requires an
-arc-capable 2D section representation and verification of the reference's provenance. See
-`KNOWN_ISSUES.md`.
+The 2020 profile reference is now reproduced exactly.
+`profile_2020_b_slot6_a_l50` is a manufacturer-specific B-type slot-6 section
+with a measured volume of 8716.82 mm^3 over 50 mm, so its solid section area is
+174.3364 mm^2. It has 1 mm rounded outer corners, 6 mm slot necks with 6.8 mm
+mouths, four diagonal corner webs, and a lobed central bore built from eight
+2.75 mm-radius arcs. The dedicated `b_slot6_2020_extrusion` builder in
+`components/profiles/bslot6.mbt` reproduces the reference with analytic lines
+and arcs: the volume, bounding box and bidirectional surface deviation (0.0 mm)
+match, and both models carry 12 `CYLINDRICAL_SURFACE` entities at radii 1.0 and
+2.75 mm. The generic `generic-2020` envelope remains a distinct, simpler
+profile (192.345108 mm^2, sharp corners, 4.2 mm bore) and is not the B-slot6
+section.
 
 The two rejected models are the reason for the "verify the golden models
 themselves" rule: a catalog designation is not proof that the model follows
@@ -251,7 +253,7 @@ downloaded by the owner into `external/`.
 | ISO 10642 M3 x 12 / M4 x 10 / M5 x 12 | overall length; 90° countersink | matches; dk slightly below max | accepted-envelope |
 | Bearings 608 / 6000 / 6001 / 6200 | bore, OD, width | matches ISO 15 boundary dims | accepted-envelope |
 | Spur gear m2 z20 / z40 | tip dia, face width, bore, root dia | matches | accepted-envelope |
-| 2020 B-slot6 profile | 20 x 20 x 50 envelope | section differs | envelope-only |
+| 2020 B-slot6 profile | 20 x 20 x 50 envelope | matches (section, volume, 12 cylinders) | accepted |
 | Metric threaded rod "M3 x 200" | model is 3 mm x **400 mm** | contradicts 200 mm label | **rejected and deleted** |
 
 The washer and rod rejections are deliberate: a catalogue designation is not
@@ -442,17 +444,19 @@ acceptance criterion; this tool is for the visual review.
   `lengthMm` 25/200. All 14 were deleted and blacklisted on 2026-11-12; see the
   threaded-rod deletion note below. The library follows the label (25/200 mm)
   and its ends carry 45-degree lead-in cones where the references are sharp.
-- **Not implemented in this session:** ISO 1234 cotter pins (142-148), the
-  B-slot6 profile (212), cup-point set screws (213-223), and the ISO 10642
-  socket rims (084). Each needs a non-axisymmetric cut or a socket rim
-  representation that the flat writer did not yet carry safely. The ISO 8752
+- **Not implemented in this session:** ISO 1234 cotter pins (142-148),
+  cup-point set screws (213-223), and the ISO 10642 socket rims (084). Each
+  needs a non-axisymmetric cut or a socket rim representation that the flat
+  writer did not yet carry safely. The ISO 8752
   spring pins (167-190) were built later in this session with a dedicated
   `SlitTube` construction; their references were deleted (see the spring-pin
   deletion note below). The DIN 1587 cap nuts (191-194) were built later in
   this session as `AcornNut`; their references were deleted (see the cap-nut
   deletion note below). The DIN 557 square nuts (195-197) were built later in
   this session as `SquareNut`; they match their references (see the square-nut
-  note below).
+  note below). The B-slot6 profile (212) was built later in this session as
+  `b_slot6_2020_extrusion` on an arc-capable extruded profile with an analytic
+  inner loop; it matches its reference exactly (see the B-slot6 note below).
 
 ### ISO 4032 nuts (082, 083, 086-090) — conical washer faces
 
@@ -700,3 +704,26 @@ models do not represent the designated rods. All 14 files and their
 The library's `din976` builder is unchanged: it follows the requested length
 and its ends carry 45-degree lead-in cones where the references are sharp; it
 now has no golden counterpart.
+
+### 2020 B-slot6 profile — exact analytic match (2026-11-12)
+
+`profile_2020_b_slot6_a_l50` is a vendor 20 x 20 aluminium T-slot section: four
+6 mm-neck / 6.8 mm-mouth slots, 1 mm rounded outer corners, four diagonal corner
+webs, and a lobed central 5.5 mm bore (eight 2.75 mm-radius arcs). The dedicated
+`b_slot6_2020_extrusion` builder gives the section as line and arc loops; the
+`ExtrudedArcProfile` kernel now accepts analytic inner loops, so the bore arcs
+become real `CYLINDRICAL_SURFACE` faces rather than facets.
+
+| Measure | Reference | Parametric |
+|---|---|---|
+| Volume (50 mm) | 8716.82 mm^3 | 8716.82 mm^3 |
+| Bounding box | 20 x 50 x 20 mm | 20 x 50 x 20 mm |
+| Section area | 174.3364 mm^2 | 174.3364 mm^2 |
+| Cylindrical faces | 12 (r = 1.0 and 2.75) | 12 (r = 1.0 and 2.75) |
+| Planar faces | 96 | 86 |
+| Bidirectional surface deviation | — | 0.0 mm |
+
+The planar-face count differs only because the reference splits each end cap
+into four coplanar faces; the solid geometry is identical. The generic
+`generic-2020` profile remains a separate, simpler envelope and is not this
+section.

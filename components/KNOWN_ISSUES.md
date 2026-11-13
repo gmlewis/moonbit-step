@@ -91,14 +91,14 @@ and independent validation. See `AUDIT.md` and `PROGRESS.md` for the evidence.
     envelope, not a manufacturer-compatible section.
 15. **The generic 2020 profile is not the step.parts B-slot6 profile.** The
     reference `profile_2020_b_slot6_a_l50` is a manufacturer-specific B-type
-    slot-6 section: 20 x 20 x 50 mm, volume 8716.82 mm^3, so its solid section
-    area is about 174.336 mm^2. It has rounded outer corners and a lobed core
-    region built from 2.75 mm-radius cylindrical/arc surfaces. The generic
-    `generic-2020` envelope is 192.345108 mm^2 with sharp corners, a 4.2 mm
-    bore, and simple T-slots. The two must not be described as equivalent.
-    Exact B-slot6 support is deferred to the next session because it requires
-    an arc-capable 2D section representation and verification of the
-    reference's provenance. See `GOLDEN_REFERENCES.md`.
+    slot-6 section: 20 x 20 x 50 mm, volume 8716.82 mm^3, solid section area
+    174.3364 mm^2. A dedicated `b_slot6_2020_extrusion` builder now reproduces
+    it exactly with analytic lines and arcs (12 cylindrical surface entities,
+    zero surface deviation). The generic `generic-2020` envelope remains a
+    distinct, simpler profile (192.345108 mm^2, sharp corners, 4.2 mm bore) and
+    must not be described as the B-slot6 section. The reference splits each cap
+    into four coplanar faces (96 plane entities); the parametric model emits two
+    cap faces (86 plane entities), a topology-only difference.
 
 ## API / packaging
 
@@ -164,7 +164,6 @@ and independent validation. See `AUDIT.md` and `PROGRESS.md` for the evidence.
 - T-nuts, corner brackets, joining plates, end caps (no verified data).
 - Couplings, linear rails, retaining rings/inserts (no verified data).
 - Motor envelopes and mounting patterns.
-- Exact B-slot6 extrusion (provenance).
 - Multi-edge evaluated chamfers (the optional OCCT DRAW path is single-edge for
   chamfers; fillets support multi-edge `blend`).
 
