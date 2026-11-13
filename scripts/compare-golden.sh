@@ -186,6 +186,9 @@ def infer(name, detail):
     m = re.match(r"^iso4762_socket_head_cap_screw_m(\d+(?:p\d+)?)x(\d+)\.step$", name)
     if m:
         return fastener("iso4762", m.group(1), m.group(2), detail)
+    m = re.match(r"^thin_jam_nut_m(\d+(?:p\d+)?)_simple\.step$", name)
+    if m:
+        return fastener("iso4035", m.group(1), None, detail)
     m = re.match(r"^iso4032_hex_nut_m(\d+(?:p\d+)?)\.step$", name)
     if m:
         return fastener("iso4032", m.group(1), None, detail)
@@ -363,6 +366,12 @@ def adjust_for_golden(name, tool, args, detail, detail_explicit):
         note = (
             "reference cuts each vertical corner with a 0.0014 mm coaxial arc "
             "(4 extra cylindrical faces); the parametric model keeps sharp "
+            "standard corners"
+        )
+    if tool.endswith("/fasteners") and arg_value(args, "--standard") == "iso4035":
+        note = (
+            "reference rounds each vertical corner by about 0.001 mm "
+            "(6 extra cylindrical faces); the parametric model keeps sharp "
             "standard corners"
         )
     if tool.endswith("/fasteners") and name.endswith("_simple.step"):

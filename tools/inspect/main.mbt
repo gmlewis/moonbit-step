@@ -173,6 +173,7 @@ fn build_fastener(args : Array[String], standard : String) -> Built {
         Some(t) => @fcomponents.iso4032_nut(size, detail~, threads=t)
         None => @fcomponents.iso4032_nut(size, detail~)
       }
+    "iso4035" => @fcomponents.iso4035_nut(size, detail~)
     "iso7089" => @fcomponents.iso7089_washer(size, detail~)
     "iso8752" => @fcomponents.iso8752_spring_pin(size, length, detail~)
     "din1587" => @fcomponents.din1587_acorn_nut(size, detail~)

@@ -66,6 +66,10 @@ pub fn iso4032_size(MetricSize) -> Result[ISO4032Size, @common.SpecError]
 
 pub fn iso4032_spec(MetricSize, clearance_mm? : Double) -> Result[ISO4032Spec, @common.SpecError]
 
+pub fn iso4035_size(MetricSize) -> Result[ISO4035Size, @common.SpecError]
+
+pub fn iso4035_spec(MetricSize, clearance_mm? : Double) -> Result[ISO4035Spec, @common.SpecError]
+
 pub fn iso4762_size(MetricSize) -> Result[ISO4762Size, @common.SpecError]
 
 pub fn iso4762_spec(MetricSize, Double) -> Result[ISO4762Spec, @common.SpecError]
@@ -352,6 +356,24 @@ pub fn ISO4032Spec::size(Self) -> MetricSize
 pub fn ISO4032Spec::source() -> String
 pub fn ISO4032Spec::standard() -> String
 pub fn ISO4032Spec::thread(Self) -> ThreadSpec
+
+pub(all) struct ISO4035Size {
+  size : MetricSize
+  thread : ThreadSpec
+  width_across_flats_mm : Double
+  height_mm : Double
+}
+
+pub(all) struct ISO4035Spec {
+  size_dims : ISO4035Size
+  clearance_mm : Double
+}
+pub fn ISO4035Spec::designation(Self) -> String
+pub fn ISO4035Spec::metadata(Self) -> @common.Metadata
+pub fn ISO4035Spec::size(Self) -> MetricSize
+pub fn ISO4035Spec::source() -> String
+pub fn ISO4035Spec::standard() -> String
+pub fn ISO4035Spec::thread(Self) -> ThreadSpec
 
 pub(all) struct ISO4762Size {
   size : MetricSize

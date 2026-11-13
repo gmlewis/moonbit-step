@@ -36,7 +36,7 @@ axes documented in each builder.
 | Package | Contents |
 |---|---|
 | `common` | Units-aware validation, detail levels, thread representation, metadata, placement, `Component`. |
-| `standards` | Metric thread data and ISO/DIN dimension tables (ISO 4032/4762/7089/709x/7380/8752/10642, DIN 557/913/916/976/1587, …). |
+| `standards` | Metric thread data and ISO/DIN dimension tables (ISO 4032/4035/4762/7089/709x/7380/8752/10642, DIN 557/913/916/976/1587, …). |
 | `fasteners` | Screws, bolts, nuts, washers, pins, rods, and set screws. |
 | `profiles` | Generic T-slot sections and the vendor 2020 B-slot6 A section. |
 | `motion` | Shafts, stepped/keyed shafts, spacers, bushings, keys, dowel pins, standoffs, compression springs, ball bearings. |

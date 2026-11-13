@@ -226,3 +226,64 @@ pub fn iso4032_nut(
     }
   }
 }
+
+///|
+/// iso4035_nut builds an ISO 4035 thin hexagon nut.
+///
+/// The nut axis is +Z with the bearing face at z = 0 and a corner on +X. The
+/// body is a `ConicalNut` with a 75-degree washer face on both ends and a
+/// straight through bore; the 75-degree angle is the value used by the thin-nut
+/// reference family (ISO 4035 does not fix the washer face).
+pub fn iso4035_nut(
+  size : @standards.MetricSize,
+  detail~ : @common.DetailLevel = Detailed,
+  clearance_mm~ : Double = 0.0,
+  color~ : @cad.Rgb = @cad.Rgb::grey(),
+) -> Result[@common.Component, @common.SpecError] {
+  let _ = detail
+  match @standards.iso4035_spec(size, clearance_mm~) {
+    Err(e) => Err(e)
+    Ok(spec) => {
+      let dims = spec.size_dims
+      let d = dims.thread.nominal_diameter_mm
+      let bore_d = d + 2.0 * spec.clearance_mm
+      let body = @cad.ConicalNut::new(
+        across_flats_mm=dims.width_across_flats_mm,
+        height_mm=dims.height_mm,
+        bore_diameter_mm=bore_d,
+        face_angle_deg=75.0,
+        lead_in_mm=0.0,
+        rotation_deg=0.0,
+      ).as_shape()
+      let features = @common.FeatureRecord::new(
+        modeled=["hex-body", "conical-washer-faces", "through-bore"],
+        approximated=[
+          @common.Approximation::new(
+            feature="washer-face-angle",
+            kind=@common.ApproximationKind::EngineeringDefault,
+            deviation_mm=0.0,
+            control="75-degree conical washer face on both ends, taken from the thin-nut reference family; ISO 4035 does not fix it",
+          ),
+        ],
+        omitted=[
+          @common.Omission::new(
+            feature="thread",
+            reason="the bore is the nominal thread envelope; the internal thread form is not modeled",
+          ),
+          @common.Omission::new(
+            feature="corner-break",
+            reason="the reference family rounds each vertical corner by about 0.001 mm; the model keeps sharp corners",
+          ),
+        ],
+      )
+      Ok(
+        @common.Component::new(
+          name="ISO4035-\{size.designation()}",
+          metadata=spec.metadata(),
+          description="Thin hexagon nut: one closed solid with a hexagon body, a 75-degree conical washer face on each end, and a circular through bore.",
+          features~,
+        ).add_layer(body, name="body", color~),
+      )
+    }
+  }
+}

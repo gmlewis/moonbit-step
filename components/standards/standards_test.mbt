@@ -47,6 +47,26 @@ fn unwrap7089_size(s : @standards.MetricSize) -> @standards.ISO7089Size {
 }
 
 ///|
+test "ISO 4035 thin nut table" {
+  let m2 = match @standards.iso4035_size(@standards.M2) {
+    Ok(v) => v
+    Err(e) => abort(e.message())
+  }
+  assert_true(close(m2.width_across_flats_mm, 4.0))
+  assert_true(close(m2.height_mm, 1.2))
+  let m8 = match @standards.iso4035_size(@standards.M8) {
+    Ok(v) => v
+    Err(e) => abort(e.message())
+  }
+  assert_true(close(m8.height_mm, 4.0))
+  let spec = match @standards.iso4035_spec(@standards.M5) {
+    Ok(v) => v
+    Err(e) => abort(e.message())
+  }
+  assert_true(spec.designation() == "ISO 4035 - M5")
+}
+
+///|
 test "DIN 916 cup-point set screw table" {
   let m3 = match @standards.din916_size(@standards.M3) {
     Ok(v) => v

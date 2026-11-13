@@ -1039,6 +1039,33 @@ test "DIN 557 M5 square nut matches the reference" {
 }
 
 ///|
+test "ISO 4035 M2 thin jam nut matches the reference" {
+  let nut = match @fasteners.iso4035_nut(@standards.M2) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  let (x0, x1, y0, y1, z0, z1) = nut.bounding_box()
+  assert_true((x0 + 2.309401076758503).abs() < 1.0e-6)
+  assert_true((x1 - 2.309401076758503).abs() < 1.0e-6)
+  assert_true(close(y0, -2.0))
+  assert_true(close(y1, 2.0))
+  assert_true(close(z0, 0.0))
+  assert_true(close(z1, 1.2))
+  let layers = nut.layers()
+  assert_true(layers.length() == 1)
+  let inventory = layers[0].shape.surface_inventory()
+  assert_true(inventory.plane == 8)
+  assert_true(inventory.cone == 12)
+  assert_true(inventory.cylinder == 1)
+  let volume = match layers[0].shape.analysis_volume() {
+    Ok(v) => v
+    Err(_) => abort("thin nut volume unavailable")
+  }
+  // The reference measures 12.7931 mm3; the analytic value is 12.79329.
+  assert_true((volume - 12.79329).abs() < 1.0e-3)
+}
+
+///|
 test "ISO 4762 M3 x 5 second simple source keeps the standard head" {
   let screw = match
     @fasteners.iso4762_screw(@standards.M3, 5.0, reference_b=true) {

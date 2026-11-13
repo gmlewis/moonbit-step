@@ -14,7 +14,7 @@ async fn main {
   let spec = {
     "standard": @cli.opt_string(
       short='s',
-      help="Standard: iso4762, iso4032, iso7089, iso7090, iso7091, iso7092, iso7093, iso2338, iso8752, din1587, din557, din916, din125, din127, din440, din7349, din913, din93, iso4017, iso4014, iso7380, iso10642, din976",
+      help="Standard: iso4762, iso4032, iso4035, iso7089, iso7090, iso7091, iso7092, iso7093, iso2338, iso8752, din1587, din557, din916, din125, din127, din440, din7349, din913, din93, iso4017, iso4014, iso7380, iso10642, din976",
     ),
     "size": @cli.opt_string(short='m', help="Metric size, e.g. M3, M4, M5"),
     "length": @cli.opt_double(
@@ -104,6 +104,7 @@ async fn main {
         Some(t) => @fcomponents.iso4032_nut(size, detail~, threads=t)
         None => @fcomponents.iso4032_nut(size, detail~)
       }
+    "iso4035" => @fcomponents.iso4035_nut(size, detail~)
     "iso7089" => @fcomponents.iso7089_washer(size, detail~)
     "iso7090" => @fcomponents.iso7090_washer(size, detail~)
     "iso7091" => @fcomponents.iso7091_washer(size, detail~)

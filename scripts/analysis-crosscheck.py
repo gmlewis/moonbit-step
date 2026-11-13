@@ -90,6 +90,12 @@ MATRIX = [
         "skip_bbox": "the slot cuts the outer cylinder at y = +/- 0.09 d, so OCCT's tight envelope is narrower than the intent cylinder envelope",
     },
     {
+        "name": "ISO4035-M3-detailed",
+        "args": ["--standard", "iso4035", "--size", "M3", "--detail", "detailed"],
+        "sections": [0.05, 0.9],
+        "skip_bbox": "OCCT Bnd_Box overestimates the untrimmed conical washer faces; the analytic trimmed envelope is authoritative",
+    },
+    {
         "name": "profile-2020-b-slot6-a-l50",
         "args": ["--profile", "2020-b-slot6-a", "--length", "50",
                  "--detail", "detailed"],
