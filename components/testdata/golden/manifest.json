@@ -3269,6 +3269,12 @@
       "verdict": "accepted-exact",
       "notes": "Legs, thickness, toe radii, root radius, and length match exactly. The concave root fillet is one analytic cylindrical surface (the kernel now accepts clockwise minor arcs), so the volume and the three cylinder radii (6, 3, 3) match the reference without facets.",
       "committed": false,
+      "review": {
+        "automated": "pass",
+        "owner_visual": "verified",
+        "date": "2026-11-13",
+        "reason": "parametric root fillet changed from 16 facets to one analytic cylinder"
+      },
       "generation": {
         "tool": "components/examples/stock_primitive",
         "args": [
@@ -3452,6 +3458,11 @@
       "verdict": "accepted-exact",
       "notes": "V-Slot wheel body only; the 625 bearings and shims are separate parts. The Xem Studio model is CC BY 4.0. Bounding box, volume, surface counts, and the 45 degree groove cones match.",
       "committed": false,
+      "review": {
+        "automated": "pass",
+        "owner_visual": "verified",
+        "date": "2026-11-13"
+      },
       "generation": {
         "tool": "components/examples/vslot",
         "args": [
@@ -3557,6 +3568,11 @@
       "verdict": "accepted-exact",
       "notes": "Plain cut-length tube only; couplings, threads, bends, and structural ratings are not modelled. Bounding box, volume, and surface counts match exactly.",
       "committed": false,
+      "review": {
+        "automated": "pass",
+        "owner_visual": "verified",
+        "date": "2026-11-13"
+      },
       "generation": {
         "tool": "components/examples/tubing",
         "args": [
