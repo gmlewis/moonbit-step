@@ -71,6 +71,7 @@ pub fn Component::add_layers(Self, Array[ComponentLayer]) -> Self
 pub fn Component::bounding_box(Self) -> (Double, Double, Double, Double, Double, Double)
 pub fn Component::connector(Self, String) -> Result[MateConnector, MateError]
 pub fn Component::connector_placed(Self, String, Placement) -> Result[MateConnector, MateError]
+pub fn Component::connector_sidecar(Self) -> String
 pub fn Component::connectors(Self) -> Array[MateConnector]
 pub fn Component::description(Self) -> String
 pub fn Component::documentation(Self) -> String
@@ -97,6 +98,7 @@ pub fn Component::with_description(Self, String) -> Self
 pub fn Component::with_features(Self, FeatureRecord) -> Self
 pub fn Component::with_metadata(Self, Metadata) -> Self
 pub fn Component::with_name(Self, String) -> Self
+pub async fn Component::write_connector_sidecar(Self, String) -> Unit
 pub async fn Component::write_step(Self, String?, checked? : Bool) -> Unit
 
 pub(all) struct ComponentLayer {

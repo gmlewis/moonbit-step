@@ -432,10 +432,23 @@ pub fn Component::to_step(self : Component, checked~ : Bool = false) -> String {
 ///|
 /// Component::write_step writes the component as a STEP file. Pass
 /// `checked=true` to refuse designs with error diagnostics.
+///
+/// When the developer environment variable `STEP_CONNECTOR_SIDECAR` is set and
+/// an output path is given, a sibling `<out_path>.connectors.tsv` is written
+/// with the named connector frames. The sidecar is a visualization aid; the
+/// STEP file itself is unchanged and carries no connector geometry.
 pub async fn Component::write_step(
   self : Component,
   out_path : String?,
   checked~ : Bool = false,
 ) -> Unit {
   self.to_design().write_step(out_path, checked~)
+  match (out_path, @env.get_env_var("STEP_CONNECTOR_SIDECAR")) {
+    (Some(path), Some(_)) =>
+      @cad.write_text_file(
+        self.connector_sidecar(),
+        Some(path + ".connectors.tsv"),
+      )
+    _ => ()
+  }
 }

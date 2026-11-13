@@ -25,8 +25,11 @@
 #   --batch N           open N pairs at a time, waiting between batches
 #   --reuse             reuse an existing generated file instead of rebuilding
 #   --no-open           generate only; print the paths
+#   --no-connectors     do not write connector sidecars or add SolidCraft
+#                       joint origins (connectors are shown by default)
+#   --no-helper         open with `open -a` instead of the SolidCraft GUI helper
 #   --helper            open through the running SolidCraft GUI helper with
-#                       --up z (no up-axis dialog), if it is installed
+#                       --up z (the default when the helper answers)
 #   --app NAME          macOS app name for `open -a` (default SolidCraft)
 #   --out DIR           output directory (default target/golden-compare)
 #
@@ -107,10 +110,18 @@ Options:
   --no-open         generate only; print the paths
   --commands        print the exact `moon run` command for each selection
   --inspect         also run tools/inspect on each generated counterpart
-  --helper          open through the running SolidCraft GUI helper with
-                    --up z (no up-axis dialog), if it is installed
+  --no-connectors   do not write connector sidecars or add SolidCraft joint
+                    origins (connectors are shown by default)
+  --no-helper       open with `open -a` instead of the running SolidCraft GUI
+  --helper          open through the running SolidCraft GUI helper (default
+                    when the helper is installed and its control port answers)
   --app NAME        macOS app name for `open -a` (default SolidCraft)
   --out DIR         output directory (default target/golden-compare)
+
+Connectors: by default each parametric part is generated with a
+`<file>.connectors.tsv` sidecar and, when the running SolidCraft GUI is
+reachable through the helper, a named SolidCraft `joint.origin` is added at
+every connector frame. The STEP file itself stays connector-free.
 """
 
 
@@ -703,6 +714,154 @@ def open_paths(paths, app, batch, use_helper):
     return status
 
 
+def helper_path():
+    return os.path.expanduser(
+        "~/.claude/skills/solidcraft-app/scripts/sc_mcp.py"
+    )
+
+
+def helper_available():
+    """Return the helper path when the running GUI control port answers."""
+    helper = helper_path()
+    if not os.path.exists(helper):
+        return None
+    probe = subprocess.run(
+        [sys.executable, "-I", helper, "port"],
+        capture_output=True,
+        text=True,
+    )
+    return helper if probe.returncode == 0 else None
+
+
+def helper_open_one(helper, path):
+    """Open one file as a GUI tab and return (component_name, error)."""
+    proc = subprocess.run(
+        [sys.executable, "-I", helper, "open", path, "--up", "z"],
+        capture_output=True,
+        text=True,
+    )
+    if proc.returncode != 0:
+        return None, (proc.stderr or proc.stdout).strip()
+    out = proc.stdout.strip()
+    if not out:
+        return None, "the helper returned no component"
+    try:
+        data = json.loads(out.splitlines()[-1])
+    except (ValueError, IndexError):
+        return None, out
+    return data.get("component"), None
+
+
+def add_connector_origins(helper, step_path, component):
+    """Add a named SolidCraft joint origin for every sidecar connector row."""
+    sidecar = step_path + ".connectors.tsv"
+    if not os.path.exists(sidecar):
+        print(
+            "  note: no connector sidecar for {}; rebuild without --reuse "
+            "to add joint origins".format(os.path.basename(step_path))
+        )
+        return 0
+    added = 0
+    failed = 0
+    with open(sidecar, "r", encoding="utf-8", errors="replace") as handle:
+        for line in handle:
+            line = line.rstrip("\n")
+            if not line or line.startswith("#"):
+                continue
+            cols = line.split("\t")
+            if len(cols) < 10:
+                continue
+            name = cols[0]
+            try:
+                origin = [float(cols[1]), float(cols[2]), float(cols[3])]
+                axis = [float(cols[4]), float(cols[5]), float(cols[6])]
+                secondary = [float(cols[7]), float(cols[8]), float(cols[9])]
+            except ValueError:
+                continue
+            payload = json.dumps(
+                {
+                    "name": "connector/" + name,
+                    "occurrence": component,
+                    "point": origin,
+                    "z": axis,
+                    "x": secondary,
+                }
+            )
+            proc = subprocess.run(
+                [sys.executable, "-I", helper, "exec", "joint.origin", payload],
+                capture_output=True,
+                text=True,
+            )
+            if proc.returncode == 0:
+                added += 1
+            else:
+                failed += 1
+                detail = (proc.stderr or proc.stdout).strip().splitlines()
+                if detail:
+                    print(
+                        "  note: joint origin {} failed: {}".format(
+                            name, detail[-1][:200]
+                        )
+                    )
+    if added:
+        print(
+            "  connectors: {} joint origin(s){}".format(
+                added, "" if not failed else " ({} failed)".format(failed)
+            )
+        )
+    return added
+
+
+def open_pairs_with_connectors(pairs, batch):
+    """Open each pair parametric-first, add joint origins, then open the golden.
+
+    The parametric tab must be active while its origins are added, so the pair
+    cannot be opened as one flat list.
+    """
+    helper = helper_available()
+    if helper is None:
+        print(
+            "note: the SolidCraft GUI helper is unavailable; connectors are "
+            "not shown. Start SolidCraft (with its control port) or use "
+            "--no-connectors."
+        )
+        return None
+    if batch and batch > 0:
+        chunks = [pairs[i:i + batch] for i in range(0, len(pairs), batch)]
+    else:
+        chunks = [pairs]
+    status = 0
+    for index, chunk in enumerate(chunks, 1):
+        for row, out_path in chunk:
+            print(
+                "[{:03d}] opening pair with connectors".format(row["index"])
+            )
+            # Open the golden first, then the parametric part, so the
+            # parametric tab is active when its joint origins are added and
+            # stays in front for the visual comparison.
+            golden_component, golden_error = helper_open_one(helper, row["path"])
+            if golden_component is None:
+                print("  note: golden open failed: " + (golden_error or "unknown"))
+                status = 1
+            component, error = helper_open_one(helper, out_path)
+            if component is None:
+                print("  note: parametric open failed: " + (error or "unknown"))
+                status = 1
+                continue
+            add_connector_origins(helper, out_path, component)
+        if index < len(chunks):
+            if not wait_for_enter(
+                "Batch {}/{} opened. Close some SolidCraft tabs, then press "
+                "Enter for the next batch (Ctrl-C to stop)... ".format(
+                    index, len(chunks)
+                )
+            ):
+                print(
+                    "note: no controlling terminal; continuing without waiting."
+                )
+    return status
+
+
 def inspect_command(args):
     """Return a tools/inspect command for a generated counterpart, if the
     example's flags map onto the analysis tool's family flags."""
@@ -726,7 +885,8 @@ def main():
     mode_commands = False
     select_all = False
     no_open = False
-    use_helper = False
+    use_helper = True
+    connectors = True
     reuse = False
     inspect = False
     detail = "detailed"
@@ -753,6 +913,12 @@ def main():
             no_open = True
         elif arg == "--helper":
             use_helper = True
+        elif arg == "--no-helper":
+            use_helper = False
+        elif arg == "--connectors":
+            connectors = True
+        elif arg == "--no-connectors":
+            connectors = False
         elif arg == "--reuse":
             reuse = True
         elif arg == "--inspect":
@@ -887,12 +1053,20 @@ def main():
         )
 
     os.makedirs(out_dir, exist_ok=True)
+    generation_env = dict(os.environ)
+    if connectors:
+        generation_env["STEP_CONNECTOR_SIDECAR"] = "1"
     pairs = []
     failures = 0
     for row in chosen_supported:
         out_path = os.path.join(out_dir, "parametric-" + row["name"])
         if reuse and os.path.exists(out_path):
             print("[{:03d}] reuse {}".format(row["index"], os.path.relpath(out_path, ROOT)))
+            if connectors and not os.path.exists(out_path + ".connectors.tsv"):
+                print(
+                    "  note: no connector sidecar; rebuild without --reuse "
+                    "to add joint origins"
+                )
             pairs.append((row, out_path))
             continue
         if os.path.exists(out_path):
@@ -900,11 +1074,23 @@ def main():
                 os.remove(out_path)
             except OSError as exc:
                 print("  warning: cannot remove {} ({})".format(out_path, exc))
+        sidecar_path = out_path + ".connectors.tsv"
+        if os.path.exists(sidecar_path):
+            try:
+                os.remove(sidecar_path)
+            except OSError as exc:
+                print(
+                    "  warning: cannot remove {} ({})".format(
+                        sidecar_path, exc
+                    )
+                )
         cmd = generation_command(row, threads, out_path)
         print("[{:03d}] generating {}".format(row["index"], row["label"]))
         if row.get("note"):
             print("  note: " + row["note"])
-        proc = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True)
+        proc = subprocess.run(
+            cmd, cwd=ROOT, capture_output=True, text=True, env=generation_env
+        )
         if proc.returncode != 0 or not os.path.exists(out_path):
             failures += 1
             # Keep both streams: the real diagnostic may be written to either
@@ -987,7 +1173,7 @@ def main():
                 print("  " + path)
         return 0
 
-    if not use_helper and batch == 0 and len(pairs) * 2 > 32:
+    if batch == 0 and len(pairs) * 2 > 32:
         print()
         print(
             "note: SolidCraft caps open designs at 32. {} pairs need {} tabs; "
@@ -996,7 +1182,12 @@ def main():
             )
         )
 
-    status = open_paths(paths, app, batch, use_helper)
+    if connectors and use_helper:
+        status = open_pairs_with_connectors(pairs, batch)
+        if status is None:
+            status = open_paths(paths, app, batch, use_helper)
+    else:
+        status = open_paths(paths, app, batch, use_helper)
     print()
     print("Opened {} golden/parametric pair(s).".format(len(pairs)))
     if extra_goldens:
