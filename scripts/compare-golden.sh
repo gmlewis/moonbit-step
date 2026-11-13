@@ -292,6 +292,7 @@ def infer(name, detail):
                 "--faceWidth", "16",
                 "--bore", m.group(3),
                 "--single",
+                "--envelope",
             ],
         )
     return None

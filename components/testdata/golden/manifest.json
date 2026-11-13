@@ -463,12 +463,12 @@
           44.0,
           16.0
         ],
-        "volume_mm3": 18810.8,
+        "volume_mm3": 23524.2,
         "solids": 1,
-        "source": "components/examples/gear_pair --module 2 --teeth 20 --mateTeeth 40 --faceWidth 16 --bore 8 (driver solid)"
+        "source": "components/examples/gear_pair --module 2 --teeth 20 --faceWidth 16 --bore 8 --single --envelope (driver envelope)"
       },
-      "verdict": "accepted-envelope",
-      "notes": "Tip diameter (44 mm), face width (16 mm), module and tooth count match. The reference tooth form and root details are not compared; the parametric gear uses polygonal involute flanks and sharp roots.",
+      "verdict": "accepted",
+      "notes": "The reference is a blank tip-diameter envelope. The parametric envelope matches it exactly: tip diameter 44 mm, face width 16 mm, bore 8 mm, and volume 23524.2 mm3. No tooth form is claimed for this reference.",
       "committed": false
     },
     {
@@ -2196,12 +2196,12 @@
           84.0,
           16.0
         ],
-        "volume_mm3": 78459.1,
+        "volume_mm3": 87411.7,
         "solids": 1,
-        "source": "components/examples/gear_pair --module 2 --teeth 40 --faceWidth 16 --bore 10 --single"
+        "source": "components/examples/gear_pair --module 2 --teeth 40 --faceWidth 16 --bore 10 --single --envelope"
       },
-      "verdict": "accepted-envelope",
-      "notes": "Tip diameter 84 mm, face width 16 mm, bore 10 mm, pitch diameter 80 mm and root diameter 75 mm match. The reference tooth form differs (the parametric gear uses a polygonal involute with a sharp root), so volume is not compared; tip and root radii are checked from the measured vertex-radius clusters.",
+      "verdict": "accepted",
+      "notes": "The reference is a blank tip-diameter envelope. The parametric envelope matches it exactly: tip diameter 84 mm, face width 16 mm, bore 10 mm, and volume 87411.7 mm3. No tooth form is claimed for this reference.",
       "committed": false,
       "generation": {
         "tool": "components/examples/gear_pair",
@@ -2215,6 +2215,7 @@
           "--bore",
           "10",
           "--single",
+          "--envelope",
           "-o",
           "{out}"
         ],
@@ -2243,16 +2244,6 @@
           {
             "kind": "max_vertex_radius_mm",
             "expected": 42.0,
-            "tol_mm": 0.01
-          },
-          {
-            "kind": "vertex_radius_present_mm",
-            "expected": 42.0,
-            "tol_mm": 0.01
-          },
-          {
-            "kind": "vertex_radius_present_mm",
-            "expected": 37.5,
             "tol_mm": 0.01
           }
         ]

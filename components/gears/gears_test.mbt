@@ -19,6 +19,40 @@ fn gear20() -> @gears.SpurGearParams {
 }
 
 ///|
+test "spur gear blank envelope matches the tip cylinder" {
+  let params = match
+    @gears.SpurGearParams::new(
+      module_mm=2.0,
+      teeth=20,
+      face_width_mm=16.0,
+      bore_diameter_mm=8.0,
+    ) {
+    Ok(p) => p
+    Err(e) => abort(e.message())
+  }
+  let part = match @gears.spur_gear_envelope(params) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  let (x0, x1, _y0, _y1, z0, z1) = part.bounding_box()
+  assert_true(close(x0, -22.0))
+  assert_true(close(x1, 22.0))
+  assert_true(close(z0, -8.0))
+  assert_true(close(z1, 8.0))
+  let layers = part.layers()
+  let inventory = layers[0].shape.surface_inventory()
+  assert_true(inventory.plane == 2)
+  assert_true(inventory.cylinder == 2)
+  let volume = match layers[0].shape.analysis_volume() {
+    Ok(v) => v
+    Err(e) => abort(e.message())
+  }
+  assert_true(
+    (volume - @math.PI * (22.0 * 22.0 - 4.0 * 4.0) * 16.0).abs() < 0.01,
+  )
+}
+
+///|
 test "involute gear radii" {
   let g = @gears.involute_gear_geometry(2.0, 20, 20.0)
   assert_true(close(g.pitch_radius_mm, 20.0))

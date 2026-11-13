@@ -61,6 +61,9 @@ async fn main {
     "single": @cli.flag(
       help="Write only the driver gear (single-gear golden comparison)",
     ),
+    "envelope": @cli.flag(
+      help="With --single: write the tip-diameter blank envelope (no teeth)",
+    ),
     "mode": @cli.opt_string(
       short='M',
       help="Output mode: flat (default) or assembly",
@@ -119,11 +122,21 @@ async fn main {
     }
   }
   if args.flag("single") {
-    let gear = match @gears.spur_gear(driver) {
-      Ok(c) => c
-      Err(e) => {
-        @cli.eprintln("error: " + e.message())
-        abort("")
+    let gear = if args.flag("envelope") {
+      match @gears.spur_gear_envelope(driver) {
+        Ok(c) => c
+        Err(e) => {
+          @cli.eprintln("error: " + e.message())
+          abort("")
+        }
+      }
+    } else {
+      match @gears.spur_gear(driver) {
+        Ok(c) => c
+        Err(e) => {
+          @cli.eprintln("error: " + e.message())
+          abort("")
+        }
       }
     }
     if args.flag("bbox") {

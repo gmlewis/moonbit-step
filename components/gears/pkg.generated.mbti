@@ -42,6 +42,8 @@ pub fn planetary_gear_set(PlanetaryParams, detail? : @common.DetailLevel) -> Res
 
 pub fn spur_gear(SpurGearParams, detail? : @common.DetailLevel, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
+pub fn spur_gear_envelope(SpurGearParams, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
 // Errors
 
 // Types and methods

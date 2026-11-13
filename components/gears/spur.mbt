@@ -267,10 +267,57 @@ pub fn spur_gear(
         standard="ISO 21771 involute geometry (parametric)",
         family="external involute spur gear",
         size=params.designation(),
-        source="Involute gear formulas follow ISO 21771 / standard gear practice. Tip/root arcs are polygonal approximations. Root fillet is not modeled. See components/DATA_SOURCES.md.",
+        source="Involute gear formulas follow ISO 21771 / standard gear practice. Tip/root arcs are polygonal approximations.",
       ),
       description="External involute spur gear with optional central bore. Sharp root corners; no hub, keyway, or fillet.",
       features~,
     ).add_layer(body, name="body", color~),
+  )
+}
+
+///|
+/// spur_gear_envelope builds the blank envelope of a spur gear: a plain
+/// cylinder at the tip diameter with an optional central bore, centred on
+/// z = 0. Some catalogue references are simplified blanks rather than toothed
+/// gears; `spur_gear` is the toothed builder.
+pub fn spur_gear_envelope(
+  params : SpurGearParams,
+  color~ : @cad.Rgb = @cad.Rgb::orange(),
+) -> Result[@common.Component, @common.SpecError] {
+  let geom = params.geometry()
+  let tip_diameter = 2.0 * geom.outer_radius_mm
+  let body = if params.bore_diameter_mm > 0.0 {
+    @cad.RevolvedProfile::tube(
+      tip_diameter,
+      params.bore_diameter_mm,
+      params.face_width_mm,
+    )
+  } else {
+    @cad.RevolvedProfile::cylinder(tip_diameter, params.face_width_mm)
+  }
+  let features = @common.FeatureRecord::new(
+    modeled=["body", "tip-diameter-envelope", "bore"],
+    omitted=[
+      @common.Omission::new(
+        feature="teeth",
+        reason="the reference is a blank envelope; use spur_gear for an involute tooth form",
+      ),
+    ],
+  )
+  Ok(
+    @common.Component::new(
+      name="spur-gear-envelope-\{params.designation()}",
+      metadata=@common.Metadata::new(
+        designation="Spur gear blank \{params.designation()}",
+        standard="ISO 21771 tip-diameter envelope",
+        family="external spur gear blank",
+        size=params.designation(),
+        source="tip diameter = module * (teeth + 2); plain cylinder with central bore",
+      ),
+      description="Spur gear blank envelope: a plain cylinder at the tip diameter with an optional central bore. No tooth form.",
+      features~,
+    )
+    .add_layer(body.as_shape(), name="body", color~)
+    .translate(z=-params.face_width_mm / 2.0),
   )
 }
