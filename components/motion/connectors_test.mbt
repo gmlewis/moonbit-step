@@ -171,6 +171,10 @@ test "every public motion builder family exposes a connector" {
     (ok_motion(@motion.gt2_pulley(20, 2.0, 10.0)), "bore"),
     (ok_motion(@motion.shaft_collar(10.0, 20.0, 12.0)), "bore"),
     (
+      ok_motion(@motion.set_screw_shaft_collar(8.0, 16.0, 8.0)),
+      "set-screw-thread",
+    ),
+    (
       ok_motion(@motion.v_wheel(@motion.VWheelSpec::openbuilds_solid_v())),
       "axle-bore",
     ),

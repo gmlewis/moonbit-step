@@ -1,10 +1,16 @@
 import {
   "gmlewis/step/cad",
   "gmlewis/step/components/common",
+  "gmlewis/step/components/standards",
   "moonbitlang/core/builtin",
   "moonbitlang/core/math",
 }
 
 import {
+  "moonbitlang/async",
+  "moonbitlang/async/fs",
+  "moonbitlang/async/process",
   "moonbitlang/core/builtin",
+  "moonbitlang/core/env",
+  "moonbitlang/core/json",
 } for "test"

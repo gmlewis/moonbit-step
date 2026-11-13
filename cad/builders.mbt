@@ -528,6 +528,17 @@ pub fn chamfer_edges(
 }
 
 ///|
+/// SceneNode::shape_intent returns the underlying shape intent.
+///
+/// This lets a component builder store a boolean intent (for example a
+/// `difference`) as one `ComponentLayer` without re-creating the private
+/// boolean payload. The node's translation, rotation, name, and color are not
+/// carried by the returned shape; callers pass those separately.
+pub fn SceneNode::shape_intent(self : SceneNode) -> Shape {
+  self.shape
+}
+
+///|
 pub fn Shape::with_name(self : Shape, name : String) -> SceneNode {
   SceneNode::{
     shape: self,

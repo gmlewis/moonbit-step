@@ -4163,6 +4163,148 @@
           }
         ]
       }
+    },
+    {
+      "fixture_id": "motion/set-screw-shaft-collar-8x16x8",
+      "part_id": "set_screw_shaft_collar_8mm",
+      "designation": "8 mm set-screw shaft collar",
+      "family": "set-screw shaft collar",
+      "standard": "ISO 261 / ISO 68-1 (M5x0.8 thread interface)",
+      "manufacturer": "Innerscene Corp (CC0 1.0 public-domain dedication)",
+      "source_page": "https://www.innerscene.com/tools/library/3d-parts/8-mm-set-screw-shaft-collar-52204035",
+      "download_url": "https://www.innerscene.com/api/library/8-mm-set-screw-shaft-collar-52204035/download",
+      "local_filename": "external/set_screw_shaft_collar_8mm.step",
+      "sha256": "8e05077c1b14ac8e3ee9df7edf5399ed829d86f79728639759b799b7b6593b36",
+      "byte_size": 392717,
+      "units": "mm",
+      "license": "CC0-1.0",
+      "license_evidence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "declared_dimensions": {
+        "bore_diameter_mm": 8.0,
+        "outside_diameter_mm": 16.0,
+        "width_mm": 8.0
+      },
+      "measured_dimensions": {
+        "bbox_mm": [
+          16.0000002,
+          16.6716669,
+          8.2044006
+        ],
+        "volume_mm3": 1183.1123,
+        "solids": 2,
+        "surfaces": {
+          "plane": 13,
+          "cylinder": 9,
+          "cone": 4
+        },
+        "collar_body": {
+          "bbox_mm": [
+            16.0000002,
+            16.0074851,
+            8.0000002
+          ],
+          "volume_mm3": 1150.7695,
+          "solids": 1,
+          "surfaces": {
+            "plane": 4,
+            "cylinder": 3,
+            "cone": 4
+          }
+        },
+        "set_screw": {
+          "volume_mm3": 32.3423,
+          "solids": 1
+        },
+        "set_screw_hole_diameter_mm": 4.1
+      },
+      "parametric_value": {
+        "bbox_mm": [
+          16.0,
+          16.0,
+          8.0
+        ],
+        "volume_mm3": 1148.72,
+        "solids": 1,
+        "source": "components/examples/set_screw_collar --bore 8 --outer 16 --width 8 --thread M5"
+      },
+      "verdict": "accepted-envelope",
+      "notes": "The reference is the CC0 Innerscene 8 mm set-screw shaft collar. Its file contains two solids: the collar body (volume 1150.77 mm^3) and a separate threaded set screw (32.34 mm^3). This library models only the collar body, with a clean radial tap-drill hole that opens into the bore; the set screw is a separate part and the thread is declared by the set-screw-thread connector, never modelled. The reference hole measures 4.1 mm and its drill stops 0.07 mm inside the bore, leaving two thin flat floor slivers (the reference body has 4 planes); the parametric hole defaults to the ISO M5 x 0.8 internal minor diameter (4.1339746 mm) and opens cleanly into the bore, so the body has 2 planes. Volume differs by 2.05 mm^3 (0.18%). The outside diameter, bore, width, 45 degree rim chamfers, and surface types otherwise match. The evaluated solid is the primary artifact because the flat writer cannot trim the radial hole. No holding torque, material, or strength claim is made. Owner visual review is pending.",
+      "committed": false,
+      "review": {
+        "automated": "pass",
+        "owner_visual": "pending",
+        "date": "2026-11-13",
+        "reason": "new golden; awaiting the owner's visual comparison"
+      },
+      "generation": {
+        "tool": "components/examples/set_screw_collar",
+        "args": [
+          "--bore",
+          "8",
+          "--outer",
+          "16",
+          "--width",
+          "8",
+          "--thread",
+          "M5",
+          "-o",
+          "{out}"
+        ],
+        "output": "set-screw-collar-8mm.step"
+      },
+      "comparison": {
+        "solids": 1,
+        "bbox_axes": [
+          {
+            "axis": 0,
+            "expected_mm": 16.0,
+            "label": "outside diameter"
+          },
+          {
+            "axis": 1,
+            "expected_mm": 16.0,
+            "label": "outside diameter (hole axis)"
+          },
+          {
+            "axis": 2,
+            "expected_mm": 8.0,
+            "label": "collar width"
+          }
+        ],
+        "volume_mm3": 1150.77,
+        "features": [
+          {
+            "kind": "surface_min",
+            "surface": "plane",
+            "min_count": 2
+          },
+          {
+            "kind": "surface_min",
+            "surface": "cylinder",
+            "min_count": 3
+          },
+          {
+            "kind": "surface_min",
+            "surface": "cone",
+            "min_count": 4
+          },
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 8.0,
+            "tol_mm": 0.01
+          },
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 4.0,
+            "tol_mm": 0.01
+          },
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 2.0669873,
+            "tol_mm": 0.001
+          }
+        ]
+      }
     }
   ],
   "golden_source": {

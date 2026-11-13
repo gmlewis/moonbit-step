@@ -272,6 +272,38 @@ def file_schema(text: str) -> str:
     return DEFAULT_SCHEMA
 
 
+def header_section(text: str) -> str | None:
+    """Returns the ``HEADER;`` ... ``ENDSEC;`` block, or ``None``."""
+    start = text.find("HEADER;")
+    if start < 0:
+        return None
+    end = text.find("ENDSEC;", start)
+    if end < 0:
+        return None
+    return text[start : end + len("ENDSEC;")]
+
+
+def preserve_input_header(input_text: str, output_path: Path) -> None:
+    """Replaces OCCT's synthetic header with the source design's header.
+
+    ``Design::to_csg_step`` writes the component description and the
+    machine-readable feature record into the header (as comment and
+    ``FILE_DESCRIPTION`` strings). OCCT's ``testwritestep`` replaces them with
+    its own translator strings, so the evaluated artifact would otherwise lose
+    the component documentation. The input header is self-contained (its
+    strings carry no entity references), so it can be spliced into the
+    evaluated file unchanged; the data section is not touched.
+    """
+    input_header = header_section(input_text)
+    if input_header is None:
+        return
+    output_text = output_path.read_text()
+    output_header = header_section(output_text)
+    if output_header is None:
+        return
+    output_path.write_text(output_text.replace(output_header, input_header, 1))
+
+
 def write_leaf(
     records: dict[int, Entity],
     leaf_ref: int,
@@ -576,6 +608,7 @@ def evaluate(input_path: Path, output_path: Path, timeout: int = 1800) -> str:
         )
     if not output_path.exists() or output_path.stat().st_size == 0:
         raise CsgEvalError("OCCT did not write an output file:\n" + _tail(output))
+    preserve_input_header(text, output_path)
     return output
 
 

@@ -23,6 +23,8 @@ All programs use millimetres and Z is up.
 | `idler` | Smooth (toothless) idler with optional annular end flanges. |
 | `makerbeam` | MakerBeam 10 x 10 mm extrusion (drawing article 100168), optional outer corner radius. |
 | `retaining_ring` | DIN 471 type A external retaining ring, A 10 to A 34. |
+| `din472_ring` | DIN 472 internal retaining ring (verified bore table 8 to 40; encoded outline 20). |
+| `set_screw_collar` | Set-screw shaft collar with a real trimmed radial hole, exported as one OCCT-evaluated solid. |
 | `filleted_shaft` | Single-solid stepped shaft with toroidal shoulder fillets. |
 | `keyed_shaft` | Shaft with a real rectangular keyway plus the matching key. |
 | `bolted_joint` | Two plates clamped by a screw, washer, and nut. |

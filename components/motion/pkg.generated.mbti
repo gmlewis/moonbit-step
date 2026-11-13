@@ -4,6 +4,7 @@ package "gmlewis/step/components/motion"
 import {
   "gmlewis/step/cad",
   "gmlewis/step/components/common",
+  "gmlewis/step/components/standards",
 }
 
 // Values
@@ -58,6 +59,8 @@ pub fn linear_bearing_designations() -> Array[String]
 pub fn linear_bearing_size(String) -> Result[LinearBearingSize, @common.SpecError]
 
 pub fn rigid_coupling(Double, Double, Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn set_screw_shaft_collar(Double, Double, Double, thread? : @standards.MetricSize, drill_diameter_mm? : Double, chamfer_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
 pub fn shaft(Double, Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 

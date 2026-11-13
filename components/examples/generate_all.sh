@@ -164,6 +164,17 @@ moon run components/examples/retaining_ring -- \
   --size 20 -o "$OUT/din471-a20.step"
 moon run components/examples/din472_ring -- \
   --size 20 -o "$OUT/din472-20.step"
+# The set-screw collar's primary artifact is the OCCT-evaluated trimmed solid.
+if command -v python3 >/dev/null 2>&1 &&
+  { command -v DRAWEXE >/dev/null 2>&1 ||
+    command -v occt-draw >/dev/null 2>&1; }; then
+  moon run components/examples/set_screw_collar -- \
+    --bore 8 --outer 16 --width 8 --thread M5 \
+    -o "$OUT/set-screw-collar-d8.step"
+  python3 "$ROOT/scripts/validate_step.py" "$OUT/set-screw-collar-d8.step"
+else
+  echo "skipping set-screw collar: evaluated export needs python3 and OCCT" >&2
+fi
 for part in vslot-2020x100 vslot-2040x100 vslot-wheel vslot-tnut-m5 \
   vslot-joining-plate vslot-corner-bracket vslot-spacer-10x5x6 \
   vslot-eccentric-spacer plate-counterbore-50x40x8 bearing-plate-od22 \

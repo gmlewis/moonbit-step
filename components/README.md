@@ -60,6 +60,10 @@ moon run components/examples/tubing -- \
 moon run components/examples/tubing -- \
   --part collar --bore 8 --outer 16 --width 8 -o collar.step
 
+# Set-screw shaft collar with a real trimmed radial hole (OCCT-evaluated)
+moon run components/examples/set_screw_collar -- \
+  --bore 8 --outer 16 --width 8 --thread M5 -o set-screw-collar.step
+
 # Counterbored plate and smooth idler
 moon run components/examples/stock_primitive -- \
   --part counterbore --width 50 --height 40 --plateThickness 8 \
@@ -176,7 +180,10 @@ an opt-in development path: it requires `python3`, OCCT (`occt-draw` or
 `DRAWEXE`), and `$MOONBIT_STEP_ROOT`, and the library itself stays kernel-free.
 The default layered `to_step` / `write_step` output is unchanged. A
 single-layer flat component is already one closed solid and is returned
-unchanged.
+unchanged. The evaluated file keeps the component description and the
+machine-readable feature record in its header; only the geometry is replaced by
+OCCT's trimmed result. The set-screw shaft collar makes this evaluated solid its
+primary artifact because the flat writer cannot trim its radial hole.
 
 ## Named connectors and the golden preview
 
@@ -212,7 +219,7 @@ use `--headless`.
 | `standards` | Metric thread data and ISO/DIN dimension tables (ISO 4032/4035/4762/7089/709x/7380/8752/10642, DIN 471/472/557/913/916/976/1587, …). |
 | `fasteners` | Screws, bolts, nuts, washers, pins, rods, set screws, generic solid rivets, DIN 471 type A external retaining rings (A 10 to A 34), and DIN 472 internal retaining rings (verified bore table 8 to 40; encoded 20 mm outline). |
 | `profiles` | Generic T-slot sections, the vendor 2020 B-slot6 A section, OpenBuilds-compatible V-Slot 2020/2040 sections, the MakerBeam 10 x 10 section, a gusseted V-Slot corner bracket, P1000-style strut channel, and a generic channel nut. |
-| `motion` | Shafts, stepped/keyed shafts, spacers and V-Slot wheel spacers (plain and eccentric), bushings, shaft collars, keys, dowel pins, standoffs, compression springs, ball bearings, LM-series linear bushings, flanged linear housings, approximated GT2 timing pulleys, smooth idlers, V-Slot wheels, EMT tubing with end caps and split clamps, rigid couplings, and flanged bearing housings. |
+| `motion` | Shafts, stepped/keyed shafts, spacers and V-Slot wheel spacers (plain and eccentric), bushings, plain and set-screw shaft collars, keys, dowel pins, standoffs, compression springs, ball bearings, LM-series linear bushings, flanged linear housings, approximated GT2 timing pulleys, smooth idlers, V-Slot wheels, EMT tubing with end caps and split clamps, rigid couplings, and flanged bearing housings. |
 | `motors` | NEMA 17 and NEMA 23 stepper-motor envelopes, mounting interfaces, and NEMA mounting plates. |
 | `stock` | EN 10056 angle sections, configurable flat plate blanks with analytic circular holes and obround slots, counterbored and countersunk plates, bearing-housing plates, and tube-to-plate and tube-to-V-Slot adapter brackets. |
 | `gears` | Involute spur gears, external pairs, and exact-internal-involute planetary sets. |
@@ -369,6 +376,13 @@ frames, and plates expose face and per-hole frames.
   published 2 mm pitch, 0.254 mm pitch-line offset, 0.76 mm depth, and 1.49 mm
   width. They are a prototyping approximation, not a licensed exact profile,
   and carry no torque or belt-life rating.
+- Set-screw shaft collars are one boolean difference (a chamfered annular body
+  minus a radial drill). Their primary artifact is the OCCT-evaluated single
+  trimmed solid from `write_step_evaluated`; the flat writer cannot trim the
+  radial hole and is not the accepted output. The hole defaults to the ISO
+  metric internal minor diameter (tap drill) of the declared thread; the thread
+  itself is declared by the `set-screw-thread` connector and is never modelled.
+  No set screw, holding torque, material, or strength rating is included.
 - NEMA mounting plates are generic plate blanks with the frame bolt pattern and
   pilot clearance bore. Plate size, thickness, and clearance are caller
   parameters; no stiffness or strength rating is implied.

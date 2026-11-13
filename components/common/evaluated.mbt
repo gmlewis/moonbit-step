@@ -63,6 +63,10 @@ pub async fn Component::to_step_evaluated(
 /// Component::write_step_evaluated writes the OCCT-evaluated single solid to
 /// `out_path` (or stdout). Errors from the evaluator propagate as
 /// `@cad.CsgEvalError`; the nominal `write_step` is unchanged.
+///
+/// Like `write_step`, it writes a sibling `<out>.connectors.tsv` sidecar when
+/// `STEP_CONNECTOR_SIDECAR` is set, so `compare-golden.sh` can show the
+/// connector frames for an evaluated artifact too.
 pub async fn Component::write_step_evaluated(
   self : Component,
   out_path : String?,
@@ -70,4 +74,12 @@ pub async fn Component::write_step_evaluated(
 ) -> Unit {
   let text = self.to_step_evaluated(root~)
   @cad.write_text_file(text, out_path)
+  match (out_path, @env.get_env_var("STEP_CONNECTOR_SIDECAR")) {
+    (Some(path), Some(_)) =>
+      @cad.write_text_file(
+        self.connector_sidecar(),
+        Some(path + ".connectors.tsv"),
+      )
+    _ => ()
+  }
 }

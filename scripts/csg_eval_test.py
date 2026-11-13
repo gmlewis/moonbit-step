@@ -109,6 +109,29 @@ class ParsingTests(unittest.TestCase):
         )
         self.assertEqual(c.file_schema(text), "('AP242')")
 
+    def test_header_section_is_extracted(self):
+        header = c.header_section(NESTED)
+        self.assertIsNotNone(header)
+        self.assertTrue(header.startswith("HEADER;"))
+        self.assertTrue(header.endswith("ENDSEC;"))
+        self.assertNotIn("DATA;", header)
+        self.assertIsNone(c.header_section("ISO-10303-21;\n"))
+
+    def test_preserve_input_header_keeps_design_description(self):
+        source = wrap("")
+        output = wrap("").replace(
+            "FILE_DESCRIPTION((''),'2;1');",
+            "FILE_DESCRIPTION(('OCCT translator'),'2;1');",
+        )
+        with tempfile.TemporaryDirectory(prefix="csg-header-") as tmp:
+            path = Path(tmp) / "evaluated.step"
+            path.write_text(output)
+            c.preserve_input_header(source, path)
+            text = path.read_text()
+        self.assertIn("FILE_DESCRIPTION((''),'2;1');", text)
+        self.assertNotIn("OCCT translator", text)
+        self.assertIn("DATA;", text)
+
 
 @unittest.skipUnless(HAVE_DRAW, "OCCT DRAWEXE/occt-draw is not installed")
 class IntegrationTests(unittest.TestCase):
