@@ -268,7 +268,7 @@ pub fn Design::to_blender_python(Self, segments? : Int32, keep_modifiers? : Bool
 pub fn Design::to_csg_step(Self) -> String
 pub fn Design::to_gltf(Self) -> String
 pub async fn Design::to_gltf_file(Self, String?) -> Unit
-pub async fn Design::to_step_evaluated(Self, root? : String?) -> String
+pub async fn Design::to_step_evaluated(Self, root? : String?, layers_json? : String) -> String
 pub fn Design::to_step_file(Self) -> String
 pub fn Design::to_step_file_checked(Self) -> String
 pub fn Design::to_string(Self) -> String
@@ -532,6 +532,7 @@ pub struct Rgb {
 }
 pub fn Rgb::black() -> Self
 pub fn Rgb::blue() -> Self
+pub fn Rgb::channels(Self) -> (Double, Double, Double)
 pub fn Rgb::cyan() -> Self
 pub fn Rgb::green() -> Self
 pub fn Rgb::grey() -> Self

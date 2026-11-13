@@ -35,14 +35,15 @@ library.
 
 | Format | How | Notes |
 |---|---|---|
-| STEP | `./examples/run-example.sh 39 -o fits.step` | Exact B-Rep; opens in any CAD viewer or slicer. |
-| STL | `./examples/run-example.sh 39 -o fits.step -stl` | OCCT tessellation; `STL_DEFLECTION=<mm>` (default 0.05). |
-| PNG | `./examples/run-example.sh 39 -o fits.step --png=preview.png` | Four views; needs OCCT, macOS `sips`, and optionally Inkscape. |
-| Blender | `./examples/run-example.sh 39 --blend model.blend` | Real booleans and an editable scene. |
-| glTF | `./examples/run-example.sh 39 --gltf fits.gltf` | Z-up JSON with an embedded buffer. |
+| STEP | `./examples/run-example.sh 12 -o coil.step` | Exact B-Rep; opens in any CAD viewer or slicer. |
+| STL | `./examples/run-example.sh 12 -o coil.step -stl` | OCCT tessellation; `STL_DEFLECTION=<mm>` (default 0.05). |
+| PNG | `./examples/run-example.sh 12 -o coil.step --png=preview.png` | Four views; needs OCCT, macOS `sips`, and optionally Inkscape. |
+
+The Blender and glTF backends are available through the CAD API; see
+[`examples/README.md`](examples/README.md) for the runnable example.
 
 `./examples/run-example.sh --help` lists the wrapper options, and
-`./examples/run-example.sh 39 -- --help` lists an example's own parameters.
+`./examples/run-example.sh 12 -- --help` lists an example's own parameters.
 
 ### STEP booleans are nominal
 
@@ -126,7 +127,7 @@ example. Text examples use the vendored `baloo` font in
 | `entities/`, `parse/`, `repository/`, `header/` | STEP entity model, parser, and serializer. |
 | `cli/` | Command-line argument and error-reporting helpers. |
 | `components/` | Parametric fasteners, profiles, motion, motors, stock, gears, assemblies, collision, catalogue. |
-| `examples/` | 41 runnable examples (see [`examples/README.md`](examples/README.md)). |
+| `examples/` | Runnable example programs (see [`examples/README.md`](examples/README.md)). |
 | `tools/` | Inspection and STEP statistics utilities (see [`tools/README.md`](tools/README.md)). |
 | `scripts/` | Development validation and rendering harnesses. |
 | `tests/` | Cross-package integration tests. |

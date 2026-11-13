@@ -4110,7 +4110,9 @@
       "committed": false,
       "review": {
         "automated": "pass",
-        "owner_visual": "pending"
+        "owner_visual": "verified",
+        "date": "2026-11-13",
+        "reason": "owner reported 'looks perfect' after the shared-frame visual comparison"
       },
       "generation": {
         "tool": "components/examples/din472_ring",
@@ -4412,6 +4414,176 @@
           {
             "kind": "cylinder_radius_present_mm",
             "expected": 2.0,
+            "tol_mm": 0.001
+          }
+        ]
+      }
+    },
+    {
+      "fixture_id": "motion/clamp-shaft-collar-20x40x15",
+      "part_id": "clamp_shaft_collar_20mm",
+      "designation": "20 mm clamp shaft collar",
+      "family": "clamp shaft collar",
+      "standard": "ISO 261 / ISO 68-1 (M6x1 thread interface); ISO 4762 (M6 x 16 clamp screw envelope)",
+      "manufacturer": "Innerscene Corp (CC0 1.0 public-domain dedication)",
+      "source_page": "https://www.innerscene.com/tools/library/3d-parts/20-mm-clamp-shaft-collar-4d0c947f",
+      "download_url": "https://www.innerscene.com/api/library/20-mm-clamp-shaft-collar-4d0c947f/download",
+      "local_filename": "external/collar_clamp_20.step",
+      "sha256": "82a024ff83d97492a98420aeeff420a9d3e96ec09adfdd88a767ea9cf09aa032",
+      "byte_size": 839780,
+      "units": "mm",
+      "license": "CC0-1.0",
+      "license_evidence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "declared_dimensions": {
+        "bore_diameter_mm": 20.0,
+        "outside_diameter_mm": 40.0,
+        "width_mm": 15.0,
+        "slit_width_mm": 0.8
+      },
+      "measured_dimensions": {
+        "bbox_mm": [
+          40.0,
+          39.996,
+          15.0
+        ],
+        "volume_mm3": 13716.878,
+        "solids": 2,
+        "surfaces": {
+          "plane": 15,
+          "cylinder": 25,
+          "cone": 4,
+          "bspline": 6
+        },
+        "collar_body": {
+          "bbox_mm": [
+            40.0,
+            39.996,
+            15.0
+          ],
+          "volume_mm3": 12955.5928,
+          "solids": 1,
+          "surfaces": {
+            "plane": 5,
+            "cylinder": 7,
+            "cone": 4
+          }
+        },
+        "clamp_screw": {
+          "volume_mm3": 761.278,
+          "solids": 1
+        },
+        "slit_width_mm": 0.8,
+        "clamp_screw_offset_mm": 14.73,
+        "clamp_hole_diameter_mm": 6.1,
+        "head_counterbore_diameter_mm": 10.2,
+        "head_counterbore_floor_mm": 7.1208
+      },
+      "parametric_value": {
+        "bbox_mm": [
+          40.0,
+          39.996,
+          15.0
+        ],
+        "volume_mm3": 13644.996,
+        "solids": 2,
+        "collar_body_volume_mm3": 12956.1,
+        "clamp_screw_volume_mm3": 688.896,
+        "source": "components/examples/clamp_shaft_collar --bore 20 --outer 40 --width 15 --thread M6 --screwOffset 14.73 --screw M6 --screwLength 16"
+      },
+      "verdict": "accepted-envelope",
+      "notes": "The reference is the CC0 Innerscene 20 mm clamp shaft collar. Its file contains two solids: the collar body (12955.59 mm^3) and an M6 x 16 clamp screw (761.28 mm^3) whose shank is a large modeled helical thread. The collar body is reproduced as a chamfered 40 x 20 x 15 annulus (0.2 mm rim chamfers) minus a real 0.8 mm radial slit opening at +Y, a modeled 6.1 mm clamp clearance passage along X at the measured 14.73 mm radial offset, and a 10.2 mm ISO 4762 head counterbore whose floor sits at x = 7.12. The parametric body is 12956.1 mm^3, within 0.5 mm^3 of the reference body, and its trimmed bbox is 40 x 39.996 x 15 mm (the slit removes the extreme +Y point, so the outside extent is sqrt(20^2 - 0.4^2) = 19.996). The example places a plain-envelope ISO 4762 M6 x 16 screw on the head seat (0.05 mm axial inset so it stays a separate solid, as in the reference); the thread is declared by connectors and never modelled, so the parametric screw is a smooth envelope at the ISO 68-1 external thread minor diameter (4.773 mm, the reference's thread root) rather than the reference's modeled helical thread. That keeps the shank visibly smaller than the 6.1 mm clearance hole, as in the reference, and gives a screw volume of 688.90 mm^3 vs the reference's 761.28 mm^3. Totals: 2 solids, volume 13645.00 vs 13716.88 mm^3 (0.52%), 10 cylinders + 8 cones + 15 planes. The evaluated compound restores the collar and screw layer colours through XCAF, so the clamp screw is visually distinct like the reference's material split. The evaluated compound is the primary artifact because the flat writer cannot trim the slit or the holes. No holding torque, material, or strength claim is made.",
+      "committed": false,
+      "review": {
+        "automated": "pass",
+        "owner_visual": "verified",
+        "date": "2026-11-13",
+        "reason": "owner reported 'looks perfect now' after the side-by-side comparison, including the corrected screw-envelope shank"
+      },
+      "generation": {
+        "tool": "components/examples/clamp_shaft_collar",
+        "args": [
+          "--bore",
+          "20",
+          "--outer",
+          "40",
+          "--width",
+          "15",
+          "--thread",
+          "M6",
+          "--screwOffset",
+          "14.73",
+          "--slit",
+          "0.8",
+          "--screw",
+          "M6",
+          "--screwLength",
+          "16",
+          "-o",
+          "{out}"
+        ],
+        "output": "clamp-shaft-collar-20mm.step"
+      },
+      "comparison": {
+        "solids": 2,
+        "bbox_axes": [
+          {
+            "axis": 0,
+            "expected_mm": 40.0,
+            "label": "outside diameter"
+          },
+          {
+            "axis": 1,
+            "expected_mm": 39.996,
+            "tol_mm": 0.01,
+            "label": "outside diameter minus the slit corners"
+          },
+          {
+            "axis": 2,
+            "expected_mm": 15.0,
+            "label": "collar width"
+          }
+        ],
+        "volume_mm3": 13716.878,
+        "volume_relative_tol": 0.02,
+        "features": [
+          {
+            "kind": "surface_min",
+            "surface": "plane",
+            "min_count": 4
+          },
+          {
+            "kind": "surface_min",
+            "surface": "cylinder",
+            "min_count": 6
+          },
+          {
+            "kind": "surface_min",
+            "surface": "cone",
+            "min_count": 4
+          },
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 20.0,
+            "tol_mm": 0.01
+          },
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 10.0,
+            "tol_mm": 0.01
+          },
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 5.1,
+            "tol_mm": 0.001
+          },
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 3.05,
+            "tol_mm": 0.001
+          },
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 2.38657,
             "tol_mm": 0.001
           }
         ]

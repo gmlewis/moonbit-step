@@ -304,6 +304,146 @@ def preserve_input_header(input_text: str, output_path: Path) -> None:
     output_path.write_text(output_text.replace(output_header, input_header, 1))
 
 
+# The largest per-coordinate bounding-box difference accepted when matching an
+# evaluated solid to its source layer. A disjoint layer's evaluated bbox equals
+# its nominal bbox to within the boolean tolerance; a fused solid matches no
+# single layer and is therefore left uncoloured.
+COLOR_MATCH_TOL_MM = 0.5
+
+
+def _shape_bbox(shape) -> list[float] | None:
+    """Returns [x0, x1, y0, y1, z0, z1] for a shape, or None when empty."""
+    from OCP.Bnd import Bnd_Box
+    from OCP.BRepBndLib import BRepBndLib
+
+    box = Bnd_Box()
+    BRepBndLib.Add_s(shape, box)
+    if box.IsVoid():
+        return None
+    x0, y0, z0, x1, y1, z1 = box.Get()
+    return [x0, x1, y0, y1, z0, z1]
+
+
+def _solid_count(shape) -> int:
+    from OCP.TopAbs import TopAbs_SOLID
+    from OCP.TopExp import TopExp_Explorer
+
+    explorer = TopExp_Explorer(shape, TopAbs_SOLID)
+    count = 0
+    while explorer.More():
+        count += 1
+        explorer.Next()
+    return count
+
+
+def colorize_output(output_path: Path, layers_path: Path) -> bool:
+    """Restores per-solid presentation colours from the layer records.
+
+    ``testwritestep`` drops presentation styles. When the evaluated result is a
+    disjoint compound with one solid per source layer, the layer records let us
+    match each solid by bounding box and re-emit the STEP with XCAF colours.
+    Returns True when the file was recoloured. Missing OCP, a solid/layer count
+    mismatch, or an ambiguous match leaves the uncoloured file unchanged.
+    """
+    try:
+        from OCP.BRepBndLib import BRepBndLib  # noqa: F401
+        from OCP.Quantity import Quantity_Color, Quantity_TOC_RGB
+        from OCP.STEPCAFControl import (
+            STEPCAFControl_Reader,
+            STEPCAFControl_Writer,
+        )
+        from OCP.TCollection import TCollection_ExtendedString
+        from OCP.TDF import TDF_Label, TDF_LabelSequence
+        from OCP.TDocStd import TDocStd_Document
+        from OCP.XCAFApp import XCAFApp_Application
+        from OCP.XCAFDoc import XCAFDoc_ColorGen, XCAFDoc_DocumentTool
+    except Exception:
+        return False
+    try:
+        layers = json.loads(layers_path.read_text())
+    except (OSError, json.JSONDecodeError):
+        return False
+    if not layers:
+        return False
+
+    app = XCAFApp_Application.GetApplication_s()
+    doc = TDocStd_Document(TCollection_ExtendedString("XmlXCAF"))
+    app.NewDocument(TCollection_ExtendedString("XmlXCAF"), doc)
+    reader = STEPCAFControl_Reader()
+    reader.SetColorMode(True)
+    if reader.ReadFile(str(output_path)) != 1 or not reader.Transfer(doc):
+        return False
+    shape_tool = XCAFDoc_DocumentTool.ShapeTool_s(doc.Main())
+    color_tool = XCAFDoc_DocumentTool.ColorTool_s(doc.Main())
+
+    labels = TDF_LabelSequence()
+    shape_tool.GetFreeShapes(labels)
+    targets: list[tuple[object, list[float]]] = []
+    for i in range(1, labels.Length() + 1):
+        label = labels.Value(i)
+        if shape_tool.IsAssembly_s(label):
+            comps = TDF_LabelSequence()
+            shape_tool.GetComponents_s(label, comps)
+            for j in range(1, comps.Length() + 1):
+                component = comps.Value(j)
+                referred = TDF_Label()
+                use = component
+                if shape_tool.GetReferredShape_s(component, referred):
+                    use = referred
+                shape = shape_tool.GetShape_s(use)
+                bbox = _shape_bbox(shape)
+                if bbox is not None and _solid_count(shape) == 1:
+                    targets.append((use, bbox))
+        else:
+            shape = shape_tool.GetShape_s(label)
+            bbox = _shape_bbox(shape)
+            if bbox is not None and _solid_count(shape) == 1:
+                targets.append((label, bbox))
+    if len(targets) != len(layers):
+        return False
+
+    pairs: list[tuple[float, int, int]] = []
+    for target_index, (_label, bbox) in enumerate(targets):
+        for layer_index, layer in enumerate(layers):
+            layer_bbox = layer.get("bbox") or []
+            if len(layer_bbox) != 6:
+                return False
+            distance = max(
+                abs(bbox[k] - float(layer_bbox[k])) for k in range(6)
+            )
+            pairs.append((distance, target_index, layer_index))
+    pairs.sort()
+    matched_targets: set[int] = set()
+    matched_layers: set[int] = set()
+    chosen: dict[int, int] = {}
+    for distance, target_index, layer_index in pairs:
+        if target_index in matched_targets or layer_index in matched_layers:
+            continue
+        if distance > COLOR_MATCH_TOL_MM:
+            break
+        matched_targets.add(target_index)
+        matched_layers.add(layer_index)
+        chosen[target_index] = layer_index
+    if len(chosen) != len(targets):
+        return False
+
+    for target_index, (label, _bbox) in enumerate(targets):
+        color = layers[chosen[target_index]].get("color") or [0.5, 0.5, 0.5]
+        quantity = Quantity_Color(
+            float(color[0]), float(color[1]), float(color[2]), Quantity_TOC_RGB
+        )
+        color_tool.SetColor(label, quantity, XCAFDoc_ColorGen)
+
+    writer = STEPCAFControl_Writer()
+    writer.SetColorMode(True)
+    if not writer.Transfer(doc):
+        return False
+    if not writer.Write(str(output_path)):
+        return False
+    return True
+
+
+
 def write_leaf(
     records: dict[int, Entity],
     leaf_ref: int,
@@ -489,7 +629,12 @@ def select_edges(
     raise CsgEvalError(f"unsupported edge selector kind {kind!r}")
 
 
-def evaluate(input_path: Path, output_path: Path, timeout: int = 1800) -> str:
+def evaluate(
+    input_path: Path,
+    output_path: Path,
+    timeout: int = 1800,
+    layers_path: Path | None = None,
+) -> str:
     """Evaluates the CSG tree and writes a flat B-Rep STEP file.
 
     Returns the combined DRAWEXE output. Raises ``CsgEvalError`` on failure.
@@ -608,6 +753,8 @@ def evaluate(input_path: Path, output_path: Path, timeout: int = 1800) -> str:
         )
     if not output_path.exists() or output_path.stat().st_size == 0:
         raise CsgEvalError("OCCT did not write an output file:\n" + _tail(output))
+    if layers_path is not None:
+        colorize_output(output_path, layers_path)
     preserve_input_header(text, output_path)
     return output
 
@@ -629,6 +776,15 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--timeout", type=int, default=1800, help="OCCT timeout in seconds"
     )
+    parser.add_argument(
+        "--layers",
+        type=Path,
+        default=None,
+        help=(
+            "JSON records of the source layers (name, colour, bounding box); "
+            "restores per-solid colours when the result is a disjoint compound"
+        ),
+    )
     args = parser.parse_args(argv)
 
     if not args.input.exists():
@@ -637,7 +793,12 @@ def main(argv: list[str] | None = None) -> int:
     output = args.output.resolve()
     output.parent.mkdir(parents=True, exist_ok=True)
     try:
-        evaluate(args.input.resolve(), output, timeout=args.timeout)
+        evaluate(
+            args.input.resolve(),
+            output,
+            timeout=args.timeout,
+            layers_path=args.layers,
+        )
     except CsgEvalError as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 1

@@ -175,6 +175,10 @@ test "every public motion builder family exposes a connector" {
       "set-screw-thread",
     ),
     (
+      ok_motion(@motion.clamp_shaft_collar(20.0, 40.0, 15.0)),
+      "clamp-screw-thread",
+    ),
+    (
       ok_motion(@motion.v_wheel(@motion.VWheelSpec::openbuilds_solid_v())),
       "axle-bore",
     ),

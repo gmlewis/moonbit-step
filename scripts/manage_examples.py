@@ -315,7 +315,11 @@ def main():
         print("Error: 'inkscape' not found in PATH. Required for rendering.")
         sys.exit(1)
 
-    targets = sorted(SUITE.keys()) if args.target == "all" else [args.target]
+    targets = (
+        [num for num in sorted(SUITE) if find_example_dir(num)]
+        if args.target == "all"
+        else [args.target]
+    )
     bpy_output_dir = root / "bpy-out"
     if args.bpy or args.blend:
         bpy_output_dir.mkdir(parents=True, exist_ok=True)

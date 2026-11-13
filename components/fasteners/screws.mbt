@@ -47,11 +47,16 @@ const SOCKET_REF_B_EDGE_MM : Double = 0.225
 /// is blind and each exported body is a closed shell. With
 /// `ThreadRepresentation::Helical` the threaded length is a minor-diameter core
 /// plus a swept helical ridge; without it the shank is a plain nominal-diameter
-/// cylinder and no thread is claimed.
+/// cylinder and no thread is claimed. `shank_diameter_mm` optionally sets a
+/// smaller plain-shank envelope (for example the ISO 68-1 thread minor
+/// diameter) so a plain screw is visibly a shaft inside a clearance hole; it
+/// must be positive and no larger than the nominal diameter, and it is ignored
+/// by the two `reference` representations.
 pub fn socket_head_cap_screw(
   spec : @standards.ISO4762Spec,
   detail~ : @common.DetailLevel = Simplified,
   threads? : @common.ThreadRepresentation,
+  shank_diameter_mm? : Double,
   color? : @cad.Rgb,
   reference~ : Bool = false,
   reference_b~ : Bool = false,
@@ -240,7 +245,22 @@ pub fn socket_head_cap_screw(
   }
   let threaded = thread_rep is @common.ThreadRepresentation::Helical
   let thread_length = spec.thread_length_mm
-  let core_d = if threaded { thread.external_minor_diameter_mm() } else { d }
+  let nominal_core = if threaded {
+    thread.external_minor_diameter_mm()
+  } else {
+    d
+  }
+  let core_d = match shank_diameter_mm {
+    Some(value) => {
+      if value <= 0.0 || value > d {
+        abort(
+          "socket head cap screw shank diameter must be positive and no larger than the nominal thread diameter",
+        )
+      }
+      value
+    }
+    None => nominal_core
+  }
   let core_r = core_d / 2.0
   let pts : Array[@cad.Vec2] = [(0.0, 0.0)]
   if tip_chamfer > 0.0 && tip_chamfer < core_r {
@@ -333,25 +353,46 @@ pub fn iso4762_screw(
   length_mm : Double,
   detail~ : @common.DetailLevel = Simplified,
   threads? : @common.ThreadRepresentation,
+  shank_diameter_mm? : Double,
   reference~ : Bool = false,
   reference_b~ : Bool = false,
 ) -> Result[@common.Component, @common.SpecError] {
   match @standards.iso4762_spec(size, length_mm) {
     Err(e) => Err(e)
-    Ok(spec) =>
-      Ok(
-        match threads {
-          Some(t) =>
-            socket_head_cap_screw(
-              spec,
-              detail~,
-              threads=t,
-              reference~,
-              reference_b~,
-            )
-          None => socket_head_cap_screw(spec, detail~, reference~, reference_b~)
-        },
-      )
+    Ok(spec) => {
+      match shank_diameter_mm {
+        Some(value) => {
+          let checked = @common.require_positive(
+            "ISO 4762 shank envelope diameter", value,
+          )
+          match checked {
+            Err(e) => return Err(e)
+            Ok(_) => ()
+          }
+        }
+        None => ()
+      }
+      let screw = match threads {
+        Some(t) =>
+          socket_head_cap_screw(
+            spec,
+            detail~,
+            threads=t,
+            shank_diameter_mm?,
+            reference~,
+            reference_b~,
+          )
+        None =>
+          socket_head_cap_screw(
+            spec,
+            detail~,
+            shank_diameter_mm?,
+            reference~,
+            reference_b~,
+          )
+      }
+      Ok(screw)
+    }
   }
 }
 

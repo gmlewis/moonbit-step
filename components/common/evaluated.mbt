@@ -24,6 +24,60 @@ fn node_is_boolean(node : @cad.SceneNode) -> Bool {
 }
 
 ///|
+/// json_escape escapes the two characters that would break a JSON string
+/// literal. Component and layer names are simple ASCII identifiers, so this is
+/// deliberately minimal.
+fn json_escape(s : String) -> String {
+  s.replace(old="\\", new="\\\\").replace(old="\"", new="\\\"")
+}
+
+///|
+/// component_layers_json serialises the component's layers (name, colour, and
+/// local-frame bounding box) for the evaluated exporter. OCCT's plain STEP
+/// writer drops presentation styles, so the evaluator uses this record to
+/// restore a per-solid colour when the evaluated result is a disjoint
+/// one-solid-per-layer compound.
+pub fn Component::layers_json(self : Component) -> String {
+  let entries = self
+    .layers()
+    .map(fn(layer) {
+      let (rx, ry, rz) = layer.placement.to_euler()
+      let (tx, ty, tz) = layer.placement.trans
+      let node = layer.shape
+        .with_name(layer.name)
+        .with_color(layer.color)
+        .rotate_x(rx)
+        .rotate_y(ry)
+        .rotate_z(rz)
+        .translate(x=tx, y=ty, z=tz)
+      let (x0, x1, y0, y1, z0, z1) = node.bounding_box()
+      let (r, g, b) = layer.color.channels()
+      "{\"name\":\"" +
+      json_escape(layer.name) +
+      "\",\"color\":[" +
+      r.to_string() +
+      "," +
+      g.to_string() +
+      "," +
+      b.to_string() +
+      "],\"bbox\":[" +
+      x0.to_string() +
+      "," +
+      x1.to_string() +
+      "," +
+      y0.to_string() +
+      "," +
+      y1.to_string() +
+      "," +
+      z0.to_string() +
+      "," +
+      z1.to_string() +
+      "]}"
+    })
+  "[" + entries.join(",") + "]"
+}
+
+///|
 /// Component::to_step_evaluated evaluates the component with OCCT and returns
 /// one flat, trimmed STEP document.
 ///
@@ -34,6 +88,10 @@ fn node_is_boolean(node : @cad.SceneNode) -> Bool {
 /// directly; a single flat body is already one closed solid and its nominal
 /// STEP text is returned unchanged. The default layered STEP export is never
 /// affected.
+///
+/// The layer colours and bounding boxes are passed to the evaluator so a
+/// disjoint evaluated compound keeps its per-solid presentation colours; a
+/// fused result is left uncoloured.
 ///
 /// Raises `@cad.CsgEvalError` when the evaluator script, OCCT, or
 /// `$MOONBIT_STEP_ROOT` is missing.
@@ -56,7 +114,7 @@ pub async fn Component::to_step_evaluated(
     description=self.metadata.summary(),
     documentation=self.documentation(),
   ).add_iter(merged.iter())
-  design.to_step_evaluated(root~)
+  design.to_step_evaluated(root~, layers_json=self.layers_json())
 }
 
 ///|

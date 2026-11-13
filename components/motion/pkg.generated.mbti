@@ -18,6 +18,8 @@ pub fn bearing_size(String) -> Result[BearingSize, @common.SpecError]
 
 pub fn bushing(Double, Double, Double) -> Result[@common.Component, @common.SpecError]
 
+pub fn clamp_shaft_collar(Double, Double, Double, thread? : @standards.MetricSize, drill_diameter_mm? : Double, counterbore_diameter_mm? : Double, screw_offset_mm? : Double, slit_width_mm? : Double, chamfer_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
 pub fn compression_spring(Double, Double, Double, Int32, segments_per_turn? : Int32, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
 pub fn dowel_pin(Double, Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]

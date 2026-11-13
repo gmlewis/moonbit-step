@@ -40,14 +40,13 @@ Output formats for quick previewing:
                          (when supported). Coordinates are Z-up.
 
 Examples:
-  ./examples/run-example.sh 01 -o cube.step
-  ./examples/run-example.sh 39 -o fits.step -stl
-  ./examples/run-example.sh 39 -o fits.step --png=preview.png
-  ./examples/run-example.sh 03 --name Susan --emboss -o tag.step
-  ./examples/run-example.sh 39 --gltf fits.gltf
-  ./examples/run-example.sh 01 --view          # write /tmp/01-...step and open it
-  ./examples/run-example.sh 01 -- --help      # example-specific options
-  ./examples/run-example.sh 01 > cube.step    # STEP to stdout
+  ./examples/run-example.sh 12 -o coil.step
+  ./examples/run-example.sh 12 -o coil.step -stl
+  ./examples/run-example.sh 12 -o coil.step --png=preview.png
+  ./examples/run-example.sh 12 --numPairs 6 -o coil.step
+  ./examples/run-example.sh --view 12          # write /tmp/12-*.step and open it
+  ./examples/run-example.sh 12 -- --help       # example-specific options
+  ./examples/run-example.sh 12 > coil.step     # STEP to stdout
 
 Notes:
   - Options other than the wrapper options above are forwarded to the example.
@@ -72,6 +71,38 @@ if [[ $# -lt 1 ]]; then
   exit 2
 fi
 
+# Wrapper options may precede the example (`./run-example.sh --view 2`).
+# Collect a leading run of wrapper options, then take the first remaining
+# argument as the example and forward the collected options after it.
+PREFIX_ARGS=()
+while [[ $# -gt 0 ]]; do
+  case "${1:-}" in
+    --view | --view=* | -stl | --stl | -stl=* | --stl=* | -png | --png | -png=* | --png=* | --nostep | --blend | --blend=* | --bpy | --bpy=* | --gltf | --gltf=*)
+      PREFIX_ARGS+=("$1")
+      shift
+      ;;
+    -o | --out | -eval | --eval)
+      PREFIX_ARGS+=("$1")
+      if [[ $# -ge 2 ]]; then
+        PREFIX_ARGS+=("$2")
+        shift 2
+      else
+        shift
+      fi
+      ;;
+    -o=* | --out=* | -eval=* | --eval=*)
+      PREFIX_ARGS+=("$1")
+      shift
+      ;;
+    *) break ;;
+  esac
+done
+if [[ $# -lt 1 ]]; then
+  echo "Error: example name or number is missing." >&2
+  usage >&2
+  exit 2
+fi
+
 EXAMPLE_ARG="$1"
 shift
 
@@ -80,9 +111,12 @@ shift
 if [[ $# -gt 0 && "${1:-}" == "--" ]]; then
   shift
 fi
+if [[ ${#PREFIX_ARGS[@]} -gt 0 ]]; then
+  set -- "${PREFIX_ARGS[@]}" "$@"
+fi
 
-# Allow users to pass a bare folder name ("01-hello-cube") or a path
-# ("./01-hello-cube", "01-hello-cube/", "examples/01-hello-cube/").
+# Allow users to pass a bare folder name ("12-bifilar-electromagnet") or a path
+# ("./12-bifilar-electromagnet", "12-bifilar-electromagnet/", "examples/12-bifilar-electromagnet/").
 EXAMPLE_ARG_STRIPPED="${EXAMPLE_ARG%/}"
 EXAMPLE_BASENAME="$(basename "$EXAMPLE_ARG_STRIPPED")"
 
@@ -97,11 +131,11 @@ SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 # Resolve the example folder relative to the project root.
-# If a path is provided (e.g. examples/01-hello-cube), respect it; otherwise assume examples/<name>.
+# If a path is provided (e.g. examples/12-bifilar-electromagnet), respect it; otherwise assume examples/<name>.
 if [[ "$EXAMPLE_ARG_STRIPPED" == *"/"* ]]; then
   EXAMPLE_PATH_REL="$EXAMPLE_ARG_STRIPPED"
 else
-  # If it's a number, try to find the full folder name (e.g. "1" or "01" -> "01-hello-cube").
+  # If it's a number, try to find the full folder name (e.g. "1" or "01" -> "12-bifilar-electromagnet").
   if [[ "$EXAMPLE_BASENAME" =~ ^[0-9]+$ ]]; then
     SEARCH_NUM=$(printf "%02d" $((10#$EXAMPLE_BASENAME)) 2>/dev/null || echo "$EXAMPLE_BASENAME")
     MATCHES=("$ROOT_DIR"/examples/"$SEARCH_NUM"-*)
@@ -121,7 +155,7 @@ if [[ ! -d "$ROOT_DIR/$EXAMPLE_PATH_REL" ]]; then
   exit 1
 fi
 
-# The resolved folder name (e.g. "01-hello-cube"), used for default file names.
+# The resolved folder name (e.g. "12-bifilar-electromagnet"), used for default file names.
 EXAMPLE_NAME="$(basename "$EXAMPLE_PATH_REL")"
 
 # Strip a leading "./" so a user-provided path and a derived path compare equal.

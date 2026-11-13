@@ -100,5 +100,11 @@ test "diagnostics is a pure observation" {
   let second = design.diagnostics().map(fn(d) { d.message() })
   assert_eq(first, second)
   let after = design.to_step_file()
-  assert_eq(before, after)
+  // Compare the DATA section only: the header carries a wall-clock timestamp,
+  // so a full-text equality check is flaky when the two exports straddle a
+  // second boundary. The DATA section is the geometry that must not change.
+  let before_data = before.split("DATA;").collect()
+  let after_data = after.split("DATA;").collect()
+  assert_eq(before_data.length(), after_data.length())
+  assert_eq(before_data[1], after_data[1])
 }

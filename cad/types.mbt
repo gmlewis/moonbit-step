@@ -18,6 +18,12 @@ pub fn Rgb::new(r : Double, g : Double, b : Double) -> Rgb {
 }
 
 ///|
+/// Rgb::channels returns the red, green, and blue components, each in 0..1.
+pub fn Rgb::channels(self : Rgb) -> (Double, Double, Double) {
+  (self.r, self.g, self.b)
+}
+
+///|
 pub fn Rgb::orange() -> Rgb {
   { r: 1.0, g: 0.6, b: 0.0, }
 }

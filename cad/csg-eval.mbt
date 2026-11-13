@@ -52,11 +52,14 @@ pub async fn find_csg_eval_script(root : String?) -> String? {
 ///
 /// It writes `to_csg_step()` to a temporary file, runs
 /// `python3 scripts/csg_eval.py` with `$MOONBIT_STEP_ROOT` (or `root`), and
-/// reads back the evaluated STEP. Raises `CsgEvalError` when the script is
-/// missing or OCCT fails.
+/// reads back the evaluated STEP. `layers_json` optionally supplies per-layer
+/// name, colour, and bounding-box records so the evaluator can restore a
+/// per-solid presentation colour when the result is a disjoint compound.
+/// Raises `CsgEvalError` when the script is missing or OCCT fails.
 pub async fn Design::to_step_evaluated(
   self : Design,
   root~ : String? = None,
+  layers_json? : String,
 ) -> String {
   let root = match root {
     Some(_) => root
@@ -74,11 +77,18 @@ pub async fn Design::to_step_evaluated(
   let input_path = temp_dir + "/input.step"
   let output_path = temp_dir + "/evaluated.step"
   write_text_file(self.to_csg_step(), Some(input_path))
+  let mut args = [script, input_path, "-o", output_path]
+  match layers_json {
+    Some(records) => {
+      let layers_path = temp_dir + "/layers.json"
+      write_text_file(records, Some(layers_path))
+      args = [..args, "--layers", layers_path]
+    }
+    None => ()
+  }
   // Capture the evaluator's output instead of inheriting stdout: callers may
   // be tests that talk a structured protocol on stdout.
-  let (code, output) = @process.collect_output_merged("python3", [
-    script, input_path, "-o", output_path,
-  ])
+  let (code, output) = @process.collect_output_merged("python3", args)
   if code != 0 {
     raise CsgEvalError(
       "CSG evaluation failed (scripts/csg_eval.py exited with status \{code}): \{output.text()}. Evaluating booleans requires Open CASCADE ('occt-draw' or 'DRAWEXE' on PATH) and a design with a boolean tree.",

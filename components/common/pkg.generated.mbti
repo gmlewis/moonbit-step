@@ -77,6 +77,7 @@ pub fn Component::description(Self) -> String
 pub fn Component::documentation(Self) -> String
 pub fn Component::features(Self) -> FeatureRecord
 pub fn Component::layers(Self) -> Array[ComponentLayer]
+pub fn Component::layers_json(Self) -> String
 pub fn Component::metadata(Self) -> Metadata
 pub fn Component::name(Self) -> String
 pub fn Component::new(name~ : String, metadata~ : Metadata, description? : String, features? : FeatureRecord) -> Self
