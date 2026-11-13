@@ -118,6 +118,42 @@ fn validate_nema_interface(
 }
 
 ///|
+/// nema_square_loop returns the square body outline as four counter-clockwise
+/// line segments centered on the origin.
+fn nema_square_loop(size_mm : Double) -> Array[@cad.ProfileSegment] {
+  let h = size_mm / 2.0
+  [
+    @cad.SegmentLine((-h, -h), (h, -h)),
+    @cad.SegmentLine((h, -h), (h, h)),
+    @cad.SegmentLine((h, h), (-h, h)),
+    @cad.SegmentLine((-h, h), (-h, -h)),
+  ]
+}
+
+///|
+/// nema_circle_loop returns one counter-clockwise circular hole as four
+/// 90-degree minor arcs. The arc profile compiler turns each arc into an
+/// analytic cylindrical face, so a through hole is one cylinder rather than a
+/// tessellated polygon.
+fn nema_circle_loop(
+  cx : Double,
+  cy : Double,
+  radius : Double,
+) -> Array[@cad.ProfileSegment] {
+  let p0 = (cx + radius, cy)
+  let p90 = (cx, cy + radius)
+  let p180 = (cx - radius, cy)
+  let p270 = (cx, cy - radius)
+  let center = (cx, cy)
+  [
+    @cad.SegmentArc(p0, p90, center),
+    @cad.SegmentArc(p90, p180, center),
+    @cad.SegmentArc(p180, p270, center),
+    @cad.SegmentArc(p270, p0, center),
+  ]
+}
+
+///|
 /// nema_stepper_motor builds a NEMA stepper-motor envelope.
 ///
 /// Geometry, Z-up with the rear face at `z = 0`:
@@ -190,39 +226,27 @@ pub fn nema_stepper_motor(
       ),
     )
   }
-  let policy = @common.DetailPolicy::for_level(detail)
-  let segments = if policy.circle_segments < 32 {
-    32
-  } else {
-    policy.circle_segments
-  }
+  let _ = detail
   let half = frame.bolt_spacing_mm / 2.0
-  let hole = @cad.Profile2D::circle(frame.mounting_hole_diameter_mm, segments~).rev()
+  let radius = frame.mounting_hole_diameter_mm / 2.0
   let holes = [
-    @cad.translate_pts(hole, half, half),
-    @cad.translate_pts(hole, -half, half),
-    @cad.translate_pts(hole, -half, -half),
-    @cad.translate_pts(hole, half, -half),
+    nema_circle_loop(half, half, radius),
+    nema_circle_loop(-half, half, radius),
+    nema_circle_loop(-half, -half, radius),
+    nema_circle_loop(half, -half, radius),
   ]
-  let outer = @cad.Profile2D::centered_rect(frame.frame_mm, frame.frame_mm)
-  let body = @cad.ExtrudedProfile::new(outer, body_length_mm, holes~)
+  let body = @cad.ExtrudedArcProfile::new(
+    nema_square_loop(frame.frame_mm),
+    body_length_mm,
+    holes~,
+  ).as_shape()
   let base_color = match color {
     Some(c) => c
     None => @cad.Rgb::grey()
   }
   let features = @common.FeatureRecord::new(
     modeled=["body", "mounting-hole-pattern", "pilot-boss", "shaft"],
-    approximated=[
-      @common.Approximation::new(
-        feature="mounting-holes",
-        kind=@common.ApproximationKind::PolylineArc,
-        deviation_mm=@common.chord_deviation(
-          frame.mounting_hole_diameter_mm / 2.0,
-          segments,
-        ),
-        control="circle_segments=\{segments}",
-      ),
-    ],
+    approximated=[],
     omitted=[
       @common.Omission::new(
         feature="stator-laminations",

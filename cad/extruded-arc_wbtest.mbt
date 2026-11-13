@@ -100,9 +100,11 @@ test "arc profile with an inner loop compiles one closed solid" {
   let step = Design::new(name="holed")
     .add(profile.as_shape().with_name("holed"))
     .to_step_file()
-  assert_eq(arc_count_sub(step, "ADVANCED_FACE("), 10)
+  // The full circular hole is emitted as one analytic cylinder with a single
+  // seam: four outer side planes + two cap planes + one hole cylinder.
+  assert_eq(arc_count_sub(step, "ADVANCED_FACE("), 7)
   assert_eq(arc_count_sub(step, "PLANE("), 6)
-  assert_eq(arc_count_sub(step, "CYLINDRICAL_SURFACE("), 4)
+  assert_eq(arc_count_sub(step, "CYLINDRICAL_SURFACE("), 1)
   assert_eq(arc_count_sub(step, "CLOSED_SHELL("), 1)
 }
 

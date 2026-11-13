@@ -2943,12 +2943,12 @@
           42.3,
           54.805
         ],
-        "volume_mm3": 71645.5,
+        "volume_mm3": 71643.2,
         "solids": 3,
         "source": "components/examples/stepper_motor --frame NEMA17 --bodyLength 40"
       },
       "verdict": "accepted-envelope",
-      "notes": "Frame, bolt spacing, mounting-hole pattern, shaft diameter, and overall length match. The parametric body, pilot boss, and shaft are three separately closed solids because the kernel-free writer does not trim a union; the reference fuses them into one. Volume is 0.63% higher because this builder uses the standard NEMA 22 mm pilot diameter while the reference uses a smaller simplified 17.766 mm boss.",
+      "notes": "Frame, bolt spacing, mounting-hole pattern, shaft diameter, and overall length match. Each of the four mounting holes is one analytic cylindrical surface, matching the reference's per-hole cylinders. The parametric body, pilot boss, and shaft are three separately closed solids because the kernel-free writer does not trim a union; the reference fuses them into one. Volume is 0.63% higher because this builder uses the standard NEMA 22 mm pilot diameter while the reference uses a smaller simplified 17.766 mm boss.",
       "committed": false,
       "generation": {
         "tool": "components/examples/stepper_motor",
@@ -3020,12 +3020,12 @@
           56.4,
           59.74
         ],
-        "volume_mm3": 130310.3,
+        "volume_mm3": 130306.3,
         "solids": 3,
         "source": "components/examples/stepper_motor --frame NEMA23 --bodyLength 40"
       },
       "verdict": "accepted-envelope",
-      "notes": "Frame, bolt spacing, mounting-hole pattern, shaft diameter, and overall length match. The reference fuses body, boss, and shaft into one solid; this builder layers three watertight solids. Volume is 2.48% higher because the standard 38.1 mm NEMA 23 pilot replaces the reference's simplified 23.688 mm boss.",
+      "notes": "Frame, bolt spacing, mounting-hole pattern, shaft diameter, and overall length match. Each mounting hole is one analytic cylinder. The reference fuses body, boss, and shaft into one solid; this builder layers three watertight solids. Volume is 2.48% higher because the standard 38.1 mm NEMA 23 pilot replaces the reference's simplified 23.688 mm boss.",
       "committed": false,
       "generation": {
         "tool": "components/examples/stepper_motor",

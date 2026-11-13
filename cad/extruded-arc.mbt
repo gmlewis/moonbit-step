@@ -482,6 +482,41 @@ pub fn extruded_arc_mesh(
 }
 
 ///|
+/// arc_circular_hole recognizes a hole loop made only of arcs that share one
+/// centre and radius and sweep a full turn. Such a hole can be emitted as one
+/// analytic cylinder instead of one face per arc segment.
+fn arc_circular_hole(hole : Array[ProfileSegment]) -> (Vec2, Double)? {
+  if hole.length() < 2 {
+    return None
+  }
+  let mut center : Vec2 = (0.0, 0.0)
+  let mut radius = 0.0
+  let mut total = 0.0
+  for i, seg in hole {
+    match seg {
+      SegmentLine(_, _) => return None
+      SegmentArc(a, b, c) => {
+        if i == 0 {
+          center = c
+          radius = arc_dist2(a, c)
+        }
+        if arc_dist2(c, center) > CAD_ANGLE_EPS ||
+          (arc_dist2(a, c) - radius).abs() > CAD_ANGLE_EPS {
+          return None
+        }
+        let a0 = @math.atan2(a.1 - c.1, a.0 - c.0)
+        let a1 = @math.atan2(b.1 - c.1, b.0 - c.0)
+        total = total + arc_norm_sweep(a1 - a0)
+      }
+    }
+  }
+  if (total - 2.0 * @math.PI).abs() > CAD_ANGLE_EPS {
+    return None
+  }
+  Some((center, radius))
+}
+
+///|
 /// compile_extruded_arc_profile emits one closed solid with analytic cylindrical
 /// faces for every circular arc and planar faces for every line and cap.
 pub fn compile_extruded_arc_profile(
@@ -576,6 +611,71 @@ pub fn compile_extruded_arc_profile(
   // Through-holes bounded by lines and arcs. Each hole's lateral faces point
   // into the void, and its bottom/top loops become inner bounds of the caps.
   for hole in e.holes {
+    match arc_circular_hole(hole) {
+      Some((center, radius)) => {
+        // One analytic cylinder for a full circular hole, with a single seam
+        // edge, instead of one cylindrical face per arc segment.
+        let seam_b_pt = xform.apply((center.0 + radius, center.1, 0.0))
+        let seam_t_pt = xform.apply((center.0 + radius, center.1, h))
+        pts.push(seam_b_pt)
+        let cp_sb = ctx.cartesian_point(seam_b_pt.0, seam_b_pt.1, seam_b_pt.2)
+        cp_refs.push(cp_sb)
+        let vp_sb = ctx.vertex_point(cp_sb)
+        vp_refs.push(vp_sb)
+        pts.push(seam_t_pt)
+        let cp_st = ctx.cartesian_point(seam_t_pt.0, seam_t_pt.1, seam_t_pt.2)
+        cp_refs.push(cp_st)
+        let vp_st = ctx.vertex_point(cp_st)
+        vp_refs.push(vp_st)
+        let cb = xform.apply((center.0, center.1, 0.0))
+        let ct = xform.apply((center.0, center.1, h))
+        let cp_b = ctx.cartesian_point(cb.0, cb.1, cb.2)
+        let cp_t = ctx.cartesian_point(ct.0, ct.1, ct.2)
+        let a2p_b = ctx.axis2_placement_3d(cp_b, dir_up, dir_right)
+        let a2p_t = ctx.axis2_placement_3d(cp_t, dir_up, dir_right)
+        let radius_text = @step.fmt_num(radius)
+        let circle_b = ctx.add(
+          @repository.any_entity_circle(
+            @geometry.Circle::new("", a2p_b, radius_text),
+          ),
+        )
+        let circle_t = ctx.add(
+          @repository.any_entity_circle(
+            @geometry.Circle::new("", a2p_t, radius_text),
+          ),
+        )
+        let cylinder = ctx.add(
+          @repository.any_entity_cylindrical_surface(
+            @geometry.CylindricalSurface::new("", a2p_b, radius_text),
+          ),
+        )
+        let seam = ctx.edge_curve(
+          vp_sb,
+          vp_st,
+          ctx.line(cp_sb, ctx.vector(dir_up, 1.0)),
+          true,
+        )
+        let e_b = ctx.edge_curve(vp_sb, vp_sb, circle_b, true)
+        let e_t = ctx.edge_curve(vp_st, vp_st, circle_t, true)
+        let lateral_loop = ctx.edge_loop([
+          ctx.oriented_edge(seam, true),
+          ctx.oriented_edge(e_t, true),
+          ctx.oriented_edge(seam, false),
+          ctx.oriented_edge(e_b, false),
+        ])
+        faces.push(
+          ctx.advanced_face(
+            [ctx.face_outer_bound(lateral_loop, true)],
+            cylinder,
+            reverse,
+          ),
+        )
+        bottom_holes.push(ctx.edge_loop([ctx.oriented_edge(e_b, true)]))
+        top_holes.push(ctx.edge_loop([ctx.oriented_edge(e_t, false)]))
+        continue
+      }
+      None => ()
+    }
     let hm = hole.length()
     let hbase = pts.length()
     for seg in hole {
