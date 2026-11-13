@@ -26,6 +26,10 @@ pub fn din471_outline(Double) -> Result[Din471Outline, @common.SpecError]
 
 pub fn din471_ring(Double, detail? : @common.DetailLevel, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
+pub fn din472_outline(Double) -> Result[Din472Outline, @common.SpecError]
+
+pub fn din472_ring(Double, detail? : @common.DetailLevel, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
 pub fn din557_square_nut(@standards.MetricSize, detail? : @common.DetailLevel, clearance_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
 pub fn din7349_washer(@standards.MetricSize, detail? : @common.DetailLevel, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
@@ -145,6 +149,14 @@ pub fn vslot_t_nut(SlotTNutSpec, detail? : @common.DetailLevel, color? : @cad.Rg
 // Types and methods
 pub(all) struct Din471Outline {
   shaft_mm : Double
+  thickness_mm : Double
+  start : (Double, Double)
+  ops : Array[RingOp]
+  holes : Array[(Double, Double, Double)]
+}
+
+pub(all) struct Din472Outline {
+  bore_mm : Double
   thickness_mm : Double
   start : (Double, Double)
   ops : Array[RingOp]

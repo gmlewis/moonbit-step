@@ -254,6 +254,7 @@ test "every public fastener builder family exposes a connector" {
     ),
     // Retaining rings.
     (ok_fastener(@fasteners.din471_ring(20.0)), "groove-seat"),
+    (ok_fastener(@fasteners.din472_ring(20.0)), "groove-seat"),
   ]
   for entry in builders {
     let (part, expected) = entry

@@ -107,6 +107,9 @@ moon run components/examples/makerbeam -- --length 250 --cornerRadius 0.2 -o mb.
 # DIN 471 type A external retaining ring (A 10 to A 34)
 moon run components/examples/retaining_ring -- --size 20 -o din471-20.step
 
+# DIN 472 internal retaining ring (verified bore table 8 to 40; encoded outline 20)
+moon run components/examples/din472_ring -- --size 20 -o din472-20.step
+
 # Built-in M3/M4/M5 fastener catalogue
 mkdir -p components/examples/output
 moon run components/examples/fasteners -- --catalog components/examples/output
@@ -164,6 +167,17 @@ the layered channel have the same property; where a layer deliberately embeds
 into another (the clamp ears), the documentation states the embed and the union
 is a nominal rather than a boolean result.
 
+A layered accessory exports by default as several touching closed solids. When
+one watertight solid is wanted (for downstream mesh or boolean consumers),
+`Component::to_step_evaluated` / `write_step_evaluated` fuses the layers into
+one boolean union and evaluates it with OCCT, producing a single trimmed
+`MANIFOLD_SOLID_BREP` with the same physical volume as the layer sum. This is
+an opt-in development path: it requires `python3`, OCCT (`occt-draw` or
+`DRAWEXE`), and `$MOONBIT_STEP_ROOT`, and the library itself stays kernel-free.
+The default layered `to_step` / `write_step` output is unchanged. A
+single-layer flat component is already one closed solid and is returned
+unchanged.
+
 ## Named connectors and the golden preview
 
 Every public component builder exposes at least one named `MateConnector`
@@ -195,8 +209,8 @@ use `--headless`.
 | Package | Contents |
 |---|---|
 | `common` | Units-aware validation, detail levels, thread representation, metadata, placement, `Component`, `MateConnector`, and `MatePair`. |
-| `standards` | Metric thread data and ISO/DIN dimension tables (ISO 4032/4035/4762/7089/709x/7380/8752/10642, DIN 557/913/916/976/1587, …). |
-| `fasteners` | Screws, bolts, nuts, washers, pins, rods, set screws, generic solid rivets, and DIN 471 type A external retaining rings (A 10 to A 34). |
+| `standards` | Metric thread data and ISO/DIN dimension tables (ISO 4032/4035/4762/7089/709x/7380/8752/10642, DIN 471/472/557/913/916/976/1587, …). |
+| `fasteners` | Screws, bolts, nuts, washers, pins, rods, set screws, generic solid rivets, DIN 471 type A external retaining rings (A 10 to A 34), and DIN 472 internal retaining rings (verified bore table 8 to 40; encoded 20 mm outline). |
 | `profiles` | Generic T-slot sections, the vendor 2020 B-slot6 A section, OpenBuilds-compatible V-Slot 2020/2040 sections, the MakerBeam 10 x 10 section, a gusseted V-Slot corner bracket, P1000-style strut channel, and a generic channel nut. |
 | `motion` | Shafts, stepped/keyed shafts, spacers and V-Slot wheel spacers (plain and eccentric), bushings, shaft collars, keys, dowel pins, standoffs, compression springs, ball bearings, LM-series linear bushings, flanged linear housings, approximated GT2 timing pulleys, smooth idlers, V-Slot wheels, EMT tubing with end caps and split clamps, rigid couplings, and flanged bearing housings. |
 | `motors` | NEMA 17 and NEMA 23 stepper-motor envelopes, mounting interfaces, and NEMA mounting plates. |
@@ -332,6 +346,18 @@ frames, and plates expose face and per-hole frames.
   published FreeCAD-library model geometry (CC BY 3.0, by nachotineo), so the
   model bore can differ from d3 by up to 0.13 mm. Sharp edges, no edge breaks,
   no spring temper, and no load or fatigue rating. The shaft groove is
+  declared by the `groove-seat` connector but is not modelled.
+- DIN 472 internal retaining rings are flat stamped rings with two inward
+  lugs, plier holes, a free outside diameter, and a declared bore-groove
+  interface. The DIN 472 table (d1, s, d3, a, b, d5, d2, m, t, n) is
+  cross-checked between the Aspen Fasteners sheet, the Stpektas table, and the
+  Xem Studio sheet (CC BY 4.0) and covers 8 to 40 mm. The *free-state outline*
+  is not dimensioned by DIN 472; the 20 mm outline is the measured CC0
+  Innerscene reference model, re-encoded as this library's own line/arc loop
+  (volume and bounding box match the reference exactly). Only the 20 mm outline
+  has a licensed reference, so other sizes expose the groove table via
+  `@standards.din472_size` but reject `din472_ring`. Sharp edges, no edge
+  breaks, no spring temper, and no load or fatigue rating. The bore groove is
   declared by the `groove-seat` connector but is not modelled.
 - MakerBeam 10 x 10 is the exact dimensioned section of drawing article 100168
   (3 mm slot, 1 mm lip, 41.1 degree dovetail, 4 x 4 core, Ø2.5 bore), verified

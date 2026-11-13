@@ -28,6 +28,8 @@ pub fn din440_spec(MetricSize) -> Result[DIN440Spec, @common.SpecError]
 
 pub fn din471_size(Double) -> Result[DIN471Size, @common.SpecError]
 
+pub fn din472_size(Double) -> Result[DIN472Size, @common.SpecError]
+
 pub fn din557_size(MetricSize) -> Result[DIN557Size, @common.SpecError]
 
 pub fn din557_spec(MetricSize, clearance_mm? : Double) -> Result[DIN557Spec, @common.SpecError]
@@ -183,6 +185,22 @@ pub(all) struct DIN471Size {
 pub fn DIN471Size::designation(Self) -> String
 pub fn DIN471Size::source() -> String
 pub fn DIN471Size::standard() -> String
+
+pub(all) struct DIN472Size {
+  bore_diameter_mm : Double
+  thickness_mm : Double
+  free_outer_diameter_mm : Double
+  lug_width_mm : Double
+  ring_width_mm : Double
+  lug_hole_mm : Double
+  groove_diameter_mm : Double
+  groove_width_mm : Double
+  groove_depth_mm : Double
+  edge_margin_mm : Double
+}
+pub fn DIN472Size::designation(Self) -> String
+pub fn DIN472Size::source() -> String
+pub fn DIN472Size::standard() -> String
 
 pub(all) struct DIN557Size {
   size : MetricSize

@@ -89,6 +89,7 @@ pub fn Component::rotate_z(Self, Double) -> Self
 pub fn Component::size(Self) -> (Double, Double, Double)
 pub fn Component::to_design(Self, name? : String, documentation? : String) -> @cad.Design
 pub fn Component::to_step(Self, checked? : Bool) -> String
+pub async fn Component::to_step_evaluated(Self, root? : String?) -> String
 pub fn Component::transform_with(Self, Placement) -> Self
 pub fn Component::translate(Self, x? : Double, y? : Double, z? : Double) -> Self
 pub fn Component::with_connector(Self, MateConnector) -> Result[Self, MateError]
@@ -100,6 +101,7 @@ pub fn Component::with_metadata(Self, Metadata) -> Self
 pub fn Component::with_name(Self, String) -> Self
 pub async fn Component::write_connector_sidecar(Self, String) -> Unit
 pub async fn Component::write_step(Self, String?, checked? : Bool) -> Unit
+pub async fn Component::write_step_evaluated(Self, String?, root? : String?) -> Unit
 
 pub(all) struct ComponentLayer {
   shape : @cad.Shape

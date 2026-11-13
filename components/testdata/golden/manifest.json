@@ -3778,8 +3778,9 @@
       "committed": false,
       "review": {
         "automated": "pass",
-        "owner_visual": "pending",
-        "date": "2026-11-13"
+        "owner_visual": "verified",
+        "date": "2026-11-13",
+        "reason": "owner reported 'look perfect' after the shared-frame visual comparison"
       },
       "reference_generation": {
         "tool": "CadQuery 2.6.1 (private, not tracked)",
@@ -4051,6 +4052,113 @@
           {
             "kind": "cylinder_radius_present_mm",
             "expected": 9.3,
+            "tol_mm": 0.01
+          }
+        ]
+      }
+    },
+    {
+      "fixture_id": "fasteners/din472-20-retaining-ring",
+      "part_id": "din472_20_internal_retaining_ring",
+      "designation": "DIN 472 20 internal retaining ring",
+      "family": "internal retaining ring",
+      "standard": "DIN 472",
+      "manufacturer": "Innerscene Corp (CC0 1.0 public-domain dedication)",
+      "source_page": "https://www.innerscene.com/tools/library/3d-parts/din-472-internal-circlip-20-mm-a5cc39d4",
+      "download_url": "https://www.innerscene.com/api/library/din-472-internal-circlip-20-mm-a5cc39d4/download",
+      "local_filename": "external/din472_internal_circlip_m20.step",
+      "sha256": "4dcaf9aae895e982b9d9da27175550723f9d7e247d0f084d1dd5e59c166545ca",
+      "byte_size": 38550,
+      "units": "mm",
+      "license": "CC0-1.0",
+      "license_evidence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "declared_dimensions": {
+        "bore_diameter_d1_mm": 20.0,
+        "thickness_s_mm": 1.0,
+        "free_outer_diameter_d3_mm": 21.5,
+        "lug_width_a_mm": 4.2,
+        "ring_width_b_mm": 2.3,
+        "lug_hole_d5_mm": 2.0,
+        "groove_diameter_d2_mm": 21.0,
+        "groove_width_m_mm": 1.1
+      },
+      "measured_dimensions": {
+        "bbox_mm": [
+          21.5,
+          21.4769,
+          1.0
+        ],
+        "volume_mm3": 158.731,
+        "solids": 1,
+        "surfaces": {
+          "plane": 4,
+          "cylinder": 6
+        }
+      },
+      "parametric_value": {
+        "bbox_mm": [
+          21.5,
+          21.4769,
+          1.0
+        ],
+        "volume_mm3": 158.731,
+        "solids": 1,
+        "source": "components/examples/din472_ring --size 20 --goldenFrame"
+      },
+      "verdict": "accepted-envelope",
+      "notes": "The reference is the Innerscene DIN 472 internal circlip 20 mm model, dedicated to the public domain under CC0 1.0. Its free-state outline is the source of the parametric ring's outline; DIN 472 does not dimension the curve between the back and the lugs. The reference is written in the XY plane with the lugs toward -Y; the din472_ring builder keeps the library XY-plane, z = 0..s, lugs +X frame and the generation recipe uses --goldenFrame to rotate only the comparison output. Bounding box, volume, centre of mass, and plier-hole/bore radii match exactly. The reference writes 6 cylinders and the parametric model 10 because each long arc is split into two minor arcs for the extrusion compiler; the geometry is the same. Only the 20 mm outline has a licensed reference, so other DIN 472 sizes expose the groove table but reject din472_ring. Sharp edges, no spring temper, no load rating. The bore groove is declared, not modelled.",
+      "committed": false,
+      "review": {
+        "automated": "pass",
+        "owner_visual": "verified",
+        "date": "2026-11-13",
+        "reason": "owner reported 'look perfect' after the shared-frame visual comparison"
+      },
+      "generation": {
+        "tool": "components/examples/din472_ring",
+        "args": [
+          "--size",
+          "20",
+          "--goldenFrame",
+          "-o",
+          "{out}"
+        ],
+        "output": "din472-20.step"
+      },
+      "comparison": {
+        "solids": 1,
+        "bbox_axes": [
+          {
+            "axis": 0,
+            "expected_mm": 21.5,
+            "label": "free outside diameter (d3)"
+          },
+          {
+            "axis": 1,
+            "expected_mm": 21.4769,
+            "label": "back to lug tips"
+          },
+          {
+            "axis": 2,
+            "expected_mm": 1.0,
+            "label": "ring thickness"
+          }
+        ],
+        "volume_mm3": 158.731,
+        "features": [
+          {
+            "kind": "surface_min",
+            "surface": "plane",
+            "min_count": 4
+          },
+          {
+            "kind": "surface_min",
+            "surface": "cylinder",
+            "min_count": 6
+          },
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 1.0,
             "tol_mm": 0.01
           }
         ]
