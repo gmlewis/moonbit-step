@@ -127,7 +127,7 @@ pub fn ISO4762Spec::standard() -> String {
 ///|
 /// ISO4762Spec::source returns the dimensional provenance note.
 pub fn ISO4762Spec::source() -> String {
-  "ISO 4762:2004 head/socket table; nominal values, see components/DATA_SOURCES.md"
+  "ISO 4762:2004 head/socket table; nominal values"
 }
 
 ///|

@@ -116,7 +116,7 @@ pub fn ISO7380Spec::standard() -> String {
 ///|
 /// ISO7380Spec::source returns the dimensional provenance note.
 pub fn ISO7380Spec::source() -> String {
-  "ISO 7380-1 button head table; nominal values transcribed from published summaries, see components/DATA_SOURCES.md"
+  "ISO 7380-1 button head table; nominal values transcribed from published summaries"
 }
 
 ///|

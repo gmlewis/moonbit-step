@@ -68,7 +68,7 @@ pub fn ISO7089Spec::standard() -> String {
 ///|
 /// ISO7089Spec::source returns the dimensional provenance note.
 pub fn ISO7089Spec::source() -> String {
-  "ISO 7089:2000 plain washer, normal series, product grade A; nominal values, see components/DATA_SOURCES.md"
+  "ISO 7089:2000 plain washer, normal series, product grade A; nominal values"
 }
 
 ///|

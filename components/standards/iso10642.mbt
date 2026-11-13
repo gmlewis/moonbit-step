@@ -9,7 +9,6 @@
 /// 90 degree (45 degree half-angle) countersink. Reference values are chosen
 /// within the ISO 10642:2026 limits; the downloaded M3/M5 profiles match
 /// exactly, while the M4/M6/M8 references use the ISO minimum edge radius.
-/// See `DATA_SOURCES.md`.
 pub(all) struct ISO10642Size {
   size : MetricSize
   thread : ThreadSpec
@@ -128,7 +127,7 @@ pub fn ISO10642Spec::standard() -> String {
 ///|
 /// ISO10642Spec::source returns the dimensional provenance note.
 pub fn ISO10642Spec::source() -> String {
-  "ISO 10642:2026 (edition 4); dimensional table unchanged from 2019. Reference sharp dk within the ISO range, ISO head edge radius, socket at s_max, depth within t_min..t_max. See components/DATA_SOURCES.md"
+  "ISO 10642:2026 (edition 4); dimensional table unchanged from 2019. Reference sharp dk within the ISO range, ISO head edge radius, socket at s_max, depth within t_min..t_max."
 }
 
 ///|

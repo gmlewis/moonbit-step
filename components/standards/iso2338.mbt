@@ -56,6 +56,6 @@ pub fn iso2338_metadata(
     family="parallel pin, hardened",
     size=dims.size.designation(),
     length_mm~,
-    source="ISO 2338:1997 parallel pin d, lengths; chamfer 0.08 d (reference family); see components/DATA_SOURCES.md",
+    source="ISO 2338:1997 parallel pin d, lengths; chamfer 0.08 d (reference family)",
   )
 }

@@ -5,8 +5,7 @@
 ///
 /// The tab-to-washer transition is not in the basic table; the builder places
 /// the transition center at `l / 2 + 2` mm and derives the tangent fillet
-/// radius from that, matching the downloaded references. See
-/// `components/DATA_SOURCES.md`.
+/// radius from that, matching the downloaded references.
 pub(all) struct DIN93Size {
   size : MetricSize
   inner_diameter_mm : Double
@@ -82,7 +81,7 @@ pub fn DIN93Spec::standard() -> String {
 ///|
 /// DIN93Spec::source returns the dimensional provenance note.
 pub fn DIN93Spec::source() -> String {
-  "DIN 93 tab washer with long tab; d1, d2, b, l, and s from the DIN 93 table; transition center at l/2 + 2 mm, see components/DATA_SOURCES.md"
+  "DIN 93 tab washer with long tab; d1, d2, b, l, and s from the DIN 93 table; transition center at l/2 + 2 mm"
 }
 
 ///|

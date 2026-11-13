@@ -6,8 +6,7 @@
 /// `free_height_mm` is the DIN 127 B lower limit (h min); it fixes the helix
 /// pitch of the split ring. The modeled goldens are at d1 = nominal + 0.1
 /// (M4..M8; the fasteners.eu table lists 6.4 for M6, but the downloaded M6
-/// reference and common tables use 6.1) and d2 = table maximum. See
-/// `components/DATA_SOURCES.md`.
+/// reference and common tables use 6.1) and d2 = table maximum.
 pub(all) struct DIN127Size {
   size : MetricSize
   inner_diameter_mm : Double
@@ -85,7 +84,7 @@ pub fn DIN127Spec::standard() -> String {
 ///|
 /// DIN127Spec::source returns the dimensional provenance note.
 pub fn DIN127Spec::source() -> String {
-  "DIN 127 B spring washer; d1/d2/s and h_min transcribed from the DIN 127 B table, see components/DATA_SOURCES.md"
+  "DIN 127 B spring washer; d1/d2/s and h_min transcribed from the DIN 127 B table"
 }
 
 ///|

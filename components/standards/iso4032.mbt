@@ -90,7 +90,7 @@ pub fn ISO4032Spec::standard() -> String {
 ///|
 /// ISO4032Spec::source returns the dimensional provenance note.
 pub fn ISO4032Spec::source() -> String {
-  "ISO 4032:2023 hexagon regular nut table; nominal values, see components/DATA_SOURCES.md"
+  "ISO 4032:2023 hexagon regular nut table; nominal values"
 }
 
 ///|

@@ -3,7 +3,7 @@
 /// nominal size: inner diameter `d1`, outer diameter `d2`, and thickness `s`.
 ///
 /// DIN 7349 is the heavy-pattern thick washer; the inner diameters clear the
-/// DIN 1481 clamping-sleeve sizes. See `components/DATA_SOURCES.md`.
+/// DIN 1481 clamping-sleeve sizes.
 pub(all) struct DIN7349Size {
   size : MetricSize
   inner_diameter_mm : Double
@@ -75,7 +75,7 @@ pub fn DIN7349Spec::standard() -> String {
 ///|
 /// DIN7349Spec::source returns the dimensional provenance note.
 pub fn DIN7349Spec::source() -> String {
-  "DIN 7349 thick flat washer, heavy pattern; d1, d2, and s from the DIN 7349 table, see components/DATA_SOURCES.md"
+  "DIN 7349 thick flat washer, heavy pattern; d1, d2, and s from the DIN 7349 table"
 }
 
 ///|

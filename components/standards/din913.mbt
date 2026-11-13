@@ -5,7 +5,7 @@
 /// `socket_across_flats_mm` is the nominal hex key size; the model uses the
 /// upper limit `socket_across_flats_max_mm` so a standard key fits. The point
 /// is a flat of `point_flat_diameter_mm` with a 90-degree included cone break
-/// (`point_angle_deg`). See `components/DATA_SOURCES.md`.
+/// (`point_angle_deg`).
 pub(all) struct DIN913Size {
   size : MetricSize
   thread : ThreadSpec
@@ -105,7 +105,7 @@ pub fn DIN913Spec::standard() -> String {
 ///|
 /// DIN913Spec::source returns the dimensional provenance note.
 pub fn DIN913Spec::source() -> String {
-  "DIN 913 hexagon socket set screw with flat point; s and t from the DIN 913 table, point flat 2.2 from the downloaded reference (DIN d_p max 2.0), see components/DATA_SOURCES.md"
+  "DIN 913 hexagon socket set screw with flat point; s and t from the DIN 913 table, point flat 2.2 from the downloaded reference (DIN d_p max 2.0)"
 }
 
 ///|

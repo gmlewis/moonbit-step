@@ -97,7 +97,7 @@ pub fn DIN1587Spec::standard() -> String {
 ///|
 /// DIN1587Spec::source returns the dimensional provenance note.
 pub fn DIN1587Spec::source() -> String {
-  "DIN 1587 hexagon domed cap nut table (s, e, dk, h, m); nominal values, see components/DATA_SOURCES.md"
+  "DIN 1587 hexagon domed cap nut table (s, e, dk, h, m); nominal values"
 }
 
 ///|

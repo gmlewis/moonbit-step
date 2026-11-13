@@ -88,7 +88,7 @@ pub fn DIN557Spec::standard() -> String {
 ///|
 /// DIN557Spec::source returns the dimensional provenance note.
 pub fn DIN557Spec::source() -> String {
-  "DIN 557 square nut table (s, e, m); nominal values, see components/DATA_SOURCES.md"
+  "DIN 557 square nut table (s, e, m); nominal values"
 }
 
 ///|

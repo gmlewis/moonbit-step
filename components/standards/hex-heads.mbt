@@ -107,7 +107,7 @@ pub fn ISO4017Spec::standard() -> String {
 
 ///|
 pub fn ISO4017Spec::source() -> String {
-  "ISO 4017:2022 hexagon head screw, product grades A and B; nominal values, see components/DATA_SOURCES.md"
+  "ISO 4017:2022 hexagon head screw, product grades A and B; nominal values"
 }
 
 ///|
@@ -183,7 +183,7 @@ pub fn ISO4014Spec::standard() -> String {
 
 ///|
 pub fn ISO4014Spec::source() -> String {
-  "ISO 4014:2022 hexagon head bolt, product grades A and B; nominal values, see components/DATA_SOURCES.md"
+  "ISO 4014:2022 hexagon head bolt, product grades A and B; nominal values"
 }
 
 ///|
@@ -231,7 +231,7 @@ pub fn DIN976Spec::standard() -> String {
 
 ///|
 pub fn DIN976Spec::source() -> String {
-  "DIN 976-1:2016 metric threaded rod with ISO metric coarse thread; nominal values, see components/DATA_SOURCES.md"
+  "DIN 976-1:2016 metric threaded rod with ISO metric coarse thread; nominal values"
 }
 
 ///|

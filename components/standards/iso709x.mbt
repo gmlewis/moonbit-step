@@ -27,7 +27,7 @@ pub(all) struct ISO709xSize {
 /// iso709x_size returns the verified dimensions for one series and size.
 ///
 /// Values are the ISO 7091 class C, ISO 7092 (DIN 433), ISO 7093 (DIN 9021)
-/// and ISO 7090 tables; see components/DATA_SOURCES.md.
+/// and ISO 7090 tables.
 pub fn iso709x_size(
   series : IsoWasherSeries,
   size : MetricSize,
@@ -145,7 +145,6 @@ pub fn iso709x_metadata(dims : ISO709xSize) -> @common.Metadata {
     standard=label,
     family=iso709x_family(dims.series),
     size=dims.size.designation(),
-    source=label +
-      " plain washer dimensions (d1, d2, h); see components/DATA_SOURCES.md",
+    source=label + " plain washer dimensions (d1, d2, h)",
   )
 }

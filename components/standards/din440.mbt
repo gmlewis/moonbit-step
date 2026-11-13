@@ -3,8 +3,7 @@
 /// size: outer diameter `d2`, square-hole side `a`, and thickness `s`.
 ///
 /// DIN 440 R has a round hole; DIN 440 V has the square hole modeled here.
-/// The downloaded references are the square-hole V form. See
-/// `components/DATA_SOURCES.md`.
+/// The downloaded references are the square-hole V form.
 pub(all) struct DIN440Size {
   size : MetricSize
   outer_diameter_mm : Double
@@ -70,7 +69,7 @@ pub fn DIN440Spec::standard() -> String {
 ///|
 /// DIN440Spec::source returns the dimensional provenance note.
 pub fn DIN440Spec::source() -> String {
-  "DIN 440 V large washer with square hole; d2, square side a, and thickness s from the DIN 440 V table, see components/DATA_SOURCES.md"
+  "DIN 440 V large washer with square hole; d2, square side a, and thickness s from the DIN 440 V table"
 }
 
 ///|
