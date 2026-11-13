@@ -12,7 +12,11 @@ pub const SMOOTH_ARC_POINTS : Int32 = 2
 
 pub const SMOOTH_INVOLUTE_POINTS : Int32 = 4
 
-pub fn bezier_circle_path(Double, clear? : Bool) -> @cad.BezierPath
+pub fn arc_circle_segments(Double) -> Array[@cad.ProfileSegment]
+
+pub fn arc_outline_runs(Array[(Double, Double)]) -> Array[@cad.ProfileSegment]
+
+pub fn arc_outline_segments(Array[(Double, Double)]) -> Array[@cad.ProfileSegment]
 
 pub fn external_involute_outline(Double, Int32, Double, backlash_mm? : Double, involute_points? : Int32, arc_points? : Int32) -> Array[(Double, Double)]
 
@@ -45,8 +49,6 @@ pub fn involute_gear_geometry(Double, Int32, Double) -> InvoluteGearGeometry
 pub fn involute_outline_area(Array[(Double, Double)]) -> Double
 
 pub fn planetary_gear_set(PlanetaryParams, detail? : @common.DetailLevel, smooth? : Bool) -> Result[@assemblies.Assembly, @common.SpecError]
-
-pub fn smooth_outline_path(Array[(Double, Double)], clear? : Bool) -> @cad.BezierPath
 
 pub fn spur_gear(SpurGearParams, detail? : @common.DetailLevel, color? : @cad.Rgb, smooth? : Bool) -> Result[@common.Component, @common.SpecError]
 

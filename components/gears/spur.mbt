@@ -152,11 +152,15 @@ pub fn spur_gear(
   // The polyline outline is faceted; `smooth` turns it into one closed cubic
   // B-spline contour (and a Bezier bore) extruded as a single smooth solid.
   let body = if smooth {
-    let paths = [smooth_outline_path(outline)]
-    if params.bore_diameter_mm > 0.0 {
-      paths.push(bezier_circle_path(params.bore_diameter_mm, clear=true))
-    }
-    @cad.ExtrudedBezierProfile::new(paths, params.face_width_mm)
+    @cad.ExtrudedArcProfile::new(
+      arc_outline_runs(outline),
+      params.face_width_mm,
+      round_bore?=if params.bore_diameter_mm > 0.0 {
+        Some(((0.0, 0.0), params.bore_diameter_mm))
+      } else {
+        None
+      },
+    ).as_shape()
   } else if params.bore_diameter_mm > 0.0 {
     @cad.ExtrudedProfile::new(
       outline,

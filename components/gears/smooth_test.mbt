@@ -15,11 +15,12 @@ test "smooth spur gear is one arc extrusion" {
     Err(e) => abort(e.message())
   }
   let step = part.to_step()
-  assert_true(step.contains("B_SPLINE_CURVE_WITH_KNOTS("))
-  assert_true(step.contains("SURFACE_OF_LINEAR_EXTRUSION("))
+  assert_true(step.contains("CYLINDRICAL_SURFACE("))
+  assert_false(step.contains("B_SPLINE_CURVE_WITH_KNOTS("))
   let inventory = part.layers()[0].shape.surface_inventory()
+  // Two planar caps; the tooth runs and the bore are smooth cylinders.
   assert_eq(inventory.plane, 2)
-  assert_eq(inventory.swept, 2)
+  assert_true(inventory.cylinder >= 2)
 }
 
 ///|
@@ -29,11 +30,11 @@ test "smooth internal ring gear is one arc extrusion" {
     Err(e) => abort(e.message())
   }
   let step = part.to_step()
-  assert_true(step.contains("B_SPLINE_CURVE_WITH_KNOTS("))
-  assert_true(step.contains("SURFACE_OF_LINEAR_EXTRUSION("))
+  assert_true(step.contains("CYLINDRICAL_SURFACE("))
+  assert_false(step.contains("B_SPLINE_CURVE_WITH_KNOTS("))
   let inventory = part.layers()[0].shape.surface_inventory()
   assert_eq(inventory.plane, 2)
-  assert_eq(inventory.swept, 2)
+  assert_true(inventory.cylinder >= 3)
 }
 
 ///|
@@ -55,6 +56,6 @@ test "smooth planetary set uses smooth extrusions for every gear" {
   for item in set.items() {
     let inventory = item.component.layers()[0].shape.surface_inventory()
     assert_eq(inventory.plane, 2)
-    assert_true(inventory.swept >= 1)
+    assert_true(inventory.cylinder >= 2)
   }
 }

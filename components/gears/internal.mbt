@@ -427,13 +427,11 @@ pub fn internal_ring_gear_exact(
   }
   let outer = @cad.Profile2D::circle(2.0 * outer_radius, segments~)
   let body = if smooth {
-    @cad.ExtrudedBezierProfile::new(
-      [
-        bezier_circle_path(2.0 * outer_radius),
-        smooth_outline_path(bore, clear=true),
-      ],
+    @cad.ExtrudedArcProfile::new(
+      arc_circle_segments(2.0 * outer_radius),
       face_width_mm,
-    )
+      holes=[arc_outline_runs(bore)],
+    ).as_shape()
   } else {
     @cad.ExtrudedProfile::new(outer, face_width_mm, holes=[bore])
   }
