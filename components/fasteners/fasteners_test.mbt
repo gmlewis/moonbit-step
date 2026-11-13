@@ -1039,6 +1039,37 @@ test "DIN 557 M5 square nut matches the reference" {
 }
 
 ///|
+test "DIN 916 M3 x 8 cup-point set screw matches the reference" {
+  let screw = match
+    @fasteners.din916_cup_point_set_screw(
+      @standards.M3,
+      8.0,
+      orient_to_reference=true,
+    ) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  let (x0, x1, y0, y1, z0, z1) = screw.bounding_box()
+  assert_true(close(x0, -1.5))
+  assert_true(close(x1, 1.5))
+  assert_true(close(y0, -1.5))
+  assert_true(close(y1, 1.5))
+  assert_true(close(z0, 0.0))
+  assert_true(close(z1, 8.0))
+  let layers = screw.layers()
+  assert_true(layers.length() == 1)
+  let inv = layers[0].shape.surface_inventory()
+  assert_true(inv.plane == 10)
+  assert_true(inv.cylinder == 2)
+  let volume = match layers[0].shape.analysis_volume() {
+    Ok(v) => v
+    Err(_) => abort("set screw volume unavailable")
+  }
+  // The reference measures 51.0426 mm3.
+  assert_true((volume - 51.0426).abs() < 0.01)
+}
+
+///|
 test "DIN 1587 M4 cap nut reaches its standard height" {
   let nut = match @fasteners.din1587_acorn_nut(@standards.M4) {
     Ok(c) => c

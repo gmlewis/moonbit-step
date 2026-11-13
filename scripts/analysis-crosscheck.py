@@ -97,6 +97,12 @@ MATRIX = [
         "skip_extents": "the non-axisymmetric section's outer radius is a rounded corner, not half the section width",
     },
     {
+        "name": "DIN916-M3x8-detailed",
+        "args": ["--standard", "din916", "--size", "M3", "--length", "8",
+                 "--detail", "detailed"],
+        "sections": [1.0, 7.5],
+    },
+    {
         "name": "DIN557-M5-detailed",
         "args": ["--standard", "din557", "--size", "M5", "--detail", "detailed"],
         "sections": [1.5, 3.8],

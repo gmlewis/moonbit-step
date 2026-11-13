@@ -28,6 +28,8 @@ pub fn din7349_washer(@standards.MetricSize, detail? : @common.DetailLevel, colo
 
 pub fn din913(@standards.MetricSize, Double, detail? : @common.DetailLevel, threads? : @common.ThreadRepresentation, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
+pub fn din916_cup_point_set_screw(@standards.MetricSize, Double, detail? : @common.DetailLevel, orient_to_reference? : Bool, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
 pub fn din93_tab_washer(@standards.MetricSize, detail? : @common.DetailLevel, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
 pub fn din976(@standards.MetricSize, Double, detail? : @common.DetailLevel, threads? : @common.ThreadRepresentation) -> Result[@common.Component, @common.SpecError]

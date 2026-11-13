@@ -14,7 +14,7 @@ async fn main {
   let spec = {
     "standard": @cli.opt_string(
       short='s',
-      help="Standard: iso4762, iso4032, iso7089, iso7090, iso7091, iso7092, iso7093, iso2338, iso8752, din1587, din557, din125, din127, din440, din7349, din913, din93, iso4017, iso4014, iso7380, iso10642, din976",
+      help="Standard: iso4762, iso4032, iso7089, iso7090, iso7091, iso7092, iso7093, iso2338, iso8752, din1587, din557, din916, din125, din127, din440, din7349, din913, din93, iso4017, iso4014, iso7380, iso10642, din976",
     ),
     "size": @cli.opt_string(short='m', help="Metric size, e.g. M3, M4, M5"),
     "length": @cli.opt_double(
@@ -43,6 +43,9 @@ async fn main {
     ),
     "simple-reference": @cli.flag(
       help="ISO 4762: the simple reference representation (flat hex socket, rounded head-top edge, pitch-sized tip break)",
+    ),
+    "orient-to-reference": @cli.flag(
+      help="DIN 916: lay the screw with the socket end at z=0 and the point at z=+L (the reference axis convention)",
     ),
   }
   guard @cli.parse(
@@ -156,6 +159,13 @@ async fn main {
     "iso2338" => @fcomponents.iso2338_pin(size, length, detail~)
     "iso8752" => @fcomponents.iso8752_spring_pin(size, length, detail~)
     "din1587" => @fcomponents.din1587_acorn_nut(size, detail~)
+    "din916" =>
+      @fcomponents.din916_cup_point_set_screw(
+        size,
+        length,
+        detail~,
+        orient_to_reference=args.flag("orient-to-reference"),
+      )
     "din557" => @fcomponents.din557_square_nut(size, detail~)
     "din976" =>
       match threads {

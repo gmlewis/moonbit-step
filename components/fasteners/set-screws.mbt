@@ -106,3 +106,120 @@ pub fn din913(
     }
   }
 }
+
+///|
+/// Cup-point recess proportions. The reference family uses a cup diameter of
+/// 0.44 d and a cup depth of 0.25 d, reduced on short screws to 0.15 of the
+/// length so the cup does not meet the socket.
+const CUP_POINT_CUP_DIAMETER_RATIO : Double = 0.44
+
+///|
+const CUP_POINT_CUP_DEPTH_RATIO : Double = 0.25
+
+///|
+const CUP_POINT_CUP_DEPTH_LENGTH_RATIO : Double = 0.15
+
+///|
+/// Short screws reduce the nominal socket depth to 0.26 of the length (rounded
+/// to 0.1 mm in the reference family).
+const CUP_POINT_SOCKET_SHORT_FRACTION : Double = 0.26
+
+///|
+const CUP_POINT_ROUNDING_MM : Double = 0.1
+
+///|
+fn cup_point_round(value : Double) -> Double {
+  (value / CUP_POINT_ROUNDING_MM).round() * CUP_POINT_ROUNDING_MM
+}
+
+///|
+/// din916_cup_point_set_screw builds a DIN 916 hexagon socket set screw with a
+/// cup point.
+///
+/// The point end is at z = 0 and the socket end at z = L. The cup is a blind
+/// cylindrical recess in the point; the socket is a blind hexagonal pocket at
+/// the top. The body is one closed solid of revolution (cup floor, cup wall,
+/// point annulus, cylindrical shank, top cap replaced by the socket).
+pub fn din916_cup_point_set_screw(
+  size : @standards.MetricSize,
+  length_mm : Double,
+  detail~ : @common.DetailLevel = Simplified,
+  orient_to_reference~ : Bool = false,
+  color~ : @cad.Rgb = @cad.Rgb::grey(),
+) -> Result[@common.Component, @common.SpecError] {
+  let _ = detail
+  match @standards.din916_spec(size, length_mm) {
+    Err(e) => Err(e)
+    Ok(spec) => {
+      let dims = spec.size_dims
+      let d = dims.size.nominal_diameter_mm()
+      let r = d / 2.0
+      let cup_r = CUP_POINT_CUP_DIAMETER_RATIO * d / 2.0
+      let cup_by_diameter = CUP_POINT_CUP_DEPTH_RATIO * d
+      let cup_by_length = CUP_POINT_CUP_DEPTH_LENGTH_RATIO * spec.length_mm
+      let cup_depth = if cup_by_diameter < cup_by_length {
+        cup_by_diameter
+      } else {
+        cup_by_length
+      }
+      let short_socket = cup_point_round(
+        CUP_POINT_SOCKET_SHORT_FRACTION * spec.length_mm,
+      )
+      let socket_depth = if dims.socket_depth_mm < short_socket {
+        dims.socket_depth_mm
+      } else {
+        short_socket
+      }
+      let floor_z = spec.length_mm - socket_depth
+      if cup_depth <= 0.0 ||
+        cup_r <= 0.0 ||
+        cup_r >= r ||
+        socket_depth <= 0.0 ||
+        floor_z <= cup_depth {
+        return Err(
+          @common.SpecError::InvalidDimension(
+            "DIN 916 cup or socket does not fit the requested length",
+          ),
+        )
+      }
+      let body = @cad.RevolvedProfile::polyline([
+        (0.0, cup_depth),
+        (cup_r, cup_depth),
+        (cup_r, 0.0),
+        (r, 0.0),
+        (r, spec.length_mm),
+        (0.0, spec.length_mm),
+      ])
+      let socket = @cad.SocketedSolid::new(
+        body,
+        dims.socket_across_flats_mm,
+        floor_z,
+      )
+      let features = @common.FeatureRecord::new(
+        modeled=["body", "cup-point", "outer-cylinder", "hex-socket"],
+        approximated=[],
+        omitted=[
+          @common.Omission::new(
+            feature="thread",
+            reason="plain envelope; the ISO 68-1 thread form is not modeled",
+          ),
+          @common.Omission::new(
+            feature="socket-lead-in",
+            reason="DIN 916 does not specify a socket lead-in; the sharp socket edge is modeled",
+          ),
+        ],
+      )
+      let component = @common.Component::new(
+        name="DIN916-\{dims.size.designation()}x\{format_length(spec.length_mm)}",
+        metadata=spec.metadata(),
+        description="Hexagon socket set screw with a cup point: one closed solid with a cylindrical shank, a blind cylindrical cup recess in the point, and a blind hexagonal socket in the top face.",
+        features~,
+      ).add_layer(socket.as_shape(), name="body", color~)
+      if orient_to_reference {
+        Ok(component.rotate_x(180.0).translate(z=spec.length_mm))
+      } else {
+        Ok(component)
+      }
+    }
+  }
+}

@@ -177,6 +177,13 @@ fn build_fastener(args : Array[String], standard : String) -> Built {
     "iso8752" => @fcomponents.iso8752_spring_pin(size, length, detail~)
     "din1587" => @fcomponents.din1587_acorn_nut(size, detail~)
     "din557" => @fcomponents.din557_square_nut(size, detail~)
+    "din916" =>
+      @fcomponents.din916_cup_point_set_screw(
+        size,
+        length,
+        detail~,
+        orient_to_reference=has_flag(args, "orient-to-reference"),
+      )
     "iso7380" =>
       match threads {
         Some(t) => @fcomponents.iso7380_screw(size, length, detail~, threads=t)

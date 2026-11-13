@@ -265,6 +265,10 @@ def infer(name, detail):
     m = re.match(r"^iso_metric_square_nut_m(\d+(?:p\d+)?)_simple\.step$", name)
     if m:
         return fastener("din557", m.group(1), None, detail)
+    m = re.match(r"^set_screw_m(\d+(?:p\d+)?)_l(\d+)_cup_point_simple\.step$", name)
+    if m:
+        tool, gen_args = fastener("din916", m.group(1), m.group(2), detail)
+        return (tool, gen_args + ["--orient-to-reference"])
     m = re.match(r"^profile_2020_b_slot6_a_l(\d+)\.step$", name)
     if m:
         return (

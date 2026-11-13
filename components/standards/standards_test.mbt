@@ -47,6 +47,26 @@ fn unwrap7089_size(s : @standards.MetricSize) -> @standards.ISO7089Size {
 }
 
 ///|
+test "DIN 916 cup-point set screw table" {
+  let m3 = match @standards.din916_size(@standards.M3) {
+    Ok(v) => v
+    Err(e) => abort(e.message())
+  }
+  assert_true(close(m3.socket_across_flats_mm, 1.65))
+  assert_true(close(m3.socket_depth_mm, 1.9))
+  assert_true(close(m3.cup_diameter_mm, 1.32))
+  match @standards.din916_size(@standards.M2) {
+    Ok(_) => abort("M2 must not be a DIN 916 size")
+    Err(_) => ()
+  }
+  let spec = match @standards.din916_spec(@standards.M4, 10.0) {
+    Ok(v) => v
+    Err(e) => abort(e.message())
+  }
+  assert_true(spec.designation() == "DIN 916 - M4 x 10")
+}
+
+///|
 test "DIN 557 square nut table" {
   let m5 = match @standards.din557_size(@standards.M5) {
     Ok(v) => v
