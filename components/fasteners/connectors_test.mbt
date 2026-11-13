@@ -235,6 +235,7 @@ test "every public fastener builder family exposes a connector" {
     // Pins.
     (ok_fastener(@fasteners.iso2338_pin(m3, 20.0)), "shaft-a"),
     (ok_fastener(@fasteners.iso8752_spring_pin(m3, 20.0)), "shaft-a"),
+    (ok_fastener(@fasteners.solid_rivet(3.0, 10.0)), "shank"),
     // Inserts and extrusion hardware.
     (ok_fastener(@fasteners.heat_set_insert_m3("short")), "thread"),
     (

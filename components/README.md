@@ -70,6 +70,36 @@ moon run components/examples/stock_primitive -- \
 moon run components/examples/idler -- \
   --outer 20 --bore 8 --width 10 --flangeDiameter 24 --flangeThickness 1.5 -o idler.step
 
+# EMT end cap and split clamp
+moon run components/examples/tubing -- --part endcap --trade 1/2 -o endcap.step
+moon run components/examples/tubing -- --part clamp --trade 1/2 -o clamp.step
+
+# Countersunk plate and tube-to-V-Slot bracket
+moon run components/examples/stock_primitive -- \
+  --part countersink --width 50 --height 40 --plateThickness 8 \
+  --holeSpacing 24 --through 5.5 --countersinkDiameter 9 \
+  --countersinkDepth 2 -o countersink.step
+moon run components/examples/stock_primitive -- \
+  --part tube-bracket --tubeOD 17.9324 --tubeClearance 0.5 \
+  --width 60 --height 40 -o tube-bracket.step
+
+# P1000-style strut channel and channel nut
+moon run components/examples/profile_extrusion -- \
+  --profile channel-p1000 --length 1000 -o strut.step
+moon run components/examples/profile_extrusion -- \
+  --profile channel-nut --thread 5 -o channel-nut.step
+
+# Rigid coupling and flanged bearing housing
+moon run components/examples/motion_stack -- \
+  --part coupling --couplingBore 8 --couplingOuter 16 \
+  --couplingLength 20 -o coupling.step
+moon run components/examples/motion_stack -- \
+  --part flange-housing --housingBearingOD 22 \
+  --housingBearingWidth 7 -o housing.step
+
+# Generic solid rivet
+moon run components/examples/rivet -- --shank 3 --length 10 -o rivet.step
+
 # Built-in M3/M4/M5 fastener catalogue
 mkdir -p components/examples/output
 moon run components/examples/fasteners -- --catalog components/examples/output
@@ -94,7 +124,25 @@ ratings are not modelled.
 
 EMT tubes use the measured ANSI C80.3 / UL 797 outside diameter and nominal
 wall (a 1/2 in EMT is 17.9324 mm OD, not 12.7 mm). No coupling, thread, bend, or
-electrical/structural rating is claimed.
+electrical/structural rating is claimed. The EMT end cap is a spigot closure
+sized from the tube OD/ID, and the split clamp is a generic one-bolt collar
+whose ring is a slit tube and whose ears are separate prisms embedded into the
+slit edges.
+
+P1000-style strut channel uses the published 41.3 mm envelope, 2.6 mm (12
+gauge) wall, 22.2 mm front opening, and 14.3 mm back-wall holes on 47.6 mm
+centres. It is manufacturer-style geometry, not a universal standard; the
+brand's serrated lip teeth, end treatment, and load rating are not modelled.
+The channel nut is a generic block sized to enter the opening and bear on the
+lips, not a vendor spring nut.
+
+A conical countersink is not a prismatic cut. `plate_with_countersinks` builds
+each seat as an exact annular wedge of revolution layered between a stepped
+through-hole layer and a countersink-diameter layer, so the seat is a real
+`CONICAL_SURFACE` and the layer volumes sum exactly. The layered split clamp and
+the layered channel have the same property; where a layer deliberately embeds
+into another (the clamp ears), the documentation states the embed and the union
+is a nominal rather than a boolean result.
 
 ## Named connectors and the golden preview
 
@@ -128,11 +176,11 @@ use `--headless`.
 |---|---|
 | `common` | Units-aware validation, detail levels, thread representation, metadata, placement, `Component`, `MateConnector`, and `MatePair`. |
 | `standards` | Metric thread data and ISO/DIN dimension tables (ISO 4032/4035/4762/7089/709x/7380/8752/10642, DIN 557/913/916/976/1587, …). |
-| `fasteners` | Screws, bolts, nuts, washers, pins, rods, and set screws. |
-| `profiles` | Generic T-slot sections, the vendor 2020 B-slot6 A section, OpenBuilds-compatible V-Slot 2020/2040 sections, and a gusseted V-Slot corner bracket. |
-| `motion` | Shafts, stepped/keyed shafts, spacers and V-Slot wheel spacers (plain and eccentric), bushings, shaft collars, keys, dowel pins, standoffs, compression springs, ball bearings, LM-series linear bushings, flanged linear housings, approximated GT2 timing pulleys, smooth idlers, V-Slot wheels, and EMT tubing. |
+| `fasteners` | Screws, bolts, nuts, washers, pins, rods, set screws, and generic solid rivets. |
+| `profiles` | Generic T-slot sections, the vendor 2020 B-slot6 A section, OpenBuilds-compatible V-Slot 2020/2040 sections, a gusseted V-Slot corner bracket, P1000-style strut channel, and a generic channel nut. |
+| `motion` | Shafts, stepped/keyed shafts, spacers and V-Slot wheel spacers (plain and eccentric), bushings, shaft collars, keys, dowel pins, standoffs, compression springs, ball bearings, LM-series linear bushings, flanged linear housings, approximated GT2 timing pulleys, smooth idlers, V-Slot wheels, EMT tubing with end caps and split clamps, rigid couplings, and flanged bearing housings. |
 | `motors` | NEMA 17 and NEMA 23 stepper-motor envelopes, mounting interfaces, and NEMA mounting plates. |
-| `stock` | EN 10056 angle sections, configurable flat plate blanks with analytic circular holes and obround slots, counterbored plates, bearing-housing plates, and tube-to-plate adapter plates. |
+| `stock` | EN 10056 angle sections, configurable flat plate blanks with analytic circular holes and obround slots, counterbored and countersunk plates, bearing-housing plates, and tube-to-plate and tube-to-V-Slot adapter brackets. |
 | `gears` | Involute spur gears, external pairs, and exact-internal-involute planetary sets. |
 | `assemblies` | Rigid placements, linear/circular patterns, hardware kits, extrusion frames, bolted joints, collision/contact reports, connectivity checks. |
 | `collision` | Kernel-free AABB/OBB collision and contact classification. |

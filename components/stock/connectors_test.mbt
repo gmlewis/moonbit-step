@@ -101,6 +101,28 @@ test "every public stock builder family exposes a connector" {
       ok_stock(@stock.bearing_plate(22.0, 0.1, 50.0, 40.0, 6.0, 5.5, 30.0)),
       "bearing-seat",
     ),
+    (
+      ok_stock(
+        @stock.plate_with_countersinks(50.0, 40.0, 8.0, holes=[
+          @stock.CountersunkHole::{
+            x_mm: 0.0,
+            y_mm: 0.0,
+            through_diameter_mm: 5.5,
+            countersink_diameter_mm: 9.0,
+            countersink_depth_mm: 2.0,
+          },
+        ]),
+      ),
+      "countersink-1",
+    ),
+    (
+      ok_stock(
+        @stock.tube_to_vslot_bracket(
+          17.9324, 0.5, 60.0, 40.0, 5.0, 40.0, 10.0, 5.5,
+        ),
+      ),
+      "tube-bore",
+    ),
   ]
   for entry in builders {
     let (part, expected) = entry

@@ -6,6 +6,10 @@
 /// ```bash
 /// moon run components/examples/motion_stack -- \
 ///   --bearing 608 --shaftDiameter 8 --shaftLength 40 -o motion.step
+/// moon run components/examples/motion_stack -- \
+///   --part coupling --couplingBore 8 --couplingOuter 16 --couplingLength 20 -o coupling.step
+/// moon run components/examples/motion_stack -- \
+///   --part flange-housing --housingBearingOD 22 --housingBearingWidth 7 -o housing.step
 /// ```
 ///
 /// The bearings are simplified envelopes: rings plus cylindrical roller
@@ -44,15 +48,110 @@ async fn main {
       short='D',
       help="Bearing detail: simplified (default), detailed, full",
     ),
+    "part": @cli.opt_string(
+      short='P',
+      help="Part: stack (default), coupling, or flange-housing",
+    ),
+    "couplingBore": @cli.opt_double(
+      8.0,
+      help="Rigid coupling bore in mm",
+      min=0.0,
+    ),
+    "couplingOuter": @cli.opt_double(
+      16.0,
+      help="Rigid coupling outside diameter in mm",
+      min=0.0,
+    ),
+    "couplingLength": @cli.opt_double(
+      20.0,
+      help="Rigid coupling length in mm",
+      min=0.0,
+    ),
+    "housingBearingOD": @cli.opt_double(
+      22.0,
+      help="Flanged housing bearing outside diameter in mm",
+      min=0.0,
+    ),
+    "housingBearingWidth": @cli.opt_double(
+      7.0,
+      help="Flanged housing bearing width in mm",
+      min=0.0,
+    ),
+    "housingFit": @cli.opt_double(
+      0.0,
+      help="Flanged housing seat fit allowance in mm (positive clearance, negative press)",
+    ),
+    "housingWall": @cli.opt_double(
+      3.0,
+      help="Flanged housing sleeve wall in mm",
+      min=0.0,
+    ),
+    "housingFlange": @cli.opt_double(
+      0.0,
+      help="Flanged housing flange diameter in mm (0 = derived)",
+      min=0.0,
+    ),
+    "housingBoltCircle": @cli.opt_double(
+      0.0,
+      help="Flanged housing bolt circle diameter in mm (0 = derived)",
+      min=0.0,
+    ),
+    "housingBoltHole": @cli.opt_double(
+      5.5,
+      help="Flanged housing bolt hole diameter in mm",
+      min=0.0,
+    ),
+    "housingBolts": @cli.opt_int(4, help="Flanged housing bolt-hole count"),
     "out": @cli.opt_string(short='o', help="Write STEP to this path"),
     "bbox": @cli.flag(help="Print the assembly bounding box to stderr"),
   }
   guard @cli.parse(
       spec,
       prog="components/examples/motion_stack",
-      description="Generate a shaft, bearing, and spacer assembly.",
+      description="Generate a shaft/bearing/spacer stack, a rigid coupling, or a flanged bearing housing.",
     )
     is Some(args) else {
+    return
+  }
+  let part_kind = args.string_opt("part").unwrap_or("stack")
+  if part_kind == "coupling" || part_kind == "flange-housing" {
+    let component = if part_kind == "coupling" {
+      match
+        @motion.rigid_coupling(
+          args.double("couplingBore"),
+          args.double("couplingOuter"),
+          args.double("couplingLength"),
+        ) {
+        Ok(c) => c
+        Err(e) => {
+          @cli.eprintln("error: " + e.message())
+          abort("")
+        }
+      }
+    } else {
+      match
+        @motion.flanged_bearing_housing(
+          args.double("housingBearingOD"),
+          args.double("housingBearingWidth"),
+          wall_mm=args.double("housingWall"),
+          fit_mm=args.double("housingFit"),
+          flange_diameter_mm=args.double("housingFlange"),
+          bolt_circle_diameter_mm=args.double("housingBoltCircle"),
+          bolt_hole_diameter_mm=args.double("housingBoltHole"),
+          bolt_count=args.int("housingBolts"),
+        ) {
+        Ok(c) => c
+        Err(e) => {
+          @cli.eprintln("error: " + e.message())
+          abort("")
+        }
+      }
+    }
+    if args.flag("bbox") {
+      let (x0, x1, y0, y1, z0, z1) = component.bounding_box()
+      @cli.eprintln("bbox: x=[\{x0}, \{x1}] y=[\{y0}, \{y1}] z=[\{z0}, \{z1}]")
+    }
+    component.write_step(args.string_opt("out"), checked=true)
     return
   }
   let bearing_name = args.string_opt("bearing").unwrap_or("608")

@@ -66,6 +66,20 @@ test "every public profile builder family exposes a connector" {
       },
       "base-face",
     ),
+    (
+      match @profiles.strut_channel(@profiles.ChannelSection::p1000(), 100.0) {
+        Ok(c) => c
+        Err(e) => abort(e.message())
+      },
+      "slot-open",
+    ),
+    (
+      match @profiles.channel_nut(@profiles.ChannelSection::p1000(), 5.0) {
+        Ok(c) => c
+        Err(e) => abort(e.message())
+      },
+      "thread",
+    ),
   ]
   for entry in builders {
     let (part, expected) = entry

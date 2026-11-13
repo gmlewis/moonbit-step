@@ -9,7 +9,11 @@ import {
 // Values
 pub fn b_slot6_2020_extrusion(Double, detail? : @common.DetailLevel, orient_to_reference? : Bool, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
+pub fn channel_nut(ChannelSection, Double, nut_length_mm? : Double, nut_width_mm? : Double, nut_thickness_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
 pub fn extrusion(TSlotProfile, Double, detail? : @common.DetailLevel) -> Result[@common.Component, @common.SpecError]
+
+pub fn strut_channel(ChannelSection, Double, punched? : Bool, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
 pub fn vslot_corner_bracket(leg_mm? : Double, width_mm? : Double, thickness_mm? : Double, gusset_thickness_mm? : Double, slot_width_mm? : Double, slot_length_mm? : Double, slot_shift_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
@@ -18,6 +22,23 @@ pub fn vslot_extrusion(VSlotProfile, Double, detail? : @common.DetailLevel, colo
 // Errors
 
 // Types and methods
+pub(all) struct ChannelSection {
+  name : String
+  width_mm : Double
+  height_mm : Double
+  thickness_mm : Double
+  slot_width_mm : Double
+  hole_diameter_mm : Double
+  hole_pitch_mm : Double
+  hole_start_mm : Double
+}
+pub fn ChannelSection::cavity_height(Self) -> Double
+pub fn ChannelSection::custom(name~ : String, width_mm~ : Double, height_mm~ : Double, thickness_mm~ : Double, slot_width_mm~ : Double, hole_diameter_mm~ : Double, hole_pitch_mm~ : Double, hole_start_mm~ : Double) -> Result[Self, @common.SpecError]
+pub fn ChannelSection::designation(Self) -> String
+pub fn ChannelSection::hole_positions(Self, Double) -> Array[Double]
+pub fn ChannelSection::material_area(Self) -> Double
+pub fn ChannelSection::p1000() -> Self
+
 pub(all) struct TSlotProfile {
   name : String
   width_mm : Double

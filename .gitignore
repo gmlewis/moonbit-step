@@ -8,6 +8,8 @@ target
 /bpy-out
 __pycache__
 *.blend*
+*.step
+*.stp
 /*.md
 /.github/*.md
 /.github/skills/**

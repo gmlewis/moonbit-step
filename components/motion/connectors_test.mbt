@@ -183,6 +183,20 @@ test "every public motion builder family exposes a connector" {
     (ok_motion(@motion.vslot_spacer()), "bore"),
     (ok_motion(@motion.vslot_eccentric_spacer()), "bore"),
     (ok_motion(@motion.smooth_idler(20.0, 8.0, 10.0)), "bore"),
+    (
+      ok_motion(
+        @motion.emt_end_cap(ok_motion_spec(@motion.emt_size("1/2")), 3.0, 15.0),
+      ),
+      "plug",
+    ),
+    (
+      ok_motion(
+        @motion.emt_split_clamp(ok_motion_spec(@motion.emt_size("1/2")), 20.0),
+      ),
+      "bolt-hole",
+    ),
+    (ok_motion(@motion.rigid_coupling(8.0, 16.0, 20.0)), "bore-a"),
+    (ok_motion(@motion.flanged_bearing_housing(22.0, 7.0)), "bearing-seat"),
   ]
   for entry in builders {
     let (part, expected) = entry

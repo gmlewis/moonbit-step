@@ -14,12 +14,17 @@
 /// moon run components/examples/stock_primitive -- \
 ///   --part bearing --width 50 --height 40 --plateThickness 6 \
 ///   --bearingOD 22 --fit 0.1 --boltDiameter 5.5 --holeSpacing 30 -o bearing.step
+/// moon run components/examples/stock_primitive -- \
+///   --part countersink --width 50 --height 40 --plateThickness 8 \
+///   --holeSpacing 24 --through 5.5 --countersinkDiameter 9 --countersinkDepth 2 -o cs.step
+/// moon run components/examples/stock_primitive -- \
+///   --part tube-bracket --tubeOD 17.9324 --tubeClearance 0.5 --width 60 --height 40 -o bracket.step
 /// ```
 async fn main {
   let spec = {
     "part": @cli.opt_string(
       short='p',
-      help="Part: angle (default), plate, counterbore, or bearing",
+      help="Part: angle (default), plate, counterbore, countersink, tube-bracket, or bearing",
     ),
     "legA": @cli.opt_double(40.0, help="Angle leg A in mm", min=0.0),
     "legB": @cli.opt_double(40.0, help="Angle leg B in mm", min=0.0),
@@ -58,6 +63,41 @@ async fn main {
       help="Counterbored-plate counterbore depth in mm",
       min=0.0,
     ),
+    "countersinkDiameter": @cli.opt_double(
+      9.0,
+      help="Countersunk-plate seat diameter in mm",
+      min=0.0,
+    ),
+    "countersinkDepth": @cli.opt_double(
+      2.0,
+      help="Countersunk-plate seat depth in mm",
+      min=0.0,
+    ),
+    "tubeOD": @cli.opt_double(
+      17.9324,
+      help="Tube-to-V-Slot bracket tube outside diameter in mm",
+      min=0.0,
+    ),
+    "tubeClearance": @cli.opt_double(
+      0.5,
+      help="Tube-to-V-Slot bracket bore clearance in mm",
+      min=0.0,
+    ),
+    "slotPitch": @cli.opt_double(
+      40.0,
+      help="Tube-to-V-Slot bracket slot pitch in mm",
+      min=0.0,
+    ),
+    "slotLength": @cli.opt_double(
+      10.0,
+      help="Tube-to-V-Slot bracket slot length in mm",
+      min=0.0,
+    ),
+    "slotWidth": @cli.opt_double(
+      5.5,
+      help="Tube-to-V-Slot bracket slot width in mm",
+      min=0.0,
+    ),
     "bearingOD": @cli.opt_double(
       22.0,
       help="Bearing outside diameter for the bearing plate in mm",
@@ -85,6 +125,56 @@ async fn main {
   }
   let part_kind = args.string_opt("part").unwrap_or("angle")
   let component = match part_kind {
+    "countersink" => {
+      let spacing = args.double("holeSpacing")
+      let holes : Array[@stock.CountersunkHole] = [
+        @stock.CountersunkHole::{
+          x_mm: -spacing / 2.0,
+          y_mm: 0.0,
+          through_diameter_mm: args.double("through"),
+          countersink_diameter_mm: args.double("countersinkDiameter"),
+          countersink_depth_mm: args.double("countersinkDepth"),
+        },
+        @stock.CountersunkHole::{
+          x_mm: spacing / 2.0,
+          y_mm: 0.0,
+          through_diameter_mm: args.double("through"),
+          countersink_diameter_mm: args.double("countersinkDiameter"),
+          countersink_depth_mm: args.double("countersinkDepth"),
+        },
+      ]
+      match
+        @stock.plate_with_countersinks(
+          args.double("width"),
+          args.double("height"),
+          args.double("plateThickness"),
+          holes~,
+        ) {
+        Ok(c) => c
+        Err(e) => {
+          @cli.eprintln("error: " + e.message())
+          abort("")
+        }
+      }
+    }
+    "tube-bracket" =>
+      match
+        @stock.tube_to_vslot_bracket(
+          args.double("tubeOD"),
+          args.double("tubeClearance"),
+          args.double("width"),
+          args.double("height"),
+          args.double("plateThickness"),
+          args.double("slotPitch"),
+          args.double("slotLength"),
+          args.double("slotWidth"),
+        ) {
+        Ok(c) => c
+        Err(e) => {
+          @cli.eprintln("error: " + e.message())
+          abort("")
+        }
+      }
     "bearing" =>
       match
         @stock.bearing_plate(

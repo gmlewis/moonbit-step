@@ -7,12 +7,14 @@
 /// moon run components/examples/tubing -- --part emt --trade 1/2 --length 304.8 -o emt.step
 /// moon run components/examples/tubing -- --part collar --bore 8 --outer 16 --width 8 -o collar.step
 /// moon run components/examples/tubing -- --part adapter --tubeOD 17.9324 --clearance 0.5 -o adapter.step
+/// moon run components/examples/tubing -- --part endcap --trade 1/2 -o endcap.step
+/// moon run components/examples/tubing -- --part clamp --trade 1/2 -o clamp.step
 /// ```
 async fn main {
   let spec = {
     "part": @cli.opt_string(
       short='p',
-      help="Part: emt (default), collar, adapter",
+      help="Part: emt (default), collar, adapter, endcap, clamp",
     ),
     "trade": @cli.opt_string(
       help="EMT trade size: 1/2 (default), 3/4, 1, 1-1/4, 1-1/2, 2",
@@ -64,19 +66,119 @@ async fn main {
       help="Adapter bolt spacing in mm",
       min=0.0,
     ),
+    "capThickness": @cli.opt_double(
+      3.0,
+      help="End cap disc thickness in mm",
+      min=0.0,
+    ),
+    "plugLength": @cli.opt_double(
+      15.0,
+      help="End cap plug length in mm",
+      min=0.0,
+    ),
+    "plugClearance": @cli.opt_double(
+      0.25,
+      help="End cap plug clearance in mm",
+      min=0.0,
+    ),
+    "clampLength": @cli.opt_double(
+      20.0,
+      help="Split clamp length in mm",
+      min=0.0,
+    ),
+    "clampWall": @cli.opt_double(
+      3.0,
+      help="Split clamp ring wall in mm",
+      min=0.0,
+    ),
+    "clampClearance": @cli.opt_double(
+      0.5,
+      help="Split clamp bore clearance in mm",
+      min=0.0,
+    ),
+    "clampGap": @cli.opt_double(
+      2.0,
+      help="Split clamp closure gap in mm",
+      min=0.0,
+    ),
+    "boltDiameter": @cli.opt_double(
+      5.5,
+      help="Split clamp cross-bolt diameter in mm",
+      min=0.0,
+    ),
+    "clampEarLength": @cli.opt_double(
+      8.0,
+      help="Split clamp ear length in mm",
+      min=0.0,
+    ),
+    "clampEarHeight": @cli.opt_double(
+      6.0,
+      help="Split clamp ear height in mm",
+      min=0.0,
+    ),
     "out": @cli.opt_string(short='o', help="Write STEP to this path"),
     "bbox": @cli.flag(help="Print the bounding box to stderr"),
   }
   guard @cli.parse(
       spec,
       prog="components/examples/tubing",
-      description="Generate EMT tube, shaft collar, and tube mount plate primitives.",
+      description="Generate EMT tube, shaft collar, tube mount plate, end cap, and split clamp primitives.",
     )
     is Some(args) else {
     return
   }
   let part_kind = args.string_opt("part").unwrap_or("emt")
   let component = match part_kind {
+    "endcap" => {
+      let trade = args.string_opt("trade").unwrap_or("1/2")
+      let size = match @motion.emt_size(trade) {
+        Ok(s) => s
+        Err(e) => {
+          @cli.eprintln("error: " + e.message())
+          abort("")
+        }
+      }
+      match
+        @motion.emt_end_cap(
+          size,
+          args.double("capThickness"),
+          args.double("plugLength"),
+          plug_clearance_mm=args.double("plugClearance"),
+        ) {
+        Ok(c) => c
+        Err(e) => {
+          @cli.eprintln("error: " + e.message())
+          abort("")
+        }
+      }
+    }
+    "clamp" => {
+      let trade = args.string_opt("trade").unwrap_or("1/2")
+      let size = match @motion.emt_size(trade) {
+        Ok(s) => s
+        Err(e) => {
+          @cli.eprintln("error: " + e.message())
+          abort("")
+        }
+      }
+      match
+        @motion.emt_split_clamp(
+          size,
+          args.double("clampLength"),
+          wall_mm=args.double("clampWall"),
+          clearance_mm=args.double("clampClearance"),
+          gap_mm=args.double("clampGap"),
+          bolt_diameter_mm=args.double("boltDiameter"),
+          ear_length_mm=args.double("clampEarLength"),
+          ear_height_mm=args.double("clampEarHeight"),
+        ) {
+        Ok(c) => c
+        Err(e) => {
+          @cli.eprintln("error: " + e.message())
+          abort("")
+        }
+      }
+    }
     "collar" =>
       match
         @motion.shaft_collar(

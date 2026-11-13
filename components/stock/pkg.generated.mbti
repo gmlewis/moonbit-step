@@ -19,7 +19,11 @@ pub fn plate(Double, Double, Double, holes? : Array[PlateHole], slots? : Array[P
 
 pub fn plate_with_counterbores(Double, Double, Double, holes~ : Array[CounterboredHole], color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
+pub fn plate_with_countersinks(Double, Double, Double, holes~ : Array[CountersunkHole], color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
 pub fn tube_mount_plate(Double, Double, Double, Double, Double, Double, Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn tube_to_vslot_bracket(Double, Double, Double, Double, Double, Double, Double, Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
 pub fn vslot_joining_plate(Double, Double, Double, Double, Double, Double) -> Result[@common.Component, @common.SpecError]
 
@@ -40,6 +44,14 @@ pub(all) struct CounterboredHole {
   through_diameter_mm : Double
   counterbore_diameter_mm : Double
   counterbore_depth_mm : Double
+}
+
+pub(all) struct CountersunkHole {
+  x_mm : Double
+  y_mm : Double
+  through_diameter_mm : Double
+  countersink_diameter_mm : Double
+  countersink_depth_mm : Double
 }
 
 pub(all) struct PlateHole {

@@ -128,6 +128,8 @@ pub fn socket_lead_in_hole(Double, Double) -> Array[(Double, Double)]
 
 pub fn socket_lead_in_hole_levels(Double, Double, Double) -> Array[(Double, Double)]
 
+pub fn solid_rivet(Double, Double, head_diameter_mm? : Double, head_height_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
 pub fn thread_note(@common.ThreadRepresentation) -> String
 
 pub fn tip_chamfered_cylinder(Double, Double, Double, segments? : Int32) -> @cad.Shape

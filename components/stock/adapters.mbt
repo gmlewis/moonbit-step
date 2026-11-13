@@ -145,6 +145,125 @@ pub fn tube_mount_plate(
 }
 
 ///|
+/// tube_to_vslot_bracket builds an adapter bracket that carries a round tube
+/// through its centre and has two obround slots for V-Slot 20-series T-nuts.
+///
+/// This is the tube-to-extrusion interface primitive: the central bore is the
+/// tube pass-through (tube OD plus a declared clearance) and the two obround
+/// slots take M5 T-nuts in a V-Slot rail. It is a flat plate, not a clamp; it
+/// does not model a split, a saddle, a T-nut, or a thread, and it makes no
+/// claim about joint strength.
+///
+/// Frame: the plate is centred on the XY origin with faces at
+/// `z = +/- thickness/2`; the tube axis is +Z, and the two slots lie on the X
+/// axis at `+/- slot_pitch/2` with their long axis along X.
+pub fn tube_to_vslot_bracket(
+  tube_outside_diameter_mm : Double,
+  clearance_mm : Double,
+  width_mm : Double,
+  height_mm : Double,
+  thickness_mm : Double,
+  slot_pitch_mm : Double,
+  slot_length_mm : Double,
+  slot_width_mm : Double,
+  color~ : @cad.Rgb = @cad.Rgb::grey(),
+) -> Result[@common.Component, @common.SpecError] {
+  let checks : Array[Result[Unit, @common.SpecError]] = [
+    @common.require_positive(
+      "bracket tube outside diameter", tube_outside_diameter_mm,
+    ),
+    @common.require_non_negative("bracket tube clearance", clearance_mm),
+    @common.require_positive("bracket width", width_mm),
+    @common.require_positive("bracket height", height_mm),
+    @common.require_positive("bracket thickness", thickness_mm),
+    @common.require_positive("bracket slot pitch", slot_pitch_mm),
+    @common.require_positive("bracket slot length", slot_length_mm),
+    @common.require_positive("bracket slot width", slot_width_mm),
+  ]
+  for check in checks {
+    match check {
+      Err(e) => return Err(e)
+      Ok(_) => ()
+    }
+  }
+  let tube_bore = tube_outside_diameter_mm + clearance_mm
+  let holes : Array[PlateHole] = [
+    { x_mm: 0.0, y_mm: 0.0, diameter_mm: tube_bore, },
+  ]
+  let slots : Array[PlateSlot] = [
+    {
+      x_mm: -slot_pitch_mm / 2.0,
+      y_mm: 0.0,
+      length_mm: slot_length_mm,
+      width_mm: slot_width_mm,
+    },
+    {
+      x_mm: slot_pitch_mm / 2.0,
+      y_mm: 0.0,
+      length_mm: slot_length_mm,
+      width_mm: slot_width_mm,
+    },
+  ]
+  let base = match
+    plate_impl(width_mm, height_mm, thickness_mm, holes, slots, color) {
+    Err(e) => return Err(e)
+    Ok(c) => c
+  }
+  let component = with_plate_connectors(
+      base,
+      width_mm,
+      height_mm,
+      thickness_mm,
+      [],
+      slots,
+    )
+    .with_connector_unchecked(
+      @common.MateConnector::new(
+        "tube-bore",
+        placement=@common.Placement::translation(0.0, 0.0, -thickness_mm / 2.0),
+        axis=(0.0, 0.0, 1.0),
+        kind=@common.MateKind::CylindricalBore,
+        gender=@common.MateGender::Female,
+        diameter_mm=tube_bore,
+        depth_mm=thickness_mm,
+        description="tube pass-through bore; clearance = \{@cad.fmt_double(clearance_mm, None)} mm",
+      ),
+    )
+    .with_name(
+      "tube-vslot-bracket-\{@cad.fmt_double(tube_outside_diameter_mm, None)}",
+    )
+    .with_metadata(
+      @common.Metadata::new(
+        designation="Tube-to-V-Slot bracket \{@cad.fmt_double(tube_bore, None)} bore",
+        standard="Generic V-Slot 20-series bracket (not a vendor part)",
+        family="tube-to-extrusion adapter",
+        size="tube \{@cad.fmt_double(tube_outside_diameter_mm, None)}",
+        source="Parametric flat bracket: tube bore = tube OD + declared clearance; two obround M5-clearance slots at the caller's pitch. No T-nut, clamp split, thread, or strength claim.",
+      ),
+    )
+    .with_description(
+      "Flat tube-to-V-Slot bracket with a central tube pass-through bore and two obround T-nut slots. No clamp split, thread, T-nut, or strength claim.",
+    )
+    .with_features(
+      @common.FeatureRecord::new(
+        modeled=["body", "tube-through-bore", "t-nut-slots", "mounting-faces"],
+        approximated=[],
+        omitted=[
+          @common.Omission::new(
+            feature="t-nut-and-clamp",
+            reason="the bracket takes separate V-Slot T-nuts; it is not a clamp and no T-nut is modelled",
+          ),
+          @common.Omission::new(
+            feature="joint-strength",
+            reason="geometry alone does not establish the strength of a bolted or printed joint",
+          ),
+        ],
+      ),
+    )
+  Ok(component)
+}
+
+///|
 /// vslot_joining_plate builds a generic 20-series V-Slot joining plate: a flat
 /// plate with two obround slots, one per joined extrusion end.
 ///
