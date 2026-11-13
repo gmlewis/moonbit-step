@@ -8,19 +8,27 @@ import {
 // Values
 pub fn bearing_catalog() -> Array[CatalogEntry]
 
+pub fn extrusion_hardware_catalog() -> Array[CatalogEntry]
+
 pub fn fastener_catalog() -> Array[CatalogEntry]
 
 pub fn full_catalog() -> Array[CatalogEntry]
 
 pub fn gear_catalog() -> Array[CatalogEntry]
 
+pub fn linear_bearing_catalog() -> Array[CatalogEntry]
+
 pub fn lookup(Array[CatalogEntry], String) -> Result[CatalogEntry, CatalogError]
 
 pub fn motion_catalog() -> Array[CatalogEntry]
 
+pub fn motor_catalog() -> Array[CatalogEntry]
+
 pub fn profile_catalog() -> Array[CatalogEntry]
 
 pub fn query(Array[CatalogEntry], family? : String, standard? : String, size? : String) -> Array[CatalogEntry]
+
+pub fn stock_catalog() -> Array[CatalogEntry]
 
 // Errors
 

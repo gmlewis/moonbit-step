@@ -100,6 +100,24 @@ moon run components/examples/keyed_shaft -- \
 moon run components/examples/gear_pair -- \
   --module 2 --teeth 40 --faceWidth 16 --bore 10 --single \
   -o "$OUT/gear-m2-z40-bore10.step"
+# Session 12: construction hardware, motion, and stock primitives.
+moon run components/examples/stepper_motor -- \
+  --frame NEMA17 --bodyLength 40 -o "$OUT/nema17-l40.step"
+moon run components/examples/linear_bearing -- \
+  --bearing LM8UU -o "$OUT/lm8uu.step"
+moon run components/examples/linear_bearing -- \
+  --bearing LM8UU --flanged --orient-to-reference \
+  -o "$OUT/lm8uu-flanged.step"
+moon run components/examples/extrusion_hardware -- \
+  --part tnut --thread M3 --slot 5 -o "$OUT/extrusion-tnut-M3.step"
+moon run components/examples/extrusion_hardware -- \
+  --part heat-set --length short -o "$OUT/heat-set-m3-short.step"
+moon run components/examples/stock_primitive -- \
+  --part angle --legA 40 --legB 40 --thickness 4 --rootRadius 6 \
+  --toeRadius 3 --length 50 -o "$OUT/angle-en10056-40x40x4.step"
+moon run components/examples/stock_primitive -- \
+  --part plate --width 50 --height 50 --plateThickness 3 \
+  -o "$OUT/plate-50x50x3.step"
 
 echo "Validating generated fixtures..."
 for f in "$OUT"/*.step; do

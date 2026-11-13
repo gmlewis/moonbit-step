@@ -229,6 +229,125 @@ pub fn motion_catalog() -> Array[CatalogEntry] {
 }
 
 ///|
+/// extrusion_hardware_catalog returns representative extrusion T-nuts and
+/// heat-set inserts.
+pub fn extrusion_hardware_catalog() -> Array[CatalogEntry] {
+  let entries : Array[CatalogEntry] = []
+  for thread in ["M3", "M4", "M5"] {
+    match @fasteners.extrusion_tnut_spec(thread, slot_width_mm=5.0) {
+      Ok(spec) =>
+        match @fasteners.extrusion_tnut(spec, detail=@common.Detailed) {
+          Ok(c) =>
+            entries.push(
+              entry_from_component(
+                c,
+                ["thread", "slot_width", "thickness", "across_flats", "detail"],
+                ["Detailed"],
+              ),
+            )
+          Err(_) => ()
+        }
+      Err(_) => ()
+    }
+  }
+  for length_kind in ["short", "long"] {
+    match @fasteners.heat_set_insert_m3(length_kind) {
+      Ok(c) =>
+        entries.push(
+          entry_from_component(
+            c,
+            ["thread", "length", "body_diameter", "knurl_diameter", "bore"],
+            ["Detailed"],
+          ),
+        )
+      Err(_) => ()
+    }
+  }
+  entries
+}
+
+///|
+/// linear_bearing_catalog returns the plain and flanged LM8UU envelopes.
+pub fn linear_bearing_catalog() -> Array[CatalogEntry] {
+  let entries : Array[CatalogEntry] = []
+  match @motion.linear_bearing_size("LM8UU") {
+    Ok(size) => {
+      match @motion.linear_bearing(size) {
+        Ok(c) =>
+          entries.push(
+            entry_from_component(
+              c,
+              ["designation", "bore", "outer_diameter", "length", "orientation"],
+              ["Detailed"],
+            ),
+          )
+        Err(_) => ()
+      }
+      match @motion.flanged_linear_bearing(size) {
+        Ok(c) =>
+          entries.push(
+            entry_from_component(
+              c,
+              ["designation", "bore", "flange_diameter", "flange_thickness"],
+              ["Detailed"],
+            ),
+          )
+        Err(_) => ()
+      }
+    }
+    Err(_) => ()
+  }
+  entries
+}
+
+///|
+/// motor_catalog returns the NEMA 17 and NEMA 23 envelopes.
+pub fn motor_catalog() -> Array[CatalogEntry] {
+  let entries : Array[CatalogEntry] = []
+  for designation in @motors.nema_designations() {
+    match @motors.nema_motor_by_designation(designation, 40.0) {
+      Ok(c) =>
+        entries.push(
+          entry_from_component(
+            c,
+            ["frame", "body_length", "shaft_length", "shaft_diameter", "detail"],
+            ["Detailed"],
+          ),
+        )
+      Err(_) => ()
+    }
+  }
+  entries
+}
+
+///|
+/// stock_catalog returns the verified angle and plate stock primitives.
+pub fn stock_catalog() -> Array[CatalogEntry] {
+  let entries : Array[CatalogEntry] = []
+  match @stock.angle_bar(@stock.en10056_equal_angle_40x40x4(), 50.0) {
+    Ok(c) =>
+      entries.push(
+        entry_from_component(
+          c,
+          ["leg_a", "leg_b", "thickness", "root_radius", "toe_radius", "length"],
+          ["Detailed"],
+        ),
+      )
+    Err(_) => ()
+  }
+  match @stock.plate(50.0, 50.0, 3.0) {
+    Ok(c) =>
+      entries.push(
+        entry_from_component(c, ["width", "height", "thickness", "holes"], [
+          "Detailed",
+        ]),
+      )
+    Err(_) => ()
+  }
+  entries
+}
+
+///|
 /// full_catalog returns every catalogue entry.
 pub fn full_catalog() -> Array[CatalogEntry] {
   let entries : Array[CatalogEntry] = []
@@ -237,6 +356,10 @@ pub fn full_catalog() -> Array[CatalogEntry] {
   entries.push_iter(profile_catalog().iter())
   entries.push_iter(gear_catalog().iter())
   entries.push_iter(motion_catalog().iter())
+  entries.push_iter(extrusion_hardware_catalog().iter())
+  entries.push_iter(linear_bearing_catalog().iter())
+  entries.push_iter(motor_catalog().iter())
+  entries.push_iter(stock_catalog().iter())
   entries
 }
 

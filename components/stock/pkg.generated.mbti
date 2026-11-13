@@ -1,0 +1,37 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "gmlewis/step/components/stock"
+
+import {
+  "gmlewis/step/cad",
+  "gmlewis/step/components/common",
+}
+
+// Values
+pub fn angle_bar(AngleSection, Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn angle_section(leg_a_mm~ : Double, leg_b_mm~ : Double, thickness_mm~ : Double, root_radius_mm~ : Double, toe_radius_mm~ : Double) -> Result[AngleSection, @common.SpecError]
+
+pub fn en10056_equal_angle_40x40x4() -> AngleSection
+
+pub fn plate(Double, Double, Double, holes? : Array[PlateHole], detail? : @common.DetailLevel, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+// Errors
+
+// Types and methods
+pub(all) struct AngleSection {
+  leg_a_mm : Double
+  leg_b_mm : Double
+  thickness_mm : Double
+  root_radius_mm : Double
+  toe_radius_mm : Double
+}
+
+pub(all) struct PlateHole {
+  x_mm : Double
+  y_mm : Double
+  diameter_mm : Double
+}
+
+// Type aliases
+
+// Traits

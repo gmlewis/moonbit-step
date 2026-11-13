@@ -429,6 +429,40 @@ def describe(tool, args):
             arg_value(args, "--length") or "?",
             arg_value(args, "--detail") or "detailed",
         )
+    if tool.endswith("/stepper_motor"):
+        return "{} stepper body {} mm".format(
+            arg_value(args, "--frame") or "NEMA17",
+            arg_value(args, "--bodyLength") or "40",
+        )
+    if tool.endswith("/linear_bearing"):
+        text = "linear bearing {}".format(arg_value(args, "--bearing") or "LM8UU")
+        if "--flanged" in args:
+            text += " flanged"
+        return text
+    if tool.endswith("/extrusion_hardware"):
+        part = arg_value(args, "--part") or "tnut"
+        if part == "heat-set":
+            return "heat-set insert M3 {}".format(
+                arg_value(args, "--length") or "short"
+            )
+        return "extrusion T-nut {} slot {}".format(
+            arg_value(args, "--thread") or "M3",
+            arg_value(args, "--slot") or "5",
+        )
+    if tool.endswith("/stock_primitive"):
+        part = arg_value(args, "--part") or "angle"
+        if part == "plate":
+            return "plate {}x{}x{}".format(
+                arg_value(args, "--width") or "?",
+                arg_value(args, "--height") or "?",
+                arg_value(args, "--plateThickness") or "?",
+            )
+        return "angle {}x{}x{} L={}".format(
+            arg_value(args, "--legA") or "?",
+            arg_value(args, "--legB") or "?",
+            arg_value(args, "--thickness") or "?",
+            arg_value(args, "--length") or "?",
+        )
     return " ".join(args)
 
 

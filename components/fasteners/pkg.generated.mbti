@@ -44,11 +44,21 @@ pub fn external_thread_ridge_center_radius_mm(@standards.ThreadSpec) -> Double
 
 pub fn external_thread_root_radius_mm(@standards.ThreadSpec) -> Double
 
+pub fn extrusion_tnut(ExtrusionTNutSpec, detail? : @common.DetailLevel, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn extrusion_tnut_spec(String, slot_width_mm? : Double) -> Result[ExtrusionTNutSpec, @common.SpecError]
+
 pub fn fastener_thread_features(@common.FeatureRecord, @common.ThreadRepresentation, @common.DetailPolicy, Double) -> @common.FeatureRecord
 
 pub fn flat_washer(@standards.ISO7089Spec, detail? : @common.DetailLevel, color? : @cad.Rgb) -> @common.Component
 
 pub fn format_length(Double) -> String
+
+pub fn heat_set_insert(HeatSetInsertSpec, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn heat_set_insert_m3(String) -> Result[@common.Component, @common.SpecError]
+
+pub fn heat_set_insert_m3_spec(String) -> Result[HeatSetInsertSpec, @common.SpecError]
 
 pub fn hex_head_chamfer_mm(Double, Double) -> Double
 
@@ -125,6 +135,21 @@ pub fn tip_chamfered_cylinder(Double, Double, Double, segments? : Int32) -> @cad
 // Errors
 
 // Types and methods
+pub(all) struct ExtrusionTNutSpec {
+  thread : String
+  across_flats_mm : Double
+  thickness_mm : Double
+  hole_diameter_mm : Double
+  slot_width_mm : Double
+}
+
+pub(all) struct HeatSetInsertSpec {
+  thread : String
+  length_mm : Double
+  body_diameter_mm : Double
+  knurl_diameter_mm : Double
+  bore_diameter_mm : Double
+}
 
 // Type aliases
 

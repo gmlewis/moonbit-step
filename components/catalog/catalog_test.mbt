@@ -97,3 +97,33 @@ test "motion catalogue carries the keyed shaft and key" {
     1,
   )
 }
+
+///|
+test "new construction and motion catalogue families are discoverable" {
+  let hardware = @catalog.extrusion_hardware_catalog()
+  assert_eq(hardware.length(), 5)
+  assert_true(hardware.any(fn(e) { e.family == "extrusion T-nut" }))
+  assert_true(hardware.any(fn(e) { e.family == "heat-set threaded insert" }))
+  let tnut = match @catalog.lookup(hardware, "Extrusion T-nut M3, slot 5 mm") {
+    Ok(e) => e
+    Err(err) => abort(err.message())
+  }
+  assert_true(tnut.features.has_modeled("hexagonal-prism"))
+  assert_true(tnut.supported_parameters.any(fn(p) { p == "slot_width" }))
+
+  let linear = @catalog.linear_bearing_catalog()
+  assert_eq(linear.length(), 2)
+  assert_true(linear.any(fn(e) { e.family == "linear ball bushing" }))
+  assert_true(
+    linear.any(fn(e) { e.family == "flanged linear bushing housing" }),
+  )
+
+  let motors = @catalog.motor_catalog()
+  assert_eq(motors.length(), 2)
+  assert_true(motors.all(fn(e) { e.family == "stepper motor envelope" }))
+
+  let stock = @catalog.stock_catalog()
+  assert_eq(stock.length(), 2)
+  assert_true(stock.any(fn(e) { e.family == "steel angle section" }))
+  assert_true(stock.any(fn(e) { e.family == "flat plate blank" }))
+}

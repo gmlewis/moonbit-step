@@ -2491,6 +2491,913 @@
           }
         ]
       }
+    },
+    {
+      "fixture_id": "extrusion/tnut-m3-slot5",
+      "part_id": "extrusion_slot5_slide_in_tnut_m3_simple",
+      "designation": "Extrusion T-nut M3, slot 5",
+      "family": "extrusion T-nut",
+      "standard": "generic extrusion T-nut envelope",
+      "manufacturer": "step.parts catalog",
+      "source_page": "https://www.step.parts/parts/extrusion_slot5_slide_in_tnut_m3_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/extrusion_slot5_slide_in_tnut_m3_simple.step",
+      "local_filename": "external/extrusion_slot5_slide_in_tnut_m3_simple.step",
+      "sha256": "311eb9697b39406f1f7d42e03bc467a7f6513a87fd91720f5f67d8fbefe99312",
+      "byte_size": 28816,
+      "units": "mm",
+      "license": "MIT",
+      "license_evidence_url": "https://github.com/earthtojake/step.parts/blob/main/LICENSE",
+      "declared_dimensions": {
+        "bore_mm": 3,
+        "height_mm": 2.4,
+        "width_across_flats_mm": 5.5
+      },
+      "measured_dimensions": {
+        "bbox_mm": [
+          6.3509,
+          5.5,
+          2.4
+        ],
+        "volume_mm3": 45.909,
+        "solids": 1
+      },
+      "parametric_value": {
+        "bbox_mm": [
+          6.3509,
+          5.5,
+          2.4
+        ],
+        "volume_mm3": 45.9088,
+        "solids": 1,
+        "source": "components/examples/extrusion_hardware --part tnut --thread M3 --slot 5"
+      },
+      "verdict": "accepted-exact",
+      "notes": "Hexagonal body, thickness, and the analytic 1.5 mm bore match the reference; volume is 45.909 mm3. The reference catalog uses the same body for slide-in, drop-in, and hammer styles, so no style-specific retention feature is claimed.",
+      "committed": false,
+      "generation": {
+        "tool": "components/examples/extrusion_hardware",
+        "args": [
+          "--part",
+          "tnut",
+          "--thread",
+          "M3",
+          "--slot",
+          "5",
+          "-o",
+          "{out}"
+        ],
+        "output": "extrusion-tnut-M3.step"
+      },
+      "comparison": {
+        "solids": 1,
+        "bbox_axes": [
+          {
+            "axis": 0,
+            "expected_mm": 6.3509,
+            "label": "across corners"
+          },
+          {
+            "axis": 1,
+            "expected_mm": 5.5,
+            "label": "across flats"
+          },
+          {
+            "axis": 2,
+            "expected_mm": 2.4,
+            "label": "thickness"
+          }
+        ],
+        "features": [
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 1.5
+          },
+          {
+            "kind": "surface_min",
+            "surface": "plane",
+            "min_count": 6
+          }
+        ]
+      }
+    },
+    {
+      "fixture_id": "extrusion/tnut-m4-slot5",
+      "part_id": "extrusion_slot5_slide_in_tnut_m4_simple",
+      "designation": "Extrusion T-nut M4, slot 5",
+      "family": "extrusion T-nut",
+      "standard": "generic extrusion T-nut envelope",
+      "manufacturer": "step.parts catalog",
+      "source_page": "https://www.step.parts/parts/extrusion_slot5_slide_in_tnut_m4_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/extrusion_slot5_slide_in_tnut_m4_simple.step",
+      "local_filename": "external/extrusion_slot5_slide_in_tnut_m4_simple.step",
+      "sha256": "3e38ebeed9f7abcbce4ad60be2474b74313c98b61a068d987af3820a8768b9a1",
+      "byte_size": 28762,
+      "units": "mm",
+      "license": "MIT",
+      "license_evidence_url": "https://github.com/earthtojake/step.parts/blob/main/LICENSE",
+      "declared_dimensions": {
+        "bore_mm": 4,
+        "height_mm": 3.2,
+        "width_across_flats_mm": 7
+      },
+      "measured_dimensions": {
+        "bbox_mm": [
+          8.0829,
+          7.0,
+          3.2
+        ],
+        "volume_mm3": 95.5804,
+        "solids": 1
+      },
+      "parametric_value": {
+        "bbox_mm": [
+          8.0829,
+          7.0,
+          3.2
+        ],
+        "volume_mm3": 95.5804,
+        "solids": 1,
+        "source": "components/examples/extrusion_hardware --part tnut --thread M4 --slot 5"
+      },
+      "verdict": "accepted-exact",
+      "notes": "Body dimensions, analytic 2.0 mm bore, and volume match the reference. Slot series is an engagement parameter, not a body feature.",
+      "committed": false,
+      "generation": {
+        "tool": "components/examples/extrusion_hardware",
+        "args": [
+          "--part",
+          "tnut",
+          "--thread",
+          "M4",
+          "--slot",
+          "5",
+          "-o",
+          "{out}"
+        ],
+        "output": "extrusion-tnut-M4.step"
+      },
+      "comparison": {
+        "solids": 1,
+        "bbox_axes": [
+          {
+            "axis": 0,
+            "expected_mm": 8.0829,
+            "label": "across corners"
+          },
+          {
+            "axis": 1,
+            "expected_mm": 7.0,
+            "label": "across flats"
+          },
+          {
+            "axis": 2,
+            "expected_mm": 3.2,
+            "label": "thickness"
+          }
+        ],
+        "features": [
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 2.0
+          }
+        ]
+      }
+    },
+    {
+      "fixture_id": "extrusion/tnut-m5-slot5",
+      "part_id": "extrusion_slot5_slide_in_tnut_m5_simple",
+      "designation": "Extrusion T-nut M5, slot 5",
+      "family": "extrusion T-nut",
+      "standard": "generic extrusion T-nut envelope",
+      "manufacturer": "step.parts catalog",
+      "source_page": "https://www.step.parts/parts/extrusion_slot5_slide_in_tnut_m5_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/extrusion_slot5_slide_in_tnut_m5_simple.step",
+      "local_filename": "external/extrusion_slot5_slide_in_tnut_m5_simple.step",
+      "sha256": "bc461b41c6e27f1de7481f164740cd7ee90a477609843ed006c45cdea1f254b8",
+      "byte_size": 28721,
+      "units": "mm",
+      "license": "MIT",
+      "license_evidence_url": "https://github.com/earthtojake/step.parts/blob/main/LICENSE",
+      "declared_dimensions": {
+        "bore_mm": 5,
+        "height_mm": 4,
+        "width_across_flats_mm": 8
+      },
+      "measured_dimensions": {
+        "bbox_mm": [
+          9.2376,
+          8.0,
+          4.0
+        ],
+        "volume_mm3": 143.163,
+        "solids": 1
+      },
+      "parametric_value": {
+        "bbox_mm": [
+          9.2376,
+          8.0,
+          4.0
+        ],
+        "volume_mm3": 143.163,
+        "solids": 1,
+        "source": "components/examples/extrusion_hardware --part tnut --thread M5 --slot 5"
+      },
+      "verdict": "accepted-exact",
+      "notes": "Body dimensions, analytic 2.5 mm bore, and volume match the reference. The M5 body is also used for slot-6 catalog entries.",
+      "committed": false,
+      "generation": {
+        "tool": "components/examples/extrusion_hardware",
+        "args": [
+          "--part",
+          "tnut",
+          "--thread",
+          "M5",
+          "--slot",
+          "5",
+          "-o",
+          "{out}"
+        ],
+        "output": "extrusion-tnut-M5.step"
+      },
+      "comparison": {
+        "solids": 1,
+        "bbox_axes": [
+          {
+            "axis": 0,
+            "expected_mm": 9.2376,
+            "label": "across corners"
+          },
+          {
+            "axis": 1,
+            "expected_mm": 8.0,
+            "label": "across flats"
+          },
+          {
+            "axis": 2,
+            "expected_mm": 4.0,
+            "label": "thickness"
+          }
+        ],
+        "features": [
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 2.5
+          }
+        ]
+      }
+    },
+    {
+      "fixture_id": "extrusion/heat-set-m3-short",
+      "part_id": "heat_set_insert_m3_short_generic_simple",
+      "designation": "Heat-set insert M3 short",
+      "family": "heat-set threaded insert",
+      "standard": "generic heat-set insert envelope",
+      "manufacturer": "step.parts catalog",
+      "source_page": "https://www.step.parts/parts/heat_set_insert_m3_short_generic_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/heat_set_insert_m3_short_generic_simple.step",
+      "local_filename": "external/heat_set_insert_m3_short_generic_simple.step",
+      "sha256": "941c6c82a1dd752d1d440bd4816cf73761674c4b3ebd1426b492a16bcfc529d2",
+      "byte_size": 28068,
+      "units": "mm",
+      "license": "MIT",
+      "license_evidence_url": "https://github.com/earthtojake/step.parts/blob/main/LICENSE",
+      "declared_dimensions": {
+        "nominal_thread": "M3",
+        "length_mm": 6.0,
+        "body_diameter_mm": 6.0,
+        "knurl_diameter_mm": 6.48,
+        "bore_diameter_mm": 2.25
+      },
+      "measured_dimensions": {
+        "bbox_mm": [
+          6.48,
+          6.48,
+          6.0
+        ],
+        "volume_mm3": 152.565,
+        "solids": 1
+      },
+      "parametric_value": {
+        "bbox_mm": [
+          6.48,
+          6.48,
+          6.0
+        ],
+        "volume_mm3": 152.565,
+        "solids": 1,
+        "source": "components/examples/extrusion_hardware --part heat-set --length short"
+      },
+      "verdict": "accepted-exact",
+      "notes": "The revolved profile reproduces the reference's two knurl bands, three plain outer bands, bore, and six annular/planar shoulders; volume and bounding box match exactly.",
+      "committed": false,
+      "generation": {
+        "tool": "components/examples/extrusion_hardware",
+        "args": [
+          "--part",
+          "heat-set",
+          "--length",
+          "short",
+          "-o",
+          "{out}"
+        ],
+        "output": "heat-set-m3-short.step"
+      },
+      "comparison": {
+        "solids": 1,
+        "bbox_axes": [
+          {
+            "axis": 0,
+            "expected_mm": 6.48,
+            "label": "knurl diameter"
+          },
+          {
+            "axis": 2,
+            "expected_mm": 6.0,
+            "label": "length"
+          }
+        ],
+        "features": [
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 3.24
+          },
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 1.125
+          }
+        ]
+      }
+    },
+    {
+      "fixture_id": "extrusion/heat-set-m3-long",
+      "part_id": "heat_set_insert_m3_long_generic_simple",
+      "designation": "Heat-set insert M3 long",
+      "family": "heat-set threaded insert",
+      "standard": "generic heat-set insert envelope",
+      "manufacturer": "step.parts catalog",
+      "source_page": "https://www.step.parts/parts/heat_set_insert_m3_long_generic_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/heat_set_insert_m3_long_generic_simple.step",
+      "local_filename": "external/heat_set_insert_m3_long_generic_simple.step",
+      "sha256": "438dee217c43b4c3dca62687826fcec2a0237df4e76d64b993b5b3455489b202",
+      "byte_size": 28081,
+      "units": "mm",
+      "license": "MIT",
+      "license_evidence_url": "https://github.com/earthtojake/step.parts/blob/main/LICENSE",
+      "declared_dimensions": {
+        "nominal_thread": "M3",
+        "length_mm": 10.5,
+        "body_diameter_mm": 6.0,
+        "knurl_diameter_mm": 6.48,
+        "bore_diameter_mm": 2.25
+      },
+      "measured_dimensions": {
+        "bbox_mm": [
+          6.48,
+          6.48,
+          10.5
+        ],
+        "volume_mm3": 266.988,
+        "solids": 1
+      },
+      "parametric_value": {
+        "bbox_mm": [
+          6.48,
+          6.48,
+          10.5
+        ],
+        "volume_mm3": 266.988,
+        "solids": 1,
+        "source": "components/examples/extrusion_hardware --part heat-set --length long"
+      },
+      "verdict": "accepted-exact",
+      "notes": "Same construction as the short insert; knurl bands occupy 20-32% and 68-80% of the length, matching the reference exactly.",
+      "committed": false,
+      "generation": {
+        "tool": "components/examples/extrusion_hardware",
+        "args": [
+          "--part",
+          "heat-set",
+          "--length",
+          "long",
+          "-o",
+          "{out}"
+        ],
+        "output": "heat-set-m3-long.step"
+      },
+      "comparison": {
+        "solids": 1,
+        "bbox_axes": [
+          {
+            "axis": 0,
+            "expected_mm": 6.48,
+            "label": "knurl diameter"
+          },
+          {
+            "axis": 2,
+            "expected_mm": 10.5,
+            "label": "length"
+          }
+        ],
+        "features": [
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 3.24
+          }
+        ]
+      }
+    },
+    {
+      "fixture_id": "motors/nema17-l40",
+      "part_id": "stepper_motor_nema17_l0040_single_shaft",
+      "designation": "NEMA 17 stepper motor, 40 mm body",
+      "family": "stepper motor envelope",
+      "standard": "NEMA motor frame interface",
+      "manufacturer": "step.parts catalog",
+      "source_page": "https://www.step.parts/parts/stepper_motor_nema17_l0040_single_shaft",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/stepper_motor_nema17_l0040_single_shaft.step",
+      "local_filename": "external/stepper_motor_nema17_l0040_single_shaft.step",
+      "sha256": "5fc9dcbec6f48f343eb8795e306f88321c0917d5ca1d597aa639125d6abd5e47",
+      "byte_size": 43758,
+      "units": "mm",
+      "license": "MIT",
+      "license_evidence_url": "https://github.com/earthtojake/step.parts/blob/main/LICENSE",
+      "declared_dimensions": {
+        "nema_frame": "NEMA17",
+        "frame_mm": 42.3,
+        "bolt_spacing_mm": 31,
+        "body_length_mm": 40,
+        "shaft_diameter_mm": 5
+      },
+      "measured_dimensions": {
+        "bbox_mm": [
+          42.3,
+          42.3,
+          54.805
+        ],
+        "volume_mm3": 71195.7,
+        "solids": 1
+      },
+      "parametric_value": {
+        "bbox_mm": [
+          42.3,
+          42.3,
+          54.805
+        ],
+        "volume_mm3": 71645.5,
+        "solids": 3,
+        "source": "components/examples/stepper_motor --frame NEMA17 --bodyLength 40"
+      },
+      "verdict": "accepted-envelope",
+      "notes": "Frame, bolt spacing, mounting-hole pattern, shaft diameter, and overall length match. The parametric body, pilot boss, and shaft are three separately closed solids because the kernel-free writer does not trim a union; the reference fuses them into one. Volume is 0.63% higher because this builder uses the standard NEMA 22 mm pilot diameter while the reference uses a smaller simplified 17.766 mm boss.",
+      "committed": false,
+      "generation": {
+        "tool": "components/examples/stepper_motor",
+        "args": [
+          "--frame",
+          "NEMA17",
+          "--bodyLength",
+          "40",
+          "-o",
+          "{out}"
+        ],
+        "output": "nema17-l40.step"
+      },
+      "comparison": {
+        "bbox_axes": [
+          {
+            "axis": 0,
+            "expected_mm": 42.3,
+            "label": "frame width"
+          },
+          {
+            "axis": 2,
+            "expected_mm": 54.805,
+            "label": "overall length"
+          }
+        ],
+        "features": [
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 2.5
+          }
+        ]
+      }
+    },
+    {
+      "fixture_id": "motors/nema23-l40",
+      "part_id": "stepper_motor_nema23_l0040_single_shaft",
+      "designation": "NEMA 23 stepper motor, 40 mm body",
+      "family": "stepper motor envelope",
+      "standard": "NEMA motor frame interface",
+      "manufacturer": "step.parts catalog",
+      "source_page": "https://www.step.parts/parts/stepper_motor_nema23_l0040_single_shaft",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/stepper_motor_nema23_l0040_single_shaft.step",
+      "local_filename": "external/stepper_motor_nema23_l0040_single_shaft.step",
+      "sha256": "db98d40ecb2113038b22e3b59b16ba00a45fcdfef35ec1b158a428c076ee586c",
+      "byte_size": 43770,
+      "units": "mm",
+      "license": "MIT",
+      "license_evidence_url": "https://github.com/earthtojake/step.parts/blob/main/LICENSE",
+      "declared_dimensions": {
+        "nema_frame": "NEMA23",
+        "frame_mm": 56.4,
+        "bolt_spacing_mm": 47.14,
+        "body_length_mm": 40,
+        "shaft_diameter_mm": 6.35
+      },
+      "measured_dimensions": {
+        "bbox_mm": [
+          56.4,
+          56.4,
+          59.74
+        ],
+        "volume_mm3": 127151.0,
+        "solids": 1
+      },
+      "parametric_value": {
+        "bbox_mm": [
+          56.4,
+          56.4,
+          59.74
+        ],
+        "volume_mm3": 130310.3,
+        "solids": 3,
+        "source": "components/examples/stepper_motor --frame NEMA23 --bodyLength 40"
+      },
+      "verdict": "accepted-envelope",
+      "notes": "Frame, bolt spacing, mounting-hole pattern, shaft diameter, and overall length match. The reference fuses body, boss, and shaft into one solid; this builder layers three watertight solids. Volume is 2.48% higher because the standard 38.1 mm NEMA 23 pilot replaces the reference's simplified 23.688 mm boss.",
+      "committed": false,
+      "generation": {
+        "tool": "components/examples/stepper_motor",
+        "args": [
+          "--frame",
+          "NEMA23",
+          "--bodyLength",
+          "40",
+          "-o",
+          "{out}"
+        ],
+        "output": "nema23-l40.step"
+      },
+      "comparison": {
+        "bbox_axes": [
+          {
+            "axis": 0,
+            "expected_mm": 56.4,
+            "label": "frame width"
+          },
+          {
+            "axis": 2,
+            "expected_mm": 59.74,
+            "label": "overall length"
+          }
+        ],
+        "features": [
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 3.175
+          }
+        ]
+      }
+    },
+    {
+      "fixture_id": "motion/lm8uu",
+      "part_id": "linear_bearing_lm8uu",
+      "designation": "LM8UU linear ball bushing",
+      "family": "linear ball bushing",
+      "standard": "LM-series catalogue boundary dimensions",
+      "manufacturer": "step.parts catalog",
+      "source_page": "https://www.step.parts/parts/linear_bearing_lm8uu",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/linear_bearing_lm8uu.step",
+      "local_filename": "external/linear_bearing_lm8uu.step",
+      "sha256": "9c20c82b8cd012c647ce9b5f24cc8c51a3e703a0f89cfb471307431eeae78625",
+      "byte_size": 49974,
+      "units": "mm",
+      "license": "MIT",
+      "license_evidence_url": "https://github.com/earthtojake/step.parts/blob/main/LICENSE",
+      "declared_dimensions": {
+        "nominal_size": "LM8UU",
+        "bore_mm": 8,
+        "outer_diameter_mm": 15,
+        "length_mm": 24
+      },
+      "measured_dimensions": {
+        "bbox_mm": [
+          15.0,
+          15.0,
+          24.0
+        ],
+        "volume_mm3": 2824.64,
+        "solids": 1
+      },
+      "parametric_value": {
+        "bbox_mm": [
+          15.0,
+          15.0,
+          24.0
+        ],
+        "volume_mm3": 2801.95,
+        "solids": 1,
+        "source": "components/examples/linear_bearing --bearing LM8UU"
+      },
+      "verdict": "accepted-envelope",
+      "notes": "Bore, outside diameter, length, two outer retaining grooves, and end counterbores are modelled. The reference's intermediate 4.6 mm bore relief is simplified to a 12.4 mm counterbore at each end, so volume is 0.80% low. Rolling elements, cage, seals, and recirculation grooves are omitted in both representations.",
+      "committed": false,
+      "generation": {
+        "tool": "components/examples/linear_bearing",
+        "args": [
+          "--bearing",
+          "LM8UU",
+          "-o",
+          "{out}"
+        ],
+        "output": "lm8uu.step"
+      },
+      "comparison": {
+        "solids": 1,
+        "bbox_axes": [
+          {
+            "axis": 0,
+            "expected_mm": 15.0,
+            "label": "outside diameter"
+          },
+          {
+            "axis": 2,
+            "expected_mm": 24.0,
+            "label": "length"
+          }
+        ],
+        "features": [
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 7.5
+          },
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 7.15
+          },
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 4.0
+          }
+        ]
+      }
+    },
+    {
+      "fixture_id": "motion/lm8uu-flanged-round",
+      "part_id": "linear_bearing_lm8uu_flanged_round_simple",
+      "designation": "LM8UU flanged round housing",
+      "family": "flanged linear bushing housing",
+      "standard": "LM-series boundary dimensions with a round flange; envelope only",
+      "manufacturer": "step.parts catalog",
+      "source_page": "https://www.step.parts/parts/linear_bearing_lm8uu_flanged_round_simple",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/linear_bearing_lm8uu_flanged_round_simple.step",
+      "local_filename": "external/linear_bearing_lm8uu_flanged_round_simple.step",
+      "sha256": "a562e232a70eb912702bdc982e8dac0a5ceb46b58ec1ed33b513d826ee369ca0",
+      "byte_size": 14085,
+      "units": "mm",
+      "license": "MIT",
+      "license_evidence_url": "https://github.com/earthtojake/step.parts/blob/main/LICENSE",
+      "declared_dimensions": {
+        "nominal_size": "LM8UU flanged-round",
+        "bore_mm": 8,
+        "outer_diameter_mm": 15,
+        "length_mm": 24,
+        "housing_kind": "flanged_round"
+      },
+      "measured_dimensions": {
+        "bbox_mm": [
+          26.7,
+          24.75,
+          24.75
+        ],
+        "volume_mm3": 4198.05,
+        "solids": 1
+      },
+      "parametric_value": {
+        "bbox_mm": [
+          26.7,
+          24.75,
+          24.75
+        ],
+        "volume_mm3": 4198.05,
+        "solids": 1,
+        "source": "components/examples/linear_bearing --bearing LM8UU --flanged --orient-to-reference"
+      },
+      "verdict": "accepted-exact",
+      "notes": "Flange diameter, flange thickness, body diameter, length, and bore match exactly; the reference frame is axis X with the flange at -X and the example's orient flag reproduces it.",
+      "committed": false,
+      "generation": {
+        "tool": "components/examples/linear_bearing",
+        "args": [
+          "--bearing",
+          "LM8UU",
+          "--flanged",
+          "--orient-to-reference",
+          "-o",
+          "{out}"
+        ],
+        "output": "lm8uu-flanged.step"
+      },
+      "comparison": {
+        "solids": 1,
+        "bbox_axes": [
+          {
+            "axis": 0,
+            "expected_mm": 26.7,
+            "label": "overall length"
+          },
+          {
+            "axis": 1,
+            "expected_mm": 24.75,
+            "label": "flange diameter"
+          }
+        ],
+        "features": [
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 12.375
+          },
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 4.0
+          }
+        ]
+      }
+    },
+    {
+      "fixture_id": "stock/angle-en10056-40x40x4",
+      "part_id": "angle_equal_en10056_40x40x4",
+      "designation": "EN 10056 equal angle 40 x 40 x 4",
+      "family": "steel angle section",
+      "standard": "EN 10056",
+      "manufacturer": "step.parts catalog",
+      "source_page": "https://www.step.parts/parts/angle_equal_en10056_40x40x4",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/angle_equal_en10056_40x40x4.step",
+      "local_filename": "external/angle_equal_en10056_40x40x4.step",
+      "sha256": "b61207ec737da12fe8d4f242e5e8d4a8135c1eb3ee24c1637dd8ac65381e9833",
+      "byte_size": 33509,
+      "units": "mm",
+      "license": "MIT",
+      "license_evidence_url": "https://github.com/earthtojake/step.parts/blob/main/LICENSE",
+      "declared_dimensions": {
+        "leg_length_mm": 40,
+        "second_leg_length_mm": 40,
+        "thickness_mm": 4,
+        "root_radius_mm": 6,
+        "toe_radius_mm": 3
+      },
+      "measured_dimensions": {
+        "bbox_mm": [
+          40.0,
+          40.0,
+          50.0
+        ],
+        "volume_mm3": 15393.1,
+        "solids": 1
+      },
+      "parametric_value": {
+        "bbox_mm": [
+          40.0,
+          40.0,
+          50.0
+        ],
+        "volume_mm3": 15395.4,
+        "solids": 1,
+        "source": "components/examples/stock_primitive --part angle --legA 40 --legB 40 --thickness 4 --rootRadius 6 --toeRadius 3 --length 50"
+      },
+      "verdict": "accepted-envelope",
+      "notes": "Legs, thickness, toe radii, and length match; the concave root fillet is sampled with 16 line segments because the kernel's arc-profile path only accepts counter-clockwise minor arcs, so volume is 0.015% high and the reference's analytic root cylinder is replaced by planar facets.",
+      "committed": false,
+      "generation": {
+        "tool": "components/examples/stock_primitive",
+        "args": [
+          "--part",
+          "angle",
+          "--legA",
+          "40",
+          "--legB",
+          "40",
+          "--thickness",
+          "4",
+          "--rootRadius",
+          "6",
+          "--toeRadius",
+          "3",
+          "--length",
+          "50",
+          "-o",
+          "{out}"
+        ],
+        "output": "angle-en10056-40x40x4.step"
+      },
+      "comparison": {
+        "solids": 1,
+        "bbox_axes": [
+          {
+            "axis": 0,
+            "expected_mm": 40.0,
+            "label": "leg A"
+          },
+          {
+            "axis": 1,
+            "expected_mm": 40.0,
+            "label": "leg B"
+          },
+          {
+            "axis": 2,
+            "expected_mm": 50.0,
+            "label": "length"
+          }
+        ],
+        "features": [
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 3.0
+          }
+        ]
+      }
+    },
+    {
+      "fixture_id": "stock/plate-50x50x3",
+      "part_id": "plate_blank_50x50x3",
+      "designation": "Plate blank 50 x 50 x 3",
+      "family": "flat plate blank",
+      "standard": "generic plate blank",
+      "manufacturer": "step.parts catalog",
+      "source_page": "https://www.step.parts/parts/plate_blank_50x50x3",
+      "download_url": "https://media.githubusercontent.com/media/earthtojake/step.parts/c6113328a5695b976a010a203a90fe86191769bf/catalog/step/plate_blank_50x50x3.step",
+      "local_filename": "external/plate_blank_50x50x3.step",
+      "sha256": "e519824d681988a2b2617b32a3fed96e025a86123ec3b69ce464a404cd4ffb5e",
+      "byte_size": 15879,
+      "units": "mm",
+      "license": "MIT",
+      "license_evidence_url": "https://github.com/earthtojake/step.parts/blob/main/LICENSE",
+      "declared_dimensions": {
+        "width_mm": 50,
+        "height_mm": 50,
+        "thickness_mm": 3
+      },
+      "measured_dimensions": {
+        "bbox_mm": [
+          50.0,
+          50.0,
+          3.0
+        ],
+        "volume_mm3": 7500.0,
+        "solids": 1
+      },
+      "parametric_value": {
+        "bbox_mm": [
+          50.0,
+          50.0,
+          3.0
+        ],
+        "volume_mm3": 7500.0,
+        "solids": 1,
+        "source": "components/examples/stock_primitive --part plate --width 50 --height 50 --plateThickness 3"
+      },
+      "verdict": "accepted-exact",
+      "notes": "Rectangular blank centered on the XY origin and on z, matching the reference frame; volume and bounding box match exactly. Hole patterns are caller-supplied.",
+      "committed": false,
+      "generation": {
+        "tool": "components/examples/stock_primitive",
+        "args": [
+          "--part",
+          "plate",
+          "--width",
+          "50",
+          "--height",
+          "50",
+          "--plateThickness",
+          "3",
+          "-o",
+          "{out}"
+        ],
+        "output": "plate-50x50x3.step"
+      },
+      "comparison": {
+        "solids": 1,
+        "bbox_axes": [
+          {
+            "axis": 0,
+            "expected_mm": 50.0,
+            "label": "width"
+          },
+          {
+            "axis": 2,
+            "expected_mm": 3.0,
+            "label": "thickness"
+          }
+        ],
+        "features": [
+          {
+            "kind": "surface_min",
+            "surface": "plane",
+            "min_count": 6
+          }
+        ]
+      }
     }
   ],
   "golden_source": {

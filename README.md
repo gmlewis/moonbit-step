@@ -125,7 +125,7 @@ example. Text examples use the vendored `baloo` font in
 | `cad/` | Intent-based modeling DSL, shape compilers, STEP writer, analysis, glTF/Blender backends. |
 | `entities/`, `parse/`, `repository/`, `header/` | STEP entity model, parser, and serializer. |
 | `cli/` | Command-line argument and error-reporting helpers. |
-| `components/` | Parametric fasteners, profiles, motion, gears, assemblies, collision, catalogue. |
+| `components/` | Parametric fasteners, profiles, motion, motors, stock, gears, assemblies, collision, catalogue. |
 | `examples/` | 41 runnable examples (see [`examples/README.md`](examples/README.md)). |
 | `tools/` | Inspection and STEP statistics utilities (see [`tools/README.md`](tools/README.md)). |
 | `scripts/` | Development validation and rendering harnesses. |

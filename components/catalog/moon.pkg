@@ -3,8 +3,10 @@ import {
   "gmlewis/step/components/fasteners",
   "gmlewis/step/components/gears",
   "gmlewis/step/components/motion",
+  "gmlewis/step/components/motors",
   "gmlewis/step/components/profiles",
   "gmlewis/step/components/standards",
+  "gmlewis/step/components/stock",
   "moonbitlang/core/builtin",
 }
 

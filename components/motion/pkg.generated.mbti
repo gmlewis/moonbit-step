@@ -23,6 +23,8 @@ pub fn dowel_pin(Double, Double, color? : @cad.Rgb) -> Result[@common.Component,
 
 pub fn filleted_stepped_shaft(Array[(Double, Double)], fillet_radius_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
+pub fn flanged_linear_bearing(LinearBearingSize, flange_diameter_mm? : Double, flange_thickness_mm? : Double, orient_to_reference? : Bool, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
 pub fn key(Double, Double, Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
 pub fn key_for_keyway(Double, Double, Double, key_height_mm? : Double, width_clearance_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
@@ -30,6 +32,14 @@ pub fn key_for_keyway(Double, Double, Double, key_height_mm? : Double, width_cle
 pub fn keyed_shaft(Double, Double, Double, Double, segments? : Int32, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
 pub fn keyed_shaft_cross_section(Double, Double, Double, segments? : Int32) -> Result[Array[(Double, Double)], @common.SpecError]
+
+pub fn linear_bearing(LinearBearingSize, detail? : @common.DetailLevel, orient_to_reference? : Bool, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn linear_bearing_by_designation(String, detail? : @common.DetailLevel) -> Result[@common.Component, @common.SpecError]
+
+pub fn linear_bearing_designations() -> Array[String]
+
+pub fn linear_bearing_size(String) -> Result[LinearBearingSize, @common.SpecError]
 
 pub fn shaft(Double, Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
@@ -49,6 +59,13 @@ pub(all) struct BearingSize {
   bore_mm : Double
   outer_mm : Double
   width_mm : Double
+}
+
+pub(all) struct LinearBearingSize {
+  designation : String
+  bore_mm : Double
+  outer_mm : Double
+  length_mm : Double
 }
 
 pub(all) struct ShaftSegment {

@@ -23,6 +23,25 @@ moon run components/examples/extrusion_frame -- \
 moon run components/examples/gear_pair -- \
   --module 2 --teeth 20 --mateTeeth 40 -o gear-pair.step
 
+# NEMA 17 stepper-motor envelope
+moon run components/examples/stepper_motor -- \
+  --frame NEMA17 --bodyLength 40 -o nema17.step
+
+# LM8UU linear bushing and flanged housing
+moon run components/examples/linear_bearing -- --bearing LM8UU -o lm8uu.step
+moon run components/examples/linear_bearing -- \
+  --bearing LM8UU --flanged -o lm8uu-flanged.step
+
+# Extrusion T-nut or heat-set insert
+moon run components/examples/extrusion_hardware -- \
+  --part tnut --thread M3 --slot 5 -o tnut.step
+moon run components/examples/extrusion_hardware -- \
+  --part heat-set --length long -o heatset.step
+
+# Steel angle or plate blank
+moon run components/examples/stock_primitive -- \
+  --part angle --legA 40 --legB 40 --thickness 4 --length 50 -o angle.step
+
 # Built-in M3/M4/M5 fastener catalogue
 mkdir -p components/examples/output
 moon run components/examples/fasteners -- --catalog components/examples/output
@@ -39,7 +58,9 @@ axes documented in each builder.
 | `standards` | Metric thread data and ISO/DIN dimension tables (ISO 4032/4035/4762/7089/709x/7380/8752/10642, DIN 557/913/916/976/1587, …). |
 | `fasteners` | Screws, bolts, nuts, washers, pins, rods, and set screws. |
 | `profiles` | Generic T-slot sections and the vendor 2020 B-slot6 A section. |
-| `motion` | Shafts, stepped/keyed shafts, spacers, bushings, keys, dowel pins, standoffs, compression springs, ball bearings. |
+| `motion` | Shafts, stepped/keyed shafts, spacers, bushings, keys, dowel pins, standoffs, compression springs, ball bearings, LM-series linear bushings, and flanged linear housings. |
+| `motors` | NEMA 17 and NEMA 23 stepper-motor envelopes and mounting interfaces. |
+| `stock` | EN 10056 angle sections and configurable flat plate blanks with through holes. |
 | `gears` | Involute spur gears, external pairs, and exact-internal-involute planetary sets. |
 | `assemblies` | Rigid placements, linear/circular patterns, hardware kits, extrusion frames, bolted joints, collision/contact reports, connectivity checks. |
 | `collision` | Kernel-free AABB/OBB collision and contact classification. |
@@ -92,6 +113,25 @@ let floating = assembly.disconnected_instances()
 - The internal ring gear uses an exact involute envelope with a declared
   `0.05 * module` backlash; profile shift, helix, and ring root fillets are
   omitted.
+- NEMA motor envelopes model the mounting interface, pilot boss, and plain
+  shaft. Body length and shaft length are parameters, not standards; electrical
+  internals, rear shafts, shaft flats, and load ratings are omitted.
+- LM-series linear bushings and flanged housings are boundary envelopes. Rolling
+  elements, cages, seals, recirculation grooves, flange hole patterns, and load
+  ratings are omitted.
+- Extrusion T-nuts use one generic hex body for every catalogued retention
+  style. The bore is a thread envelope; spring balls and style-specific
+  retention are not modelled.
+- Heat-set inserts model the two raised knurl bands as cylindrical reliefs, not
+  a diamond knurl. Pull-out and torque strength require testing.
+- The EN 10056 angle root fillet is sampled with 16 lines because the arc
+  profile accepts only counter-clockwise minor arcs; its toe radii are analytic.
+- A plate blank is a generic primitive. Hole patterns do not imply a
+  standardized commercial part.
+- V-Slot extrusion profiles, GT2 timing pulleys, and EMT/conduit fittings are
+  not implemented. The available MIT-licensed step.parts V-Slot and GT2 models
+  are smooth or simplified envelopes and do not encode the real mating geometry,
+  so they were not accepted as golden references.
 
 ## License
 
