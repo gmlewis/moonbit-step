@@ -166,6 +166,9 @@ moon run components/examples/retaining_ring -- \
   --size 20 -o "$OUT/din471-a20.step"
 moon run components/examples/din472_ring -- \
   --size 20 -o "$OUT/din472-20.step"
+# A parametric table size (no measured reference; flat writer, no OCCT needed).
+moon run components/examples/din472_ring -- \
+  --size 22 -o "$OUT/din472-22-parametric.step"
 # The set-screw collar's primary artifact is the OCCT-evaluated trimmed solid.
 if command -v python3 >/dev/null 2>&1 &&
   { command -v DRAWEXE >/dev/null 2>&1 ||
@@ -204,7 +207,7 @@ for part in vslot-2020x100 vslot-2040x100 vslot-wheel vslot-tnut-m5 \
   vslot-eccentric-spacer plate-counterbore-50x40x8 bearing-plate-od22 \
   idler-flanged-20x10 \
   emt-1-2in-304 shaft-collar-d8 tube-mount-plate \
-  makerbeam-1010-l100 din471-a20 din472-20 \
+  makerbeam-1010-l100 din471-a20 din472-20 din472-22-parametric \
   clamp-collar-d20 sc8uu-bearing-block heat-set-boss-m3x4; do
   python3 "$ROOT/scripts/validate_step.py" --no-mesh "$OUT/$part.step"
 done

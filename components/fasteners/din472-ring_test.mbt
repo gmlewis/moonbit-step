@@ -159,12 +159,47 @@ test "DIN 472 12 mm ring carries the table's lug-hole diameter" {
 }
 
 ///|
-test "DIN 472 ring rejects unsupported and invalid input" {
-  assert_true(@fasteners.din472_ring(8.0) is Err(_))
+test "DIN 472 ring rejects sizes outside its table" {
   assert_true(@fasteners.din472_ring(0.0) is Err(_))
-  assert_true(@fasteners.din472_outline(8.0) is Err(_))
+  assert_true(@fasteners.din472_outline(0.0) is Err(_))
+  // Odd bores and bores above 40 mm are not DIN 472 table rows.
+  assert_true(@fasteners.din472_ring(9.0) is Err(_))
+  assert_true(@fasteners.din472_ring(42.0) is Err(_))
   for size in [10.0, 12.0, 14.0, 16.0, 18.0, 20.0, 24.0, 28.0, 32.0, 40.0] {
     assert_true(@fasteners.din472_outline(size) is Ok(_))
+  }
+}
+
+///|
+test "DIN 472 parametric outlines cover every table size" {
+  let table_sizes : Array[Double] = [
+    8.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0, 22.0, 24.0, 26.0, 28.0, 30.0, 32.0,
+    34.0, 36.0, 38.0, 40.0,
+  ]
+  for size in table_sizes {
+    assert_true(@standards.din472_size(size) is Ok(_))
+    assert_true(@fasteners.din472_outline(size) is Ok(_))
+    let part = d472_ok(@fasteners.din472_ring(size))
+    assert_eq(part.layers().length(), 1)
+  }
+}
+
+///|
+test "DIN 472 parametrics fill the measured gaps with recorded approximations" {
+  // The seven sizes without a measured outline are built from the table
+  // dimensions, are sharp, carry the parametric provenance note, and record
+  // the ~0.1 mm engineering approximation.
+  for size in [8.0, 22.0, 26.0, 30.0, 34.0, 36.0, 38.0] {
+    let part = d472_ok(@fasteners.din472_ring(size))
+    assert_false(part.features().has_modeled("edge-chamfers"))
+    assert_true(part.features().has_omitted("edge-breaks"))
+    if !part.metadata().source.contains("parametric DIN 472 construction") {
+      fail("size \{size} does not record its parametric provenance")
+    }
+    let (x0, x1, y0, y1, z0, z1) = part.bounding_box()
+    assert_true(x1 - x0 > size)
+    assert_true(y1 - y0 > size)
+    assert_true(z1 - z0 > 0.0)
   }
 }
 

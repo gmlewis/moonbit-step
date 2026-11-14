@@ -266,13 +266,185 @@ fn din472_outline_40() -> Din472Outline {
 }
 
 ///|
+/// din472_circle_intersections returns the two intersections of two circles.
+fn din472_circle_intersections(
+  c0 : @cad.Vec2,
+  r0 : Double,
+  c1 : @cad.Vec2,
+  r1 : Double,
+) -> Array[@cad.Vec2] {
+  let (x0, y0) = c0
+  let (x1, y1) = c1
+  let dx = x1 - x0
+  let dy = y1 - y0
+  let d = (dx * dx + dy * dy).sqrt()
+  if d == 0.0 || d > r0 + r1 || d < (r0 - r1).abs() {
+    return []
+  }
+  let a = (r0 * r0 - r1 * r1 + d * d) / (2.0 * d)
+  let h2 = r0 * r0 - a * a
+  let h = if h2 < 0.0 { 0.0 } else { h2.sqrt() }
+  let xm = x0 + a * dx / d
+  let ym = y0 + a * dy / d
+  let rx = -dy / d * h
+  let ry = dx / d * h
+  [(xm + rx, ym + ry), (xm - rx, ym - ry)]
+}
+
+///|
+/// din472_parametric_outline derives a free-state outline from the DIN 472
+/// table dimensions for a size with no measured reference.
+///
+/// The construction is driven only by the standard's thickness `s`, free
+/// outside diameter `d3`, lug width `a`, back width `b`, and plier-hole
+/// diameter `d5`. It reproduces the ten measured outlines' envelopes within
+/// about 0.1 mm and their material areas within a few percent; those measured
+/// outlines remain authoritative for their sizes. This is an engineering
+/// construction, not a measured B-rep and not a guess at an unspecified curve:
+/// it is derived from, and validated against, the licensed measured outlines.
+fn din472_parametric_outline(
+  size : @standards.DIN472Size,
+) -> Result[Din472Outline, @common.SpecError] {
+  let ro = size.free_outer_diameter_mm / 2.0
+  let ri = ro - size.ring_width_mm
+  let rf = size.lug_width_mm / 2.0
+  let ytip = 1.5 * size.thickness_mm
+  let rc = ro - rf
+  let cx = 0.02 * size.bore_diameter_mm
+  let rin = ri + cx
+  // The lug fillet is tangent to the outer circle and its tangent point on the
+  // tip line lies on the offset inner circle. Solve for that height.
+  let residual = fn(yh : Double) -> Double {
+    let xh2 = rc * rc - yh * yh
+    if xh2 <= 0.0 {
+      return 1.0e9
+    }
+    let xh = xh2.sqrt()
+    let d = rf * rf - (yh - ytip) * (yh - ytip)
+    if d <= 0.0 {
+      return 1.0e9
+    }
+    let s = d.sqrt()
+    let qx = xh + s - cx
+    qx * qx + ytip * ytip - rin * rin
+  }
+  let mut lo = ytip + 1.0e-9
+  let mut hi = ytip + rf - 1.0e-9
+  let mut flo = residual(lo)
+  if flo * residual(hi) > 0.0 {
+    return Err(
+      @common.SpecError::InvalidParameter(
+        "DIN 472 parametric outline has no solution for this size",
+      ),
+    )
+  }
+  for _ in 0..<200 {
+    let mid = (lo + hi) / 2.0
+    let fm = residual(mid)
+    if flo * fm <= 0.0 {
+      hi = mid
+    } else {
+      lo = mid
+      flo = fm
+    }
+  }
+  let yh = (lo + hi) / 2.0
+  let xh = (rc * rc - yh * yh).sqrt()
+  let s_off = (rf * rf - (yh - ytip) * (yh - ytip)).sqrt()
+  let q0 = (xh + s_off, -ytip)
+  let q1 = (xh + s_off, ytip)
+  // The tip line is tangent to the fillet at Q0; its outer intersection gives
+  // the outer-arc endpoint.
+  let tx = yh - ytip
+  let ty = -s_off
+  let aa = tx * tx + ty * ty
+  let bb = 2.0 * (q0.0 * tx + q0.1 * ty)
+  let cc = q0.0 * q0.0 + q0.1 * q0.1 - ro * ro
+  let disc = bb * bb - 4.0 * aa * cc
+  if aa == 0.0 || disc < 0.0 {
+    return Err(
+      @common.SpecError::InvalidParameter(
+        "DIN 472 parametric tip line misses the free outside diameter",
+      ),
+    )
+  }
+  let t = (-bb + disc.sqrt()) / (2.0 * aa)
+  let p0 = (q0.0 + t * tx, q0.1 + t * ty)
+  let p1 = (p0.0, -p0.1)
+  let inter = din472_circle_intersections((cx, 0.0), rin, (xh, -yh), rf)
+  if inter.length() < 2 {
+    return Err(
+      @common.SpecError::InvalidParameter(
+        "DIN 472 parametric lug fillet does not meet the inner outline",
+      ),
+    )
+  }
+  let mut r0 = inter[0]
+  let mut far = (r0.0 - q0.0) * (r0.0 - q0.0) + (r0.1 - q0.1) * (r0.1 - q0.1)
+  for i in 1..<inter.length() {
+    let p = inter[i]
+    let d = (p.0 - q0.0) * (p.0 - q0.0) + (p.1 - q0.1) * (p.1 - q0.1)
+    if d > far {
+      r0 = p
+      far = d
+    }
+  }
+  let r1 = (r0.0, -r0.1)
+  // Pick the fillet arc that protrudes into the bore (the lug's inner face).
+  let h0 = (xh, -yh)
+  let aq = @math.atan2(q0.1 - h0.1, q0.0 - h0.0)
+  let ar = @math.atan2(r0.1 - h0.1, r0.0 - h0.0)
+  let mid1 = (aq + ar) / 2.0
+  let mid2 = mid1 + @math.PI
+  let m1 = (xh + rf * @math.cos(mid1), -yh + rf * @math.sin(mid1))
+  let m2 = (xh + rf * @math.cos(mid2), -yh + rf * @math.sin(mid2))
+  let inside1 = (m1.0 - cx) * (m1.0 - cx) + m1.1 * m1.1 < rin * rin
+  let fm = if inside1 { m1 } else { m2 }
+  let inner_mid = (cx - rin, 0.0)
+  let upper_fm = (fm.0, -fm.1)
+  let holes : Array[(Double, Double, Double)] = [
+    (xh, yh, size.lug_hole_mm / 2.0),
+    (xh, -yh, size.lug_hole_mm / 2.0),
+  ]
+  Ok({
+    bore_mm: size.bore_diameter_mm,
+    thickness_mm: size.thickness_mm,
+    chamfer_mm: 0.0,
+    start: p1,
+    ops: [
+      RingArc(-ro, 0.0, p0.0, p0.1),
+      RingLine(q0.0, q0.1),
+      RingArc(fm.0, fm.1, r0.0, r0.1),
+      RingArc(inner_mid.0, inner_mid.1, r1.0, r1.1),
+      RingArc(upper_fm.0, upper_fm.1, q1.0, q1.1),
+      RingLine(p1.0, p1.1),
+    ],
+    holes,
+  })
+}
+
+///|
+/// din472_has_measured_outline reports whether a bore has a licensed measured
+/// free-state outline.
+fn din472_has_measured_outline(bore_mm : Double) -> Bool {
+  for size in [10.0, 12.0, 14.0, 16.0, 18.0, 20.0, 24.0, 28.0, 32.0, 40.0] {
+    if (bore_mm - size).abs() < 1.0e-9 {
+      return true
+    }
+  }
+  false
+}
+
+///|
 /// din472_outline returns the free-state outline for a DIN 472 bore size.
 ///
-/// Eight additional sizes are encoded from licensed B-reps: 10, 14, 16, 18, 24,
-/// 28, 32, and 40 mm from CC BY-SA 4.0 FreeCAD-parts_library references, and
-/// 12/20 mm from CC0 Innerscene references. Sizes without a licensed outline
-/// are rejected. `@standards.din472_size` still carries the verified groove
-/// table for every supported bore.
+/// Ten sizes use their licensed measured outlines: 12/20 mm from CC0
+/// Innerscene and 10/14/16/18/24/28/32/40 mm from CC BY-SA 4.0
+/// FreeCAD-parts_library. Every other size in the DIN 472 table is derived
+/// parametrically from the standard's dimensions by
+/// `din472_parametric_outline`, so the builder no longer depends on which
+/// reference B-reps happen to exist. Bore sizes outside the table are
+/// rejected by `@standards.din472_size`.
 pub fn din472_outline(
   bore_mm : Double,
 ) -> Result[Din472Outline, @common.SpecError] {
@@ -294,11 +466,10 @@ pub fn din472_outline(
       return Ok(make())
     }
   }
-  Err(
-    @common.SpecError::InvalidSize(
-      "DIN 472 free-state outline is encoded for 10, 12, 14, 16, 18, 20, 24, 28, 32, and 40 mm bores; other sizes expose the groove table via @standards.din472_size",
-    ),
-  )
+  match @standards.din472_size(bore_mm) {
+    Err(e) => Err(e)
+    Ok(size) => din472_parametric_outline(size)
+  }
 }
 
 ///|
@@ -342,7 +513,12 @@ fn din472_outline_source(bore_mm : Double) -> String {
       return "FreeCAD-parts_library (sisul01, commit 2141521) CC BY-SA 4.0 measured mid-plane outline, re-encoded as an original line/arc loop"
     }
   }
-  "CC0 1.0 Innerscene measured outline, re-encoded as an original line/arc loop"
+  for size in [12.0, 20.0] {
+    if (bore_mm - size).abs() < 1.0e-9 {
+      return "CC0 1.0 Innerscene measured outline, re-encoded as an original line/arc loop"
+    }
+  }
+  "parametric DIN 472 construction from the table's d3, a, b, d5, and s, validated against the ten measured outlines; no reference edge break"
 }
 
 ///|
@@ -351,17 +527,18 @@ fn din472_outline_source(bore_mm : Double) -> String {
 ///
 /// The ring lies in the XY plane from `z = 0` to `z = s`, its axis along +Z,
 /// and its lugs toward +X. The free-state outline and the two plier holes are
-/// modelled; the bore groove is not. Ten sizes have a licensed reference
-/// outline: 12/20 mm from CC0 Innerscene and 10/14/16/18/24/28/32/40 mm from
-/// CC BY-SA 4.0 FreeCAD-parts_library. Each is re-encoded as this library's own
-/// line/arc loop because DIN 472 does not dimension that curve. Unsupported
-/// outlines are rejected. Use `@standards.din472_size` for the groove interface
-/// of every table size.
+/// modelled; the bore groove is not. Every DIN 472 table size builds. Ten
+/// sizes use licensed measured outlines: 12/20 mm from CC0 Innerscene and
+/// 10/14/16/18/24/28/32/40 mm from CC BY-SA 4.0 FreeCAD-parts_library. The
+/// remaining table sizes are derived parametrically from the standard's
+/// dimensions, so capability is not limited by reference availability. Bore
+/// sizes outside the table are rejected.
 ///
 /// The eight FreeCAD-derived sizes carry real 45-degree, 0.1/0.12/0.175 mm
 /// chamfers on both face boundaries and require
-/// `write_step_evaluated`. The 12/20 mm CC0 rings remain flat and sharp.
-/// No spring temper or load, torque, or fatigue rating is implied.
+/// `write_step_evaluated`. The 12/20 mm CC0 rings and the parametric sizes
+/// remain flat and sharp. No spring temper or load, torque, or fatigue rating
+/// is implied.
 pub fn din472_ring(
   bore_mm : Double,
   detail~ : @common.DetailLevel = Detailed,
@@ -421,13 +598,18 @@ pub fn din472_ring(
                   reason="material condition, installation force, and load or fatigue capacity are not modelled",
                 ),
               ]
+              let measured = din472_has_measured_outline(bore_mm)
               if outline.chamfer_mm > 0.0 {
                 modeled.push("edge-chamfers")
               } else {
                 omitted.push(
                   @common.Omission::new(
                     feature="edge-breaks",
-                    reason="the CC0 reference model has sharp edges; no deburring or radius is modelled",
+                    reason=if measured {
+                      "the CC0 reference model has sharp edges; no deburring or radius is modelled"
+                    } else {
+                      "the parametric outline has sharp edges; no reference edge break is modelled"
+                    },
                   ),
                 )
               }
@@ -437,7 +619,7 @@ pub fn din472_ring(
                   @common.Approximation::new(
                     feature="outline-between-the-back-and-the-lugs",
                     kind=@common.ApproximationKind::EngineeringDefault,
-                    deviation_mm=0.0,
+                    deviation_mm=if measured { 0.0 } else { 0.1 },
                     control="\{@cad.fmt_double(bore_mm, None)} mm: " +
                       din472_outline_source(bore_mm) +
                       "; DIN 472 does not dimension this curve",

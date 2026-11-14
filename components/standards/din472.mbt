@@ -22,8 +22,9 @@
 /// groove fit.
 ///
 /// The free-state outline between the back and the lugs is not dimensioned by
-/// DIN 472, so `@fasteners.din472_ring` encodes the measured outline of a
-/// licensed reference model rather than deriving it from this table.
+/// DIN 472. `@fasteners.din472_ring` uses a licensed measured outline where one
+/// exists and otherwise derives the outline parametrically from the table
+/// dimensions, so every row here builds.
 pub(all) struct DIN472Size {
   bore_diameter_mm : Double
   thickness_mm : Double

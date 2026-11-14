@@ -15,16 +15,17 @@
 /// z = 0..s; the eight FreeCAD references are centered at z = 0, so those
 /// outputs are also shifted axially by -s/2. The builder's default frame stays
 /// XY-plane, z = 0..s, lugs +X.
-/// Encoded outlines are 10/14/16/18/24/28/32/40 mm (CC BY-SA 4.0
-/// FreeCAD-parts_library) and 12/20 mm (CC0 Innerscene). The eight FreeCAD
-/// sizes reproduce the reference 45-degree edge chamfers and export through
-/// OCCT; the 12/20 mm rings stay flat and sharp. The bore groove is declared
-/// by a connector but is not modelled.
+/// Ten sizes use measured outlines: 10/14/16/18/24/28/32/40 mm (CC BY-SA 4.0
+/// FreeCAD-parts_library) and 12/20 mm (CC0 Innerscene). Every other DIN 472
+/// table size is generated parametrically from the table dimensions. The eight
+/// FreeCAD sizes reproduce the reference 45-degree edge chamfers and export
+/// through OCCT; the other rings stay flat and sharp. The bore groove is
+/// declared by a connector but is not modelled.
 async fn main {
   let spec = {
     "size": @cli.opt_double(
       20.0,
-      help="Nominal bore diameter in mm (encoded outlines: 10, 12, 14, 16, 18, 20, 24, 28, 32, 40)",
+      help="Nominal bore diameter in mm (DIN 472 table: 8 to 40 mm, even sizes)",
       min=0.0,
     ),
     "goldenFrame": @cli.flag(
