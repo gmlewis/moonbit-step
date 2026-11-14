@@ -24,3 +24,6 @@ __pycache__
 # Generated matrix statistics: reproducible with `scripts/golden_matrix.py --write`.
 /components/testdata/golden/matrix.json
 /components/testdata/golden/MATRIX.md
+
+# Keep the declared readme in the published mooncake archive.
+!README.md
