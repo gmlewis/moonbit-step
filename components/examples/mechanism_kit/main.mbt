@@ -18,7 +18,7 @@ async fn main {
   let spec = {
     "part": @cli.opt_string(
       short='P',
-      help="Part: hinge, clevis, pin, rod-end, linkage, rail, carriage, lead-screw, lead-nut, belt, belt-unequal, cam, roller, oldham, extension-spring, torsion-spring, snap, o-ring, grooved-shaft, bracket, u-bracket, boss, rack",
+      help="Part: hinge, clevis, pin, rod-end, linkage, rail, carriage, lead-screw, lead-nut, belt, belt-unequal, cam, roller, oldham, extension-spring, torsion-spring, snap, o-ring, grooved-shaft, bracket, u-bracket, z-bracket, boss, rack",
     ),
     "length": @cli.opt_double(
       100.0,
@@ -376,6 +376,15 @@ async fn main {
       @mechanisms.u_bracket(
         args.double("legA"),
         args.double("legB"),
+        width,
+        thickness,
+        bore,
+      )
+    "z-bracket" =>
+      @mechanisms.z_bracket(
+        args.double("legA"),
+        args.double("legB"),
+        height,
         width,
         thickness,
         bore,

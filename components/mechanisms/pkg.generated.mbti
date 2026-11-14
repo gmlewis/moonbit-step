@@ -83,6 +83,8 @@ pub fn torsion_spring(Double, Double, Double, Int32, leg_length_mm? : Double, se
 
 pub fn u_bracket(Double, Double, Double, Double, Double, holes_per_leg? : Int32, edge_distance_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
+pub fn z_bracket(Double, Double, Double, Double, Double, Double, holes_per_flange? : Int32, edge_distance_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
 // Errors
 
 // Types and methods

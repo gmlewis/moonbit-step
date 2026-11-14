@@ -440,3 +440,239 @@ pub fn u_bracket(
   }
   Ok(out)
 }
+
+///|
+/// z_bracket builds a Z-shaped offset bracket with two flanges and a web.
+///
+/// Frame: the lower flange lies on `z = 0 .. thickness` and runs along +X from
+/// `x = 0` to `lower_length`; the web occupies
+/// `x = lower_length .. lower_length + thickness` and rises to `z = height`;
+/// the upper flange runs from `x = lower_length` to
+/// `x = lower_length + upper_length` at `z = height .. height + thickness`. All
+/// parts are `width` wide, centred on `y = 0`. Flange holes pass through Z, so
+/// they are real.
+///
+/// The flanges and web abut nominally. This is a generic fabricated bracket
+/// envelope: no weld or strength rating is implied.
+pub fn z_bracket(
+  lower_length_mm : Double,
+  upper_length_mm : Double,
+  height_mm : Double,
+  width_mm : Double,
+  thickness_mm : Double,
+  hole_diameter_mm : Double,
+  holes_per_flange~ : Int32 = 2,
+  edge_distance_mm? : Double,
+  color~ : @cad.Rgb = @cad.Rgb::grey(),
+) -> Result[@common.Component, @common.SpecError] {
+  match
+    mechanism_checks([
+      ("Z bracket lower length", lower_length_mm),
+      ("Z bracket upper length", upper_length_mm),
+      ("Z bracket height", height_mm),
+      ("Z bracket width", width_mm),
+      ("Z bracket thickness", thickness_mm),
+      ("Z bracket hole diameter", hole_diameter_mm),
+    ]) {
+    Err(e) => return Err(e)
+    Ok(_) => ()
+  }
+  if holes_per_flange < 1 || holes_per_flange > 2 {
+    return Err(
+      @common.InvalidParameter("Z bracket supports one or two holes per flange"),
+    )
+  }
+  if hole_diameter_mm >= width_mm {
+    return Err(
+      @common.InvalidDimension("Z bracket hole is wider than the bracket"),
+    )
+  }
+  let edge = match edge_distance_mm {
+    Some(e) => e
+    None => thickness_mm * 2.0
+  }
+  let hole_radius = hole_diameter_mm / 2.0
+  if edge <= hole_radius {
+    return Err(
+      @common.InvalidDimension("Z bracket hole edge distance is too small"),
+    )
+  }
+  let lower_positions : Array[Double] = if holes_per_flange == 1 {
+    [lower_length_mm / 2.0]
+  } else {
+    [edge, lower_length_mm - edge]
+  }
+  let upper_positions : Array[Double] = if holes_per_flange == 1 {
+    [lower_length_mm + upper_length_mm / 2.0]
+  } else {
+    [lower_length_mm + edge, lower_length_mm + upper_length_mm - edge]
+  }
+  for x in lower_positions {
+    if x - hole_radius <= 0.0 || x + hole_radius >= lower_length_mm {
+      return Err(
+        @common.InvalidDimension("Z bracket lower holes do not fit the flange"),
+      )
+    }
+  }
+  for x in upper_positions {
+    if x - hole_radius <= lower_length_mm ||
+      x + hole_radius >= lower_length_mm + upper_length_mm {
+      return Err(
+        @common.InvalidDimension("Z bracket upper holes do not fit the flange"),
+      )
+    }
+  }
+  let half_width = width_mm / 2.0
+  let lower_holes = lower_positions.map(fn(x) {
+    circle_loop(x, 0.0, hole_radius)
+  })
+  let upper_holes = upper_positions.map(fn(x) {
+    circle_loop(x, 0.0, hole_radius)
+  })
+  let lower = @cad.ExtrudedArcProfile::new(
+    rect_loop(0.0, -half_width, lower_length_mm, half_width),
+    thickness_mm,
+    holes=lower_holes,
+  ).as_shape()
+  let upper = @cad.ExtrudedArcProfile::new(
+    rect_loop(
+      lower_length_mm,
+      -half_width,
+      lower_length_mm + upper_length_mm,
+      half_width,
+    ),
+    thickness_mm,
+    holes=upper_holes,
+  ).as_shape()
+  let web = @cad.ExtrudedArcProfile::new(
+    rect_loop(0.0, -half_width, height_mm, half_width),
+    thickness_mm,
+  ).as_shape()
+  let features = @common.FeatureRecord::new(
+    modeled=["lower-flange", "upper-flange", "web", "through-bolt-holes"],
+    approximated=[],
+    omitted=[
+      @common.Omission::new(
+        feature="flange-to-web-union",
+        reason="the flanges and web abut nominally and are separate layers",
+      ),
+      @common.Omission::new(
+        feature="weld-and-strength-rating",
+        reason="no weld, fastener, or structural rating is implied",
+      ),
+    ],
+  )
+  let name = "z-bracket-\{@cad.fmt_double(lower_length_mm, None)}x\{@cad.fmt_double(upper_length_mm, None)}x\{@cad.fmt_double(height_mm, None)}"
+  let mut out = @common.Component::new(
+      name~,
+      metadata=@common.Metadata::new(
+        designation="Z bracket \{@cad.fmt_double(lower_length_mm, None)} / \{@cad.fmt_double(upper_length_mm, None)} x h\{@cad.fmt_double(height_mm, None)}",
+        family="Z bracket (engineering envelope)",
+        size="\{@cad.fmt_double(lower_length_mm, None)}x\{@cad.fmt_double(upper_length_mm, None)}x\{@cad.fmt_double(height_mm, None)}",
+        source="Parametric Z-bracket envelope with real flange holes. No standard or strength rating is implied.",
+      ),
+      description="Z-shaped offset bracket with two flanges and a connecting web. Flange holes are real through holes; the layers abut nominally.",
+      features~,
+    )
+    .add_layer(lower, name="lower-flange", color~)
+    .add_layer(
+      upper,
+      name="upper-flange",
+      color~,
+      placement=@common.Placement::translation(0.0, 0.0, height_mm),
+    )
+    .add_layer(
+      web,
+      name="web",
+      color~,
+      placement=@common.Placement::compose(
+        @common.Placement::translation(lower_length_mm + thickness_mm, 0.0, 0.0),
+        @common.Placement::rotation_y(-90.0),
+      ),
+    )
+    .with_connector_unchecked(
+      @common.MateConnector::new(
+        "bottom-face",
+        placement=@common.Placement::translation(
+          lower_length_mm / 2.0,
+          0.0,
+          0.0,
+        ),
+        axis=(0.0, 0.0, -1.0),
+        kind=@common.MateKind::PlaneFace,
+        diameter_mm=width_mm,
+        description="lower flange mounting face, outward normal -Z",
+      ),
+    )
+    .with_connector_unchecked(
+      @common.MateConnector::new(
+        "top-face",
+        placement=@common.Placement::translation(
+          lower_length_mm + upper_length_mm / 2.0,
+          0.0,
+          height_mm + thickness_mm,
+        ),
+        axis=(0.0, 0.0, 1.0),
+        kind=@common.MateKind::PlaneFace,
+        diameter_mm=width_mm,
+        description="upper flange face, outward normal +Z",
+      ),
+    )
+    .with_connector_unchecked(
+      @common.MateConnector::new(
+        "web-face-a",
+        placement=@common.Placement::translation(
+          lower_length_mm + thickness_mm / 2.0,
+          half_width,
+          height_mm / 2.0,
+        ),
+        axis=(0.0, 1.0, 0.0),
+        kind=@common.MateKind::PlaneFace,
+        diameter_mm=height_mm,
+        description="positive-Y web face",
+      ),
+    )
+    .with_connector_unchecked(
+      @common.MateConnector::new(
+        "web-face-b",
+        placement=@common.Placement::translation(
+          lower_length_mm + thickness_mm / 2.0,
+          -half_width,
+          height_mm / 2.0,
+        ),
+        axis=(0.0, -1.0, 0.0),
+        kind=@common.MateKind::PlaneFace,
+        diameter_mm=height_mm,
+        description="negative-Y web face",
+      ),
+    )
+  for i, x in lower_positions {
+    out = out.with_connector_unchecked(
+      @common.MateConnector::new(
+        "lower-hole-\{i + 1}",
+        placement=@common.Placement::translation(x, 0.0, 0.0),
+        axis=(0.0, 0.0, 1.0),
+        kind=@common.MateKind::CylindricalBore,
+        gender=@common.MateGender::Female,
+        diameter_mm=hole_diameter_mm,
+        depth_mm=thickness_mm,
+        description="through bolt hole in the lower flange",
+      ),
+    )
+  }
+  for i, x in upper_positions {
+    out = out.with_connector_unchecked(
+      @common.MateConnector::new(
+        "upper-hole-\{i + 1}",
+        placement=@common.Placement::translation(x, 0.0, height_mm),
+        axis=(0.0, 0.0, 1.0),
+        kind=@common.MateKind::CylindricalBore,
+        gender=@common.MateGender::Female,
+        diameter_mm=hole_diameter_mm,
+        depth_mm=thickness_mm,
+        description="through bolt hole in the upper flange",
+      ),
+    )
+  }
+  Ok(out)
+}

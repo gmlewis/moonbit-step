@@ -18,6 +18,7 @@ test "mechanism bodies have positive analytic volume and closed meshes" {
     mech_ok(@mechanisms.grooved_shaft(20.0, 50.0, 4.0, 2.0, 20.0)),
     mech_ok(@mechanisms.l_bracket(60.0, 50.0, 30.0, 4.0, 5.0)),
     mech_ok(@mechanisms.u_bracket(100.0, 40.0, 60.0, 4.0, 5.0)),
+    mech_ok(@mechanisms.z_bracket(60.0, 50.0, 40.0, 30.0, 4.0, 5.0)),
     mech_ok(@mechanisms.tapped_boss(16.0, 20.0, 24.0, 4.0, 6.0, 1.0, 10.0)),
     mech_ok(@mechanisms.rack_gear(2.0, 10, 6.0, 10.0)),
   ]

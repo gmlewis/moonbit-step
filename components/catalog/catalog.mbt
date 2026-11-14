@@ -653,6 +653,19 @@ pub fn mechanisms_catalog() -> Array[CatalogEntry] {
       )
     Err(_) => ()
   }
+  match @mechanisms.z_bracket(60.0, 50.0, 40.0, 30.0, 4.0, 5.0) {
+    Ok(c) =>
+      direct.push(
+        (
+          c,
+          [
+            "lower_length", "upper_length", "height", "width", "thickness", "hole_diameter",
+            "holes_per_flange",
+          ],
+        ),
+      )
+    Err(_) => ()
+  }
   match @mechanisms.tapped_boss(16.0, 20.0, 24.0, 4.0, 6.0, 1.0, 10.0) {
     Ok(c) =>
       direct.push(

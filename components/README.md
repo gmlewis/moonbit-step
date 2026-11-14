@@ -195,9 +195,10 @@ moon run components/examples/mechanism_kit -- --part snap -o snap.step
 moon run components/examples/mechanism_kit -- --part o-ring -o oring.step
 moon run components/examples/mechanism_kit -- --part grooved-shaft -o shaft.step
 
-# L bracket, tapped boss, and rack
+# L bracket, U/Z brackets, tapped boss, and rack
 moon run components/examples/mechanism_kit -- --part bracket -o bracket.step
 moon run components/examples/mechanism_kit -- --part u-bracket -o u-bracket.step
+moon run components/examples/mechanism_kit -- --part z-bracket -o z-bracket.step
 moon run components/examples/mechanism_kit -- --part boss -o boss.step
 moon run components/examples/mechanism_kit -- --part rack -o rack.step
 
@@ -366,7 +367,7 @@ use `--headless`.
 | `fasteners` | Screws, bolts, nuts, washers, pins, rods, set screws, generic solid rivets, DIN 471 type A external retaining rings (A 10 to A 34), and DIN 472 internal retaining rings (all table sizes 8 to 40; measured outlines for 10, 12, 14, 16, 18, 20, 24, 28, 32, and 40 mm, parametric for the rest). |
 | `profiles` | Generic T-slot sections, the vendor 2020 B-slot6 A section, OpenBuilds-compatible V-Slot 2020/2040 sections, the MakerBeam 10 x 10 section, a gusseted V-Slot corner bracket, P1000-style strut channel, and a generic channel nut. |
 | `motion` | Shafts, stepped/keyed shafts, spacers and V-Slot wheel spacers (plain and eccentric), bushings, plain, set-screw, and clamp shaft collars, keys, dowel pins, standoffs, compression springs, ball bearings (envelope, shielded, and full-complement deep-groove), LM-series linear bushings, flanged linear housings, UCP-series pillow-block bearing boundaries, approximated GT2 timing pulleys, smooth idlers, V-Slot wheels, EMT tubing with end caps and split clamps, rigid couplings, helical beam couplings, and flanged bearing housings. |
-| `mechanisms` | Generic engineering envelopes for a barrel hinge, clevis, pin, rod end, linkage bar, linear rail and carriage, lead screw and flanged nut, equal- and unequal-pulley timing-belt loops, eccentric cam and roller follower, Oldham coupling, extension and torsion springs, snap latch, O-ring, grooved shaft, L and U brackets (L with optional gusset), tapped boss, and a straight-flank basic rack with a pinion-layout helper. |
+| `mechanisms` | Generic engineering envelopes for a barrel hinge, clevis, pin, rod end, linkage bar, linear rail and carriage, lead screw and flanged nut, equal- and unequal-pulley timing-belt loops, eccentric cam and roller follower, Oldham coupling, extension and torsion springs, snap latch, O-ring, grooved shaft, L/U/Z brackets (L with optional gusset), tapped boss, and a straight-flank basic rack with a pinion-layout helper. |
 | `motors` | NEMA 17 and NEMA 23 stepper-motor envelopes, mounting interfaces, NEMA mounting plates, and a generic NEMA-to-20-series extrusion adapter. |
 | `stock` | EN 10056 angle sections, configurable flat plate blanks with analytic circular holes and obround slots, counterbored and countersunk plates, bearing-housing plates, tube-to-plate and tube-to-V-Slot adapter brackets, generic channel-to-extrusion adapters and extrusion-to-tube clamps, SC8UU-style rod/bearing blocks, and heat-set insert bosses. |
 | `gears` | Involute spur gears, external pairs, and exact-internal-involute planetary sets. |

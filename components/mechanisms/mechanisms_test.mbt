@@ -268,3 +268,24 @@ test "U bracket base, walls, and through holes" {
   assert_true(@mechanisms.u_bracket(100.0, 40.0, 8.0, 4.0, 5.0) is Err(_))
   assert_true(@mechanisms.u_bracket(100.0, 40.0, 60.0, 4.0, 50.0) is Err(_))
 }
+
+///|
+test "Z bracket flanges, web, and through holes" {
+  let part = mech_ok(@mechanisms.z_bracket(60.0, 50.0, 40.0, 30.0, 4.0, 5.0))
+  let (x0, x1, y0, y1, z0, z1) = part.bounding_box()
+  assert_true(mech_close(x0, 0.0))
+  assert_true(mech_close(x1, 110.0))
+  assert_true(mech_close(y0, -15.0))
+  assert_true(mech_close(y1, 15.0))
+  assert_true(mech_close(z0, 0.0))
+  assert_true(mech_close(z1, 44.0))
+  assert_eq(part.layers().length(), 3)
+  let lower = mech_connector(part, "lower-hole-1")
+  assert_true(lower.kind is @common.MateKind::CylindricalBore)
+  assert_true(mech_close(lower.placement.trans.0, 8.0))
+  let upper = mech_connector(part, "upper-hole-2")
+  assert_true(upper.kind is @common.MateKind::CylindricalBore)
+  assert_true(mech_close(upper.placement.trans.0, 102.0))
+  assert_true(mech_has_connector(part, "web-face-a"))
+  assert_true(@mechanisms.z_bracket(10.0, 50.0, 40.0, 30.0, 4.0, 5.0) is Err(_))
+}
