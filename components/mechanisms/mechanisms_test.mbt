@@ -246,3 +246,25 @@ test "linkage design family builds defaults and named variants" {
   assert_true(family.build_values([("length", 500.0)]) is Err(_))
   assert_true(family.build_values([("unknown", 1.0)]) is Err(_))
 }
+
+///|
+test "U bracket base, walls, and through holes" {
+  let part = mech_ok(@mechanisms.u_bracket(100.0, 40.0, 60.0, 4.0, 5.0))
+  let (x0, x1, y0, y1, z0, z1) = part.bounding_box()
+  assert_true(mech_close(x0, 0.0))
+  assert_true(mech_close(x1, 100.0))
+  assert_true(mech_close(y0, -30.0))
+  assert_true(mech_close(y1, 30.0))
+  assert_true(mech_close(z0, 0.0))
+  assert_true(mech_close(z1, 44.0))
+  assert_eq(part.layers().length(), 3)
+  let base_hole = mech_connector(part, "base-hole-1")
+  assert_true(base_hole.kind is @common.MateKind::CylindricalBore)
+  assert_true(mech_close(base_hole.diameter_mm.unwrap(), 5.0))
+  let wall_hole = mech_connector(part, "wall-hole-a-1")
+  assert_true(wall_hole.kind is @common.MateKind::CylindricalBore)
+  assert_true(mech_close(wall_hole.placement.trans.2, 24.0))
+  assert_true(mech_has_connector(part, "wall-hole-b-2"))
+  assert_true(@mechanisms.u_bracket(100.0, 40.0, 8.0, 4.0, 5.0) is Err(_))
+  assert_true(@mechanisms.u_bracket(100.0, 40.0, 60.0, 4.0, 50.0) is Err(_))
+}

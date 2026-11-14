@@ -197,6 +197,7 @@ moon run components/examples/mechanism_kit -- --part grooved-shaft -o shaft.step
 
 # L bracket, tapped boss, and rack
 moon run components/examples/mechanism_kit -- --part bracket -o bracket.step
+moon run components/examples/mechanism_kit -- --part u-bracket -o u-bracket.step
 moon run components/examples/mechanism_kit -- --part boss -o boss.step
 moon run components/examples/mechanism_kit -- --part rack -o rack.step
 
@@ -211,6 +212,10 @@ moon run components/examples/mechanism_assembly -- \
   -o clevis-rod-end.step
 moon run components/examples/mechanism_assembly -- --mode assembly \
   -o clevis-rod-end-assembly.step
+
+# Fuse a layered mechanism body into one OCCT-evaluated manifold
+moon run components/examples/mechanism_kit -- \
+  --part hinge --evaluated -o hinge-evaluated.step
 ```
 
 `components/common` adds an additive parameter/design-family API. Existing
@@ -249,7 +254,9 @@ family with `compact` and `long` presets; the design example uses it.
 
 `components/examples/mechanism_design` is the design-from-scratch example. It
 runs with `--headless` for agents and `--view` for the owner; see
-[`docs/boundaries.md`](../docs/boundaries.md) for the view/iterate loop.
+[`docs/boundaries.md`](../docs/boundaries.md) for the view/iterate loop. It and
+`mechanism_kit` accept `--evaluated` to fuse their layers with OCCT when a
+single trimmed manifold is needed.
 `components/examples/mechanism_assembly` shows the interface side: it places a
 rod end in a clevis with a named `MatePair` (`eye-seat` ↔ `eye-bore`), inserts
 the pin through both prongs and the eye, checks connectivity, and can write the
@@ -351,7 +358,7 @@ use `--headless`.
 | `fasteners` | Screws, bolts, nuts, washers, pins, rods, set screws, generic solid rivets, DIN 471 type A external retaining rings (A 10 to A 34), and DIN 472 internal retaining rings (all table sizes 8 to 40; measured outlines for 10, 12, 14, 16, 18, 20, 24, 28, 32, and 40 mm, parametric for the rest). |
 | `profiles` | Generic T-slot sections, the vendor 2020 B-slot6 A section, OpenBuilds-compatible V-Slot 2020/2040 sections, the MakerBeam 10 x 10 section, a gusseted V-Slot corner bracket, P1000-style strut channel, and a generic channel nut. |
 | `motion` | Shafts, stepped/keyed shafts, spacers and V-Slot wheel spacers (plain and eccentric), bushings, plain, set-screw, and clamp shaft collars, keys, dowel pins, standoffs, compression springs, ball bearings (envelope, shielded, and full-complement deep-groove), LM-series linear bushings, flanged linear housings, UCP-series pillow-block bearing boundaries, approximated GT2 timing pulleys, smooth idlers, V-Slot wheels, EMT tubing with end caps and split clamps, rigid couplings, helical beam couplings, and flanged bearing housings. |
-| `mechanisms` | Generic engineering envelopes for a barrel hinge, clevis, pin, rod end, linkage bar, linear rail and carriage, lead screw and flanged nut, equal- and unequal-pulley timing-belt loops, eccentric cam and roller follower, Oldham coupling, extension and torsion springs, snap latch, O-ring, grooved shaft, L bracket (with optional gusset), tapped boss, and a straight-flank basic rack with a pinion-layout helper. |
+| `mechanisms` | Generic engineering envelopes for a barrel hinge, clevis, pin, rod end, linkage bar, linear rail and carriage, lead screw and flanged nut, equal- and unequal-pulley timing-belt loops, eccentric cam and roller follower, Oldham coupling, extension and torsion springs, snap latch, O-ring, grooved shaft, L and U brackets (L with optional gusset), tapped boss, and a straight-flank basic rack with a pinion-layout helper. |
 | `motors` | NEMA 17 and NEMA 23 stepper-motor envelopes, mounting interfaces, NEMA mounting plates, and a generic NEMA-to-20-series extrusion adapter. |
 | `stock` | EN 10056 angle sections, configurable flat plate blanks with analytic circular holes and obround slots, counterbored and countersunk plates, bearing-housing plates, tube-to-plate and tube-to-V-Slot adapter brackets, generic channel-to-extrusion adapters and extrusion-to-tube clamps, SC8UU-style rod/bearing blocks, and heat-set insert bosses. |
 | `gears` | Involute spur gears, external pairs, and exact-internal-involute planetary sets. |
@@ -633,7 +640,8 @@ loop and how imported vendor parts are referenced through SolidCraft, is in
 - Layered mechanism parts (hinge leaves/knuckles/pin, clevis prongs, carriage
   walls/top slab, Oldham hubs/disc, bracket legs/gusset, roller/pin) are separate
   closed bodies with nominal abutments. They are not fused by the flat writer;
-  use `write_step_evaluated` or SolidCraft when one manifold is required.
+  use `write_step_evaluated` (or `mechanism_kit --evaluated`) or SolidCraft when
+  one manifold is required. The `rail` base slab is also fused by that path.
 - Sprocket/chain envelopes, bevel gears, and worm gears are recorded gaps. Their
   exact tooth forms need a licensed, dimensioned reference or a defensible
   standard tooth-space construction; a guessed envelope is not shipped. The rack

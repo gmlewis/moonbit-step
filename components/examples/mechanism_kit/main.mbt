@@ -18,7 +18,7 @@ async fn main {
   let spec = {
     "part": @cli.opt_string(
       short='P',
-      help="Part: hinge, clevis, pin, rod-end, linkage, rail, carriage, lead-screw, lead-nut, belt, belt-unequal, cam, roller, oldham, extension-spring, torsion-spring, snap, o-ring, grooved-shaft, bracket, boss, rack",
+      help="Part: hinge, clevis, pin, rod-end, linkage, rail, carriage, lead-screw, lead-nut, belt, belt-unequal, cam, roller, oldham, extension-spring, torsion-spring, snap, o-ring, grooved-shaft, bracket, u-bracket, boss, rack",
     ),
     "length": @cli.opt_double(
       100.0,
@@ -181,6 +181,9 @@ async fn main {
       0.0,
       help="Boss counterbore depth in mm",
       min=0.0,
+    ),
+    "evaluated": @cli.flag(
+      help="Fuse layers and export an OCCT-evaluated STEP (requires OCCT)",
     ),
     "out": @cli.opt_string(short='o', help="Write STEP to this path"),
   }
@@ -369,6 +372,14 @@ async fn main {
         diameter,
         gusset_mm=args.double("gusset"),
       )
+    "u-bracket" =>
+      @mechanisms.u_bracket(
+        args.double("legA"),
+        args.double("legB"),
+        width,
+        thickness,
+        bore,
+      )
     "boss" =>
       @mechanisms.tapped_boss(
         diameter,
@@ -399,6 +410,10 @@ async fn main {
       @cli.eprintln("error: " + e.message())
       abort("")
     }
+  }
+  if args.flag("evaluated") {
+    component.write_step_evaluated(args.string_opt("out"))
+    return
   }
   component.write_step(args.string_opt("out"), checked=true)
 }

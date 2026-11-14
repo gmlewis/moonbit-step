@@ -68,6 +68,9 @@ async fn main {
     ),
     "variant": @cli.opt_string(help="Named variant: compact or long"),
     "noBase": @cli.flag(help="Omit the base plate and pivot pins"),
+    "evaluated": @cli.flag(
+      help="Fuse layers and export an OCCT-evaluated STEP (requires OCCT)",
+    ),
     "out": @cli.opt_string(short='o', help="Write STEP to this path"),
   }
   guard @cli.parse(
@@ -149,6 +152,10 @@ async fn main {
       color=@cad.Rgb::orange(),
       placement=@common.Placement::translation(spacing / 2.0, 0.0, base_z),
     )
+  }
+  if args.flag("evaluated") {
+    component.write_step_evaluated(args.string_opt("out"))
+    return
   }
   component.write_step(args.string_opt("out"), checked=true)
 }

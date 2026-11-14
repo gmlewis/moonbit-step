@@ -125,7 +125,7 @@ moon run components/examples/stock_primitive -- \
 # example. Every artifact is validated by the loop below.
 for part in hinge clevis pin rod-end linkage rail carriage lead-screw lead-nut \
   belt belt-unequal cam roller oldham extension-spring torsion-spring snap \
-  o-ring grooved-shaft bracket boss rack; do
+  o-ring grooved-shaft bracket u-bracket boss rack; do
   moon run components/examples/mechanism_kit -- \
     --part "$part" -o "$OUT/mechanism-$part.step"
 done
@@ -252,11 +252,25 @@ for part in vslot-2020x100 vslot-2040x100 vslot-wheel vslot-tnut-m5 \
   mechanism-lead-nut mechanism-belt mechanism-belt-unequal mechanism-cam mechanism-roller \
   mechanism-oldham mechanism-extension-spring mechanism-torsion-spring \
   mechanism-snap mechanism-o-ring mechanism-grooved-shaft \
-  mechanism-bracket mechanism-boss mechanism-rack \
+  mechanism-bracket mechanism-u-bracket mechanism-boss mechanism-rack \
   mechanism-design-linkage mechanism-design-linkage-compact \
   mechanism-clevis-rod-end; do
   python3 "$ROOT/scripts/validate_step.py" --no-mesh "$OUT/$part.step"
 done
+
+# OCCT-evaluated mechanism fixtures: fuse the layered bodies into one trimmed
+# manifold and run the full validator (including tessellation).
+if command -v python3 >/dev/null 2>&1 &&
+  { command -v DRAWEXE >/dev/null 2>&1 ||
+    command -v occt-draw >/dev/null 2>&1; }; then
+  for part in hinge rail carriage bracket oldham; do
+    moon run components/examples/mechanism_kit -- \
+      --part "$part" --evaluated -o "$OUT/mechanism-$part-evaluated.step"
+    python3 "$ROOT/scripts/validate_step.py" "$OUT/mechanism-$part-evaluated.step"
+  done
+else
+  echo "skipping evaluated mechanism fixtures: evaluated export needs python3 and OCCT" >&2
+fi
 
 echo "Independent frame geometry validation (OCCT, optional)..."
 set +e

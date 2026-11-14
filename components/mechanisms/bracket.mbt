@@ -222,3 +222,221 @@ pub fn l_bracket(
   }
   Ok(out)
 }
+
+///|
+/// u_bracket builds a U-channel bracket with a base plate and two side walls.
+///
+/// Frame: the base lies on `z = 0 .. thickness` and runs along +X from
+/// `x = 0` to `base_length`; it is `width` wide, centred on `y = 0`. Two side
+/// walls rise from `z = thickness` to `z = thickness + leg_height` at
+/// `y = -width/2 .. -width/2 + thickness` and
+/// `y = width/2 - thickness .. width/2`. Base holes pass through Z; wall holes
+/// pass through Y, so all holes are real.
+///
+/// The base and walls abut nominally at the base top. This is a generic
+/// fabricated bracket envelope: no weld or strength rating is implied.
+pub fn u_bracket(
+  base_length_mm : Double,
+  leg_height_mm : Double,
+  width_mm : Double,
+  thickness_mm : Double,
+  hole_diameter_mm : Double,
+  holes_per_leg~ : Int32 = 2,
+  edge_distance_mm? : Double,
+  color~ : @cad.Rgb = @cad.Rgb::grey(),
+) -> Result[@common.Component, @common.SpecError] {
+  match
+    mechanism_checks([
+      ("U bracket base length", base_length_mm),
+      ("U bracket leg height", leg_height_mm),
+      ("U bracket width", width_mm),
+      ("U bracket thickness", thickness_mm),
+      ("U bracket hole diameter", hole_diameter_mm),
+    ]) {
+    Err(e) => return Err(e)
+    Ok(_) => ()
+  }
+  if holes_per_leg < 1 || holes_per_leg > 2 {
+    return Err(
+      @common.InvalidParameter("U bracket supports one or two holes per leg"),
+    )
+  }
+  if thickness_mm >= width_mm / 2.0 {
+    return Err(
+      @common.InvalidDimension("U bracket walls do not fit across the width"),
+    )
+  }
+  if hole_diameter_mm >= leg_height_mm ||
+    hole_diameter_mm >= width_mm - 2.0 * thickness_mm {
+    return Err(
+      @common.InvalidDimension("U bracket hole does not fit the wall or base"),
+    )
+  }
+  let edge = match edge_distance_mm {
+    Some(e) => e
+    None => thickness_mm * 2.0
+  }
+  let hole_radius = hole_diameter_mm / 2.0
+  if edge <= hole_radius {
+    return Err(
+      @common.InvalidDimension("U bracket hole edge distance is too small"),
+    )
+  }
+  let positions : Array[Double] = if holes_per_leg == 1 {
+    [base_length_mm / 2.0]
+  } else {
+    [edge, base_length_mm - edge]
+  }
+  for x in positions {
+    if x - hole_radius <= 0.0 || x + hole_radius >= base_length_mm {
+      return Err(
+        @common.InvalidDimension(
+          "U bracket holes do not fit the bracket length",
+        ),
+      )
+    }
+  }
+  let half_width = width_mm / 2.0
+  let base_holes = positions.map(fn(x) { circle_loop(x, 0.0, hole_radius) })
+  let base = @cad.ExtrudedArcProfile::new(
+    rect_loop(0.0, -half_width, base_length_mm, half_width),
+    thickness_mm,
+    holes=base_holes,
+  ).as_shape()
+  let wall_holes = positions.map(fn(x) {
+    circle_loop(x, leg_height_mm / 2.0, hole_radius)
+  })
+  let wall = @cad.ExtrudedArcProfile::new(
+    rect_loop(0.0, 0.0, base_length_mm, leg_height_mm),
+    thickness_mm,
+    holes=wall_holes,
+  ).as_shape()
+  let wall_z = thickness_mm + leg_height_mm
+  let left_y = -half_width
+  let right_y = half_width - thickness_mm
+  let features = @common.FeatureRecord::new(
+    modeled=["base-leg", "side-walls", "through-bolt-holes"],
+    approximated=[],
+    omitted=[
+      @common.Omission::new(
+        feature="wall-to-base-union",
+        reason="the walls abut the base nominally and are separate layers",
+      ),
+      @common.Omission::new(
+        feature="weld-and-strength-rating",
+        reason="no weld, fastener, or structural rating is implied",
+      ),
+    ],
+  )
+  let name = "u-bracket-\{@cad.fmt_double(base_length_mm, None)}x\{@cad.fmt_double(width_mm, None)}"
+  let mut out = @common.Component::new(
+      name~,
+      metadata=@common.Metadata::new(
+        designation="U bracket \{@cad.fmt_double(base_length_mm, None)} x \{@cad.fmt_double(width_mm, None)} x h\{@cad.fmt_double(leg_height_mm, None)}",
+        family="U bracket (engineering envelope)",
+        size="\{@cad.fmt_double(base_length_mm, None)}x\{@cad.fmt_double(width_mm, None)}x\{@cad.fmt_double(leg_height_mm, None)}",
+        source="Parametric U-channel bracket envelope with real through holes. No standard or strength rating is implied.",
+      ),
+      description="U-channel bracket with a base plate and two side walls. Base holes pass through Z and wall holes through Y; the walls abut the base nominally.",
+      features~,
+    )
+    .add_layer(base, name="base-leg", color~)
+    .add_layer(
+      wall,
+      name="wall-left",
+      color~,
+      placement=@common.Placement::compose(
+        @common.Placement::translation(0.0, left_y, wall_z),
+        @common.Placement::rotation_x(-90.0),
+      ),
+    )
+    .add_layer(
+      wall,
+      name="wall-right",
+      color~,
+      placement=@common.Placement::compose(
+        @common.Placement::translation(0.0, right_y, wall_z),
+        @common.Placement::rotation_x(-90.0),
+      ),
+    )
+    .with_connector_unchecked(
+      @common.MateConnector::new(
+        "base-face",
+        placement=@common.Placement::translation(base_length_mm / 2.0, 0.0, 0.0),
+        axis=(0.0, 0.0, -1.0),
+        kind=@common.MateKind::PlaneFace,
+        diameter_mm=width_mm,
+        description="base mounting face, outward normal -Z",
+      ),
+    )
+    .with_connector_unchecked(
+      @common.MateConnector::new(
+        "wall-face-a",
+        placement=@common.Placement::translation(
+          base_length_mm / 2.0,
+          half_width,
+          thickness_mm + leg_height_mm / 2.0,
+        ),
+        axis=(0.0, 1.0, 0.0),
+        kind=@common.MateKind::PlaneFace,
+        diameter_mm=leg_height_mm,
+        description="positive-Y wall outer face",
+      ),
+    )
+    .with_connector_unchecked(
+      @common.MateConnector::new(
+        "wall-face-b",
+        placement=@common.Placement::translation(
+          base_length_mm / 2.0,
+          -half_width,
+          thickness_mm + leg_height_mm / 2.0,
+        ),
+        axis=(0.0, -1.0, 0.0),
+        kind=@common.MateKind::PlaneFace,
+        diameter_mm=leg_height_mm,
+        description="negative-Y wall outer face",
+      ),
+    )
+  for i, x in positions {
+    out = out.with_connector_unchecked(
+      @common.MateConnector::new(
+        "base-hole-\{i + 1}",
+        placement=@common.Placement::translation(x, 0.0, 0.0),
+        axis=(0.0, 0.0, 1.0),
+        kind=@common.MateKind::CylindricalBore,
+        gender=@common.MateGender::Female,
+        diameter_mm=hole_diameter_mm,
+        depth_mm=thickness_mm,
+        description="through bolt hole in the base",
+      ),
+    )
+  }
+  for i, x in positions {
+    let z = thickness_mm + leg_height_mm / 2.0
+    out = out.with_connector_unchecked(
+      @common.MateConnector::new(
+        "wall-hole-a-\{i + 1}",
+        placement=@common.Placement::translation(x, half_width, z),
+        axis=(0.0, -1.0, 0.0),
+        kind=@common.MateKind::CylindricalBore,
+        gender=@common.MateGender::Female,
+        diameter_mm=hole_diameter_mm,
+        depth_mm=thickness_mm,
+        description="through bolt hole in the positive-Y wall",
+      ),
+    )
+    out = out.with_connector_unchecked(
+      @common.MateConnector::new(
+        "wall-hole-b-\{i + 1}",
+        placement=@common.Placement::translation(x, -half_width, z),
+        axis=(0.0, 1.0, 0.0),
+        kind=@common.MateKind::CylindricalBore,
+        gender=@common.MateGender::Female,
+        diameter_mm=hole_diameter_mm,
+        depth_mm=thickness_mm,
+        description="through bolt hole in the negative-Y wall",
+      ),
+    )
+  }
+  Ok(out)
+}

@@ -93,6 +93,10 @@ test "every public mechanism builder exposes a connector" {
     ),
     (mech_ok(@mechanisms.l_bracket(60.0, 50.0, 30.0, 4.0, 5.0)), "base-hole-1"),
     (
+      mech_ok(@mechanisms.u_bracket(100.0, 40.0, 60.0, 4.0, 5.0)),
+      "wall-hole-a-1",
+    ),
+    (
       mech_ok(@mechanisms.tapped_boss(16.0, 20.0, 24.0, 4.0, 6.0, 1.0, 10.0)),
       "thread",
     ),
