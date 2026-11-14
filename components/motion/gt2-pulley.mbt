@@ -144,7 +144,34 @@ fn gt2_tooth_outline(
       include_start=false,
     )
   }
-  points
+  // Adjacent teeth can repeat the joint point; a zero-length edge makes the
+  // extruded shell invalid, so drop consecutive duplicates.
+  let out : Array[@cad.Vec2] = []
+  for p in points {
+    let keep = if out.length() == 0 {
+      true
+    } else {
+      let q = out[out.length() - 1]
+      (p.0 - q.0).abs() > 1.0e-12 || (p.1 - q.1).abs() > 1.0e-12
+    }
+    if keep {
+      out.push(p)
+    }
+  }
+  // The closing point can repeat the first point at the 2*pi seam.
+  let wraps = if out.length() > 1 {
+    let first = out[0]
+    let last = out[out.length() - 1]
+    (last.0 - first.0).abs() <= 1.0e-12 && (last.1 - first.1).abs() <= 1.0e-12
+  } else {
+    false
+  }
+  let result : Array[@cad.Vec2] = []
+  let count = if wraps { out.length() - 1 } else { out.length() }
+  for i in 0..<count {
+    result.push(out[i])
+  }
+  result
 }
 
 ///|

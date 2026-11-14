@@ -462,8 +462,11 @@ frames, and plates expose face and per-hole frames.
   and no licensed step model matched the published dimensions.
 - GT2 timing pulleys use an approximate trapezoidal tooth form built from the
   published 2 mm pitch, 0.254 mm pitch-line offset, 0.76 mm depth, and 1.49 mm
-  width. They are a prototyping approximation, not a licensed exact profile,
-  and carry no torque or belt-life rating.
+  width. Adjacent-tooth joint points are deduplicated (including the 2π seam),
+  so the extruded toothed body is a valid watertight solid; optional end
+  flanges are separate abutting annular layers (three solids). They are a
+  prototyping approximation, not a licensed exact profile, and carry no torque
+  or belt-life rating.
 - Set-screw shaft collars are one boolean difference (a chamfered annular body
   minus a radial hole). Their primary artifact is the OCCT-evaluated trimmed
   solid from `write_step_evaluated`; the flat writer cannot trim the radial hole

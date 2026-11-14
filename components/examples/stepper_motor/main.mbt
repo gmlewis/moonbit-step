@@ -44,6 +44,9 @@ async fn main {
       help="Detail: simplified, detailed (default), full",
     ),
     "out": @cli.opt_string(short='o', help="Write STEP to this path"),
+    "mountingPlate": @cli.flag(
+      help="Generate a 60 x 60 x 6 mm NEMA mounting plate instead of the motor envelope",
+    ),
     "bbox": @cli.flag(help="Print the motor bounding box to stderr"),
   }
   guard @cli.parse(
@@ -61,6 +64,21 @@ async fn main {
       @cli.eprintln("error: " + e.message())
       abort("")
     }
+  }
+  if args.flag("mountingPlate") {
+    let plate = match @motors.nema_mounting_plate(frame, 60.0, 60.0, 6.0) {
+      Ok(c) => c
+      Err(e) => {
+        @cli.eprintln("error: " + e.message())
+        abort("")
+      }
+    }
+    if args.flag("bbox") {
+      let (x0, x1, y0, y1, z0, z1) = plate.bounding_box()
+      @cli.eprintln("bbox: x=[\{x0}, \{x1}] y=[\{y0}, \{y1}] z=[\{z0}, \{z1}]")
+    }
+    plate.write_step(args.string_opt("out"), checked=true)
+    return
   }
   let shaft_length = if args.double("shaftLength") > 0.0 {
     args.double("shaftLength")

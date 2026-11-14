@@ -173,6 +173,14 @@ moon run components/examples/adapters -- \
   --part motor -o "$OUT/motor-to-extrusion-adapter.step"
 moon run components/examples/adapters -- \
   --part channel -o "$OUT/channel-to-extrusion-adapter.step"
+moon run components/examples/stepper_motor -- \
+  --mountingPlate -o "$OUT/nema-mounting-plate.step"
+moon run components/examples/motion_stack -- \
+  --part standoff -o "$OUT/standoff.step"
+moon run components/examples/motion_stack -- \
+  --part dowel -o "$OUT/dowel-pin.step"
+moon run components/examples/motion_stack -- \
+  --part gt2-pulley -o "$OUT/gt2-pulley-20t.step"
 # The set-screw collar's primary artifact is the OCCT-evaluated trimmed solid.
 if command -v python3 >/dev/null 2>&1 &&
   { command -v DRAWEXE >/dev/null 2>&1 ||
@@ -216,6 +224,7 @@ for part in vslot-2020x100 vslot-2040x100 vslot-wheel vslot-tnut-m5 \
   emt-1-2in-304 shaft-collar-d8 tube-mount-plate \
   makerbeam-1010-l100 din471-a20 din472-20 din472-22-parametric \
   motor-to-extrusion-adapter channel-to-extrusion-adapter \
+  nema-mounting-plate standoff dowel-pin gt2-pulley-20t \
   clamp-collar-d20 sc8uu-bearing-block heat-set-boss-m3x4; do
   python3 "$ROOT/scripts/validate_step.py" --no-mesh "$OUT/$part.step"
 done

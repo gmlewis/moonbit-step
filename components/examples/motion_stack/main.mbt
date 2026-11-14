@@ -62,7 +62,30 @@ async fn main {
     ),
     "part": @cli.opt_string(
       short='P',
-      help="Part: stack (default), coupling, flange-housing, pillow-block, or helical-coupling",
+      help="Part: stack (default), coupling, flange-housing, pillow-block, helical-coupling, standoff, dowel, or gt2-pulley",
+    ),
+    "standoffFlats": @cli.opt_double(
+      8.0,
+      help="Standoff across-flats in mm",
+      min=0.0,
+    ),
+    "standoffLength": @cli.opt_double(
+      20.0,
+      help="Standoff length in mm",
+      min=0.0,
+    ),
+    "standoffBore": @cli.opt_double(3.5, help="Standoff bore in mm", min=0.0),
+    "dowelDiameter": @cli.opt_double(
+      5.0,
+      help="Dowel pin diameter in mm",
+      min=0.0,
+    ),
+    "dowelLength": @cli.opt_double(20.0, help="Dowel pin length in mm", min=0.0),
+    "gt2Teeth": @cli.opt_int(20, help="GT2 pulley tooth count"),
+    "gt2BeltWidth": @cli.opt_double(9.0, help="GT2 belt width in mm", min=0.0),
+    "gt2Bore": @cli.opt_double(5.0, help="GT2 pulley bore in mm", min=0.0),
+    "noFlanges": @cli.flag(
+      help="Omit the GT2 pulley end flanges (single watertight body)",
     ),
     "pillowBlock": @cli.opt_string(
       help="Pillow-block designation, UCP204 (default) or UCP205",
@@ -140,7 +163,10 @@ async fn main {
   if part_kind == "coupling" ||
     part_kind == "flange-housing" ||
     part_kind == "pillow-block" ||
-    part_kind == "helical-coupling" {
+    part_kind == "helical-coupling" ||
+    part_kind == "standoff" ||
+    part_kind == "dowel" ||
+    part_kind == "gt2-pulley" {
     let mut component = if part_kind == "coupling" {
       match
         @motion.rigid_coupling(
@@ -181,6 +207,45 @@ async fn main {
             args.string_opt("detail").unwrap_or("detailed"),
           ),
           fit_allowance_mm=args.double("pillowFit"),
+        ) {
+        Ok(c) => c
+        Err(e) => {
+          @cli.eprintln("error: " + e.message())
+          abort("")
+        }
+      }
+    } else if part_kind == "standoff" {
+      match
+        @motion.standoff(
+          args.double("standoffFlats"),
+          args.double("standoffLength"),
+          args.double("standoffBore"),
+        ) {
+        Ok(c) => c
+        Err(e) => {
+          @cli.eprintln("error: " + e.message())
+          abort("")
+        }
+      }
+    } else if part_kind == "dowel" {
+      match
+        @motion.dowel_pin(
+          args.double("dowelDiameter"),
+          args.double("dowelLength"),
+        ) {
+        Ok(c) => c
+        Err(e) => {
+          @cli.eprintln("error: " + e.message())
+          abort("")
+        }
+      }
+    } else if part_kind == "gt2-pulley" {
+      match
+        @motion.gt2_pulley(
+          args.int("gt2Teeth"),
+          args.double("gt2BeltWidth"),
+          args.double("gt2Bore"),
+          flanges=!args.flag("noFlanges"),
         ) {
         Ok(c) => c
         Err(e) => {

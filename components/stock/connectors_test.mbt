@@ -101,6 +101,12 @@ test "every public stock builder family exposes a connector" {
       ok_stock(@stock.bearing_plate(22.0, 0.1, 50.0, 40.0, 6.0, 5.5, 30.0)),
       "bearing-seat",
     ),
+    (
+      ok_stock(
+        @stock.rod_bearing_block(34.0, 30.0, 22.0, 15.0, 8.0, 3.3, 24.0, 18.0),
+      ),
+      "bearing-seat",
+    ),
     (ok_stock(@stock.sc8uu_bearing_block()), "bearing-seat"),
     (ok_stock(@stock.heat_set_boss_m3x4()), "insert-pocket"),
     (
