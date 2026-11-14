@@ -163,6 +163,7 @@ pub fn lead_screw_nut(
     @cad.RevLine((rf, flange_thickness_mm), (ro, flange_thickness_mm)),
     @cad.RevLine((ro, flange_thickness_mm), (ro, length_mm)),
     @cad.RevLine((ro, length_mm), (ri, length_mm)),
+    @cad.RevLine((ri, length_mm), (ri, 0.0)),
   ])
   let features = @common.FeatureRecord::new(
     modeled=["nut-body", "flange", "bore"],

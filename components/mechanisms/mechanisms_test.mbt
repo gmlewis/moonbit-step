@@ -74,6 +74,7 @@ test "clevis prongs carry aligned analytic pin bores" {
   let thread = mech_connector(part, "rod-thread")
   assert_true(thread.kind is @common.MateKind::Threaded)
   assert_true(thread.gender is @common.MateGender::Male)
+  assert_true(mech_has_connector(part, "fork-face"))
   assert_true(part.features().has_omitted("thread"))
 }
 

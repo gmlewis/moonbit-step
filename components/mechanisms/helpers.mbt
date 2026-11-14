@@ -148,26 +148,6 @@ fn mechanism_cylinder_z(diameter_mm : Double, length_mm : Double) -> @cad.Shape 
 }
 
 ///|
-/// circle_points returns a counter-clockwise polygon approximation of a
-/// circle, for hole loops in `ExtrudedProfile`.
-fn circle_points(
-  cx : Double,
-  cy : Double,
-  radius : Double,
-  segments~ : Int32 = 16,
-) -> Array[(Double, Double)] {
-  let count = if segments < 8 { 8 } else { segments }
-  let points : Array[(Double, Double)] = []
-  for i in 0..<count {
-    let angle = 2.0 * @math.PI * i.to_double() / count.to_double()
-    points.push(
-      (cx + radius * @math.cos(angle), cy + radius * @math.sin(angle)),
-    )
-  }
-  points
-}
-
-///|
 /// mechanism_tube_z returns an annular tube along +Z from `z = 0`.
 fn mechanism_tube_z(
   outer_diameter_mm : Double,

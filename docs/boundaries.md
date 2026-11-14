@@ -34,8 +34,9 @@ SolidCore / SolidCraft is the required CAD engine:
 - the `--view` preview loop.
 
 Open a generated STEP in SolidCraft when real boolean or edge-feature geometry
-is required. Do not add a kernel, an OCCT runtime dependency, or a STEP
-importer to this repository.
+is required. Do not make a kernel or a STEP importer a library dependency; the
+optional evaluated export path (`scripts/csg_eval.py`, OCCT) is a development
+tool, not part of the library's build.
 
 ## Tier 2/3 — `moonbit-19-cad`
 

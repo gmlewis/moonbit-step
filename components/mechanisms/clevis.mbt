@@ -83,7 +83,6 @@ pub fn clevis(
   ]).as_shape()
   let lower_z = base_thickness_mm
   let upper_z = base_thickness_mm + prong_thickness_mm + gap_mm
-  let total_height = upper_z + prong_thickness_mm
   let features = @common.FeatureRecord::new(
     modeled=["base", "prongs", "pin-bores"],
     approximated=[],
@@ -186,6 +185,16 @@ pub fn clevis(
     )
     .with_connector_unchecked(
       @common.MateConnector::new(
+        "fork-face",
+        placement=@common.Placement::translation(0.0, 0.0, upper_z),
+        axis=(0.0, 0.0, -1.0),
+        kind=@common.MateKind::PlaneFace,
+        diameter_mm=base_width_mm,
+        description="inner face of the upper prong (rod-eye roof)",
+      ),
+    )
+    .with_connector_unchecked(
+      @common.MateConnector::new(
         "base-face",
         placement=@common.Placement::translation(0.0, 0.0, 0.0),
         axis=(0.0, 0.0, -1.0),
@@ -208,7 +217,6 @@ pub fn clevis(
       ),
     )
   }
-  let _ = total_height
   Ok(out)
 }
 

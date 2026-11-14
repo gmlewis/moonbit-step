@@ -140,10 +140,17 @@ pub fn rack_gear(
     )
   }
   let holes = [
-    circle_points(hole_x, hole_y, hole_radius),
-    circle_points(length - hole_x, hole_y, hole_radius),
+    circle_loop(hole_x, hole_y, hole_radius),
+    circle_loop(length - hole_x, hole_y, hole_radius),
   ]
-  let body = @cad.ExtrudedProfile::new(points, thickness_mm, holes~)
+  let outline : Array[@cad.ProfileSegment] = []
+  let count = points.length()
+  for i in 0..<count {
+    let start = points[i]
+    let end = points[(i + 1) % count]
+    outline.push(@cad.SegmentLine(start, end))
+  }
+  let body = @cad.ExtrudedArcProfile::new(outline, thickness_mm, holes~).as_shape()
   let features = @common.FeatureRecord::new(
     modeled=["rack-body", "straight-flank-teeth", "mounting-holes"],
     approximated=[],

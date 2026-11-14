@@ -16,6 +16,8 @@
 /// The mechanism is a linkage bar built by a `DesignFamily` (validated
 /// parameters) with a base plate and two pivot pins added through the `@cad`
 /// primitives. The `--variant` presets demonstrate named design variants.
+/// The base plate and pins are nominal layers: the base is not drilled for the
+/// pins, and no load or strength rating is implied.
 async fn main {
   let spec = {
     "length": @cli.opt_double(
