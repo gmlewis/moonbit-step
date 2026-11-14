@@ -112,7 +112,8 @@ test "mechanism catalogue lists every generic family" {
     Ok(e) => e
     Err(err) => abort(err.message())
   }
-  assert_true(rail.features.has_omitted("mounting-holes"))
+  assert_true(rail.features.has_modeled("mounting-holes"))
+  assert_true(rail.supported_parameters.any(fn(p) { p == "base_thickness" }))
   assert_eq(
     @catalog.query(@catalog.full_catalog(), family="lead screw (envelope)").length(),
     1,

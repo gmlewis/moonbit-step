@@ -10,7 +10,7 @@ test "linear rail section is a valid counter-clockwise extrusion" {
     Ok(p) => p
     Err(e) => abort(e.message())
   }
-  let section = linear_rail_section(profile)
+  let section = linear_rail_section(profile, 0.0, profile.height_mm)
   let shape = @cad.ExtrudedArcProfile::new(section, 100.0)
   assert_true(shape.validate())
   let points : Array[(Double, Double)] = []

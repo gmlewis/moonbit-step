@@ -477,7 +477,7 @@ pub fn mechanisms_catalog() -> Array[CatalogEntry] {
               c,
               [
                 "profile_width", "profile_height", "length", "mount_hole_count",
-                "mount_hole_diameter",
+                "mount_hole_diameter", "base_thickness",
               ],
             ),
           )

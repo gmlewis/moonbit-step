@@ -84,6 +84,11 @@ async fn main {
       min=0.0,
       min_exclusive=true,
     ),
+    "railBase": @cli.opt_double(
+      0.0,
+      help="Rail base slab thickness in mm (0 = derived)",
+      min=0.0,
+    ),
     "bore": @cli.opt_double(5.0, help="Primary bore in mm", min=0.0),
     "grooveWidth": @cli.opt_double(4.0, help="Groove width in mm", min=0.0),
     "grooveDepth": @cli.opt_double(2.0, help="Groove depth in mm", min=0.0),
@@ -240,7 +245,14 @@ async fn main {
           groove_width_mm=args.double("grooveWidth"),
           groove_depth_mm=args.double("grooveDepth"),
         ) {
-        Ok(profile) => @mechanisms.linear_rail(profile, length)
+        Ok(profile) => {
+          let base = args.double("railBase")
+          if base > 0.0 {
+            @mechanisms.linear_rail(profile, length, base_thickness_mm=base)
+          } else {
+            @mechanisms.linear_rail(profile, length)
+          }
+        }
         Err(e) => Err(e)
       }
     "carriage" =>

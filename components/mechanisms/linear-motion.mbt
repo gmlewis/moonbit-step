@@ -64,31 +64,38 @@ pub fn linear_rail_profile(
 }
 
 ///|
-/// linear_rail_section returns the counter-clockwise side-profile loop.
+/// RAIL_BASE_GROOVE_MARGIN_MM is the minimum material between the rail base
+/// slab and the lower edge of the side grooves.
+const RAIL_BASE_GROOVE_MARGIN_MM : Double = 0.5
+
+///|
+/// linear_rail_section returns the counter-clockwise side-profile loop between
+/// two full-rail height coordinates.
 ///
 /// The loop is drawn in a local plane whose X is the rail height and whose Y is
 /// the rail width; the builder rotates it so the rail runs along +X.
 fn linear_rail_section(
   profile : LinearRailProfile,
+  bottom_mm : Double,
+  top_mm : Double,
 ) -> Array[@cad.ProfileSegment] {
-  let h = profile.height_mm
   let hw = profile.width_mm / 2.0
   let gw = profile.groove_width_mm / 2.0
   let gd = profile.groove_depth_mm
   let c = profile.groove_center_mm
   [
-    @cad.SegmentLine((0.0, -hw), (c - gw, -hw)),
+    @cad.SegmentLine((bottom_mm, -hw), (c - gw, -hw)),
     @cad.SegmentLine((c - gw, -hw), (c - gw, -hw + gd)),
     @cad.SegmentLine((c - gw, -hw + gd), (c + gw, -hw + gd)),
     @cad.SegmentLine((c + gw, -hw + gd), (c + gw, -hw)),
-    @cad.SegmentLine((c + gw, -hw), (h, -hw)),
-    @cad.SegmentLine((h, -hw), (h, hw)),
-    @cad.SegmentLine((h, hw), (c + gw, hw)),
+    @cad.SegmentLine((c + gw, -hw), (top_mm, -hw)),
+    @cad.SegmentLine((top_mm, -hw), (top_mm, hw)),
+    @cad.SegmentLine((top_mm, hw), (c + gw, hw)),
     @cad.SegmentLine((c + gw, hw), (c + gw, hw - gd)),
     @cad.SegmentLine((c + gw, hw - gd), (c - gw, hw - gd)),
     @cad.SegmentLine((c - gw, hw - gd), (c - gw, hw)),
-    @cad.SegmentLine((c - gw, hw), (0.0, hw)),
-    @cad.SegmentLine((0.0, hw), (0.0, -hw)),
+    @cad.SegmentLine((c - gw, hw), (bottom_mm, hw)),
+    @cad.SegmentLine((bottom_mm, hw), (bottom_mm, -hw)),
   ]
 }
 
@@ -99,15 +106,15 @@ fn linear_rail_section(
 /// on `y = 0`, and its base and top faces are at `z = 0` and
 /// `z = profile.height_mm`. The side grooves are real analytic surfaces.
 ///
-/// Mounting holes are perpendicular to the extrusion (along Z), so the flat
-/// writer cannot trim them; they are declared by named datum connectors with
-/// their diameter and depth. No load, life, or rail-compatibility rating is
-/// implied.
+/// Mounting holes are modelled as real through holes in the rail base slab,
+/// which is a separate layer from the profiled upper body. No load, life, or
+/// rail-compatibility rating is implied.
 pub fn linear_rail(
   profile : LinearRailProfile,
   length_mm : Double,
   mount_hole_count~ : Int32 = 4,
   mount_hole_diameter_mm~ : Double = 4.5,
+  base_thickness_mm? : Double,
   color~ : @cad.Rgb = @cad.Rgb::grey(),
 ) -> Result[@common.Component, @common.SpecError] {
   match
@@ -128,21 +135,77 @@ pub fn linear_rail(
       @common.InvalidDimension("rail mounting hole does not fit the base width"),
     )
   }
+  let groove_bottom = profile.groove_center_mm - profile.groove_width_mm / 2.0
+  let base_limit = groove_bottom - RAIL_BASE_GROOVE_MARGIN_MM
+  let base = match base_thickness_mm {
+    Some(b) => b
+    None => {
+      let derived = profile.height_mm * 0.35
+      if derived < base_limit {
+        derived
+      } else {
+        base_limit
+      }
+    }
+  }
+  if base <= 0.0 || base > base_limit {
+    return Err(
+      @common.InvalidDimension(
+        "rail base thickness does not leave room for the side grooves",
+      ),
+    )
+  }
+  if base >= profile.height_mm {
+    return Err(
+      @common.InvalidDimension(
+        "rail base thickness must be smaller than its height",
+      ),
+    )
+  }
+  let spacing = length_mm / (mount_hole_count + 1).to_double()
+  if spacing <= mount_hole_diameter_mm {
+    return Err(
+      @common.InvalidDimension(
+        "rail mounting holes overlap; reduce the diameter or increase the length",
+      ),
+    )
+  }
+  let half_width = profile.width_mm / 2.0
+  let hole_loops : Array[Array[@cad.ProfileSegment]] = []
+  for i in 0..<mount_hole_count {
+    hole_loops.push(
+      circle_loop(
+        spacing * (i + 1).to_double(),
+        0.0,
+        mount_hole_diameter_mm / 2.0,
+      ),
+    )
+  }
+  let base_shape = @cad.ExtrudedArcProfile::new(
+    rect_loop(0.0, -half_width, length_mm, half_width),
+    base,
+    holes=hole_loops,
+  ).as_shape()
+  let upper_profile : LinearRailProfile = {
+    ..profile,
+    height_mm: profile.height_mm - base,
+    groove_center_mm: profile.groove_center_mm - base,
+  }
   let section = @cad.ExtrudedArcProfile::new(
-    linear_rail_section(profile),
+    linear_rail_section(upper_profile, 0.0, upper_profile.height_mm),
     length_mm,
   ).as_shape()
   let features = @common.FeatureRecord::new(
-    modeled=["rail-body", "side-grooves"],
+    modeled=["rail-body", "side-grooves", "mounting-holes"],
     approximated=[],
     omitted=[
       @common.Omission::new(
-        feature="mounting-holes",
-        reason="holes are perpendicular to the rail extrusion and are declared by datum connectors only",
-      ),
-      @common.Omission::new(
         feature="end-chamfers-and-hardened-surfaces",
         reason="no edge treatment or material claim is modelled",
+      ),
+      @common.Omission::new(
+        feature="base-slab-union",
+        reason="the base slab and profiled upper body are separate layers with a nominal abutment",
       ),
     ],
   )
@@ -154,11 +217,12 @@ pub fn linear_rail(
         family="linear rail (engineering envelope)",
         size="\{@cad.fmt_double(profile.width_mm, None)}x\{@cad.fmt_double(profile.height_mm, None)}x\{@cad.fmt_double(length_mm, None)}",
         length_mm~,
-        source="Parametric profiled-rail envelope with a rectangular body and side grooves. No vendor section or load rating is implied.",
+        source="Parametric profiled-rail envelope with a rectangular body, side grooves, and a base slab with real mounting holes. No vendor section or load rating is implied.",
       ),
-      description="Profiled linear rail with real side grooves along +X. Mounting holes are declared by datum connectors and are not modelled.",
+      description="Profiled linear rail with real side grooves along +X and a base slab carrying real through mounting holes. The base and upper body are separate layers with a nominal abutment.",
       features~,
     )
+    .add_layer(base_shape, name="base-slab", color~)
     .add_layer(
       section,
       name="rail",
@@ -235,7 +299,6 @@ pub fn linear_rail(
         description="rail positive-X end datum",
       ),
     )
-  let spacing = length_mm / (mount_hole_count + 1).to_double()
   for i in 0..<mount_hole_count {
     let x = spacing * (i + 1).to_double()
     out = out.with_connector_unchecked(
@@ -243,10 +306,11 @@ pub fn linear_rail(
         "mount-hole-\{i + 1}",
         placement=@common.Placement::translation(x, 0.0, 0.0),
         axis=(0.0, 0.0, 1.0),
-        kind=@common.MateKind::Datum,
+        kind=@common.MateKind::CylindricalBore,
+        gender=@common.MateGender::Female,
         diameter_mm=mount_hole_diameter_mm,
-        depth_mm=profile.height_mm,
-        description="declared rail mounting hole; not modelled",
+        depth_mm=base,
+        description="through mounting hole in the rail base slab",
       ),
     )
   }

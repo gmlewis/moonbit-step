@@ -627,9 +627,9 @@ loop and how imported vendor parts are referenced through SolidCraft, is in
   (`2 C + pi D`, and `pi (r1+r2) + 2 alpha (r2-r1) + 2 sqrt(C^2-(r2-r1)^2)`) and
   the unequal builder uses the exact external tangents. Pulleys are separate
   parts declared by their axes.
-- Linear-rail mounting holes are perpendicular to the rail extrusion, so the
-  flat writer cannot trim them; they are declared by datum connectors with their
-  diameter and depth. The carriage channel and bolt holes are real geometry.
+- Linear-rail mounting holes are real through holes in a separate base slab;
+  the base slab and the profiled upper body abut nominally rather than through a
+  kernel union. The carriage channel and bolt holes are real geometry.
 - Layered mechanism parts (hinge leaves/knuckles/pin, clevis prongs, carriage
   walls/top slab, Oldham hubs/disc, bracket legs/gusset, roller/pin) are separate
   closed bodies with nominal abutments. They are not fused by the flat writer;
