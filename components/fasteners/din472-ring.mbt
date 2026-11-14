@@ -1,4 +1,13 @@
 ///|
+/// Parametric DIN 472 outline calibration, measured from the ten licensed
+/// measured outlines: the lug tip sits `1.5 * s` from the centreline, and the
+/// inner arc is offset `0.02 * d1` toward the lugs.
+const DIN472_PARAM_TIP_PER_THICKNESS : Double = 1.5
+
+///|
+const DIN472_PARAM_INNER_OFFSET_PER_BORE : Double = 0.02
+
+///|
 /// Din472Outline is the free-state plan outline of one DIN 472 internal ring.
 ///
 /// DIN 472 fixes the ring's thickness, free outside diameter, lug and back
@@ -9,7 +18,8 @@
 /// FreeCAD-parts_library STEPs by sisul01 (commit 2141521); that measured
 /// outline data remains CC BY-SA 4.0. Each is expressed as this library's own
 /// line/arc loop in the default lugs-toward-+X frame; no reference files are
-/// redistributed.
+/// redistributed. Other DIN 472 table sizes are built by
+/// `din472_parametric_outline` from the standard's own dimensions.
 pub(all) struct Din472Outline {
   bore_mm : Double
   thickness_mm : Double
@@ -308,9 +318,9 @@ fn din472_parametric_outline(
   let ro = size.free_outer_diameter_mm / 2.0
   let ri = ro - size.ring_width_mm
   let rf = size.lug_width_mm / 2.0
-  let ytip = 1.5 * size.thickness_mm
+  let ytip = DIN472_PARAM_TIP_PER_THICKNESS * size.thickness_mm
   let rc = ro - rf
-  let cx = 0.02 * size.bore_diameter_mm
+  let cx = DIN472_PARAM_INNER_OFFSET_PER_BORE * size.bore_diameter_mm
   let rin = ri + cx
   // The lug fillet is tangent to the outer circle and its tangent point on the
   // tip line lies on the offset inner circle. Solve for that height.

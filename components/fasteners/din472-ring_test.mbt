@@ -185,6 +185,33 @@ test "DIN 472 parametric outlines cover every table size" {
 }
 
 ///|
+test "DIN 472 parametric envelopes follow the standard dimensions" {
+  // y extent is the free outside diameter d3 and z is the thickness s; the
+  // x extent is the across-lug span, which the parametric construction
+  // reproduces consistently with the measured neighbours.
+  let cases : Array[(Double, Double, Double, Double)] = [
+    (8.0, 8.2793, 8.7, 0.8),
+    (22.0, 23.2755, 23.5, 1.0),
+    (26.0, 27.6396, 27.9, 1.2),
+    (30.0, 31.8811, 32.1, 1.2),
+    (34.0, 36.2094, 36.5, 1.5),
+    (36.0, 38.5381, 38.8, 1.5),
+    (38.0, 40.5565, 40.8, 1.5),
+  ]
+  for case in cases {
+    let (size, x_extent, y_extent, thickness) = case
+    let part = d472_ok(@fasteners.din472_ring(size))
+    let (x0, x1, y0, y1, z0, z1) = part.bounding_box()
+    if !d472_close(x1 - x0, x_extent, 0.01) {
+      fail("size \{size}: x extent \{x1 - x0} vs \{x_extent}")
+    }
+    assert_true(d472_close(y1 - y0, y_extent, 1.0e-6))
+    assert_true(d472_close(z0, 0.0, 1.0e-6))
+    assert_true(d472_close(z1 - z0, thickness, 1.0e-6))
+  }
+}
+
+///|
 test "DIN 472 parametrics fill the measured gaps with recorded approximations" {
   // The seven sizes without a measured outline are built from the table
   // dimensions, are sharp, carry the parametric provenance note, and record
@@ -200,6 +227,7 @@ test "DIN 472 parametrics fill the measured gaps with recorded approximations" {
     assert_true(x1 - x0 > size)
     assert_true(y1 - y0 > size)
     assert_true(z1 - z0 > 0.0)
+    assert_eq(part.connectors().length(), 7)
   }
 }
 

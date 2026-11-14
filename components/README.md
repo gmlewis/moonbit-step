@@ -137,6 +137,7 @@ moon run components/examples/retaining_ring -- --size 20 -o din471-20.step
 # DIN 472 internal retaining ring (all table sizes 8 to 40; ten measured outlines plus a parametric fallback)
 moon run components/examples/din472_ring -- --size 10 -o din472-10.step
 moon run components/examples/din472_ring -- --size 20 -o din472-20.step
+moon run components/examples/din472_ring -- --size 22 -o din472-22.step
 moon run components/examples/din472_ring -- --size 40 -o din472-40.step
 
 # Built-in M3/M4/M5 fastener catalogue
