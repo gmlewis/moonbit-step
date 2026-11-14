@@ -90,16 +90,21 @@ fn smooth_curve(
     let p0 = points[k]
     let p3 = points[k + 1]
     let delta = (ib - ia).to_double()
-    // A crease (or an end of the path) uses the one-sided chord tangent, so
-    // the two Bezier spans meeting there form a sharp corner instead of a
-    // wave.
-    let t_start = if ia == 0 || is_crease(ia) {
+    // A crease uses the one-sided chord tangent to the adjacent sample, so the
+    // two Bezier spans meeting there form a sharp corner instead of a wave.
+    // Path ends keep the original one-step tangent, so adding crease support
+    // does not change the smooth helical washer.
+    let t_start = if is_crease(ia) {
       v_sub(point_at(ib), point_at(ia))
+    } else if ia == 0 {
+      v_sub(point_at(ia + 1), point_at(ia))
     } else {
       v_scale(v_sub(point_at(ia + 1), point_at(ia - 1)), 0.5)
     }
-    let t_end = if ib == num_path_pts - 1 || is_crease(ib) {
+    let t_end = if is_crease(ib) {
       v_sub(point_at(ib), point_at(ia))
+    } else if ib == num_path_pts - 1 {
+      v_sub(point_at(ib), point_at(ib - 1))
     } else {
       v_scale(v_sub(point_at(ib + 1), point_at(ib - 1)), 0.5)
     }

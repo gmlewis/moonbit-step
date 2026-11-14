@@ -15,11 +15,10 @@ The full parametric algorithm lives in the
 `gmlewis/step/components/planetary` component
 (`herringbone_planetary_gearbox`); this example only parses the command line
 and writes the result. All options are component parameters. The default
-`--numElbows 4` keeps the original swept herringbone geometry, so existing
-printed parts line up (volumes match the faceted representation to about
-0.01%) while the flanks are emitted as smooth ruled B-spline surfaces with
-sharp elbows. `--numElbows 0` builds straight gears as exact line/arc
-extrusions — the smooth planetary style.
+`--numElbows 4` follows the true helical twist within each elbow as smooth
+ruled B-spline side surfaces, with every elbow boundary kept as a sharp
+crease. `--numElbows 0` builds straight gears as exact line/arc extrusions —
+the smooth planetary style.
 
 ## What this example demonstrates
 - porting a mesh generator to a B-Rep model
@@ -31,20 +30,22 @@ extrusions — the smooth planetary style.
 ## Why it is small
 Blackjack evaluates a herringbone gear as a triangle mesh in
 `(numElbows + 1) * 2 * resolution` horizontal slices. This example builds the
-2D outline a single time and only instantiates the `numElbows + 1` elbow
-cross-sections, so the STEP output is smaller than the equivalent STL
-(about 15 MB vs 64 MB for the default parameters).
+2D outline a single time and sweeps it through the elbow cross-sections, so
+the STEP output is smaller than the equivalent STL (about 35 MB vs 64 MB for
+the default parameters).
 
 The number of cross-sections adapts to the twist: each elbow is subdivided so
-that adjacent cross-sections differ by at most 24° of profile rotation. Every
-elbow boundary stays a sharp piecewise-linear crease, so the herringbone V is
-exact. Between creases each profile edge becomes one ruled B-spline side
-surface (degree 1 across the edge, cubic along the path), which gives smooth
-flanks without the triangulated facets of the planar-facet representation, a
-smaller STEP file, and volumes that match that representation to about 0.01%.
-The default parameters need only the elbow boundaries; small modules with a
-long gear are subdivided automatically (`--module 0.5 --gearLength 30` twists
-142° per elbow and is subdivided 6x).
+that adjacent cross-sections differ by at most 6° of profile rotation, which
+follows the true helix closely (a coarser 24° chordal sweep leaves a
+`cos(12°) ≈ 0.979` radial waist at mid-band). Every elbow boundary stays a
+sharp piecewise-linear crease, so the herringbone V is exact. Between creases
+each profile edge becomes one ruled B-spline side surface (degree 1 across the
+edge, cubic along the path), which gives smooth flanks without the
+triangulated facets of the planar-facet representation. Relative to that
+coarse representation the true flanks add about 0.9% volume and restore the
+intended mid-band tooth contact. Small modules with a long gear are
+subdivided automatically (`--module 0.5 --gearLength 30` twists 142° per elbow
+and is subdivided 24x).
 
 ## Orientation
 

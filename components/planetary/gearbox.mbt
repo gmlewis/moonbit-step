@@ -1,11 +1,11 @@
 ///|
 /// herringbone_planetary_gearbox builds the fully parametric gearbox as one
 /// component with named mate connectors. `num_elbows = 0` uses exact line/arc
-/// extrusions (smooth straight gears); `num_elbows >= 1` sweeps the original
-/// herringbone geometry with smooth ruled B-spline side surfaces. The elbow
-/// boundaries are sharp creases (piecewise-linear twist), so dimensions and
-/// volumes match the original generator while the flanks are free of the
-/// triangulated facets of the planar-facet representation.
+/// extrusions (smooth straight gears); `num_elbows >= 1` sweeps the true
+/// helical twist of each elbow as smooth ruled B-spline side surfaces. The
+/// elbow boundaries stay sharp creases, so the herringbone V is exact and the
+/// flanks keep the full tooth thickness at mid-band instead of the radial
+/// waist of a coarse chordal sweep.
 pub fn herringbone_planetary_gearbox(
   params : HerringbonePlanetaryParams,
   y_up~ : Bool = false,
@@ -87,6 +87,30 @@ pub fn herringbone_planetary_gearbox(
     Some(2.0 * layout.hole_radius_mm)
   }
   let name = "herringbone-planetary-m\{@cad.fmt_double(module_mm, None)}-z\{layout.sun.num_teeth}"
+  let approximated : Array[@common.Approximation] = [
+    @common.Approximation::new(
+      feature="tooth-outline",
+      kind=@common.ApproximationKind::PolylineArc,
+      deviation_mm=0.0,
+      control="involute sampled at \{HB_INVOLUTE_POINTS} points per flank with resolution=\{layout.resolution} tip/root arcs",
+    ),
+  ]
+  if !smooth {
+    // The smooth B-rep follows the true helix between sharp elbow creases;
+    // the chord sag between cross-sections bounds its residual deviation.
+    let segments_per_turn = (360.0 / HB_MAX_SMOOTH_SWEEP_STEP_DEG).to_int()
+    approximated.push(
+      @common.Approximation::new(
+        feature="helical-flank-sampling",
+        kind=@common.ApproximationKind::SweptSpline,
+        deviation_mm=@common.chord_deviation(
+          ring.outer_radius,
+          segments_per_turn,
+        ),
+        control="cross-sections every \{@cad.fmt_double(HB_MAX_SMOOTH_SWEEP_STEP_DEG, None)} deg of profile rotation, sharp elbow creases",
+      ),
+    )
+  }
   let features = @common.FeatureRecord::new(
     modeled=[
       "sun",
@@ -95,17 +119,10 @@ pub fn herringbone_planetary_gearbox(
       if smooth {
         "straight-exact-extrusion"
       } else {
-        "herringbone-twist-smooth-ruled"
+        "herringbone-true-helix"
       },
     ],
-    approximated=[
-      @common.Approximation::new(
-        feature="tooth-outline",
-        kind=@common.ApproximationKind::PolylineArc,
-        deviation_mm=0.0,
-        control="involute sampled at \{HB_INVOLUTE_POINTS} points per flank with resolution=\{layout.resolution} tip/root arcs",
-      ),
-    ],
+    approximated~,
     omitted=[
       @common.Omission::new(
         feature="root-fillet",
@@ -126,7 +143,7 @@ pub fn herringbone_planetary_gearbox(
       length_mm=length,
       source="Parametric herringbone planetary gearbox; tooth counts, helix, tolerance, hole type and elbows are parameters.",
     ),
-    description="Herringbone planetary gearbox: one sun, equally spaced planets, and an inward-facing ring gear. Straight exact extrusions when num_elbows is 0; otherwise swept herringbone with smooth ruled B-spline flanks and sharp piecewise-linear elbow creases.",
+    description="Herringbone planetary gearbox: one sun, equally spaced planets, and an inward-facing ring gear. Straight exact extrusions when num_elbows is 0; otherwise the true helical twist of each elbow, emitted as smooth ruled B-spline flanks with sharp piecewise-linear elbow creases.",
     features~,
   )
   component = component.add_layer(

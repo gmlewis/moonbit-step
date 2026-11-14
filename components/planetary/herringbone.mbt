@@ -23,8 +23,20 @@ let hb_two_pi : Double = 2.0 * @math.PI
 const HB_INVOLUTE_POINTS : Int32 = 20
 
 ///|
-/// Maximum profile rotation between adjacent swept cross-sections.
+/// Maximum profile rotation between adjacent swept cross-sections for the
+/// planar-facet representation. A single 24 deg span leaves a cos(12 deg) =
+/// 0.979 radial waist at mid-band, so the smooth representation samples finer.
 const HB_MAX_SWEEP_STEP_DEG : Double = 24.0
+
+///|
+/// Maximum profile rotation between adjacent cross-sections for the smooth
+/// representation. The twist within an elbow is a true helix: sampling each
+/// elbow finely (about 15-24 deg of twist gives 3-4 spans here) and
+/// interpolating with the B-spline tangents removes the mid-band radial waist
+/// of the coarse chordal sweep, while the elbow boundaries stay sharp creases.
+/// Converged to the true twist solid within about 0.03% at 6 deg; 6 deg keeps
+/// the STEP size close to the old planar-facet file.
+const HB_MAX_SMOOTH_SWEEP_STEP_DEG : Double = 6.0
 
 ///|
 /// HerringbonePlanetaryParams is a validated gearbox request. Every option from
@@ -671,8 +683,9 @@ fn hb_circle_outline(
 
 ///|
 /// hb_swept_gear_shape builds the herringbone gear by sweeping the outline
-/// through `num_elbows + 1` linearly twisted extrusions, exactly like the
-/// original generator (so dimensions and volumes are preserved).
+/// through `num_elbows + 1` linearly twisted extrusions. The smooth
+/// representation samples each elbow finely enough to follow the true helix;
+/// the faceted representation keeps the coarse chordal path.
 fn hb_swept_gear_shape(
   outline : Array[(Double, Double)],
   holes : Array[Array[(Double, Double)]],
@@ -684,7 +697,20 @@ fn hb_swept_gear_shape(
   straight_outline~ : Bool = true,
   smooth_sides~ : Bool = false,
 ) -> @cad.Shape {
-  let path = hb_sweep_path(gear_length, num_elbows, max_rotation, direction)
+  // The smooth B-rep samples the twist fine enough to follow the true helix
+  // between elbows; the faceted representation keeps the coarse chordal path.
+  let max_step_deg = if smooth_sides {
+    HB_MAX_SMOOTH_SWEEP_STEP_DEG
+  } else {
+    HB_MAX_SWEEP_STEP_DEG
+  }
+  let path = hb_sweep_path(
+    gear_length,
+    num_elbows,
+    max_rotation,
+    direction,
+    max_step_deg~,
+  )
   let profile = @cad.SweepProfile::new(
     hb_profile_points(outline),
     holes=holes.map(fn(hole) { hb_profile_points(hole) }),
@@ -693,7 +719,7 @@ fn hb_swept_gear_shape(
   )
   // Every elbow boundary is a piecewise-linear crease: keep it sharp in the
   // smooth-side B-rep instead of letting the B-spline round it into a wave.
-  let steps = hb_sweep_steps(max_rotation)
+  let steps = hb_sweep_steps(max_rotation, max_step_deg)
   let creases : Array[Int32] = []
   for i in 0..<=(num_elbows + 1) {
     creases.push(i * steps)
@@ -709,8 +735,8 @@ fn hb_swept_gear_shape(
 }
 
 ///|
-fn hb_sweep_steps(max_rotation : Double) -> Int32 {
-  let max_step = HB_MAX_SWEEP_STEP_DEG * hb_deg
+fn hb_sweep_steps(max_rotation : Double, max_step_deg : Double) -> Int32 {
+  let max_step = max_step_deg * hb_deg
   if max_rotation <= max_step {
     1
   } else {
@@ -729,9 +755,10 @@ fn hb_sweep_path(
   num_elbows : Int32,
   max_rotation : Double,
   direction : Double,
+  max_step_deg~ : Double = HB_MAX_SWEEP_STEP_DEG,
 ) -> @cad.SweepPath {
   let chunks = num_elbows + 1
-  let steps = hb_sweep_steps(max_rotation)
+  let steps = hb_sweep_steps(max_rotation, max_step_deg)
   let total = chunks * steps
   let points : Array[@cad.Vec3] = []
   let normals : Array[@cad.Vec3] = []
