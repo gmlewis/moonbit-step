@@ -7,6 +7,10 @@ import {
 }
 
 // Values
+pub fn ansi40_sprocket(Int32) -> Result[@common.Component, @common.SpecError]
+
+pub fn ansi40_sprocket_spec(Int32) -> Result[SprocketSpec, @common.SpecError]
+
 pub fn belt_center_distance_for_pitch_length(Double, Double) -> Result[Double, @common.SpecError]
 
 pub fn belt_center_distance_for_pitch_length_unequal(Double, Double, Double) -> Result[Double, @common.SpecError]
@@ -75,9 +79,19 @@ pub fn rack_pinion_layout(Double, Int32, Int32) -> Result[RackPinionLayout, @com
 
 pub fn rod_end(Double, Double, Double, Double, Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
+pub fn roller_chain_path_length_mm(Double, Int32, Int32, Double) -> Result[Double, @common.SpecError]
+
+pub fn roller_chain_sprocket_spec(pitch_mm~ : Double, teeth~ : Int32, roller_diameter_mm~ : Double, seat_clearance_mm? : Double, plate_thickness_mm? : Double, hub_diameter_mm? : Double, hub_height_mm? : Double, bore_diameter_mm? : Double, tip_arc_half_angle_deg? : Double) -> Result[SprocketSpec, @common.SpecError]
+
 pub fn roller_follower(Double, Double, Double, Double, Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
 pub fn snap_latch(Double, Double, Double, Double, Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn sprocket(SprocketSpec) -> Result[@common.Component, @common.SpecError]
+
+pub fn sprocket_pitch_radius_mm(Double, Int32) -> Double
+
+pub fn sprocket_tip_arc_half_angle_deg(Int32) -> Double
 
 pub fn tapped_boss(Double, Double, Double, Double, Double, Double, Double, counterbore_diameter_mm? : Double, counterbore_depth_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
@@ -120,6 +134,18 @@ pub(all) struct RackPinionLayout {
   pitch_line_mm : Double
   center_distance_mm : Double
   rack_travel_per_revolution_mm : Double
+}
+
+pub(all) struct SprocketSpec {
+  pitch_mm : Double
+  teeth : Int32
+  roller_diameter_mm : Double
+  seat_clearance_mm : Double
+  plate_thickness_mm : Double
+  hub_diameter_mm : Double
+  hub_height_mm : Double
+  bore_diameter_mm : Double
+  tip_arc_half_angle_deg : Double
 }
 
 // Type aliases

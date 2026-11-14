@@ -501,3 +501,73 @@ test "four-bar layout closes and reports Grashof" {
   assert_true(@mechanisms.four_bar_layout(40.0, 10.0, 5.0, 5.0, 0.0) is Err(_))
   assert_true(@mechanisms.four_bar_layout(0.0, 10.0, 20.0, 20.0, 0.0) is Err(_))
 }
+
+///|
+test "ANSI #40 16T sprocket matches the measured envelope" {
+  let part = mech_ok(@mechanisms.ansi40_sprocket(16))
+  let (x0, x1, y0, y1, z0, z1) = part.bounding_box()
+  assert_true((x1 - 36.589026).abs() < 1.0e-4)
+  assert_true((x0 + 36.589026).abs() < 1.0e-4)
+  assert_true((y1 - 36.589026).abs() < 1.0e-4)
+  assert_true((y0 + 36.589026).abs() < 1.0e-4)
+  assert_true(mech_close(z0, 0.0))
+  assert_true(mech_close(z1, 12.6))
+  assert_eq(part.layers().length(), 2)
+  let bore = mech_connector(part, "bore")
+  assert_true(bore.kind is @common.MateKind::CylindricalBore)
+  assert_true(mech_close(bore.diameter_mm.unwrap(), 10.0))
+  assert_true(mech_has_connector(part, "pitch-circle"))
+  assert_true(mech_has_connector(part, "hub-seat"))
+  assert_true(part.features().has_modeled("tooth-envelope"))
+  let mut volume = 0.0
+  for layer in part.layers() {
+    volume += match layer.shape.analysis_volume() {
+      Ok(v) => v
+      Err(e) => abort(e.message())
+    }
+  }
+  assert_true((volume - 24544.2).abs() < 1.0)
+  assert_true(
+    (@mechanisms.sprocket_tip_arc_half_angle_deg(16) - 3.17475).abs() < 1.0e-4,
+  )
+  assert_true(
+    (@mechanisms.sprocket_tip_arc_half_angle_deg(24) - 1.88625).abs() < 1.0e-4,
+  )
+  let part24 = mech_ok(@mechanisms.ansi40_sprocket(24))
+  let (bx0, bx1, _by0, _by1, _bz0, bz1) = part24.bounding_box()
+  assert_true((bx1 - 52.68924).abs() < 1.0e-4)
+  assert_true((bx0 + 52.68924).abs() < 1.0e-4)
+  assert_true(mech_close(bz1, 12.6))
+  assert_true(@mechanisms.ansi40_sprocket(8) is Err(_))
+  assert_true(
+    @mechanisms.roller_chain_sprocket_spec(
+      pitch_mm=12.7,
+      teeth=16,
+      roller_diameter_mm=60.0,
+    )
+    is Err(_),
+  )
+  assert_true(
+    @mechanisms.roller_chain_sprocket_spec(
+      pitch_mm=12.7,
+      teeth=16,
+      roller_diameter_mm=7.9,
+      tip_arc_half_angle_deg=20.0,
+    )
+    is Err(_),
+  )
+}
+
+///|
+test "roller-chain path length closes around two sprockets" {
+  let length = match
+    @mechanisms.roller_chain_path_length_mm(12.7, 16, 16, 100.0) {
+    Ok(v) => v
+    Err(e) => abort(e.message())
+  }
+  let r = @mechanisms.sprocket_pitch_radius_mm(12.7, 16)
+  assert_true((length - (2.0 * 100.0 + @math.PI * 2.0 * r)).abs() < 1.0e-9)
+  assert_true(
+    @mechanisms.roller_chain_path_length_mm(12.7, 16, 24, 10.0) is Err(_),
+  )
+}

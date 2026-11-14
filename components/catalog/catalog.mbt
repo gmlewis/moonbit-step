@@ -692,6 +692,21 @@ pub fn mechanisms_catalog() -> Array[CatalogEntry] {
       )
     Err(_) => ()
   }
+  for teeth in [16, 24] {
+    match @mechanisms.ansi40_sprocket(teeth) {
+      Ok(c) =>
+        direct.push(
+          (
+            c,
+            [
+              "pitch", "teeth", "roller_diameter", "seat_clearance", "plate_thickness",
+              "hub_diameter", "hub_height", "bore_diameter", "tip_arc_half_angle",
+            ],
+          ),
+        )
+      Err(_) => ()
+    }
+  }
   for entry in direct {
     let (component, parameters) = entry
     entries.push(entry_from_component(component, parameters, ["Detailed"]))

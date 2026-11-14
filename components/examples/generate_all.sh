@@ -151,7 +151,7 @@ moon run components/examples/stock_primitive -- \
 # example. Every artifact is validated by the loop below.
 for part in hinge clevis pin rod-end linkage rail carriage lead-screw lead-nut \
   belt belt-unequal cam roller oldham extension-spring torsion-spring snap \
-  o-ring grooved-shaft bracket u-bracket z-bracket boss rack; do
+  o-ring grooved-shaft bracket u-bracket z-bracket boss rack sprocket; do
   moon run components/examples/mechanism_kit -- \
     --part "$part" -o "$OUT/mechanism-$part.step"
 done
@@ -297,7 +297,7 @@ for part in vslot-2020x100 vslot-2040x100 vslot-wheel vslot-tnut-m5 \
   mechanism-oldham mechanism-extension-spring mechanism-torsion-spring \
   mechanism-snap mechanism-o-ring mechanism-grooved-shaft \
   mechanism-bracket mechanism-u-bracket mechanism-z-bracket \
-  mechanism-boss mechanism-rack \
+  mechanism-boss mechanism-rack mechanism-sprocket \
   mechanism-design-linkage mechanism-design-linkage-compact \
   mechanism-clevis-rod-end belt-drive-gt2-20x40 rack-pinion-m2-z20x20; do
   python3 "$ROOT/scripts/validate_step.py" --no-mesh "$OUT/$part.step"
@@ -312,6 +312,13 @@ if [ "$EVALUATED" -eq 1 ] && command -v python3 >/dev/null 2>&1 &&
     moon run components/examples/mechanism_kit -- \
       --part "$part" --evaluated -o "$OUT/mechanism-$part-evaluated.step"
     python3 "$ROOT/scripts/validate_step.py" "$OUT/mechanism-$part-evaluated.step"
+  done
+  for teeth in 16 24; do
+    moon run components/examples/mechanism_kit -- \
+      --part sprocket --sprocketTeeth "$teeth" --evaluated \
+      -o "$OUT/mechanism-sprocket-${teeth}t-evaluated.step"
+    python3 "$ROOT/scripts/validate_step.py" \
+      "$OUT/mechanism-sprocket-${teeth}t-evaluated.step"
   done
 else
   echo "skipping evaluated mechanism fixtures: --no-evaluated or OCCT unavailable" >&2

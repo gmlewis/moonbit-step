@@ -101,7 +101,7 @@ test "motion catalogue carries the keyed shaft and key" {
 ///|
 test "mechanism catalogue lists every generic family" {
   let entries = @catalog.mechanisms_catalog()
-  assert_eq(entries.length(), 24)
+  assert_eq(entries.length(), 26)
   let hinge = match @catalog.lookup(entries, "Hinge L40 W20 t6") {
     Ok(e) => e
     Err(err) => abort(err.message())

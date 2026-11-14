@@ -5812,6 +5812,134 @@
       "verdict": "accepted-envelope", "committed": false,
       "review": {"automated": "pass", "owner_visual": "verified", "date": "2026-11-14", "reason": "owner reported goldens 58-67 LGTM"},
       "notes": "CC BY-SA 4.0 FreeCAD-parts_library DIN 472 - 40 reference, re-encoded from its mid-plane B-rep section. The reference uses s = 1.75 mm (the Aspen table row uses 1.8 mm); the outline thickness follows the measured reference. Its 0.175 mm, 45-degree edge breaks are reproduced as evaluated multi-edge chamfers; volume 700.383 mm3 matches. Outline data CC BY-SA 4.0; reference file not redistributed. Bore groove declared, not modelled; no load rating."
+    },
+    {
+      "fixture_id": "mechanisms/ansi40-16t-sprocket",
+      "part_id": "innerscene_ansi40_16t_sprocket",
+      "designation": "ANSI #40 16T roller-chain sprocket",
+      "family": "roller-chain sprocket",
+      "standard": "ANSI #40 / ISO 606 pitch",
+      "manufacturer": "Innerscene 3D Parts Library",
+      "source_page": "https://www.innerscene.com/tools/library/3d-parts/ansi-40-16t-sprocket-2195dccf",
+      "download_url": "https://www.innerscene.com/api/library/ansi-40-16t-sprocket-2195dccf/download",
+      "local_filename": "external/innerscene_ansi40_16t_sprocket_cc0.step",
+      "sha256": "1e52fe88dd2e212ab6962f0a3034de2ad7d3e1471a6478e51447f6d7516a8354",
+      "byte_size": 300348,
+      "units": "mm",
+      "license": "CC0-1.0",
+      "license_evidence_url": "https://www.innerscene.com/tools/library/3d-parts/ansi-40-16t-sprocket-2195dccf",
+      "declared_dimensions": {
+        "pitch_mm": 12.7,
+        "teeth": 16,
+        "roller_diameter_mm": 7.9,
+        "plate_thickness_mm": 7.6,
+        "hub_diameter_mm": 20.0,
+        "hub_height_mm": 5.0,
+        "bore_diameter_mm": 10.0,
+        "overall_diameter_mm": 70.8,
+        "overall_height_mm": 12.6
+      },
+      "measured_dimensions": {
+        "bbox_mm": [70.757468, 70.757468, 12.6],
+        "volume_mm3": 24542.8,
+        "solids": 1
+      },
+      "parametric_value": {
+        "bbox_mm": [70.758574, 70.758574, 12.6],
+        "volume_mm3": 24544.2,
+        "solids": 1,
+        "source": "components/examples/mechanism_kit --part sprocket --sprocketTeeth 16 --evaluated"
+      },
+      "generation": {
+        "tool": "components/examples/mechanism_kit",
+        "args": ["--part", "sprocket", "--sprocketTeeth", "16", "--evaluated", "-o", "{out}"],
+        "output": "ansi40-16t-sprocket.step"
+      },
+      "comparison": {
+        "solids": 1,
+        "bbox_axes": [
+          {"axis": 0, "expected_mm": 70.757468, "label": "overall diameter"},
+          {"axis": 2, "expected_mm": 12.6, "label": "overall height"}
+        ],
+        "volume_mm3": 24542.8,
+        "volume_relative_tol": 0.001,
+        "features": [
+          {"kind": "surface_min", "surface": "plane", "min_count": 30},
+          {"kind": "surface_min", "surface": "cylinder", "min_count": 30},
+          {"kind": "cylinder_radius_present_mm", "expected": 4.04, "tol_mm": 0.01},
+          {"kind": "cylinder_radius_present_mm", "expected": 5.0, "tol_mm": 0.01},
+          {"kind": "cylinder_radius_present_mm", "expected": 10.0, "tol_mm": 0.01},
+          {"kind": "cylinder_radius_present_mm", "expected": 35.733606, "tol_mm": 0.01}
+        ]
+      },
+      "verdict": "accepted-envelope",
+      "committed": false,
+      "review": {"automated": "pass", "owner_visual": "pending", "date": "2026-11-14"},
+      "notes": "CC0 Innerscene ANSI #40 16T reference. The tooth outline is re-encoded as original line/arc data (seat radius 4.04, tip radius 35.7336, fitted tip half-angle 3.175 degrees). The plate and hub are joined with write_step_evaluated: one watertight solid, volume 24544.2 vs 24542.8 mm3 (+0.006%), bbox within 0.001 mm. The seat semicircle is split into two 90-degree arcs, so the cylinder-face count is higher than the reference (51 vs 34) while the geometry matches. No chain load, wear, or fatigue rating."
+    },
+    {
+      "fixture_id": "mechanisms/ansi40-24t-sprocket",
+      "part_id": "innerscene_ansi40_24t_sprocket",
+      "designation": "ANSI #40 24T roller-chain sprocket",
+      "family": "roller-chain sprocket",
+      "standard": "ANSI #40 / ISO 606 pitch",
+      "manufacturer": "Innerscene 3D Parts Library",
+      "source_page": "https://www.innerscene.com/tools/library/3d-parts/ansi-40-24t-sprocket-5aa9ada5",
+      "download_url": "https://www.innerscene.com/api/library/ansi-40-24t-sprocket-5aa9ada5/download",
+      "local_filename": "external/innerscene_ansi40_24t_sprocket_cc0.step",
+      "sha256": "bf4d0c8b64d5fe3774d90f4b2a88a9fc4f2beb9ac992fd56d079e2048a49408c",
+      "byte_size": 444895,
+      "units": "mm",
+      "license": "CC0-1.0",
+      "license_evidence_url": "https://www.innerscene.com/tools/library/3d-parts/ansi-40-24t-sprocket-5aa9ada5",
+      "declared_dimensions": {
+        "pitch_mm": 12.7,
+        "teeth": 24,
+        "roller_diameter_mm": 7.9,
+        "plate_thickness_mm": 7.6,
+        "hub_diameter_mm": 20.0,
+        "hub_height_mm": 5.0,
+        "bore_diameter_mm": 10.0,
+        "overall_diameter_mm": 103.6,
+        "overall_height_mm": 12.6
+      },
+      "measured_dimensions": {
+        "bbox_mm": [103.586972, 103.586972, 12.6],
+        "volume_mm3": 55027.2,
+        "solids": 1
+      },
+      "parametric_value": {
+        "bbox_mm": [103.586876, 103.586876, 12.6],
+        "volume_mm3": 55026.9,
+        "solids": 1,
+        "source": "components/examples/mechanism_kit --part sprocket --sprocketTeeth 24 --evaluated"
+      },
+      "generation": {
+        "tool": "components/examples/mechanism_kit",
+        "args": ["--part", "sprocket", "--sprocketTeeth", "24", "--evaluated", "-o", "{out}"],
+        "output": "ansi40-24t-sprocket.step"
+      },
+      "comparison": {
+        "solids": 1,
+        "bbox_axes": [
+          {"axis": 0, "expected_mm": 103.586972, "label": "overall diameter"},
+          {"axis": 2, "expected_mm": 12.6, "label": "overall height"}
+        ],
+        "volume_mm3": 55027.2,
+        "volume_relative_tol": 0.001,
+        "features": [
+          {"kind": "surface_min", "surface": "plane", "min_count": 30},
+          {"kind": "surface_min", "surface": "cylinder", "min_count": 30},
+          {"kind": "cylinder_radius_present_mm", "expected": 4.04, "tol_mm": 0.01},
+          {"kind": "cylinder_radius_present_mm", "expected": 5.0, "tol_mm": 0.01},
+          {"kind": "cylinder_radius_present_mm", "expected": 10.0, "tol_mm": 0.01},
+          {"kind": "cylinder_radius_present_mm", "expected": 52.043039, "tol_mm": 0.01}
+        ]
+      },
+      "verdict": "accepted-envelope",
+      "committed": false,
+      "review": {"automated": "pass", "owner_visual": "pending", "date": "2026-11-14"},
+      "notes": "CC0 Innerscene ANSI #40 24T reference. Re-encoded as original line/arc data (seat radius 4.04, tip radius 52.0430, fitted tip half-angle 1.886 degrees). The plate and hub are joined with write_step_evaluated: one watertight solid, volume 55026.9 vs 55027.2 mm3 (-0.0005%), bbox within 0.001 mm. The seat semicircle is split into two 90-degree arcs, so the cylinder-face count is higher than the reference while the geometry matches. No chain load, wear, or fatigue rating."
     }
   ],
   "golden_source": {

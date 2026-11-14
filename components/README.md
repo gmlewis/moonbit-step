@@ -202,6 +202,12 @@ moon run components/examples/mechanism_kit -- --part z-bracket -o z-bracket.step
 moon run components/examples/mechanism_kit -- --part boss -o boss.step
 moon run components/examples/mechanism_kit -- --part rack -o rack.step
 
+# ANSI #40 roller-chain sprocket (measured CC0 16T/24T outlines)
+moon run components/examples/mechanism_kit -- \
+  --part sprocket --sprocketTeeth 16 --evaluated -o sprocket-16t.step
+moon run components/examples/mechanism_kit -- \
+  --part sprocket --sprocketTeeth 24 --evaluated -o sprocket-24t.step
+
 # Design from scratch with the typed parameter API and the @cad DSL
 moon run components/examples/mechanism_design -- \
   --length 140 --width 24 --pivot 8 -o linkage.step
@@ -370,7 +376,7 @@ use `--headless`.
 | `fasteners` | Screws, bolts, nuts, washers, pins, rods, set screws, generic solid rivets, DIN 471 type A external retaining rings (A 10 to A 34), and DIN 472 internal retaining rings (all table sizes 8 to 40; measured outlines for 10, 12, 14, 16, 18, 20, 24, 28, 32, and 40 mm, parametric for the rest). |
 | `profiles` | Generic T-slot sections, the vendor 2020 B-slot6 A section, OpenBuilds-compatible V-Slot 2020/2040 sections, the MakerBeam 10 x 10 section, a gusseted V-Slot corner bracket, P1000-style strut channel, and a generic channel nut. |
 | `motion` | Shafts, stepped/keyed shafts, spacers and V-Slot wheel spacers (plain and eccentric), bushings, plain, set-screw, and clamp shaft collars, keys, dowel pins, standoffs, compression springs, ball bearings (envelope, shielded, and full-complement deep-groove), LM-series linear bushings, flanged linear housings, UCP-series pillow-block bearing boundaries, approximated GT2 timing pulleys, smooth idlers, V-Slot wheels, EMT tubing with end caps and split clamps, rigid couplings, helical beam couplings, and flanged bearing housings. |
-| `mechanisms` | Generic engineering envelopes for a barrel hinge, clevis, pin, rod end, linkage bar, linear rail and carriage, lead screw and flanged nut, equal- and unequal-pulley timing-belt loops, eccentric cam and roller follower, Oldham coupling, extension and torsion springs, snap latch, O-ring, grooved shaft, L/U/Z brackets (L with optional gusset), tapped boss, and a straight-flank basic rack with a pinion-layout helper. |
+| `mechanisms` | Generic engineering envelopes for a barrel hinge, clevis, pin, rod end, linkage bar, linear rail and carriage, lead screw and flanged nut, equal- and unequal-pulley timing-belt loops, eccentric cam and roller follower, Oldham coupling, extension and torsion springs, snap latch, O-ring, grooved shaft, L/U/Z brackets (L with optional gusset), tapped boss, a straight-flank basic rack with a pinion-layout helper, and ANSI #40 roller-chain sprockets (measured CC0 16T/24T outlines). |
 | `motors` | NEMA 17 and NEMA 23 stepper-motor envelopes, mounting interfaces, NEMA mounting plates, and a generic NEMA-to-20-series extrusion adapter. |
 | `stock` | EN 10056 angle sections, configurable flat plate blanks with analytic circular holes and obround slots, counterbored and countersunk plates, bearing-housing plates, tube-to-plate and tube-to-V-Slot adapter brackets, generic channel-to-extrusion adapters and extrusion-to-tube clamps, SC8UU-style rod/bearing blocks, and heat-set insert bosses. |
 | `gears` | Involute spur gears, external pairs, and exact-internal-involute planetary sets. |
@@ -658,6 +664,12 @@ loop and how imported vendor parts are referenced through SolidCraft, is in
   fused by the flat writer; use `write_step_evaluated` (or
   `mechanism_kit --evaluated`) or SolidCraft when one manifold is required. The
   `rail` base slab is also fused by that path.
+- The ANSI #40 sprocket's 16T and 24T tooth outlines are measured from the CC0
+  Innerscene references and re-encoded as original line/arc data; other tooth
+  counts use the fitted tip-angle engineering envelope. The plate and hub are
+  separate layers and the accepted artifact fuses them with
+  `write_step_evaluated`. Chain links, rollers, wear, and load ratings are not
+  modelled; only the open-chain pitch-path length helper is provided.
 - The Oldham coupling has real slotted hub faces and real disc tongues with a
   declared `slot_clearance`; the slot must be narrower than the hub bore so the
   inner sector arc remains continuous. No torque, misalignment, or wear rating
