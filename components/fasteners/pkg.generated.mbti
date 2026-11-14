@@ -158,6 +158,7 @@ pub(all) struct Din471Outline {
 pub(all) struct Din472Outline {
   bore_mm : Double
   thickness_mm : Double
+  chamfer_mm : Double
   start : (Double, Double)
   ops : Array[RingOp]
   holes : Array[(Double, Double, Double)]

@@ -136,4 +136,7 @@ Toolchain: MoonBit `moon` 0.1.20261104, `moonc` v0.10.20.
 
 ## License
 
-Apache-2.0
+Apache-2.0. The measured DIN 472 free-state outline data for the
+10/14/16/18/24/28/32/40 mm sizes is derived from
+[FreeCAD-parts_library](https://github.com/sisul01/FreeCAD-parts_library) and
+remains CC BY-SA 4.0; see `components/README.md` for attribution details.

@@ -241,6 +241,38 @@ async test "evaluated chamfer yields a valid solid with a conical face" {
 }
 
 ///|
+async test "evaluated multi-edge chamfer targets perpendicular cap edges" {
+  if !command_in_path("python3") || !draw_available() {
+    return
+  }
+  let root = repo_root()
+  let dir = @fs.tmpdir(prefix="edge-chamfer-multi-")
+  defer @fs.rmdir(dir, recursive=true)
+  let base = @cad.Cylinder::new(10.0, 8.0).with_name("cyl")
+  let design = @cad.Design::new(name="chamfer-multi-eval").add(
+    @cad.chamfer_edges(
+      base,
+      0.5,
+      selector=@cad.EdgeSelector::EdgesPerpendicularToDirection(
+        (0.0, 0.0, 1.0),
+        1.0,
+      ),
+      name="cap-chamfers",
+    ),
+  )
+  let out = dir + "/chamfer-multi.step"
+  design.write_step_evaluated(Some(out), root=Some(root))
+  let text = @fs.read_file(out).text()
+  assert_true(text.contains("CONICAL_SURFACE"))
+  let (code, output) = run_validator([
+    root + "/scripts/validate_step.py",
+    "--no-mesh",
+    out,
+  ])
+  assert_validator_ok(code, output)
+}
+
+///|
 /// json_member returns an object member, or JSON null when absent.
 fn ev_json_member(j : @json.Json, key : String) -> @json.Json {
   match j {

@@ -22,7 +22,7 @@ pub fn herringbone_planetary_gearbox(
     layout.sun.num_teeth,
     layout.resolution,
   )
-  let sun_holes = hb_gear_holes(layout, layout.sun)
+  let sun_holes = hb_gear_holes(layout, layout.sun, layout.sun_hole_radius_mm)
   let sun_max_rot = @math.tan(hb_deg2rad(layout.helix_angle_sun_deg)) *
     (length / 2.0) /
     layout.sun.outer_radius_mm
@@ -51,7 +51,11 @@ pub fn herringbone_planetary_gearbox(
     layout.planet.num_teeth,
     layout.resolution,
   )
-  let planet_holes = hb_gear_holes(layout, layout.planet)
+  let planet_holes = hb_gear_holes(
+    layout,
+    layout.planet,
+    layout.planet_hole_radius_mm,
+  )
   let planet_max_rot = @math.tan(hb_deg2rad(layout.helix_angle_deg)) *
     (length / 2.0) /
     layout.planet.outer_radius_mm
@@ -81,10 +85,15 @@ pub fn herringbone_planetary_gearbox(
     )
   }
 
-  let bore_diameter = if layout.hole_type == "None" {
+  let sun_bore_diameter = if layout.hole_type == "None" {
     None
   } else {
-    Some(2.0 * layout.hole_radius_mm)
+    Some(2.0 * layout.sun_hole_radius_mm)
+  }
+  let planet_bore_diameter = if layout.hole_type == "None" {
+    None
+  } else {
+    Some(2.0 * layout.planet_hole_radius_mm)
   }
   let name = "herringbone-planetary-m\{@cad.fmt_double(module_mm, None)}-z\{layout.sun.num_teeth}"
   let approximated : Array[@common.Approximation] = [
@@ -196,7 +205,7 @@ pub fn herringbone_planetary_gearbox(
     component,
     "sun",
     @common.Placement::identity(),
-    bore_diameter,
+    sun_bore_diameter,
     2.0 * layout.sun.pitch_radius_mm,
     2.0 * layout.sun.outer_radius_mm,
     length,
@@ -208,7 +217,7 @@ pub fn herringbone_planetary_gearbox(
       component,
       "planet-\{planet_index + 1}",
       at,
-      bore_diameter,
+      planet_bore_diameter,
       2.0 * layout.planet.pitch_radius_mm,
       2.0 * layout.planet.outer_radius_mm,
       length,

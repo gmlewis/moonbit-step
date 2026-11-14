@@ -160,9 +160,63 @@ test "DIN 472 12 mm ring carries the table's lug-hole diameter" {
 
 ///|
 test "DIN 472 ring rejects unsupported and invalid input" {
-  assert_true(@fasteners.din472_ring(10.0) is Err(_))
+  assert_true(@fasteners.din472_ring(8.0) is Err(_))
   assert_true(@fasteners.din472_ring(0.0) is Err(_))
-  assert_true(@fasteners.din472_outline(15.0) is Err(_))
-  assert_true(@fasteners.din472_outline(12.0) is Ok(_))
-  assert_true(@fasteners.din472_outline(20.0) is Ok(_))
+  assert_true(@fasteners.din472_outline(8.0) is Err(_))
+  for size in [10.0, 12.0, 14.0, 16.0, 18.0, 20.0, 24.0, 28.0, 32.0, 40.0] {
+    assert_true(@fasteners.din472_outline(size) is Ok(_))
+  }
+}
+
+///|
+test "DIN 472 golden-frame rotation carries connector origins" {
+  let part = d472_ok(@fasteners.din472_ring(10.0))
+  let rotated = part.rotate_z(-90.0)
+  let hole = d472_connector(rotated, "lug-hole-1")
+  let (x, y, _z) = hole.placement.trans
+  if !d472_close(x, 2.9405, 1.0e-4) || !d472_close(y, -2.4069, 1.0e-4) {
+    fail("rotated connector origin is (\{x}, \{y})")
+  }
+}
+
+///|
+test "CC0 DIN 472 rings remain flat with sharp edges" {
+  for size in [12.0, 20.0] {
+    let part = d472_ok(@fasteners.din472_ring(size))
+    assert_false(part.features().has_modeled("edge-chamfers"))
+    assert_true(part.features().has_omitted("edge-breaks"))
+    assert_true(part.layers()[0].shape is @cad.Shape::ExtrudedArcProfile(_))
+  }
+}
+
+///|
+test "additional DIN 472 outlines match envelopes and carry chamfers" {
+  let cases : Array[(Double, Double, Double, Double)] = [
+    (10.0, 10.227472, 10.8, 1.0),
+    (14.0, 14.780321, 15.1, 1.0),
+    (16.0, 17.047020, 17.3, 1.0),
+    (18.0, 19.283299, 19.5, 1.0),
+    (24.0, 25.693551, 25.9, 1.2),
+    (28.0, 29.927963, 30.1, 1.2),
+    (32.0, 34.250705, 34.4, 1.2),
+    (40.0, 43.264394, 43.5, 1.75),
+  ]
+  for case in cases {
+    let (size, x_extent, y_extent, thickness) = case
+    let part = d472_ok(@fasteners.din472_ring(size))
+    let (x0, x1, y0, y1, z0, z1) = part.bounding_box()
+    if !d472_close(x1 - x0, x_extent, 0.02) {
+      fail(
+        "size \{size}: x extent \{x1 - x0} vs \{x_extent}; bbox [\{x0}, \{x1}] [\{y0}, \{y1}]",
+      )
+    }
+    assert_true(d472_close(y1 - y0, y_extent, 0.02))
+    assert_true(d472_close(z0, 0.0, 1.0e-6))
+    assert_true(d472_close(z1 - z0, thickness, 0.02))
+    assert_true(part.features().has_modeled("edge-chamfers"))
+    assert_true(part.layers()[0].shape is @cad.Shape::Chamfer(_))
+    if !part.metadata().source.contains("CC BY-SA 4.0") {
+      fail("size \{size} does not record its CC BY-SA outline provenance")
+    }
+  }
 }

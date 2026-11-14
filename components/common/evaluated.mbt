@@ -130,7 +130,10 @@ pub async fn Component::write_step_evaluated(
   out_path : String?,
   root~ : String? = None,
 ) -> Unit {
-  let text = self.to_step_evaluated(root~)
+  let text = self.to_step_evaluated(root~) catch {
+    @cad.CsgEvalError(msg) => abort(msg)
+    _ => abort("CSG evaluation failed")
+  }
   @cad.write_text_file(text, out_path)
   match (out_path, @env.get_env_var("STEP_CONNECTOR_SIDECAR")) {
     (Some(path), Some(_)) =>

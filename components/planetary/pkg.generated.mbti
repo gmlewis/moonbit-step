@@ -37,6 +37,8 @@ pub(all) struct HerringbonePlanetaryLayout {
   resolution : Int32
   hole_type : String
   hole_radius_mm : Double
+  sun_hole_radius_mm : Double
+  planet_hole_radius_mm : Double
   tolerance_mm : Double
   outer_thickness_mm : Double
   sun : HerringboneGearDims
@@ -60,6 +62,8 @@ pub(all) struct HerringbonePlanetaryParams {
   resolution : Int32
   hole_type : String
   hole_radius_mm : Double
+  sun_hole_radius_mm : Double
+  planet_hole_radius_mm : Double
   tolerance_mm : Double
   outer_thickness_mm : Double
   sun_teeth : Int32
@@ -67,7 +71,7 @@ pub(all) struct HerringbonePlanetaryParams {
   planet_teeth : Int32
   ring_teeth : Int32
 }
-pub fn HerringbonePlanetaryParams::new(module_mm~ : Double, gear_length_mm~ : Double, helix_angle_deg? : Double, pressure_angle_deg? : Double, num_elbows? : Int32, resolution? : Int32, hole_type? : String, hole_radius_mm? : Double, tolerance_mm? : Double, outer_thickness_mm? : Double, sun_teeth? : Int32, planet_count? : Int32, planet_teeth? : Int32, ring_teeth? : Int32) -> Result[Self, @common.SpecError]
+pub fn HerringbonePlanetaryParams::new(module_mm~ : Double, gear_length_mm~ : Double, helix_angle_deg? : Double, pressure_angle_deg? : Double, num_elbows? : Int32, resolution? : Int32, hole_type? : String, hole_radius_mm? : Double, sun_hole_radius_mm? : Double, planet_hole_radius_mm? : Double, tolerance_mm? : Double, outer_thickness_mm? : Double, sun_teeth? : Int32, planet_count? : Int32, planet_teeth? : Int32, ring_teeth? : Int32) -> Result[Self, @common.SpecError]
 
 // Type aliases
 

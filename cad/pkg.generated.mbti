@@ -309,6 +309,7 @@ pub(all) struct EdgeInfo {
 pub(all) enum EdgeSelector {
   AllEdges
   EdgesByDirection((Double, Double, Double), Double)
+  EdgesPerpendicularToDirection((Double, Double, Double), Double)
   EdgesNearPoint((Double, Double, Double), Double)
   EdgeIndices(Array[Int32])
 }

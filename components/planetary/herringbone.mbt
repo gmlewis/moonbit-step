@@ -50,6 +50,12 @@ pub(all) struct HerringbonePlanetaryParams {
   resolution : Int32
   hole_type : String
   hole_radius_mm : Double
+  /// Sun bore radius; defaults to `hole_radius_mm` when omitted.
+  sun_hole_radius_mm : Double
+  /// Planet bore radius; defaults to `hole_radius_mm` when omitted. A larger
+  /// planet bore is how a bearing (for example a 688 on an 8 mm pin) fits
+  /// without enlarging the sun bore.
+  planet_hole_radius_mm : Double
   tolerance_mm : Double
   outer_thickness_mm : Double
   sun_teeth : Int32
@@ -71,6 +77,8 @@ pub fn HerringbonePlanetaryParams::new(
   resolution~ : Int32 = 9,
   hole_type~ : String = "None",
   hole_radius_mm~ : Double = 10.0,
+  sun_hole_radius_mm? : Double,
+  planet_hole_radius_mm? : Double,
   tolerance_mm~ : Double = 0.25,
   outer_thickness_mm~ : Double = 10.0,
   sun_teeth~ : Int32 = 12,
@@ -149,12 +157,14 @@ pub fn HerringbonePlanetaryParams::new(
     pressure_angle_deg * hb_deg,
     resolved_planet,
   )
+  let resolved_sun_hole = sun_hole_radius_mm.unwrap_or(hole_radius_mm)
+  let resolved_planet_hole = planet_hole_radius_mm.unwrap_or(hole_radius_mm)
   if hole_type != "None" {
-    if hole_radius_mm >= sun.root_radius_mm ||
-      hole_radius_mm >= planet.root_radius_mm {
+    if resolved_sun_hole >= sun.root_radius_mm ||
+      resolved_planet_hole >= planet.root_radius_mm {
       return Err(
         @common.InvalidDimension(
-          "--holeRadius must be less than the gear root radius",
+          "--holeRadius (or the per-gear sun/planet hole radius) must be less than the gear root radius",
         ),
       )
     }
@@ -168,6 +178,8 @@ pub fn HerringbonePlanetaryParams::new(
     resolution,
     hole_type,
     hole_radius_mm,
+    sun_hole_radius_mm: resolved_sun_hole,
+    planet_hole_radius_mm: resolved_planet_hole,
     tolerance_mm,
     outer_thickness_mm,
     sun_teeth,
@@ -208,6 +220,8 @@ pub(all) struct HerringbonePlanetaryLayout {
   resolution : Int32
   hole_type : String
   hole_radius_mm : Double
+  sun_hole_radius_mm : Double
+  planet_hole_radius_mm : Double
   tolerance_mm : Double
   outer_thickness_mm : Double
   sun : HerringboneGearDims
@@ -281,6 +295,8 @@ pub fn herringbone_planetary_layout(
     resolution: p.resolution,
     hole_type: p.hole_type,
     hole_radius_mm: p.hole_radius_mm,
+    sun_hole_radius_mm: p.sun_hole_radius_mm,
+    planet_hole_radius_mm: p.planet_hole_radius_mm,
     tolerance_mm: p.tolerance_mm,
     outer_thickness_mm: p.outer_thickness_mm,
     sun,
@@ -627,24 +643,19 @@ fn hb_ring_geometry(layout : HerringbonePlanetaryLayout) -> HBRingGeometry {
 fn hb_gear_holes(
   layout : HerringbonePlanetaryLayout,
   g : HerringboneGearDims,
+  hole_radius_mm : Double,
 ) -> Array[Array[(Double, Double)]] {
   let hole_type = layout.hole_type
   if hole_type == "None" {
     []
   } else if hole_type == "Circular" {
-    [
-      hb_circle_outline(
-        layout.hole_radius_mm,
-        g.num_teeth * layout.resolution,
-        false,
-      ),
-    ]
+    [hb_circle_outline(hole_radius_mm, g.num_teeth * layout.resolution, false)]
   } else if hole_type == "Squared" {
-    [hb_polygon_hole(4, layout.hole_radius_mm)]
+    [hb_polygon_hole(4, hole_radius_mm)]
   } else if hole_type == "Hexagonal" {
-    [hb_polygon_hole(6, layout.hole_radius_mm)]
+    [hb_polygon_hole(6, hole_radius_mm)]
   } else if hole_type == "Octagonal" {
-    [hb_polygon_hole(8, layout.hole_radius_mm)]
+    [hb_polygon_hole(8, hole_radius_mm)]
   } else {
     []
   }

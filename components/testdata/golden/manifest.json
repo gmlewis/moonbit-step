@@ -5453,6 +5453,365 @@
         "reason": "owner reported golden 73 LGTM"
       },
       "notes": "CC BY 4.0 Xem Studio M3 x 4 heat-set test boss. True-size nominal geometry: Ø7.6 x 8 mm boss, Ø4.4 x 5 mm blind insert pocket opening at +Z, and a Ø3.4 through screw-clearance bore. The reference and parametric part are each one solid with six faces (3 planes + 3 cylinders), identical bbox, volume 259.6526328 mm3, centre of mass, and sampled surface deviation. The insert pocket's fit is declared separately from its nominal diametral clearance; the minimum 0.1 mm radial shelf is a geometric validation default, not a vendor tolerance or retention claim. The insert body, thread, and diamond knurl are separate or omitted. No pull-out, torque, boss-strength, or material rating is implied."
+    },
+    {
+      "fixture_id": "fasteners/din472-10-retaining-ring",
+      "part_id": "din472_internal_10_freecad",
+      "designation": "DIN 472 - 10 internal retaining ring",
+      "family": "internal retaining ring",
+      "standard": "DIN 472; free-state outline from FreeCAD-parts_library",
+      "manufacturer": "sisul01 / FreeCAD-parts_library",
+      "source_page": "https://github.com/sisul01/FreeCAD-parts_library/blob/214152169e44834095eea50e0c3c14107a339109/mechanical_engineering/fasteners_/Retaining%20Rings/step/DIN472_Form-J_10x1.step",
+      "download_url": "https://raw.githubusercontent.com/sisul01/FreeCAD-parts_library/214152169e44834095eea50e0c3c14107a339109/mechanical_engineering/fasteners_/Retaining%20Rings/step/DIN472_Form-J_10x1.step",
+      "local_filename": "external/din472_internal_10_freecad.step",
+      "sha256": "df65d5fa71d05de4b1608fa61138ddbf1249336f71b5540ae7e12aed9fb4e42b",
+      "byte_size": 48215,
+      "units": "mm",
+      "license": "CC-BY-SA-4.0",
+      "license_evidence_url": "https://github.com/sisul01/FreeCAD-parts_library/blob/master/LICENSE",
+      "declared_dimensions": {
+        "bore_diameter_d1_mm": 10.0,
+        "thickness_s_mm": 1.0,
+        "free_outer_diameter_d3_mm": 10.8,
+        "lug_width_a_mm": 3.2,
+        "ring_width_b_mm": 1.4,
+        "lug_hole_d5_mm": 1.2,
+        "groove_diameter_d2_mm": 10.4,
+        "groove_width_m_mm": 1.1
+      },
+      "measured_dimensions": {
+        "bbox_mm": [10.8, 10.227472, 1.0],
+        "volume_mm3": 39.777,
+        "solids": 1
+      },
+      "parametric_value": {
+        "bbox_mm": [10.8, 10.2275, 1.0],
+        "volume_mm3": 39.7772,
+        "solids": 1,
+        "source": "components/examples/din472_ring --size 10 --goldenFrame"
+      },
+      "generation": {
+        "tool": "components/examples/din472_ring",
+        "args": ["--size", "10", "--goldenFrame", "-o", "{out}"],
+        "output": "din472-10.step"
+      },
+      "comparison": {
+        "solids": 1,
+        "bbox_axes": [
+          {"axis": 0, "expected_mm": 10.8, "label": "free outside diameter (d3)"},
+          {"axis": 1, "expected_mm": 10.227472, "label": "back to lug tips"},
+          {"axis": 2, "expected_mm": 1.0, "label": "ring thickness"}
+        ],
+        "volume_mm3": 39.7772,
+        "volume_relative_tol": 0.001,
+        "mass_properties": {"center_of_mass_mm": [0.0, 0.328996, 0.0], "center_of_mass_tol_mm": 0.001},
+        "features": [
+          {"kind": "surface_min", "surface": "plane", "min_count": 4},
+          {"kind": "surface_min", "surface": "cylinder", "min_count": 6},
+          {"kind": "cylinder_radius_present_mm", "expected": 5.4, "tol_mm": 0.01},
+          {"kind": "surface_min", "surface": "cone", "min_count": 16}
+        ]
+      },
+      "verdict": "accepted-envelope",
+      "committed": false,
+      "review": {"automated": "pass", "owner_visual": "verified", "date": "2026-11-14", "reason": "owner reported goldens 58-67 LGTM"},
+      "notes": "CC BY-SA 4.0 FreeCAD-parts_library DIN 472 - 10 reference, re-encoded as an original line/arc outline from its mid-plane B-rep section. The reference's 0.1 mm, 45-degree edge breaks are reproduced as evaluated multi-edge chamfers; volume is 39.7772 vs 39.777 mm3. The outline data for this size is CC BY-SA 4.0; no reference file is redistributed. The bore groove is declared, not modelled. No spring temper or load rating is implied."
+    },
+    {
+      "fixture_id": "fasteners/din472-14-retaining-ring",
+      "part_id": "din472_internal_14_freecad",
+      "designation": "DIN 472 - 14 internal retaining ring",
+      "family": "internal retaining ring",
+      "standard": "DIN 472; free-state outline from FreeCAD-parts_library",
+      "manufacturer": "sisul01 / FreeCAD-parts_library",
+      "source_page": "https://github.com/sisul01/FreeCAD-parts_library/blob/214152169e44834095eea50e0c3c14107a339109/mechanical_engineering/fasteners_/Retaining%20Rings/step/DIN472_Form-J_14x1.step",
+      "download_url": "https://raw.githubusercontent.com/sisul01/FreeCAD-parts_library/214152169e44834095eea50e0c3c14107a339109/mechanical_engineering/fasteners_/Retaining%20Rings/step/DIN472_Form-J_14x1.step",
+      "local_filename": "external/din472_internal_14_freecad.step",
+      "sha256": "aa37600f047dd712d664ac6b89fdf511de6d53e42f841a867c44d74f8d75ee54",
+      "byte_size": 48105,
+      "units": "mm",
+      "license": "CC-BY-SA-4.0",
+      "license_evidence_url": "https://github.com/sisul01/FreeCAD-parts_library/blob/master/LICENSE",
+      "declared_dimensions": {
+        "bore_diameter_d1_mm": 14.0, "thickness_s_mm": 1.0,
+        "free_outer_diameter_d3_mm": 15.1, "lug_width_a_mm": 3.7,
+        "ring_width_b_mm": 1.9, "lug_hole_d5_mm": 1.7,
+        "groove_diameter_d2_mm": 14.6, "groove_width_m_mm": 1.1
+      },
+      "measured_dimensions": {"bbox_mm": [15.1, 14.780321, 1.0], "volume_mm3": 70.4285, "solids": 1},
+      "parametric_value": {"bbox_mm": [15.1, 14.7803, 1.0], "volume_mm3": 70.4286, "solids": 1, "source": "components/examples/din472_ring --size 14 --goldenFrame"},
+      "generation": {"tool": "components/examples/din472_ring", "args": ["--size", "14", "--goldenFrame", "-o", "{out}"], "output": "din472-14.step"},
+      "comparison": {
+        "solids": 1,
+        "bbox_axes": [
+          {"axis": 0, "expected_mm": 15.1, "label": "free outside diameter (d3)"},
+          {"axis": 1, "expected_mm": 14.780321, "label": "back to lug tips"},
+          {"axis": 2, "expected_mm": 1.0, "label": "ring thickness"}
+        ],
+        "volume_mm3": 70.4286, "volume_relative_tol": 0.001,
+        "mass_properties": {"center_of_mass_mm": [0.0, 0.423271, 0.0], "center_of_mass_tol_mm": 0.001},
+        "features": [
+          {"kind": "surface_min", "surface": "plane", "min_count": 4},
+          {"kind": "surface_min", "surface": "cylinder", "min_count": 6},
+          {"kind": "cylinder_radius_present_mm", "expected": 7.55, "tol_mm": 0.01},
+          {"kind": "surface_min", "surface": "cone", "min_count": 16}
+        ]
+      },
+      "verdict": "accepted-envelope", "committed": false,
+      "review": {"automated": "pass", "owner_visual": "verified", "date": "2026-11-14", "reason": "owner reported goldens 58-67 LGTM"},
+      "notes": "CC BY-SA 4.0 FreeCAD-parts_library DIN 472 - 14 reference, re-encoded from its mid-plane B-rep section. The reference's 0.1 mm, 45-degree edge breaks are reproduced as evaluated multi-edge chamfers; volume 70.4286 vs 70.4285 mm3. Outline data is CC BY-SA 4.0; no reference file is redistributed. Bore groove declared, not modelled; no load rating."
+    },
+    {
+      "fixture_id": "fasteners/din472-16-retaining-ring",
+      "part_id": "din472_internal_16_freecad",
+      "designation": "DIN 472 - 16 internal retaining ring",
+      "family": "internal retaining ring",
+      "standard": "DIN 472; free-state outline from FreeCAD-parts_library",
+      "manufacturer": "sisul01 / FreeCAD-parts_library",
+      "source_page": "https://github.com/sisul01/FreeCAD-parts_library/blob/214152169e44834095eea50e0c3c14107a339109/mechanical_engineering/fasteners_/Retaining%20Rings/step/DIN472_Form-J_16x1.step",
+      "download_url": "https://raw.githubusercontent.com/sisul01/FreeCAD-parts_library/214152169e44834095eea50e0c3c14107a339109/mechanical_engineering/fasteners_/Retaining%20Rings/step/DIN472_Form-J_16x1.step",
+      "local_filename": "external/din472_internal_16_freecad.step",
+      "sha256": "2f7907477c6b6f38b7d448d12a20905ccf423d75c51ff08679e2e004a075704f",
+      "byte_size": 48062, "units": "mm", "license": "CC-BY-SA-4.0",
+      "license_evidence_url": "https://github.com/sisul01/FreeCAD-parts_library/blob/master/LICENSE",
+      "declared_dimensions": {
+        "bore_diameter_d1_mm": 16.0, "thickness_s_mm": 1.0,
+        "free_outer_diameter_d3_mm": 17.3, "lug_width_a_mm": 3.8,
+        "ring_width_b_mm": 2.0, "lug_hole_d5_mm": 1.7,
+        "groove_diameter_d2_mm": 16.8, "groove_width_m_mm": 1.1
+      },
+      "measured_dimensions": {"bbox_mm": [17.3, 17.047020, 1.0], "volume_mm3": 85.116, "solids": 1},
+      "parametric_value": {"bbox_mm": [17.3, 17.047, 1.0], "volume_mm3": 85.1153, "solids": 1, "source": "components/examples/din472_ring --size 16 --goldenFrame"},
+      "generation": {"tool": "components/examples/din472_ring", "args": ["--size", "16", "--goldenFrame", "-o", "{out}"], "output": "din472-16.step"},
+      "comparison": {
+        "solids": 1,
+        "bbox_axes": [
+          {"axis": 0, "expected_mm": 17.3, "label": "free outside diameter (d3)"},
+          {"axis": 1, "expected_mm": 17.047020, "label": "back to lug tips"},
+          {"axis": 2, "expected_mm": 1.0, "label": "ring thickness"}
+        ],
+        "volume_mm3": 85.1153, "volume_relative_tol": 0.001,
+        "mass_properties": {"center_of_mass_mm": [0.0, 0.436918, 0.0], "center_of_mass_tol_mm": 0.001},
+        "features": [
+          {"kind": "surface_min", "surface": "plane", "min_count": 4},
+          {"kind": "surface_min", "surface": "cylinder", "min_count": 6},
+          {"kind": "cylinder_radius_present_mm", "expected": 8.65, "tol_mm": 0.01},
+          {"kind": "surface_min", "surface": "cone", "min_count": 16}
+        ]
+      },
+      "verdict": "accepted-envelope", "committed": false,
+      "review": {"automated": "pass", "owner_visual": "verified", "date": "2026-11-14", "reason": "owner reported goldens 58-67 LGTM"},
+      "notes": "CC BY-SA 4.0 FreeCAD-parts_library DIN 472 - 16 reference, re-encoded from its mid-plane B-rep section. The reference's 0.1 mm, 45-degree edge breaks are reproduced as evaluated multi-edge chamfers; volume 85.1153 vs 85.116 mm3. Outline data CC BY-SA 4.0; reference file not redistributed. Bore groove declared, not modelled; no load rating."
+    },
+    {
+      "fixture_id": "fasteners/din472-18-retaining-ring",
+      "part_id": "din472_internal_18_freecad",
+      "designation": "DIN 472 - 18 internal retaining ring",
+      "family": "internal retaining ring",
+      "standard": "DIN 472; free-state outline from FreeCAD-parts_library",
+      "manufacturer": "sisul01 / FreeCAD-parts_library",
+      "source_page": "https://github.com/sisul01/FreeCAD-parts_library/blob/214152169e44834095eea50e0c3c14107a339109/mechanical_engineering/fasteners_/Retaining%20Rings/step/DIN472_Form-J_18x1.step",
+      "download_url": "https://raw.githubusercontent.com/sisul01/FreeCAD-parts_library/214152169e44834095eea50e0c3c14107a339109/mechanical_engineering/fasteners_/Retaining%20Rings/step/DIN472_Form-J_18x1.step",
+      "local_filename": "external/din472_internal_18_freecad.step",
+      "sha256": "2c85a3e7bf9dbcbc218f21447aa30f1cdfcd3c7605a365b9d044d2fc002c627f",
+      "byte_size": 48024, "units": "mm", "license": "CC-BY-SA-4.0",
+      "license_evidence_url": "https://github.com/sisul01/FreeCAD-parts_library/blob/master/LICENSE",
+      "declared_dimensions": {
+        "bore_diameter_d1_mm": 18.0, "thickness_s_mm": 1.0,
+        "free_outer_diameter_d3_mm": 19.5, "lug_width_a_mm": 4.1,
+        "ring_width_b_mm": 2.2, "lug_hole_d5_mm": 2.0,
+        "groove_diameter_d2_mm": 19.0, "groove_width_m_mm": 1.1
+      },
+      "measured_dimensions": {"bbox_mm": [19.5, 19.283299, 1.0], "volume_mm3": 104.566, "solids": 1},
+      "parametric_value": {"bbox_mm": [19.5, 19.2833, 1.0], "volume_mm3": 104.566, "solids": 1, "source": "components/examples/din472_ring --size 18 --goldenFrame"},
+      "generation": {"tool": "components/examples/din472_ring", "args": ["--size", "18", "--goldenFrame", "-o", "{out}"], "output": "din472-18.step"},
+      "comparison": {
+        "solids": 1,
+        "bbox_axes": [
+          {"axis": 0, "expected_mm": 19.5, "label": "free outside diameter (d3)"},
+          {"axis": 1, "expected_mm": 19.283299, "label": "back to lug tips"},
+          {"axis": 2, "expected_mm": 1.0, "label": "ring thickness"}
+        ],
+        "volume_mm3": 104.566, "volume_relative_tol": 0.001,
+        "mass_properties": {"center_of_mass_mm": [0.0, 0.537707, 0.0], "center_of_mass_tol_mm": 0.001},
+        "features": [
+          {"kind": "surface_min", "surface": "plane", "min_count": 4},
+          {"kind": "surface_min", "surface": "cylinder", "min_count": 6},
+          {"kind": "cylinder_radius_present_mm", "expected": 9.75, "tol_mm": 0.01},
+          {"kind": "surface_min", "surface": "cone", "min_count": 16}
+        ]
+      },
+      "verdict": "accepted-envelope", "committed": false,
+      "review": {"automated": "pass", "owner_visual": "verified", "date": "2026-11-14", "reason": "owner reported goldens 58-67 LGTM"},
+      "notes": "CC BY-SA 4.0 FreeCAD-parts_library DIN 472 - 18 reference, re-encoded from its mid-plane B-rep section. The reference's 0.1 mm, 45-degree edge breaks are reproduced as evaluated multi-edge chamfers; volume 104.566 mm3 matches. Outline data CC BY-SA 4.0; reference file not redistributed. Bore groove declared, not modelled; no load rating."
+    },
+    {
+      "fixture_id": "fasteners/din472-24-retaining-ring",
+      "part_id": "din472_internal_24_freecad",
+      "designation": "DIN 472 - 24 internal retaining ring",
+      "family": "internal retaining ring",
+      "standard": "DIN 472; free-state outline from FreeCAD-parts_library",
+      "manufacturer": "sisul01 / FreeCAD-parts_library",
+      "source_page": "https://github.com/sisul01/FreeCAD-parts_library/blob/214152169e44834095eea50e0c3c14107a339109/mechanical_engineering/fasteners_/Retaining%20Rings/step/DIN472_Form-J_24x1.2.step",
+      "download_url": "https://raw.githubusercontent.com/sisul01/FreeCAD-parts_library/214152169e44834095eea50e0c3c14107a339109/mechanical_engineering/fasteners_/Retaining%20Rings/step/DIN472_Form-J_24x1.2.step",
+      "local_filename": "external/din472_internal_24_freecad.step",
+      "sha256": "710183e4e614c57a0ed81bf03136ed75a36d4420815ad525b2094bd9a5d67553",
+      "byte_size": 48178, "units": "mm", "license": "CC-BY-SA-4.0",
+      "license_evidence_url": "https://github.com/sisul01/FreeCAD-parts_library/blob/master/LICENSE",
+      "declared_dimensions": {
+        "bore_diameter_d1_mm": 24.0, "thickness_s_mm": 1.2,
+        "free_outer_diameter_d3_mm": 25.9, "lug_width_a_mm": 4.4,
+        "ring_width_b_mm": 2.6, "lug_hole_d5_mm": 2.0,
+        "groove_diameter_d2_mm": 25.2, "groove_width_m_mm": 1.3
+      },
+      "measured_dimensions": {"bbox_mm": [25.9, 25.693551, 1.2], "volume_mm3": 193.771, "solids": 1},
+      "parametric_value": {"bbox_mm": [25.9, 25.6936, 1.2], "volume_mm3": 193.773, "solids": 1, "source": "components/examples/din472_ring --size 24 --goldenFrame"},
+      "generation": {"tool": "components/examples/din472_ring", "args": ["--size", "24", "--goldenFrame", "-o", "{out}"], "output": "din472-24.step"},
+      "comparison": {
+        "solids": 1,
+        "bbox_axes": [
+          {"axis": 0, "expected_mm": 25.9, "label": "free outside diameter (d3)"},
+          {"axis": 1, "expected_mm": 25.693551, "label": "back to lug tips"},
+          {"axis": 2, "expected_mm": 1.2, "label": "ring thickness"}
+        ],
+        "volume_mm3": 193.773, "volume_relative_tol": 0.001,
+        "mass_properties": {"center_of_mass_mm": [0.0, 0.887771, 0.0], "center_of_mass_tol_mm": 0.001},
+        "features": [
+          {"kind": "surface_min", "surface": "plane", "min_count": 4},
+          {"kind": "surface_min", "surface": "cylinder", "min_count": 6},
+          {"kind": "cylinder_radius_present_mm", "expected": 12.95, "tol_mm": 0.01},
+          {"kind": "surface_min", "surface": "cone", "min_count": 16}
+        ]
+      },
+      "verdict": "accepted-envelope", "committed": false,
+      "review": {"automated": "pass", "owner_visual": "verified", "date": "2026-11-14", "reason": "owner reported goldens 58-67 LGTM"},
+      "notes": "CC BY-SA 4.0 FreeCAD-parts_library DIN 472 - 24 reference, re-encoded from its mid-plane B-rep section. The reference's 0.12 mm, 45-degree edge breaks are reproduced as evaluated multi-edge chamfers; volume 193.773 vs 193.771 mm3. Outline data CC BY-SA 4.0; reference file not redistributed. Bore groove declared, not modelled; no load rating."
+    },
+    {
+      "fixture_id": "fasteners/din472-28-retaining-ring",
+      "part_id": "din472_internal_28_freecad",
+      "designation": "DIN 472 - 28 internal retaining ring",
+      "family": "internal retaining ring",
+      "standard": "DIN 472; free-state outline from FreeCAD-parts_library",
+      "manufacturer": "sisul01 / FreeCAD-parts_library",
+      "source_page": "https://github.com/sisul01/FreeCAD-parts_library/blob/214152169e44834095eea50e0c3c14107a339109/mechanical_engineering/fasteners_/Retaining%20Rings/step/DIN472_Form-J_28x1.2.step",
+      "download_url": "https://raw.githubusercontent.com/sisul01/FreeCAD-parts_library/214152169e44834095eea50e0c3c14107a339109/mechanical_engineering/fasteners_/Retaining%20Rings/step/DIN472_Form-J_28x1.2.step",
+      "local_filename": "external/din472_internal_28_freecad.step",
+      "sha256": "b2ab8fbd0f39d0e119074093ce120339533c065ee5db22e5cfa183e2ea2bd96f",
+      "byte_size": 48157, "units": "mm", "license": "CC-BY-SA-4.0",
+      "license_evidence_url": "https://github.com/sisul01/FreeCAD-parts_library/blob/master/LICENSE",
+      "declared_dimensions": {
+        "bore_diameter_d1_mm": 28.0, "thickness_s_mm": 1.2,
+        "free_outer_diameter_d3_mm": 30.1, "lug_width_a_mm": 4.8,
+        "ring_width_b_mm": 2.9, "lug_hole_d5_mm": 2.0,
+        "groove_diameter_d2_mm": 29.4, "groove_width_m_mm": 1.3
+      },
+      "measured_dimensions": {"bbox_mm": [30.1, 29.927963, 1.2], "volume_mm3": 253.161, "solids": 1},
+      "parametric_value": {"bbox_mm": [30.1, 29.928, 1.2], "volume_mm3": 253.162, "solids": 1, "source": "components/examples/din472_ring --size 28 --goldenFrame"},
+      "generation": {"tool": "components/examples/din472_ring", "args": ["--size", "28", "--goldenFrame", "-o", "{out}"], "output": "din472-28.step"},
+      "comparison": {
+        "solids": 1,
+        "bbox_axes": [
+          {"axis": 0, "expected_mm": 30.1, "label": "free outside diameter (d3)"},
+          {"axis": 1, "expected_mm": 29.927963, "label": "back to lug tips"},
+          {"axis": 2, "expected_mm": 1.2, "label": "ring thickness"}
+        ],
+        "volume_mm3": 253.162, "volume_relative_tol": 0.001,
+        "mass_properties": {"center_of_mass_mm": [0.0, 0.954272, 0.0], "center_of_mass_tol_mm": 0.001},
+        "features": [
+          {"kind": "surface_min", "surface": "plane", "min_count": 4},
+          {"kind": "surface_min", "surface": "cylinder", "min_count": 6},
+          {"kind": "cylinder_radius_present_mm", "expected": 15.05, "tol_mm": 0.01},
+          {"kind": "surface_min", "surface": "cone", "min_count": 16}
+        ]
+      },
+      "verdict": "accepted-envelope", "committed": false,
+      "review": {"automated": "pass", "owner_visual": "verified", "date": "2026-11-14", "reason": "owner reported goldens 58-67 LGTM"},
+      "notes": "CC BY-SA 4.0 FreeCAD-parts_library DIN 472 - 28 reference, re-encoded from its mid-plane B-rep section. The reference's 0.12 mm, 45-degree edge breaks are reproduced as evaluated multi-edge chamfers; volume 253.162 vs 253.161 mm3. Outline data CC BY-SA 4.0; reference file not redistributed. Bore groove declared, not modelled; no load rating."
+    },
+    {
+      "fixture_id": "fasteners/din472-32-retaining-ring",
+      "part_id": "din472_internal_32_freecad",
+      "designation": "DIN 472 - 32 internal retaining ring",
+      "family": "internal retaining ring",
+      "standard": "DIN 472; free-state outline from FreeCAD-parts_library",
+      "manufacturer": "sisul01 / FreeCAD-parts_library",
+      "source_page": "https://github.com/sisul01/FreeCAD-parts_library/blob/214152169e44834095eea50e0c3c14107a339109/mechanical_engineering/fasteners_/Retaining%20Rings/step/DIN472_Form-J_32x1.2.step",
+      "download_url": "https://raw.githubusercontent.com/sisul01/FreeCAD-parts_library/214152169e44834095eea50e0c3c14107a339109/mechanical_engineering/fasteners_/Retaining%20Rings/step/DIN472_Form-J_32x1.2.step",
+      "local_filename": "external/din472_internal_32_freecad.step",
+      "sha256": "d29bdd6629edfccecae9cd4c594758b7214957218025224f47ae26c849a4a38b",
+      "byte_size": 48242, "units": "mm", "license": "CC-BY-SA-4.0",
+      "license_evidence_url": "https://github.com/sisul01/FreeCAD-parts_library/blob/master/LICENSE",
+      "declared_dimensions": {
+        "bore_diameter_d1_mm": 32.0, "thickness_s_mm": 1.2,
+        "free_outer_diameter_d3_mm": 34.4, "lug_width_a_mm": 5.4,
+        "ring_width_b_mm": 3.2, "lug_hole_d5_mm": 2.5,
+        "groove_diameter_d2_mm": 33.7, "groove_width_m_mm": 1.3
+      },
+      "measured_dimensions": {"bbox_mm": [34.4, 34.250705, 1.2], "volume_mm3": 320.275, "solids": 1},
+      "parametric_value": {"bbox_mm": [34.4, 34.2507, 1.2], "volume_mm3": 320.275, "solids": 1, "source": "components/examples/din472_ring --size 32 --goldenFrame"},
+      "generation": {"tool": "components/examples/din472_ring", "args": ["--size", "32", "--goldenFrame", "-o", "{out}"], "output": "din472-32.step"},
+      "comparison": {
+        "solids": 1,
+        "bbox_axes": [
+          {"axis": 0, "expected_mm": 34.4, "label": "free outside diameter (d3)"},
+          {"axis": 1, "expected_mm": 34.250705, "label": "back to lug tips"},
+          {"axis": 2, "expected_mm": 1.2, "label": "ring thickness"}
+        ],
+        "volume_mm3": 320.275, "volume_relative_tol": 0.001,
+        "mass_properties": {"center_of_mass_mm": [0.0, 1.09103, 0.0], "center_of_mass_tol_mm": 0.001},
+        "features": [
+          {"kind": "surface_min", "surface": "plane", "min_count": 4},
+          {"kind": "surface_min", "surface": "cylinder", "min_count": 6},
+          {"kind": "cylinder_radius_present_mm", "expected": 17.2, "tol_mm": 0.01},
+          {"kind": "surface_min", "surface": "cone", "min_count": 16}
+        ]
+      },
+      "verdict": "accepted-envelope", "committed": false,
+      "review": {"automated": "pass", "owner_visual": "verified", "date": "2026-11-14", "reason": "owner reported goldens 58-67 LGTM"},
+      "notes": "CC BY-SA 4.0 FreeCAD-parts_library DIN 472 - 32 reference, re-encoded from its mid-plane B-rep section. The reference's 0.12 mm, 45-degree edge breaks are reproduced as evaluated multi-edge chamfers; volume 320.275 mm3 matches. Outline data CC BY-SA 4.0; reference file not redistributed. Bore groove declared, not modelled; no load rating."
+    },
+    {
+      "fixture_id": "fasteners/din472-40-retaining-ring",
+      "part_id": "din472_internal_40_freecad",
+      "designation": "DIN 472 - 40 internal retaining ring",
+      "family": "internal retaining ring",
+      "standard": "DIN 472; free-state outline from FreeCAD-parts_library",
+      "manufacturer": "sisul01 / FreeCAD-parts_library",
+      "source_page": "https://github.com/sisul01/FreeCAD-parts_library/blob/214152169e44834095eea50e0c3c14107a339109/mechanical_engineering/fasteners_/Retaining%20Rings/step/DIN472_Form-J_40x1.75.step",
+      "download_url": "https://raw.githubusercontent.com/sisul01/FreeCAD-parts_library/214152169e44834095eea50e0c3c14107a339109/mechanical_engineering/fasteners_/Retaining%20Rings/step/DIN472_Form-J_40x1.75.step",
+      "local_filename": "external/din472_internal_40_freecad.step",
+      "sha256": "736669f254873387ee3aa80106a181a29faa26c5e19837bf7ac0da1ed23f0e76",
+      "byte_size": 48318, "units": "mm", "license": "CC-BY-SA-4.0",
+      "license_evidence_url": "https://github.com/sisul01/FreeCAD-parts_library/blob/master/LICENSE",
+      "declared_dimensions": {
+        "bore_diameter_d1_mm": 40.0, "thickness_s_mm": 1.75,
+        "free_outer_diameter_d3_mm": 43.5, "lug_width_a_mm": 5.8,
+        "ring_width_b_mm": 3.9, "lug_hole_d5_mm": 2.5,
+        "groove_diameter_d2_mm": 42.5, "groove_width_m_mm": 1.85
+      },
+      "measured_dimensions": {"bbox_mm": [43.5, 43.264394, 1.75], "volume_mm3": 700.383, "solids": 1},
+      "parametric_value": {"bbox_mm": [43.5, 43.2644, 1.75], "volume_mm3": 700.383, "solids": 1, "source": "components/examples/din472_ring --size 40 --goldenFrame"},
+      "generation": {"tool": "components/examples/din472_ring", "args": ["--size", "40", "--goldenFrame", "-o", "{out}"], "output": "din472-40.step"},
+      "comparison": {
+        "solids": 1,
+        "bbox_axes": [
+          {"axis": 0, "expected_mm": 43.5, "label": "free outside diameter (d3)"},
+          {"axis": 1, "expected_mm": 43.264394, "label": "back to lug tips"},
+          {"axis": 2, "expected_mm": 1.75, "label": "reference ring thickness"}
+        ],
+        "volume_mm3": 700.383, "volume_relative_tol": 0.001,
+        "mass_properties": {"center_of_mass_mm": [0.0, 1.88946, 0.0], "center_of_mass_tol_mm": 0.001},
+        "features": [
+          {"kind": "surface_min", "surface": "plane", "min_count": 4},
+          {"kind": "surface_min", "surface": "cylinder", "min_count": 6},
+          {"kind": "cylinder_radius_present_mm", "expected": 21.75, "tol_mm": 0.01},
+          {"kind": "surface_min", "surface": "cone", "min_count": 16}
+        ]
+      },
+      "verdict": "accepted-envelope", "committed": false,
+      "review": {"automated": "pass", "owner_visual": "verified", "date": "2026-11-14", "reason": "owner reported goldens 58-67 LGTM"},
+      "notes": "CC BY-SA 4.0 FreeCAD-parts_library DIN 472 - 40 reference, re-encoded from its mid-plane B-rep section. The reference uses s = 1.75 mm (the Aspen table row uses 1.8 mm); the outline thickness follows the measured reference. Its 0.175 mm, 45-degree edge breaks are reproduced as evaluated multi-edge chamfers; volume 700.383 mm3 matches. Outline data CC BY-SA 4.0; reference file not redistributed. Bore groove declared, not modelled; no load rating."
     }
   ],
   "golden_source": {

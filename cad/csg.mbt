@@ -140,6 +140,12 @@ fn edge_selector_json(selector : EdgeSelector) -> String {
       ",\"tol_deg\":" +
       edge_json_num(tolerance_deg) +
       "}"
+    EdgesPerpendicularToDirection(dir, tolerance_deg) =>
+      "{\"kind\":\"perpendicular\",\"dir\":" +
+      edge_json_vec3(dir) +
+      ",\"tol_deg\":" +
+      edge_json_num(tolerance_deg) +
+      "}"
     EdgesNearPoint(point, radius_mm) =>
       "{\"kind\":\"near_point\",\"point\":" +
       edge_json_vec3(point) +

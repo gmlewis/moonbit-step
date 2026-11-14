@@ -625,6 +625,18 @@ def select_edges(
             if abs(_dot(_norm(diag), direction)) >= tol:
                 out.append(row[0])
         return out
+    if kind == "perpendicular":
+        direction = _norm(_vec3(selector["dir"]))
+        tol = math.sin(math.radians(float(selector.get("tol_deg", 1.0))))
+        out = []
+        for row in rows:
+            _index, xmin, ymin, zmin, xmax, ymax, zmax = row
+            diag = (xmax - xmin, ymax - ymin, zmax - zmin)
+            if _length(diag) < 1.0e-9:
+                continue
+            if abs(_dot(_norm(diag), direction)) <= tol:
+                out.append(row[0])
+        return out
     if kind == "near_point":
         point = _vec3(selector["point"])
         radius = float(selector["radius"])
@@ -632,6 +644,97 @@ def select_edges(
             row[0] for row in rows if _bbox_distance(point, row[1:]) <= radius
         ]
     raise CsgEvalError(f"unsupported edge selector kind {kind!r}")
+
+
+def ocp_multi_chamfer(
+    base_path: Path,
+    selector: dict,
+    size: float,
+    output_path: Path,
+) -> None:
+    """Chamfers several edges in one OCCT operation.
+
+    DRAW's ``chamf`` exposes one edge per call. A cap-boundary chamfer needs
+    every top/bottom boundary edge at once, so use OCP's MakeChamfer directly.
+    OCP must select its own edges: DRAW and OCP number the same STEP edges
+    differently, so DRAW indices cannot be reused here.
+    """
+    try:
+        from OCP.BRepAdaptor import BRepAdaptor_Curve
+        from OCP.BRepCheck import BRepCheck_Analyzer
+        from OCP.BRepFilletAPI import BRepFilletAPI_MakeChamfer
+        from OCP.IFSelect import IFSelect_RetDone
+        from OCP.STEPControl import (
+            STEPControl_AsIs,
+            STEPControl_Reader,
+            STEPControl_Writer,
+        )
+        from OCP.TopAbs import TopAbs_EDGE
+        from OCP.TopExp import TopExp_Explorer
+        from OCP.TopoDS import TopoDS
+    except Exception as exc:  # noqa: BLE001
+        raise CsgEvalError(
+            f"multi-edge chamfer requires OCP: {exc}"
+        ) from exc
+    reader = STEPControl_Reader()
+    if reader.ReadFile(str(base_path)) != IFSelect_RetDone:
+        raise CsgEvalError(f"cannot read chamfer base {base_path}")
+    reader.TransferRoots()
+    shape = reader.OneShape()
+    kind = selector.get("kind", "all")
+    direction = (
+        _norm(_vec3(selector["dir"]))
+        if kind in ("direction", "perpendicular")
+        else None
+    )
+    limit = (
+        math.sin(math.radians(float(selector.get("tol_deg", 1.0))))
+        if kind == "perpendicular"
+        else math.cos(math.radians(float(selector.get("tol_deg", 1.0))))
+        if kind == "direction"
+        else 0.0
+    )
+    explorer = TopExp_Explorer(shape, TopAbs_EDGE)
+    selected_edges = []
+    while explorer.More():
+        edge = TopoDS.Edge_s(explorer.Current())
+        curve = BRepAdaptor_Curve(edge)
+        keep = kind == "all"
+        if kind in ("direction", "perpendicular"):
+            first = curve.FirstParameter()
+            last = curve.LastParameter()
+            dirs = []
+            for sample in range(8):
+                a = first + (last - first) * sample / 8.0
+                b = first + (last - first) * (sample + 1) / 8.0
+                p = curve.Value(a)
+                q = curve.Value(b)
+                tangent = _norm((q.X() - p.X(), q.Y() - p.Y(), q.Z() - p.Z()))
+                dirs.append(abs(_dot(tangent, direction)))
+            keep = (
+                all(value <= limit for value in dirs)
+                if kind == "perpendicular"
+                else all(value >= limit for value in dirs)
+            )
+        if keep:
+            selected_edges.append(edge)
+        explorer.Next()
+    if not selected_edges:
+        raise CsgEvalError("multi-edge chamfer selector matched no edges")
+    maker = BRepFilletAPI_MakeChamfer(shape)
+    for edge in selected_edges:
+        maker.Add(size, edge)
+    maker.Build()
+    if not maker.IsDone():
+        raise CsgEvalError("OCCT could not build the multi-edge chamfer")
+    result = maker.Shape()
+    if not BRepCheck_Analyzer(result).IsValid():
+        raise CsgEvalError("OCCT multi-edge chamfer produced an invalid shape")
+    writer = STEPControl_Writer()
+    if writer.Transfer(result, STEPControl_AsIs) != IFSelect_RetDone:
+        raise CsgEvalError("cannot transfer the multi-edge chamfer result")
+    if not writer.Write(str(output_path)):
+        raise CsgEvalError("cannot write the multi-edge chamfer result")
 
 
 def evaluate(
@@ -690,22 +793,20 @@ def evaluate(
                     selected = select_edges(tool, leaf_path, payload, timeout)
                     op = payload.get("op")
                     size = float(payload.get("size", 0.0))
-                    commands.append(f"explode {base} E")
                     if op == "fillet":
                         if not selected:
                             raise CsgEvalError(
                                 "fillet selector matched no edges"
                             )
+                        commands.append(f"explode {base} E")
                         pairs = " ".join(
                             f"{size} {base}_{index}" for index in selected
                         )
                         commands.append(f"blend r{step.ref} {base} {pairs}")
                     elif op == "chamfer":
-                        if len(selected) != 1:
+                        if not selected:
                             raise CsgEvalError(
-                                "this OCCT DRAW build exposes 3D chamfer for "
-                                "one edge at a time; the selector matched "
-                                f"{len(selected)} edges. Select a single edge."
+                                "chamfer selector matched no edges"
                             )
                         angle = payload.get("angle")
                         if angle is not None and abs(float(angle) - 45.0) > 1e-6:
@@ -714,10 +815,24 @@ def evaluate(
                                 "equal-distance (45 degree) chamfers are "
                                 "supported"
                             )
-                        commands.append(
-                            f"chamf r{step.ref} {base} "
-                            f"{base}_{selected[0]} {size}"
-                        )
+                        if len(selected) == 1:
+                            commands.append(f"explode {base} E")
+                            commands.append(
+                                f"chamf r{step.ref} {base} "
+                                f"{base}_{selected[0]} {size}"
+                            )
+                        else:
+                            chamfer_path = tmpdir / f"chamfer-{step.ref}.step"
+                            ocp_multi_chamfer(
+                                leaf_path,
+                                payload.get("selector") or {"kind": "all"},
+                                size,
+                                chamfer_path,
+                            )
+                            commands.append(
+                                f'testreadstep "{_tcl_path(chamfer_path)}" '
+                                f"r{step.ref}"
+                            )
                     else:
                         raise CsgEvalError(
                             f"unsupported edge operation {op!r}"

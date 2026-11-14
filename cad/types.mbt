@@ -223,6 +223,7 @@ pub struct ExtrudedBezierProfile {
 pub(all) enum EdgeSelector {
   AllEdges
   EdgesByDirection(Vec3, Double)
+  EdgesPerpendicularToDirection(Vec3, Double)
   EdgesNearPoint(Vec3, Double)
   EdgeIndices(Array[Int32])
 }
