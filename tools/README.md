@@ -50,7 +50,9 @@ Exact sections and volume/centroid:
 
 Surface inventories mirror the compilers for every shape, including
 `ExtrudedBezierProfile` (planes plus `SURFACE_OF_LINEAR_EXTRUSION`) and
-`SweptProfile` (its planar triangle split).
+`SweptProfile` (its planar triangle split; with `smooth_sides` the split is
+replaced by ruled `B_SPLINE_SURFACE_WITH_KNOTS` side surfaces, with
+`sharp_creases` keeping piecewise-linear elbows sharp).
 
 ### Typed limitations
 

@@ -101,3 +101,39 @@ test "smooth sweep keeps hole loops" {
   inspect(step.split("B_SPLINE_SURFACE_WITH_KNOTS(").count() - 1, content="8")
   inspect(step.split("B_SPLINE_CURVE_WITH_KNOTS(").count() - 1, content="8")
 }
+
+///|
+/// A sharp crease uses the one-sided chord tangent at the crease, so the two
+/// Bezier spans meeting there keep a corner instead of averaging into a wave.
+test "sharp crease keeps a piecewise-linear corner" {
+  let ctx = StepContext::new()
+  let corner_pts : Array[Vec3] = [
+    (0.0, 0.0, 0.0),
+    (0.0, 0.0, 0.0),
+    (0.0, 0.0, 0.0),
+    (0.0, 0.0, 0.0),
+    (1.0, 0.0, 0.0),
+    (1.0, 0.0, 0.0),
+    (1.0, 0.0, 0.0),
+    (1.0, 0.0, 0.0),
+    (1.0, 1.0, 0.0),
+    (1.0, 1.0, 0.0),
+    (1.0, 1.0, 0.0),
+    (1.0, 1.0, 0.0),
+  ]
+  let indices : Array[Int32] = [0, 1, 2]
+  let v_mults : Array[Int32] = [4, 3, 4]
+  let v_knots : Array[String] = ["0.0", "1.0", "2.0"]
+  let smooth = smooth_curve(ctx, corner_pts, indices, 0, 3, v_mults, v_knots, sharp_creases=[
+    1,
+  ])
+  // Span 0 ends with the chord P1 - P0; span 1 starts with P2 - P1.
+  assert_near(smooth.cps_pos[2].0, 2.0 / 3.0)
+  assert_near(smooth.cps_pos[2].1, 0.0)
+  assert_near(smooth.cps_pos[4].0, 1.0)
+  assert_near(smooth.cps_pos[4].1, 1.0 / 3.0)
+  // Without the crease the averaged tangent smooths the corner.
+  let wavy = smooth_curve(ctx, corner_pts, indices, 0, 3, v_mults, v_knots)
+  assert_near(wavy.cps_pos[2].0, 2.0 / 3.0 + 1.0 / 6.0)
+  assert_near(wavy.cps_pos[2].1, -1.0 / 6.0)
+}

@@ -1,9 +1,11 @@
 ///|
 /// herringbone_planetary_gearbox builds the fully parametric gearbox as one
 /// component with named mate connectors. `num_elbows = 0` uses exact line/arc
-/// extrusions (smooth straight gears); `num_elbows >= 1` uses the original
-/// swept herringbone geometry, so dimensions and volumes match the original
-/// generator.
+/// extrusions (smooth straight gears); `num_elbows >= 1` sweeps the original
+/// herringbone geometry with smooth ruled B-spline side surfaces. The elbow
+/// boundaries are sharp creases (piecewise-linear twist), so dimensions and
+/// volumes match the original generator while the flanks are free of the
+/// triangulated facets of the planar-facet representation.
 pub fn herringbone_planetary_gearbox(
   params : HerringbonePlanetaryParams,
   y_up~ : Bool = false,
@@ -93,7 +95,7 @@ pub fn herringbone_planetary_gearbox(
       if smooth {
         "straight-exact-extrusion"
       } else {
-        "herringbone-twist"
+        "herringbone-twist-smooth-ruled"
       },
     ],
     approximated=[
@@ -124,7 +126,7 @@ pub fn herringbone_planetary_gearbox(
       length_mm=length,
       source="Parametric herringbone planetary gearbox; tooth counts, helix, tolerance, hole type and elbows are parameters.",
     ),
-    description="Herringbone planetary gearbox: one sun, equally spaced planets, and an inward-facing ring gear. Straight exact extrusions when num_elbows is 0; swept herringbone otherwise.",
+    description="Herringbone planetary gearbox: one sun, equally spaced planets, and an inward-facing ring gear. Straight exact extrusions when num_elbows is 0; otherwise swept herringbone with smooth ruled B-spline flanks and sharp piecewise-linear elbow creases.",
     features~,
   )
   component = component.add_layer(

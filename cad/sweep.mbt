@@ -15,6 +15,8 @@
 /// When `smooth_sides` is true the B-rep is emitted as smooth ruled B-spline
 /// side surfaces (one per profile edge) with planar caps instead of planar
 /// facets. The swept shape is the same; only its representation changes.
+/// `sharp_creases` lists path point indices that must stay sharp (one-sided
+/// chord tangents), which keeps piecewise-linear elbows as exact creases.
 pub fn SweptProfile::new(
   path~ : SweepPath,
   profile~ : SweepProfile,

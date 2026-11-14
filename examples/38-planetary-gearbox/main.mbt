@@ -7,7 +7,8 @@
 ///
 /// `--numElbows 0` builds straight gears as exact line/arc extrusions (the
 /// smooth planetary style); the default `--numElbows 4` builds the original
-/// swept herringbone geometry, so existing printed parts line up.
+/// swept herringbone geometry as smooth ruled B-spline side surfaces with
+/// sharp piecewise-linear elbow creases, so existing printed parts line up.
 ///
 /// Usage (stdout):
 ///   moon run examples/38-planetary-gearbox -- > gearbox.step

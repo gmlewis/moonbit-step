@@ -140,6 +140,10 @@ test "herringbone planetary keeps the swept geometry and connectors" {
   assert_true((x1 - outer).abs() < 1.0e-6)
   assert_true((x0 + outer).abs() < 1.0e-6)
   assert_true((z1 - z0 - 10.0).abs() < 1.0e-6)
+  // The flanks are ruled B-spline surfaces (one per profile edge), not
+  // triangulated planar facets.
+  let step = component.to_step()
+  assert_true(step.contains("B_SPLINE_SURFACE_WITH_KNOTS("))
 }
 
 ///|
