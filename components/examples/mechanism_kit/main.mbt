@@ -318,12 +318,21 @@ async fn main {
       )
     "oldham" => {
       let requested = args.double("slotWidth")
-      let tongue = if requested > 0.0 { requested } else { width * 0.3 }
+      let tongue = if requested > 0.0 {
+        requested
+      } else {
+        let candidate = width * 0.3
+        if candidate < bore * 0.7 {
+          candidate
+        } else {
+          bore * 0.7
+        }
+      }
       @mechanisms.oldham_coupling(
         bore,
         width,
         thickness,
-        width * 1.5,
+        width * 0.9,
         thickness * 0.5,
         tongue,
       )

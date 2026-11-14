@@ -12,7 +12,7 @@ test "mechanism bodies have positive analytic volume and closed meshes" {
     mech_ok(@mechanisms.belt_loop(20.0, 100.0, 2.0, 10.0)),
     mech_ok(@mechanisms.eccentric_cam(20.0, 5.0, 8.0, 6.0)),
     mech_ok(@mechanisms.roller_follower(10.0, 8.0, 5.0, 4.0, 10.0)),
-    mech_ok(@mechanisms.oldham_coupling(5.0, 20.0, 8.0, 30.0, 4.0, 6.0)),
+    mech_ok(@mechanisms.oldham_coupling(5.0, 20.0, 8.0, 18.0, 3.0, 4.0)),
     mech_ok(@mechanisms.snap_latch(40.0, 2.0, 10.0, 3.0, 5.0)),
     mech_ok(@mechanisms.o_ring(20.0, 4.0)),
     mech_ok(@mechanisms.grooved_shaft(20.0, 50.0, 4.0, 2.0, 20.0)),

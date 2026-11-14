@@ -647,10 +647,15 @@ loop and how imported vendor parts are referenced through SolidCraft, is in
   the base slab and the profiled upper body abut nominally rather than through a
   kernel union. The carriage channel and bolt holes are real geometry.
 - Layered mechanism parts (hinge leaves/knuckles/pin, clevis prongs, carriage
-  walls/top slab, Oldham hubs/disc, bracket legs/gusset, roller/pin) are separate
-  closed bodies with nominal abutments. They are not fused by the flat writer;
-  use `write_step_evaluated` (or `mechanism_kit --evaluated`) or SolidCraft when
-  one manifold is required. The `rail` base slab is also fused by that path.
+  walls/top slab, Oldham hub bodies/slotted faces/disc, bracket legs/gusset,
+  roller/pin) are separate closed bodies with nominal abutments. They are not
+  fused by the flat writer; use `write_step_evaluated` (or
+  `mechanism_kit --evaluated`) or SolidCraft when one manifold is required. The
+  `rail` base slab is also fused by that path.
+- The Oldham coupling has real slotted hub faces and real disc tongues with a
+  declared `slot_clearance`; the slot must be narrower than the hub bore so the
+  inner sector arc remains continuous. No torque, misalignment, or wear rating
+  is implied.
 - Sprocket/chain envelopes, bevel gears, and worm gears are recorded gaps. Their
   exact tooth forms need a licensed, dimensioned reference or a defensible
   standard tooth-space construction; a guessed envelope is not shipped. The rack

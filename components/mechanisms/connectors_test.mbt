@@ -80,7 +80,7 @@ test "every public mechanism builder exposes a connector" {
       "roller-surface",
     ),
     (
-      mech_ok(@mechanisms.oldham_coupling(5.0, 20.0, 8.0, 30.0, 4.0, 6.0)),
+      mech_ok(@mechanisms.oldham_coupling(5.0, 20.0, 8.0, 18.0, 3.0, 4.0)),
       "bore-a",
     ),
     (mech_ok(@mechanisms.extension_spring(20.0, 2.0, 40.0, 8)), "hook-leg-a"),

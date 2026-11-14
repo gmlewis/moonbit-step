@@ -563,14 +563,14 @@ pub fn mechanisms_catalog() -> Array[CatalogEntry] {
       )
     Err(_) => ()
   }
-  match @mechanisms.oldham_coupling(5.0, 20.0, 8.0, 30.0, 4.0, 6.0) {
+  match @mechanisms.oldham_coupling(5.0, 20.0, 8.0, 18.0, 3.0, 4.0) {
     Ok(c) =>
       direct.push(
         (
           c,
           [
             "bore", "hub_outer_diameter", "hub_length", "disc_diameter", "disc_thickness",
-            "tongue_width",
+            "tongue_width", "slot_clearance",
           ],
         ),
       )

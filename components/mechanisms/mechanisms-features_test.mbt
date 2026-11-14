@@ -169,21 +169,25 @@ test "eccentric cam lift curve and roller follower envelope" {
 ///|
 test "Oldham coupling axial envelope and bores" {
   let part = mech_ok(
-    @mechanisms.oldham_coupling(5.0, 20.0, 8.0, 30.0, 4.0, 6.0),
+    @mechanisms.oldham_coupling(5.0, 20.0, 8.0, 18.0, 3.0, 4.0),
   )
   let (x0, x1, y0, y1, z0, z1) = part.bounding_box()
-  assert_true(mech_close(x0, -15.0))
-  assert_true(mech_close(x1, 15.0))
-  assert_true(mech_close(y0, -15.0))
-  assert_true(mech_close(y1, 15.0))
+  assert_true(mech_close(x0, -10.0))
+  assert_true(mech_close(x1, 10.0))
+  assert_true(mech_close(y0, -10.0))
+  assert_true(mech_close(y1, 10.0))
   assert_true(mech_close(z0, 0.0))
-  assert_true(mech_close(z1, 20.0))
+  assert_true(mech_close(z1, 19.0))
+  assert_eq(part.layers().length(), 9)
+  let slot = mech_connector(part, "slot-a")
+  assert_true(slot.kind is @common.MateKind::ProfileSlot)
+  assert_true(part.features().has_modeled("hub-slots"))
   let bore_a = mech_connector(part, "bore-a")
   let bore_b = mech_connector(part, "bore-b")
   assert_true(mech_close(bore_a.diameter_mm.unwrap(), 5.0))
   assert_true(mech_close(bore_b.diameter_mm.unwrap(), 5.0))
   assert_true(mech_close(bore_a.placement.trans.2, 0.0))
-  assert_true(mech_close(bore_b.placement.trans.2, 20.0))
+  assert_true(mech_close(bore_b.placement.trans.2, 19.0))
 }
 
 ///|
