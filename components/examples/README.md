@@ -36,6 +36,7 @@ All programs use millimetres and Z is up.
 | `mechanism_design` | Design-from-scratch linkage built with the typed `ParamSpec`/`ParamSet`/`DesignFamily` API and the `@cad` primitive DSL, with `compact`/`long` variants, a base plate, and pivot pins. |
 | `mechanism_assembly` | Clevis + rod end + pin assembled by a named `MatePair` between `eye-seat` and `eye-bore`; checks connectivity and writes either the flat STEP or the product/occurrence structure. |
 | `belt_drive` | Two approximate GT2 pulleys plus a smooth belt envelope built from an exact declared pitch length; flat or product-structure output. |
+| `rack_pinion` | Basic rack plus involute spur pinion at the layout pitch-plane centre distance; static envelope, flat or product-structure output. |
 
 Run `./generate_all.sh` from this directory to regenerate every fixture in
 `output/`. The `output/` directory is generated locally and Git-ignored; its

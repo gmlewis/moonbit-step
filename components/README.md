@@ -220,6 +220,10 @@ moon run components/examples/mechanism_kit -- \
 # Two-pulley GT2 belt drive with a declared pitch length
 moon run components/examples/belt_drive -- \
   --teethA 20 --teethB 40 --pitchLength 400 -o belt-drive.step
+
+# Basic rack and involute pinion at the layout centre distance
+moon run components/examples/rack_pinion -- \
+  --module 2 --pinionTeeth 20 --rackTeeth 20 -o rack-pinion.step
 ```
 
 `components/common` adds an additive parameter/design-family API. Existing

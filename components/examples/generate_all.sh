@@ -144,6 +144,12 @@ moon run components/examples/belt_drive -- \
 moon run components/examples/belt_drive -- --mode assembly \
   --teethA 20 --teethB 40 --pitchLength 400 \
   -o "$OUT/assembly-structure/belt-drive-gt2-20x40-assembly.step"
+moon run components/examples/rack_pinion -- \
+  --module 2 --pinionTeeth 20 --rackTeeth 20 \
+  -o "$OUT/rack-pinion-m2-z20x20.step"
+moon run components/examples/rack_pinion -- --mode assembly \
+  --module 2 --pinionTeeth 20 --rackTeeth 20 \
+  -o "$OUT/assembly-structure/rack-pinion-m2-z20x20-assembly.step"
 
 echo "Validating generated fixtures..."
 for f in "$OUT"/*.step; do
@@ -159,6 +165,9 @@ python3 "$ROOT/scripts/validate_step.py" --no-mesh \
 echo "== assembly-structure/belt-drive-gt2-20x40-assembly.step"
 python3 "$ROOT/scripts/validate_step.py" --no-mesh \
   "$OUT/assembly-structure/belt-drive-gt2-20x40-assembly.step"
+echo "== assembly-structure/rack-pinion-m2-z20x20-assembly.step"
+python3 "$ROOT/scripts/validate_step.py" --no-mesh \
+  "$OUT/assembly-structure/rack-pinion-m2-z20x20-assembly.step"
 
 # Construction-system, tubing, and adapter primitives.
 moon run components/examples/vslot -- \
@@ -263,7 +272,7 @@ for part in vslot-2020x100 vslot-2040x100 vslot-wheel vslot-tnut-m5 \
   mechanism-snap mechanism-o-ring mechanism-grooved-shaft \
   mechanism-bracket mechanism-u-bracket mechanism-boss mechanism-rack \
   mechanism-design-linkage mechanism-design-linkage-compact \
-  mechanism-clevis-rod-end belt-drive-gt2-20x40; do
+  mechanism-clevis-rod-end belt-drive-gt2-20x40 rack-pinion-m2-z20x20; do
   python3 "$ROOT/scripts/validate_step.py" --no-mesh "$OUT/$part.step"
 done
 
