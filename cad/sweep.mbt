@@ -11,6 +11,10 @@
 /// the holes twist with the path (e.g. a smooth cylindrical shell around a
 /// herringbone ring gear). Set it to false when the outer boundary itself must
 /// follow the path, such as a thread or a coil wire.
+///
+/// When `smooth_sides` is true the B-rep is emitted as smooth ruled B-spline
+/// side surfaces (one per profile edge) with planar caps instead of planar
+/// facets. The swept shape is the same; only its representation changes.
 pub fn SweptProfile::new(
   path~ : SweepPath,
   profile~ : SweepProfile,
@@ -19,6 +23,8 @@ pub fn SweptProfile::new(
   straight_holes~ : Bool = false,
   straight_outline~ : Bool = true,
   smooth_helix~ : Bool = false,
+  smooth_sides~ : Bool = false,
+  sharp_creases~ : Array[Int32] = [],
   corner_override~ : (Array[Vec3], Array[Vec3])? = None,
 ) -> Shape {
   Shape::SweptProfile({
@@ -29,6 +35,8 @@ pub fn SweptProfile::new(
     straight_holes,
     straight_outline,
     smooth_helix,
+    smooth_sides,
+    sharp_creases,
     corner_override,
   })
 }
@@ -49,6 +57,9 @@ fn compile_swept_profile(
   }
   if s.smooth_helix {
     return compile_smooth_helix(ctx, node, s, reverse~, parent~)
+  }
+  if s.smooth_sides {
+    return compile_smooth_swept_profile(ctx, node, s, reverse~, parent~)
   }
   let num_path_pts = path.points.length()
 

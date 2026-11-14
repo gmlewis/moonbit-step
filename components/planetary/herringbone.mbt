@@ -682,6 +682,7 @@ fn hb_swept_gear_shape(
   direction : Double,
   straight_holes~ : Bool = false,
   straight_outline~ : Bool = true,
+  smooth_sides~ : Bool = false,
 ) -> @cad.Shape {
   let path = hb_sweep_path(gear_length, num_elbows, max_rotation, direction)
   let profile = @cad.SweepProfile::new(
@@ -690,7 +691,36 @@ fn hb_swept_gear_shape(
     normal_dir=(0.0, 0.0, 1.0),
     right_dir=(1.0, 0.0, 0.0),
   )
-  @cad.SweptProfile::new(path~, profile~, straight_holes~, straight_outline~)
+  // Every elbow boundary is a piecewise-linear crease: keep it sharp in the
+  // smooth-side B-rep instead of letting the B-spline round it into a wave.
+  let steps = hb_sweep_steps(max_rotation)
+  let creases : Array[Int32] = []
+  for i in 0..<=(num_elbows + 1) {
+    creases.push(i * steps)
+  }
+  @cad.SweptProfile::new(
+    path~,
+    profile~,
+    straight_holes~,
+    straight_outline~,
+    smooth_sides~,
+    sharp_creases=creases,
+  )
+}
+
+///|
+fn hb_sweep_steps(max_rotation : Double) -> Int32 {
+  let max_step = HB_MAX_SWEEP_STEP_DEG * hb_deg
+  if max_rotation <= max_step {
+    1
+  } else {
+    let n = @math.ceil(max_rotation / max_step).to_int()
+    if n < 1 {
+      1
+    } else {
+      n
+    }
+  }
 }
 
 ///|
@@ -701,17 +731,7 @@ fn hb_sweep_path(
   direction : Double,
 ) -> @cad.SweepPath {
   let chunks = num_elbows + 1
-  let max_step = HB_MAX_SWEEP_STEP_DEG * hb_deg
-  let steps = if max_rotation <= max_step {
-    1
-  } else {
-    let n = @math.ceil(max_rotation / max_step).to_int()
-    if n < 1 {
-      1
-    } else {
-      n
-    }
-  }
+  let steps = hb_sweep_steps(max_rotation)
   let total = chunks * steps
   let points : Array[@cad.Vec3] = []
   let normals : Array[@cad.Vec3] = []

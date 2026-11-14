@@ -153,6 +153,16 @@ pub struct SweptProfile {
   /// four B-spline side surfaces and two planar caps (six faces). The mesh,
   /// section, and mass-property analysis keep using the sampled path.
   smooth_helix : Bool
+  /// Emit a smooth B-rep for an arbitrary (polygonal) profile: one ruled
+  /// B-spline side surface per profile edge (degree 1 across the edge, cubic
+  /// along the path) and planar start/end caps. The mesh, section, and
+  /// mass-property analysis keep using the sampled path.
+  smooth_sides : Bool
+  /// Path point indices where a `smooth_sides` sweep must stay sharp. The
+  /// vertex curves use the one-sided chord tangent there instead of the
+  /// averaged central tangent, which keeps a piecewise-linear elbow a sharp
+  /// crease instead of rounding it into a wave.
+  sharp_creases : Array[Int32]
   /// Optional start/end corner positions (inner-top, inner-bottom, outer-top,
   /// outer-bottom) that override the sampled corner endpoints. The corner
   /// curves are blended to meet them, which reproduces a reference's split-cap

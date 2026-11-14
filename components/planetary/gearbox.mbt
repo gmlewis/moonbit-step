@@ -37,6 +37,7 @@ pub fn herringbone_planetary_gearbox(
         layout.sun_direction,
         straight_holes=true,
         straight_outline=false,
+        smooth_sides=true,
       ),
       @common.Placement::identity(),
     )
@@ -72,6 +73,7 @@ pub fn herringbone_planetary_gearbox(
         layout.num_elbows,
         ring_max_rot,
         layout.planet_direction,
+        smooth_sides=true,
       ),
       @common.Placement::identity(),
     )
@@ -145,6 +147,7 @@ pub fn herringbone_planetary_gearbox(
         layout.planet_direction,
         straight_holes=true,
         straight_outline=false,
+        smooth_sides=true,
       )
     }
     let at = @common.Placement::at(p.x, 0.0, p.z, ry=-p.phi_deg)

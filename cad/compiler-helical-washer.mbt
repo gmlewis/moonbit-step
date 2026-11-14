@@ -64,36 +64,47 @@ fn smooth_curve(
   num_path_pts : Int32,
   v_mults : Array[Int32],
   v_knots : Array[String],
+  stride~ : Int32 = 4,
+  sharp_creases~ : Array[Int32] = [],
 ) -> SmoothCurve {
   let num_spans = indices.length() - 1
+  let point_at = fn(idx : Int32) -> Vec3 {
+    corner_pts[idx * stride + profile_index]
+  }
   let points : Array[Vec3] = Array::make(num_spans + 1, (0.0, 0.0, 0.0))
-  let tangents : Array[Vec3] = Array::make(num_spans + 1, (0.0, 0.0, 0.0))
   for k in 0..<=num_spans {
-    let idx = indices[k]
-    let p = corner_pts[idx * 4 + profile_index]
-    points[k] = p
-    let tangent = if idx == 0 {
-      v_sub(corner_pts[(idx + 1) * 4 + profile_index], p)
-    } else if idx == num_path_pts - 1 {
-      v_sub(p, corner_pts[(idx - 1) * 4 + profile_index])
-    } else {
-      v_scale(
-        v_sub(
-          corner_pts[(idx + 1) * 4 + profile_index],
-          corner_pts[(idx - 1) * 4 + profile_index],
-        ),
-        0.5,
-      )
+    points[k] = point_at(indices[k])
+  }
+  let is_crease = fn(idx : Int32) -> Bool {
+    for c in sharp_creases {
+      if c == idx {
+        return true
+      }
     }
-    tangents[k] = tangent
+    false
   }
   let control_pts : Array[Vec3] = []
   for k in 0..<num_spans {
+    let ia = indices[k]
+    let ib = indices[k + 1]
     let p0 = points[k]
     let p3 = points[k + 1]
-    let delta = (indices[k + 1] - indices[k]).to_double()
-    let p1 = v_add(p0, v_scale(tangents[k], delta / 3.0))
-    let p2 = v_sub(p3, v_scale(tangents[k + 1], delta / 3.0))
+    let delta = (ib - ia).to_double()
+    // A crease (or an end of the path) uses the one-sided chord tangent, so
+    // the two Bezier spans meeting there form a sharp corner instead of a
+    // wave.
+    let t_start = if ia == 0 || is_crease(ia) {
+      v_sub(point_at(ib), point_at(ia))
+    } else {
+      v_scale(v_sub(point_at(ia + 1), point_at(ia - 1)), 0.5)
+    }
+    let t_end = if ib == num_path_pts - 1 || is_crease(ib) {
+      v_sub(point_at(ib), point_at(ia))
+    } else {
+      v_scale(v_sub(point_at(ib + 1), point_at(ib - 1)), 0.5)
+    }
+    let p1 = v_add(p0, v_scale(t_start, delta / 3.0))
+    let p2 = v_sub(p3, v_scale(t_end, delta / 3.0))
     if k == 0 {
       control_pts.push(p0)
     }
