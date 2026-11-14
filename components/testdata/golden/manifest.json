@@ -4984,6 +4984,161 @@
         "reason": "owner reported both UCP204 and UCP205 look perfect"
       },
       "notes": "The reference is the CC0 Innerscene UCP205 pillow block, an 8-solid assembly (housing 96758.0 mm^3, spherical-OD outer race 14508.9, extended inner race 17611.4, two seals 187.9 each, two DIN 916 M6 set screws 98.3 each, grease fitting 101.1; total 129551.8 mm^3). This library reproduces the same 8-part assembly as UCP204 with the UCP205 dimensions. The housing is the base plate (140 x 38 x 16 mm, two 18 x 13 mm obround mounting slots on the 105 mm bolt pitch, 3.99 mm deep bottom centre relief, R3 corners) fused with the horseshoe arch (26 mm wide, r 33.5 mm crown, r 26.04 mm insert seat); the insert is a self-aligning outer race (spherical r 26.0 mm outside diameter, 39 mm bore, 17 mm wide), an extended inner race (36 mm outside diameter, 25 mm bore, 34.1 mm wide, 0.45 mm rim chamfers) with two 6.1 mm radial set-screw holes 120 degrees apart, two 1.1 mm contact seals, two DIN 916 M6 x 4 set screws, and a hex grease fitting on the crown, in the measured 7.2 mm spot-faced counterbore. The parts sit at the reference's 0.025-0.05 mm clearances, so the OCCT-evaluated compound is 8 separate solids: bbox 140 x 38.8 x 75.35 mm (the +0.8 mm is the extended inner race), volume 129552.2 vs 129551.81 mm^3 (0.0003%), 61 planes + 28 cylinders + 6 cones + 1 sphere. The parametric housing is 96777.0 vs the reference housing's 96758.0 mm^3; the outer race, seals, and grease fitting match the reference exactly. The evaluated compound carries the reference's per-body presentation colours. Rolling elements and cage are omitted; the seat and shaft clearances are declared by connectors. The OCCT-evaluated compound is the primary artifact. No load, life, or safety claim is made."
+    },
+    {
+      "fixture_id": "motion/helical-coupling-5-to-8",
+      "part_id": "helical_coupling_5_to_8",
+      "designation": "5 to 8 mm helical beam coupling with clamp hubs",
+      "family": "helical coupling",
+      "standard": "Vendor: Innerscene 3D Parts Library (measured boundary)",
+      "manufacturer": "Innerscene Corp (CC0 1.0 public-domain dedication)",
+      "source_page": "https://www.innerscene.com/tools/library/3d-parts/helical-coupling-5-to-8-mm-f0fba31f",
+      "download_url": "https://www.innerscene.com/api/library/helical-coupling-5-to-8-mm-f0fba31f/download",
+      "local_filename": "external/helical_coupling_5_to_8_innerscene.step",
+      "sha256": "18de383addc3a72a5587f94954c4028db84ab3e9a697c611dd1b4a9ff5fa5459",
+      "byte_size": 566566,
+      "units": "mm",
+      "license": "CC0-1.0",
+      "license_evidence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "declared_dimensions": {
+        "small_bore_mm": 5.0,
+        "large_bore_mm": 8.0,
+        "outside_diameter_mm": 25.0,
+        "length_mm": 30.0,
+        "clamp_screw": "M3 x 12 ISO 4762"
+      },
+      "measured_dimensions": {
+        "bbox_mm": [
+          35.4186,
+          35.4186,
+          30.0000
+        ],
+        "bbox_mm_optimal": [
+          25.0,
+          25.0,
+          30.0
+        ],
+        "volume_mm3": 12365.342,
+        "solids": 3,
+        "surfaces": {
+          "plane": 33,
+          "cylinder": 20,
+          "cone": 2,
+          "bspline": 2
+        },
+        "solid_volumes_mm3": [
+          12079.733,
+          142.821,
+          142.821
+        ],
+        "bore_step_z_mm": 15.0,
+        "slit_width_mm": 0.7,
+        "slit_pitch_mm": 3.2,
+        "slit_turns": 3.0,
+        "clamp_slit_width_mm": 0.8,
+        "clamp_hole_diameter_mm": 3.2,
+        "clamp_counterbore_diameter_mm": 6.1
+      },
+      "parametric_value": {
+        "bbox_mm": [
+          25.0,
+          25.0,
+          30.0
+        ],
+        "volume_mm3": 12411.81,
+        "solids": 3,
+        "surfaces": {
+          "plane": 611,
+          "cylinder": 20,
+          "cone": 2
+        },
+        "source": "components/examples/motion_stack --part helical-coupling"
+      },
+      "generation": {
+        "tool": "components/examples/motion_stack",
+        "args": [
+          "--part",
+          "helical-coupling",
+          "-o",
+          "{out}"
+        ],
+        "output": "helical-coupling-5-to-8.step"
+      },
+      "comparison": {
+        "solids": 3,
+        "bbox_axes": [
+          {
+            "axis": 0,
+            "expected_mm": 25.0,
+            "label": "outside diameter"
+          },
+          {
+            "axis": 1,
+            "expected_mm": 25.0,
+            "label": "outside diameter"
+          },
+          {
+            "axis": 2,
+            "expected_mm": 30.0,
+            "label": "length"
+          }
+        ],
+        "volume_mm3": 12411.81,
+        "volume_relative_tol": 0.02,
+        "features": [
+          {
+            "kind": "surface_min",
+            "surface": "cylinder",
+            "min_count": 15
+          },
+          {
+            "kind": "surface_min",
+            "surface": "cone",
+            "min_count": 2
+          },
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 12.5,
+            "tol_mm": 0.01
+          },
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 4.0,
+            "tol_mm": 0.01
+          },
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 2.5,
+            "tol_mm": 0.01
+          },
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 1.6,
+            "tol_mm": 0.01
+          },
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 3.05,
+            "tol_mm": 0.01
+          },
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 1.5,
+            "tol_mm": 0.01
+          },
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 2.75,
+            "tol_mm": 0.01
+          }
+        ]
+      },
+      "verdict": "accepted-envelope",
+      "review": {
+        "automated": "pass",
+        "owner_visual": "pending"
+      },
+      "notes": "The reference is the CC0 Innerscene 5-to-8 mm helical beam coupling: 3 solids (body 12079.7 mm^3 plus two M3 x 12 clamp screws 142.8 mm^3 each; total 12365.3). The body is an OD 25 x 30 sleeve with 45 degree x 0.5 mm outer chamfers, a stepped bore (5 mm from z = 0 to 15, then 8 mm to z = 30), a continuous 0.7 mm helical slit cut through the wall (3 turns at a 3.2 mm pitch), and two clamp hubs (0.8 mm axial radial slits with a 3.2 mm clearance hole and a 6.1 mm head counterbore along Y at x = 8, z = 4 and 26) plus two M3 x 12 ISO 4762 clamp screws. The helical slit is a 48-segments-per-turn polyline approximation of the reference's two B-spline helicoid walls (chord deviation < 0.03 mm); the clamp-screw threads are declared by connectors and not modelled. The parametric body is 12114.6 vs the reference body's 12079.7 mm^3 (+0.29%), the two-screw compound totals 12411.8 vs 12365.3 mm^3 (+0.38%), true bbox 25 x 25 x 30 mm (the reference tool reports an inflated +/-17.7 bbox for the B-spline helicoids; the true OD is 25), 611 planes + 20 cylinders + 2 cones, and the evaluated compound carries the reference's per-body colours. No torque, stiffness, or misalignment rating is implied."
     }
   ],
   "golden_source": {

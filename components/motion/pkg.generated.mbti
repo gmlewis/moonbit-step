@@ -48,6 +48,10 @@ pub fn gt2_geometry(Int32) -> Result[GT2Geometry, @common.SpecError]
 
 pub fn gt2_pulley(Int32, Double, Double, flanges? : Bool, flange_thickness_mm? : Double, flange_diameter_mm? : Double, detail? : @common.DetailLevel, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
+pub fn helical_coupling(size? : HelicalCouplingSize, color? : @cad.Rgb, screw_color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn helical_coupling_5_to_8() -> HelicalCouplingSize
+
 pub fn key(Double, Double, Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
 pub fn key_for_keyway(Double, Double, Double, key_height_mm? : Double, width_clearance_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
@@ -129,6 +133,32 @@ pub(all) struct GT2Geometry {
   pitch_diameter_mm : Double
   outside_diameter_mm : Double
   root_diameter_mm : Double
+}
+
+pub(all) struct HelicalCouplingSize {
+  outer_diameter_mm : Double
+  length_mm : Double
+  bore_small_mm : Double
+  bore_large_mm : Double
+  bore_step_z_mm : Double
+  outer_chamfer_mm : Double
+  slit_width_mm : Double
+  slit_pitch_mm : Double
+  slit_turns : Double
+  slit_start_z_mm : Double
+  slit_start_angle_deg : Double
+  clamp_slit_width_mm : Double
+  clamp_bottom_start_z_mm : Double
+  clamp_bottom_end_z_mm : Double
+  clamp_top_start_z_mm : Double
+  clamp_top_end_z_mm : Double
+  clamp_screw_x_mm : Double
+  clamp_screw_bottom_z_mm : Double
+  clamp_screw_top_z_mm : Double
+  clamp_hole_diameter_mm : Double
+  clamp_counterbore_diameter_mm : Double
+  clamp_counterbore_depth_mm : Double
+  clamp_screw_length_mm : Double
 }
 
 pub(all) struct LinearBearingSize {

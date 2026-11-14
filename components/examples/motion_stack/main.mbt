@@ -13,6 +13,8 @@
 /// moon run components/examples/motion_stack -- \
 ///   --part pillow-block --pillowBlock UCP204 -o ucp204.step
 /// moon run components/examples/motion_stack -- \
+///   --part helical-coupling -o helical-coupling.step
+/// moon run components/examples/motion_stack -- \
 ///   --part coupling --couplingBore 5 --couplingOuter 15 --couplingLength 20 \
 ///   --goldenFrame -o coupling-golden.step
 /// ```
@@ -60,7 +62,7 @@ async fn main {
     ),
     "part": @cli.opt_string(
       short='P',
-      help="Part: stack (default), coupling, flange-housing, or pillow-block",
+      help="Part: stack (default), coupling, flange-housing, pillow-block, or helical-coupling",
     ),
     "pillowBlock": @cli.opt_string(
       help="Pillow-block designation, UCP204 (default) or UCP205",
@@ -137,7 +139,8 @@ async fn main {
   let part_kind = args.string_opt("part").unwrap_or("stack")
   if part_kind == "coupling" ||
     part_kind == "flange-housing" ||
-    part_kind == "pillow-block" {
+    part_kind == "pillow-block" ||
+    part_kind == "helical-coupling" {
     let mut component = if part_kind == "coupling" {
       match
         @motion.rigid_coupling(
@@ -145,6 +148,14 @@ async fn main {
           args.double("couplingOuter"),
           args.double("couplingLength"),
         ) {
+        Ok(c) => c
+        Err(e) => {
+          @cli.eprintln("error: " + e.message())
+          abort("")
+        }
+      }
+    } else if part_kind == "helical-coupling" {
+      match @motion.helical_coupling() {
         Ok(c) => c
         Err(e) => {
           @cli.eprintln("error: " + e.message())
@@ -208,10 +219,23 @@ async fn main {
       let (x0, x1, y0, y1, z0, z1) = component.bounding_box()
       @cli.eprintln("bbox: x=[\{x0}, \{x1}] y=[\{y0}, \{y1}] z=[\{z0}, \{z1}]")
     }
-    if part_kind == "pillow-block" {
-      // The relief and insert-seat bore need a real trim, so the accepted
+    if part_kind == "pillow-block" || part_kind == "helical-coupling" {
+      // The relief, slits, and holes need a real trim, so the accepted
       // artifact is the OCCT-evaluated compound.
-      component.write_step_evaluated(args.string_opt("out"))
+      let failure = try {
+        component.write_step_evaluated(args.string_opt("out"))
+        None
+      } catch {
+        @cad.CsgEvalError(msg) => Some(msg)
+        err => Some("CSG evaluation failed: \{err}")
+      }
+      match failure {
+        Some(msg) => {
+          @cli.eprintln("error: " + msg)
+          abort("")
+        }
+        None => ()
+      }
     } else {
       component.write_step(args.string_opt("out"), checked=true)
     }

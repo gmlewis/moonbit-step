@@ -182,6 +182,9 @@ if command -v python3 >/dev/null 2>&1 &&
     --part pillow-block --pillowBlock UCP204 \
     -o "$OUT/ucp204-pillow-block.step"
   python3 "$ROOT/scripts/validate_step.py" "$OUT/ucp204-pillow-block.step"
+  moon run components/examples/motion_stack -- \
+    --part helical-coupling -o "$OUT/helical-coupling-5-to-8.step"
+  python3 "$ROOT/scripts/validate_step.py" "$OUT/helical-coupling-5-to-8.step"
 else
   echo "skipping set-screw and clamp collars: evaluated export needs python3 and OCCT" >&2
 fi

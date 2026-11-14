@@ -114,6 +114,10 @@ moon run components/examples/motion_stack -- \
 moon run components/examples/motion_stack -- \
   --part pillow-block --pillowBlock UCP205 -o ucp205.step
 
+# Helical beam coupling with clamp hubs (OCCT-evaluated body + M3 screws)
+moon run components/examples/motion_stack -- \
+  --part helical-coupling -o helical-coupling.step
+
 # Generic solid rivet
 moon run components/examples/rivet -- --shank 3 --length 10 -o rivet.step
 
@@ -234,7 +238,7 @@ use `--headless`.
 | `standards` | Metric thread data and ISO/DIN dimension tables (ISO 4032/4035/4762/7089/709x/7380/8752/10642, DIN 471/472/557/913/916/976/1587, …). |
 | `fasteners` | Screws, bolts, nuts, washers, pins, rods, set screws, generic solid rivets, DIN 471 type A external retaining rings (A 10 to A 34), and DIN 472 internal retaining rings (verified bore table 8 to 40; encoded 12 mm and 20 mm outlines). |
 | `profiles` | Generic T-slot sections, the vendor 2020 B-slot6 A section, OpenBuilds-compatible V-Slot 2020/2040 sections, the MakerBeam 10 x 10 section, a gusseted V-Slot corner bracket, P1000-style strut channel, and a generic channel nut. |
-| `motion` | Shafts, stepped/keyed shafts, spacers and V-Slot wheel spacers (plain and eccentric), bushings, plain, set-screw, and clamp shaft collars, keys, dowel pins, standoffs, compression springs, ball bearings (envelope, shielded, and full-complement deep-groove), LM-series linear bushings, flanged linear housings, UCP-series pillow-block bearing boundaries, approximated GT2 timing pulleys, smooth idlers, V-Slot wheels, EMT tubing with end caps and split clamps, rigid couplings, and flanged bearing housings. |
+| `motion` | Shafts, stepped/keyed shafts, spacers and V-Slot wheel spacers (plain and eccentric), bushings, plain, set-screw, and clamp shaft collars, keys, dowel pins, standoffs, compression springs, ball bearings (envelope, shielded, and full-complement deep-groove), LM-series linear bushings, flanged linear housings, UCP-series pillow-block bearing boundaries, approximated GT2 timing pulleys, smooth idlers, V-Slot wheels, EMT tubing with end caps and split clamps, rigid couplings, helical beam couplings, and flanged bearing housings. |
 | `motors` | NEMA 17 and NEMA 23 stepper-motor envelopes, mounting interfaces, and NEMA mounting plates. |
 | `stock` | EN 10056 angle sections, configurable flat plate blanks with analytic circular holes and obround slots, counterbored and countersunk plates, bearing-housing plates, and tube-to-plate and tube-to-V-Slot adapter brackets. |
 | `gears` | Involute spur gears, external pairs, and exact-internal-involute planetary sets. |
@@ -369,6 +373,16 @@ frames, and plates expose face and per-hole frames.
   cast arch flank and skirt coordinates, insert races, seal widths, set-screw
   positions, and grease-fitting dimensions are measured from the references and
   are not derivable from the other parameters.
+- The 5-to-8 mm helical beam coupling reproduces the CC0 Innerscene reference:
+  an OD 25 x 30 sleeve with 45 degree x 0.5 mm outer chamfers, a stepped 5/8 mm
+  bore, a continuous 0.7 mm helical slit through the wall (3 turns at a 3.2 mm
+  pitch), and two clamp hubs (0.8 mm axial radial slits with a 3.2 mm clearance
+  hole, a 6.1 mm head counterbore along Y, and two M3 x 12 ISO 4762 clamp
+  screws). The helical slit is a 48-segments-per-turn polyline approximation of
+  the reference's two B-spline helicoid walls (chord deviation < 0.03 mm); the
+  body is within 0.3% of the reference volume and the three-solid compound is
+  within 0.4%. The clamp-screw threads are declared by connectors, never
+  modelled. No torque, torsional stiffness, or misalignment rating is implied.
 - Extrusion T-nuts use one generic hex body for every catalogued retention
   style. The bore is a thread envelope; spring balls and style-specific
   retention are not modelled.

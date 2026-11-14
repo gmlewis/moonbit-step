@@ -325,3 +325,25 @@ test "pillow block exposes bore, seat, base, and both mounting slots" {
   let base = motion_connector(part, "base-face")
   assert_true(base.kind is @common.MateKind::PlaneFace)
 }
+
+///|
+test "helical coupling exposes both bores, seat, and clamp screws" {
+  let part = match @motion.helical_coupling() {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  for
+    name in [
+      "bore-small", "bore-large", "outer-seat", "face-small", "face-large", "clamp-screw-1",
+      "clamp-screw-2",
+    ] {
+    assert_true(motion_has_connector(part, name))
+  }
+  let small = motion_connector(part, "bore-small")
+  assert_true(small.gender is @common.MateGender::Female)
+  assert_true(motion_near(small.diameter_mm.unwrap(), 5.0))
+  let large = motion_connector(part, "bore-large")
+  assert_true(motion_near(large.diameter_mm.unwrap(), 8.0))
+  let screw = motion_connector(part, "clamp-screw-1")
+  assert_true(screw.kind is @common.MateKind::Threaded)
+}
