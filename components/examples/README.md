@@ -35,6 +35,7 @@ All programs use millimetres and Z is up.
 | `mechanism_kit` | One generic mechanism/structural envelope per `--part`: hinge, clevis, pin, rod-end, linkage, rail, carriage, lead-screw, lead-nut, belt, belt-unequal, cam, roller, oldham, extension-spring, torsion-spring, snap, o-ring, grooved-shaft, bracket, u-bracket, boss, or rack. `--evaluated` fuses the layers into one OCCT-trimmed manifold. |
 | `mechanism_design` | Design-from-scratch linkage built with the typed `ParamSpec`/`ParamSet`/`DesignFamily` API and the `@cad` primitive DSL, with `compact`/`long` variants, a base plate, and pivot pins. |
 | `mechanism_assembly` | Clevis + rod end + pin assembled by a named `MatePair` between `eye-seat` and `eye-bore`; checks connectivity and writes either the flat STEP or the product/occurrence structure. |
+| `belt_drive` | Two approximate GT2 pulleys plus a smooth belt envelope built from an exact declared pitch length; flat or product-structure output. |
 
 Run `./generate_all.sh` from this directory to regenerate every fixture in
 `output/`. The `output/` directory is generated locally and Git-ignored; its

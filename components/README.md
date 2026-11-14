@@ -216,6 +216,10 @@ moon run components/examples/mechanism_assembly -- --mode assembly \
 # Fuse a layered mechanism body into one OCCT-evaluated manifold
 moon run components/examples/mechanism_kit -- \
   --part hinge --evaluated -o hinge-evaluated.step
+
+# Two-pulley GT2 belt drive with a declared pitch length
+moon run components/examples/belt_drive -- \
+  --teethA 20 --teethB 40 --pitchLength 400 -o belt-drive.step
 ```
 
 `components/common` adds an additive parameter/design-family API. Existing
