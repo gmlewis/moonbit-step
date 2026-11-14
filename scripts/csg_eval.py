@@ -312,12 +312,17 @@ COLOR_MATCH_TOL_MM = 0.5
 
 
 def _shape_bbox(shape) -> list[float] | None:
-    """Returns [x0, x1, y0, y1, z0, z1] for a shape, or None when empty."""
+    """Returns [x0, x1, y0, y1, z0, z1] for a shape, or None when empty.
+
+    ``AddOptimal`` is required for colour matching: smooth B-spline walls can
+    inflate the conservative ``Add`` box by millimetres, so a valid one-solid-
+    per-layer compound would otherwise fail the 0.5 mm match and lose colours.
+    """
     from OCP.Bnd import Bnd_Box
     from OCP.BRepBndLib import BRepBndLib
 
     box = Bnd_Box()
-    BRepBndLib.Add_s(shape, box)
+    BRepBndLib.AddOptimal_s(shape, box)
     if box.IsVoid():
         return None
     x0, y0, z0, x1, y1, z1 = box.Get()

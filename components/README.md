@@ -383,9 +383,11 @@ frames, and plates expose face and per-hole frames.
   hole, a 6.1 mm head counterbore along Y, and two M3 x 12 ISO 4762 clamp
   screws). The helical slit has two smooth ruled B-spline walls sampled at 60
   cross-sections per turn, and each clamp slit opens through its end face. The
-  body is within 0.09% of the reference volume and the three-solid compound is
-  within 0.18%. The clamp-screw threads are declared by connectors, never
-  modelled. No torque, torsional stiffness, or misalignment rating is implied.
+  body is within 0.05% of the reference volume and the three-solid compound is
+  within 0.15%. Clamp screws default to presentation orange so they stand out
+  against the sleeve; colour is not a material claim. The clamp-screw threads
+  are declared by connectors, never modelled. No torque, torsional stiffness,
+  or misalignment rating is implied.
 - Extrusion T-nuts use one generic hex body for every catalogued retention
   style. The bore is a thread envelope; spring balls and style-specific
   retention are not modelled.

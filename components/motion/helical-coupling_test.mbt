@@ -122,9 +122,9 @@ test "helical clamp bolts default to high-contrast orange" {
     Ok(c) => c
     Err(e) => abort(e.message())
   }
-  let screw_layers = part.layers().filter(fn(layer) {
-    layer.name.contains("clamp-screw-")
-  })
+  let screw_layers = part
+    .layers()
+    .filter(fn(layer) { layer.name.contains("clamp-screw-") })
   assert_eq(screw_layers.length(), 2)
   for layer in screw_layers {
     let (r, g, b) = layer.color.channels()

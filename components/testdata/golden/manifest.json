@@ -5050,7 +5050,7 @@
           25.0,
           30.0
         ],
-        "volume_mm3": 12387.608,
+        "volume_mm3": 12383.208,
         "solids": 3,
         "surfaces": {
           "plane": 33,
@@ -5089,7 +5089,7 @@
             "label": "length"
           }
         ],
-        "volume_mm3": 12387.608,
+        "volume_mm3": 12383.208,
         "volume_relative_tol": 0.02,
         "features": [
           {
@@ -5166,7 +5166,7 @@
         "automated": "pass",
         "owner_visual": "pending"
       },
-      "notes": "The reference is the CC0 Innerscene 5-to-8 mm helical beam coupling: 3 solids (body 12079.7 mm^3 plus two M3 x 12 clamp screws 142.8 mm^3 each; total 12365.3). The body is an OD 25 x 30 sleeve with 45 degree x 0.5 mm outer chamfers, a stepped bore (5 mm from z = 0 to 15, then 8 mm to z = 30), a continuous 0.7 mm helical slit cut through the wall (3 turns at a 3.2 mm pitch), and two clamp hubs (0.8 mm radial slits opening through both end faces, a 3.2 mm clearance hole and a 6.1 mm head counterbore along Y at x = 8, z = 4 and 26) plus two M3 x 12 ISO 4762 clamp screws. The helical slit now has two smooth ruled B-spline walls sampled at 60 cross-sections per turn, matching the reference's 57-face inventory: 33 planes + 20 cylinders + 2 cones + 2 B-splines. The clamp-screw threads are declared by connectors and not modelled. The parametric body is 12090.4 vs the reference body's 12079.7 mm^3 (+0.09%), and the compound totals 12387.608 vs 12365.342 mm^3 (+0.18%). End sections at z = 0.001 and 29.999 match the reference's open-slit area and perimeter. AddOptimal gives both parts a true 25 x 25 x 30 mm bbox; the parametric conservative OCCT bbox is 27 x 27 x 30 mm, while the reference's different B-spline parameterisation inflates its conservative bbox to 35.4186 x 35.4186 x 30 mm. No torque, stiffness, or misalignment rating is implied."
+      "notes": "The reference is the CC0 Innerscene 5-to-8 mm helical beam coupling: 3 solids (body 12079.7 mm^3 plus two M3 x 12 clamp screws 142.8 mm^3 each; total 12365.3). The body is an OD 25 x 30 sleeve with 45 degree x 0.5 mm outer chamfers, a stepped bore (5 mm from z = 0 to 15, then 8 mm to z = 30), a continuous 0.7 mm helical slit cut through the wall (3 turns at a 3.2 mm pitch), and two clamp hubs (0.8 mm radial slits opening through both end faces, a 3.2 mm clearance hole and a 6.1 mm head counterbore along Y at x = 8, z = 4 and 26) plus two M3 x 12 ISO 4762 clamp screws. The helical slit now has two smooth ruled B-spline walls sampled at 60 cross-sections per turn, matching the reference's 57-face inventory: 33 planes + 20 cylinders + 2 cones + 2 B-splines. The clamp-screw threads are declared by connectors and not modelled. The parametric body is 12086.0 vs the reference body's 12079.7 mm^3 (+0.05%), and the compound totals 12383.208 vs 12365.342 mm^3 (+0.145%). End sections at z = 0.001 and 29.999 match the reference's open-slit area and perimeter. AddOptimal gives both parts a true 25 x 25 x 30 mm bbox; the parametric conservative OCCT bbox is 27 x 27 x 30 mm, while the reference's different B-spline parameterisation inflates its conservative bbox to 35.4186 x 35.4186 x 30 mm. The parametric clamp screws use presentation orange for visibility instead of the reference's near-black style; the sleeve keeps its measured grey. These colours are not material claims. No torque, stiffness, or misalignment rating is implied."
     },
     {
       "fixture_id": "stock/sc8uu-bearing-block",
@@ -5313,7 +5313,9 @@
       "committed": false,
       "review": {
         "automated": "pass",
-        "owner_visual": "pending"
+        "owner_visual": "verified",
+        "date": "2026-11-14",
+        "reason": "owner reported golden 161 LGTM"
       },
       "notes": "CC BY 4.0 Xem Studio SC8UU block. The parametric and reference solids have the same 34 x 30 x 22 mm bbox, R2 rounds on the four edges parallel to the +Y bearing axis, Ø15 transverse LM8UU seat, four Ø3.3 vertical mounting holes on a 24 x 18 mm pitch, six planes, nine cylinders, square-corner vertex rings at z = 2 and 20, and centred mass. The nominal analytic volume is 16282.89075 mm^3 versus the measured reference's 16282.9 mm^3. The seat's press-fit intent is metadata, not added interference or a retention claim. The rod and bearing are separate parts. The OCCT-evaluated export is the accepted artifact because the flat writer cannot trim the vertical mounting bores. No load, life, or strength rating is implied."
     }

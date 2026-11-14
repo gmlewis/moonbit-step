@@ -92,12 +92,14 @@ const HELICAL_COUPLING_SCREW_SEAT_INSET_MM : Double = 0.05
 /// cross-sections per turn. Each clamp slit opens through its corresponding end
 /// face, including the chamfer. The flat writer cannot trim any of the slits or
 /// holes, so `Component::write_step_evaluated` (OCCT) is the accepted artifact.
-/// The clamp-screw threads are declared by connectors, never modelled. No
-/// torque, stiffness, or misalignment rating is implied.
+/// The clamp-screw threads are declared by connectors, never modelled. Clamp
+/// screws default to presentation orange so they stand out against the sleeve;
+/// colour is a display choice, not a material or strength claim. No torque,
+/// stiffness, or misalignment rating is implied.
 pub fn helical_coupling(
   size~ : HelicalCouplingSize = helical_coupling_5_to_8(),
   color~ : @cad.Rgb = @cad.Rgb::new(0.56, 0.60, 0.64),
-  screw_color~ : @cad.Rgb = @cad.Rgb::new(0.07, 0.085, 0.105),
+  screw_color~ : @cad.Rgb = @cad.Rgb::orange(),
 ) -> Result[@common.Component, @common.SpecError] {
   let checks : Array[Result[Unit, @common.SpecError]] = [
     @common.require_positive(
