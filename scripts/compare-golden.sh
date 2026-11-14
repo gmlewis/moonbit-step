@@ -4,9 +4,11 @@
 # downloaded golden STEP files and open both side by side in SolidCraft.
 #
 # The golden files in components/testdata/golden/external/ are sorted by file
-# name and numbered from 1. The manifest's generation block is used when it
-# exists; otherwise the file name is mapped to the equivalent parametric
-# example (ISO 4762/4017/4032/7089/7380/10642/DIN 976, bearings, spur gears).
+# name and numbered from 1. Owner-authored references listed in the manifest's
+# `owner_references` array (for example tire.step) follow them. The manifest's
+# generation block is used when it exists; otherwise the file name is mapped to
+# the equivalent parametric example (ISO 4762/4017/4032/7089/7380/10642/DIN
+# 976, bearings, spur gears, tire).
 #
 # Usage:
 #   ./scripts/compare-golden.sh --list
@@ -300,6 +302,10 @@ def infer(name, detail):
             ["--profile", "2020-b-slot6-a", "--length", str(int(m.group(1))),
              "--detail", detail, "--orient-to-reference"],
         )
+    if name == "tire.step":
+        return ("components/examples/tire", [])
+    if name == "brushless-motor-360kv.step":
+        return ("components/examples/brushless_motor", [])
     m = re.match(r"^iso_metric_threaded_rod_m(\d+(?:p\d+)?)_l(\d+)_simple\.step$", name)
     if m:
         return fastener("din976", m.group(1), m.group(2), detail)
@@ -491,6 +497,18 @@ def describe(tool, args):
             arg_value(args, "--thickness") or "?",
             arg_value(args, "--length") or "?",
         )
+    if tool.endswith("/tire"):
+        return "tire Ø{} x {}, hub Ø{} x {}".format(
+            arg_value(args, "--tireOuter") or "177.8",
+            arg_value(args, "--tireWidth") or "38.1",
+            arg_value(args, "--hubOuter") or "25.4",
+            arg_value(args, "--hubLength") or "34.925",
+        )
+    if tool.endswith("/brushless_motor"):
+        return "brushless outrunner bell Ø{} x {}".format(
+            arg_value(args, "--bellDiameter") or "50",
+            arg_value(args, "--shaftFront") or "23",
+        )
     return " ".join(args)
 
 
@@ -514,13 +532,51 @@ def load_manifest_generations():
         args = generation.get("args")
         if tool and isinstance(args, list):
             table[os.path.basename(local)] = (tool, list(args))
+    for entry in manifest.get("owner_references", []):
+        local = entry.get("local_filename")
+        generation = entry.get("generation")
+        if not local or not generation:
+            continue
+        tool = generation.get("tool")
+        args = generation.get("args")
+        if tool and isinstance(args, list):
+            table[os.path.basename(local)] = (tool, list(args))
     return table
 
 
+def owner_golden_files():
+    """Owner-authored local references, appended after the downloaded corpus.
+
+    The files live in external/ so they stay Git-ignored, but they are listed
+    last so adding one never renumbers the downloaded corpus.
+    """
+    try:
+        with open(MANIFEST, "r", encoding="utf-8") as fh:
+            manifest = json.load(fh)
+    except (OSError, ValueError):
+        return []
+    files = []
+    for entry in manifest.get("owner_references", []):
+        local = entry.get("local_filename")
+        if not local or not local.endswith(".step"):
+            continue
+        path = os.path.join(GOLDEN_DIR, os.path.basename(local))
+        if os.path.exists(path):
+            files.append(path)
+    return files
+
+
 def build_rows(detail, detail_explicit):
-    files = sorted(
-        glob.glob(os.path.join(GOLDEN_DIR, "*.step")), key=os.path.basename
-    )
+    owner_files = owner_golden_files()
+    owner_names = {os.path.basename(path) for path in owner_files}
+    files = [
+        path
+        for path in sorted(
+            glob.glob(os.path.join(GOLDEN_DIR, "*.step")), key=os.path.basename
+        )
+        if os.path.basename(path) not in owner_names
+    ]
+    files += owner_files
     if not files:
         fail(
             "no golden STEP files in {}. Run the fetch script first:\n"

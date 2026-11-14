@@ -1,11 +1,15 @@
 ///|
 /// components/examples/gear_pair
 ///
-/// Generate a two-gear involute spur gear pair:
+/// Generate a two-gear involute spur gear pair. The pair uses the smooth
+/// arc-run extrusion by default (one extrusion per gear with wide cylindrical
+/// flank/root faces); pass `--detailed` for the faceted involute pair.
 ///
 /// ```bash
 /// moon run components/examples/gear_pair -- \
 ///   --module 2 --teeth 20 --mateTeeth 40 -o pair.step
+/// moon run components/examples/gear_pair -- \
+///   --module 2 --teeth 20 --mateTeeth 40 --detailed -o pair-detailed.step
 /// ```
 async fn main {
   let spec = {
@@ -67,6 +71,9 @@ async fn main {
     "mode": @cli.opt_string(
       short='M',
       help="Output mode: flat (default) or assembly",
+    ),
+    "detailed": @cli.flag(
+      help="Use the faceted detailed involute pair (default is the smooth arc-run extrusion)",
     ),
     "out": @cli.opt_string(short='o', help="Write STEP to this path"),
     "bbox": @cli.flag(help="Print the assembly bounding box to stderr"),
@@ -146,7 +153,11 @@ async fn main {
     gear.write_step(args.string_opt("out"), checked=true)
     return
   }
-  let pair = match @gears.gear_pair(driver, driven, offset_mm=offset) {
+  let use_smooth = !args.flag("detailed") &&
+    root_fillet == 0.0 &&
+    tip_chamfer == 0.0
+  let pair = match
+    @gears.gear_pair(driver, driven, offset_mm=offset, smooth=use_smooth) {
     Ok(a) => a
     Err(e) => {
       @cli.eprintln("error: " + e.message())

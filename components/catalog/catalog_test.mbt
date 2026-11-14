@@ -81,9 +81,9 @@ test "gear catalogue records modeled and omitted features" {
 }
 
 ///|
-test "motion catalogue carries the keyed shaft and key" {
+test "motion catalogue carries the keyed shaft, key, and measured tire" {
   let entries = @catalog.motion_catalog()
-  assert_eq(entries.length(), 2)
+  assert_eq(entries.length(), 3)
   let shaft = match
     @catalog.lookup(entries, "Keyed shaft d20 x 40, keyway 6 x 3.5") {
     Ok(e) => e
@@ -96,6 +96,13 @@ test "motion catalogue carries the keyed shaft and key" {
     @catalog.query(@catalog.full_catalog(), family="keyed shaft").length(),
     1,
   )
+  let tire = match
+    @catalog.lookup(entries, "Tire Ø177.8 x 38.1, hub Ø25.4 x 34.925") {
+    Ok(e) => e
+    Err(err) => abort(err.message())
+  }
+  assert_true(tire.features.has_modeled("inset-plate"))
+  assert_true(tire.supported_parameters.any(fn(p) { p == "rib_count" }))
 }
 
 ///|
@@ -141,9 +148,21 @@ test "new construction and motion catalogue families are discoverable" {
   )
 
   let motors = @catalog.motor_catalog()
-  assert_eq(motors.length(), 3)
+  assert_eq(motors.length(), 4)
   assert_true(motors.any(fn(e) { e.family == "stepper motor envelope" }))
   assert_true(motors.any(fn(e) { e.family == "motor-to-extrusion adapter" }))
+  assert_true(
+    motors.any(fn(e) { e.family == "brushless outrunner motor envelope" }),
+  )
+  let brushless = match
+    @catalog.lookup(motors, "Brushless outrunner bell 50 x 23") {
+    Ok(e) => e
+    Err(err) => abort(err.message())
+  }
+  assert_true(brushless.features.has_modeled("bell-cone"))
+  assert_true(
+    brushless.supported_parameters.any(fn(p) { p == "shaft_diameter" }),
+  )
 
   let stock = @catalog.stock_catalog()
   assert_eq(stock.length(), 4)

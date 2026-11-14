@@ -62,7 +62,7 @@ async fn main {
     ),
     "part": @cli.opt_string(
       short='P',
-      help="Part: stack (default), coupling, flange-housing, pillow-block, helical-coupling, standoff, dowel, or gt2-pulley",
+      help="Part: stack (default), coupling, flange-housing, pillow-block, helical-coupling, standoff, dowel, gt2-pulley, or idler",
     ),
     "standoffFlats": @cli.opt_double(
       8.0,
@@ -84,6 +84,23 @@ async fn main {
     "gt2Teeth": @cli.opt_int(20, help="GT2 pulley tooth count"),
     "gt2BeltWidth": @cli.opt_double(9.0, help="GT2 belt width in mm", min=0.0),
     "gt2Bore": @cli.opt_double(5.0, help="GT2 pulley bore in mm", min=0.0),
+    "idlerOuter": @cli.opt_double(
+      20.0,
+      help="Idler outside diameter in mm",
+      min=0.0,
+    ),
+    "idlerBore": @cli.opt_double(8.0, help="Idler bore in mm", min=0.0),
+    "idlerWidth": @cli.opt_double(10.0, help="Idler width in mm", min=0.0),
+    "idlerFlangeDiameter": @cli.opt_double(
+      0.0,
+      help="Idler flange outside diameter in mm (0 = no flange)",
+      min=0.0,
+    ),
+    "idlerFlangeThickness": @cli.opt_double(
+      0.0,
+      help="Idler flange thickness in mm",
+      min=0.0,
+    ),
     "noFlanges": @cli.flag(
       help="Omit the GT2 pulley end flanges (single watertight body)",
     ),
@@ -166,7 +183,8 @@ async fn main {
     part_kind == "helical-coupling" ||
     part_kind == "standoff" ||
     part_kind == "dowel" ||
-    part_kind == "gt2-pulley" {
+    part_kind == "gt2-pulley" ||
+    part_kind == "idler" {
     let mut component = if part_kind == "coupling" {
       match
         @motion.rigid_coupling(
@@ -246,6 +264,21 @@ async fn main {
           args.double("gt2BeltWidth"),
           args.double("gt2Bore"),
           flanges=!args.flag("noFlanges"),
+        ) {
+        Ok(c) => c
+        Err(e) => {
+          @cli.eprintln("error: " + e.message())
+          abort("")
+        }
+      }
+    } else if part_kind == "idler" {
+      match
+        @motion.smooth_idler(
+          args.double("idlerOuter"),
+          args.double("idlerBore"),
+          args.double("idlerWidth"),
+          flange_diameter_mm=args.double("idlerFlangeDiameter"),
+          flange_thickness_mm=args.double("idlerFlangeThickness"),
         ) {
         Ok(c) => c
         Err(e) => {

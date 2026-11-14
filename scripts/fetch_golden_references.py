@@ -57,6 +57,26 @@ CATALOG_COMMIT = "c6113328a5695b976a010a203a90fe86191769bf"
 LFS_ENDPOINT = "https://github.com/earthtojake/step.parts.git"
 USER_AGENT = "moonbit-step-golden-fetch/1.0"
 
+# Locally authored reference models that must never be downloaded over or
+# deleted by this script. `brushless-motor-360kv.step` was modelled by the
+# repository owner specifically to avoid third-party licensing; it is
+# Git-ignored but intentionally kept on disk.
+PROTECTED_LOCAL_REFERENCES = {
+    "brushless-motor-360kv.step",
+    "tire.step",
+}
+
+
+def safe_unlink(path: Path) -> None:
+    """Delete a download artifact, refusing to touch a protected local model."""
+    if path.name in PROTECTED_LOCAL_REFERENCES:
+        raise RuntimeError(
+            f"refusing to delete protected local reference: {path}"
+        )
+    if path.exists():
+        path.unlink()
+
+
 SCOPE_SIZES = {
     "core": ["M2", "M2.5", "M3", "M4", "M5"],
     "extended": ["M2", "M2.5", "M3", "M4", "M5", "M6", "M8"],
@@ -773,8 +793,7 @@ def lfs_download(oid: str, size: int, destination: Path, retries: int = 3) -> No
             return
         except Exception as exc:  # noqa: BLE001 - retry transient failures
             last_error = exc
-            if destination.exists():
-                destination.unlink()
+            safe_unlink(destination)
             if attempt + 1 < retries:
                 time.sleep(1.0 + attempt)
     raise RuntimeError(f"LFS download failed after {retries} attempts: {last_error}")
@@ -817,8 +836,7 @@ def download(url: str, destination: Path, oid: str, size: int,
             return
         except Exception as exc:  # noqa: BLE001 - retry transient failures
             last_error = exc
-            if destination.exists():
-                destination.unlink()
+            safe_unlink(destination)
             if attempt + 1 < retries:
                 time.sleep(1.0 + attempt)
     raise RuntimeError(
@@ -1008,6 +1026,10 @@ def main() -> int:
         expected_size = record["byteSize"]
         filename = f"{part_id}.step"
         destination = out_dir / filename
+        if destination.name in PROTECTED_LOCAL_REFERENCES:
+            raise SystemExit(
+                f"refusing to overwrite protected local reference: {destination}"
+            )
         attributes = record.get("attributes", {})
         entry = {
             "group": item["selection"],
@@ -1048,8 +1070,7 @@ def main() -> int:
                     print(f"[{index}/{len(planned)}] cached  {filename}")
                     continue
             temp = destination.with_suffix(destination.suffix + ".part")
-            if temp.exists():
-                temp.unlink()
+            safe_unlink(temp)
             download(
                 step_url, temp, expected_sha, expected_size, retries=args.retries
             )
@@ -1062,8 +1083,7 @@ def main() -> int:
                 raise RuntimeError(
                     f"byte size mismatch: {actual_size} != {expected_size}"
                 )
-            if destination.exists():
-                destination.unlink()
+            safe_unlink(destination)
             temp.replace(destination)
             write_sidecars(destination, actual_sha, actual_size)
             if args.delay > 0:
@@ -1081,8 +1101,8 @@ def main() -> int:
                 f"{actual_size} bytes sha256={actual_sha}"
             )
         except Exception as exc:  # noqa: BLE001 - development helper
-            if temp is not None and temp.exists():
-                temp.unlink()
+            if temp is not None:
+                safe_unlink(temp)
             entry.update({"status": "failed", "checksum_verified": False,
                           "error": str(exc)})
             report["counts"]["failed"] += 1

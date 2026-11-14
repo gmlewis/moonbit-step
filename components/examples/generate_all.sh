@@ -129,6 +129,9 @@ moon run components/examples/gear_pair -- \
 # Session 12: construction hardware, motion, and stock primitives.
 moon run components/examples/stepper_motor -- \
   --frame NEMA17 --bodyLength 40 -o "$OUT/nema17-l40.step"
+moon run components/examples/brushless_motor -- \
+  -o "$OUT/brushless-motor-50x23.step"
+moon run components/examples/tire -- -o "$OUT/tire-177.8x38.1.step"
 moon run components/examples/linear_bearing -- \
   --bearing LM8UU -o "$OUT/lm8uu.step"
 moon run components/examples/linear_bearing -- \
@@ -177,6 +180,12 @@ moon run components/examples/rack_pinion -- \
 moon run components/examples/rack_pinion -- --mode assembly \
   --module 2 --pinionTeeth 20 --rackTeeth 20 \
   -o "$OUT/assembly-structure/rack-pinion-m2-z20x20-assembly.step"
+moon run components/examples/four_bar -- \
+  --ground 40 --crank 10 --coupler 40 --rocker 30 --crankAngle 45 \
+  -o "$OUT/four-bar-40-10-40-30.step"
+moon run components/examples/four_bar -- --mode assembly \
+  --ground 40 --crank 10 --coupler 40 --rocker 30 --crankAngle 45 \
+  -o "$OUT/assembly-structure/four-bar-40-10-40-30-assembly.step"
 
 echo "Validating generated fixtures..."
 for f in "$OUT"/*.step; do
@@ -195,6 +204,9 @@ python3 "$ROOT/scripts/validate_step.py" --no-mesh \
 echo "== assembly-structure/rack-pinion-m2-z20x20-assembly.step"
 python3 "$ROOT/scripts/validate_step.py" --no-mesh \
   "$OUT/assembly-structure/rack-pinion-m2-z20x20-assembly.step"
+echo "== assembly-structure/four-bar-40-10-40-30-assembly.step"
+python3 "$ROOT/scripts/validate_step.py" --no-mesh \
+  "$OUT/assembly-structure/four-bar-40-10-40-30-assembly.step"
 
 # Construction-system, tubing, and adapter primitives.
 moon run components/examples/vslot -- \
@@ -217,8 +229,9 @@ moon run components/examples/stock_primitive -- \
   --part bearing --width 50 --height 40 --plateThickness 6 \
   --bearingOD 22 --fit 0.1 --boltDiameter 5.5 --holeSpacing 30 \
   -o "$OUT/bearing-plate-od22.step"
-moon run components/examples/idler -- \
-  --outer 20 --bore 8 --width 10 --flangeDiameter 24 --flangeThickness 1.5 \
+moon run components/examples/motion_stack -- \
+  --part idler --idlerOuter 20 --idlerBore 8 --idlerWidth 10 \
+  --idlerFlangeDiameter 24 --idlerFlangeThickness 1.5 \
   -o "$OUT/idler-flanged-20x10.step"
 moon run components/examples/tubing -- \
   --part emt --trade 1/2 --length 304.8 -o "$OUT/emt-1-2in-304.step"
@@ -301,7 +314,8 @@ for part in vslot-2020x100 vslot-2040x100 vslot-wheel vslot-tnut-m5 \
   mechanism-boss mechanism-rack mechanism-sprocket \
   mechanism-chain-segment \
   mechanism-design-linkage mechanism-design-linkage-compact \
-  mechanism-clevis-rod-end belt-drive-gt2-20x40 rack-pinion-m2-z20x20; do
+  mechanism-clevis-rod-end belt-drive-gt2-20x40 rack-pinion-m2-z20x20 \
+  four-bar-40-10-40-30; do
   python3 "$ROOT/scripts/validate_step.py" --no-mesh "$OUT/$part.step"
 done
 

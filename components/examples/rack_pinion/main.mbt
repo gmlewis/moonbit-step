@@ -16,8 +16,10 @@
 /// The rack pitch plane is taken from `rack_pinion_layout`; the pinion is placed
 /// at the pitch-radius centre distance with a half-pitch phase. This is a
 /// static layout, not a kinematic or contact solver. The rack flanks are exact
-/// straight basic-rack flanks; the pinion is an involute approximation and the
-/// two tooth forms do not claim exact conjugacy.
+/// straight basic-rack flanks; the pinion uses the smooth arc-run extrusion
+/// (`spur_gear(..., smooth=true)`), one extrusion of its tooth profile with
+/// wide cylindrical flank/root faces rather than one planar facet per segment.
+/// The two tooth forms do not claim exact conjugacy.
 async fn main {
   let spec = {
     "module": @cli.opt_double(
@@ -100,7 +102,12 @@ async fn main {
       backlash_mm=args.double("backlash"),
     ) {
     Ok(params) =>
-      match @gears.spur_gear(params, detail=@common.DetailLevel::Detailed) {
+      match
+        @gears.spur_gear(
+          params,
+          detail=@common.DetailLevel::Detailed,
+          smooth=true,
+        ) {
         Ok(c) => c.rotate_z(180.0 / pinion_teeth.to_double())
         Err(e) => {
           @cli.eprintln("error: " + e.message())

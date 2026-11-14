@@ -25,6 +25,7 @@ pub fn gear_pair(
   driven : SpurGearParams,
   offset_mm~ : Double = 0.05,
   detail~ : @common.DetailLevel = Detailed,
+  smooth~ : Bool = false,
 ) -> Result[@assemblies.Assembly, @common.SpecError] {
   if !@common.near(driver.module_mm, driven.module_mm, tol=1.0e-9) {
     return Err(@common.InvalidParameter("gear pair requires the same module"))
@@ -38,11 +39,11 @@ pub fn gear_pair(
       @common.InvalidParameter("gear pair requires the same pressure angle"),
     )
   }
-  let driver_component = match spur_gear(driver, detail~) {
+  let driver_component = match spur_gear(driver, detail~, smooth~) {
     Err(e) => return Err(e)
     Ok(c) => c
   }
-  let driven_component = match spur_gear(driven, detail~) {
+  let driven_component = match spur_gear(driven, detail~, smooth~) {
     Err(e) => return Err(e)
     Ok(c) => c
   }

@@ -200,7 +200,7 @@ pub fn gear_catalog() -> Array[CatalogEntry] {
 
 ///|
 /// motion_catalog returns representative motion entries: a keyed shaft with a
-/// real keyway and the matching key.
+/// real keyway, the matching key, and the measured wheel/tire envelope.
 pub fn motion_catalog() -> Array[CatalogEntry] {
   let entries : Array[CatalogEntry] = []
   match @motion.keyed_shaft(20.0, 40.0, 6.0, 3.5) {
@@ -220,6 +220,21 @@ pub fn motion_catalog() -> Array[CatalogEntry] {
         entry_from_component(
           c,
           ["keyway_width", "keyway_depth", "key_length", "width_clearance"],
+          ["Detailed"],
+        ),
+      )
+    Err(_) => ()
+  }
+  match @motion.measured_tire() {
+    Ok(c) =>
+      entries.push(
+        entry_from_component(
+          c,
+          [
+            "tire_outer_diameter", "tire_inner_diameter", "tire_width", "hub_outer_diameter",
+            "hub_bore_diameter", "hub_length", "hub_inset", "inset_thickness", "rib_thickness",
+            "rib_count", "rib_phase",
+          ],
           ["Detailed"],
         ),
       )
@@ -301,7 +316,8 @@ pub fn linear_bearing_catalog() -> Array[CatalogEntry] {
 }
 
 ///|
-/// motor_catalog returns the NEMA 17 and NEMA 23 envelopes.
+/// motor_catalog returns the NEMA 17/23 envelopes, the NEMA-to-extrusion
+/// adapter, and the measured 360KV outrunner envelope.
 pub fn motor_catalog() -> Array[CatalogEntry] {
   let entries : Array[CatalogEntry] = []
   for designation in @motors.nema_designations() {
@@ -333,6 +349,23 @@ pub fn motor_catalog() -> Array[CatalogEntry] {
           )
         Err(_) => ()
       }
+    Err(_) => ()
+  }
+  match @motors.brushless_motor_360kv() {
+    Ok(c) =>
+      entries.push(
+        entry_from_component(
+          c,
+          [
+            "bell_outer_diameter", "bell_wall_thickness", "bell_face_thickness",
+            "bell_cone_thickness", "bell_cone_run", "window_count", "window_inner_diameter",
+            "window_outer_diameter", "prop_hole_count", "prop_hole_circle_diameter",
+            "stator_hub_diameter", "mount_hole_count", "shaft_diameter", "shaft_rear_extension",
+            "shaft_front_extension",
+          ],
+          ["Detailed"],
+        ),
+      )
     Err(_) => ()
   }
   entries

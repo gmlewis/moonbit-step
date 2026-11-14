@@ -6017,6 +6017,73 @@
     "fetch_command": "python3 scripts/fetch_golden_references.py --out components/testdata/golden/external",
     "measure_script": "scripts/measure_step_occt.py"
   },
+  "owner_references": [
+    {
+      "fixture_id": "motors/brushless-360kv-50x23",
+      "designation": "Brushless outrunner bell 50 x 23",
+      "kind": "owner-authored-reference",
+      "provenance": "Modelled by the repository owner; not an external model. Git-ignored *.step kept locally; scripts/fetch_golden_references.py protects it.",
+      "local_filename": "external/brushless-motor-360kv.step",
+      "sha256": "fc8ee1f9a4c274818ca00afd3833fb6e62cb86788496430efb9274b68b1a9b69",
+      "byte_size": 107211,
+      "units": "mm",
+      "declared_dimensions": {
+        "bell_outer_diameter_mm": 50.0,
+        "bell_rim_length_mm": 9.1335,
+        "bell_rim_start_mm": 3.1665,
+        "shaft_diameter_mm": 4.0,
+        "stator_hub_diameter_mm": 25.0
+      },
+      "measured_dimensions": {
+        "bbox_mm": [
+          23.0,
+          50.0,
+          50.0
+        ],
+        "volume_mm3": 6143.02,
+        "solids": 1
+      },
+      "generation": {
+        "tool": "components/examples/brushless_motor",
+        "args": []
+      }
+    },
+    {
+      "fixture_id": "wheels/tire-177.8x38.1",
+      "designation": "Tire Ø177.8 x 38.1, hub Ø25.4 x 34.925",
+      "kind": "owner-authored-reference",
+      "provenance": "Modelled by the repository owner; not an external model. Git-ignored *.step kept locally; scripts/fetch_golden_references.py protects it.",
+      "local_filename": "external/tire.step",
+      "sha256": "1686e76d594a2be98e24ab2f1bb52389a8f4eca24487d94b704a6351693fddef",
+      "byte_size": 45879,
+      "units": "mm",
+      "declared_dimensions": {
+        "hub_inset_mm": 19.05,
+        "hub_length_mm": 34.925,
+        "hub_outer_diameter_mm": 25.4,
+        "inset_thickness_mm": 2.0,
+        "rib_thickness_mm": 2.0,
+        "tire_width_mm": 38.1
+      },
+      "measured_dimensions": {
+        "tire_outer_diameter_mm": 177.8,
+        "tire_inner_diameter_mm": 127.0,
+        "hub_bore_diameter_mm": 12.7,
+        "rib_count": 6,
+        "bbox_mm": [
+          38.1,
+          177.8,
+          177.8
+        ],
+        "volume_mm3": 512793.0,
+        "solids": 1
+      },
+      "generation": {
+        "tool": "components/examples/tire",
+        "args": []
+      }
+    }
+  ],
   "local_frame_references": [
     {
       "fixture_id": "frames/2020-400x300x500",

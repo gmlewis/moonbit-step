@@ -7,6 +7,14 @@ import {
 }
 
 // Values
+pub fn brushless_motor(BrushlessMotorSpec) -> Result[@common.Component, @common.SpecError]
+
+pub fn brushless_motor_360kv() -> Result[@common.Component, @common.SpecError]
+
+pub fn brushless_motor_360kv_spec() -> BrushlessMotorSpec
+
+pub fn brushless_motor_spec(BrushlessMotorSpec) -> Result[Unit, @common.SpecError]
+
 pub fn motor_to_extrusion_adapter(NemaFrame, Double, Double, Double, Double, extrusion_hole_diameter_mm? : Double, hole_clearance_mm? : Double, detail? : @common.DetailLevel, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
 pub fn nema_designations() -> Array[String]
@@ -22,6 +30,39 @@ pub fn nema_stepper_motor(NemaFrame, Double, shaft_length_mm? : Double, shaft_di
 // Errors
 
 // Types and methods
+pub(all) struct BrushlessMotorSpec {
+  bell_outer_diameter_mm : Double
+  bell_wall_thickness_mm : Double
+  bell_face_outer_diameter_mm : Double
+  bell_face_thickness_mm : Double
+  bell_cone_thickness_mm : Double
+  bell_cone_run_mm : Double
+  bell_rim_start_mm : Double
+  bell_rim_length_mm : Double
+  bell_lip_major_radius_mm : Double
+  bell_lip_minor_radius_mm : Double
+  bell_hub_diameter_mm : Double
+  window_count : Int32
+  window_inner_diameter_mm : Double
+  window_outer_diameter_mm : Double
+  window_inner_half_angle_deg : Double
+  window_outer_half_angle_deg : Double
+  window_corner_radius_mm : Double
+  window_phase_deg : Double
+  prop_hole_count : Int32
+  prop_hole_diameter_mm : Double
+  prop_hole_circle_diameter_mm : Double
+  stator_hub_diameter_mm : Double
+  stator_hub_start_mm : Double
+  stator_hub_thickness_mm : Double
+  mount_hole_count : Int32
+  mount_hole_diameter_mm : Double
+  mount_hole_circle_diameter_mm : Double
+  shaft_diameter_mm : Double
+  shaft_rear_extension_mm : Double
+  shaft_front_extension_mm : Double
+}
+
 pub(all) struct NemaFrame {
   designation : String
   frame_mm : Double

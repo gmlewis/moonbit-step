@@ -1,17 +1,22 @@
 ///|
 /// components/examples/extrusion_hardware
 ///
-/// Generate an extrusion T-nut or a heat-set threaded insert:
+/// Generate a heat-set threaded insert (the default) or an extrusion T-nut:
 ///
 /// ```bash
 /// moon run components/examples/extrusion_hardware -- \
-///   --part tnut --thread M3 --slot 5 -o tnut-m3.step
+///   --part heat-set --length long -o heatset-m3-long.step
 /// moon run components/examples/extrusion_hardware -- \
-///   --part heat-set --thread M3 --length long -o heatset-m3-long.step
+///   --part tnut --thread M3 --slot 5 -o tnut-m3.step
 /// ```
+///
+/// The T-nut is a generic hex-body envelope: the reference catalogue uses one
+/// body for slide-in, drop-in, and hammer styles, with no spring ball or
+/// style-specific retention feature. The heat-set insert is the more
+/// distinctive part and is the default view.
 async fn main {
   let spec = {
-    "part": @cli.opt_string(short='p', help="Part: tnut (default) or heat-set"),
+    "part": @cli.opt_string(short='p', help="Part: heat-set (default) or tnut"),
     "thread": @cli.opt_string(short='t', help="Thread: M3 (default), M4, M5"),
     "slot": @cli.opt_double(
       5.0,
@@ -35,7 +40,7 @@ async fn main {
     is Some(args) else {
     return
   }
-  let part_kind = args.string_opt("part").unwrap_or("tnut")
+  let part_kind = args.string_opt("part").unwrap_or("heat-set")
   let thread = args.string_opt("thread").unwrap_or("M3")
   let component = match part_kind {
     "heat-set" | "heatset" | "insert" =>

@@ -150,7 +150,7 @@ async fn main {
       component = component.add_layer(
         layer.shape,
         name="set-screw-\{index}",
-        color=@cad.Rgb::grey(),
+        color=@cad.Rgb::orange(),
         placement=layer.placement,
       )
       index = index + 1

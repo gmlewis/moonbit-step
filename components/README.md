@@ -30,6 +30,18 @@ moon run components/examples/gear_pair -- \
 moon run components/examples/stepper_motor -- \
   --frame NEMA17 --bodyLength 40 -o nema17.step
 
+# Parameterized outrunner brushless-motor envelope (measured 360KV defaults)
+moon run components/examples/brushless_motor -- -o brushless-motor.step
+# A measured 42 mm motor: override every dependent dimension.
+moon run components/examples/brushless_motor -- \
+  --bellDiameter 42 --faceDiameter 38 --hubDiameter 15 \
+  --windowInner 16 --windowOuter 35 --lipRadius 20 \
+  --statorDiameter 24 --shaftDiameter 3 --propHoleCircle 10 \
+  -o motor42.step
+
+# Parameterized tire/wheel envelope (measured 177.8 x 38.1 defaults)
+moon run components/examples/tire -- -o tire.step
+
 # LM8UU linear bushing and flanged housing
 moon run components/examples/linear_bearing -- --bearing LM8UU -o lm8uu.step
 moon run components/examples/linear_bearing -- \
@@ -84,8 +96,9 @@ moon run components/examples/stock_primitive -- \
 moon run components/examples/stock_primitive -- \
   --part bearing --width 50 --height 40 --plateThickness 6 \
   --bearingOD 22 --fit 0.1 --boltDiameter 5.5 --holeSpacing 30 -o bearing.step
-moon run components/examples/idler -- \
-  --outer 20 --bore 8 --width 10 --flangeDiameter 24 --flangeThickness 1.5 -o idler.step
+moon run components/examples/motion_stack -- \
+  --part idler --idlerOuter 20 --idlerBore 8 --idlerWidth 10 \
+  --idlerFlangeDiameter 24 --idlerFlangeThickness 1.5 -o idler.step
 
 # EMT end cap and split clamp
 moon run components/examples/tubing -- --part endcap --trade 1/2 -o endcap.step
@@ -235,6 +248,11 @@ moon run components/examples/belt_drive -- \
 # Basic rack and involute pinion at the layout centre distance
 moon run components/examples/rack_pinion -- \
   --module 2 --pinionTeeth 20 --rackTeeth 20 -o rack-pinion.step
+
+# Planar four-bar linkage from the four-bar layout helper
+moon run components/examples/four_bar -- \
+  --ground 40 --crank 10 --coupler 40 --rocker 30 --crankAngle 45 \
+  -o four-bar.step
 ```
 
 `components/common` adds an additive parameter/design-family API. Existing
@@ -379,11 +397,11 @@ use `--headless`.
 | `standards` | Metric thread data and ISO/DIN dimension tables (ISO 4032/4035/4762/7089/709x/7380/8752/10642, DIN 471/472/557/913/916/976/1587, …). |
 | `fasteners` | Screws, bolts, nuts, washers, pins, rods, set screws, generic solid rivets, DIN 471 type A external retaining rings (A 10 to A 34), and DIN 472 internal retaining rings (all table sizes 8 to 40; measured outlines for 10, 12, 14, 16, 18, 20, 24, 28, 32, and 40 mm, parametric for the rest). |
 | `profiles` | Generic T-slot sections, the vendor 2020 B-slot6 A section, OpenBuilds-compatible V-Slot 2020/2040 sections, the MakerBeam 10 x 10 section, a gusseted V-Slot corner bracket, P1000-style strut channel, and a generic channel nut. |
-| `motion` | Shafts, stepped/keyed shafts, spacers and V-Slot wheel spacers (plain and eccentric), bushings, plain, set-screw, and clamp shaft collars, keys, dowel pins, standoffs, compression springs, ball bearings (envelope, shielded, and full-complement deep-groove), LM-series linear bushings, flanged linear housings, UCP-series pillow-block bearing boundaries, approximated GT2 timing pulleys, smooth idlers, V-Slot wheels, EMT tubing with end caps and split clamps, rigid couplings, helical beam couplings, and flanged bearing housings. |
+| `motion` | Shafts, stepped/keyed shafts, spacers and V-Slot wheel spacers (plain and eccentric), bushings, plain, set-screw, and clamp shaft collars, keys, dowel pins, standoffs, compression springs, ball bearings (envelope, shielded, and full-complement deep-groove), LM-series linear bushings, flanged linear housings, UCP-series pillow-block bearing boundaries, approximated GT2 timing pulleys, smooth idlers, V-Slot wheels, EMT tubing with end caps and split clamps, rigid couplings, helical beam couplings, flanged bearing housings, and a parameterized tire/wheel envelope measured from the owner-authored `tire.step` model. |
 | `mechanisms` | Generic engineering envelopes for a barrel hinge, clevis, pin, rod end, linkage bar, linear rail and carriage, lead screw and flanged nut, equal- and unequal-pulley timing-belt loops, eccentric cam and roller follower, Oldham coupling, extension and torsion springs, snap latch, O-ring, grooved shaft, L/U/Z brackets (L with optional gusset), tapped boss, a straight-flank basic rack with a pinion-layout helper, ANSI #40 roller-chain sprockets (measured CC0 16T/24T outlines), and a CC0-matched ANSI #40 10-pitch chain segment. |
-| `motors` | NEMA 17 and NEMA 23 stepper-motor envelopes, mounting interfaces, NEMA mounting plates, and a generic NEMA-to-20-series extrusion adapter. |
+| `motors` | NEMA 17 and NEMA 23 stepper-motor envelopes, mounting interfaces, NEMA mounting plates, a generic NEMA-to-20-series extrusion adapter, and a parameterized outrunner brushless-motor envelope measured from the owner-authored 360KV model (conical 5-spoke bell, windows, rim and lip, stator hub, prop and mount holes, shaft). |
 | `stock` | EN 10056 angle sections, configurable flat plate blanks with analytic circular holes and obround slots, counterbored and countersunk plates, bearing-housing plates, tube-to-plate and tube-to-V-Slot adapter brackets, generic channel-to-extrusion adapters and extrusion-to-tube clamps, SC8UU-style rod/bearing blocks, and heat-set insert bosses. |
-| `gears` | Involute spur gears, external pairs, and exact-internal-involute planetary sets. |
+| `gears` | Involute spur gears, a smooth single-extrusion arc-run spur presentation, external pairs, and exact-internal-involute planetary sets. |
 | `planetary` | Fully parametric herringbone planetary gearbox (sun, equally spaced planets, inward-facing ring) with every generator option as a parameter, exact line/arc extrusions when `num_elbows` is 0, and otherwise the true helical twist of each elbow as smooth ruled B-spline flanks with sharp piecewise-linear elbow creases; named mate connectors on every gear. |
 | `assemblies` | Rigid placements, linear/circular patterns, hardware kits, extrusion frames, bolted joints, collision/contact reports, connectivity checks. |
 | `collision` | Kernel-free AABB/OBB collision and contact classification. |
@@ -465,7 +483,9 @@ Every implemented family exposes at least one named connector: fasteners expose
 shaft/thread/head or bore/bearing-face frames, bearings expose bore and
 outer-seat frames, shafts expose end frames, extrusions expose four face slots
 and end datums, NEMA motors expose mounting, pilot, shaft, rear, and per-hole
-frames, and plates expose face and per-hole frames. The mechanism kit's
+frames, the brushless outrunner envelope exposes both shaft ends, the rotating
+bell face, the fixed mount face, and its measured prop and mount hole set, and
+plates expose face and per-hole frames. The mechanism kit's
 clevis/pin and lead-screw/nut interfaces are exercised through
 `MatePair::resolve` in its tests, which checks kind, gender, and nominal
 diameter.
@@ -509,6 +529,21 @@ loop and how imported vendor parts are referenced through SolidCraft, is in
 - NEMA motor envelopes model the mounting interface, pilot boss, and plain
   shaft. Body length and shaft length are parameters, not standards; electrical
   internals, rear shafts, shaft flats, and load ratings are omitted.
+- The brushless outrunner envelope is measured from the owner-authored
+  `components/testdata/golden/external/brushless-motor-360kv.step` model (kept locally,
+  Git-ignored). Its conical bell sheet is represented by five flat
+  conical-sector spokes, and the measured 2 mm window corner rounds are not
+  modelled. Stator windings, magnets, bearings, phase wires, and every
+  electrical or performance rating are omitted. All dimensions are parameters
+  so a measured motor can be matched; the defaults are not a FlyCat or any
+  other manufacturer's published drawing.
+- The tire/wheel envelope is measured from the owner-authored
+  `components/testdata/golden/external/tire.step` model (kept locally,
+  Git-ignored). It is a smooth tire ring, a hub tube and bore, a 2 mm inset back
+  plate, and straight radial ribs; the defaults include 6 ribs. Tread blocks,
+  grooves, rubber compound, carcass, bead wires, valves, and every load, speed,
+  or inflation rating are omitted. All dimensions are parameters, including the
+  rib count and phase.
 - LM-series linear bushings and flanged housings are boundary envelopes. Rolling
   elements, cages, seals, recirculation grooves, flange hole patterns, and load
   ratings are omitted.

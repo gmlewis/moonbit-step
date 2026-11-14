@@ -28,7 +28,7 @@ pub fn gear_outline_max_radius(Array[(Double, Double)]) -> Double
 
 pub fn gear_outline_min_radius(Array[(Double, Double)]) -> Double
 
-pub fn gear_pair(SpurGearParams, SpurGearParams, offset_mm? : Double, detail? : @common.DetailLevel) -> Result[@assemblies.Assembly, @common.SpecError]
+pub fn gear_pair(SpurGearParams, SpurGearParams, offset_mm? : Double, detail? : @common.DetailLevel, smooth? : Bool) -> Result[@assemblies.Assembly, @common.SpecError]
 
 pub fn gear_pair_center_distance(SpurGearParams, SpurGearParams, offset_mm? : Double) -> Double
 

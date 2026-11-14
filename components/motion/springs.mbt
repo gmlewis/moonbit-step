@@ -10,6 +10,8 @@ pub fn compression_spring(
   length_mm : Double,
   active_coils : Int32,
   segments_per_turn~ : Int32 = 24,
+  wire_segments~ : Int32 = 12,
+  smooth~ : Bool = false,
   color~ : @cad.Rgb = @cad.Rgb::cyan(),
 ) -> Result[@common.Component, @common.SpecError] {
   match @common.require_positive("spring mean diameter", mean_diameter_mm) {
@@ -56,6 +58,7 @@ pub fn compression_spring(
     )
   }
   let segments = if segments_per_turn < 8 { 8 } else { segments_per_turn }
+  let wire_seg_count = if wire_segments < 6 { 6 } else { wire_segments }
   let path = @cad.helix_path(
     pos=(0.0, 0.0, wire_radius),
     size_per_turn=(radius, radius, pitch),
@@ -65,9 +68,8 @@ pub fn compression_spring(
     clockwise=false,
   )
   let wire_profile : Array[@cad.Vec3] = []
-  let wire_segments = 12
-  for i in 0..<wire_segments {
-    let angle = 2.0 * @math.PI * i.to_double() / wire_segments.to_double()
+  for i in 0..<wire_seg_count {
+    let angle = 2.0 * @math.PI * i.to_double() / wire_seg_count.to_double()
     wire_profile.push(
       (wire_radius * @math.cos(angle), 0.0, wire_radius * @math.sin(angle)),
     )
@@ -77,7 +79,12 @@ pub fn compression_spring(
     normal_dir=(0.0, 1.0, 0.0),
     right_dir=(1.0, 0.0, 0.0),
   )
-  let body = @cad.SweptProfile::new(path~, profile~, straight_outline=false)
+  let body = @cad.SweptProfile::new(
+    path~,
+    profile~,
+    straight_outline=false,
+    smooth_sides=smooth,
+  )
   let name = "spring-\{@cad.fmt_double(mean_diameter_mm, None)}x\{@cad.fmt_double(wire_diameter_mm, None)}x\{@cad.fmt_double(length_mm, None)}"
   Ok(
     with_spring_connectors(
@@ -89,7 +96,7 @@ pub fn compression_spring(
           length_mm~,
           source="Parametric helical sweep; no spring rate, end-coil, or grinding model.",
         ),
-        description="Open helical spring with circular wire and flat swept end caps. The wire section is swept in the radial-axial plane and is a 12-gon; the helix tangent used by the sweep has no axial component, so the section normal to the true helix is slightly elliptical. Closed/ground ends and preload are not modeled.",
+        description="Open helical spring with circular wire and flat swept end caps. The wire section is swept in the radial-axial plane; its segment count and the smooth B-spline side representation are builder options. The helix tangent used by the sweep has no axial component, so the section normal to the true helix is slightly elliptical. Closed/ground ends and preload are not modeled.",
         features=@common.FeatureRecord::new(
           modeled=["helix-body"],
           approximated=[
@@ -102,8 +109,8 @@ pub fn compression_spring(
             @common.Approximation::new(
               feature="wire-section",
               kind=@common.ApproximationKind::PolylineArc,
-              deviation_mm=@common.chord_deviation(wire_radius, wire_segments),
-              control="wire_segments=12",
+              deviation_mm=@common.chord_deviation(wire_radius, wire_seg_count),
+              control="wire_segments=\{wire_seg_count}",
             ),
           ],
           omitted=[

@@ -3,8 +3,10 @@ import {
   "gmlewis/step/components/common",
   "gmlewis/step/components/stock",
   "moonbitlang/core/builtin",
+  "moonbitlang/core/math",
 }
 
 import {
+  "gmlewis/step/components/common",
   "moonbitlang/core/builtin",
 } for "test"

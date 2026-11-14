@@ -7,11 +7,15 @@
 /// ```bash
 /// moon run components/examples/revolution -- \
 ///   --out-dir components/examples/output
+/// moon run components/examples/revolution -- \
+///   -o revolution-gallery.step
 /// ```
 ///
-/// Each file is one closed STEP solid. The sphere and cap use
-/// `SPHERICAL_SURFACE`; the cone uses `CONICAL_SURFACE`; the ring uses
-/// cylindrical and planar faces; the torus uses `TOROIDAL_SURFACE`.
+/// With a `.step`/`.stp` output path the example writes one combined gallery
+/// (all eight solids spaced along X), which is what the `--view` wrapper opens.
+/// With a directory it writes one file per solid. Each solid is closed; the
+/// sphere and cap use `SPHERICAL_SURFACE`, the cone `CONICAL_SURFACE`, the ring
+/// cylindrical/planar faces, and the torus `TOROIDAL_SURFACE`.
 async fn main {
   let spec = {
     "out-dir": @cli.opt_string(
@@ -27,10 +31,9 @@ async fn main {
     is Some(args) else {
     return
   }
-  let dir = args.string_opt("out-dir").unwrap_or("components/examples/output")
-  @fs.mkdir(dir, recursive=true, allow_exist=true) catch {
-    _ => ()
-  }
+  let out_path = args
+    .string_opt("out-dir")
+    .unwrap_or("components/examples/output")
   let jobs : Array[(String, @cad.Shape)] = [
     ("revolution-sphere.step", @cad.RevolvedProfile::sphere(10.0).as_shape()),
     (
@@ -64,9 +67,26 @@ async fn main {
       ]).as_shape(),
     ),
   ]
+  if out_path.has_suffix(".step") || out_path.has_suffix(".stp") {
+    let mut design = @cad.Design::new(
+      name="revolution-gallery",
+      documentation="analytic solids of revolution gallery",
+    )
+    for i, job in jobs {
+      let (name, shape) = job
+      let node = shape.with_name(name).translate(x=26.0 * i.to_double())
+      design = @cad.Design::add(design, node)
+    }
+    @cad.Design::write_step(design, Some(out_path), checked=true)
+    @cli.eprintln("wrote " + out_path)
+    return
+  }
+  @fs.mkdir(out_path, recursive=true, allow_exist=true) catch {
+    _ => ()
+  }
   for job in jobs {
     let (name, shape) = job
-    let path = dir + "/" + name
+    let path = out_path + "/" + name
     let design = @cad.Design::new(name~, documentation="analytic revolve")
     let d = @cad.Design::add(design, shape.with_name(name))
     @cad.Design::write_step(d, Some(path), checked=true)
