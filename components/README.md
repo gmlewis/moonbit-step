@@ -74,6 +74,9 @@ moon run components/examples/clamp_shaft_collar -- \
 # SC8UU rod/bearing block (OCCT-evaluated transverse bearing seat)
 moon run components/examples/stock_primitive -- --part sc8uu -o sc8uu.step
 
+# M3 x 4 heat-set insert test boss (Ø7.6 x 8, Ø4.4 x 5 pocket)
+moon run components/examples/stock_primitive -- --part heat-boss -o heat-boss.step
+
 # Counterbored plate and smooth idler
 moon run components/examples/stock_primitive -- \
   --part counterbore --width 50 --height 40 --plateThickness 8 \
@@ -243,7 +246,7 @@ use `--headless`.
 | `profiles` | Generic T-slot sections, the vendor 2020 B-slot6 A section, OpenBuilds-compatible V-Slot 2020/2040 sections, the MakerBeam 10 x 10 section, a gusseted V-Slot corner bracket, P1000-style strut channel, and a generic channel nut. |
 | `motion` | Shafts, stepped/keyed shafts, spacers and V-Slot wheel spacers (plain and eccentric), bushings, plain, set-screw, and clamp shaft collars, keys, dowel pins, standoffs, compression springs, ball bearings (envelope, shielded, and full-complement deep-groove), LM-series linear bushings, flanged linear housings, UCP-series pillow-block bearing boundaries, approximated GT2 timing pulleys, smooth idlers, V-Slot wheels, EMT tubing with end caps and split clamps, rigid couplings, helical beam couplings, and flanged bearing housings. |
 | `motors` | NEMA 17 and NEMA 23 stepper-motor envelopes, mounting interfaces, and NEMA mounting plates. |
-| `stock` | EN 10056 angle sections, configurable flat plate blanks with analytic circular holes and obround slots, counterbored and countersunk plates, bearing-housing plates, tube-to-plate and tube-to-V-Slot adapter brackets, and SC8UU-style rod/bearing blocks. |
+| `stock` | EN 10056 angle sections, configurable flat plate blanks with analytic circular holes and obround slots, counterbored and countersunk plates, bearing-housing plates, tube-to-plate and tube-to-V-Slot adapter brackets, SC8UU-style rod/bearing blocks, and heat-set insert bosses. |
 | `gears` | Involute spur gears, external pairs, and exact-internal-involute planetary sets. |
 | `planetary` | Fully parametric herringbone planetary gearbox (sun, equally spaced planets, inward-facing ring) with every generator option as a parameter, exact line/arc extrusions when `num_elbows` is 0, and otherwise the true helical twist of each elbow as smooth ruled B-spline flanks with sharp piecewise-linear elbow creases; named mate connectors on every gear. |
 | `assemblies` | Rigid placements, linear/circular patterns, hardware kits, extrusion frames, bolted joints, collision/contact reports, connectivity checks. |
@@ -455,6 +458,13 @@ frames, and plates expose face and per-hole frames.
   envelope, surface inventory, and nominal volume. The bearing and rod are
   separate parts. Use `write_step_evaluated` for the real mounting bores; no
   load, life, or mounting-strength rating is implied.
+- The M3 x 4 heat-set test boss reproduces the CC BY 4.0 Xem Studio reference:
+  Ø7.6 x 8 mm, a Ø4.4 x 5 mm blind pocket opening at +Z, and a Ø3.4 through
+  screw-clearance bore. Geometry is true-size nominal; insert pocket clearance
+  and fit intent are separate, and a 0.1 mm minimum radial shelf above the
+  clearance bore is a validation default. The insert, thread, and diamond knurl
+  are separate or omitted. No pull-out, torque, boss-strength, or material
+  rating is implied.
 
 ## License
 

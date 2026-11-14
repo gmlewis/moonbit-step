@@ -15,6 +15,10 @@ pub fn bearing_plate(Double, Double, Double, Double, Double, Double, Double, col
 
 pub fn en10056_equal_angle_40x40x4() -> AngleSection
 
+pub fn heat_set_boss(Double, Double, Double, Double, Double, insert_diametral_clearance_mm? : Double, insert_fit? : @cad.Fit, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn heat_set_boss_m3x4(color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
 pub fn plate(Double, Double, Double, holes? : Array[PlateHole], slots? : Array[PlateSlot], detail? : @common.DetailLevel, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
 pub fn plate_with_counterbores(Double, Double, Double, holes~ : Array[CounterboredHole], color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]

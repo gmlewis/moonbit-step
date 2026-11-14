@@ -20,12 +20,13 @@
 /// moon run components/examples/stock_primitive -- \
 ///   --part tube-bracket --tubeOD 17.9324 --tubeClearance 0.5 --width 60 --height 40 -o bracket.step
 /// moon run components/examples/stock_primitive -- --part sc8uu -o sc8uu.step
+/// moon run components/examples/stock_primitive -- --part heat-boss -o heat-boss.step
 /// ```
 async fn main {
   let spec = {
     "part": @cli.opt_string(
       short='p',
-      help="Part: angle (default), plate, counterbore, countersink, tube-bracket, bearing, or sc8uu",
+      help="Part: angle (default), plate, counterbore, countersink, tube-bracket, bearing, sc8uu, or heat-boss",
     ),
     "legA": @cli.opt_double(40.0, help="Angle leg A in mm", min=0.0),
     "legB": @cli.opt_double(40.0, help="Angle leg B in mm", min=0.0),
@@ -128,6 +129,14 @@ async fn main {
   let component = match part_kind {
     "sc8uu" =>
       match @stock.sc8uu_bearing_block() {
+        Ok(c) => c
+        Err(e) => {
+          @cli.eprintln("error: " + e.message())
+          abort("")
+        }
+      }
+    "heat-boss" =>
+      match @stock.heat_set_boss_m3x4() {
         Ok(c) => c
         Err(e) => {
           @cli.eprintln("error: " + e.message())

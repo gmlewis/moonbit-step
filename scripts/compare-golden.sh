@@ -483,6 +483,8 @@ def describe(tool, args):
             )
         if part == "sc8uu":
             return "SC8UU rod/bearing block (OCCT-evaluated)"
+        if part == "heat-boss":
+            return "M3 x 4 heat-set boss"
         return "angle {}x{}x{} L={}".format(
             arg_value(args, "--legA") or "?",
             arg_value(args, "--legB") or "?",

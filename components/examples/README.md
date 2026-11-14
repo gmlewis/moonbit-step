@@ -17,7 +17,7 @@ All programs use millimetres and Z is up.
 | `linear_bearing` | LM-series linear bushing envelope or flanged round housing. |
 | `stepper_motor` | NEMA 17/23 stepper-motor envelope with mounting holes, pilot, and shaft. |
 | `extrusion_hardware` | Extrusion T-nut (M3/M4/M5) or M3 heat-set insert (short/long). |
-| `stock_primitive` | EN 10056-style angle section, flat/counterbored/countersunk plates, a bearing-housing plate, a tube-to-V-Slot bracket, or the CC BY 4.0 SC8UU rod/bearing block (OCCT-evaluated). |
+| `stock_primitive` | EN 10056-style angle section, flat/counterbored/countersunk plates, a bearing-housing plate, a tube-to-V-Slot bracket, the CC BY 4.0 SC8UU rod/bearing block (OCCT-evaluated), or an M3 x 4 heat-set insert boss. |
 | `vslot` | OpenBuilds-compatible V-Slot 2020/2040 profile, V-wheel, slot T-nut, joining plate, gusseted corner bracket, and plain/eccentric wheel spacers. |
 | `tubing` | EMT cut length, EMT end cap, EMT split clamp, plain shaft collar, or tube mount plate adapter. |
 | `idler` | Smooth (toothless) idler with optional annular end flanges. |

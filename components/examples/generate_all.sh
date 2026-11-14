@@ -118,6 +118,8 @@ moon run components/examples/stock_primitive -- \
 moon run components/examples/stock_primitive -- \
   --part plate --width 50 --height 50 --plateThickness 3 \
   -o "$OUT/plate-50x50x3.step"
+moon run components/examples/stock_primitive -- \
+  --part heat-boss -o "$OUT/heat-set-boss-m3x4.step"
 
 echo "Validating generated fixtures..."
 for f in "$OUT"/*.step; do
@@ -196,7 +198,8 @@ for part in vslot-2020x100 vslot-2040x100 vslot-wheel vslot-tnut-m5 \
   vslot-eccentric-spacer plate-counterbore-50x40x8 bearing-plate-od22 \
   idler-flanged-20x10 \
   emt-1-2in-304 shaft-collar-d8 tube-mount-plate \
-  makerbeam-1010-l100 din471-a20 din472-20 clamp-collar-d20 sc8uu-bearing-block; do
+  makerbeam-1010-l100 din471-a20 din472-20 clamp-collar-d20 sc8uu-bearing-block \
+  heat-set-boss-m3x4; do
   python3 "$ROOT/scripts/validate_step.py" --no-mesh "$OUT/$part.step"
 done
 

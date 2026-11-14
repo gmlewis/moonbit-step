@@ -5164,7 +5164,9 @@
       "verdict": "accepted-envelope",
       "review": {
         "automated": "pass",
-        "owner_visual": "pending"
+        "owner_visual": "verified",
+        "date": "2026-11-14",
+        "reason": "owner reported golden 75 LGTM"
       },
       "notes": "The reference is the CC0 Innerscene 5-to-8 mm helical beam coupling: 3 solids (body 12079.7 mm^3 plus two M3 x 12 clamp screws 142.8 mm^3 each; total 12365.3). The body is an OD 25 x 30 sleeve with 45 degree x 0.5 mm outer chamfers, a stepped bore (5 mm from z = 0 to 15, then 8 mm to z = 30), a continuous 0.7 mm helical slit cut through the wall (3 turns at a 3.2 mm pitch), and two clamp hubs (0.8 mm radial slits opening through both end faces, a 3.2 mm clearance hole and a 6.1 mm head counterbore along Y at x = 8, z = 4 and 26) plus two M3 x 12 ISO 4762 clamp screws. The helical slit now has two smooth ruled B-spline walls sampled at 60 cross-sections per turn, matching the reference's 57-face inventory: 33 planes + 20 cylinders + 2 cones + 2 B-splines. The clamp-screw threads are declared by connectors and not modelled. The parametric body is 12086.0 vs the reference body's 12079.7 mm^3 (+0.05%), and the compound totals 12383.208 vs 12365.342 mm^3 (+0.145%). End sections at z = 0.001 and 29.999 match the reference's open-slit area and perimeter. AddOptimal gives both parts a true 25 x 25 x 30 mm bbox; the parametric conservative OCCT bbox is 27 x 27 x 30 mm, while the reference's different B-spline parameterisation inflates its conservative bbox to 35.4186 x 35.4186 x 30 mm. The parametric clamp screws use presentation orange for visibility instead of the reference's near-black style; the sleeve keeps its measured grey. These colours are not material claims. No torque, stiffness, or misalignment rating is implied."
     },
@@ -5318,6 +5320,139 @@
         "reason": "owner reported golden 161 LGTM"
       },
       "notes": "CC BY 4.0 Xem Studio SC8UU block. The parametric and reference solids have the same 34 x 30 x 22 mm bbox, R2 rounds on the four edges parallel to the +Y bearing axis, Ø15 transverse LM8UU seat, four Ø3.3 vertical mounting holes on a 24 x 18 mm pitch, six planes, nine cylinders, square-corner vertex rings at z = 2 and 20, and centred mass. The nominal analytic volume is 16282.89075 mm^3 versus the measured reference's 16282.9 mm^3. The seat's press-fit intent is metadata, not added interference or a retention claim. The rod and bearing are separate parts. The OCCT-evaluated export is the accepted artifact because the flat writer cannot trim the vertical mounting bores. No load, life, or strength rating is implied."
+    },
+    {
+      "fixture_id": "stock/heat-set-boss-m3x4",
+      "part_id": "test_boss_m3x4_xem",
+      "designation": "M3 x 4 heat-set insert test boss",
+      "family": "heat-set boss",
+      "standard": "Xem Studio heat-set insert hole guidance (vendor test boss)",
+      "manufacturer": "Xem Studio",
+      "source_page": "https://xemstudio.com/objects/heat-set-insert-holes/test-boss-m3x4/",
+      "download_url": "https://xemstudio.com/files/hardware/heat-set-insert-holes/test-boss-m3x4.step",
+      "local_filename": "external/heat_set_boss_m3x4_xem.step",
+      "sha256": "03e7eacef649a332a2d15839fde3eed902662b9676f42a005f8ae10ede7a2cab",
+      "byte_size": 15077,
+      "units": "mm",
+      "license": "CC BY 4.0",
+      "license_evidence_url": "https://xemstudio.com/objects/heat-set-insert-holes/test-boss-m3x4/",
+      "declared_dimensions": {
+        "boss_diameter_mm": 7.6,
+        "boss_height_mm": 8.0,
+        "insert_hole_diameter_mm": 4.4,
+        "insert_hole_depth_mm": 5.0,
+        "screw_clearance_diameter_mm": 3.4,
+        "insert_length_mm": 4.0
+      },
+      "measured_dimensions": {
+        "bbox_mm": [
+          7.6,
+          7.6,
+          8.0
+        ],
+        "volume_mm3": 259.653,
+        "solids": 1,
+        "surfaces": {
+          "plane": 3,
+          "cylinder": 3
+        }
+      },
+      "parametric_value": {
+        "bbox_mm": [
+          7.6,
+          7.6,
+          8.0
+        ],
+        "volume_mm3": 259.65263281919636,
+        "solids": 1,
+        "surfaces": {
+          "plane": 3,
+          "cylinder": 3
+        },
+        "source": "components/examples/stock_primitive --part heat-boss"
+      },
+      "generation": {
+        "tool": "components/examples/stock_primitive",
+        "args": [
+          "--part",
+          "heat-boss",
+          "-o",
+          "{out}"
+        ],
+        "output": "heat-set-boss-m3x4.step"
+      },
+      "comparison": {
+        "solids": 1,
+        "bbox_axes": [
+          {
+            "axis": 0,
+            "expected_mm": 7.6,
+            "label": "boss diameter"
+          },
+          {
+            "axis": 1,
+            "expected_mm": 7.6,
+            "label": "boss diameter"
+          },
+          {
+            "axis": 2,
+            "expected_mm": 8.0,
+            "label": "boss height"
+          }
+        ],
+        "volume_mm3": 259.65263281919636,
+        "volume_relative_tol": 0.0001,
+        "mass_properties": {
+          "center_of_mass_mm": [
+            0.0,
+            0.0,
+            3.82305
+          ],
+          "center_of_mass_tol_mm": 0.001
+        },
+        "features": [
+          {
+            "kind": "surface_min",
+            "surface": "plane",
+            "min_count": 3
+          },
+          {
+            "kind": "surface_min",
+            "surface": "cylinder",
+            "min_count": 3
+          },
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 3.8,
+            "tol_mm": 0.01
+          },
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 2.2,
+            "tol_mm": 0.01
+          },
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 1.7,
+            "tol_mm": 0.01
+          }
+        ],
+        "surface_deviation": {
+          "reference": "external",
+          "max_mm": 0.001,
+          "deflection_mm": 0.05,
+          "samples": 4000
+        }
+      },
+      "verdict": "accepted-exact",
+      "committed": false,
+      "review": {
+        "automated": "pass",
+        "owner_visual": "verified",
+        "date": "2026-11-14",
+        "reason": "owner reported golden 73 LGTM"
+      },
+      "notes": "CC BY 4.0 Xem Studio M3 x 4 heat-set test boss. True-size nominal geometry: Ø7.6 x 8 mm boss, Ø4.4 x 5 mm blind insert pocket opening at +Z, and a Ø3.4 through screw-clearance bore. The reference and parametric part are each one solid with six faces (3 planes + 3 cylinders), identical bbox, volume 259.6526328 mm3, centre of mass, and sampled surface deviation. The insert pocket's fit is declared separately from its nominal diametral clearance; the minimum 0.1 mm radial shelf is a geometric validation default, not a vendor tolerance or retention claim. The insert body, thread, and diamond knurl are separate or omitted. No pull-out, torque, boss-strength, or material rating is implied."
     }
   ],
   "golden_source": {
