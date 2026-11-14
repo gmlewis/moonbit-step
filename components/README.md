@@ -205,6 +205,12 @@ moon run components/examples/mechanism_design -- \
   --length 140 --width 24 --pivot 8 -o linkage.step
 moon run components/examples/mechanism_design -- \
   --variant compact -o linkage-compact.step
+
+# Assemble a clevis, rod end, and pin by a named MatePair
+moon run components/examples/mechanism_assembly -- \
+  -o clevis-rod-end.step
+moon run components/examples/mechanism_assembly -- --mode assembly \
+  -o clevis-rod-end-assembly.step
 ```
 
 `components/common` adds an additive parameter/design-family API. Existing
@@ -238,11 +244,16 @@ let part = family.build_values([("length", 140.0)])
 variants and builds only validated parameter sets. `ParamSet::length` returns a
 typed `@cad.Length`; the `*_from_lengths` builders (for example
 `linkage_bar_from_lengths`) make the millimetre unit explicit. Bare `Double`
-dimensions are millimetres.
+dimensions are millimetres. `@mechanisms.linkage_family()` is a ready-made
+family with `compact` and `long` presets; the design example uses it.
 
 `components/examples/mechanism_design` is the design-from-scratch example. It
 runs with `--headless` for agents and `--view` for the owner; see
 [`docs/boundaries.md`](../docs/boundaries.md) for the view/iterate loop.
+`components/examples/mechanism_assembly` shows the interface side: it places a
+rod end in a clevis with a named `MatePair` (`eye-seat` ↔ `eye-bore`), inserts
+the pin through both prongs and the eye, checks connectivity, and can write the
+assembly product structure.
 
 ## Construction systems and commodity tubing
 

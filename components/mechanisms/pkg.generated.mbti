@@ -57,6 +57,8 @@ pub fn linkage_bar(Double, Double, Double, Double, pivot_spacing_mm? : Double, s
 
 pub fn linkage_bar_from_lengths(@cad.Length, @cad.Length, @cad.Length, @cad.Length, pivot_spacing? : @cad.Length, slot_length? : @cad.Length, slot_width? : @cad.Length, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
+pub fn linkage_family() -> Result[@common.DesignFamily, @common.SpecError]
+
 pub fn o_ring(Double, Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
 pub fn o_ring_squeeze_mm(Double, Double) -> Result[Double, @common.SpecError]

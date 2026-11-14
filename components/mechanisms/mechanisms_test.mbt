@@ -75,6 +75,7 @@ test "clevis prongs carry aligned analytic pin bores" {
   assert_true(thread.kind is @common.MateKind::Threaded)
   assert_true(thread.gender is @common.MateGender::Male)
   assert_true(mech_has_connector(part, "fork-face"))
+  assert_true(mech_has_connector(part, "eye-seat"))
   assert_true(part.features().has_omitted("thread"))
 }
 
@@ -219,4 +220,29 @@ test "rod end eye and shank envelope" {
   assert_true(mech_has_connector(part, "rod-thread"))
   assert_true(@mechanisms.rod_end(20.0, 20.0, 8.0, 8.0, 30.0) is Err(_))
   assert_true(@mechanisms.rod_end(20.0, 6.0, 8.0, 20.0, 30.0) is Err(_))
+}
+
+///|
+test "linkage design family builds defaults and named variants" {
+  let family = match @mechanisms.linkage_family() {
+    Ok(f) => f
+    Err(e) => abort(e.message())
+  }
+  assert_eq(family.parameter_names().length(), 6)
+  let part = match family.build_values([]) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  let (x0, x1, y0, y1, _z0, _z1) = part.bounding_box()
+  assert_true(mech_close(x1 - x0, 120.0))
+  assert_true(mech_close(y1 - y0, 24.0))
+  let compact = match family.build_variant("compact") {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  let (cx0, cx1, cy0, cy1, _cz0, _cz1) = compact.bounding_box()
+  assert_true(mech_close(cx1 - cx0, 80.0))
+  assert_true(mech_close(cy1 - cy0, 16.0))
+  assert_true(family.build_values([("length", 500.0)]) is Err(_))
+  assert_true(family.build_values([("unknown", 1.0)]) is Err(_))
 }

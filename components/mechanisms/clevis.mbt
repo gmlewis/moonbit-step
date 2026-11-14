@@ -195,6 +195,21 @@ pub fn clevis(
     )
     .with_connector_unchecked(
       @common.MateConnector::new(
+        "eye-seat",
+        placement=@common.Placement::translation(
+          0.0,
+          0.0,
+          lower_z + prong_thickness_mm,
+        ),
+        axis=(0.0, 0.0, 1.0),
+        kind=@common.MateKind::Datum,
+        diameter_mm=pin_diameter_mm,
+        depth_mm=gap_mm,
+        description="rod-eye seat at the bottom of the fork gap; use an offset to centre an eye",
+      ),
+    )
+    .with_connector_unchecked(
+      @common.MateConnector::new(
         "base-face",
         placement=@common.Placement::translation(0.0, 0.0, 0.0),
         axis=(0.0, 0.0, -1.0),

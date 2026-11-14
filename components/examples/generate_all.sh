@@ -134,6 +134,10 @@ moon run components/examples/mechanism_design -- \
   -o "$OUT/mechanism-design-linkage.step"
 moon run components/examples/mechanism_design -- \
   --variant compact -o "$OUT/mechanism-design-linkage-compact.step"
+moon run components/examples/mechanism_assembly -- \
+  -o "$OUT/mechanism-clevis-rod-end.step"
+moon run components/examples/mechanism_assembly -- --mode assembly \
+  -o "$OUT/assembly-structure/mechanism-clevis-rod-end-assembly.step"
 
 echo "Validating generated fixtures..."
 for f in "$OUT"/*.step; do
@@ -143,6 +147,9 @@ done
 echo "== assembly-structure/kit-M4x20-assembly.step"
 python3 "$ROOT/scripts/validate_step.py" --no-mesh \
   "$OUT/assembly-structure/kit-M4x20-assembly.step"
+echo "== assembly-structure/mechanism-clevis-rod-end-assembly.step"
+python3 "$ROOT/scripts/validate_step.py" --no-mesh \
+  "$OUT/assembly-structure/mechanism-clevis-rod-end-assembly.step"
 
 # Construction-system, tubing, and adapter primitives.
 moon run components/examples/vslot -- \
@@ -246,7 +253,8 @@ for part in vslot-2020x100 vslot-2040x100 vslot-wheel vslot-tnut-m5 \
   mechanism-oldham mechanism-extension-spring mechanism-torsion-spring \
   mechanism-snap mechanism-o-ring mechanism-grooved-shaft \
   mechanism-bracket mechanism-boss mechanism-rack \
-  mechanism-design-linkage mechanism-design-linkage-compact; do
+  mechanism-design-linkage mechanism-design-linkage-compact \
+  mechanism-clevis-rod-end; do
   python3 "$ROOT/scripts/validate_step.py" --no-mesh "$OUT/$part.step"
 done
 

@@ -34,6 +34,7 @@ All programs use millimetres and Z is up.
 | `rivet` | Generic solid rivet (flat cylindrical head plus straight shank). |
 | `mechanism_kit` | One generic mechanism/structural envelope per `--part`: hinge, clevis, pin, rod-end, linkage, rail, carriage, lead-screw, lead-nut, belt, belt-unequal, cam, roller, oldham, extension-spring, torsion-spring, snap, o-ring, grooved-shaft, bracket, boss, or rack. |
 | `mechanism_design` | Design-from-scratch linkage built with the typed `ParamSpec`/`ParamSet`/`DesignFamily` API and the `@cad` primitive DSL, with `compact`/`long` variants, a base plate, and pivot pins. |
+| `mechanism_assembly` | Clevis + rod end + pin assembled by a named `MatePair` between `eye-seat` and `eye-bore`; checks connectivity and writes either the flat STEP or the product/occurrence structure. |
 
 Run `./generate_all.sh` from this directory to regenerate every fixture in
 `output/`. The `output/` directory is generated locally and Git-ignored; its
@@ -65,6 +66,7 @@ python3 scripts/validate_step.py --no-mesh /tmp/linkage.step
 
 # 2. Open the part in SolidCraft (owner).
 ./run-example.sh mechanism_design --length 140 --width 24 --pivot 8 --view
+./run-example.sh mechanism_assembly --view   # clevis + rod end + pin
 
 # 3. Inspect connectors. The sidecar is metadata only.
 STEP_CONNECTOR_SIDECAR=1 moon run components/examples/mechanism_kit -- \
