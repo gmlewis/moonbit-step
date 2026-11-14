@@ -45,13 +45,23 @@ The Blender and glTF backends are available through the CAD API; see
 `./examples/run-example.sh --help` lists the wrapper options, and
 `./examples/run-example.sh 12 -- --help` lists an example's own parameters.
 
-### STEP booleans are nominal
+### CAD kernel boundary: SolidCraft is the engine
 
-`difference()` and `union_all()` concatenate child faces; they do not trim or
-subtract. The output is still a valid closed shell, but overlaps are not
-resolved. `Design::diagnostics()` reports nominal and dropped booleans, and
-checked export refuses error designs. For real trims use the Blender backend or
-the evaluated path:
+This repository is **kernel-free by design**. It authors exact parametric
+intent and deterministic STEP; it does not implement a CAD kernel. **SolidCore /
+SolidCraft is the required CAD engine** and owns boolean trimming, fillets and
+chamfers, tessellation, import of vendor parts, and interactive editing. The
+library stays lightweight on purpose; the engine does the heavy lifting.
+
+`difference()` and `union_all()` therefore concatenate child faces: the flat
+writer emits a valid closed *nominal* shell, not a trimmed solid. That is the
+architecture, not a limitation. Resolve the operation with the engine:
+
+```bash
+./examples/run-example.sh <example> --view   # opens /tmp/<example>.step in SolidCraft
+```
+
+or, for generated artifacts, use the evaluated path:
 
 - `Design::to_csg_step()` writes a real CSG tree (`CSG_SOLID` /
   `BOOLEAN_RESULT`).

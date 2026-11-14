@@ -39,10 +39,15 @@ The `cad` package follows an **intent-based architecture**. Do not revert to eag
    - Maintain the builder pattern (`Shape::new().with_name().translate()`).
    - All transformations should return a new `SceneNode` or `Shape` intent, never mutate the repository directly.
 
-5. **Booleans are nominal in the STEP backend**:
-   - `difference()`/`union_all()` concatenate child faces; they do not trim or
-     subtract. Do not "fix" this by attempting real CSG in the kernel-free
-     writer. Real booleans live in the Blender backend.
+5. **The kernel boundary is deliberate — SolidCraft is the CAD engine**:
+   - This repository is kernel-free **by design**. It authors intent and exact
+     STEP; it does not implement a CAD kernel. **SolidCore / SolidCraft is the
+     required engine** for boolean trimming, fillets/chamfers, tessellation,
+     import of vendor parts, and interactive edits.
+   - `difference()`/`union_all()` concatenate child faces in the flat writer.
+     That is the kernel-free nominal representation, not a defect. Do not
+     "fix" it by attempting real CSG in this repo; resolve it with the engine
+     (`--view`, `Design::write_step_evaluated()`, or SolidCraft).
    - A boolean nested inside another boolean contributes no faces and is
      reported as an error by `Design::diagnostics()`.
    - Designs containing a nominal boolean carry a one-line notice in the STEP

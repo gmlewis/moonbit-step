@@ -337,10 +337,20 @@ outer-seat frames, shafts expose end frames, extrusions expose four face slots
 and end datums, NEMA motors expose mounting, pilot, shaft, rear, and per-hole
 frames, and plates expose face and per-hole frames.
 
+## CAD kernel boundary
+
+This component library is **kernel-free by design**. **SolidCore / SolidCraft
+is the required CAD engine** for boolean trimming, fillets and chamfers,
+tessellation, import of vendor parts, and interactive edits. The flat writer's
+`difference()`/`union_all()` concatenate faces; that nominal representation is
+the architectural contract, not a limitation of the library. Resolve real
+geometry with `write_step_evaluated` (OCCT) or by opening the STEP in
+SolidCraft (`./run-example.sh <example> --view`). A component that needs a
+blind socket or a real trim is built as one closed solid with explicit faces,
+so the flat output is never an untrimmed stack.
+
 ## Limitations
 
-- STEP booleans are nominal: geometry that needs a blind socket or a real trim
-  is built as one closed solid with explicit faces, not as an untrimmed stack.
 - Helical threads use the ISO 68-1 basic profile as a swept ridge. They are not
   tolerance-class threads and omit runout and root relief.
 - Generic T-slot profiles are engineering envelopes, not a claim of
