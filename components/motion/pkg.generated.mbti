@@ -161,6 +161,9 @@ pub(all) struct PillowBlockInsertSize {
   grease_total_height_mm : Double
   grease_barrel_radius_mm : Double
   grease_tip_radius_mm : Double
+  grease_neck_radius_mm : Double
+  grease_shoulder_z_mm : Double
+  grease_barrel_top_mm : Double
 }
 
 pub(all) struct PillowBlockSize {

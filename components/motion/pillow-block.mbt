@@ -30,6 +30,9 @@ pub(all) struct PillowBlockInsertSize {
   grease_total_height_mm : Double
   grease_barrel_radius_mm : Double
   grease_tip_radius_mm : Double
+  grease_neck_radius_mm : Double
+  grease_shoulder_z_mm : Double
+  grease_barrel_top_mm : Double
 }
 
 ///|
@@ -93,9 +96,12 @@ fn pb_insert_ucp204() -> PillowBlockInsertSize {
     set_screw_angles_deg: [270.0, 150.0],
     grease_hex_across_flats_mm: 6.0,
     grease_hex_height_mm: 2.0,
-    grease_total_height_mm: 5.3,
+    grease_total_height_mm: 5.8,
     grease_barrel_radius_mm: 1.9,
     grease_tip_radius_mm: 1.15,
+    grease_neck_radius_mm: 1.5,
+    grease_shoulder_z_mm: 3.8,
+    grease_barrel_top_mm: 4.9,
   }
 }
 
@@ -122,9 +128,12 @@ fn pb_insert_ucp205() -> PillowBlockInsertSize {
     set_screw_angles_deg: [270.0, 150.0],
     grease_hex_across_flats_mm: 6.0,
     grease_hex_height_mm: 2.0,
-    grease_total_height_mm: 5.3,
+    grease_total_height_mm: 5.8,
     grease_barrel_radius_mm: 1.9,
     grease_tip_radius_mm: 1.15,
+    grease_neck_radius_mm: 1.5,
+    grease_shoulder_z_mm: 3.8,
+    grease_barrel_top_mm: 4.9,
   }
 }
 
@@ -211,12 +220,13 @@ const PILLOW_BLOCK_GREASE_SEAT_GAP_MM : Double = 0.05
 const PILLOW_BLOCK_GREASE_SEAT_RADIUS_MM : Double = 2.2
 
 ///|
-/// Measured grease-fitting seat cone angle, degrees.
-const PILLOW_BLOCK_GREASE_SEAT_ANGLE_DEG : Double = 21.25
+/// Measured radius of the spot-faced counterbore the grease fitting sits in,
+/// millimetres.
+const PILLOW_BLOCK_GREASE_BOSS_RADIUS_MM : Double = 3.6
 
 ///|
-/// Measured grease-fitting tip cone angle, degrees.
-const PILLOW_BLOCK_GREASE_TIP_ANGLE_DEG : Double = 39.81
+/// Depth of the spot-faced counterbore below the crown apex, millimetres.
+const PILLOW_BLOCK_GREASE_BOSS_DEPTH_MM : Double = 0.5
 
 ///|
 /// pillow_block_bearing builds a UCP-series pillow-block bearing.
@@ -245,7 +255,7 @@ pub fn pillow_block_bearing(
   size : PillowBlockSize,
   detail~ : @common.DetailLevel = @common.DetailLevel::Detailed,
   fit_allowance_mm~ : Double = 0.04,
-  color~ : @cad.Rgb = @cad.Rgb::grey(),
+  color~ : @cad.Rgb = @cad.Rgb::new(0.035, 0.24, 0.09),
   insert_color~ : @cad.Rgb = @cad.Rgb::new(0.30, 0.36, 0.44),
 ) -> Result[@common.Component, @common.SpecError] {
   let insert = size.insert
@@ -356,6 +366,18 @@ pub fn pillow_block_bearing(
     @common.require_positive(
       "pillow block grease tip radius",
       insert.grease_tip_radius_mm,
+    ),
+    @common.require_positive(
+      "pillow block grease neck radius",
+      insert.grease_neck_radius_mm,
+    ),
+    @common.require_positive(
+      "pillow block grease shoulder height",
+      insert.grease_shoulder_z_mm,
+    ),
+    @common.require_positive(
+      "pillow block grease barrel top",
+      insert.grease_barrel_top_mm,
     ),
   ]
   for check in checks {
@@ -543,6 +565,17 @@ pub fn pillow_block_bearing(
       ),
     )
   }
+  if insert.grease_neck_radius_mm >= insert.grease_barrel_radius_mm ||
+    insert.grease_tip_radius_mm >= insert.grease_barrel_radius_mm ||
+    insert.grease_hex_height_mm >= insert.grease_shoulder_z_mm ||
+    insert.grease_shoulder_z_mm >= insert.grease_barrel_top_mm ||
+    insert.grease_barrel_top_mm >= insert.grease_total_height_mm {
+    return Err(
+      @common.InvalidDimension(
+        "pillow block grease-fitting profile is not monotonic",
+      ),
+    )
+  }
   let inner_half = Double::sqrt(
     size.seat_radius_mm * size.seat_radius_mm -
     (size.shaft_height_mm - base_top) * (size.shaft_height_mm - base_top),
@@ -594,11 +627,34 @@ pub fn pillow_block_bearing(
     pb_arch_loop(size, inner_half),
     size.arch_width_mm,
   ).as_shape()
+  let crown = size.shaft_height_mm + size.arch_outer_radius_mm
+  let grease_floor = crown - PILLOW_BLOCK_GREASE_BOSS_DEPTH_MM
+  // The crown carries a measured spot-faced counterbore for the grease fitting.
+  // This cutter is a child of the arch difference, so it lives in the arch's
+  // local frame: local (x, y) = (world X, world Z), local z = axial width.
+  let boss_cutter = @cad.Cylinder::new(
+      2.0 * PILLOW_BLOCK_GREASE_BOSS_RADIUS_MM,
+      PILLOW_BLOCK_GREASE_BOSS_DEPTH_MM + PILLOW_BLOCK_CUTTER_MARGIN_MM,
+    )
+    .with_name("grease-boss-bore")
+    .rotate_x(-90.0)
+    .translate(x=0.0, y=grease_floor, z=size.arch_width_mm / 2.0)
+  let arch_scene = @cad.difference(
+      arch.with_name("arch-body"),
+      [boss_cutter],
+      name="arch",
+    )
+    .rotate_x(90.0)
+    .translate(y=size.arch_width_mm / 2.0)
+  // One housing layer: the base and the arch fuse into the single cast body, so
+  // its layer bounding box matches the evaluated housing solid (and it keeps a
+  // presentation colour).
+  let housing = @cad.union_all([base, arch_scene], name="housing")
   let features = @common.FeatureRecord::new(
     modeled=[
       "housing", "mounting-base", "obround-mounting-slots", "bottom-relief", "arch",
-      "insert-seat-bore", "outer-race-spherical-od", "inner-race-extended", "inner-race-chamfers",
-      "set-screw-holes", "seals", "set-screws", "grease-fitting",
+      "insert-seat-bore", "grease-boss-bore", "outer-race-spherical-od", "inner-race-extended",
+      "inner-race-chamfers", "set-screw-holes", "seals", "set-screws", "grease-fitting",
     ],
     approximated=[],
     omitted=[
@@ -616,7 +672,7 @@ pub fn pillow_block_bearing(
       ),
       @common.Omission::new(
         feature="grease-fitting-thread",
-        reason="the grease fitting is a plain envelope on the crown; its M6 thread is declared by the grease-port connector",
+        reason="the grease fitting is a measured envelope in the crown spot-face; its M6 thread is declared by the grease-port connector",
       ),
       @common.Omission::new(
         feature="tolerance-and-rating",
@@ -625,37 +681,25 @@ pub fn pillow_block_bearing(
     ],
   )
   let mut component = @common.Component::new(
-      name="pillow-block-bearing-\{size.designation.to_lower()}",
-      metadata=@common.Metadata::new(
-        designation="\{size.designation} pillow block bearing, \{@cad.fmt_double(size.shaft_bore_mm, None)} mm shaft",
-        standard="Koyo UCP-series published dimensions (boundary)",
-        family="pillow block bearing",
-        size=size.designation,
-        length_mm=size.length_mm,
-        source="UCP-series pillow-block assembly measured from the CC0 Innerscene references: cast housing with two obround base slots and an insert seat, plus a self-aligning insert bearing (spherical-OD outer race, extended inner race with two set screws, contact seals) and a grease fitting. Rolling elements and cage are omitted.",
-      ),
-      description="UCP-series pillow-block bearing: a trimmed housing (base plate with obround mounting slots and bottom relief, plus a horseshoe arch around the insert seat) and a self-aligning insert bearing (spherical-OD outer race, extended inner race with set screws, two contact seals, two DIN 916 set screws) with a grease fitting. The declared seat fit is metadata; no load, life, or safety claim is made.",
-      features~,
-    )
-    .add_layer(base.shape_intent(), name="housing", color~)
-    .add_layer(
-      arch,
-      name="arch",
-      color~,
-      placement=@common.Placement::at(
-        0.0,
-        size.arch_width_mm / 2.0,
-        0.0,
-        rx=90.0,
-      ),
-    )
+    name="pillow-block-bearing-\{size.designation.to_lower()}",
+    metadata=@common.Metadata::new(
+      designation="\{size.designation} pillow block bearing, \{@cad.fmt_double(size.shaft_bore_mm, None)} mm shaft",
+      standard="Koyo UCP-series published dimensions (boundary)",
+      family="pillow block bearing",
+      size=size.designation,
+      length_mm=size.length_mm,
+      source="UCP-series pillow-block assembly measured from the CC0 Innerscene references: cast housing with two obround base slots and an insert seat, plus a self-aligning insert bearing (spherical-OD outer race, extended inner race with two set screws, contact seals) and a grease fitting. Rolling elements and cage are omitted.",
+    ),
+    description="UCP-series pillow-block bearing: a trimmed housing (base plate with obround mounting slots and bottom relief, plus a horseshoe arch with a spot-faced grease-fitting bore around the insert seat) and a self-aligning insert bearing (spherical-OD outer race, extended inner race with set screws, two contact seals, two DIN 916 set screws) with a measured grease fitting. The declared seat fit is metadata; no load, life, or safety claim is made.",
+    features~,
+  ).add_layer(housing.shape_intent(), name="housing", color~)
   let detailed = detail is @common.DetailLevel::Detailed ||
     detail is @common.DetailLevel::FullyModeled
-  let outer_race_color = @cad.Rgb::new(0.34, 0.37, 0.40)
-  let inner_race_color = @cad.Rgb::new(0.42, 0.45, 0.49)
-  let seal_color = @cad.Rgb::new(0.05, 0.06, 0.07)
-  let screw_color = @cad.Rgb::new(0.20, 0.22, 0.25)
-  let grease_color = @cad.Rgb::new(0.62, 0.52, 0.28)
+  let outer_race_color = @cad.Rgb::new(0.36, 0.40, 0.45)
+  let inner_race_color = @cad.Rgb::new(0.36, 0.40, 0.45)
+  let seal_color = @cad.Rgb::new(0.025, 0.03, 0.035)
+  let screw_color = @cad.Rgb::new(0.07, 0.085, 0.105)
+  let grease_color = @cad.Rgb::new(0.64, 0.40, 0.12)
   if detailed {
     let outer_race = pb_outer_race_profile(insert).as_shape()
     let inner_base = @cad.RevolvedProfile::chamfered_tube(
@@ -703,8 +747,14 @@ pub fn pillow_block_bearing(
       insert.grease_hex_height_mm,
     ).as_shape()
     let grease_nipple = pb_grease_nipple_profile(insert).as_shape()
-    let crown = size.shaft_height_mm + size.arch_outer_radius_mm
-    let grease_z = crown + PILLOW_BLOCK_GREASE_SEAT_GAP_MM
+    let grease_z = grease_floor + PILLOW_BLOCK_GREASE_SEAT_GAP_MM
+    let grease_part = @cad.union_all(
+      [
+        grease_hex.with_name("grease-hex-body").translate(z=grease_z),
+        grease_nipple.with_name("grease-nipple-body").translate(z=grease_z),
+      ],
+      name="grease-fitting",
+    )
     component = component
       .add_layer(
         outer_race,
@@ -751,16 +801,9 @@ pub fn pillow_block_bearing(
         ),
       )
       .add_layer(
-        grease_hex,
-        name="grease-hex",
+        grease_part.shape_intent(),
+        name="grease-fitting",
         color=grease_color,
-        placement=@common.Placement::translation(0.0, 0.0, grease_z),
-      )
-      .add_layer(
-        grease_nipple,
-        name="grease-nipple",
-        color=grease_color,
-        placement=@common.Placement::translation(0.0, 0.0, grease_z),
       )
     for i in 0..<insert.set_screw_angles_deg.length() {
       let angle = insert.set_screw_angles_deg[i]
@@ -890,27 +933,29 @@ fn pb_radial_hole_local(
 }
 
 ///|
-/// pb_grease_nipple_profile builds the grease fitting's cylindrical nipple and
-/// conical tip as a solid of revolution about the crown axis. Its base sits at
-/// the fitting's base plane; the hex body overlaps it.
+/// pb_grease_nipple_profile builds the grease fitting's measured barrel/tip
+/// profile as a solid of revolution about the crown axis: a seat cone, a
+/// shoulder step, a short barrel, and a tapered tip with a flat top. Its base
+/// sits at the fitting's base plane; the hex body overlaps it.
 fn pb_grease_nipple_profile(
   insert : PillowBlockInsertSize,
 ) -> @cad.RevolvedProfile {
-  let rb = insert.grease_barrel_radius_mm
-  let rt = insert.grease_tip_radius_mm
+  let seat = PILLOW_BLOCK_GREASE_SEAT_RADIUS_MM
+  let neck = insert.grease_neck_radius_mm
+  let shoulder = insert.grease_barrel_radius_mm
+  let shoulder_z = insert.grease_shoulder_z_mm
+  let barrel_top = insert.grease_barrel_top_mm
+  let tip = insert.grease_tip_radius_mm
   let total = insert.grease_total_height_mm
-  let seat_angle = PILLOW_BLOCK_GREASE_SEAT_ANGLE_DEG * @math.PI / 180.0
-  let tip_angle = PILLOW_BLOCK_GREASE_TIP_ANGLE_DEG * @math.PI / 180.0
-  let seat_top = (PILLOW_BLOCK_GREASE_SEAT_RADIUS_MM - rb) /
-    @math.tan(seat_angle)
-  let tip_len = (rb - rt) / @math.tan(tip_angle)
-  let barrel_top = total - tip_len
+  let hex_top = insert.grease_hex_height_mm
   @cad.RevolvedProfile::new([
-    @cad.RevLine((0.0, 0.0), (PILLOW_BLOCK_GREASE_SEAT_RADIUS_MM, 0.0)),
-    @cad.RevLine((PILLOW_BLOCK_GREASE_SEAT_RADIUS_MM, 0.0), (rb, seat_top)),
-    @cad.RevLine((rb, seat_top), (rb, barrel_top)),
-    @cad.RevLine((rb, barrel_top), (rt, total)),
-    @cad.RevLine((rt, total), (0.0, total)),
+    @cad.RevLine((0.0, 0.0), (seat, 0.0)),
+    @cad.RevLine((seat, 0.0), (seat, hex_top)),
+    @cad.RevLine((seat, hex_top), (neck, shoulder_z)),
+    @cad.RevLine((neck, shoulder_z), (shoulder, shoulder_z)),
+    @cad.RevLine((shoulder, shoulder_z), (shoulder, barrel_top)),
+    @cad.RevLine((shoulder, barrel_top), (tip, total)),
+    @cad.RevLine((tip, total), (0.0, total)),
   ])
 }
 
@@ -1116,13 +1161,17 @@ fn with_pillow_block_connectors(
     out = out.with_connector_unchecked(
       @common.MateConnector::new(
         "grease-port",
-        placement=@common.Placement::translation(0.0, 0.0, crown),
+        placement=@common.Placement::translation(
+          0.0,
+          0.0,
+          crown - PILLOW_BLOCK_GREASE_BOSS_DEPTH_MM,
+        ),
         axis=(0.0, 0.0, 1.0),
         kind=@common.MateKind::Threaded,
         gender=@common.MateGender::Female,
         diameter_mm=6.0,
         depth_mm=insert.grease_hex_height_mm,
-        description="M6 grease-fitting port on the crown; the fitting is a plain envelope and the thread is declared, not modelled",
+        description="M6 grease-fitting port in the crown spot-face; the fitting is a measured envelope and the thread is declared, not modelled",
       ),
     )
   }

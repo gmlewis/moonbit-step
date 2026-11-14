@@ -4673,12 +4673,12 @@
           38.0,
           70.35
         ],
-        "volume_mm3": 110391.8492,
+        "volume_mm3": 110378.39,
         "solids": 8,
         "surfaces": {
-          "plane": 59,
-          "cylinder": 27,
-          "cone": 5,
+          "plane": 61,
+          "cylinder": 28,
+          "cone": 6,
           "sphere": 1
         },
         "source": "components/examples/motion_stack --part pillow-block --pillowBlock UCP204"
@@ -4714,7 +4714,7 @@
             "label": "overall height (housing crown + grease fitting)"
           }
         ],
-        "volume_mm3": 110391.8492,
+        "volume_mm3": 110378.39,
         "volume_relative_tol": 0.01,
         "features": [
           {
@@ -4787,9 +4787,11 @@
       "verdict": "accepted-envelope",
       "review": {
         "automated": "pass",
-        "owner_visual": "pending"
+        "owner_visual": "verified",
+        "date": "2026-11-14",
+        "reason": "owner reported both UCP204 and UCP205 look perfect"
       },
-      "notes": "The reference is the CC0 Innerscene UCP204 pillow block, an 8-solid assembly (housing 84287.6 mm^3, spherical-OD outer race 12160.1, extended inner race 13305.5, two seals 162.9 each, two DIN 916 M6 set screws 98.3 each, grease fitting 101.1; total 110376.6 mm^3). This library reproduces the same 8-part assembly. The housing is the base plate (127 x 38 x 16 mm, two 18 x 13 mm obround mounting slots on the 95 mm bolt pitch, 3.99 mm deep bottom centre relief, R3 corners) fused with the horseshoe arch (24 mm wide, r 31.7 mm crown, r 23.54 mm insert seat); the insert is a self-aligning outer race (spherical r 23.5 mm outside diameter, 34 mm bore, 16 mm wide), an extended inner race (31 mm outside diameter, 20 mm bore, 31 mm wide, 0.45 mm rim chamfers) with two 6.1 mm radial set-screw holes 120 degrees apart, two 1.1 mm contact seals, two DIN 916 M6 x 4 set screws, and a hex grease fitting on the crown. The parts sit at the reference's 0.025-0.05 mm clearances, so the OCCT-evaluated compound is 8 separate solids: bbox 127 x 38 x 70.35 mm, volume 110391.85 vs 110376.60 mm^3 (0.014%), 59 planes + 27 cylinders + 5 cones + 1 sphere. The parametric housing is 84306.3 vs the reference housing's 84287.6 mm^3 (0.02%); the outer race and seals match the reference exactly and the inner race is within 3 mm^3. Rolling elements and cage are omitted; the seat and shaft clearances are declared by connectors. The OCCT-evaluated compound is the primary artifact because the flat writer cannot trim the relief, seat bore, or set-screw holes. No load, life, or safety claim is made."
+      "notes": "The reference is the CC0 Innerscene UCP204 pillow block, an 8-solid assembly (housing 84287.6 mm^3, spherical-OD outer race 12160.1, extended inner race 13305.5, two seals 162.9 each, two DIN 916 M6 set screws 98.3 each, grease fitting 101.1; total 110376.6 mm^3). This library reproduces the same 8-part assembly. The housing is the base plate (127 x 38 x 16 mm, two 18 x 13 mm obround mounting slots on the 95 mm bolt pitch, 3.99 mm deep bottom centre relief, R3 corners) fused with the horseshoe arch (24 mm wide, r 31.7 mm crown, r 23.54 mm insert seat); the insert is a self-aligning outer race (spherical r 23.5 mm outside diameter, 34 mm bore, 16 mm wide), an extended inner race (31 mm outside diameter, 20 mm bore, 31 mm wide, 0.45 mm rim chamfers) with two 6.1 mm radial set-screw holes 120 degrees apart, two 1.1 mm contact seals, two DIN 916 M6 x 4 set screws, and a hex grease fitting on the crown. The crown carries the measured 7.2 mm spot-faced counterbore the fitting sits in. The parts sit at the reference's 0.025-0.05 mm clearances, so the OCCT-evaluated compound is 8 separate solids: bbox 127 x 38 x 70.35 mm, volume 110378.39 vs 110376.60 mm^3 (0.0016%), 61 planes + 28 cylinders + 6 cones + 1 sphere. The parametric housing is 84288.0 vs the reference housing's 84287.6 mm^3; the outer race, seals, and grease fitting match the reference exactly and the inner race is within 3 mm^3. The evaluated compound carries the reference's per-body presentation colours (dark-green housing, blue-grey races, near-black seals and set screws, brass fitting). Rolling elements and cage are omitted; the seat and shaft clearances are declared by connectors. The OCCT-evaluated compound is the primary artifact because the flat writer cannot trim the relief, seat bore, boss bore, or set-screw holes. No load, life, or safety claim is made."
     },
     {
       "fixture_id": "motion/pillow-block-ucp205",
@@ -4863,12 +4865,12 @@
           38.8,
           75.35
         ],
-        "volume_mm3": 129565.8592,
+        "volume_mm3": 129552.2,
         "solids": 8,
         "surfaces": {
-          "plane": 59,
-          "cylinder": 27,
-          "cone": 5,
+          "plane": 61,
+          "cylinder": 28,
+          "cone": 6,
           "sphere": 1
         },
         "source": "components/examples/motion_stack --part pillow-block --pillowBlock UCP205"
@@ -4904,7 +4906,7 @@
             "label": "overall height (housing crown + grease fitting)"
           }
         ],
-        "volume_mm3": 129565.8592,
+        "volume_mm3": 129552.2,
         "volume_relative_tol": 0.01,
         "features": [
           {
@@ -4977,9 +4979,11 @@
       "verdict": "accepted-envelope",
       "review": {
         "automated": "pass",
-        "owner_visual": "pending"
+        "owner_visual": "verified",
+        "date": "2026-11-14",
+        "reason": "owner reported both UCP204 and UCP205 look perfect"
       },
-      "notes": "The reference is the CC0 Innerscene UCP205 pillow block, an 8-solid assembly (housing 96758.0 mm^3, spherical-OD outer race 14508.9, extended inner race 17611.4, two seals 187.9 each, two DIN 916 M6 set screws 98.3 each, grease fitting 101.1; total 129551.8 mm^3). This library reproduces the same 8-part assembly as UCP204 with the UCP205 dimensions. The housing is the base plate (140 x 38 x 16 mm, two 18 x 13 mm obround mounting slots on the 105 mm bolt pitch, 3.99 mm deep bottom centre relief, R3 corners) fused with the horseshoe arch (26 mm wide, r 33.5 mm crown, r 26.04 mm insert seat); the insert is a self-aligning outer race (spherical r 26.0 mm outside diameter, 39 mm bore, 17 mm wide), an extended inner race (36 mm outside diameter, 25 mm bore, 34.1 mm wide, 0.45 mm rim chamfers) with two 6.1 mm radial set-screw holes 120 degrees apart, two 1.1 mm contact seals, two DIN 916 M6 x 4 set screws, and a hex grease fitting on the crown. The parts sit at the reference's 0.025-0.05 mm clearances, so the OCCT-evaluated compound is 8 separate solids: bbox 140 x 38.8 x 75.35 mm (the +0.8 mm is the extended inner race), volume 129565.86 vs 129551.81 mm^3 (0.011%), 59 planes + 27 cylinders + 5 cones + 1 sphere. The parametric housing is 96777.0 vs the reference housing's 96758.0 mm^3 (0.02%); the outer race and seals match the reference exactly. Rolling elements and cage are omitted; the seat and shaft clearances are declared by connectors. The OCCT-evaluated compound is the primary artifact. No load, life, or safety claim is made."
+      "notes": "The reference is the CC0 Innerscene UCP205 pillow block, an 8-solid assembly (housing 96758.0 mm^3, spherical-OD outer race 14508.9, extended inner race 17611.4, two seals 187.9 each, two DIN 916 M6 set screws 98.3 each, grease fitting 101.1; total 129551.8 mm^3). This library reproduces the same 8-part assembly as UCP204 with the UCP205 dimensions. The housing is the base plate (140 x 38 x 16 mm, two 18 x 13 mm obround mounting slots on the 105 mm bolt pitch, 3.99 mm deep bottom centre relief, R3 corners) fused with the horseshoe arch (26 mm wide, r 33.5 mm crown, r 26.04 mm insert seat); the insert is a self-aligning outer race (spherical r 26.0 mm outside diameter, 39 mm bore, 17 mm wide), an extended inner race (36 mm outside diameter, 25 mm bore, 34.1 mm wide, 0.45 mm rim chamfers) with two 6.1 mm radial set-screw holes 120 degrees apart, two 1.1 mm contact seals, two DIN 916 M6 x 4 set screws, and a hex grease fitting on the crown, in the measured 7.2 mm spot-faced counterbore. The parts sit at the reference's 0.025-0.05 mm clearances, so the OCCT-evaluated compound is 8 separate solids: bbox 140 x 38.8 x 75.35 mm (the +0.8 mm is the extended inner race), volume 129552.2 vs 129551.81 mm^3 (0.0003%), 61 planes + 28 cylinders + 6 cones + 1 sphere. The parametric housing is 96777.0 vs the reference housing's 96758.0 mm^3; the outer race, seals, and grease fitting match the reference exactly. The evaluated compound carries the reference's per-body presentation colours. Rolling elements and cage are omitted; the seat and shaft clearances are declared by connectors. The OCCT-evaluated compound is the primary artifact. No load, life, or safety claim is made."
     }
   ],
   "golden_source": {

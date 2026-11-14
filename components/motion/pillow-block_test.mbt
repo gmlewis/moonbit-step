@@ -48,6 +48,10 @@ test "UCP-series size table" {
   assert_true(pb_close(ucp204.insert.inner_race_bore_radius_mm, 10.0))
   assert_true(pb_close(ucp204.insert.inner_race_width_mm, 31.0))
   assert_true(pb_close(ucp204.insert.seal_outer_radius_mm, 16.975))
+  assert_true(pb_close(ucp204.insert.grease_neck_radius_mm, 1.5))
+  assert_true(pb_close(ucp204.insert.grease_shoulder_z_mm, 3.8))
+  assert_true(pb_close(ucp204.insert.grease_barrel_top_mm, 4.9))
+  assert_true(pb_close(ucp204.insert.grease_total_height_mm, 5.8))
   assert_eq(ucp204.insert.set_screw_angles_deg.length(), 2)
   let ucp205 = match @motion.pillow_block_size("UCP205") {
     Ok(s) => s
@@ -75,9 +79,9 @@ test "UCP204 detailed assembly has the measured envelope and interfaces" {
     Ok(c) => c
     Err(e) => abort(e.message())
   }
-  // Housing (base + arch), outer race, inner race, two seals, grease hex and
-  // nipple, and two set screws.
-  assert_eq(part.layers().length(), 10)
+  // Housing (fused base + arch), outer race, inner race, two seals, grease
+  // fitting (fused hex + nipple), and two set screws.
+  assert_eq(part.layers().length(), 8)
   let (x0, x1, y0, y1, z0, z1) = part.bounding_box()
   assert_true(pb_close(x0, -63.5))
   assert_true(pb_close(x1, 63.5))
@@ -103,12 +107,15 @@ test "UCP204 detailed assembly has the measured envelope and interfaces" {
   assert_true(pb_has(part, "set-screw-1"))
   assert_true(pb_has(part, "set-screw-2"))
   assert_true(pb_has(part, "grease-port"))
+  let port = pb_connector(part, "grease-port")
+  // The port sits at the spot-face floor, 0.5 mm below the crown apex.
+  assert_true(pb_close(port.placement.trans.2, 64.5))
   let screw = pb_connector(part, "set-screw-1")
   assert_true(screw.kind is @common.MateKind::Threaded)
   for
     name in [
-      "housing", "mounting-base", "arch", "insert-seat-bore", "outer-race-spherical-od",
-      "inner-race-extended", "seals", "set-screws", "grease-fitting",
+      "housing", "mounting-base", "arch", "insert-seat-bore", "grease-boss-bore",
+      "outer-race-spherical-od", "inner-race-extended", "seals", "set-screws", "grease-fitting",
     ] {
     assert_true(part.features().modeled.contains(name))
   }
@@ -153,7 +160,7 @@ test "UCP204 simplified envelope collapses to two solids" {
     Ok(c) => c
     Err(e) => abort(e.message())
   }
-  assert_eq(part.layers().length(), 3)
+  assert_eq(part.layers().length(), 2)
   let (_x0, _x1, _y0, _y1, _z0, z1) = part.bounding_box()
   assert_true(pb_close(z1, 65.0))
   assert_true(pb_has(part, "shaft-bore"))
