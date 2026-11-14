@@ -2,12 +2,38 @@
 # Regenerate every component fixture and run the repository STEP validator on
 # each flat part/assembly. OCCT (DRAWEXE or occt-draw) and gmsh are optional;
 # they are used automatically when present.
+#
+# Usage: ./generate_all.sh [--clean] [--no-evaluated]
+#   --clean         remove prior generated STEP/STL/SVG/PNG files under output/
+#                   before regenerating (recommended after changing builders)
+#   --no-evaluated  skip the slow OCCT-evaluated mechanism fixtures
 set -euo pipefail
 
 SCRIPT_DIR="$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 OUT="$ROOT/components/examples/output"
+CLEAN=0
+EVALUATED=1
+for arg in "$@"; do
+  case "$arg" in
+    --clean) CLEAN=1 ;;
+    --no-evaluated) EVALUATED=0 ;;
+    -h | --help)
+      sed -n '6,9p' "$0"
+      exit 0
+      ;;
+    *)
+      echo "unknown option: $arg (use --clean or --no-evaluated)" >&2
+      exit 2
+      ;;
+  esac
+done
 mkdir -p "$OUT" "$OUT/assembly-structure"
+if [ "$CLEAN" -eq 1 ]; then
+  rm -f "$OUT"/*.step "$OUT"/*.stl "$OUT"/*.svg "$OUT"/*.png
+  rm -f "$OUT/assembly-structure"/*.step
+  rm -rf "$OUT/views"
+fi
 cd "$ROOT"
 
 moon run components/examples/fasteners -- --catalog "$OUT"
@@ -279,7 +305,7 @@ done
 
 # OCCT-evaluated mechanism fixtures: fuse the layered bodies into one trimmed
 # manifold and run the full validator (including tessellation).
-if command -v python3 >/dev/null 2>&1 &&
+if [ "$EVALUATED" -eq 1 ] && command -v python3 >/dev/null 2>&1 &&
   { command -v DRAWEXE >/dev/null 2>&1 ||
     command -v occt-draw >/dev/null 2>&1; }; then
   for part in hinge rail carriage bracket oldham; do
@@ -288,7 +314,7 @@ if command -v python3 >/dev/null 2>&1 &&
     python3 "$ROOT/scripts/validate_step.py" "$OUT/mechanism-$part-evaluated.step"
   done
 else
-  echo "skipping evaluated mechanism fixtures: evaluated export needs python3 and OCCT" >&2
+  echo "skipping evaluated mechanism fixtures: --no-evaluated or OCCT unavailable" >&2
 fi
 
 echo "Independent frame geometry validation (OCCT, optional)..."

@@ -97,6 +97,28 @@ The `cad` package follows an **intent-based architecture**. Do not revert to eag
 - Note that an agent should _NEVER_ have to call `./update.sh` as that is used
   by the package maintainer when it is known that external dependencies have been updated.
 
+### Disk usage
+
+Keep the working tree light. `moon` rebuilds quickly, so build caches and
+generated artifacts are disposable.
+
+- Do **not** run the full `components/examples/generate_all.sh` after every
+  change. Validate the changed artifact(s) directly, e.g.
+  `moon run components/examples/mechanism_kit -- --part <name> -o /tmp/<name>.step`
+  followed by `python3 scripts/validate_step.py --no-mesh /tmp/<name>.step`.
+  Run the full generator only at a meaningful checkpoint or when asked.
+- When a full generation is needed, use `generate_all.sh --clean
+  --no-evaluated` for routine runs; `--clean` removes stale generated files and
+  `--no-evaluated` skips the slow, large OCCT-evaluated fixtures.
+- `_build/` (the MoonBit build cache) can grow to gigabytes. Delete
+  `_build/` and `components/examples/output/` when they are large; both are
+  generated and safe to remove. Do not leave multi-gigabyte caches or repeated
+  generated copies around.
+- Write ad-hoc validation STEP/PNG/STL files to `/tmp`, not into the repository.
+  Never commit generated artifacts.
+- Do not use OCCT/DRAWEXE tessellation or the evaluated export path unless the
+  task needs it; they are the slowest and largest steps.
+
 ## Documentation
 
 - Committed Markdown is for end users and agents using the repository, not a
