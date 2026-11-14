@@ -44,13 +44,16 @@ test "SC8UU bearing block envelope and both mating interfaces" {
 test "SC8UU nominal volume is independent of the implementation" {
   let part = sc8uu_test_part()
   let corner_radius = 2.0
-  let outline_area = 34.0 * 30.0 -
+  let outline_area = 34.0 * 22.0 -
     (4.0 - 3.141592653589793) * corner_radius * corner_radius
-  let expected = outline_area * 22.0 -
+  let expected = outline_area * 30.0 -
     3.141592653589793 * 7.5 * 7.5 * 30.0 -
     4.0 * 3.141592653589793 * 1.65 * 1.65 * 22.0
-  assert_true(stock_close(expected, 16310.359782636084))
+  assert_true(stock_close(expected, 16282.890747550957))
   assert_true(part.features().modeled.contains("bearing-seat"))
+  assert_true(
+    part.features().modeled.contains("bearing-parallel-corner-rounds"),
+  )
   assert_true(part.features().modeled.contains("four-mounting-holes"))
 }
 

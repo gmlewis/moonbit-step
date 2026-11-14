@@ -780,7 +780,7 @@ pub fn Shape::bounding_box(
       }
       (x0, x1, y0, y1, 0.0, e.height_mm)
     }
-    Difference(d) => d.base.shape.bounding_box()
+    Difference(d) => d.base.bounding_box()
     Fillet(f) => f.base.bounding_box()
     Chamfer(c) => c.base.bounding_box()
     SweptProfile(s) => {

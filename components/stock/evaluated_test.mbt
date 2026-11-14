@@ -160,7 +160,7 @@ async test "SC8UU block evaluates to one solid with five through bores" {
     _ => fail("invalid measurement JSON")
   }
   assert_true(evl_json_number(doc, "solids") == 1.0)
-  assert_true((evl_json_number(doc, "volume") - 16310.359782636084).abs() < 0.5)
+  assert_true((evl_json_number(doc, "volume") - 16282.890747550957).abs() < 0.5)
   let bbox = evl_json_array(doc, "bbox")
   assert_eq(bbox.length(), 6)
   let extents : Array[Double] = [

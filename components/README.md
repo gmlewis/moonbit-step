@@ -381,10 +381,10 @@ frames, and plates expose face and per-hole frames.
   bore, a continuous 0.7 mm helical slit through the wall (3 turns at a 3.2 mm
   pitch), and two clamp hubs (0.8 mm axial radial slits with a 3.2 mm clearance
   hole, a 6.1 mm head counterbore along Y, and two M3 x 12 ISO 4762 clamp
-  screws). The helical slit is a 48-segments-per-turn polyline approximation of
-  the reference's two B-spline helicoid walls (chord deviation < 0.03 mm); the
-  body is within 0.3% of the reference volume and the three-solid compound is
-  within 0.4%. The clamp-screw threads are declared by connectors, never
+  screws). The helical slit has two smooth ruled B-spline walls sampled at 60
+  cross-sections per turn, and each clamp slit opens through its end face. The
+  body is within 0.09% of the reference volume and the three-solid compound is
+  within 0.18%. The clamp-screw threads are declared by connectors, never
   modelled. No torque, torsional stiffness, or misalignment rating is implied.
 - Extrusion T-nuts use one generic hex body for every catalogued retention
   style. The bore is a thread envelope; spring balls and style-specific
@@ -445,13 +445,13 @@ frames, and plates expose face and per-hole frames.
   pilot clearance bore. Plate size, thickness, and clearance are caller
   parameters; no stiffness or strength rating is implied.
 - SC8UU-style rod/bearing blocks reproduce the CC BY 4.0 Xem Studio reference:
-  34 x 30 x 22 mm, R2 vertical corners, a nominal Ø15 LM8UU seat along Y, and
-  four Ø3.3 mounting holes on a 24 x 18 mm pitch. The matching rod interface is
-  Ø8. Seat clearance is a separate diametral parameter; press/free-fit intent is
-  connector metadata and does not add a tolerance or imply retention strength.
-  The reference and model share the same envelope and surface inventory; the
-  nominal analytic volume is 0.169% above the reference. The bearing and rod are
-  separate parts. Use `write_step_evaluated` for the real transverse seat; no
+  34 x 30 x 22 mm, R2 rounds on the four edges parallel to the +Y bearing axis,
+  a nominal Ø15 LM8UU seat, and four Ø3.3 mounting holes on a 24 x 18 mm pitch.
+  The matching rod interface is Ø8. Seat clearance is a separate diametral
+  parameter; press/free-fit intent is connector metadata and does not add a
+  tolerance or imply retention strength. The reference and model share the same
+  envelope, surface inventory, and nominal volume. The bearing and rod are
+  separate parts. Use `write_step_evaluated` for the real mounting bores; no
   load, life, or mounting-strength rating is implied.
 
 ## License

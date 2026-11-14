@@ -41,10 +41,11 @@ fn rounded_block_loop(
 /// The Ø8 `rod-axis` connector describes the installed LM8UU interface, not an
 /// additional hole cut through the block.
 ///
-/// The corner rounds and mounting holes are explicit analytic profile geometry.
-/// The transverse bearing bore requires `write_step_evaluated`; flat `to_step`
-/// output is nominal and is not the accepted artifact. No load, life, retention,
-/// or joint-strength rating is implied.
+/// The corner rounds lie on the four edges parallel to the bearing axis (+Y).
+/// The bearing seat is an explicit analytic profile hole. The vertical mounting
+/// holes require `write_step_evaluated`; flat `to_step` output is nominal and is
+/// not the accepted artifact. No load, life, retention, or joint-strength rating
+/// is implied.
 pub fn rod_bearing_block(
   width_mm : Double,
   depth_mm : Double,
@@ -94,7 +95,7 @@ pub fn rod_bearing_block(
       ),
     )
   }
-  if corner_radius_mm * 2.0 >= width_mm || corner_radius_mm * 2.0 >= depth_mm {
+  if corner_radius_mm * 2.0 >= width_mm || corner_radius_mm * 2.0 >= height_mm {
     return Err(
       @common.InvalidDimension("bearing block corner radius does not fit"),
     )
@@ -123,15 +124,12 @@ pub fn rod_bearing_block(
       @common.InvalidDimension("mounting holes do not fit inside the block"),
     )
   }
-  if mount_x > width_mm / 2.0 - corner_radius_mm &&
-    mount_y > depth_mm / 2.0 - corner_radius_mm {
-    let dx = mount_x - (width_mm / 2.0 - corner_radius_mm)
-    let dy = mount_y - (depth_mm / 2.0 - corner_radius_mm)
-    if (dx * dx + dy * dy).sqrt() + mount_radius >= corner_radius_mm {
-      return Err(
-        @common.InvalidDimension("mounting hole crosses a rounded block corner"),
-      )
-    }
+  if mount_x + mount_radius >= width_mm / 2.0 - corner_radius_mm {
+    return Err(
+      @common.InvalidDimension(
+        "mounting holes intersect the bearing-parallel corner rounds",
+      ),
+    )
   }
   let mounts : Array[(Double, Double)] = [
     (-mount_x, -mount_y),
@@ -139,31 +137,26 @@ pub fn rod_bearing_block(
     (mount_x, mount_y),
     (-mount_x, mount_y),
   ]
-  let holes = mounts.map(fn(p) {
-    let (x, y) = p
-    PlateHole::{ x_mm: x, y_mm: y, diameter_mm: mount_hole_diameter_mm, }
-  })
   let base = @cad.ExtrudedArcProfile::new(
-      rounded_block_loop(width_mm, depth_mm, corner_radius_mm),
-      height_mm,
-      holes=holes.map(fn(hole) {
-        plate_circle_loop(hole.x_mm, hole.y_mm, hole.diameter_mm / 2.0)
-      }),
+      rounded_block_loop(width_mm, height_mm, corner_radius_mm),
+      depth_mm,
+      holes=[plate_circle_loop(0.0, 0.0, seat_radius)],
     )
     .as_shape()
-    .with_name("rounded-block-with-mounting-holes")
-  let cutter_length = depth_mm + 2.0 * ROD_BLOCK_CUTTER_MARGIN_MM
-  let seat_cutter = @cad.Cylinder::new(seat_diameter, cutter_length)
-    .with_name("bearing-seat-cutter")
-    .rotate_x(-90.0)
-    .translate(
-      y=-depth_mm / 2.0 - ROD_BLOCK_CUTTER_MARGIN_MM,
-      z=height_mm / 2.0,
-    )
-  let body = @cad.difference(base, [seat_cutter], name="body")
+    .with_name("rounded-block-with-bearing-seat")
+    .rotate_x(90.0)
+    .translate(y=depth_mm / 2.0, z=height_mm / 2.0)
+  let cutter_length = height_mm + 2.0 * ROD_BLOCK_CUTTER_MARGIN_MM
+  let mount_cutters = mounts.map(fn(p) {
+    let (x, y) = p
+    @cad.Cylinder::new(mount_hole_diameter_mm, cutter_length)
+    .with_name("mount-hole-cutter")
+    .translate(x~, y~, z=-ROD_BLOCK_CUTTER_MARGIN_MM)
+  })
+  let body = @cad.difference(base, mount_cutters, name="body")
   let features = @common.FeatureRecord::new(
     modeled=[
-      "rounded-block-body", "vertical-corner-rounds", "bearing-seat", "four-mounting-holes",
+      "rounded-block-body", "bearing-parallel-corner-rounds", "bearing-seat", "four-mounting-holes",
       "mounting-faces",
     ],
     approximated=[],
@@ -190,7 +183,7 @@ pub fn rod_bearing_block(
       size="\{@cad.fmt_double(width_mm, None)}x\{@cad.fmt_double(depth_mm, None)}x\{@cad.fmt_double(height_mm, None)}",
       source="Parametric rounded block; SC8UU preset follows Xem Studio's CC BY 4.0 dimension sheet and STEP reference (34 x 30 x 22, Ø15 seat, four Ø3.3 holes on 24 x 18 pitch).",
     ),
-    description="Rounded rod/bearing block with a transverse bearing seat and four vertical mounting holes. Geometry is nominal; fit intent and strength are separate. Use write_step_evaluated for the real transverse bore.",
+    description="Rounded rod/bearing block with four corner rounds parallel to the transverse bearing seat and four vertical mounting holes. Geometry is nominal; fit intent and strength are separate. Use write_step_evaluated for the real mounting bores.",
     features~,
   ).add_layer(body.shape_intent(), name="body", color~)
   component = component
@@ -268,7 +261,7 @@ pub fn rod_bearing_block(
 
 ///|
 /// sc8uu_bearing_block builds the dimensioned Xem Studio SC8UU reference:
-/// 34 x 30 x 22 mm, R2 vertical corners, a nominal Ø15 LM8UU press-fit seat,
+/// 34 x 30 x 22 mm, R2 rounds on the four edges parallel to the +Y bearing axis,
 /// and four Ø3.3 mounting holes on a 24 x 18 mm pitch. The matching rod is Ø8.
 pub fn sc8uu_bearing_block(
   color~ : @cad.Rgb = @cad.Rgb::grey(),

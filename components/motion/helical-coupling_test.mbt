@@ -38,6 +38,8 @@ test "helical coupling default size" {
   assert_true(hc_close(size.slit_turns, 3.0))
   assert_true(hc_close(size.clamp_screw_x_mm, 8.0))
   assert_true(hc_close(size.clamp_screw_length_mm, 12.0))
+  assert_true(hc_close(size.clamp_bottom_start_z_mm, 0.0))
+  assert_true(hc_close(size.clamp_top_end_z_mm, 30.0))
 }
 
 ///|
@@ -77,6 +79,10 @@ test "helical coupling has the measured envelope and interfaces" {
     assert_true(part.features().modeled.contains(name))
   }
   assert_eq(part.features().approximated.length(), 1)
+  assert_true(
+    part.features().approximated[0].kind
+    is @common.ApproximationKind::SweptSpline,
+  )
   assert_true(part.features().omitted.length() >= 2)
 }
 
@@ -108,4 +114,40 @@ test "helical coupling rejects impossible sizes" {
   assert_true(
     @motion.helical_coupling(size={ ..good, clamp_screw_x_mm: 1.0, }) is Err(_),
   )
+}
+
+///|
+test "helical clamp bolts default to high-contrast orange" {
+  let part = match @motion.helical_coupling() {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  let screw_layers = part.layers().filter(fn(layer) {
+    layer.name.contains("clamp-screw-")
+  })
+  assert_eq(screw_layers.length(), 2)
+  for layer in screw_layers {
+    let (r, g, b) = layer.color.channels()
+    assert_true(hc_close(r, 1.0))
+    assert_true(hc_close(g, 0.6))
+    assert_true(hc_close(b, 0.0))
+  }
+}
+
+///|
+async test "helical coupling evaluated STEP retains clamp-bolt colours" {
+  if !csc_command_in_path("python3") || !csc_draw_available() {
+    return
+  }
+  let root = csc_repo_root()
+  let dir = @fs.tmpdir(prefix="helical-coupling-color-")
+  defer @fs.rmdir(dir, recursive=true)
+  let part = match @motion.helical_coupling() {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  let out = dir + "/coupling.step"
+  part.write_step_evaluated(Some(out), root=Some(root))
+  let text = @fs.read_file(out).text()
+  assert_true(text.contains("COLOUR_RGB("))
 }

@@ -49,10 +49,10 @@ pub fn helical_coupling_5_to_8() -> HelicalCouplingSize {
     slit_start_z_mm: 9.85,
     slit_start_angle_deg: 0.0,
     clamp_slit_width_mm: 0.8,
-    clamp_bottom_start_z_mm: 0.5,
+    clamp_bottom_start_z_mm: 0.0,
     clamp_bottom_end_z_mm: 8.0,
     clamp_top_start_z_mm: 22.0,
-    clamp_top_end_z_mm: 29.5,
+    clamp_top_end_z_mm: 30.0,
     clamp_screw_x_mm: 8.0,
     clamp_screw_bottom_z_mm: 4.0,
     clamp_screw_top_z_mm: 26.0,
@@ -68,9 +68,8 @@ pub fn helical_coupling_5_to_8() -> HelicalCouplingSize {
 const HELICAL_COUPLING_CUTTER_MARGIN_MM : Double = 1.0
 
 ///|
-/// Segments per turn used for the helical slit, a polyline approximation of the
-/// reference's helicoid (chord deviation < 0.03 mm at the outside diameter).
-const HELICAL_COUPLING_SEGS_PER_TURN : Int32 = 48
+/// Cross-sections per turn used by the smooth ruled B-spline helicoid walls.
+const HELICAL_COUPLING_SEGS_PER_TURN : Int32 = 60
 
 ///|
 /// Axial inset of the clamp-screw head from the counterbore floor, enough to
@@ -89,12 +88,12 @@ const HELICAL_COUPLING_SCREW_SEAT_INSET_MM : Double = 0.05
 /// `slit_pitch_mm`, and each end has a `clamp_slit_width_mm` axial slit crossed
 /// by a socket-head clamp screw.
 ///
-/// The helical slit is a polyline approximation of the reference's helicoid
-/// (48 segments per turn, chord deviation < 0.03 mm); the flat writer cannot
-/// trim any of the slits or holes, so `Component::write_step_evaluated` (OCCT)
-/// is the accepted artifact. The clamp-screw threads are declared by
-/// connectors, never modelled. No torque, stiffness, or misalignment rating is
-/// implied.
+/// The helical slit has smooth ruled B-spline walls sampled at 60
+/// cross-sections per turn. Each clamp slit opens through its corresponding end
+/// face, including the chamfer. The flat writer cannot trim any of the slits or
+/// holes, so `Component::write_step_evaluated` (OCCT) is the accepted artifact.
+/// The clamp-screw threads are declared by connectors, never modelled. No
+/// torque, stiffness, or misalignment rating is implied.
 pub fn helical_coupling(
   size~ : HelicalCouplingSize = helical_coupling_5_to_8(),
   color~ : @cad.Rgb = @cad.Rgb::new(0.56, 0.60, 0.64),
@@ -281,15 +280,26 @@ pub fn helical_coupling(
     path~,
     profile=cutter_profile,
     straight_outline=false,
+    smooth_sides=true,
   ).with_name("helical-slit")
   let clamp_slit = fn(z_start : Double, z_end : Double) -> @cad.SceneNode {
+    let cut_start = if z_start <= 0.0 {
+      z_start - HELICAL_COUPLING_CUTTER_MARGIN_MM
+    } else {
+      z_start
+    }
+    let cut_end = if z_end >= size.length_mm {
+      z_end + HELICAL_COUPLING_CUTTER_MARGIN_MM
+    } else {
+      z_end
+    }
     @cad.Cuboid::new(
       outer_r + HELICAL_COUPLING_CUTTER_MARGIN_MM,
       size.clamp_slit_width_mm,
-      z_end - z_start,
+      cut_end - cut_start,
     )
     .with_name("clamp-slit")
-    .translate(x=0.0, y=-size.clamp_slit_width_mm / 2.0, z=z_start)
+    .translate(x=0.0, y=-size.clamp_slit_width_mm / 2.0, z=cut_start)
   }
   let clamp_slits = [
     clamp_slit(size.clamp_bottom_start_z_mm, size.clamp_bottom_end_z_mm),
@@ -329,9 +339,12 @@ pub fn helical_coupling(
     approximated=[
       @common.Approximation::new(
         feature="helical-slit",
-        kind=@common.ApproximationKind::PolylineArc,
-        deviation_mm=0.03,
-        control="helical slit sampled at \{HELICAL_COUPLING_SEGS_PER_TURN} segments per turn",
+        kind=@common.ApproximationKind::SweptSpline,
+        deviation_mm=@common.chord_deviation(
+          outer_r,
+          HELICAL_COUPLING_SEGS_PER_TURN,
+        ),
+        control="smooth ruled B-spline walls sampled at \{HELICAL_COUPLING_SEGS_PER_TURN} cross-sections per turn",
       ),
     ],
     omitted=[
@@ -354,7 +367,7 @@ pub fn helical_coupling(
       length_mm=size.length_mm,
       source="Helical beam coupling measured from the CC0 Innerscene reference: sleeve with a stepped bore, a continuous helical slit, and two clamp hubs with socket-head clamp screws.",
     ),
-    description="Helical beam coupling: a stepped-bore sleeve with a continuous helical slit cut through the wall and two clamp hubs (axial slit plus socket-head clamp screw). The helical slit is a 48-segments-per-turn approximation of the reference helicoid. The clamp threads are declared by connectors, not modelled. No torque, stiffness, or misalignment rating is implied.",
+    description="Helical beam coupling: a stepped-bore sleeve with a continuous smooth B-spline helical slit and two clamp hubs whose radial slits open through the end faces. The clamp threads are declared by connectors, not modelled. No torque, stiffness, or misalignment rating is implied.",
     features~,
   ).add_layer(body.shape_intent(), name="body", color~)
   for i in 0..<2 {
