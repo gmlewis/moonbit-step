@@ -151,7 +151,8 @@ moon run components/examples/stock_primitive -- \
 # example. Every artifact is validated by the loop below.
 for part in hinge clevis pin rod-end linkage rail carriage lead-screw lead-nut \
   belt belt-unequal cam roller oldham extension-spring torsion-spring snap \
-  o-ring grooved-shaft bracket u-bracket z-bracket boss rack sprocket; do
+  o-ring grooved-shaft bracket u-bracket z-bracket boss rack sprocket \
+  chain-segment; do
   moon run components/examples/mechanism_kit -- \
     --part "$part" -o "$OUT/mechanism-$part.step"
 done
@@ -298,6 +299,7 @@ for part in vslot-2020x100 vslot-2040x100 vslot-wheel vslot-tnut-m5 \
   mechanism-snap mechanism-o-ring mechanism-grooved-shaft \
   mechanism-bracket mechanism-u-bracket mechanism-z-bracket \
   mechanism-boss mechanism-rack mechanism-sprocket \
+  mechanism-chain-segment \
   mechanism-design-linkage mechanism-design-linkage-compact \
   mechanism-clevis-rod-end belt-drive-gt2-20x40 rack-pinion-m2-z20x20; do
   python3 "$ROOT/scripts/validate_step.py" --no-mesh "$OUT/$part.step"

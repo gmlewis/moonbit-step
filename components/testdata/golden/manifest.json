@@ -5874,7 +5874,7 @@
       },
       "verdict": "accepted-envelope",
       "committed": false,
-      "review": {"automated": "pass", "owner_visual": "pending", "date": "2026-11-14"},
+      "review": {"automated": "pass", "owner_visual": "verified", "date": "2026-11-14", "reason": "owner reported goldens 107 and 108 LGTM (the two sprockets; they sort as 108/109 after the chain golden was added)"},
       "notes": "CC0 Innerscene ANSI #40 16T reference. The tooth outline is re-encoded as original line/arc data (seat radius 4.04, tip radius 35.7336, fitted tip half-angle 3.175 degrees). The plate and hub are joined with write_step_evaluated: one watertight solid, volume 24544.2 vs 24542.8 mm3 (+0.006%), bbox within 0.001 mm. The seat semicircle is split into two 90-degree arcs, so the cylinder-face count is higher than the reference (51 vs 34) while the geometry matches. No chain load, wear, or fatigue rating."
     },
     {
@@ -5938,8 +5938,74 @@
       },
       "verdict": "accepted-envelope",
       "committed": false,
-      "review": {"automated": "pass", "owner_visual": "pending", "date": "2026-11-14"},
+      "review": {"automated": "pass", "owner_visual": "verified", "date": "2026-11-14", "reason": "owner reported goldens 107 and 108 LGTM (the two sprockets; they sort as 108/109 after the chain golden was added)"},
       "notes": "CC0 Innerscene ANSI #40 24T reference. Re-encoded as original line/arc data (seat radius 4.04, tip radius 52.0430, fitted tip half-angle 1.886 degrees). The plate and hub are joined with write_step_evaluated: one watertight solid, volume 55026.9 vs 55027.2 mm3 (-0.0005%), bbox within 0.001 mm. The seat semicircle is split into two 90-degree arcs, so the cylinder-face count is higher than the reference while the geometry matches. No chain load, wear, or fatigue rating."
+    },
+    {
+      "fixture_id": "mechanisms/ansi40-10pitch-chain",
+      "part_id": "innerscene_ansi40_10pitch_chain",
+      "designation": "ANSI #40 10-pitch roller-chain segment",
+      "family": "roller chain (layout segment)",
+      "standard": "ANSI #40 / ISO 606",
+      "manufacturer": "Innerscene 3D Parts Library",
+      "source_page": "https://www.innerscene.com/tools/library/3d-parts/ansi-40-10-pitch-chain-segment-ec0bacdb",
+      "download_url": "https://www.innerscene.com/api/library/ansi-40-10-pitch-chain-segment-ec0bacdb/download",
+      "local_filename": "external/innerscene_ansi40_10pitch_chain_cc0.step",
+      "sha256": "c775b0d0e71fcd20f4b634460cdece7720c0cf626b780e06a1536cee79277d5c",
+      "byte_size": 695849,
+      "units": "mm",
+      "license": "CC0-1.0",
+      "license_evidence_url": "https://www.innerscene.com/tools/library/3d-parts/ansi-40-10-pitch-chain-segment-ec0bacdb",
+      "declared_dimensions": {
+        "pitch_mm": 12.7,
+        "pitches": 10,
+        "roller_diameter_mm": 7.9,
+        "inner_width_mm": 8.0,
+        "pin_diameter_mm": 4.0,
+        "plate_thickness_mm": 1.5,
+        "overall_length_mm": 139.0,
+        "overall_width_mm": 12.0,
+        "overall_height_mm": 14.3
+      },
+      "measured_dimensions": {
+        "bbox_mm": [139.0, 12.0, 14.27],
+        "volume_mm3": 12273.215,
+        "solids": 42
+      },
+      "parametric_value": {
+        "bbox_mm": [139.0, 12.0, 14.27],
+        "volume_mm3": 12273.215,
+        "solids": 42,
+        "source": "components/examples/mechanism_kit --part chain-segment --chainPitches 10"
+      },
+      "generation": {
+        "tool": "components/examples/mechanism_kit",
+        "args": ["--part", "chain-segment", "--chainPitches", "10", "-o", "{out}"],
+        "output": "ansi40-chain-10pitch.step"
+      },
+      "comparison": {
+        "solids": 42,
+        "bbox_axes": [
+          {"axis": 0, "expected_mm": 139.0, "label": "segment length"},
+          {"axis": 1, "expected_mm": 12.0, "label": "plate height"},
+          {"axis": 2, "expected_mm": 14.27, "label": "pin length"}
+        ],
+        "volume_mm3": 12273.215,
+        "volume_relative_tol": 0.0001,
+        "features": [
+          {"kind": "surface_min", "surface": "plane", "min_count": 100},
+          {"kind": "surface_min", "surface": "cylinder", "min_count": 100},
+          {"kind": "cylinder_radius_present_mm", "expected": 1.98, "tol_mm": 0.01},
+          {"kind": "cylinder_radius_present_mm", "expected": 2.02, "tol_mm": 0.01},
+          {"kind": "cylinder_radius_present_mm", "expected": 2.03, "tol_mm": 0.01},
+          {"kind": "cylinder_radius_present_mm", "expected": 3.96, "tol_mm": 0.01},
+          {"kind": "cylinder_radius_present_mm", "expected": 6.0, "tol_mm": 0.01}
+        ]
+      },
+      "verdict": "accepted-exact",
+      "committed": false,
+      "review": {"automated": "pass", "owner_visual": "pending", "date": "2026-11-14"},
+      "notes": "CC0 Innerscene ANSI #40 10-pitch chain segment, re-encoded as 20 stadium plates, 11 rollers, and 11 pins. The reconstructed layout matches the reference exactly: 42 solids, 12273.215 mm3, and a 139 x 12 x 14.27 mm bbox. The reference and this envelope are layout models: the plate rows overlap and no articulation, tensile strength, wear, or fatigue rating is modelled."
     }
   ],
   "golden_source": {

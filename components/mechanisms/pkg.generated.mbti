@@ -7,6 +7,10 @@ import {
 }
 
 // Values
+pub fn ansi40_chain_segment(Int32) -> Result[@common.Component, @common.SpecError]
+
+pub fn ansi40_chain_segment_spec(Int32) -> Result[ChainSegmentSpec, @common.SpecError]
+
 pub fn ansi40_sprocket(Int32) -> Result[@common.Component, @common.SpecError]
 
 pub fn ansi40_sprocket_spec(Int32) -> Result[SprocketSpec, @common.SpecError]
@@ -24,6 +28,8 @@ pub fn belt_loop_unequal(Double, Double, Double, Double, Double, color? : @cad.R
 pub fn belt_pitch_length_mm(Double, Double) -> Double
 
 pub fn belt_pitch_length_mm_unequal(Double, Double, Double) -> Double
+
+pub fn chain_segment_spec(pitch_mm~ : Double, pitches~ : Int32, roller_diameter_mm? : Double, roller_bore_mm? : Double, roller_length_mm? : Double, pin_diameter_mm? : Double, pin_length_mm? : Double, plate_thickness_mm? : Double, plate_end_radius_mm? : Double, plate_hole_diameter_mm? : Double, plate_center_z_mm? : Double) -> Result[ChainSegmentSpec, @common.SpecError]
 
 pub fn clevis(Double, Double, Double, Double, Double, Double, shank_diameter_mm? : Double, shank_length_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
@@ -81,6 +87,8 @@ pub fn rod_end(Double, Double, Double, Double, Double, color? : @cad.Rgb) -> Res
 
 pub fn roller_chain_path_length_mm(Double, Int32, Int32, Double) -> Result[Double, @common.SpecError]
 
+pub fn roller_chain_segment(ChainSegmentSpec) -> Result[@common.Component, @common.SpecError]
+
 pub fn roller_chain_sprocket_spec(pitch_mm~ : Double, teeth~ : Int32, roller_diameter_mm~ : Double, seat_clearance_mm? : Double, plate_thickness_mm? : Double, hub_diameter_mm? : Double, hub_height_mm? : Double, bore_diameter_mm? : Double, tip_arc_half_angle_deg? : Double) -> Result[SprocketSpec, @common.SpecError]
 
 pub fn roller_follower(Double, Double, Double, Double, Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
@@ -104,6 +112,20 @@ pub fn z_bracket(Double, Double, Double, Double, Double, Double, holes_per_flang
 // Errors
 
 // Types and methods
+pub(all) struct ChainSegmentSpec {
+  pitch_mm : Double
+  pitches : Int32
+  roller_diameter_mm : Double
+  roller_bore_mm : Double
+  roller_length_mm : Double
+  pin_diameter_mm : Double
+  pin_length_mm : Double
+  plate_thickness_mm : Double
+  plate_end_radius_mm : Double
+  plate_hole_diameter_mm : Double
+  plate_center_z_mm : Double
+}
+
 pub(all) struct FourBarLayout {
   ground_mm : Double
   crank_mm : Double

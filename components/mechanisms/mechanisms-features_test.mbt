@@ -571,3 +571,36 @@ test "roller-chain path length closes around two sprockets" {
     @mechanisms.roller_chain_path_length_mm(12.7, 16, 24, 10.0) is Err(_),
   )
 }
+
+///|
+test "ANSI #40 10-pitch chain segment matches the layout reference" {
+  let part = mech_ok(@mechanisms.ansi40_chain_segment(10))
+  let (x0, x1, y0, y1, z0, z1) = part.bounding_box()
+  assert_true(mech_close(x0, -6.0))
+  assert_true(mech_close(x1, 133.0))
+  assert_true(mech_close(y0, -6.0))
+  assert_true(mech_close(y1, 6.0))
+  assert_true((z0 + 7.135).abs() < 1.0e-5)
+  assert_true((z1 - 7.135).abs() < 1.0e-5)
+  assert_eq(part.layers().length(), 42)
+  assert_true(mech_has_connector(part, "pin-a"))
+  assert_true(mech_has_connector(part, "pin-b"))
+  assert_true(mech_has_connector(part, "pitch-line"))
+  let mut volume = 0.0
+  for layer in part.layers() {
+    volume += match layer.shape.analysis_volume() {
+      Ok(v) => v
+      Err(e) => abort(e.message())
+    }
+  }
+  assert_true((volume - 12273.215).abs() < 0.1)
+  assert_true(@mechanisms.ansi40_chain_segment(0) is Err(_))
+  assert_true(
+    @mechanisms.chain_segment_spec(
+      pitch_mm=12.7,
+      pitches=1,
+      pin_diameter_mm=5.0,
+    )
+    is Err(_),
+  )
+}

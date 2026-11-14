@@ -18,7 +18,7 @@ async fn main {
   let spec = {
     "part": @cli.opt_string(
       short='P',
-      help="Part: hinge, clevis, pin, rod-end, linkage, rail, carriage, lead-screw, lead-nut, belt, belt-unequal, cam, roller, oldham, extension-spring, torsion-spring, snap, o-ring, grooved-shaft, bracket, u-bracket, z-bracket, boss, rack, sprocket",
+      help="Part: hinge, clevis, pin, rod-end, linkage, rail, carriage, lead-screw, lead-nut, belt, belt-unequal, cam, roller, oldham, extension-spring, torsion-spring, snap, o-ring, grooved-shaft, bracket, u-bracket, z-bracket, boss, rack, sprocket, chain-segment",
     ),
     "length": @cli.opt_double(
       100.0,
@@ -162,6 +162,7 @@ async fn main {
     ),
     "teeth": @cli.opt_int(10, help="Rack tooth count"),
     "sprocketTeeth": @cli.opt_int(16, help="ANSI #40 sprocket tooth count"),
+    "chainPitches": @cli.opt_int(10, help="ANSI #40 chain-segment pitch count"),
     "threadDiameter": @cli.opt_double(
       6.0,
       help="Tapped thread nominal diameter in mm",
@@ -425,6 +426,8 @@ async fn main {
         thickness,
       )
     "sprocket" => @mechanisms.ansi40_sprocket(args.int("sprocketTeeth"))
+    "chain-segment" =>
+      @mechanisms.ansi40_chain_segment(args.int("chainPitches"))
     other => {
       @cli.eprintln("error: unknown --part '\{other}'")
       abort("")

@@ -106,6 +106,7 @@ test "every public mechanism builder exposes a connector" {
     ),
     (mech_ok(@mechanisms.rack_gear(2.0, 10, 6.0, 10.0)), "pitch-plane"),
     (mech_ok(@mechanisms.ansi40_sprocket(16)), "pitch-circle"),
+    (mech_ok(@mechanisms.ansi40_chain_segment(10)), "pin-a"),
   ]
   for entry in builders {
     let (part, expected) = entry

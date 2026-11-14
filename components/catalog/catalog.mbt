@@ -707,6 +707,20 @@ pub fn mechanisms_catalog() -> Array[CatalogEntry] {
       Err(_) => ()
     }
   }
+  match @mechanisms.ansi40_chain_segment(10) {
+    Ok(c) =>
+      direct.push(
+        (
+          c,
+          [
+            "pitch", "pitches", "roller_diameter", "roller_bore", "roller_length",
+            "pin_diameter", "pin_length", "plate_thickness", "plate_end_radius",
+            "plate_hole_diameter", "plate_center_z",
+          ],
+        ),
+      )
+    Err(_) => ()
+  }
   for entry in direct {
     let (component, parameters) = entry
     entries.push(entry_from_component(component, parameters, ["Detailed"]))

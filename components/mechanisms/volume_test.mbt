@@ -22,6 +22,7 @@ test "mechanism bodies have positive analytic volume and closed meshes" {
     mech_ok(@mechanisms.tapped_boss(16.0, 20.0, 24.0, 4.0, 6.0, 1.0, 10.0)),
     mech_ok(@mechanisms.rack_gear(2.0, 10, 6.0, 10.0)),
     mech_ok(@mechanisms.ansi40_sprocket(16)),
+    mech_ok(@mechanisms.ansi40_chain_segment(10)),
   ]
   for part in parts {
     let mut total = 0.0
