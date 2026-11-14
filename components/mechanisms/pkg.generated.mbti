@@ -31,7 +31,7 @@ pub fn eccentric_cam_lift_mm(Double, Double, Double) -> Double
 
 pub fn eccentric_cam_radius_mm(Double, Double, Double) -> Double
 
-pub fn extension_spring(Double, Double, Double, Int32, leg_length_mm? : Double, segments_per_turn? : Int32, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+pub fn extension_spring(Double, Double, Double, Int32, leg_length_mm? : Double, hook_loop_radius_mm? : Double, segments_per_turn? : Int32, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
 pub fn grooved_shaft(Double, Double, Double, Double, Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 

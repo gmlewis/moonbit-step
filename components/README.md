@@ -636,6 +636,9 @@ loop and how imported vendor parts are referenced through SolidCraft, is in
   screw, nut, belt loop, cam, follower, Oldham coupling, spring, snap latch,
   O-ring, groove, bracket, boss, or rack here is a dimensioned parametric
   construction; no load, torque, fatigue, wear, or safety rating is implied.
+- Extension springs model straight end legs by default, or closed planar wire
+  loops with `hook_loop_radius_mm`; an axial hook bend is omitted. Torsion
+  springs use two straight legs without a leg bend radius.
 - Threads are never modelled in `mechanisms`: they are declared by `Threaded`
   connectors. Lead-screw and tapped-boss bores are the ISO metric internal minor
   diameter. Belt loops are smooth envelopes without teeth; the equal- and

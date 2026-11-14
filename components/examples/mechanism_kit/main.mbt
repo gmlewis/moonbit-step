@@ -120,6 +120,11 @@ async fn main {
     "coils": @cli.opt_int(8, help="Spring active coils"),
     "segments": @cli.opt_int(16, help="Spring segments per coil"),
     "legLength": @cli.opt_double(10.0, help="Spring leg length in mm", min=0.0),
+    "hookLoop": @cli.opt_double(
+      0.0,
+      help="Extension-spring end-loop radius in mm (0 = straight legs)",
+      min=0.0,
+    ),
     "hookDepth": @cli.opt_double(
       3.0,
       help="Snap hook engagement depth in mm",
@@ -344,6 +349,7 @@ async fn main {
         length,
         args.int("coils"),
         leg_length_mm=args.double("legLength"),
+        hook_loop_radius_mm=args.double("hookLoop"),
         segments_per_turn=args.int("segments"),
       )
     "torsion-spring" =>

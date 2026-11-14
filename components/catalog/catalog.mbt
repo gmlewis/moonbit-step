@@ -583,6 +583,7 @@ pub fn mechanisms_catalog() -> Array[CatalogEntry] {
           c,
           [
             "mean_diameter", "wire_diameter", "free_length", "active_coils", "leg_length",
+            "hook_loop_radius",
           ],
         ),
       )

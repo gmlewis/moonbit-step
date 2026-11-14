@@ -55,13 +55,30 @@ fn mechanism_helix_body(
 }
 
 ///|
-/// extension_spring builds a helical extension spring with straight end legs.
+/// spring_end_loop returns a closed toroidal wire loop with its axis along +Z
+/// and its tube centreline at `loop_radius_mm` in the XY plane.
+fn spring_end_loop(
+  loop_radius_mm : Double,
+  wire_radius_mm : Double,
+) -> @cad.Shape {
+  let mean = loop_radius_mm
+  let r = wire_radius_mm
+  @cad.RevolvedProfile::new([
+    @cad.RevArc((mean + r, 0.0), (mean, r), (mean, 0.0)),
+    @cad.RevArc((mean, r), (mean - r, 0.0), (mean, 0.0)),
+    @cad.RevArc((mean - r, 0.0), (mean, -r), (mean, 0.0)),
+    @cad.RevArc((mean, -r), (mean + r, 0.0), (mean, 0.0)),
+  ]).as_shape()
+}
+
+///|
+/// extension_spring builds a helical extension spring with end legs or loops.
 ///
-/// Frame: the coil axis is +Z from `z = 0` to `z = free_length`. Each end carries
-/// a straight radial wire leg: the negative-Z leg runs along +X from the coil
-/// and the positive-Z leg along -X. Closed hook loops are not modelled; the
-/// straight legs are an open-hook substitute and are declared by
-/// `hook-leg-a`/`hook-leg-b`.
+/// Frame: the coil axis is +Z from `z = 0` to `z = free_length`. By default each
+/// end carries a straight radial wire leg: the negative-Z leg runs along +X from
+/// the coil and the positive-Z leg along -X. A positive `hook_loop_radius_mm`
+/// replaces the legs with closed wire loops in the coil end planes, tangent to
+/// the helix at the end points; an axial hook bend is still not modelled.
 ///
 /// No spring rate, initial tension, or fatigue rating is implied.
 pub fn extension_spring(
@@ -70,6 +87,7 @@ pub fn extension_spring(
   free_length_mm : Double,
   active_coils : Int32,
   leg_length_mm~ : Double = 10.0,
+  hook_loop_radius_mm~ : Double = 0.0,
   segments_per_turn~ : Int32 = 24,
   color~ : @cad.Rgb = @cad.Rgb::cyan(),
 ) -> Result[@common.Component, @common.SpecError] {
@@ -79,6 +97,13 @@ pub fn extension_spring(
       ("extension spring wire diameter", wire_diameter_mm),
       ("extension spring free length", free_length_mm),
       ("extension spring leg length", leg_length_mm),
+    ]) {
+    Err(e) => return Err(e)
+    Ok(_) => ()
+  }
+  match
+    mechanism_non_negative_checks([
+      ("extension spring hook loop radius", hook_loop_radius_mm),
     ]) {
     Err(e) => return Err(e)
     Ok(_) => ()
@@ -97,6 +122,14 @@ pub fn extension_spring(
       @common.InvalidDimension("spring mean radius must exceed the wire radius"),
     )
   }
+  let use_loops = hook_loop_radius_mm > 0.0
+  if use_loops && hook_loop_radius_mm <= wire_radius {
+    return Err(
+      @common.InvalidDimension(
+        "extension spring hook loop radius must exceed the wire radius",
+      ),
+    )
+  }
   let body = match
     mechanism_helix_body(
       radius, wire_radius, free_length_mm, active_coils, segments_per_turn,
@@ -107,13 +140,20 @@ pub fn extension_spring(
   let bottom_z = wire_radius
   let top_z = free_length_mm - wire_radius
   let features = @common.FeatureRecord::new(
-    modeled=["helix-body", "end-legs"],
+    modeled=["helix-body", if use_loops { "end-loops" } else { "end-legs" }],
     approximated=[],
     omitted=[
-      @common.Omission::new(
-        feature="closed-hook-loops",
-        reason="straight end legs replace the hook loops; hook geometry is not modelled",
-      ),
+      if use_loops {
+        @common.Omission::new(
+          feature="axial-hook-bend",
+          reason="the closed end loops lie in the coil end planes; an axial hook bend is not modelled",
+        )
+      } else {
+        @common.Omission::new(
+          feature="closed-hook-loops",
+          reason="straight end legs are used; pass hook_loop_radius_mm for closed end loops",
+        )
+      },
       @common.Omission::new(
         feature="spring-rate-and-initial-tension",
         reason="geometry only; no spring rate or initial tension is implied",
@@ -125,38 +165,29 @@ pub fn extension_spring(
     ],
   )
   let name = "extension-spring-\{@cad.fmt_double(mean_diameter_mm, None)}x\{@cad.fmt_double(free_length_mm, None)}"
-  Ok(
-    @common.Component::new(
-      name~,
-      metadata=@common.Metadata::new(
-        designation="Extension spring mean dia \{@cad.fmt_double(mean_diameter_mm, None)} / wire \{@cad.fmt_double(wire_diameter_mm, None)} x \{@cad.fmt_double(free_length_mm, None)}",
-        family="extension spring (simplified)",
-        size="\{@cad.fmt_double(mean_diameter_mm, None)}x\{@cad.fmt_double(wire_diameter_mm, None)}x\{@cad.fmt_double(free_length_mm, None)}",
-        length_mm=free_length_mm,
-        source="Parametric helical sweep with straight end legs. No spring rate or hook-loop model is asserted.",
-      ),
-      description="Open helical extension spring with straight radial end legs. Closed hook loops are omitted.",
-      features~,
-    )
-    .add_layer(body, name="body", color~)
-    .add_layer(
-      mechanism_cylinder_z(wire_diameter_mm, leg_length_mm),
-      name="leg-a",
-      color~,
-      placement=@common.Placement::compose(
-        @common.Placement::translation(radius, 0.0, bottom_z),
-        @common.Placement::rotation_y(90.0),
-      ),
-    )
-    .add_layer(
-      mechanism_cylinder_z(wire_diameter_mm, leg_length_mm),
-      name="leg-b",
-      color~,
-      placement=@common.Placement::compose(
-        @common.Placement::translation(radius, 0.0, top_z),
-        @common.Placement::rotation_y(-90.0),
-      ),
-    )
+  let source = if use_loops {
+    "Parametric helical sweep with closed planar end loops. No spring rate or axial hook model is asserted."
+  } else {
+    "Parametric helical sweep with straight end legs. No spring rate or hook-loop model is asserted."
+  }
+  let description = if use_loops {
+    "Open helical extension spring with closed wire loops in the coil end planes. An axial hook bend is omitted."
+  } else {
+    "Open helical extension spring with straight radial end legs. Closed hook loops are omitted."
+  }
+  let mut out = @common.Component::new(
+    name~,
+    metadata=@common.Metadata::new(
+      designation="Extension spring mean dia \{@cad.fmt_double(mean_diameter_mm, None)} / wire \{@cad.fmt_double(wire_diameter_mm, None)} x \{@cad.fmt_double(free_length_mm, None)}",
+      family="extension spring (simplified)",
+      size="\{@cad.fmt_double(mean_diameter_mm, None)}x\{@cad.fmt_double(wire_diameter_mm, None)}x\{@cad.fmt_double(free_length_mm, None)}",
+      length_mm=free_length_mm,
+      source~,
+    ),
+    description~,
+    features~,
+  ).add_layer(body, name="body", color~)
+  out = out
     .with_connector_unchecked(
       @common.MateConnector::new(
         "end-a",
@@ -177,37 +208,111 @@ pub fn extension_spring(
         description="positive-Z spring end datum",
       ),
     )
-    .with_connector_unchecked(
-      @common.MateConnector::new(
-        "hook-leg-a",
+  if use_loops {
+    let end_loop = spring_end_loop(hook_loop_radius_mm, wire_radius)
+    out = out
+      .add_layer(
+        end_loop,
+        name="loop-a",
+        color~,
         placement=@common.Placement::translation(
-          radius + leg_length_mm,
+          radius + hook_loop_radius_mm,
           0.0,
           bottom_z,
         ),
-        axis=(1.0, 0.0, 0.0),
-        kind=@common.MateKind::Datum,
-        diameter_mm=wire_diameter_mm,
-        depth_mm=leg_length_mm,
-        description="negative-Z straight hook leg along +X",
-      ),
-    )
-    .with_connector_unchecked(
-      @common.MateConnector::new(
-        "hook-leg-b",
+      )
+      .add_layer(
+        end_loop,
+        name="loop-b",
+        color~,
         placement=@common.Placement::translation(
-          radius - leg_length_mm,
+          radius + hook_loop_radius_mm,
           0.0,
           top_z,
         ),
-        axis=(-1.0, 0.0, 0.0),
-        kind=@common.MateKind::Datum,
-        diameter_mm=wire_diameter_mm,
-        depth_mm=leg_length_mm,
-        description="positive-Z straight hook leg along -X",
-      ),
-    ),
-  )
+      )
+      .with_connector_unchecked(
+        @common.MateConnector::new(
+          "hook-loop-a",
+          placement=@common.Placement::translation(
+            radius + hook_loop_radius_mm,
+            0.0,
+            bottom_z,
+          ),
+          axis=(0.0, 0.0, 1.0),
+          kind=@common.MateKind::Datum,
+          diameter_mm=2.0 * hook_loop_radius_mm,
+          depth_mm=wire_diameter_mm,
+          description="negative-Z closed end loop",
+        ),
+      )
+      .with_connector_unchecked(
+        @common.MateConnector::new(
+          "hook-loop-b",
+          placement=@common.Placement::translation(
+            radius + hook_loop_radius_mm,
+            0.0,
+            top_z,
+          ),
+          axis=(0.0, 0.0, 1.0),
+          kind=@common.MateKind::Datum,
+          diameter_mm=2.0 * hook_loop_radius_mm,
+          depth_mm=wire_diameter_mm,
+          description="positive-Z closed end loop",
+        ),
+      )
+  } else {
+    out = out
+      .add_layer(
+        mechanism_cylinder_z(wire_diameter_mm, leg_length_mm),
+        name="leg-a",
+        color~,
+        placement=@common.Placement::compose(
+          @common.Placement::translation(radius, 0.0, bottom_z),
+          @common.Placement::rotation_y(90.0),
+        ),
+      )
+      .add_layer(
+        mechanism_cylinder_z(wire_diameter_mm, leg_length_mm),
+        name="leg-b",
+        color~,
+        placement=@common.Placement::compose(
+          @common.Placement::translation(radius, 0.0, top_z),
+          @common.Placement::rotation_y(-90.0),
+        ),
+      )
+      .with_connector_unchecked(
+        @common.MateConnector::new(
+          "hook-leg-a",
+          placement=@common.Placement::translation(
+            radius + leg_length_mm,
+            0.0,
+            bottom_z,
+          ),
+          axis=(1.0, 0.0, 0.0),
+          kind=@common.MateKind::Datum,
+          diameter_mm=wire_diameter_mm,
+          depth_mm=leg_length_mm,
+          description="negative-Z straight hook leg along +X",
+        ),
+      )
+      .with_connector_unchecked(
+        @common.MateConnector::new(
+          "hook-leg-b",
+          placement=@common.Placement::translation(
+            radius - leg_length_mm,
+            0.0,
+            top_z,
+          ),
+          axis=(-1.0, 0.0, 0.0),
+          kind=@common.MateKind::Datum,
+          diameter_mm=wire_diameter_mm,
+          depth_mm=leg_length_mm,
+          description="positive-Z straight hook leg along -X",
+        ),
+      )
+  }
+  Ok(out)
 }
 
 ///|

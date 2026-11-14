@@ -439,3 +439,27 @@ test "unequal belt loop tangent geometry and pitch closure" {
     1.0e-9,
   )
 }
+
+///|
+test "extension spring closed end loops" {
+  let part = mech_ok(
+    @mechanisms.extension_spring(20.0, 2.0, 40.0, 8, hook_loop_radius_mm=5.0),
+  )
+  let (x0, x1, y0, y1, z0, z1) = part.bounding_box()
+  assert_true(mech_close(x0, -11.0))
+  assert_true(mech_close(x1, 21.0))
+  assert_true(mech_close(y0, -11.0))
+  assert_true(mech_close(y1, 11.0))
+  assert_true(mech_close(z0, 0.0))
+  assert_true(mech_close(z1, 40.0))
+  assert_eq(part.layers().length(), 3)
+  assert_true(mech_has_connector(part, "hook-loop-a"))
+  assert_true(mech_has_connector(part, "hook-loop-b"))
+  assert_true(!mech_has_connector(part, "hook-leg-a"))
+  assert_true(part.features().has_modeled("end-loops"))
+  assert_true(part.features().has_omitted("axial-hook-bend"))
+  assert_true(
+    @mechanisms.extension_spring(20.0, 2.0, 40.0, 8, hook_loop_radius_mm=1.0)
+    is Err(_),
+  )
+}
