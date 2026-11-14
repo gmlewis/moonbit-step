@@ -44,6 +44,8 @@ The `cad` package follows an **intent-based architecture**. Do not revert to eag
      STEP; it does not implement a CAD kernel. **SolidCore / SolidCraft is the
      required engine** for boolean trimming, fillets/chamfers, tessellation,
      import of vendor parts, and interactive edits.
+   - The full Tier 1 / engine / Tier 2–3 boundary and the `--view` iteration
+     loop are documented in [`docs/boundaries.md`](docs/boundaries.md).
    - `difference()`/`union_all()` concatenate child faces in the flat writer.
      That is the kernel-free nominal representation, not a defect. Do not
      "fix" it by attempting real CSG in this repo; resolve it with the engine

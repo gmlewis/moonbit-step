@@ -1,0 +1,96 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "gmlewis/step/components/mechanisms"
+
+import {
+  "gmlewis/step/cad",
+  "gmlewis/step/components/common",
+}
+
+// Values
+pub fn belt_center_distance_for_pitch_length(Double, Double) -> Result[Double, @common.SpecError]
+
+pub fn belt_loop(Double, Double, Double, Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn belt_loop_for_pitch_length(Double, Double, Double, Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn belt_pitch_length_mm(Double, Double) -> Double
+
+pub fn clevis(Double, Double, Double, Double, Double, Double, shank_diameter_mm? : Double, shank_length_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn clevis_pin(Double, Double, Double, Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn eccentric_cam(Double, Double, Double, Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn eccentric_cam_lift_mm(Double, Double, Double) -> Double
+
+pub fn eccentric_cam_radius_mm(Double, Double, Double) -> Double
+
+pub fn extension_spring(Double, Double, Double, Int32, leg_length_mm? : Double, segments_per_turn? : Int32, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn grooved_shaft(Double, Double, Double, Double, Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn hinge(Double, Double, Double, Double, knuckle_diameter_mm? : Double, knuckles? : Int32, knuckle_gap_mm? : Double, hole_diameter_mm? : Double, hole_spacing_mm? : Double, pin_extension_mm? : Double, leaf_angle_deg? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn l_bracket(Double, Double, Double, Double, Double, holes_per_leg? : Int32, edge_distance_mm? : Double, gusset_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn lead_screw(Double, Double, lead_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn lead_screw_nut(Double, Double, Double, Double, Double, Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn lead_screw_travel_mm(Double, Double) -> Result[Double, @common.SpecError]
+
+pub fn linear_carriage(LinearRailProfile, Double, Double, Double, clearance_mm? : Double, bolt_hole_diameter_mm? : Double, bolt_spacing_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn linear_rail(LinearRailProfile, Double, mount_hole_count? : Int32, mount_hole_diameter_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn linear_rail_profile(width_mm~ : Double, height_mm~ : Double, groove_width_mm~ : Double, groove_depth_mm~ : Double, groove_center_mm? : Double) -> Result[LinearRailProfile, @common.SpecError]
+
+pub fn linear_travel_mm(Double, Double) -> Result[Double, @common.SpecError]
+
+pub fn linkage_bar(Double, Double, Double, Double, pivot_spacing_mm? : Double, slot_length_mm? : Double, slot_width_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn linkage_bar_from_lengths(@cad.Length, @cad.Length, @cad.Length, @cad.Length, pivot_spacing? : @cad.Length, slot_length? : @cad.Length, slot_width? : @cad.Length, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn o_ring(Double, Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn o_ring_squeeze_mm(Double, Double) -> Result[Double, @common.SpecError]
+
+pub fn o_ring_volume_mm3(Double, Double) -> Double
+
+pub fn oldham_coupling(Double, Double, Double, Double, Double, Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn rack_gear(Double, Int32, Double, Double, pressure_angle_deg? : Double, mount_hole_diameter_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn rack_pinion_layout(Double, Int32, Int32) -> Result[RackPinionLayout, @common.SpecError]
+
+pub fn roller_follower(Double, Double, Double, Double, Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn snap_latch(Double, Double, Double, Double, Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn tapped_boss(Double, Double, Double, Double, Double, Double, Double, counterbore_diameter_mm? : Double, counterbore_depth_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn torsion_spring(Double, Double, Double, Int32, leg_length_mm? : Double, segments_per_turn? : Int32, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+// Errors
+
+// Types and methods
+pub(all) struct LinearRailProfile {
+  width_mm : Double
+  height_mm : Double
+  groove_width_mm : Double
+  groove_depth_mm : Double
+  groove_center_mm : Double
+}
+
+pub(all) struct RackPinionLayout {
+  module_mm : Double
+  rack_teeth : Int32
+  pinion_teeth : Int32
+  pitch_line_mm : Double
+  center_distance_mm : Double
+  rack_travel_per_revolution_mm : Double
+}
+
+// Type aliases
+
+// Traits

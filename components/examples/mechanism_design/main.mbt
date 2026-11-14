@@ -1,0 +1,251 @@
+///|
+/// components/examples/mechanism_design
+///
+/// Build a small mechanism from scratch with the typed parameter API and the
+/// `@cad` primitive DSL:
+///
+/// ```bash
+/// moon run components/examples/mechanism_design -- \
+///   --length 140 --width 24 --pivot 8 -o linkage.step
+/// moon run components/examples/mechanism_design -- \
+///   --variant compact -o linkage-compact.step
+/// ./run-example.sh mechanism_design --view      # owner: open in SolidCraft
+/// ./run-example.sh --headless mechanism_design   # agents: generate only
+/// ```
+///
+/// The mechanism is a linkage bar built by a `DesignFamily` (validated
+/// parameters) with a base plate and two pivot pins added through the `@cad`
+/// primitives. The `--variant` presets demonstrate named design variants.
+async fn main {
+  let spec = {
+    "length": @cli.opt_double(
+      120.0,
+      short='l',
+      help="Linkage length in mm",
+      min=60.0,
+      max=400.0,
+    ),
+    "width": @cli.opt_double(
+      24.0,
+      short='w',
+      help="Linkage width in mm",
+      min=12.0,
+      max=80.0,
+    ),
+    "thickness": @cli.opt_double(
+      6.0,
+      short='t',
+      help="Linkage thickness in mm",
+      min=3.0,
+      max=20.0,
+    ),
+    "pivot": @cli.opt_double(
+      8.0,
+      short='p',
+      help="Pivot hole diameter in mm",
+      min=4.0,
+      max=20.0,
+    ),
+    "slotLength": @cli.opt_double(
+      0.0,
+      help="Adjustment slot length in mm",
+      min=0.0,
+      max=200.0,
+    ),
+    "slotWidth": @cli.opt_double(
+      0.0,
+      help="Adjustment slot width in mm",
+      min=0.0,
+      max=40.0,
+    ),
+    "baseThickness": @cli.opt_double(
+      6.0,
+      help="Base plate thickness in mm",
+      min=2.0,
+      max=30.0,
+    ),
+    "variant": @cli.opt_string(help="Named variant: compact or long"),
+    "noBase": @cli.flag(help="Omit the base plate and pivot pins"),
+    "out": @cli.opt_string(short='o', help="Write STEP to this path"),
+  }
+  guard @cli.parse(
+      spec,
+      prog="components/examples/mechanism_design",
+      description="Design a small linkage mechanism with the typed parameter API.",
+    )
+    is Some(args) else {
+    return
+  }
+  let specs : Array[@common.ParamSpec] = [
+    @common.ParamSpec::new(
+      name="length",
+      default_mm=120.0,
+      min_mm=60.0,
+      max_mm=400.0,
+      description="linkage bar length",
+    ),
+    @common.ParamSpec::new(
+      name="width",
+      default_mm=24.0,
+      min_mm=12.0,
+      max_mm=80.0,
+      description="linkage bar width",
+    ),
+    @common.ParamSpec::new(
+      name="thickness",
+      default_mm=6.0,
+      min_mm=3.0,
+      max_mm=20.0,
+      description="linkage bar thickness",
+    ),
+    @common.ParamSpec::new(
+      name="pivot",
+      default_mm=8.0,
+      min_mm=4.0,
+      max_mm=20.0,
+      description="pivot hole diameter",
+    ),
+    @common.ParamSpec::new(
+      name="slotLength",
+      default_mm=0.0,
+      min_mm=0.0,
+      max_mm=200.0,
+      description="adjustment slot length (0 = none)",
+    ),
+    @common.ParamSpec::new(
+      name="slotWidth",
+      default_mm=0.0,
+      min_mm=0.0,
+      max_mm=40.0,
+      description="adjustment slot width (0 = none)",
+    ),
+  ]
+  let family = match
+    @common.DesignFamily::new(
+      name="pivot-linkage",
+      specs~,
+      description="A stadium linkage bar with two pivot holes and an optional adjustment slot.",
+      build=fn(parameters) {
+        let length = match parameters.get("length") {
+          Ok(v) => v
+          Err(e) => return Err(e)
+        }
+        let width = match parameters.get("width") {
+          Ok(v) => v
+          Err(e) => return Err(e)
+        }
+        let thickness = match parameters.get("thickness") {
+          Ok(v) => v
+          Err(e) => return Err(e)
+        }
+        let pivot = match parameters.get("pivot") {
+          Ok(v) => v
+          Err(e) => return Err(e)
+        }
+        let slot_length = match parameters.get("slotLength") {
+          Ok(v) => v
+          Err(e) => return Err(e)
+        }
+        let slot_width = match parameters.get("slotWidth") {
+          Ok(v) => v
+          Err(e) => return Err(e)
+        }
+        @mechanisms.linkage_bar(
+          length,
+          width,
+          thickness,
+          pivot,
+          slot_length_mm=slot_length,
+          slot_width_mm=slot_width,
+        )
+      },
+    ) {
+    Ok(f) => f
+    Err(e) => {
+      @cli.eprintln("error: " + e.message())
+      abort("")
+    }
+  }
+  let family = match
+    family.with_variant("compact", [("length", 80.0), ("width", 16.0)]) {
+    Ok(f) => f
+    Err(e) => {
+      @cli.eprintln("error: " + e.message())
+      abort("")
+    }
+  }
+  let family = match
+    family.with_variant("long", [("length", 240.0), ("width", 32.0)]) {
+    Ok(f) => f
+    Err(e) => {
+      @cli.eprintln("error: " + e.message())
+      abort("")
+    }
+  }
+  let parameters = match args.string_opt("variant") {
+    Some(variant) =>
+      match family.variant(variant) {
+        Ok(p) => p
+        Err(e) => {
+          @cli.eprintln("error: " + e.message())
+          abort("")
+        }
+      }
+    None =>
+      match
+        family.from_values([
+          ("length", args.double("length")),
+          ("width", args.double("width")),
+          ("thickness", args.double("thickness")),
+          ("pivot", args.double("pivot")),
+          ("slotLength", args.double("slotLength")),
+          ("slotWidth", args.double("slotWidth")),
+        ]) {
+        Ok(p) => p
+        Err(e) => {
+          @cli.eprintln("error: " + e.message())
+          abort("")
+        }
+      }
+  }
+  let linkage = match family.build(parameters) {
+    Ok(c) => c
+    Err(e) => {
+      @cli.eprintln("error: " + e.message())
+      abort("")
+    }
+  }
+  let component = if args.flag("noBase") {
+    linkage
+  } else {
+    let length = parameters.get("length").unwrap_or(120.0)
+    let width = parameters.get("width").unwrap_or(24.0)
+    let thickness = parameters.get("thickness").unwrap_or(6.0)
+    let pivot = parameters.get("pivot").unwrap_or(8.0)
+    let base_thickness = args.double("baseThickness")
+    let spacing = length - width
+    let base_x = -length * 0.35
+    let base_z = -base_thickness - 1.0
+    let pin_length = thickness + base_thickness + 2.0
+    linkage
+    .add_layer(
+      @cad.Cuboid::new(length * 0.7, width * 2.0, base_thickness),
+      name="base-plate",
+      color=@cad.Rgb::grey(),
+      placement=@common.Placement::translation(base_x, -width, base_z),
+    )
+    .add_layer(
+      @cad.Cylinder::new(pivot * 0.95, pin_length),
+      name="pivot-pin-a",
+      color=@cad.Rgb::orange(),
+      placement=@common.Placement::translation(-spacing / 2.0, 0.0, base_z),
+    )
+    .add_layer(
+      @cad.Cylinder::new(pivot * 0.95, pin_length),
+      name="pivot-pin-b",
+      color=@cad.Rgb::orange(),
+      placement=@common.Placement::translation(spacing / 2.0, 0.0, base_z),
+    )
+  }
+  component.write_step(args.string_opt("out"), checked=true)
+}

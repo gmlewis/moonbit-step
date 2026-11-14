@@ -396,6 +396,258 @@ pub fn stock_catalog() -> Array[CatalogEntry] {
 }
 
 ///|
+/// mechanisms_catalog returns one representative entry for every generic
+/// mechanism and structural primitive family.
+pub fn mechanisms_catalog() -> Array[CatalogEntry] {
+  let entries : Array[CatalogEntry] = []
+  let profile = match
+    @mechanisms.linear_rail_profile(
+      width_mm=20.0,
+      height_mm=15.0,
+      groove_width_mm=6.0,
+      groove_depth_mm=2.0,
+    ) {
+    Ok(p) => Some(p)
+    Err(_) => None
+  }
+  let direct : Array[(@common.Component, Array[String])] = []
+  match @mechanisms.hinge(40.0, 20.0, 6.0, 4.0) {
+    Ok(c) =>
+      direct.push(
+        (
+          c,
+          [
+            "length", "width", "thickness", "pin_diameter", "knuckles", "leaf_angle",
+          ],
+        ),
+      )
+    Err(_) => ()
+  }
+  match @mechanisms.clevis(30.0, 20.0, 6.0, 5.0, 8.0, 6.0) {
+    Ok(c) =>
+      direct.push(
+        (
+          c,
+          [
+            "base_width", "base_depth", "base_thickness", "prong_thickness", "gap",
+            "pin_diameter",
+          ],
+        ),
+      )
+    Err(_) => ()
+  }
+  match @mechanisms.clevis_pin(6.0, 30.0, 10.0, 2.0) {
+    Ok(c) =>
+      direct.push(
+        (c, ["diameter", "length", "head_diameter", "head_thickness"]),
+      )
+    Err(_) => ()
+  }
+  match @mechanisms.linkage_bar(100.0, 20.0, 5.0, 8.0) {
+    Ok(c) =>
+      direct.push(
+        (
+          c,
+          [
+            "length", "width", "thickness", "pivot_diameter", "pivot_spacing", "slot",
+          ],
+        ),
+      )
+    Err(_) => ()
+  }
+  match profile {
+    Some(p) =>
+      match @mechanisms.linear_rail(p, 300.0) {
+        Ok(c) =>
+          direct.push(
+            (
+              c,
+              [
+                "profile_width", "profile_height", "length", "mount_hole_count",
+                "mount_hole_diameter",
+              ],
+            ),
+          )
+        Err(_) => ()
+      }
+    None => ()
+  }
+  match profile {
+    Some(p) =>
+      match @mechanisms.linear_carriage(p, 80.0, 50.0, 30.0) {
+        Ok(c) =>
+          direct.push(
+            (
+              c,
+              [
+                "block_length", "block_width", "block_height", "clearance", "bolt_hole_diameter",
+              ],
+            ),
+          )
+        Err(_) => ()
+      }
+    None => ()
+  }
+  match @mechanisms.lead_screw(8.0, 200.0) {
+    Ok(c) => direct.push((c, ["nominal_diameter", "length", "lead"]))
+    Err(_) => ()
+  }
+  match @mechanisms.lead_screw_nut(16.0, 20.0, 24.0, 4.0, 8.0, 2.0) {
+    Ok(c) =>
+      direct.push(
+        (
+          c,
+          [
+            "outer_diameter", "length", "flange_diameter", "flange_thickness", "thread_diameter",
+            "thread_pitch",
+          ],
+        ),
+      )
+    Err(_) => ()
+  }
+  match @mechanisms.belt_loop(20.0, 100.0, 2.0, 10.0) {
+    Ok(c) =>
+      direct.push(
+        (
+          c,
+          [
+            "pulley_pitch_diameter", "center_distance", "belt_thickness", "belt_width",
+            "pitch_length",
+          ],
+        ),
+      )
+    Err(_) => ()
+  }
+  match @mechanisms.eccentric_cam(20.0, 5.0, 8.0, 6.0) {
+    Ok(c) =>
+      direct.push(
+        (c, ["base_radius", "eccentricity", "width", "bore_diameter"]),
+      )
+    Err(_) => ()
+  }
+  match @mechanisms.roller_follower(10.0, 8.0, 5.0, 4.0, 10.0) {
+    Ok(c) =>
+      direct.push(
+        (
+          c,
+          [
+            "roller_diameter", "width", "bore_diameter", "pin_diameter", "pin_length",
+          ],
+        ),
+      )
+    Err(_) => ()
+  }
+  match @mechanisms.oldham_coupling(5.0, 20.0, 8.0, 30.0, 4.0, 6.0) {
+    Ok(c) =>
+      direct.push(
+        (
+          c,
+          [
+            "bore", "hub_outer_diameter", "hub_length", "disc_diameter", "disc_thickness",
+            "tongue_width",
+          ],
+        ),
+      )
+    Err(_) => ()
+  }
+  match @mechanisms.extension_spring(20.0, 2.0, 40.0, 8) {
+    Ok(c) =>
+      direct.push(
+        (
+          c,
+          [
+            "mean_diameter", "wire_diameter", "free_length", "active_coils", "leg_length",
+          ],
+        ),
+      )
+    Err(_) => ()
+  }
+  match @mechanisms.torsion_spring(20.0, 2.0, 40.0, 8) {
+    Ok(c) =>
+      direct.push(
+        (
+          c,
+          [
+            "mean_diameter", "wire_diameter", "free_length", "active_coils", "leg_length",
+          ],
+        ),
+      )
+    Err(_) => ()
+  }
+  match @mechanisms.snap_latch(40.0, 2.0, 10.0, 3.0, 5.0) {
+    Ok(c) =>
+      direct.push(
+        (
+          c,
+          [
+            "beam_length", "beam_thickness", "beam_width", "hook_depth", "ramp_length",
+          ],
+        ),
+      )
+    Err(_) => ()
+  }
+  match @mechanisms.o_ring(20.0, 4.0) {
+    Ok(c) => direct.push((c, ["inner_diameter", "cross_section"]))
+    Err(_) => ()
+  }
+  match @mechanisms.grooved_shaft(20.0, 50.0, 4.0, 2.0, 20.0) {
+    Ok(c) =>
+      direct.push(
+        (
+          c,
+          [
+            "shaft_diameter", "length", "groove_width", "groove_depth", "groove_center_z",
+          ],
+        ),
+      )
+    Err(_) => ()
+  }
+  match @mechanisms.l_bracket(60.0, 50.0, 30.0, 4.0, 5.0) {
+    Ok(c) =>
+      direct.push(
+        (
+          c,
+          [
+            "leg_a", "leg_b", "width", "thickness", "hole_diameter", "holes_per_leg",
+            "gusset",
+          ],
+        ),
+      )
+    Err(_) => ()
+  }
+  match @mechanisms.tapped_boss(16.0, 20.0, 24.0, 4.0, 6.0, 1.0, 10.0) {
+    Ok(c) =>
+      direct.push(
+        (
+          c,
+          [
+            "body_diameter", "body_height", "flange_diameter", "flange_thickness",
+            "thread_diameter", "thread_pitch", "thread_depth",
+          ],
+        ),
+      )
+    Err(_) => ()
+  }
+  match @mechanisms.rack_gear(2.0, 10, 6.0, 10.0) {
+    Ok(c) =>
+      direct.push(
+        (
+          c,
+          [
+            "module", "teeth", "base_thickness", "thickness", "pressure_angle", "mount_hole_diameter",
+          ],
+        ),
+      )
+    Err(_) => ()
+  }
+  for entry in direct {
+    let (component, parameters) = entry
+    entries.push(entry_from_component(component, parameters, ["Detailed"]))
+  }
+  entries
+}
+
+///|
 /// full_catalog returns every catalogue entry.
 pub fn full_catalog() -> Array[CatalogEntry] {
   let entries : Array[CatalogEntry] = []
@@ -408,6 +660,7 @@ pub fn full_catalog() -> Array[CatalogEntry] {
   entries.push_iter(linear_bearing_catalog().iter())
   entries.push_iter(motor_catalog().iter())
   entries.push_iter(stock_catalog().iter())
+  entries.push_iter(mechanisms_catalog().iter())
   entries
 }
 

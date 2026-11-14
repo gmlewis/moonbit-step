@@ -20,6 +20,8 @@ pub fn linear_bearing_catalog() -> Array[CatalogEntry]
 
 pub fn lookup(Array[CatalogEntry], String) -> Result[CatalogEntry, CatalogError]
 
+pub fn mechanisms_catalog() -> Array[CatalogEntry]
+
 pub fn motion_catalog() -> Array[CatalogEntry]
 
 pub fn motor_catalog() -> Array[CatalogEntry]

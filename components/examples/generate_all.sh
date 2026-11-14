@@ -121,6 +121,20 @@ moon run components/examples/stock_primitive -- \
 moon run components/examples/stock_primitive -- \
   --part heat-boss -o "$OUT/heat-set-boss-m3x4.step"
 
+# Generic mechanism and structural primitives plus the design-from-scratch
+# example. Every artifact is validated by the loop below.
+for part in hinge clevis pin linkage rail carriage lead-screw lead-nut belt \
+  cam roller oldham extension-spring torsion-spring snap o-ring \
+  grooved-shaft bracket boss rack; do
+  moon run components/examples/mechanism_kit -- \
+    --part "$part" -o "$OUT/mechanism-$part.step"
+done
+moon run components/examples/mechanism_design -- \
+  --length 140 --width 24 --pivot 8 \
+  -o "$OUT/mechanism-design-linkage.step"
+moon run components/examples/mechanism_design -- \
+  --variant compact -o "$OUT/mechanism-design-linkage-compact.step"
+
 echo "Validating generated fixtures..."
 for f in "$OUT"/*.step; do
   echo "== $(basename "$f")"
@@ -225,7 +239,14 @@ for part in vslot-2020x100 vslot-2040x100 vslot-wheel vslot-tnut-m5 \
   makerbeam-1010-l100 din471-a20 din472-20 din472-22-parametric \
   motor-to-extrusion-adapter channel-to-extrusion-adapter \
   nema-mounting-plate standoff dowel-pin gt2-pulley-20t \
-  clamp-collar-d20 sc8uu-bearing-block heat-set-boss-m3x4; do
+  clamp-collar-d20 sc8uu-bearing-block heat-set-boss-m3x4 \
+  mechanism-hinge mechanism-clevis mechanism-pin mechanism-linkage \
+  mechanism-rail mechanism-carriage mechanism-lead-screw \
+  mechanism-lead-nut mechanism-belt mechanism-cam mechanism-roller \
+  mechanism-oldham mechanism-extension-spring mechanism-torsion-spring \
+  mechanism-snap mechanism-o-ring mechanism-grooved-shaft \
+  mechanism-bracket mechanism-boss mechanism-rack \
+  mechanism-design-linkage mechanism-design-linkage-compact; do
   python3 "$ROOT/scripts/validate_step.py" --no-mesh "$OUT/$part.step"
 done
 

@@ -29,7 +29,9 @@ Use `to_step_file_checked()` / `write_step(..., checked=true)` as the normal
 export entry point: it refuses designs with error diagnostics. See
 [`examples/README.md`](examples/README.md) for runnable programs and
 [`components/README.md`](components/README.md) for the parametric parts
-library.
+library, including the generic mechanism kit (`hinge`, `clevis`, `linkage`,
+`rail`, `carriage`, `lead-screw`, `belt`, `cam`, `oldham`, springs, and more)
+and the typed parameter/design-family API in `components/common`.
 
 ## Output formats
 
@@ -52,6 +54,10 @@ intent and deterministic STEP; it does not implement a CAD kernel. **SolidCore /
 SolidCraft is the required CAD engine** and owns boolean trimming, fillets and
 chamfers, tessellation, import of vendor parts, and interactive editing. The
 library stays lightweight on purpose; the engine does the heavy lifting.
+
+The full Tier 1 / engine / Tier 2–3 boundary, including the `--view` iteration
+loop and how imported vendor parts are referenced through SolidCraft, is in
+[`docs/boundaries.md`](docs/boundaries.md).
 
 `difference()` and `union_all()` therefore concatenate child faces: the flat
 writer emits a valid closed *nominal* shell, not a trimmed solid. That is the
@@ -136,7 +142,7 @@ example. Text examples use the vendored `baloo` font in
 | `cad/` | Intent-based modeling DSL, shape compilers, STEP writer, analysis, glTF/Blender backends. |
 | `entities/`, `parse/`, `repository/`, `header/` | STEP entity model, parser, and serializer. |
 | `cli/` | Command-line argument and error-reporting helpers. |
-| `components/` | Parametric fasteners, profiles, motion, motors, stock, gears, assemblies, collision, catalogue. |
+| `components/` | Parametric fasteners, profiles, motion, motors, stock, mechanisms, gears, assemblies, collision, catalogue, and the typed design-family API. |
 | `examples/` | Runnable example programs (see [`examples/README.md`](examples/README.md)). |
 | `tools/` | Inspection and STEP statistics utilities (see [`tools/README.md`](tools/README.md)). |
 | `scripts/` | Development validation and rendering harnesses. |

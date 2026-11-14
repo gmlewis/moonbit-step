@@ -157,6 +157,89 @@ axes documented in each builder. Every `-o` path above is a local output.
 `components/examples/generate_all.sh` and is Git-ignored: no STEP, STL, or SVG
 example artifact is stored in this repository.
 
+## Mechanism kit and design families
+
+`components/mechanisms` provides generic, parametric mechanism and structural
+envelopes. Each builder validates every dimension, exposes named
+`MateConnector`s, has analytic tests, and is an engineering envelope rather than
+a vendor part or a strength claim.
+
+```bash
+# Barrel hinge with an included pin and real pin bores
+moon run components/examples/mechanism_kit -- --part hinge -o hinge.step
+
+# Clevis fork, pin, linkage bar, linear rail and carriage
+moon run components/examples/mechanism_kit -- --part clevis -o clevis.step
+moon run components/examples/mechanism_kit -- --part linkage -o linkage.step
+moon run components/examples/mechanism_kit -- --part rail -o rail.step
+moon run components/examples/mechanism_kit -- --part carriage -o carriage.step
+
+# Lead screw and flanged nut (the thread is declared, never modelled)
+moon run components/examples/mechanism_kit -- --part lead-screw -o screw.step
+moon run components/examples/mechanism_kit -- --part lead-nut -o nut.step
+
+# Belt loop, eccentric cam, roller follower, and Oldham coupling
+moon run components/examples/mechanism_kit -- --part belt -o belt.step
+moon run components/examples/mechanism_kit -- --part cam -o cam.step
+moon run components/examples/mechanism_kit -- --part roller -o roller.step
+moon run components/examples/mechanism_kit -- --part oldham -o oldham.step
+
+# Extension and torsion springs, snap latch, O-ring, and grooved shaft
+moon run components/examples/mechanism_kit -- --part extension-spring -o ext.step
+moon run components/examples/mechanism_kit -- --part torsion-spring -o tor.step
+moon run components/examples/mechanism_kit -- --part snap -o snap.step
+moon run components/examples/mechanism_kit -- --part o-ring -o oring.step
+moon run components/examples/mechanism_kit -- --part grooved-shaft -o shaft.step
+
+# L bracket, tapped boss, and rack
+moon run components/examples/mechanism_kit -- --part bracket -o bracket.step
+moon run components/examples/mechanism_kit -- --part boss -o boss.step
+moon run components/examples/mechanism_kit -- --part rack -o rack.step
+
+# Design from scratch with the typed parameter API and the @cad DSL
+moon run components/examples/mechanism_design -- \
+  --length 140 --width 24 --pivot 8 -o linkage.step
+moon run components/examples/mechanism_design -- \
+  --variant compact -o linkage-compact.step
+```
+
+`components/common` adds an additive parameter/design-family API. Existing
+builders keep their direct `Double` signatures; a family wraps one for
+interactive or scripted exploration:
+
+```moonbit
+let specs = [
+  @common.ParamSpec::new(
+    name="length", default_mm=120.0, min_mm=60.0, max_mm=400.0,
+    description="linkage bar length",
+  ),
+  @common.ParamSpec::new(name="pivot", default_mm=8.0, min_mm=4.0, max_mm=20.0),
+]
+let family = @common.DesignFamily::new(
+  name="pivot-linkage",
+  specs~,
+  build=fn(parameters) {
+    @mechanisms.linkage_bar(
+      @common.expect_ok(parameters.get("length")),
+      @common.expect_ok(parameters.get("pivot")),
+      6.0,
+      8.0,
+    )
+  },
+)
+let part = family.build_values([("length", 140.0)])
+```
+
+`ParamSet` validates names, ranges, and units; `DesignFamily` records named
+variants and builds only validated parameter sets. `ParamSet::length` returns a
+typed `@cad.Length`; the `*_from_lengths` builders (for example
+`linkage_bar_from_lengths`) make the millimetre unit explicit. Bare `Double`
+dimensions are millimetres.
+
+`components/examples/mechanism_design` is the design-from-scratch example. It
+runs with `--headless` for agents and `--view` for the owner; see
+[`docs/boundaries.md`](../docs/boundaries.md) for the view/iterate loop.
+
 ## Construction systems and commodity tubing
 
 `profile` V-Slot parts use the OpenBuilds 20-series cross-section: 20 x 20 or
@@ -253,6 +336,7 @@ use `--headless`.
 | `fasteners` | Screws, bolts, nuts, washers, pins, rods, set screws, generic solid rivets, DIN 471 type A external retaining rings (A 10 to A 34), and DIN 472 internal retaining rings (all table sizes 8 to 40; measured outlines for 10, 12, 14, 16, 18, 20, 24, 28, 32, and 40 mm, parametric for the rest). |
 | `profiles` | Generic T-slot sections, the vendor 2020 B-slot6 A section, OpenBuilds-compatible V-Slot 2020/2040 sections, the MakerBeam 10 x 10 section, a gusseted V-Slot corner bracket, P1000-style strut channel, and a generic channel nut. |
 | `motion` | Shafts, stepped/keyed shafts, spacers and V-Slot wheel spacers (plain and eccentric), bushings, plain, set-screw, and clamp shaft collars, keys, dowel pins, standoffs, compression springs, ball bearings (envelope, shielded, and full-complement deep-groove), LM-series linear bushings, flanged linear housings, UCP-series pillow-block bearing boundaries, approximated GT2 timing pulleys, smooth idlers, V-Slot wheels, EMT tubing with end caps and split clamps, rigid couplings, helical beam couplings, and flanged bearing housings. |
+| `mechanisms` | Generic engineering envelopes for a barrel hinge, clevis and pin, linkage bar, linear rail and carriage, lead screw and flanged nut, timing-belt loop, eccentric cam and roller follower, Oldham coupling, extension and torsion springs, snap latch, O-ring, grooved shaft, L bracket (with optional gusset), tapped boss, and a straight-flank basic rack with a pinion-layout helper. |
 | `motors` | NEMA 17 and NEMA 23 stepper-motor envelopes, mounting interfaces, NEMA mounting plates, and a generic NEMA-to-20-series extrusion adapter. |
 | `stock` | EN 10056 angle sections, configurable flat plate blanks with analytic circular holes and obround slots, counterbored and countersunk plates, bearing-housing plates, tube-to-plate and tube-to-V-Slot adapter brackets, generic channel-to-extrusion adapters and extrusion-to-tube clamps, SC8UU-style rod/bearing blocks, and heat-set insert bosses. |
 | `gears` | Involute spur gears, external pairs, and exact-internal-involute planetary sets. |
@@ -268,6 +352,8 @@ use `--headless`.
 ./test-all.sh
 python3 scripts/compare_golden.py             # fixtures against the downloaded corpus
 python3 scripts/validate_step.py components/examples/output/iso4762-M4x20.step
+python3 scripts/validate_step.py --no-mesh \
+  components/examples/output/mechanism-hinge.step
 python3 scripts/validate_frame_geometry.py \
   components/examples/output/frame-2020-400x300x500.step \
   --width 400 --depth 300 --height 500 --series 2020
@@ -348,6 +434,10 @@ geometry with `write_step_evaluated` (OCCT) or by opening the STEP in
 SolidCraft (`./run-example.sh <example> --view`). A component that needs a
 blind socket or a real trim is built as one closed solid with explicit faces,
 so the flat output is never an untrimmed stack.
+
+The full Tier 1 / engine / Tier 2–3 boundary, including the `--view` iteration
+loop and how imported vendor parts are referenced through SolidCraft, is in
+[`docs/boundaries.md`](../docs/boundaries.md).
 
 ## Limitations
 
@@ -506,6 +596,28 @@ so the flat output is never an untrimmed stack.
   clearance bore is a validation default. The insert, thread, and diamond knurl
   are separate or omitted. No pull-out, torque, boss-strength, or material
   rating is implied.
+
+- The `mechanisms` package is a set of generic engineering envelopes, not a
+  vendor catalogue. A hinge, clevis, linkage, rail, carriage, lead screw, nut,
+  belt loop, cam, follower, Oldham coupling, spring, snap latch, O-ring, groove,
+  bracket, boss, or rack here is a dimensioned parametric construction; no load,
+  torque, fatigue, wear, or safety rating is implied.
+- Threads are never modelled in `mechanisms`: they are declared by `Threaded`
+  connectors. Lead-screw and tapped-boss bores are the ISO metric internal minor
+  diameter. Belt loops are smooth envelopes without teeth; pulleys are separate
+  parts declared by their axes.
+- Linear-rail mounting holes are perpendicular to the rail extrusion, so the
+  flat writer cannot trim them; they are declared by datum connectors with their
+  diameter and depth. The carriage channel and bolt holes are real geometry.
+- Layered mechanism parts (hinge leaves/knuckles/pin, clevis prongs, carriage
+  walls/top slab, Oldham hubs/disc, bracket legs/gusset, roller/pin) are separate
+  closed bodies with nominal abutments. They are not fused by the flat writer;
+  use `write_step_evaluated` or SolidCraft when one manifold is required.
+- Sprocket/chain envelopes, bevel gears, and worm gears are recorded gaps. Their
+  exact tooth forms need a licensed, dimensioned reference or a defensible
+  standard tooth-space construction; a guessed envelope is not shipped. The rack
+  uses exact straight basic-rack flanks; the mating pinion uses the existing
+  involute spur-gear builder.
 
 ## License
 

@@ -32,6 +32,8 @@ All programs use millimetres and Z is up.
 | `mate_assembly` | A screw placed in a nut by named `MateConnector`/`MatePair` records. |
 | `revolution` | Analytic solids of revolution (cylinder, cone, sphere, torus, ring, dome, frustum). |
 | `rivet` | Generic solid rivet (flat cylindrical head plus straight shank). |
+| `mechanism_kit` | One generic mechanism/structural envelope per `--part`: hinge, clevis, pin, linkage, rail, carriage, lead-screw, lead-nut, belt, cam, roller, oldham, extension-spring, torsion-spring, snap, o-ring, grooved-shaft, bracket, boss, or rack. |
+| `mechanism_design` | Design-from-scratch linkage built with the typed `ParamSpec`/`ParamSet`/`DesignFamily` API and the `@cad` primitive DSL, with `compact`/`long` variants, a base plate, and pivot pins. |
 
 Run `./generate_all.sh` from this directory to regenerate every fixture in
 `output/`. The `output/` directory is generated locally and Git-ignored; its
@@ -46,3 +48,45 @@ STEP, SVG, and assembly files are never committed to the repository.
 `--view` writes the STEP to `/tmp/<example>.step` and opens it in SolidCraft. If
 `-o` is supplied, that path is opened instead. The flag is available in the
 `gmlewis/step`, `gmlewis/urdf`, and `gmlewis/cad` example launchers.
+
+## Iterating a design in SolidCraft (`--view`)
+
+The intended loop is **author → export STEP → open in SolidCraft → resolve →
+iterate**. The repository authors nominal, deterministic geometry; SolidCraft
+is the engine that resolves real booleans, fillets, chamfers, and imported
+vendor parts. See [`docs/boundaries.md`](../../docs/boundaries.md) for the tier
+boundary.
+
+```bash
+# 1. Author and validate with the headless path (agents always use this).
+./run-example.sh --headless mechanism_design --length 140 --width 24 --pivot 8 \
+  -o /tmp/linkage.step
+python3 scripts/validate_step.py --no-mesh /tmp/linkage.step
+
+# 2. Open the part in SolidCraft (owner).
+./run-example.sh mechanism_design --length 140 --width 24 --pivot 8 --view
+
+# 3. Inspect connectors. The sidecar is metadata only.
+STEP_CONNECTOR_SIDECAR=1 moon run components/examples/mechanism_kit -- \
+  --part oldham -o /tmp/oldham.step
+cat /tmp/oldham.step.connectors.tsv
+
+# 4. Change parameters, regenerate to /tmp, and reopen. Do not edit the
+#    generated STEP by hand; keep the parametric source authoritative.
+./run-example.sh mechanism_design --variant compact --view
+```
+
+Inside SolidCraft:
+
+- Apply booleans where the flat STEP preserves nominal intent. The flat writer
+  concatenates faces; SolidCraft trims them.
+- Add fillets and chamfers, and import licensed vendor parts, in the engine.
+- Export the resolved model from SolidCraft when downstream work needs a single
+  trimmed manifold.
+- Connector frames appear as named `joint.origin` markers
+  (`connector/<name>`). They are application features, not geometry: they never
+  change the STEP, volume, bounding box, or layer count. Use `--no-connectors`
+  to suppress them.
+
+`docs/boundaries.md` also documents how imported vendor parts are referenced
+through SolidCraft. This repository has no STEP importer by design.

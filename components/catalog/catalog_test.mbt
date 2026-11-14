@@ -99,6 +99,27 @@ test "motion catalogue carries the keyed shaft and key" {
 }
 
 ///|
+test "mechanism catalogue lists every generic family" {
+  let entries = @catalog.mechanisms_catalog()
+  assert_eq(entries.length(), 20)
+  let hinge = match @catalog.lookup(entries, "Hinge L40 W20 t6") {
+    Ok(e) => e
+    Err(err) => abort(err.message())
+  }
+  assert_true(hinge.features.has_modeled("pin-bores"))
+  assert_true(hinge.supported_parameters.any(fn(p) { p == "leaf_angle" }))
+  let rail = match @catalog.lookup(entries, "Linear rail 20 wide x 300") {
+    Ok(e) => e
+    Err(err) => abort(err.message())
+  }
+  assert_true(rail.features.has_omitted("mounting-holes"))
+  assert_eq(
+    @catalog.query(@catalog.full_catalog(), family="lead screw (envelope)").length(),
+    1,
+  )
+}
+
+///|
 test "new construction and motion catalogue families are discoverable" {
   let hardware = @catalog.extrusion_hardware_catalog()
   assert_eq(hardware.length(), 5)

@@ -111,6 +111,25 @@ pub(all) struct ComponentLayer {
   placement : Placement
 }
 
+pub(all) struct DesignFamily {
+  name : String
+  description : String
+  specs : Array[ParamSpec]
+  build_fn : (ParamSet) -> Result[Component, SpecError]
+  variants : Array[(String, ParamSet)]
+}
+pub fn DesignFamily::build(Self, ParamSet) -> Result[Component, SpecError]
+pub fn DesignFamily::build_values(Self, Array[(String, Double)]) -> Result[Component, SpecError]
+pub fn DesignFamily::build_variant(Self, String) -> Result[Component, SpecError]
+pub fn DesignFamily::defaults(Self) -> Result[ParamSet, SpecError]
+pub fn DesignFamily::documentation(Self) -> String
+pub fn DesignFamily::from_values(Self, Array[(String, Double)]) -> Result[ParamSet, SpecError]
+pub fn DesignFamily::new(name~ : String, specs~ : Array[ParamSpec], build~ : (ParamSet) -> Result[Component, SpecError], description? : String) -> Result[Self, SpecError]
+pub fn DesignFamily::parameter_names(Self) -> Array[String]
+pub fn DesignFamily::variant(Self, String) -> Result[ParamSet, SpecError]
+pub fn DesignFamily::variant_names(Self) -> Array[String]
+pub fn DesignFamily::with_variant(Self, String, Array[(String, Double)]) -> Result[Self, SpecError]
+
 pub(all) enum DetailLevel {
   Simplified
   Detailed
@@ -280,6 +299,31 @@ pub(all) struct Omission {
 }
 pub fn Omission::documentation(Self) -> String
 pub fn Omission::new(feature~ : String, reason~ : String) -> Self
+
+pub(all) struct ParamSet {
+  specs : Array[ParamSpec]
+  values : Map[String, Double]
+}
+pub fn ParamSet::defaults(Array[ParamSpec]) -> Result[Self, SpecError]
+pub fn ParamSet::documentation(Self) -> String
+pub fn ParamSet::from_values(Array[ParamSpec], Array[(String, Double)]) -> Result[Self, SpecError]
+pub fn ParamSet::get(Self, String) -> Result[Double, SpecError]
+pub fn ParamSet::length(Self, String) -> Result[@cad.Length, SpecError]
+pub fn ParamSet::names(Self) -> Array[String]
+pub fn ParamSet::set_value(Self, String, Double) -> Result[Self, SpecError]
+pub fn ParamSet::spec(Self, String) -> Result[ParamSpec, SpecError]
+
+pub(all) struct ParamSpec {
+  name : String
+  unit : String
+  default_mm : Double
+  min_mm : Double
+  max_mm : Double
+  description : String
+}
+pub fn ParamSpec::documentation(Self) -> String
+pub fn ParamSpec::new(name~ : String, default_mm~ : Double, min_mm? : Double, max_mm? : Double, unit? : String, description? : String) -> Self
+pub fn ParamSpec::validate(Self) -> Result[Unit, SpecError]
 
 #derive(Eq, @debug.Debug)
 pub(all) struct Placement {
