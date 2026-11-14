@@ -125,6 +125,15 @@ test "every public stock builder family exposes a connector" {
       ),
       "tube-bore",
     ),
+    (
+      ok_stock(
+        @stock.channel_to_extrusion_adapter(
+          41.3, 47.6, 14.3, 20.0, 70.0, 48.0, 6.0,
+        ),
+      ),
+      "channel-face",
+    ),
+    (ok_stock(@stock.extrusion_to_tube_clamp(17.9324, 20.0)), "tube-bore"),
   ]
   for entry in builders {
     let (part, expected) = entry

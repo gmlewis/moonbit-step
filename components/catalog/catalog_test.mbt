@@ -119,11 +119,14 @@ test "new construction and motion catalogue families are discoverable" {
   )
 
   let motors = @catalog.motor_catalog()
-  assert_eq(motors.length(), 2)
-  assert_true(motors.all(fn(e) { e.family == "stepper motor envelope" }))
+  assert_eq(motors.length(), 3)
+  assert_true(motors.any(fn(e) { e.family == "stepper motor envelope" }))
+  assert_true(motors.any(fn(e) { e.family == "motor-to-extrusion adapter" }))
 
   let stock = @catalog.stock_catalog()
-  assert_eq(stock.length(), 2)
+  assert_eq(stock.length(), 4)
   assert_true(stock.any(fn(e) { e.family == "steel angle section" }))
   assert_true(stock.any(fn(e) { e.family == "flat plate blank" }))
+  assert_true(stock.any(fn(e) { e.family == "channel-to-extrusion adapter" }))
+  assert_true(stock.any(fn(e) { e.family == "extrusion-to-tube clamp" }))
 }

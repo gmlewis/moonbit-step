@@ -13,7 +13,11 @@ pub fn angle_section(leg_a_mm~ : Double, leg_b_mm~ : Double, thickness_mm~ : Dou
 
 pub fn bearing_plate(Double, Double, Double, Double, Double, Double, Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
+pub fn channel_to_extrusion_adapter(Double, Double, Double, Double, Double, Double, Double, extrusion_hole_diameter_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
 pub fn en10056_equal_angle_40x40x4() -> AngleSection
+
+pub fn extrusion_to_tube_clamp(Double, Double, clearance_mm? : Double, wall_mm? : Double, gap_mm? : Double, ear_length_mm? : Double, ear_height_mm? : Double, ear_embed_mm? : Double, clamp_bolt_diameter_mm? : Double, base_width_mm? : Double, base_thickness_mm? : Double, extrusion_pitch_mm? : Double, bolt_diameter_mm? : Double, embed_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
 pub fn heat_set_boss(Double, Double, Double, Double, Double, insert_diametral_clearance_mm? : Double, insert_fit? : @cad.Fit, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 

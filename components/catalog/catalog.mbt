@@ -317,6 +317,24 @@ pub fn motor_catalog() -> Array[CatalogEntry] {
       Err(_) => ()
     }
   }
+  match @motors.nema_frame("NEMA17") {
+    Ok(frame) =>
+      match @motors.motor_to_extrusion_adapter(frame, 60.0, 50.0, 6.0, 40.0) {
+        Ok(c) =>
+          entries.push(
+            entry_from_component(
+              c,
+              [
+                "frame", "plate_width", "plate_height", "thickness", "extrusion_pitch",
+                "extrusion_hole_diameter", "hole_clearance", "detail",
+              ],
+              ["Detailed"],
+            ),
+          )
+        Err(_) => ()
+      }
+    Err(_) => ()
+  }
   entries
 }
 
@@ -341,6 +359,36 @@ pub fn stock_catalog() -> Array[CatalogEntry] {
         entry_from_component(c, ["width", "height", "thickness", "holes"], [
           "Detailed",
         ]),
+      )
+    Err(_) => ()
+  }
+  match
+    @stock.channel_to_extrusion_adapter(41.3, 47.6, 14.3, 20.0, 70.0, 48.0, 6.0) {
+    Ok(c) =>
+      entries.push(
+        entry_from_component(
+          c,
+          [
+            "channel_width", "channel_hole_pitch", "channel_hole_diameter", "extrusion_pitch",
+            "plate_width", "plate_height", "thickness", "extrusion_hole_diameter",
+          ],
+          ["Detailed"],
+        ),
+      )
+    Err(_) => ()
+  }
+  match @stock.extrusion_to_tube_clamp(17.9324, 20.0) {
+    Ok(c) =>
+      entries.push(
+        entry_from_component(
+          c,
+          [
+            "tube_outside_diameter", "length", "clearance", "wall", "gap", "ear_length",
+            "ear_height", "ear_embed", "clamp_bolt_diameter", "base_width", "base_thickness",
+            "extrusion_pitch", "bolt_diameter", "embed",
+          ],
+          ["Detailed"],
+        ),
       )
     Err(_) => ()
   }

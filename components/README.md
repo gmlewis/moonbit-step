@@ -91,6 +91,12 @@ moon run components/examples/idler -- \
 moon run components/examples/tubing -- --part endcap --trade 1/2 -o endcap.step
 moon run components/examples/tubing -- --part clamp --trade 1/2 -o clamp.step
 
+# Generic extrusion adapters (motor, channel, and tube clamp)
+moon run components/examples/adapters -- --part motor -o motor-adapter.step
+moon run components/examples/adapters -- --part channel -o channel-adapter.step
+moon run components/examples/adapters -- \
+  --part clamp --tubeOD 17.9324 -o tube-clamp.step
+
 # Countersunk plate and tube-to-V-Slot bracket
 moon run components/examples/stock_primitive -- \
   --part countersink --width 50 --height 40 --plateThickness 8 \
@@ -247,8 +253,8 @@ use `--headless`.
 | `fasteners` | Screws, bolts, nuts, washers, pins, rods, set screws, generic solid rivets, DIN 471 type A external retaining rings (A 10 to A 34), and DIN 472 internal retaining rings (all table sizes 8 to 40; measured outlines for 10, 12, 14, 16, 18, 20, 24, 28, 32, and 40 mm, parametric for the rest). |
 | `profiles` | Generic T-slot sections, the vendor 2020 B-slot6 A section, OpenBuilds-compatible V-Slot 2020/2040 sections, the MakerBeam 10 x 10 section, a gusseted V-Slot corner bracket, P1000-style strut channel, and a generic channel nut. |
 | `motion` | Shafts, stepped/keyed shafts, spacers and V-Slot wheel spacers (plain and eccentric), bushings, plain, set-screw, and clamp shaft collars, keys, dowel pins, standoffs, compression springs, ball bearings (envelope, shielded, and full-complement deep-groove), LM-series linear bushings, flanged linear housings, UCP-series pillow-block bearing boundaries, approximated GT2 timing pulleys, smooth idlers, V-Slot wheels, EMT tubing with end caps and split clamps, rigid couplings, helical beam couplings, and flanged bearing housings. |
-| `motors` | NEMA 17 and NEMA 23 stepper-motor envelopes, mounting interfaces, and NEMA mounting plates. |
-| `stock` | EN 10056 angle sections, configurable flat plate blanks with analytic circular holes and obround slots, counterbored and countersunk plates, bearing-housing plates, tube-to-plate and tube-to-V-Slot adapter brackets, SC8UU-style rod/bearing blocks, and heat-set insert bosses. |
+| `motors` | NEMA 17 and NEMA 23 stepper-motor envelopes, mounting interfaces, NEMA mounting plates, and a generic NEMA-to-20-series extrusion adapter. |
+| `stock` | EN 10056 angle sections, configurable flat plate blanks with analytic circular holes and obround slots, counterbored and countersunk plates, bearing-housing plates, tube-to-plate and tube-to-V-Slot adapter brackets, generic channel-to-extrusion adapters and extrusion-to-tube clamps, SC8UU-style rod/bearing blocks, and heat-set insert bosses. |
 | `gears` | Involute spur gears, external pairs, and exact-internal-involute planetary sets. |
 | `planetary` | Fully parametric herringbone planetary gearbox (sun, equally spaced planets, inward-facing ring) with every generator option as a parameter, exact line/arc extrusions when `num_elbows` is 0, and otherwise the true helical twist of each elbow as smooth ruled B-spline flanks with sharp piecewise-linear elbow creases; named mate connectors on every gear. |
 | `assemblies` | Rigid placements, linear/circular patterns, hardware kits, extrusion frames, bolted joints, collision/contact reports, connectivity checks. |
@@ -405,8 +411,17 @@ frames, and plates expose face and per-hole frames.
 - V-Slot has real lip, cavity, web, and core-bore geometry, plus V-wheels,
   T-nuts, a gusseted corner bracket, and plain/eccentric wheel spacers. The
   V-Slot section is verified analytically; the wheel and corner-bracket goldens
-  are Xem Studio references (CC BY 4.0). EMT coupling, clamp, and bracket
-  accessories are not implemented yet.
+  are Xem Studio references (CC BY 4.0). EMT couplings, saddles, bends, and
+  other conduit fittings are not implemented; the EMT end cap, split clamp,
+  tube mount plate, tube-to-V-Slot bracket, and generic extrusion-to-tube clamp
+  are.
+- The generic adapters — NEMA motor to 20-series extrusion, P1000 channel to
+  20-series extrusion, and extrusion-to-tube clamp — are original parametric
+  engineering constructions built from the verified NEMA frame, P1000 channel,
+  20-series slot, and EMT interfaces. They do not reproduce a vendor part and
+  no reference STEP was used as a geometry source. The tube clamp is a layered
+  ring/ear/base part whose accepted artifact is the OCCT-evaluated union. No
+  thread, fastener, clamp force, or strength rating is claimed.
 - DIN 471 type A external retaining rings are flat stamped rings with two
   lugs, plier holes, a free bore, and a declared shaft-groove interface. The
   DIN 471 table (d1, s, d3, a, b, d5, d2, m, t, n) is cross-checked between two

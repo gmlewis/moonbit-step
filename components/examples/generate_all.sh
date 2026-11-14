@@ -169,6 +169,10 @@ moon run components/examples/din472_ring -- \
 # A parametric table size (no measured reference; flat writer, no OCCT needed).
 moon run components/examples/din472_ring -- \
   --size 22 -o "$OUT/din472-22-parametric.step"
+moon run components/examples/adapters -- \
+  --part motor -o "$OUT/motor-to-extrusion-adapter.step"
+moon run components/examples/adapters -- \
+  --part channel -o "$OUT/channel-to-extrusion-adapter.step"
 # The set-screw collar's primary artifact is the OCCT-evaluated trimmed solid.
 if command -v python3 >/dev/null 2>&1 &&
   { command -v DRAWEXE >/dev/null 2>&1 ||
@@ -199,8 +203,11 @@ if command -v python3 >/dev/null 2>&1 &&
   moon run components/examples/din472_ring -- \
     --size 40 -o "$OUT/din472-40.step"
   python3 "$ROOT/scripts/validate_step.py" "$OUT/din472-40.step"
+  moon run components/examples/adapters -- \
+    --part clamp -o "$OUT/tube-to-extrusion-clamp.step"
+  python3 "$ROOT/scripts/validate_step.py" "$OUT/tube-to-extrusion-clamp.step"
 else
-  echo "skipping evaluated collars, chamfered retaining rings, and pillow blocks: evaluated export needs python3 and OCCT" >&2
+  echo "skipping evaluated collars, chamfered retaining rings, pillow blocks, and the tube clamp: evaluated export needs python3 and OCCT" >&2
 fi
 for part in vslot-2020x100 vslot-2040x100 vslot-wheel vslot-tnut-m5 \
   vslot-joining-plate vslot-corner-bracket vslot-spacer-10x5x6 \
@@ -208,6 +215,7 @@ for part in vslot-2020x100 vslot-2040x100 vslot-wheel vslot-tnut-m5 \
   idler-flanged-20x10 \
   emt-1-2in-304 shaft-collar-d8 tube-mount-plate \
   makerbeam-1010-l100 din471-a20 din472-20 din472-22-parametric \
+  motor-to-extrusion-adapter channel-to-extrusion-adapter \
   clamp-collar-d20 sc8uu-bearing-block heat-set-boss-m3x4; do
   python3 "$ROOT/scripts/validate_step.py" --no-mesh "$OUT/$part.step"
 done
