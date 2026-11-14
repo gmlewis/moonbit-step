@@ -481,6 +481,8 @@ def describe(tool, args):
                 arg_value(args, "--height") or "?",
                 arg_value(args, "--plateThickness") or "?",
             )
+        if part == "sc8uu":
+            return "SC8UU rod/bearing block (OCCT-evaluated)"
         return "angle {}x{}x{} L={}".format(
             arg_value(args, "--legA") or "?",
             arg_value(args, "--legB") or "?",

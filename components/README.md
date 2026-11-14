@@ -71,6 +71,9 @@ moon run components/examples/clamp_shaft_collar -- \
   --bore 20 --outer 40 --width 15 --thread M6 \
   --screwOffset 14.73 --screw M6 --screwLength 16 -o clamp-collar.step
 
+# SC8UU rod/bearing block (OCCT-evaluated transverse bearing seat)
+moon run components/examples/stock_primitive -- --part sc8uu -o sc8uu.step
+
 # Counterbored plate and smooth idler
 moon run components/examples/stock_primitive -- \
   --part counterbore --width 50 --height 40 --plateThickness 8 \
@@ -240,7 +243,7 @@ use `--headless`.
 | `profiles` | Generic T-slot sections, the vendor 2020 B-slot6 A section, OpenBuilds-compatible V-Slot 2020/2040 sections, the MakerBeam 10 x 10 section, a gusseted V-Slot corner bracket, P1000-style strut channel, and a generic channel nut. |
 | `motion` | Shafts, stepped/keyed shafts, spacers and V-Slot wheel spacers (plain and eccentric), bushings, plain, set-screw, and clamp shaft collars, keys, dowel pins, standoffs, compression springs, ball bearings (envelope, shielded, and full-complement deep-groove), LM-series linear bushings, flanged linear housings, UCP-series pillow-block bearing boundaries, approximated GT2 timing pulleys, smooth idlers, V-Slot wheels, EMT tubing with end caps and split clamps, rigid couplings, helical beam couplings, and flanged bearing housings. |
 | `motors` | NEMA 17 and NEMA 23 stepper-motor envelopes, mounting interfaces, and NEMA mounting plates. |
-| `stock` | EN 10056 angle sections, configurable flat plate blanks with analytic circular holes and obround slots, counterbored and countersunk plates, bearing-housing plates, and tube-to-plate and tube-to-V-Slot adapter brackets. |
+| `stock` | EN 10056 angle sections, configurable flat plate blanks with analytic circular holes and obround slots, counterbored and countersunk plates, bearing-housing plates, tube-to-plate and tube-to-V-Slot adapter brackets, and SC8UU-style rod/bearing blocks. |
 | `gears` | Involute spur gears, external pairs, and exact-internal-involute planetary sets. |
 | `planetary` | Fully parametric herringbone planetary gearbox (sun, equally spaced planets, inward-facing ring) with every generator option as a parameter, exact line/arc extrusions when `num_elbows` is 0, and otherwise the true helical twist of each elbow as smooth ruled B-spline flanks with sharp piecewise-linear elbow creases; named mate connectors on every gear. |
 | `assemblies` | Rigid placements, linear/circular patterns, hardware kits, extrusion frames, bolted joints, collision/contact reports, connectivity checks. |
@@ -441,6 +444,15 @@ frames, and plates expose face and per-hole frames.
 - NEMA mounting plates are generic plate blanks with the frame bolt pattern and
   pilot clearance bore. Plate size, thickness, and clearance are caller
   parameters; no stiffness or strength rating is implied.
+- SC8UU-style rod/bearing blocks reproduce the CC BY 4.0 Xem Studio reference:
+  34 x 30 x 22 mm, R2 vertical corners, a nominal Ø15 LM8UU seat along Y, and
+  four Ø3.3 mounting holes on a 24 x 18 mm pitch. The matching rod interface is
+  Ø8. Seat clearance is a separate diametral parameter; press/free-fit intent is
+  connector metadata and does not add a tolerance or imply retention strength.
+  The reference and model share the same envelope and surface inventory; the
+  nominal analytic volume is 0.169% above the reference. The bearing and rod are
+  separate parts. Use `write_step_evaluated` for the real transverse seat; no
+  load, life, or mounting-strength rating is implied.
 
 ## License
 

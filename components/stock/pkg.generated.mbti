@@ -21,6 +21,10 @@ pub fn plate_with_counterbores(Double, Double, Double, holes~ : Array[Counterbor
 
 pub fn plate_with_countersinks(Double, Double, Double, holes~ : Array[CountersunkHole], color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
+pub fn rod_bearing_block(Double, Double, Double, Double, Double, Double, Double, Double, corner_radius_mm? : Double, bearing_diametral_clearance_mm? : Double, bearing_fit? : @cad.Fit, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn sc8uu_bearing_block(color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
 pub fn tube_mount_plate(Double, Double, Double, Double, Double, Double, Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
 pub fn tube_to_vslot_bracket(Double, Double, Double, Double, Double, Double, Double, Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]

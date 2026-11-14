@@ -5139,6 +5139,135 @@
         "owner_visual": "pending"
       },
       "notes": "The reference is the CC0 Innerscene 5-to-8 mm helical beam coupling: 3 solids (body 12079.7 mm^3 plus two M3 x 12 clamp screws 142.8 mm^3 each; total 12365.3). The body is an OD 25 x 30 sleeve with 45 degree x 0.5 mm outer chamfers, a stepped bore (5 mm from z = 0 to 15, then 8 mm to z = 30), a continuous 0.7 mm helical slit cut through the wall (3 turns at a 3.2 mm pitch), and two clamp hubs (0.8 mm axial radial slits with a 3.2 mm clearance hole and a 6.1 mm head counterbore along Y at x = 8, z = 4 and 26) plus two M3 x 12 ISO 4762 clamp screws. The helical slit is a 48-segments-per-turn polyline approximation of the reference's two B-spline helicoid walls (chord deviation < 0.03 mm); the clamp-screw threads are declared by connectors and not modelled. The parametric body is 12114.6 vs the reference body's 12079.7 mm^3 (+0.29%), the two-screw compound totals 12411.8 vs 12365.3 mm^3 (+0.38%), true bbox 25 x 25 x 30 mm (the reference tool reports an inflated +/-17.7 bbox for the B-spline helicoids; the true OD is 25), 611 planes + 20 cylinders + 2 cones, and the evaluated compound carries the reference's per-body colours. No torque, stiffness, or misalignment rating is implied."
+    },
+    {
+      "fixture_id": "stock/sc8uu-bearing-block",
+      "part_id": "slide_block_sc8uu_xem",
+      "designation": "SC8UU LM8UU slide block",
+      "family": "rod-to-bearing block",
+      "standard": "Xem Studio SC8UU dimension sheet (manufacturer-style part)",
+      "manufacturer": "Xem Studio",
+      "source_page": "https://xemstudio.com/objects/slide-block-sc8uu/",
+      "download_url": "https://xemstudio.com/files/hardware/bearing-housings-and-rod-supports/slide-block-sc8uu.step",
+      "local_filename": "external/sc8uu_slide_block_xem.step",
+      "sha256": "25a23fa76345018fb9e945648e9e8ce56c67ce2fd77633b19333d129c2e9eac1",
+      "byte_size": 51348,
+      "units": "mm",
+      "license": "CC BY 4.0",
+      "license_evidence_url": "https://xemstudio.com/objects/slide-block-sc8uu/",
+      "declared_dimensions": {
+        "width_mm": 34.0,
+        "depth_mm": 30.0,
+        "height_mm": 22.0,
+        "corner_radius_mm": 2.0,
+        "bearing_seat_diameter_mm": 15.0,
+        "rod_diameter_mm": 8.0,
+        "mount_hole_diameter_mm": 3.3,
+        "mount_pitch_x_mm": 24.0,
+        "mount_pitch_y_mm": 18.0,
+        "bearing_fit": "press-fit intent; true-size nominal geometry, no tolerance added"
+      },
+      "measured_dimensions": {
+        "bbox_mm": [
+          34.0,
+          30.0,
+          22.0
+        ],
+        "volume_mm3": 16282.9,
+        "solids": 1,
+        "surfaces": {
+          "plane": 6,
+          "cylinder": 9
+        }
+      },
+      "parametric_value": {
+        "bbox_mm": [
+          34.0,
+          30.0,
+          22.0
+        ],
+        "volume_mm3": 16310.4,
+        "solids": 1,
+        "surfaces": {
+          "plane": 6,
+          "cylinder": 9
+        },
+        "source": "components/examples/stock_primitive --part sc8uu"
+      },
+      "generation": {
+        "tool": "components/examples/stock_primitive",
+        "args": [
+          "--part",
+          "sc8uu",
+          "-o",
+          "{out}"
+        ],
+        "output": "sc8uu-bearing-block.step"
+      },
+      "comparison": {
+        "solids": 1,
+        "bbox_axes": [
+          {
+            "axis": 0,
+            "expected_mm": 34.0,
+            "label": "block width"
+          },
+          {
+            "axis": 1,
+            "expected_mm": 30.0,
+            "label": "block depth"
+          },
+          {
+            "axis": 2,
+            "expected_mm": 22.0,
+            "label": "block height"
+          }
+        ],
+        "volume_mm3": 16310.359782636084,
+        "volume_relative_tol": 0.0001,
+        "mass_properties": {
+          "center_of_mass_mm": [
+            0.0,
+            0.0,
+            11.0
+          ],
+          "center_of_mass_tol_mm": 0.001
+        },
+        "features": [
+          {
+            "kind": "surface_min",
+            "surface": "plane",
+            "min_count": 6
+          },
+          {
+            "kind": "surface_min",
+            "surface": "cylinder",
+            "min_count": 9
+          },
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 7.5,
+            "tol_mm": 0.01
+          },
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 2.0,
+            "tol_mm": 0.01
+          },
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 1.65,
+            "tol_mm": 0.01
+          }
+        ]
+      },
+      "verdict": "accepted-envelope",
+      "committed": false,
+      "review": {
+        "automated": "pass",
+        "owner_visual": "pending"
+      },
+      "notes": "CC BY 4.0 Xem Studio SC8UU block. The parametric and reference solids have the same 34 x 30 x 22 mm bbox, R2 vertical corners, Ø15 transverse LM8UU seat, four Ø3.3 vertical mounting holes on a 24 x 18 mm pitch, six planes, nine cylinders, and centred mass. The nominal analytic volume is 16310.36 mm^3 versus the reference's 16282.9 mm^3 (+0.169%); dimensions are not tuned to conceal that difference. The seat's press-fit intent is metadata, not added interference or a retention claim. The rod and bearing are separate parts. The OCCT-evaluated export is the accepted artifact because the flat writer cannot trim the transverse bore. No load, life, or strength rating is implied."
     }
   ],
   "golden_source": {

@@ -19,12 +19,13 @@
 ///   --holeSpacing 24 --through 5.5 --countersinkDiameter 9 --countersinkDepth 2 -o cs.step
 /// moon run components/examples/stock_primitive -- \
 ///   --part tube-bracket --tubeOD 17.9324 --tubeClearance 0.5 --width 60 --height 40 -o bracket.step
+/// moon run components/examples/stock_primitive -- --part sc8uu -o sc8uu.step
 /// ```
 async fn main {
   let spec = {
     "part": @cli.opt_string(
       short='p',
-      help="Part: angle (default), plate, counterbore, countersink, tube-bracket, or bearing",
+      help="Part: angle (default), plate, counterbore, countersink, tube-bracket, bearing, or sc8uu",
     ),
     "legA": @cli.opt_double(40.0, help="Angle leg A in mm", min=0.0),
     "legB": @cli.opt_double(40.0, help="Angle leg B in mm", min=0.0),
@@ -125,6 +126,14 @@ async fn main {
   }
   let part_kind = args.string_opt("part").unwrap_or("angle")
   let component = match part_kind {
+    "sc8uu" =>
+      match @stock.sc8uu_bearing_block() {
+        Ok(c) => c
+        Err(e) => {
+          @cli.eprintln("error: " + e.message())
+          abort("")
+        }
+      }
     "countersink" => {
       let spacing = args.double("holeSpacing")
       let holes : Array[@stock.CountersunkHole] = [
@@ -265,5 +274,9 @@ async fn main {
     let (x0, x1, y0, y1, z0, z1) = component.bounding_box()
     @cli.eprintln("bbox: x=[\{x0}, \{x1}] y=[\{y0}, \{y1}] z=[\{z0}, \{z1}]")
   }
-  component.write_step(args.string_opt("out"), checked=true)
+  if part_kind == "sc8uu" {
+    component.write_step_evaluated(args.string_opt("out"))
+  } else {
+    component.write_step(args.string_opt("out"), checked=true)
+  }
 }

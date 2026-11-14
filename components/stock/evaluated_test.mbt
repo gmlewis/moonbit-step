@@ -128,3 +128,47 @@ async test "counterbored plate evaluates to one watertight solid" {
   assert_true((extents[1] - 40.0).abs() < 0.01)
   assert_true((extents[2] - 8.0).abs() < 0.01)
 }
+
+///|
+async test "SC8UU block evaluates to one solid with five through bores" {
+  if !evl_command_in_path("python3") || !evl_draw_available() {
+    return
+  }
+  let root = evl_repo_root()
+  let dir = @fs.tmpdir(prefix="sc8uu-eval-")
+  defer @fs.rmdir(dir, recursive=true)
+  let part = match @stock.sc8uu_bearing_block() {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  let out = dir + "/sc8uu.step"
+  part.write_step_evaluated(Some(out), root=Some(root))
+  let (vcode, vout) = @process.collect_output_merged("python3", [
+    root + "/scripts/validate_step.py",
+    out,
+  ])
+  assert_true(vcode == 0)
+  let vtext = vout.text()
+  assert_true(vtext.contains("1 solids, 1 closed shells"))
+  assert_true(vtext.contains("[PASS] occt mesh"))
+  let (mcode, mout) = @process.collect_output_merged("python3", [
+    root + "/scripts/measure_step_occt.py",
+    out,
+  ])
+  assert_true(mcode == 0)
+  let doc = @json.parse(mout.text()) catch {
+    _ => fail("invalid measurement JSON")
+  }
+  assert_true(evl_json_number(doc, "solids") == 1.0)
+  assert_true((evl_json_number(doc, "volume") - 16310.359782636084).abs() < 0.5)
+  let bbox = evl_json_array(doc, "bbox")
+  assert_eq(bbox.length(), 6)
+  let extents : Array[Double] = [
+    evl_json_item_number(bbox[1]) - evl_json_item_number(bbox[0]),
+    evl_json_item_number(bbox[3]) - evl_json_item_number(bbox[2]),
+    evl_json_item_number(bbox[5]) - evl_json_item_number(bbox[4]),
+  ]
+  assert_true((extents[0] - 34.0).abs() < 0.01)
+  assert_true((extents[1] - 30.0).abs() < 0.01)
+  assert_true((extents[2] - 22.0).abs() < 0.01)
+}
