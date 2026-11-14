@@ -45,7 +45,7 @@ def helper_available(helper: str) -> bool:
     return probe.returncode == 0
 
 
-def open_with_helper(helper: str, step_path: str) -> str | None:
+def open_with_helper(helper: str, step_path: str) -> tuple[str | None, str]:
     # The GUI helper only reads files under its allowed roots (its cwd and
     # /Users/glenn/src/github.com by default). --view writes to /tmp, so allow
     # the STEP's own directory explicitly.
@@ -66,14 +66,14 @@ def open_with_helper(helper: str, step_path: str) -> str | None:
         text=True,
     )
     if proc.returncode != 0:
-        return None
+        return None, (proc.stderr or proc.stdout).strip()
     lines = proc.stdout.strip().splitlines()
     if not lines:
-        return None
+        return None, "the helper returned no component"
     try:
-        return json.loads(lines[-1]).get("component")
+        return json.loads(lines[-1]).get("component"), ""
     except (ValueError, IndexError):
-        return None
+        return None, "\n".join(lines[-3:])
 
 
 def add_connector_origins(helper: str, step_path: str, component: str) -> tuple[int, int]:
@@ -160,7 +160,7 @@ def main(argv: list[str]) -> int:
 
     helper = helper_path()
     if helper_available(helper):
-        component = open_with_helper(helper, step_path)
+        component, error = open_with_helper(helper, step_path)
         if component:
             added, failed = add_connector_origins(helper, step_path, component)
             if added or failed:
@@ -173,8 +173,9 @@ def main(argv: list[str]) -> int:
             activate_app(app)
             return 0
         print(
-            "note: the SolidCraft helper could not open the STEP; "
-            "falling back to 'open -a'.",
+            "note: the SolidCraft helper could not open the STEP"
+            + (": " + error if error else "")
+            + "; falling back to 'open -a'.",
             file=sys.stderr,
         )
 

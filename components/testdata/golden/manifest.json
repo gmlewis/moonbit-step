@@ -4600,6 +4600,386 @@
           }
         ]
       }
+    },
+    {
+      "fixture_id": "motion/pillow-block-ucp204",
+      "part_id": "pillow_block_bearing_ucp204",
+      "designation": "UCP204 pillow block bearing, 20 mm shaft",
+      "family": "pillow block bearing",
+      "standard": "Koyo UCP-series published dimensions (boundary)",
+      "manufacturer": "Innerscene Corp (CC0 1.0 public-domain dedication)",
+      "source_page": "https://www.innerscene.com/tools/library/3d-parts/ucp204-pillow-block-bearing-16e5166d",
+      "download_url": "https://www.innerscene.com/api/library/ucp204-pillow-block-bearing-16e5166d/download",
+      "local_filename": "external/ucp204_pillow_block_innerscene.step",
+      "sha256": "e80db543c51bdf0e1e9ad528f6906dc9887de0a4f2c8c50c73a3550bd350c9f7",
+      "byte_size": 385014,
+      "units": "mm",
+      "license": "CC0-1.0",
+      "license_evidence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "declared_dimensions": {
+        "shaft_diameter_mm": 20.0,
+        "shaft_height_mm": 33.3,
+        "length_mm": 127.0,
+        "base_width_mm": 38.0,
+        "bolt_pitch_mm": 95.0
+      },
+      "measured_dimensions": {
+        "bbox_mm": [
+          127.0,
+          38.0,
+          70.35
+        ],
+        "volume_mm3": 110376.6026,
+        "solids": 8,
+        "surfaces": {
+          "plane": 62,
+          "cylinder": 23,
+          "sphere": 1,
+          "cone": 6
+        },
+        "solid_volumes_mm3": [
+          84287.6,
+          12160.1,
+          98.2883,
+          98.2883,
+          13305.5,
+          162.852,
+          162.852,
+          101.122
+        ],
+        "housing_volume_mm3": 84287.6,
+        "housing_bbox_mm": [
+          127.0,
+          38.0,
+          65.0005
+        ],
+        "insert_outer_ring_volume_mm3": 12160.1,
+        "insert_inner_body_volume_mm3": 13305.5,
+        "grease_nipple_volume_mm3": 101.122,
+        "seat_bore_radius_mm": 23.54,
+        "arch_outer_radius_mm": 31.7,
+        "arch_width_mm": 24.0,
+        "slot_width_mm": 13.0,
+        "slot_length_mm": 18.0,
+        "corner_radius_mm": 3.0,
+        "bottom_relief_mm": [
+          55.0,
+          3.99
+        ]
+      },
+      "parametric_value": {
+        "bbox_mm": [
+          127.0,
+          38.0,
+          70.35
+        ],
+        "volume_mm3": 110391.8492,
+        "solids": 8,
+        "surfaces": {
+          "plane": 59,
+          "cylinder": 27,
+          "cone": 5,
+          "sphere": 1
+        },
+        "source": "components/examples/motion_stack --part pillow-block --pillowBlock UCP204"
+      },
+      "generation": {
+        "tool": "components/examples/motion_stack",
+        "args": [
+          "--part",
+          "pillow-block",
+          "--pillowBlock",
+          "UCP204",
+          "-o",
+          "{out}"
+        ],
+        "output": "ucp204-pillow-block.step"
+      },
+      "comparison": {
+        "solids": 8,
+        "bbox_axes": [
+          {
+            "axis": 0,
+            "expected_mm": 127.0,
+            "label": "overall length"
+          },
+          {
+            "axis": 1,
+            "expected_mm": 38.0,
+            "label": "base width"
+          },
+          {
+            "axis": 2,
+            "expected_mm": 70.35,
+            "label": "overall height (housing crown + grease fitting)"
+          }
+        ],
+        "volume_mm3": 110391.8492,
+        "volume_relative_tol": 0.01,
+        "features": [
+          {
+            "kind": "surface_min",
+            "surface": "sphere",
+            "min_count": 1
+          },
+          {
+            "kind": "surface_min",
+            "surface": "cylinder",
+            "min_count": 20
+          },
+          {
+            "kind": "surface_min",
+            "surface": "cone",
+            "min_count": 4
+          },
+          {
+            "kind": "sphere_radius_present_mm",
+            "expected": 23.5,
+            "tol_mm": 0.01
+          },
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 10.0,
+            "tol_mm": 0.01
+          },
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 15.5,
+            "tol_mm": 0.01
+          },
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 17.0,
+            "tol_mm": 0.01
+          },
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 3.05,
+            "tol_mm": 0.01
+          },
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 23.54,
+            "tol_mm": 0.01
+          },
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 31.7,
+            "tol_mm": 0.01
+          },
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 6.5,
+            "tol_mm": 0.01
+          },
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 3.0,
+            "tol_mm": 0.01
+          },
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 1.9,
+            "tol_mm": 0.01
+          }
+        ]
+      },
+      "verdict": "accepted-envelope",
+      "review": {
+        "automated": "pass",
+        "owner_visual": "pending"
+      },
+      "notes": "The reference is the CC0 Innerscene UCP204 pillow block, an 8-solid assembly (housing 84287.6 mm^3, spherical-OD outer race 12160.1, extended inner race 13305.5, two seals 162.9 each, two DIN 916 M6 set screws 98.3 each, grease fitting 101.1; total 110376.6 mm^3). This library reproduces the same 8-part assembly. The housing is the base plate (127 x 38 x 16 mm, two 18 x 13 mm obround mounting slots on the 95 mm bolt pitch, 3.99 mm deep bottom centre relief, R3 corners) fused with the horseshoe arch (24 mm wide, r 31.7 mm crown, r 23.54 mm insert seat); the insert is a self-aligning outer race (spherical r 23.5 mm outside diameter, 34 mm bore, 16 mm wide), an extended inner race (31 mm outside diameter, 20 mm bore, 31 mm wide, 0.45 mm rim chamfers) with two 6.1 mm radial set-screw holes 120 degrees apart, two 1.1 mm contact seals, two DIN 916 M6 x 4 set screws, and a hex grease fitting on the crown. The parts sit at the reference's 0.025-0.05 mm clearances, so the OCCT-evaluated compound is 8 separate solids: bbox 127 x 38 x 70.35 mm, volume 110391.85 vs 110376.60 mm^3 (0.014%), 59 planes + 27 cylinders + 5 cones + 1 sphere. The parametric housing is 84306.3 vs the reference housing's 84287.6 mm^3 (0.02%); the outer race and seals match the reference exactly and the inner race is within 3 mm^3. Rolling elements and cage are omitted; the seat and shaft clearances are declared by connectors. The OCCT-evaluated compound is the primary artifact because the flat writer cannot trim the relief, seat bore, or set-screw holes. No load, life, or safety claim is made."
+    },
+    {
+      "fixture_id": "motion/pillow-block-ucp205",
+      "part_id": "pillow_block_bearing_ucp205",
+      "designation": "UCP205 pillow block bearing, 25 mm shaft",
+      "family": "pillow block bearing",
+      "standard": "Koyo UCP-series published dimensions (boundary)",
+      "manufacturer": "Innerscene Corp (CC0 1.0 public-domain dedication)",
+      "source_page": "https://www.innerscene.com/tools/library/3d-parts/ucp205-pillow-block-bearing-af083736",
+      "download_url": "https://www.innerscene.com/api/library/ucp205-pillow-block-bearing-af083736/download",
+      "local_filename": "external/ucp205_pillow_block_innerscene.step",
+      "sha256": "5e026997dd3e7459260a3a069033abb74fbc02301d6f688039b14d25d3c8ae0e",
+      "byte_size": 380254,
+      "units": "mm",
+      "license": "CC0-1.0",
+      "license_evidence_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "declared_dimensions": {
+        "shaft_diameter_mm": 25.0,
+        "shaft_height_mm": 36.5,
+        "length_mm": 140.0,
+        "base_width_mm": 38.0,
+        "bolt_pitch_mm": 105.0
+      },
+      "measured_dimensions": {
+        "bbox_mm": [
+          140.0,
+          38.8,
+          75.35
+        ],
+        "volume_mm3": 129551.8126,
+        "solids": 8,
+        "surfaces": {
+          "plane": 62,
+          "cylinder": 23,
+          "sphere": 1,
+          "cone": 6
+        },
+        "solid_volumes_mm3": [
+          96758.0,
+          14508.9,
+          98.2883,
+          98.2883,
+          17611.4,
+          187.907,
+          187.907,
+          101.122
+        ],
+        "housing_volume_mm3": 96758.0,
+        "housing_bbox_mm": [
+          140.0,
+          38.0,
+          70.0005
+        ],
+        "insert_outer_ring_volume_mm3": 14508.9,
+        "insert_inner_body_volume_mm3": 17611.4,
+        "grease_nipple_volume_mm3": 101.122,
+        "seat_bore_radius_mm": 26.04,
+        "arch_outer_radius_mm": 33.5,
+        "arch_width_mm": 26.0,
+        "slot_width_mm": 13.0,
+        "slot_length_mm": 18.0,
+        "corner_radius_mm": 3.0,
+        "bottom_relief_mm": [
+          64.0,
+          3.99
+        ]
+      },
+      "parametric_value": {
+        "bbox_mm": [
+          140.0,
+          38.8,
+          75.35
+        ],
+        "volume_mm3": 129565.8592,
+        "solids": 8,
+        "surfaces": {
+          "plane": 59,
+          "cylinder": 27,
+          "cone": 5,
+          "sphere": 1
+        },
+        "source": "components/examples/motion_stack --part pillow-block --pillowBlock UCP205"
+      },
+      "generation": {
+        "tool": "components/examples/motion_stack",
+        "args": [
+          "--part",
+          "pillow-block",
+          "--pillowBlock",
+          "UCP205",
+          "-o",
+          "{out}"
+        ],
+        "output": "ucp205-pillow-block.step"
+      },
+      "comparison": {
+        "solids": 8,
+        "bbox_axes": [
+          {
+            "axis": 0,
+            "expected_mm": 140.0,
+            "label": "overall length"
+          },
+          {
+            "axis": 1,
+            "expected_mm": 38.8,
+            "label": "base width plus the protruding inner race"
+          },
+          {
+            "axis": 2,
+            "expected_mm": 75.35,
+            "label": "overall height (housing crown + grease fitting)"
+          }
+        ],
+        "volume_mm3": 129565.8592,
+        "volume_relative_tol": 0.01,
+        "features": [
+          {
+            "kind": "surface_min",
+            "surface": "sphere",
+            "min_count": 1
+          },
+          {
+            "kind": "surface_min",
+            "surface": "cylinder",
+            "min_count": 20
+          },
+          {
+            "kind": "surface_min",
+            "surface": "cone",
+            "min_count": 4
+          },
+          {
+            "kind": "sphere_radius_present_mm",
+            "expected": 26.0,
+            "tol_mm": 0.01
+          },
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 12.5,
+            "tol_mm": 0.01
+          },
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 18.0,
+            "tol_mm": 0.01
+          },
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 19.5,
+            "tol_mm": 0.01
+          },
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 3.05,
+            "tol_mm": 0.01
+          },
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 26.04,
+            "tol_mm": 0.01
+          },
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 33.5,
+            "tol_mm": 0.01
+          },
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 6.5,
+            "tol_mm": 0.01
+          },
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 3.0,
+            "tol_mm": 0.01
+          },
+          {
+            "kind": "cylinder_radius_present_mm",
+            "expected": 1.9,
+            "tol_mm": 0.01
+          }
+        ]
+      },
+      "verdict": "accepted-envelope",
+      "review": {
+        "automated": "pass",
+        "owner_visual": "pending"
+      },
+      "notes": "The reference is the CC0 Innerscene UCP205 pillow block, an 8-solid assembly (housing 96758.0 mm^3, spherical-OD outer race 14508.9, extended inner race 17611.4, two seals 187.9 each, two DIN 916 M6 set screws 98.3 each, grease fitting 101.1; total 129551.8 mm^3). This library reproduces the same 8-part assembly as UCP204 with the UCP205 dimensions. The housing is the base plate (140 x 38 x 16 mm, two 18 x 13 mm obround mounting slots on the 105 mm bolt pitch, 3.99 mm deep bottom centre relief, R3 corners) fused with the horseshoe arch (26 mm wide, r 33.5 mm crown, r 26.04 mm insert seat); the insert is a self-aligning outer race (spherical r 26.0 mm outside diameter, 39 mm bore, 17 mm wide), an extended inner race (36 mm outside diameter, 25 mm bore, 34.1 mm wide, 0.45 mm rim chamfers) with two 6.1 mm radial set-screw holes 120 degrees apart, two 1.1 mm contact seals, two DIN 916 M6 x 4 set screws, and a hex grease fitting on the crown. The parts sit at the reference's 0.025-0.05 mm clearances, so the OCCT-evaluated compound is 8 separate solids: bbox 140 x 38.8 x 75.35 mm (the +0.8 mm is the extended inner race), volume 129565.86 vs 129551.81 mm^3 (0.011%), 59 planes + 27 cylinders + 5 cones + 1 sphere. The parametric housing is 96777.0 vs the reference housing's 96758.0 mm^3 (0.02%); the outer race and seals match the reference exactly. Rolling elements and cage are omitted; the seat and shaft clearances are declared by connectors. The OCCT-evaluated compound is the primary artifact. No load, life, or safety claim is made."
     }
   ],
   "golden_source": {

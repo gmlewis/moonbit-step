@@ -301,3 +301,27 @@ test "smooth idler rejects impossible flanges" {
     is Err(_),
   )
 }
+
+///|
+test "pillow block exposes bore, seat, base, and both mounting slots" {
+  let size = match @motion.pillow_block_size("UCP204") {
+    Ok(s) => s
+    Err(e) => abort(e.message())
+  }
+  let part = match @motion.pillow_block_bearing(size) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  for
+    name in [
+      "shaft-bore", "insert-seat", "base-face", "mounting-slot-1", "mounting-slot-2",
+    ] {
+    assert_true(motion_has_connector(part, name))
+  }
+  let bore = motion_connector(part, "shaft-bore")
+  assert_true(bore.kind is @common.MateKind::CylindricalBore)
+  assert_true(bore.gender is @common.MateGender::Female)
+  assert_true(motion_near(bore.placement.trans.2, 33.3))
+  let base = motion_connector(part, "base-face")
+  assert_true(base.kind is @common.MateKind::PlaneFace)
+}

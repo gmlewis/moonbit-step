@@ -11,6 +11,8 @@
 /// moon run components/examples/motion_stack -- \
 ///   --part flange-housing --housingBearingOD 22 --housingBearingWidth 7 -o housing.step
 /// moon run components/examples/motion_stack -- \
+///   --part pillow-block --pillowBlock UCP204 -o ucp204.step
+/// moon run components/examples/motion_stack -- \
 ///   --part coupling --couplingBore 5 --couplingOuter 15 --couplingLength 20 \
 ///   --goldenFrame -o coupling-golden.step
 /// ```
@@ -54,11 +56,19 @@ async fn main {
     ),
     "detail": @cli.opt_string(
       short='D',
-      help="Bearing detail: detailed (default), simplified, full",
+      help="Bearing/pillow-block detail: detailed (default), simplified, envelope, full",
     ),
     "part": @cli.opt_string(
       short='P',
-      help="Part: stack (default), coupling, or flange-housing",
+      help="Part: stack (default), coupling, flange-housing, or pillow-block",
+    ),
+    "pillowBlock": @cli.opt_string(
+      help="Pillow-block designation, UCP204 (default) or UCP205",
+    ),
+    "pillowFit": @cli.opt_double(
+      0.04,
+      help="Pillow-block insert seat clearance allowance in mm",
+      min=0.0,
     ),
     "couplingBore": @cli.opt_double(
       8.0,
@@ -119,19 +129,47 @@ async fn main {
   guard @cli.parse(
       spec,
       prog="components/examples/motion_stack",
-      description="Generate a shaft/bearing/spacer stack, a rigid coupling, or a flanged bearing housing.",
+      description="Generate a shaft/bearing/spacer stack, a rigid coupling, a flanged bearing housing, or a UCP pillow block.",
     )
     is Some(args) else {
     return
   }
   let part_kind = args.string_opt("part").unwrap_or("stack")
-  if part_kind == "coupling" || part_kind == "flange-housing" {
+  if part_kind == "coupling" ||
+    part_kind == "flange-housing" ||
+    part_kind == "pillow-block" {
     let mut component = if part_kind == "coupling" {
       match
         @motion.rigid_coupling(
           args.double("couplingBore"),
           args.double("couplingOuter"),
           args.double("couplingLength"),
+        ) {
+        Ok(c) => c
+        Err(e) => {
+          @cli.eprintln("error: " + e.message())
+          abort("")
+        }
+      }
+    } else if part_kind == "pillow-block" {
+      let designation = match args.string_opt("pillowBlock") {
+        Some(text) => text
+        None => "UCP204"
+      }
+      let size = match @motion.pillow_block_size(designation) {
+        Ok(s) => s
+        Err(e) => {
+          @cli.eprintln("error: " + e.message())
+          abort("")
+        }
+      }
+      match
+        @motion.pillow_block_bearing(
+          size,
+          detail=parse_bearing_detail(
+            args.string_opt("detail").unwrap_or("detailed"),
+          ),
+          fit_allowance_mm=args.double("pillowFit"),
         ) {
         Ok(c) => c
         Err(e) => {
@@ -170,7 +208,13 @@ async fn main {
       let (x0, x1, y0, y1, z0, z1) = component.bounding_box()
       @cli.eprintln("bbox: x=[\{x0}, \{x1}] y=[\{y0}, \{y1}] z=[\{z0}, \{z1}]")
     }
-    component.write_step(args.string_opt("out"), checked=true)
+    if part_kind == "pillow-block" {
+      // The relief and insert-seat bore need a real trim, so the accepted
+      // artifact is the OCCT-evaluated compound.
+      component.write_step_evaluated(args.string_opt("out"))
+    } else {
+      component.write_step(args.string_opt("out"), checked=true)
+    }
     return
   }
   let bearing_name = args.string_opt("bearing").unwrap_or("608")

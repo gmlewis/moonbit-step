@@ -64,6 +64,12 @@ pub fn linear_bearing_designations() -> Array[String]
 
 pub fn linear_bearing_size(String) -> Result[LinearBearingSize, @common.SpecError]
 
+pub fn pillow_block_bearing(PillowBlockSize, detail? : @common.DetailLevel, fit_allowance_mm? : Double, color? : @cad.Rgb, insert_color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn pillow_block_designations() -> Array[String]
+
+pub fn pillow_block_size(String) -> Result[PillowBlockSize, @common.SpecError]
+
 pub fn rigid_coupling(Double, Double, Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
 pub fn set_screw_shaft_collar(Double, Double, Double, thread? : @standards.MetricSize, drill_diameter_mm? : Double, chamfer_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
@@ -130,6 +136,55 @@ pub(all) struct LinearBearingSize {
   bore_mm : Double
   outer_mm : Double
   length_mm : Double
+}
+
+pub(all) struct PillowBlockInsertSize {
+  outer_race_outer_radius_mm : Double
+  outer_race_bore_radius_mm : Double
+  outer_race_width_mm : Double
+  inner_race_outer_radius_mm : Double
+  inner_race_bore_radius_mm : Double
+  inner_race_width_mm : Double
+  inner_race_center_y_mm : Double
+  race_chamfer_mm : Double
+  seal_outer_radius_mm : Double
+  seal_inner_radius_mm : Double
+  seal_width_mm : Double
+  seal_center_y_mm : Double
+  set_screw_y_mm : Double
+  set_screw_hole_radius_mm : Double
+  set_screw_length_mm : Double
+  set_screw_socket_radius_mm : Double
+  set_screw_angles_deg : Array[Double]
+  grease_hex_across_flats_mm : Double
+  grease_hex_height_mm : Double
+  grease_total_height_mm : Double
+  grease_barrel_radius_mm : Double
+  grease_tip_radius_mm : Double
+}
+
+pub(all) struct PillowBlockSize {
+  designation : String
+  shaft_bore_mm : Double
+  shaft_height_mm : Double
+  length_mm : Double
+  base_width_mm : Double
+  base_thickness_mm : Double
+  bolt_pitch_mm : Double
+  slot_width_mm : Double
+  slot_length_mm : Double
+  corner_radius_mm : Double
+  relief_width_mm : Double
+  relief_height_mm : Double
+  arch_outer_radius_mm : Double
+  arch_width_mm : Double
+  seat_radius_mm : Double
+  insert_outer_diameter_mm : Double
+  insert_width_mm : Double
+  arch_flank_half_width_mm : Double
+  arch_flank_height_mm : Double
+  arch_skirt_half_width_mm : Double
+  insert : PillowBlockInsertSize
 }
 
 pub(all) struct ShaftSegment {

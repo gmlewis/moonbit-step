@@ -11,7 +11,7 @@ All programs use millimetres and Z is up.
 | `extrusion_frame` | Generic T-slot rectangular frame with optional SVG views. |
 | `gear_pair` | Two involute spur gears with centre distance and phase. |
 | `planetary` | Sun + equally spaced planets + exact internal involute ring, extruded as one exact line/arc solid (smooth cylindrical tooth walls). |
-| `motion_stack` | Shaft + two full-complement deep-groove bearings + spacer (all analytic surfaces), a rigid sleeve coupling, or a flanged bearing housing. |
+| `motion_stack` | Shaft + two full-complement deep-groove bearings + spacer (all analytic surfaces), a rigid sleeve coupling, a flanged bearing housing, or a UCP204/UCP205 pillow-block assembly (self-aligning insert bearing, seals, set screws, grease fitting; `--detail envelope` for the two-solid boundary). |
 | `spring` | Simplified helical compression spring. |
 | `bearing` | A deep-groove full-complement ball bearing (grooved rings with retaining shoulders, a full ring of watertight balls, rim and shoulder chamfers), the golden envelope (`--representation envelope`), or the single-solid shielded envelope. |
 | `linear_bearing` | LM-series linear bushing envelope or flanged round housing. |

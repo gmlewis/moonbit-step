@@ -668,9 +668,11 @@ def open_paths(paths, app, batch, use_helper):
                 text=True,
             )
             if probe.returncode != 0:
+                reason = (probe.stderr or probe.stdout).strip()
                 print(
-                    "note: no running SolidCraft GUI control port; falling "
-                    "back to `open -a {}`".format(app)
+                    "note: no usable SolidCraft GUI control port"
+                    + (": " + reason if reason else "")
+                    + "; falling back to `open -a " + app + "`"
                 )
             else:
                 helper_cmd = [sys.executable, "-I", helper, "open"]
@@ -759,17 +761,32 @@ def helper_path():
     )
 
 
+# Why `helper_available` last said no; shown with the fallback note.
+_HELPER_ERROR = ""
+
+
 def helper_available():
-    """Return the helper path when the running GUI control port answers."""
+    """Return the helper path when the running GUI control port answers.
+
+    The helper reports a port only after verifying it against the app's token
+    file, so a port another program holds (or an app that failed to bind its
+    control port) counts as unavailable and the caller falls back to `open -a`.
+    """
+    global _HELPER_ERROR
+    _HELPER_ERROR = ""
     helper = helper_path()
     if not os.path.exists(helper):
+        _HELPER_ERROR = "helper not found at " + helper
         return None
     probe = subprocess.run(
         [sys.executable, "-I", helper, "port"],
         capture_output=True,
         text=True,
     )
-    return helper if probe.returncode == 0 else None
+    if probe.returncode != 0:
+        _HELPER_ERROR = (probe.stderr or probe.stdout).strip()
+        return None
+    return helper
 
 
 def helper_open_one(helper, path):
@@ -860,9 +877,10 @@ def open_pairs_with_connectors(pairs, batch):
     helper = helper_available()
     if helper is None:
         print(
-            "note: the SolidCraft GUI helper is unavailable; connectors are "
-            "not shown. Start SolidCraft (with its control port) or use "
-            "--no-connectors."
+            "note: the SolidCraft GUI helper is unavailable"
+            + (": " + _HELPER_ERROR if _HELPER_ERROR else "")
+            + "; connectors are not shown. Start SolidCraft (with its control "
+            "port) or use --no-connectors."
         )
         return None
     if batch and batch > 0:
