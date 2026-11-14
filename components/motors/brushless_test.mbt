@@ -26,10 +26,10 @@ test "360KV brushless defaults match the owner-authored envelope" {
   assert_true(bl_close(y1, 25.0))
   assert_true(bl_close(z0, -25.0))
   assert_true(bl_close(z1, 25.0))
-  assert_eq(part.layers().length(), 10)
-  assert_true(part.layers().any(fn(l) { l.name == "bell-spoke-5" }))
+  assert_eq(part.layers().length(), 3)
+  assert_true(part.layers().any(fn(l) { l.name == "bell" }))
   assert_true(part.features().modeled.contains("bell-windows"))
-  assert_true(part.features().has_approximated("bell-window-corner-radius"))
+  assert_true(part.features().modeled.contains("rounded-window-corners"))
   assert_true(part.features().omission_reason("kv-and-performance") is Some(_))
 }
 
@@ -53,8 +53,14 @@ test "360KV brushless exposes named mechanical connectors" {
     Ok(c) => c
     Err(e) => abort(e.message())
   }
-  assert_true(bl_close(mount.placement.trans.0, 18.0))
+  assert_true(bl_close(mount.placement.trans.0, 20.0))
   assert_true(mount.kind is @common.MateKind::PlaneFace)
+  let mount_hole = match part.connector("mount-hole-1") {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  assert_true(bl_close(mount_hole.placement.trans.0, 20.0))
+  assert_true(mount_hole.axis.0 < 0.0)
 }
 
 ///|

@@ -18,6 +18,7 @@ All programs use millimetres and Z is up.
 | `stepper_motor` | NEMA 17/23 stepper-motor envelope with mounting holes, pilot, and shaft. |
 | `brushless_motor` | Parameterized outrunner brushless-motor envelope with a conical 5-spoke bell, windows, rim and lip, stator hub, prop and mount holes, and a through shaft; defaults measured from the owner-authored 360KV model. |
 | `tire` | Parameterized wheel/tire envelope with a smooth tire ring, hub tube and bore, 2 mm inset back plate, and straight radial ribs (6 by default); defaults measured from the owner-authored reference. |
+| `tire_mount` | Parameterized tire mounting flange with a solid front plate, three bolt holes, rear ring, hub tube and bore, and six 2 mm radial slots; defaults measured from the owner-authored reference. |
 | `extrusion_hardware` | Extrusion T-nut (M3/M4/M5) or M3 heat-set insert (short/long). |
 | `stock_primitive` | EN 10056-style angle section, flat/counterbored/countersunk plates, a bearing-housing plate, a tube-to-V-Slot bracket, the CC BY 4.0 SC8UU rod/bearing block (OCCT-evaluated), or an M3 x 4 heat-set insert boss. |
 | `vslot` | OpenBuilds-compatible V-Slot 2020/2040 profile, V-wheel, slot T-nut, joining plate, gusseted corner bracket, and plain/eccentric wheel spacers. |

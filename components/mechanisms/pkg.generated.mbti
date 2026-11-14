@@ -29,7 +29,7 @@ pub fn belt_pitch_length_mm(Double, Double) -> Double
 
 pub fn belt_pitch_length_mm_unequal(Double, Double, Double) -> Double
 
-pub fn chain_segment_spec(pitch_mm~ : Double, pitches~ : Int32, roller_diameter_mm? : Double, roller_bore_mm? : Double, roller_length_mm? : Double, pin_diameter_mm? : Double, pin_length_mm? : Double, plate_thickness_mm? : Double, plate_end_radius_mm? : Double, plate_hole_diameter_mm? : Double, plate_center_z_mm? : Double) -> Result[ChainSegmentSpec, @common.SpecError]
+pub fn chain_segment_spec(pitch_mm~ : Double, pitches~ : Int32, roller_diameter_mm? : Double, roller_bore_mm? : Double, roller_length_mm? : Double, pin_diameter_mm? : Double, pin_length_mm? : Double, plate_thickness_mm? : Double, plate_end_radius_mm? : Double, plate_hole_diameter_mm? : Double, plate_center_z_mm? : Double, plate_outer_center_z_mm? : Double) -> Result[ChainSegmentSpec, @common.SpecError]
 
 pub fn clevis(Double, Double, Double, Double, Double, Double, shank_diameter_mm? : Double, shank_length_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
@@ -124,6 +124,7 @@ pub(all) struct ChainSegmentSpec {
   plate_end_radius_mm : Double
   plate_hole_diameter_mm : Double
   plate_center_z_mm : Double
+  plate_outer_center_z_mm : Double
 }
 
 pub(all) struct FourBarLayout {

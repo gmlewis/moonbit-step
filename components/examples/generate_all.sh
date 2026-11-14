@@ -132,6 +132,7 @@ moon run components/examples/stepper_motor -- \
 moon run components/examples/brushless_motor -- \
   -o "$OUT/brushless-motor-50x23.step"
 moon run components/examples/tire -- -o "$OUT/tire-177.8x38.1.step"
+moon run components/examples/tire_mount -- -o "$OUT/tire-mount-86.3x23.05.step"
 moon run components/examples/linear_bearing -- \
   --bearing LM8UU -o "$OUT/lm8uu.step"
 moon run components/examples/linear_bearing -- \

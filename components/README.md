@@ -42,6 +42,9 @@ moon run components/examples/brushless_motor -- \
 # Parameterized tire/wheel envelope (measured 177.8 x 38.1 defaults)
 moon run components/examples/tire -- -o tire.step
 
+# Matching measured tire mounting flange
+moon run components/examples/tire_mount -- -o tire-mount.step
+
 # LM8UU linear bushing and flanged housing
 moon run components/examples/linear_bearing -- --bearing LM8UU -o lm8uu.step
 moon run components/examples/linear_bearing -- \
@@ -397,7 +400,7 @@ use `--headless`.
 | `standards` | Metric thread data and ISO/DIN dimension tables (ISO 4032/4035/4762/7089/709x/7380/8752/10642, DIN 471/472/557/913/916/976/1587, …). |
 | `fasteners` | Screws, bolts, nuts, washers, pins, rods, set screws, generic solid rivets, DIN 471 type A external retaining rings (A 10 to A 34), and DIN 472 internal retaining rings (all table sizes 8 to 40; measured outlines for 10, 12, 14, 16, 18, 20, 24, 28, 32, and 40 mm, parametric for the rest). |
 | `profiles` | Generic T-slot sections, the vendor 2020 B-slot6 A section, OpenBuilds-compatible V-Slot 2020/2040 sections, the MakerBeam 10 x 10 section, a gusseted V-Slot corner bracket, P1000-style strut channel, and a generic channel nut. |
-| `motion` | Shafts, stepped/keyed shafts, spacers and V-Slot wheel spacers (plain and eccentric), bushings, plain, set-screw, and clamp shaft collars, keys, dowel pins, standoffs, compression springs, ball bearings (envelope, shielded, and full-complement deep-groove), LM-series linear bushings, flanged linear housings, UCP-series pillow-block bearing boundaries, approximated GT2 timing pulleys, smooth idlers, V-Slot wheels, EMT tubing with end caps and split clamps, rigid couplings, helical beam couplings, flanged bearing housings, and a parameterized tire/wheel envelope measured from the owner-authored `tire.step` model. |
+| `motion` | Shafts, stepped/keyed shafts, spacers and V-Slot wheel spacers (plain and eccentric), bushings, plain, set-screw, and clamp shaft collars, keys, dowel pins, standoffs, compression springs, ball bearings (envelope, shielded, and full-complement deep-groove), LM-series linear bushings, flanged linear housings, UCP-series pillow-block bearing boundaries, approximated GT2 timing pulleys, smooth idlers, V-Slot wheels, EMT tubing with end caps and split clamps, rigid couplings, helical beam couplings, flanged bearing housings, a parameterized tire/wheel envelope measured from the owner-authored `tire.step` model, and a matching tire mounting flange measured from `tire-mount.step`. |
 | `mechanisms` | Generic engineering envelopes for a barrel hinge, clevis, pin, rod end, linkage bar, linear rail and carriage, lead screw and flanged nut, equal- and unequal-pulley timing-belt loops, eccentric cam and roller follower, Oldham coupling, extension and torsion springs, snap latch, O-ring, grooved shaft, L/U/Z brackets (L with optional gusset), tapped boss, a straight-flank basic rack with a pinion-layout helper, ANSI #40 roller-chain sprockets (measured CC0 16T/24T outlines), and a CC0-matched ANSI #40 10-pitch chain segment. |
 | `motors` | NEMA 17 and NEMA 23 stepper-motor envelopes, mounting interfaces, NEMA mounting plates, a generic NEMA-to-20-series extrusion adapter, and a parameterized outrunner brushless-motor envelope measured from the owner-authored 360KV model (conical 5-spoke bell, windows, rim and lip, stator hub, prop and mount holes, shaft). |
 | `stock` | EN 10056 angle sections, configurable flat plate blanks with analytic circular holes and obround slots, counterbored and countersunk plates, bearing-housing plates, tube-to-plate and tube-to-V-Slot adapter brackets, generic channel-to-extrusion adapters and extrusion-to-tube clamps, SC8UU-style rod/bearing blocks, and heat-set insert bosses. |
@@ -544,6 +547,12 @@ loop and how imported vendor parts are referenced through SolidCraft, is in
   grooves, rubber compound, carcass, bead wires, valves, and every load, speed,
   or inflation rating are omitted. All dimensions are parameters, including the
   rib count and phase.
+- The tire mounting flange is measured from the owner-authored
+  `components/testdata/golden/external/tire-mount.step` model (kept locally,
+  Git-ignored). It is a solid front plate with three bolt holes, a rear ring,
+  a hub tube and bore, and six 2 mm radial slots. The mating bolts and the tire
+  are separate parts; no finish, material, or strength rating is implied. All
+  dimensions are parameters.
 - LM-series linear bushings and flanged housings are boundary envelopes. Rolling
   elements, cages, seals, recirculation grooves, flange hole patterns, and load
   ratings are omitted.

@@ -216,6 +216,110 @@ fn bl_circle_loop(
 }
 
 ///|
+/// bl_polar returns a point at a radius and angle in degrees.
+fn bl_polar(radius : Double, angle_deg : Double) -> (Double, Double) {
+  let angle = angle_deg * @math.PI / 180.0
+  (radius * @math.cos(angle), radius * @math.sin(angle))
+}
+
+///|
+/// bl_side_tangent returns the two tangent points of a straight side between
+/// equal-radius corner fillets. `sign` mirrors the normal to the correct side
+/// of the window.
+fn bl_side_tangent(
+  c1 : (Double, Double),
+  c2 : (Double, Double),
+  radius : Double,
+  sign : Double,
+) -> ((Double, Double), (Double, Double)) {
+  let dx = c2.0 - c1.0
+  let dy = c2.1 - c1.1
+  let length = Double::sqrt(dx * dx + dy * dy)
+  let nx = sign * (-dy / length)
+  let ny = sign * (dx / length)
+  (
+    (c1.0 + radius * nx, c1.1 + radius * ny),
+    (c2.0 + radius * nx, c2.1 + radius * ny),
+  )
+}
+
+///|
+/// bl_window_loop returns the rounded annular-sector window cutter profile.
+///
+/// The measured window has a circular inner edge, a circular outer edge, two
+/// straight sides, and a 2 mm round at each corner. The fillets are tangent to
+/// both the arc and the side, so the loop is exact rather than chorded.
+fn bl_window_loop(
+  center_deg : Double,
+  inner_radius : Double,
+  outer_radius : Double,
+  inner_half_deg : Double,
+  outer_half_deg : Double,
+  fillet_radius : Double,
+) -> Array[@cad.ProfileSegment] {
+  let inner_left_angle = center_deg - inner_half_deg
+  let inner_right_angle = center_deg + inner_half_deg
+  let outer_left_angle = center_deg - outer_half_deg
+  let outer_right_angle = center_deg + outer_half_deg
+  let inner_left = bl_polar(inner_radius, inner_left_angle)
+  let inner_right = bl_polar(inner_radius, inner_right_angle)
+  let outer_left = bl_polar(outer_radius, outer_left_angle)
+  let outer_right = bl_polar(outer_radius, outer_right_angle)
+  let inner_center_left = bl_polar(
+    inner_radius + fillet_radius,
+    inner_left_angle,
+  )
+  let inner_center_right = bl_polar(
+    inner_radius + fillet_radius,
+    inner_right_angle,
+  )
+  let outer_center_left = bl_polar(
+    outer_radius - fillet_radius,
+    outer_left_angle,
+  )
+  let outer_center_right = bl_polar(
+    outer_radius - fillet_radius,
+    outer_right_angle,
+  )
+  let (inner_side_left, outer_side_left) = bl_side_tangent(
+    inner_center_left, outer_center_left, fillet_radius, -1.0,
+  )
+  let (inner_side_right, outer_side_right) = bl_side_tangent(
+    inner_center_right, outer_center_right, fillet_radius, 1.0,
+  )
+  let origin = (0.0, 0.0)
+  // Build the loop counter-clockwise, then reverse it because these points run
+  // clockwise around the window when read in this order.
+  let clockwise : Array[@cad.ProfileSegment] = [
+    @cad.SegmentArc(inner_left, inner_right, origin),
+    @cad.SegmentArc(inner_right, inner_side_right, inner_center_right),
+    @cad.SegmentLine(inner_side_right, outer_side_right),
+    @cad.SegmentArc(outer_side_right, outer_right, outer_center_right),
+    @cad.SegmentArc(outer_right, outer_left, origin),
+    @cad.SegmentArc(outer_left, outer_side_left, outer_center_left),
+    @cad.SegmentLine(outer_side_left, inner_side_left),
+    @cad.SegmentArc(inner_side_left, inner_left, inner_center_left),
+  ]
+  let reversed : Array[@cad.ProfileSegment] = []
+  for i in 0..<clockwise.length() {
+    match clockwise[clockwise.length() - 1 - i] {
+      @cad.SegmentArc(a, b, c) => reversed.push(@cad.SegmentArc(b, a, c))
+      @cad.SegmentLine(a, b) => reversed.push(@cad.SegmentLine(b, a))
+    }
+  }
+  reversed
+}
+
+///|
+/// bl_loop_center returns the center of a circular hole loop.
+fn bl_loop_center(segments : Array[@cad.ProfileSegment]) -> (Double, Double) {
+  match segments[0] {
+    @cad.SegmentArc(_, _, center) => center
+    @cad.SegmentLine(a, _) => a
+  }
+}
+
+///|
 /// bl_holes_at_angles returns hole loops on a bolt circle.
 fn bl_holes_at_angles(
   count : Int32,
@@ -242,15 +346,6 @@ fn bl_holes_at_angles(
 }
 
 ///|
-/// bl_axis_placement places a Z-extruded profile on the +X motor axis.
-fn bl_axis_placement(x_mm : Double) -> @common.Placement {
-  @common.Placement::compose(
-    @common.Placement::translation(x_mm, 0.0, 0.0),
-    @common.Placement::rotation_y(90.0),
-  )
-}
-
-///|
 /// brushless_motor builds a parameterized outrunner brushless-motor envelope.
 ///
 /// The bell is a windowed face plate at `x = 0` plus a cylindrical rim and a
@@ -266,167 +361,173 @@ pub fn brushless_motor(
     Err(e) => return Err(e)
     Ok(_) => ()
   }
-  let win_inner = spec.window_inner_diameter_mm / 2.0
-  let shaft_radius = spec.shaft_diameter_mm / 2.0
   let hub_radius = spec.bell_hub_diameter_mm / 2.0
-  let prop_holes = bl_holes_at_angles(
-    spec.prop_hole_count,
-    spec.prop_hole_circle_diameter_mm,
-    spec.prop_hole_diameter_mm,
-    0.0,
-  )
-  let hub_holes : Array[Array[@cad.ProfileSegment]] = [
-    bl_circle_loop(0.0, 0.0, shaft_radius),
-  ]
-  for hole in prop_holes {
-    hub_holes.push(hole)
-  }
-  let hub_plate = @cad.ExtrudedArcProfile::new(
-    bl_circle_loop(0.0, 0.0, hub_radius),
-    spec.bell_face_thickness_mm,
-    holes=hub_holes,
-  )
-  if !hub_plate.validate() {
-    return Err(
-      @common.InvalidParameter(
-        "brushless bell hub did not form a valid profile",
-      ),
-    )
-  }
   let bell_radius = spec.bell_outer_diameter_mm / 2.0
-  let cone_slope = (bell_radius - hub_radius) / spec.bell_cone_run_mm
-  let spoke_hub_radius = win_inner
-  let spoke_hub_x = (spoke_hub_radius - hub_radius) / cone_slope
-  let spoke_rim_radius = spec.bell_lip_major_radius_mm
-  let spoke_rim_x = (spoke_rim_radius - hub_radius) / cone_slope
-  let cone_span = Double::sqrt(
-    (spoke_rim_radius - spoke_hub_radius) *
-    (spoke_rim_radius - spoke_hub_radius) +
-    (spoke_rim_x - spoke_hub_x) * (spoke_rim_x - spoke_hub_x),
-  )
-  let pitch_deg = 360.0 / spec.window_count.to_double()
-  let inner_half_deg = pitch_deg / 2.0 - spec.window_inner_half_angle_deg
-  let outer_half_deg = pitch_deg / 2.0 - spec.window_outer_half_angle_deg
-  if inner_half_deg <= 0.0 || outer_half_deg <= 0.0 {
-    return Err(
-      @common.InvalidParameter(
-        "brushless windows leave no material between adjacent windows",
-      ),
-    )
-  }
-  let inner_half = inner_half_deg * @math.PI / 180.0
-  let outer_half = outer_half_deg * @math.PI / 180.0
-  let inner_width = spoke_hub_radius * @math.sin(inner_half)
-  let outer_width = spoke_rim_radius * @math.sin(outer_half)
-  let spoke_loop : Array[@cad.ProfileSegment] = [
-    @cad.SegmentLine((0.0, -inner_width), (cone_span, -outer_width)),
-    @cad.SegmentLine((cone_span, -outer_width), (cone_span, outer_width)),
-    @cad.SegmentLine((cone_span, outer_width), (0.0, inner_width)),
-    @cad.SegmentLine((0.0, inner_width), (0.0, -inner_width)),
-  ]
-  let spoke = @cad.ExtrudedArcProfile::new(
-    spoke_loop,
-    spec.bell_cone_thickness_mm,
-  )
-  if !spoke.validate() {
-    return Err(
-      @common.InvalidParameter(
-        "brushless conical bell spokes did not form a valid profile",
-      ),
-    )
-  }
-  let layers : Array[@common.ComponentLayer] = [
-    {
-      shape: hub_plate.as_shape(),
-      name: "bell-hub",
-      color: @cad.Rgb::orange(),
-      placement: bl_axis_placement(0.0),
-    },
-  ]
-  let gx = (spoke_rim_x - spoke_hub_x) / cone_span
-  let gr = (spoke_rim_radius - spoke_hub_radius) / cone_span
-  for i in 0..<spec.window_count {
-    let phi = (
-        spec.window_phase_deg +
-        pitch_deg / 2.0 +
-        360.0 * i.to_double() / spec.window_count.to_double()
-      ) *
-      @math.PI /
-      180.0
-    let radial = (0.0, @math.cos(phi), @math.sin(phi))
-    let tangent = (0.0, -@math.sin(phi), @math.cos(phi))
-    let generatrix = (gx, gr * radial.1, gr * radial.2)
-    let inward = (gr, -gx * radial.1, -gx * radial.2)
-    let front_inner = (
-      spoke_hub_x,
-      spoke_hub_radius * radial.1,
-      spoke_hub_radius * radial.2,
-    )
-    layers.push({
-      shape: spoke.as_shape(),
-      name: "bell-spoke-\{i + 1}",
-      color: @cad.Rgb::orange(),
-      placement: {
-        rot: @cad.Matrix3x3::{
-          m00: generatrix.0,
-          m01: tangent.0,
-          m02: inward.0,
-          m10: generatrix.1,
-          m11: tangent.1,
-          m12: inward.1,
-          m20: generatrix.2,
-          m21: tangent.2,
-          m22: inward.2,
-        },
-        trans: front_inner,
-      },
-    })
-  }
   let rim_inner = bell_radius - spec.bell_wall_thickness_mm
-  let rim = @cad.RevolvedProfile::tube(
-    spec.bell_outer_diameter_mm,
-    2.0 * rim_inner,
-    spec.bell_rim_length_mm,
-  ).as_shape()
-  let lip = @cad.RevolvedProfile::new([
-    @cad.RevArc(
-      (spec.bell_lip_major_radius_mm + spec.bell_lip_minor_radius_mm, 0.0),
-      (spec.bell_lip_major_radius_mm, spec.bell_lip_minor_radius_mm),
-      (spec.bell_lip_major_radius_mm, 0.0),
-    ),
-    @cad.RevArc(
-      (spec.bell_lip_major_radius_mm, spec.bell_lip_minor_radius_mm),
-      (spec.bell_lip_major_radius_mm - spec.bell_lip_minor_radius_mm, 0.0),
-      (spec.bell_lip_major_radius_mm, 0.0),
-    ),
-    @cad.RevArc(
-      (spec.bell_lip_major_radius_mm - spec.bell_lip_minor_radius_mm, 0.0),
-      (spec.bell_lip_major_radius_mm, -spec.bell_lip_minor_radius_mm),
-      (spec.bell_lip_major_radius_mm, 0.0),
-    ),
-    @cad.RevArc(
-      (spec.bell_lip_major_radius_mm, -spec.bell_lip_minor_radius_mm),
-      (spec.bell_lip_major_radius_mm + spec.bell_lip_minor_radius_mm, 0.0),
-      (spec.bell_lip_major_radius_mm, 0.0),
-    ),
-  ]).as_shape()
-  let mount_holes = bl_holes_at_angles(
-    spec.mount_hole_count,
-    spec.mount_hole_circle_diameter_mm,
-    spec.mount_hole_diameter_mm,
-    0.0,
-  )
-  let hub_holes : Array[Array[@cad.ProfileSegment]] = [
-    bl_circle_loop(0.0, 0.0, shaft_radius),
-  ]
-  for hole in mount_holes {
-    hub_holes.push(hole)
+  let bore_radius = spec.shaft_diameter_mm / 2.0
+  let win_inner = spec.window_inner_diameter_mm / 2.0
+  let cone_slope = (bell_radius - hub_radius) / spec.bell_cone_run_mm
+  let normal_length = Double::sqrt(1.0 + cone_slope * cone_slope)
+  let front_x = fn(r : Double) { (r - hub_radius) / cone_slope }
+  // The rear cone is a parallel offset by the sheet thickness: at the same
+  // radius it lies `t * sqrt(1 + slope^2) / slope` further along +X.
+  let rear_x = fn(r : Double) {
+    front_x(r) + spec.bell_cone_thickness_mm * normal_length / cone_slope
   }
-  let stator_hub = @cad.ExtrudedArcProfile::new(
-    bl_circle_loop(0.0, 0.0, spec.stator_hub_diameter_mm / 2.0),
-    spec.stator_hub_thickness_mm,
-    holes=hub_holes,
-  ).as_shape()
+  let rim_inner_start = rear_x(rim_inner)
+  let window_inner_start = rear_x(win_inner)
+  // Front cone tangent to the rounded lip torus.
+  let lip_center = (spec.bell_lip_major_radius_mm, spec.bell_rim_start_mm)
+  let hub_point = (hub_radius, 0.0)
+  let dx = lip_center.0 - hub_point.0
+  let dz = lip_center.1 - hub_point.1
+  let center_distance = Double::sqrt(dx * dx + dz * dz)
+  let minor = spec.bell_lip_minor_radius_mm
+  let tangent_scale = (center_distance * center_distance - minor * minor) /
+    (center_distance * center_distance)
+  let tangent_bulge = minor *
+    Double::sqrt(center_distance * center_distance - minor * minor) /
+    (center_distance * center_distance)
+  let tangent_point = (
+    hub_point.0 + tangent_scale * dx + tangent_bulge * dz,
+    hub_point.1 + tangent_scale * dz - tangent_bulge * dx,
+  )
+  let lip_outer = (
+    spec.bell_lip_major_radius_mm + minor,
+    spec.bell_rim_start_mm,
+  )
+  let bell_profile = @cad.RevolvedProfile::new([
+    @cad.RevLine((bore_radius, 0.0), (hub_radius, 0.0)),
+    @cad.RevLine((hub_radius, 0.0), tangent_point),
+    @cad.RevArc(tangent_point, lip_outer, lip_center),
+    @cad.RevLine(
+      lip_outer,
+      (bell_radius, spec.bell_rim_start_mm + spec.bell_rim_length_mm),
+    ),
+    @cad.RevLine(
+      (bell_radius, spec.bell_rim_start_mm + spec.bell_rim_length_mm),
+      (rim_inner, spec.bell_rim_start_mm + spec.bell_rim_length_mm),
+    ),
+    @cad.RevLine(
+      (rim_inner, spec.bell_rim_start_mm + spec.bell_rim_length_mm),
+      (rim_inner, rim_inner_start),
+    ),
+    @cad.RevLine((rim_inner, rim_inner_start), (win_inner, window_inner_start)),
+    @cad.RevLine(
+      (win_inner, window_inner_start),
+      (hub_radius, window_inner_start),
+    ),
+    @cad.RevLine(
+      (hub_radius, window_inner_start),
+      (hub_radius, spec.bell_face_thickness_mm),
+    ),
+    @cad.RevLine(
+      (hub_radius, spec.bell_face_thickness_mm),
+      (bore_radius, spec.bell_face_thickness_mm),
+    ),
+    @cad.RevLine((bore_radius, spec.bell_face_thickness_mm), (bore_radius, 0.0)),
+  ])
+  match bell_profile.validate() {
+    Err(e) =>
+      return Err(
+        @common.InvalidParameter("brushless bell profile: \{e.message()}"),
+      )
+    Ok(_) => ()
+  }
+  let bell_body = bell_profile.as_shape().with_name("bell-body").rotate_y(90.0)
+  let window_cutters : Array[@cad.SceneNode] = []
+  for i in 0..<spec.window_count {
+    // The profile is built in XY and then rotated +90 degrees about Y onto the
+    // +X motor axis, which maps profile angle θ to world YZ angle θ - 90.
+    // Adding 90 keeps `window_phase_deg` in the model's measured YZ frame.
+    let center = spec.window_phase_deg +
+      90.0 +
+      360.0 * i.to_double() / spec.window_count.to_double()
+    let window_profile = bl_window_loop(
+      center,
+      win_inner,
+      spec.window_outer_diameter_mm / 2.0,
+      spec.window_inner_half_angle_deg,
+      spec.window_outer_half_angle_deg,
+      spec.window_corner_radius_mm,
+    )
+    let cutter = @cad.ExtrudedArcProfile::new(
+      window_profile,
+      spec.bell_rim_start_mm + 3.0,
+    )
+    if !cutter.validate() {
+      return Err(
+        @common.InvalidParameter(
+          "brushless window cutter did not form a valid profile",
+        ),
+      )
+    }
+    window_cutters.push(
+      cutter
+      .as_shape()
+      .with_name("window-cutter-\{i + 1}")
+      .rotate_y(90.0)
+      .translate(x=-1.0),
+    )
+  }
+  for
+    hole in bl_holes_at_angles(
+      spec.prop_hole_count,
+      spec.prop_hole_circle_diameter_mm,
+      spec.prop_hole_diameter_mm,
+      0.0,
+    ) {
+    let (hx, hy) = bl_loop_center(hole)
+    window_cutters.push(
+      @cad.RevolvedProfile::cylinder(
+        spec.prop_hole_diameter_mm,
+        spec.bell_face_thickness_mm + 2.0,
+      )
+      .as_shape()
+      .with_name("prop-hole-cutter")
+      .rotate_y(90.0)
+      .translate(x=-1.0, y=hx, z=hy),
+    )
+  }
+  let bell = @cad.difference(bell_body, window_cutters, name="bell")
+  let stator_base = @cad.RevolvedProfile::cylinder(
+      spec.stator_hub_diameter_mm,
+      spec.stator_hub_thickness_mm,
+    )
+    .as_shape()
+    .with_name("stator-base")
+    .rotate_y(90.0)
+    .translate(x=spec.stator_hub_start_mm)
+  let stator_cutters : Array[@cad.SceneNode] = [
+    @cad.RevolvedProfile::cylinder(
+      spec.shaft_diameter_mm,
+      spec.stator_hub_thickness_mm + 2.0,
+    )
+    .as_shape()
+    .with_name("stator-bore-cutter")
+    .rotate_y(90.0)
+    .translate(x=spec.stator_hub_start_mm - 1.0),
+  ]
+  for
+    hole in bl_holes_at_angles(
+      spec.mount_hole_count,
+      spec.mount_hole_circle_diameter_mm,
+      spec.mount_hole_diameter_mm,
+      0.0,
+    ) {
+    let (hx, hy) = bl_loop_center(hole)
+    stator_cutters.push(
+      @cad.RevolvedProfile::cylinder(
+        spec.mount_hole_diameter_mm,
+        spec.stator_hub_thickness_mm + 2.0,
+      )
+      .as_shape()
+      .with_name("mount-hole-cutter")
+      .rotate_y(90.0)
+      .translate(x=spec.stator_hub_start_mm - 1.0, y=hx, z=hy),
+    )
+  }
+  let stator = @cad.difference(stator_base, stator_cutters, name="stator-hub")
   let total_length = spec.shaft_rear_extension_mm +
     spec.stator_hub_start_mm +
     spec.stator_hub_thickness_mm +
@@ -435,48 +536,34 @@ pub fn brushless_motor(
     spec.shaft_diameter_mm,
     total_length,
   ).as_shape()
-  layers.push({
-    shape: rim,
-    name: "bell-rim",
-    color: @cad.Rgb::orange(),
-    placement: bl_axis_placement(spec.bell_rim_start_mm),
-  })
-  layers.push({
-    shape: lip,
-    name: "bell-lip",
-    color: @cad.Rgb::orange(),
-    placement: bl_axis_placement(spec.bell_rim_start_mm),
-  })
-  layers.push({
-    shape: stator_hub,
-    name: "stator-hub",
-    color: @cad.Rgb::grey(),
-    placement: bl_axis_placement(spec.stator_hub_start_mm),
-  })
-  layers.push({
-    shape: shaft,
-    name: "shaft",
-    color: @cad.Rgb::grey(),
-    placement: bl_axis_placement(-spec.shaft_rear_extension_mm),
-  })
+  let shaft_placement = @common.Placement::compose(
+    @common.Placement::translation(-spec.shaft_rear_extension_mm, 0.0, 0.0),
+    @common.Placement::rotation_y(90.0),
+  )
+  let layers : Array[@common.ComponentLayer] = [
+    {
+      shape: bell.shape_intent(),
+      name: "bell",
+      color: @cad.Rgb::orange(),
+      placement: @common.Placement::identity(),
+    },
+    {
+      shape: stator.shape_intent(),
+      name: "stator-hub",
+      color: @cad.Rgb::grey(),
+      placement: @common.Placement::identity(),
+    },
+    {
+      shape: shaft,
+      name: "shaft",
+      color: @cad.Rgb::grey(),
+      placement: shaft_placement,
+    },
+  ]
   let features = @common.FeatureRecord::new(
     modeled=[
-      "bell-hub", "bell-cone", "bell-windows", "bell-rim", "bell-lip", "stator-hub",
-      "shaft", "prop-holes", "mount-holes",
-    ],
-    approximated=[
-      @common.Approximation::new(
-        feature="bell-window-corner-radius",
-        kind=@common.ApproximationKind::EngineeringDefault,
-        deviation_mm=0.0,
-        control="measured 2.0 mm rounds are not modelled; the conical spokes have straight edges",
-      ),
-      @common.Approximation::new(
-        feature="bell-cone",
-        kind=@common.ApproximationKind::EngineeringDefault,
-        deviation_mm=0.0,
-        control="the conical bell sheet is represented by 5 flat conical-sector spokes",
-      ),
+      "bell-hub", "bell-cone", "bell-windows", "rounded-window-corners", "bell-rim",
+      "bell-lip", "stator-hub", "shaft", "prop-holes", "mount-holes",
     ],
     omitted=[
       @common.Omission::new(
@@ -539,14 +626,14 @@ pub fn brushless_motor(
     @common.MateConnector::new(
       "mount-face",
       placement=@common.Placement::translation(
-        spec.stator_hub_start_mm,
+        spec.stator_hub_start_mm + spec.stator_hub_thickness_mm,
         0.0,
         0.0,
       ),
       axis=(-1.0, 0.0, 0.0),
       kind=@common.MateKind::PlaneFace,
       diameter_mm=spec.stator_hub_diameter_mm,
-      description="fixed stator hub mounting face",
+      description="external fixed stator mounting face",
     ),
     @common.MateConnector::new(
       "bell-face",
@@ -594,15 +681,15 @@ pub fn brushless_motor(
       @common.MateConnector::new(
         "mount-hole-\{i + 1}",
         placement=@common.Placement::translation(
-          spec.stator_hub_start_mm,
+          spec.stator_hub_start_mm + spec.stator_hub_thickness_mm,
           mount_radius * @math.cos(angle),
           mount_radius * @math.sin(angle),
         ),
-        axis=(1.0, 0.0, 0.0),
+        axis=(-1.0, 0.0, 0.0),
         kind=@common.MateKind::CylindricalBore,
         diameter_mm=spec.mount_hole_diameter_mm,
         depth_mm=spec.stator_hub_thickness_mm,
-        description="stator mounting hole",
+        description="stator mounting hole on the external face",
       ),
     )
   }

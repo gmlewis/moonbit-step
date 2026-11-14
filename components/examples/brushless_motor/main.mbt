@@ -179,6 +179,9 @@ async fn main {
       min=0.0,
     ),
     "out": @cli.opt_string(short='o', help="Write STEP to this path"),
+    "evaluated": @cli.flag(
+      help="Write the OCCT-evaluated single solid (required for the rounded window cuts)",
+    ),
     "bbox": @cli.flag(help="Print the motor bounding box to stderr"),
   }
   guard @cli.parse(
@@ -232,5 +235,9 @@ async fn main {
     let (x0, x1, y0, y1, z0, z1) = part.bounding_box()
     @cli.eprintln("bbox: x=[\{x0}, \{x1}] y=[\{y0}, \{y1}] z=[\{z0}, \{z1}]")
   }
-  part.write_step(args.string_opt("out"), checked=true)
+  if args.flag("evaluated") {
+    part.write_step_evaluated(args.string_opt("out"))
+  } else {
+    part.write_step(args.string_opt("out"), checked=true)
+  }
 }

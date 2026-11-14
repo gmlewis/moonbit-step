@@ -211,6 +211,8 @@ test "every public motion builder family exposes a connector" {
     ),
     (ok_motion(@motion.rigid_coupling(8.0, 16.0, 20.0)), "bore-a"),
     (ok_motion(@motion.flanged_bearing_housing(22.0, 7.0)), "bearing-seat"),
+    (ok_motion(@motion.measured_tire()), "hub-bore"),
+    (ok_motion(@motion.measured_tire_mount()), "hub-post"),
   ]
   for entry in builders {
     let (part, expected) = entry

@@ -70,6 +70,8 @@ pub fn linear_bearing_size(String) -> Result[LinearBearingSize, @common.SpecErro
 
 pub fn measured_tire() -> Result[@common.Component, @common.SpecError]
 
+pub fn measured_tire_mount() -> Result[@common.Component, @common.SpecError]
+
 pub fn pillow_block_bearing(PillowBlockSize, detail? : @common.DetailLevel, fit_allowance_mm? : Double, color? : @cad.Rgb, insert_color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
 pub fn pillow_block_designations() -> Array[String]
@@ -95,6 +97,12 @@ pub fn standoff(Double, Double, Double, detail? : @common.DetailLevel) -> Result
 pub fn stepped_shaft(Array[ShaftSegment], color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
 pub fn tire(TireSpec) -> Result[@common.Component, @common.SpecError]
+
+pub fn tire_mount(TireMountSpec) -> Result[@common.Component, @common.SpecError]
+
+pub fn tire_mount_spec() -> TireMountSpec
+
+pub fn tire_mount_spec_valid(TireMountSpec) -> Result[Unit, @common.SpecError]
 
 pub fn tire_spec() -> TireSpec
 
@@ -233,6 +241,23 @@ pub(all) struct ShaftSegment {
   length_mm : Double
 }
 pub fn ShaftSegment::new(Double, Double) -> Result[Self, @common.SpecError]
+
+pub(all) struct TireMountSpec {
+  outer_diameter_mm : Double
+  front_inner_diameter_mm : Double
+  hub_outer_diameter_mm : Double
+  hub_bore_diameter_mm : Double
+  plate_thickness_mm : Double
+  ring_depth_mm : Double
+  slot_width_mm : Double
+  slot_count : Int32
+  slot_phase_deg : Double
+  bolt_hole_count : Int32
+  bolt_hole_diameter_mm : Double
+  bolt_hole_circle_diameter_mm : Double
+  bolt_hole_phase_deg : Double
+  front_offset_mm : Double
+}
 
 pub(all) struct TireSpec {
   tire_outer_diameter_mm : Double

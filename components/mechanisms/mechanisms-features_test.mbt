@@ -583,6 +583,20 @@ test "ANSI #40 10-pitch chain segment matches the layout reference" {
   assert_true((z0 + 7.135).abs() < 1.0e-5)
   assert_true((z1 - 7.135).abs() < 1.0e-5)
   assert_eq(part.layers().length(), 42)
+  let mut first_plate_z = 0.0
+  let mut second_plate_z = 0.0
+  for layer in part.layers() {
+    if layer.name.contains("plate-1-negative") {
+      first_plate_z = layer.placement.trans.2
+    }
+    if layer.name.contains("plate-2-negative") {
+      second_plate_z = layer.placement.trans.2
+    }
+  }
+  // Adjacent links must alternate between the inner and outer plate levels so
+  // their stadium ends do not intersect at a shared pin.
+
+  assert_true(second_plate_z < first_plate_z - 1.5)
   assert_true(mech_has_connector(part, "pin-a"))
   assert_true(mech_has_connector(part, "pin-b"))
   assert_true(mech_has_connector(part, "pitch-line"))

@@ -64,6 +64,7 @@ USER_AGENT = "moonbit-step-golden-fetch/1.0"
 PROTECTED_LOCAL_REFERENCES = {
     "brushless-motor-360kv.step",
     "tire.step",
+    "tire-mount.step",
 }
 
 

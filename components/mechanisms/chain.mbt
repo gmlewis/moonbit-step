@@ -18,6 +18,7 @@ pub(all) struct ChainSegmentSpec {
   plate_end_radius_mm : Double
   plate_hole_diameter_mm : Double
   plate_center_z_mm : Double
+  plate_outer_center_z_mm : Double
 }
 
 ///|
@@ -34,6 +35,7 @@ pub fn chain_segment_spec(
   plate_end_radius_mm~ : Double = 6.0,
   plate_hole_diameter_mm~ : Double = 4.04,
   plate_center_z_mm~ : Double = 4.725,
+  plate_outer_center_z_mm~ : Double = 6.3,
 ) -> Result[ChainSegmentSpec, @common.SpecError] {
   match
     mechanism_checks([
@@ -47,6 +49,7 @@ pub fn chain_segment_spec(
       ("chain plate end radius", plate_end_radius_mm),
       ("chain plate hole diameter", plate_hole_diameter_mm),
       ("chain plate centre offset", plate_center_z_mm),
+      ("chain outer plate centre offset", plate_outer_center_z_mm),
     ]) {
     Err(e) => return Err(e)
     Ok(_) => ()
@@ -85,6 +88,13 @@ pub fn chain_segment_spec(
       @common.InvalidDimension("chain plate centre offset is too small"),
     )
   }
+  if plate_outer_center_z_mm < plate_center_z_mm + plate_thickness_mm {
+    return Err(
+      @common.InvalidDimension(
+        "chain outer plate level must clear the inner plate level",
+      ),
+    )
+  }
   Ok({
     pitch_mm,
     pitches,
@@ -97,6 +107,7 @@ pub fn chain_segment_spec(
     plate_end_radius_mm,
     plate_hole_diameter_mm,
     plate_center_z_mm,
+    plate_outer_center_z_mm,
   })
 }
 
@@ -146,7 +157,7 @@ pub fn roller_chain_segment(
     omitted=[
       @common.Omission::new(
         feature="functional-chain-assembly",
-        reason="the reference and this envelope are layout models; the plate rows overlap and no articulation or strength is modelled",
+        reason="the reference and this envelope are layout models; the links alternate plate levels and no articulation or strength is modelled",
       ),
       @common.Omission::new(
         feature="chain-tensile-strength-and-wear",
@@ -166,30 +177,43 @@ pub fn roller_chain_segment(
       size="\{spec.pitches}p",
       source="Measured CC0 Innerscene ANSI #40 10-pitch chain segment re-encoded as original parametric plates, rollers, and pins. Layout model only.",
     ),
-    description="Roller-chain segment layout envelope with plates, rollers, and pins. The plate rows overlap like the reference; no articulation or strength is modelled.",
+    description="Roller-chain segment layout envelope with plates, rollers, and pins. Adjacent links alternate between two plate levels; no articulation or strength is modelled.",
     features~,
   )
   for i in 0..<spec.pitches {
     let center_x = pitch * i.to_double() + pitch / 2.0
+    // Adjacent links alternate between the inner and outer plate levels so
+    // their stadium ends do not overlap at a shared pin.
+    let link_center_z = if i % 2 == 0 {
+      spec.plate_center_z_mm
+    } else {
+      spec.plate_outer_center_z_mm
+    }
+    // Match the golden's two-tone links: inner links dark, outer links light.
+    let plate_color = if i % 2 == 0 {
+      @cad.Rgb::new(0.36, 0.40, 0.45)
+    } else {
+      @cad.Rgb::new(0.56, 0.60, 0.64)
+    }
     out = out
       .add_layer(
         plate_shape,
         name="plate-\{i + 1}-negative",
-        color=@cad.Rgb::grey(),
+        color=plate_color,
         placement=@common.Placement::translation(
           center_x,
           0.0,
-          -spec.plate_center_z_mm - spec.plate_thickness_mm / 2.0,
+          -link_center_z - spec.plate_thickness_mm / 2.0,
         ),
       )
       .add_layer(
         plate_shape,
         name="plate-\{i + 1}-positive",
-        color=@cad.Rgb::grey(),
+        color=plate_color,
         placement=@common.Placement::translation(
           center_x,
           0.0,
-          spec.plate_center_z_mm - spec.plate_thickness_mm / 2.0,
+          link_center_z - spec.plate_thickness_mm / 2.0,
         ),
       )
   }
@@ -203,7 +227,7 @@ pub fn roller_chain_segment(
           spec.roller_length_mm,
         ),
         name="roller-\{i + 1}",
-        color=@cad.Rgb::orange(),
+        color=@cad.Rgb::new(0.56, 0.60, 0.64),
         placement=@common.Placement::translation(
           x,
           0.0,
@@ -213,7 +237,7 @@ pub fn roller_chain_segment(
       .add_layer(
         mechanism_cylinder_z(spec.pin_diameter_mm, spec.pin_length_mm),
         name="pin-\{i + 1}",
-        color=@cad.Rgb::grey(),
+        color=@cad.Rgb::new(0.36, 0.40, 0.45),
         placement=@common.Placement::translation(
           x,
           0.0,

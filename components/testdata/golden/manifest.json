@@ -6004,7 +6004,7 @@
       },
       "verdict": "accepted-exact",
       "committed": false,
-      "review": {"automated": "pass", "owner_visual": "pending", "date": "2026-11-14"},
+      "review": {"automated": "pass", "owner_visual": "verified", "date": "2026-11-14", "reason": "owner reported golden 107 LGTM after the alternating plate levels and two-tone link colours"},
       "notes": "CC0 Innerscene ANSI #40 10-pitch chain segment, re-encoded as 20 stadium plates, 11 rollers, and 11 pins. The reconstructed layout matches the reference exactly: 42 solids, 12273.215 mm3, and a 139 x 12 x 14.27 mm bbox. The reference and this envelope are layout models: the plate rows overlap and no articulation, tensile strength, wear, or fatigue rating is modelled."
     }
   ],
@@ -6043,9 +6043,17 @@
         "volume_mm3": 6143.02,
         "solids": 1
       },
+      "review": {
+        "automated": "pass",
+        "owner_visual": "verified",
+        "date": "2026-11-14",
+        "reason": "owner reported golden 200 LGTM"
+      },
       "generation": {
         "tool": "components/examples/brushless_motor",
-        "args": []
+        "args": [
+          "--evaluated"
+        ]
       }
     },
     {
@@ -6078,8 +6086,54 @@
         "volume_mm3": 512793.0,
         "solids": 1
       },
+      "review": {
+        "automated": "pass",
+        "owner_visual": "verified",
+        "date": "2026-11-14",
+        "reason": "owner reported golden 201 LGTM"
+      },
       "generation": {
         "tool": "components/examples/tire",
+        "args": []
+      }
+    },
+    {
+      "fixture_id": "wheels/tire-mount-86.3x23.05",
+      "designation": "Tire mount Ø86.3 x 23.05",
+      "kind": "owner-authored-reference",
+      "provenance": "Modelled by the repository owner; not an external model. Git-ignored *.step kept locally; scripts/fetch_golden_references.py protects it.",
+      "local_filename": "external/tire-mount.step",
+      "sha256": "897bf6aad76445f750bbc074a79329a6e8cd46052b2a10743bac7c8a39e3cf72",
+      "byte_size": 42594,
+      "units": "mm",
+      "declared_dimensions": {
+        "outer_diameter_mm": 86.3,
+        "front_inner_diameter_mm": 51.85,
+        "hub_outer_diameter_mm": 25.4,
+        "hub_bore_diameter_mm": 12.7,
+        "plate_thickness_mm": 4.0,
+        "ring_depth_mm": 19.05,
+        "slot_width_mm": 2.0,
+        "slot_count": 6,
+        "total_width_mm": 23.05
+      },
+      "measured_dimensions": {
+        "bbox_mm": [
+          23.05,
+          86.3,
+          86.3
+        ],
+        "volume_mm3": 119757.0,
+        "solids": 1
+      },
+      "review": {
+        "automated": "pass",
+        "owner_visual": "verified",
+        "date": "2026-11-14",
+        "reason": "owner reported golden 202 LGTM"
+      },
+      "generation": {
+        "tool": "components/examples/tire_mount",
         "args": []
       }
     }

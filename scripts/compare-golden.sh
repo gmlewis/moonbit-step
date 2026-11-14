@@ -304,6 +304,8 @@ def infer(name, detail):
         )
     if name == "tire.step":
         return ("components/examples/tire", [])
+    if name == "tire-mount.step":
+        return ("components/examples/tire_mount", [])
     if name == "brushless-motor-360kv.step":
         return ("components/examples/brushless_motor", [])
     m = re.match(r"^iso_metric_threaded_rod_m(\d+(?:p\d+)?)_l(\d+)_simple\.step$", name)
@@ -503,6 +505,12 @@ def describe(tool, args):
             arg_value(args, "--tireWidth") or "38.1",
             arg_value(args, "--hubOuter") or "25.4",
             arg_value(args, "--hubLength") or "34.925",
+        )
+    if tool.endswith("/tire_mount"):
+        return "tire mount Ø{} x {}".format(
+            arg_value(args, "--outer") or "86.3",
+            str(float(arg_value(args, "--plate") or "4")
+                + float(arg_value(args, "--ringDepth") or "19.05")),
         )
     if tool.endswith("/brushless_motor"):
         return "brushless outrunner bell Ø{} x {}".format(
