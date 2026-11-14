@@ -318,3 +318,154 @@ pub fn clevis_pin(
     ),
   )
 }
+
+///|
+/// rod_end builds an eye-and-shank rod end for a pivot interface.
+///
+/// Frame: the eye is an annulus with its axis along +Z, centred on the origin
+/// and spanning `z = -eye_width/2 .. eye_width/2`. The shank is a coaxial
+/// cylinder along +Y from `y = 0` to `y = shank_length` at `z = 0` and overlaps
+/// the eye nominally. The eye bore is a real through hole; the shank thread is
+/// declared by the `rod-thread` connector and is never modelled.
+///
+/// The rod end is an engineering envelope: no thread, bend radius, or strength
+/// rating is implied.
+pub fn rod_end(
+  eye_outer_diameter_mm : Double,
+  eye_bore_diameter_mm : Double,
+  eye_width_mm : Double,
+  shank_diameter_mm : Double,
+  shank_length_mm : Double,
+  color~ : @cad.Rgb = @cad.Rgb::grey(),
+) -> Result[@common.Component, @common.SpecError] {
+  match
+    mechanism_checks([
+      ("rod-end eye outer diameter", eye_outer_diameter_mm),
+      ("rod-end eye bore diameter", eye_bore_diameter_mm),
+      ("rod-end eye width", eye_width_mm),
+      ("rod-end shank diameter", shank_diameter_mm),
+      ("rod-end shank length", shank_length_mm),
+    ]) {
+    Err(e) => return Err(e)
+    Ok(_) => ()
+  }
+  if eye_bore_diameter_mm >= eye_outer_diameter_mm {
+    return Err(
+      @common.InvalidDimension(
+        "rod-end eye bore must be smaller than the eye outer diameter",
+      ),
+    )
+  }
+  if shank_diameter_mm >= eye_outer_diameter_mm {
+    return Err(
+      @common.InvalidDimension(
+        "rod-end shank must be smaller than the eye outer diameter",
+      ),
+    )
+  }
+  let eye = mechanism_tube_z(
+    eye_outer_diameter_mm, eye_bore_diameter_mm, eye_width_mm,
+  )
+  let shank = mechanism_cylinder_z(shank_diameter_mm, shank_length_mm)
+  let features = @common.FeatureRecord::new(
+    modeled=["eye", "eye-bore", "shank"],
+    approximated=[],
+    omitted=[
+      @common.Omission::new(
+        feature="thread",
+        reason="the shank thread is declared by the `rod-thread` connector and never modelled",
+      ),
+      @common.Omission::new(
+        feature="eye-to-shank-fillet",
+        reason="the eye and shank overlap nominally; no blend is modelled",
+      ),
+      @common.Omission::new(
+        feature="edge-breaks-and-bend-radius",
+        reason="no edge treatment or formed bend is modelled",
+      ),
+    ],
+  )
+  let name = "rod-end-\{@cad.fmt_double(eye_bore_diameter_mm, None)}x\{@cad.fmt_double(shank_length_mm, None)}"
+  Ok(
+    @common.Component::new(
+      name~,
+      metadata=@common.Metadata::new(
+        designation="Rod end eye \{@cad.fmt_double(eye_bore_diameter_mm, None)}, shank \{@cad.fmt_double(shank_diameter_mm, None)} x \{@cad.fmt_double(shank_length_mm, None)}",
+        family="rod end (engineering envelope)",
+        size="\{@cad.fmt_double(eye_bore_diameter_mm, None)}x\{@cad.fmt_double(shank_diameter_mm, None)}",
+        length_mm=shank_length_mm,
+        source="Parametric eye-and-shank envelope with a real eye bore. The shank thread is declared, not modelled.",
+      ),
+      description="Rod-end eye with a real through bore and a cylindrical shank. The shank thread and any formed bend are omitted.",
+      features~,
+    )
+    .add_layer(
+      eye,
+      name="eye",
+      color~,
+      placement=@common.Placement::translation(0.0, 0.0, -eye_width_mm / 2.0),
+    )
+    .add_layer(
+      shank,
+      name="shank",
+      color~,
+      placement=@common.Placement::rotation_x(-90.0),
+    )
+    .with_connector_unchecked(
+      @common.MateConnector::new(
+        "eye-bore",
+        placement=@common.Placement::translation(0.0, 0.0, -eye_width_mm / 2.0),
+        axis=(0.0, 0.0, 1.0),
+        kind=@common.MateKind::CylindricalBore,
+        gender=@common.MateGender::Female,
+        diameter_mm=eye_bore_diameter_mm,
+        depth_mm=eye_width_mm,
+        description="eye pivot bore",
+      ),
+    )
+    .with_connector_unchecked(
+      @common.MateConnector::new(
+        "shank",
+        placement=@common.Placement::translation(0.0, shank_length_mm, 0.0),
+        axis=(0.0, 1.0, 0.0),
+        kind=@common.MateKind::CylindricalShaft,
+        gender=@common.MateGender::Male,
+        diameter_mm=shank_diameter_mm,
+        depth_mm=shank_length_mm,
+        description="shank; entered from the +Y end",
+      ),
+    )
+    .with_connector_unchecked(
+      @common.MateConnector::new(
+        "rod-thread",
+        placement=@common.Placement::translation(0.0, shank_length_mm, 0.0),
+        axis=(0.0, 1.0, 0.0),
+        kind=@common.MateKind::Threaded,
+        gender=@common.MateGender::Male,
+        diameter_mm=shank_diameter_mm,
+        depth_mm=shank_length_mm,
+        description="declared shank thread; not modelled",
+      ),
+    )
+    .with_connector_unchecked(
+      @common.MateConnector::new(
+        "eye-face-a",
+        placement=@common.Placement::translation(0.0, 0.0, -eye_width_mm / 2.0),
+        axis=(0.0, 0.0, -1.0),
+        kind=@common.MateKind::PlaneFace,
+        diameter_mm=eye_outer_diameter_mm,
+        description="negative-Z eye face",
+      ),
+    )
+    .with_connector_unchecked(
+      @common.MateConnector::new(
+        "eye-face-b",
+        placement=@common.Placement::translation(0.0, 0.0, eye_width_mm / 2.0),
+        axis=(0.0, 0.0, 1.0),
+        kind=@common.MateKind::PlaneFace,
+        diameter_mm=eye_outer_diameter_mm,
+        description="positive-Z eye face",
+      ),
+    ),
+  )
+}

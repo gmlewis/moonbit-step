@@ -168,8 +168,10 @@ a vendor part or a strength claim.
 # Barrel hinge with an included pin and real pin bores
 moon run components/examples/mechanism_kit -- --part hinge -o hinge.step
 
-# Clevis fork, pin, linkage bar, linear rail and carriage
+# Clevis fork, pin, rod end, linkage bar, linear rail and carriage
 moon run components/examples/mechanism_kit -- --part clevis -o clevis.step
+moon run components/examples/mechanism_kit -- --part pin -o pin.step
+moon run components/examples/mechanism_kit -- --part rod-end -o rod-end.step
 moon run components/examples/mechanism_kit -- --part linkage -o linkage.step
 moon run components/examples/mechanism_kit -- --part rail -o rail.step
 moon run components/examples/mechanism_kit -- --part carriage -o carriage.step
@@ -180,6 +182,8 @@ moon run components/examples/mechanism_kit -- --part lead-nut -o nut.step
 
 # Belt loop, eccentric cam, roller follower, and Oldham coupling
 moon run components/examples/mechanism_kit -- --part belt -o belt.step
+moon run components/examples/mechanism_kit -- \
+  --part belt-unequal --pulleyB 40 -o belt-unequal.step
 moon run components/examples/mechanism_kit -- --part cam -o cam.step
 moon run components/examples/mechanism_kit -- --part roller -o roller.step
 moon run components/examples/mechanism_kit -- --part oldham -o oldham.step
@@ -336,7 +340,7 @@ use `--headless`.
 | `fasteners` | Screws, bolts, nuts, washers, pins, rods, set screws, generic solid rivets, DIN 471 type A external retaining rings (A 10 to A 34), and DIN 472 internal retaining rings (all table sizes 8 to 40; measured outlines for 10, 12, 14, 16, 18, 20, 24, 28, 32, and 40 mm, parametric for the rest). |
 | `profiles` | Generic T-slot sections, the vendor 2020 B-slot6 A section, OpenBuilds-compatible V-Slot 2020/2040 sections, the MakerBeam 10 x 10 section, a gusseted V-Slot corner bracket, P1000-style strut channel, and a generic channel nut. |
 | `motion` | Shafts, stepped/keyed shafts, spacers and V-Slot wheel spacers (plain and eccentric), bushings, plain, set-screw, and clamp shaft collars, keys, dowel pins, standoffs, compression springs, ball bearings (envelope, shielded, and full-complement deep-groove), LM-series linear bushings, flanged linear housings, UCP-series pillow-block bearing boundaries, approximated GT2 timing pulleys, smooth idlers, V-Slot wheels, EMT tubing with end caps and split clamps, rigid couplings, helical beam couplings, and flanged bearing housings. |
-| `mechanisms` | Generic engineering envelopes for a barrel hinge, clevis and pin, linkage bar, linear rail and carriage, lead screw and flanged nut, timing-belt loop, eccentric cam and roller follower, Oldham coupling, extension and torsion springs, snap latch, O-ring, grooved shaft, L bracket (with optional gusset), tapped boss, and a straight-flank basic rack with a pinion-layout helper. |
+| `mechanisms` | Generic engineering envelopes for a barrel hinge, clevis, pin, rod end, linkage bar, linear rail and carriage, lead screw and flanged nut, equal- and unequal-pulley timing-belt loops, eccentric cam and roller follower, Oldham coupling, extension and torsion springs, snap latch, O-ring, grooved shaft, L bracket (with optional gusset), tapped boss, and a straight-flank basic rack with a pinion-layout helper. |
 | `motors` | NEMA 17 and NEMA 23 stepper-motor envelopes, mounting interfaces, NEMA mounting plates, and a generic NEMA-to-20-series extrusion adapter. |
 | `stock` | EN 10056 angle sections, configurable flat plate blanks with analytic circular holes and obround slots, counterbored and countersunk plates, bearing-housing plates, tube-to-plate and tube-to-V-Slot adapter brackets, generic channel-to-extrusion adapters and extrusion-to-tube clamps, SC8UU-style rod/bearing blocks, and heat-set insert bosses. |
 | `gears` | Involute spur gears, external pairs, and exact-internal-involute planetary sets. |
@@ -421,7 +425,10 @@ Every implemented family exposes at least one named connector: fasteners expose
 shaft/thread/head or bore/bearing-face frames, bearings expose bore and
 outer-seat frames, shafts expose end frames, extrusions expose four face slots
 and end datums, NEMA motors expose mounting, pilot, shaft, rear, and per-hole
-frames, and plates expose face and per-hole frames.
+frames, and plates expose face and per-hole frames. The mechanism kit's
+clevis/pin and lead-screw/nut interfaces are exercised through
+`MatePair::resolve` in its tests, which checks kind, gender, and nominal
+diameter.
 
 ## CAD kernel boundary
 
@@ -598,13 +605,16 @@ loop and how imported vendor parts are referenced through SolidCraft, is in
   rating is implied.
 
 - The `mechanisms` package is a set of generic engineering envelopes, not a
-  vendor catalogue. A hinge, clevis, linkage, rail, carriage, lead screw, nut,
-  belt loop, cam, follower, Oldham coupling, spring, snap latch, O-ring, groove,
-  bracket, boss, or rack here is a dimensioned parametric construction; no load,
-  torque, fatigue, wear, or safety rating is implied.
+  vendor catalogue. A hinge, clevis, pin, rod end, linkage, rail, carriage, lead
+  screw, nut, belt loop, cam, follower, Oldham coupling, spring, snap latch,
+  O-ring, groove, bracket, boss, or rack here is a dimensioned parametric
+  construction; no load, torque, fatigue, wear, or safety rating is implied.
 - Threads are never modelled in `mechanisms`: they are declared by `Threaded`
   connectors. Lead-screw and tapped-boss bores are the ISO metric internal minor
-  diameter. Belt loops are smooth envelopes without teeth; pulleys are separate
+  diameter. Belt loops are smooth envelopes without teeth; the equal- and
+  unequal-pulley builders compute the exact open-belt pitch length
+  (`2 C + pi D`, and `pi (r1+r2) + 2 alpha (r2-r1) + 2 sqrt(C^2-(r2-r1)^2)`) and
+  the unequal builder uses the exact external tangents. Pulleys are separate
   parts declared by their axes.
 - Linear-rail mounting holes are perpendicular to the rail extrusion, so the
   flat writer cannot trim them; they are declared by datum connectors with their

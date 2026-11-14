@@ -18,7 +18,7 @@ async fn main {
   let spec = {
     "part": @cli.opt_string(
       short='P',
-      help="Part: hinge, clevis, pin, linkage, rail, carriage, lead-screw, lead-nut, belt, cam, roller, oldham, extension-spring, torsion-spring, snap, o-ring, grooved-shaft, bracket, boss, rack",
+      help="Part: hinge, clevis, pin, rod-end, linkage, rail, carriage, lead-screw, lead-nut, belt, belt-unequal, cam, roller, oldham, extension-spring, torsion-spring, snap, o-ring, grooved-shaft, bracket, boss, rack",
     ),
     "length": @cli.opt_double(
       100.0,
@@ -126,6 +126,24 @@ async fn main {
       help="Bracket corner gusset size in mm",
       min=0.0,
     ),
+    "eyeOuter": @cli.opt_double(
+      20.0,
+      help="Rod-end eye outer diameter in mm",
+      min=0.0,
+      min_exclusive=true,
+    ),
+    "eyeWidth": @cli.opt_double(
+      8.0,
+      help="Rod-end eye width in mm",
+      min=0.0,
+      min_exclusive=true,
+    ),
+    "pulleyB": @cli.opt_double(
+      40.0,
+      help="Second pulley pitch diameter in mm",
+      min=0.0,
+      min_exclusive=true,
+    ),
     "module": @cli.opt_double(
       2.0,
       help="Rack module in mm",
@@ -197,6 +215,14 @@ async fn main {
       )
     "pin" =>
       @mechanisms.clevis_pin(diameter, length, diameter * 1.6, length * 0.1)
+    "rod-end" =>
+      @mechanisms.rod_end(
+        args.double("eyeOuter"),
+        bore,
+        args.double("eyeWidth"),
+        diameter,
+        length,
+      )
     "linkage" =>
       @mechanisms.linkage_bar(
         length,
@@ -252,6 +278,14 @@ async fn main {
         args.double("threadPitch"),
       )
     "belt" => @mechanisms.belt_loop(diameter, length, thickness, width)
+    "belt-unequal" =>
+      @mechanisms.belt_loop_unequal(
+        diameter,
+        args.double("pulleyB"),
+        length,
+        thickness,
+        width,
+      )
     "cam" =>
       @mechanisms.eccentric_cam(
         args.double("camRadius"),

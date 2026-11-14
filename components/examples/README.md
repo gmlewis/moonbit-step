@@ -32,7 +32,7 @@ All programs use millimetres and Z is up.
 | `mate_assembly` | A screw placed in a nut by named `MateConnector`/`MatePair` records. |
 | `revolution` | Analytic solids of revolution (cylinder, cone, sphere, torus, ring, dome, frustum). |
 | `rivet` | Generic solid rivet (flat cylindrical head plus straight shank). |
-| `mechanism_kit` | One generic mechanism/structural envelope per `--part`: hinge, clevis, pin, linkage, rail, carriage, lead-screw, lead-nut, belt, cam, roller, oldham, extension-spring, torsion-spring, snap, o-ring, grooved-shaft, bracket, boss, or rack. |
+| `mechanism_kit` | One generic mechanism/structural envelope per `--part`: hinge, clevis, pin, rod-end, linkage, rail, carriage, lead-screw, lead-nut, belt, belt-unequal, cam, roller, oldham, extension-spring, torsion-spring, snap, o-ring, grooved-shaft, bracket, boss, or rack. |
 | `mechanism_design` | Design-from-scratch linkage built with the typed `ParamSpec`/`ParamSet`/`DesignFamily` API and the `@cad` primitive DSL, with `compact`/`long` variants, a base plate, and pivot pins. |
 
 Run `./generate_all.sh` from this directory to regenerate every fixture in

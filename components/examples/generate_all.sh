@@ -123,9 +123,9 @@ moon run components/examples/stock_primitive -- \
 
 # Generic mechanism and structural primitives plus the design-from-scratch
 # example. Every artifact is validated by the loop below.
-for part in hinge clevis pin linkage rail carriage lead-screw lead-nut belt \
-  cam roller oldham extension-spring torsion-spring snap o-ring \
-  grooved-shaft bracket boss rack; do
+for part in hinge clevis pin rod-end linkage rail carriage lead-screw lead-nut \
+  belt belt-unequal cam roller oldham extension-spring torsion-spring snap \
+  o-ring grooved-shaft bracket boss rack; do
   moon run components/examples/mechanism_kit -- \
     --part "$part" -o "$OUT/mechanism-$part.step"
 done
@@ -240,9 +240,9 @@ for part in vslot-2020x100 vslot-2040x100 vslot-wheel vslot-tnut-m5 \
   motor-to-extrusion-adapter channel-to-extrusion-adapter \
   nema-mounting-plate standoff dowel-pin gt2-pulley-20t \
   clamp-collar-d20 sc8uu-bearing-block heat-set-boss-m3x4 \
-  mechanism-hinge mechanism-clevis mechanism-pin mechanism-linkage \
+  mechanism-hinge mechanism-clevis mechanism-pin mechanism-rod-end mechanism-linkage \
   mechanism-rail mechanism-carriage mechanism-lead-screw \
-  mechanism-lead-nut mechanism-belt mechanism-cam mechanism-roller \
+  mechanism-lead-nut mechanism-belt mechanism-belt-unequal mechanism-cam mechanism-roller \
   mechanism-oldham mechanism-extension-spring mechanism-torsion-spring \
   mechanism-snap mechanism-o-ring mechanism-grooved-shaft \
   mechanism-bracket mechanism-boss mechanism-rack \

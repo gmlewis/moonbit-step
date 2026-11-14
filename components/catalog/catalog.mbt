@@ -443,6 +443,19 @@ pub fn mechanisms_catalog() -> Array[CatalogEntry] {
       )
     Err(_) => ()
   }
+  match @mechanisms.rod_end(20.0, 6.0, 8.0, 8.0, 30.0) {
+    Ok(c) =>
+      direct.push(
+        (
+          c,
+          [
+            "eye_outer_diameter", "eye_bore_diameter", "eye_width", "shank_diameter",
+            "shank_length",
+          ],
+        ),
+      )
+    Err(_) => ()
+  }
   match @mechanisms.linkage_bar(100.0, 20.0, 5.0, 8.0) {
     Ok(c) =>
       direct.push(
@@ -513,6 +526,19 @@ pub fn mechanisms_catalog() -> Array[CatalogEntry] {
           [
             "pulley_pitch_diameter", "center_distance", "belt_thickness", "belt_width",
             "pitch_length",
+          ],
+        ),
+      )
+    Err(_) => ()
+  }
+  match @mechanisms.belt_loop_unequal(20.0, 40.0, 100.0, 2.0, 10.0) {
+    Ok(c) =>
+      direct.push(
+        (
+          c,
+          [
+            "pulley_a_pitch_diameter", "pulley_b_pitch_diameter", "center_distance",
+            "belt_thickness", "belt_width", "pitch_length",
           ],
         ),
       )

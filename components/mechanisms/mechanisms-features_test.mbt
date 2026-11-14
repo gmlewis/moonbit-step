@@ -370,3 +370,63 @@ test "rack tooth geometry and pinion layout" {
   )
   assert_true(mech_close(layout.pitch_line_mm, 2.5))
 }
+
+///|
+test "unequal belt loop tangent geometry and pitch closure" {
+  let pitch = @mechanisms.belt_pitch_length_mm_unequal(20.0, 40.0, 100.0)
+  // Exact formula: pi(r1+r2) + 2*alpha*dr + 2*sqrt(C^2-dr^2).
+  let alpha = @math.asin(10.0 / 100.0)
+  let expected = @math.PI * 30.0 +
+    2.0 * alpha * 10.0 +
+    2.0 * (100.0 * 100.0 - 10.0 * 10.0).sqrt()
+  assert_true((pitch - expected).abs() < 1.0e-9)
+  let belt = mech_ok(
+    @mechanisms.belt_loop_unequal(20.0, 40.0, 100.0, 2.0, 10.0),
+  )
+  let (x0, x1, y0, y1, z0, z1) = belt.bounding_box()
+  assert_true(mech_close(x0, -62.0))
+  assert_true(mech_close(x1, 72.0))
+  assert_true(mech_close(y0, -22.0))
+  assert_true(mech_close(y1, 22.0))
+  assert_true(mech_close(z0, 0.0))
+  assert_true(mech_close(z1, 10.0))
+  assert_true(mech_has_connector(belt, "pulley-a"))
+  assert_true(mech_has_connector(belt, "pulley-b"))
+  let solved = match
+    @mechanisms.belt_center_distance_for_pitch_length_unequal(pitch, 20.0, 40.0) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  assert_true((solved - 100.0).abs() < 1.0e-7)
+  // Equal diameters reduce to the symmetric belt.
+  let equal = mech_ok(
+    @mechanisms.belt_loop_unequal(20.0, 20.0, 100.0, 2.0, 10.0),
+  )
+  let (ex0, ex1, ey0, ey1, _ez0, _ez1) = equal.bounding_box()
+  assert_true(mech_close(ex0, -62.0))
+  assert_true(mech_close(ex1, 62.0))
+  assert_true(mech_close(ey0, -12.0))
+  assert_true(mech_close(ey1, 12.0))
+  assert_true(
+    mech_close(
+      @mechanisms.belt_pitch_length_mm_unequal(20.0, 20.0, 100.0),
+      @mechanisms.belt_pitch_length_mm(20.0, 100.0),
+    ),
+  )
+  assert_true(
+    @mechanisms.belt_loop_unequal(20.0, 40.0, 10.0, 2.0, 10.0) is Err(_),
+  )
+  // Reversing which pulley is larger is symmetric in pitch and mirrors the box.
+  let reversed = mech_ok(
+    @mechanisms.belt_loop_unequal(40.0, 20.0, 100.0, 2.0, 10.0),
+  )
+  let (rx0, rx1, ry0, ry1, _rz0, _rz1) = reversed.bounding_box()
+  assert_true(mech_close(rx0, -72.0))
+  assert_true(mech_close(rx1, 62.0))
+  assert_true(mech_close(ry0, -22.0))
+  assert_true(mech_close(ry1, 22.0))
+  assert_true(
+    (@mechanisms.belt_pitch_length_mm_unequal(40.0, 20.0, 100.0) - pitch).abs() <
+    1.0e-9,
+  )
+}

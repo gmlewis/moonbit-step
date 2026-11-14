@@ -57,6 +57,7 @@ test "every public mechanism builder exposes a connector" {
     (mech_ok(@mechanisms.hinge(40.0, 20.0, 6.0, 4.0)), "hinge-axis"),
     (mech_ok(@mechanisms.clevis(30.0, 20.0, 6.0, 5.0, 8.0, 6.0)), "pin-bore-a"),
     (mech_ok(@mechanisms.clevis_pin(6.0, 30.0, 10.0, 2.0)), "shaft-end"),
+    (mech_ok(@mechanisms.rod_end(20.0, 6.0, 8.0, 8.0, 30.0)), "eye-bore"),
     (mech_ok(@mechanisms.linkage_bar(100.0, 20.0, 5.0, 8.0)), "pivot-a"),
     (mech_ok(@mechanisms.linear_rail(profile, 300.0)), "rail-axis"),
     (
@@ -69,6 +70,10 @@ test "every public mechanism builder exposes a connector" {
       "flange-face",
     ),
     (mech_ok(@mechanisms.belt_loop(20.0, 100.0, 2.0, 10.0)), "pulley-a"),
+    (
+      mech_ok(@mechanisms.belt_loop_unequal(20.0, 40.0, 100.0, 2.0, 10.0)),
+      "pulley-b",
+    ),
     (mech_ok(@mechanisms.eccentric_cam(20.0, 5.0, 8.0, 6.0)), "rotation-bore"),
     (
       mech_ok(@mechanisms.roller_follower(10.0, 8.0, 5.0, 4.0, 10.0)),

@@ -157,3 +157,66 @@ test "linkage_lengths wrapper and validation" {
     is Err(_),
   )
 }
+
+///|
+test "clevis pin and lead screw nut resolve as nominal mate pairs" {
+  let fork = mech_ok(@mechanisms.clevis(30.0, 20.0, 6.0, 5.0, 8.0, 6.0))
+  let pin = mech_ok(@mechanisms.clevis_pin(6.0, 30.0, 10.0, 2.0))
+  let pair = @common.MatePair::new(parent="pin-bore-a", child="shaft-end")
+  let alignment = match
+    pair.resolve(
+      mech_connector(fork, "pin-bore-a"),
+      mech_connector(pin, "shaft-end"),
+    ) {
+    Ok(a) => a
+    Err(e) => abort(e.message())
+  }
+  assert_true(mech_close(alignment.nominal_diameter_gap_mm(), 0.0))
+
+  let rod = mech_ok(@mechanisms.rod_end(20.0, 6.0, 8.0, 8.0, 30.0))
+  let eye_pair = @common.MatePair::new(parent="eye-bore", child="shaft-end")
+  let eye_alignment = match
+    eye_pair.resolve(
+      mech_connector(rod, "eye-bore"),
+      mech_connector(pin, "shaft-end"),
+    ) {
+    Ok(a) => a
+    Err(e) => abort(e.message())
+  }
+  assert_true(mech_close(eye_alignment.nominal_diameter_gap_mm(), 0.0))
+
+  let screw = mech_ok(@mechanisms.lead_screw(8.0, 200.0))
+  let nut = mech_ok(@mechanisms.lead_screw_nut(16.0, 20.0, 24.0, 4.0, 8.0, 2.0))
+  let screw_pair = @common.MatePair::new(parent="thread", child="thread")
+  let screw_alignment = match
+    screw_pair.resolve(
+      mech_connector(screw, "thread"),
+      mech_connector(nut, "thread"),
+    ) {
+    Ok(a) => a
+    Err(e) => abort(e.message())
+  }
+  assert_true(mech_close(screw_alignment.nominal_diameter_gap_mm(), 0.0))
+}
+
+///|
+test "rod end eye and shank envelope" {
+  let part = mech_ok(@mechanisms.rod_end(20.0, 6.0, 8.0, 8.0, 30.0))
+  let (x0, x1, y0, y1, z0, z1) = part.bounding_box()
+  assert_true(mech_close(x0, -10.0))
+  assert_true(mech_close(x1, 10.0))
+  assert_true(mech_close(y0, -10.0))
+  assert_true(mech_close(y1, 30.0))
+  assert_true(mech_close(z0, -4.0))
+  assert_true(mech_close(z1, 4.0))
+  let bore = mech_connector(part, "eye-bore")
+  assert_true(bore.kind is @common.MateKind::CylindricalBore)
+  assert_true(bore.gender is @common.MateGender::Female)
+  assert_true(mech_close(bore.diameter_mm.unwrap(), 6.0))
+  let shank = mech_connector(part, "shank")
+  assert_true(shank.kind is @common.MateKind::CylindricalShaft)
+  assert_true(shank.gender is @common.MateGender::Male)
+  assert_true(mech_has_connector(part, "rod-thread"))
+  assert_true(@mechanisms.rod_end(20.0, 20.0, 8.0, 8.0, 30.0) is Err(_))
+  assert_true(@mechanisms.rod_end(20.0, 6.0, 8.0, 20.0, 30.0) is Err(_))
+}
