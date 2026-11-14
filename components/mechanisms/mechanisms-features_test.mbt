@@ -463,3 +463,41 @@ test "extension spring closed end loops" {
     is Err(_),
   )
 }
+
+///|
+test "four-bar layout closes and reports Grashof" {
+  let pose = match @mechanisms.four_bar_layout(40.0, 10.0, 40.0, 30.0, 0.0) {
+    Ok(p) => p
+    Err(e) => abort(e.message())
+  }
+  assert_true(mech_close(mech_dist(pose.crank_joint, pose.rocker_joint), 40.0))
+  assert_true(mech_close(mech_dist(pose.rocker_joint, pose.ground_pivot), 30.0))
+  assert_true(mech_close(pose.crank_joint.0, 10.0))
+  assert_true(pose.grashof)
+  assert_true(pose.crank_rocker)
+  let mirror = match
+    @mechanisms.four_bar_layout(40.0, 10.0, 40.0, 30.0, 0.0, branch=-1) {
+    Ok(p) => p
+    Err(e) => abort(e.message())
+  }
+  assert_true(mech_close(mirror.rocker_joint.1, -pose.rocker_joint.1))
+  let toggle = match
+    @mechanisms.four_bar_layout(40.0, 10.0, 40.0, 30.0, 180.0) {
+    Ok(p) => p
+    Err(e) => abort(e.message())
+  }
+  assert_true(
+    mech_close(mech_dist(toggle.crank_joint, toggle.rocker_joint), 40.0),
+  )
+  assert_true(
+    mech_close(mech_dist(toggle.rocker_joint, toggle.ground_pivot), 30.0),
+  )
+  let non_grashof = match
+    @mechanisms.four_bar_layout(40.0, 30.0, 25.0, 20.0, 0.0) {
+    Ok(p) => p
+    Err(e) => abort(e.message())
+  }
+  assert_true(!non_grashof.grashof)
+  assert_true(@mechanisms.four_bar_layout(40.0, 10.0, 5.0, 5.0, 0.0) is Err(_))
+  assert_true(@mechanisms.four_bar_layout(0.0, 10.0, 20.0, 20.0, 0.0) is Err(_))
+}

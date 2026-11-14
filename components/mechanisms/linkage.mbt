@@ -9,7 +9,9 @@
 /// along X.
 ///
 /// Dimensions are millimetres. This is a generic engineered linkage envelope:
-/// no standard table, bearing, bushing, or strength rating is implied.
+/// no standard table, bearing, bushing, or strength rating is implied. Use
+/// `four_bar_layout` to compute closed joint positions for a planar four-bar
+/// linkage built from these bars.
 pub fn linkage_bar(
   length_mm : Double,
   width_mm : Double,
@@ -240,4 +242,120 @@ pub fn linkage_bar_from_lengths(
         color~,
       )
   }
+}
+
+///|
+/// FourBarLayout is one closed pose of a planar four-bar linkage.
+///
+/// The fixed pivots are `crank_pivot` at `(0, 0)` and `ground_pivot` at
+/// `(ground, 0)`. `crank_joint` is the moving end of the crank and
+/// `rocker_joint` the moving end of the rocker; `coupler_point` is the midpoint
+/// of the coupler. The `branch` sign selects the mirror pose across the line
+/// between the crank joint and the ground pivot.
+pub(all) struct FourBarLayout {
+  ground_mm : Double
+  crank_mm : Double
+  coupler_mm : Double
+  rocker_mm : Double
+  crank_angle_deg : Double
+  crank_pivot : (Double, Double)
+  crank_joint : (Double, Double)
+  rocker_joint : (Double, Double)
+  ground_pivot : (Double, Double)
+  coupler_point : (Double, Double)
+  grashof : Bool
+  crank_rocker : Bool
+}
+
+///|
+/// four_bar_layout closes a planar four-bar linkage at a crank angle.
+///
+/// The rocker joint is the intersection of the coupler circle around the crank
+/// joint and the rocker circle around the ground pivot. `branch = 1` selects
+/// the left-hand normal of the crank-joint-to-ground-pivot line;
+/// `branch = -1` selects the mirror pose. A pose that cannot close is a typed
+/// error. The helper reports the Grashof condition and whether this is a
+/// crank-rocker arrangement (Grashof with the crank as the shortest link).
+pub fn four_bar_layout(
+  ground_mm : Double,
+  crank_mm : Double,
+  coupler_mm : Double,
+  rocker_mm : Double,
+  crank_angle_deg : Double,
+  branch~ : Int32 = 1,
+) -> Result[FourBarLayout, @common.SpecError] {
+  match
+    mechanism_checks([
+      ("four-bar ground link", ground_mm),
+      ("four-bar crank", crank_mm),
+      ("four-bar coupler", coupler_mm),
+      ("four-bar rocker", rocker_mm),
+    ]) {
+    Err(e) => return Err(e)
+    Ok(_) => ()
+  }
+  if !@common.is_finite(crank_angle_deg) {
+    return Err(@common.InvalidParameter("four-bar crank angle must be finite"))
+  }
+  let angle = crank_angle_deg * @math.PI / 180.0
+  let bx = crank_mm * @math.cos(angle)
+  let by = crank_mm * @math.sin(angle)
+  let ddx = ground_mm - bx
+  let ddy = -by
+  let d = (ddx * ddx + ddy * ddy).sqrt()
+  let sum = coupler_mm + rocker_mm
+  let diff = (coupler_mm - rocker_mm).abs()
+  if d > sum + 1.0e-9 || d < diff - 1.0e-9 {
+    return Err(
+      @common.InvalidParameter(
+        "four-bar linkage does not close at this crank angle",
+      ),
+    )
+  }
+  if d <= 1.0e-12 {
+    return Err(
+      @common.InvalidParameter(
+        "four-bar crank joint coincides with the ground pivot",
+      ),
+    )
+  }
+  let a0 = (coupler_mm * coupler_mm - rocker_mm * rocker_mm + d * d) / (2.0 * d)
+  let h2 = coupler_mm * coupler_mm - a0 * a0
+  let h = if h2 <= 0.0 { 0.0 } else { h2.sqrt() }
+  let ux = ddx / d
+  let uy = ddy / d
+  let px = bx + a0 * ux
+  let py = by + a0 * uy
+  let sign = if branch >= 0 { 1.0 } else { -1.0 }
+  let cx = px + sign * h * -uy
+  let cy = py + sign * h * ux
+  let lengths = [ground_mm, crank_mm, coupler_mm, rocker_mm]
+  let mut shortest = lengths[0]
+  let mut longest = lengths[0]
+  let mut total = 0.0
+  for length in lengths {
+    if length < shortest {
+      shortest = length
+    }
+    if length > longest {
+      longest = length
+    }
+    total += length
+  }
+  let grashof = shortest + longest <= total - shortest - longest + 1.0e-9
+  let crank_rocker = grashof && crank_mm <= shortest + 1.0e-9
+  Ok({
+    ground_mm,
+    crank_mm,
+    coupler_mm,
+    rocker_mm,
+    crank_angle_deg,
+    crank_pivot: (0.0, 0.0),
+    crank_joint: (bx, by),
+    rocker_joint: (cx, cy),
+    ground_pivot: (ground_mm, 0.0),
+    coupler_point: ((bx + cx) / 2.0, (by + cy) / 2.0),
+    grashof,
+    crank_rocker,
+  })
 }

@@ -116,3 +116,10 @@ test "every public mechanism builder exposes a connector" {
     }
   }
 }
+
+///|
+fn mech_dist(a : (Double, Double), b : (Double, Double)) -> Double {
+  let dx = a.0 - b.0
+  let dy = a.1 - b.1
+  (dx * dx + dy * dy).sqrt()
+}

@@ -260,6 +260,9 @@ typed `@cad.Length`; the `*_from_lengths` builders (for example
 `linkage_bar_from_lengths`) make the millimetre unit explicit. Bare `Double`
 dimensions are millimetres. `@mechanisms.linkage_family()` is a ready-made
 family with `compact` and `long` presets; the design example uses it.
+`@mechanisms.four_bar_layout()` closes a planar four-bar linkage at a crank
+angle and reports its joint positions, the Grashof condition, and whether it is
+a crank-rocker.
 
 `components/examples/mechanism_design` is the design-from-scratch example. It
 runs with `--headless` for agents and `--view` for the owner; see

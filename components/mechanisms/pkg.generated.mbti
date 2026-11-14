@@ -33,6 +33,8 @@ pub fn eccentric_cam_radius_mm(Double, Double, Double) -> Double
 
 pub fn extension_spring(Double, Double, Double, Int32, leg_length_mm? : Double, hook_loop_radius_mm? : Double, segments_per_turn? : Int32, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
+pub fn four_bar_layout(Double, Double, Double, Double, Double, branch? : Int32) -> Result[FourBarLayout, @common.SpecError]
+
 pub fn grooved_shaft(Double, Double, Double, Double, Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
 pub fn hinge(Double, Double, Double, Double, knuckle_diameter_mm? : Double, knuckles? : Int32, knuckle_gap_mm? : Double, hole_diameter_mm? : Double, hole_spacing_mm? : Double, pin_extension_mm? : Double, leaf_angle_deg? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
@@ -88,6 +90,21 @@ pub fn z_bracket(Double, Double, Double, Double, Double, Double, holes_per_flang
 // Errors
 
 // Types and methods
+pub(all) struct FourBarLayout {
+  ground_mm : Double
+  crank_mm : Double
+  coupler_mm : Double
+  rocker_mm : Double
+  crank_angle_deg : Double
+  crank_pivot : (Double, Double)
+  crank_joint : (Double, Double)
+  rocker_joint : (Double, Double)
+  ground_pivot : (Double, Double)
+  coupler_point : (Double, Double)
+  grashof : Bool
+  crank_rocker : Bool
+}
+
 pub(all) struct LinearRailProfile {
   width_mm : Double
   height_mm : Double
