@@ -149,5 +149,9 @@ async test "helical coupling evaluated STEP retains clamp-bolt colours" {
   let out = dir + "/coupling.step"
   part.write_step_evaluated(Some(out), root=Some(root))
   let text = @fs.read_file(out).text()
-  assert_true(text.contains("COLOUR_RGB("))
+  assert_true(text.contains("MANIFOLD_SOLID_BREP"))
+  // Per-solid presentation colours are restored only when OCP is available.
+  if csc_ocp_available() {
+    assert_true(text.contains("COLOUR_RGB("))
+  }
 }

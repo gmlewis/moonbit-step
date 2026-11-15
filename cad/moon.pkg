@@ -38,7 +38,3 @@ import {
   "moonbitlang/core/env",
   "moonbitlang/core/json",
 } for "test"
-
-import {
-  "gmlewis/step/parse",
-} for "wbtest"

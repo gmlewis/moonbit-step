@@ -52,6 +52,15 @@ pub fn Design::with_documentation(
 }
 
 ///|
+/// Design::nodes returns a copy of the design's scene nodes, in order.
+///
+/// Display-only transforms (for example an exploded view) can rebuild a design
+/// from these nodes without changing the original.
+pub fn Design::nodes(self : Design) -> Array[SceneNode] {
+  self.nodes.copy()
+}
+
+///|
 
 ///|
 /// add_styled_item writes one STEP presentation style for `item_ref`. It may

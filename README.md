@@ -80,6 +80,14 @@ The STEP entity layer itself models true booleans and CSG constructs and
 preserves unrecognized entities verbatim as `RawEntity`, so files using richer
 constructs round-trip intact.
 
+For a **static vendor part** whose exact B-Rep must appear in the flat output,
+use `@cad.ImportedStep`: `Design::compile` seeds the output repository with the
+imported entity graph (ids and internal references intact) and bakes the scene
+node's rigid transform into the imported `CARTESIAN_POINT`/`DIRECTION` entities.
+This places the vendor B-Rep exactly; it does not trim, repair, or tessellate
+it, and one imported STEP per design is supported. Callers that need mass,
+collision, or a visual fall back to the imported bounding box.
+
 ## Parsing
 
 ```moonbit

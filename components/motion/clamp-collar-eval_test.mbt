@@ -24,6 +24,13 @@ async fn csc_draw_available() -> Bool {
 }
 
 ///|
+/// csc_ocp_available reports whether the Python OCP bindings can be imported.
+async fn csc_ocp_available() -> Bool {
+  let (code, _) = @process.collect_output_merged("python3", ["-c", "import OCP"])
+  code == 0
+}
+
+///|
 fn csc_repo_root() -> String raise {
   match @env.get_env_var("MOONBIT_STEP_ROOT") {
     Some(root) => root
@@ -93,10 +100,7 @@ async test "clamp collar evaluates to one trimmed solid" {
   assert_false(text.contains("CSG_SOLID("))
   // The evaluator restores per-solid presentation colours when OCP is
   // available; without OCP the geometry is unchanged but uncoloured.
-  let (ocolor, _) = @process.collect_output_merged("python3", [
-    "-c", "import OCP",
-  ])
-  if ocolor == 0 {
+  if csc_ocp_available() {
     assert_true(text.contains("COLOUR_RGB"))
   }
   let (vcode, vout) = @process.collect_output_merged("python3", [

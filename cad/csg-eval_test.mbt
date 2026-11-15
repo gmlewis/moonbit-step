@@ -1,8 +1,10 @@
 ///|
 /// Black-box tests for the OCCT-backed evaluated CSG export.
 ///
-/// The integration test is skipped (returns early) when OCCT or `python3` is
-/// not installed, mirroring `scripts/csg_eval_test.py`'s `HAVE_DRAW` guard.
+/// The integration tests are skipped (return early) when their prerequisites
+/// are missing: OCCT (`draw_available`) or `python3` for every test, plus the
+/// Python OCP bindings for multi-edge chamfers. This mirrors
+/// `scripts/csg_eval_test.py`'s `HAVE_DRAW` guard.
 
 ///|
 /// command_in_path reports whether `name` is an executable reachable through
@@ -21,6 +23,13 @@ async fn command_in_path(name : String) -> Bool {
 ///|
 async fn draw_available() -> Bool {
   command_in_path("DRAWEXE") || command_in_path("occt-draw")
+}
+
+///|
+/// ocp_available reports whether the Python OCP bindings can be imported.
+async fn ocp_available() -> Bool {
+  let (code, _) = @process.collect_output_merged("python3", ["-c", "import OCP"])
+  code == 0
 }
 
 ///|
@@ -242,7 +251,9 @@ async test "evaluated chamfer yields a valid solid with a conical face" {
 
 ///|
 async test "evaluated multi-edge chamfer targets perpendicular cap edges" {
-  if !command_in_path("python3") || !draw_available() {
+  // Multi-edge chamfers use OCP directly; DRAW cannot chamfer several cap
+  // boundary edges in one operation.
+  if !command_in_path("python3") || !draw_available() || !ocp_available() {
     return
   }
   let root = repo_root()

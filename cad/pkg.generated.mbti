@@ -262,6 +262,7 @@ pub async fn Design::create_blender_file(Self, String, keep_modifiers? : Bool, s
 pub fn Design::diagnostics(Self) -> Array[Diagnostic]
 pub fn Design::has_errors(Self) -> Bool
 pub fn Design::new(name? : String, description? : String, documentation? : String, snapping? : Double) -> Self
+pub fn Design::nodes(Self) -> Array[SceneNode]
 pub fn Design::planar_faces(Self) -> FaceSet
 pub fn Design::rotate_x(Self, Double) -> Self
 pub fn Design::rotate_y(Self, Double) -> Self
