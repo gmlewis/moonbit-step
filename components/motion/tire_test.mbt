@@ -47,6 +47,22 @@ test "measured tire layer volumes sum to the reference volume" {
 }
 
 ///|
+test "tire mates are placed for a one-step snap onto the mount" {
+  let wheel = tire_ok(@motion.measured_tire())
+  let bore = match wheel.connector("hub-bore") {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  assert_true(tire_close(bore.placement.trans.0, 0.0))
+  assert_true(tire_close(bore.axis.0, 1.0))
+  let seat = match wheel.connector("mount-seat") {
+    Ok(c) => c
+    Err(_) => abort("missing mount-seat connector")
+  }
+  assert_true(tire_close(seat.placement.trans.0, -19.05))
+}
+
+///|
 test "tire exposes hub, bore, and tread connectors" {
   let wheel = tire_ok(@motion.measured_tire())
   for name in ["hub-bore", "hub-face", "hub-rear", "tread"] {

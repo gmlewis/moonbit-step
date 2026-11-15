@@ -31,6 +31,19 @@ test "measured tire mount envelope matches the owner-authored model" {
 }
 
 ///|
+test "tire mount hub-post mate sits on the post tip for one-step snapping" {
+  let mount = tm_ok(@motion.measured_tire_mount())
+  let post = match mount.connector("hub-post") {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  // The mate must sit on the post tip (front_offset - plate_thickness), so a
+  // plain snap of the tire's hub-bore mate yields the fully seated pose.
+  assert_true(tm_close(post.placement.trans.0, -9.0))
+  assert_true(tm_close(post.axis.0, 1.0))
+}
+
+///|
 test "tire mount connectors sit on the external front face" {
   let mount = tm_ok(@motion.measured_tire_mount())
   for name in ["hub-post", "front-face", "rear-face"] {
