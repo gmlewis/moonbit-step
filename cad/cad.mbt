@@ -254,12 +254,35 @@ fn compile_node_to_brep(
 
 ///|
 pub fn Design::compile(self : Design) -> @repository.Repository {
-  let ctx = StepContext::new(snapping?=self.snapping)
+  // Imported STEP files seed the output repository so their entity ids and
+  // internal references survive. The node transform is baked into the
+  // imported points and directions; the imported product structure is emitted
+  // as-is. One imported file per design keeps the id space unambiguous.
+  let mut imported : ImportedStep? = None
+  for node in self.nodes {
+    match node.shape {
+      ImportedStep(imp) => {
+        if imported is Some(_) {
+          abort(
+            "Design::compile supports one imported STEP per design; merge or split the imports.",
+          )
+        }
+        imported = Some(imp.transformed(Transform::from_node(node)))
+      }
+      _ => ()
+    }
+  }
+  let ctx = match imported {
+    Some(imp) =>
+      StepContext::new_with_repository(imp.repository, snapping?=self.snapping)
+    None => StepContext::new(snapping?=self.snapping)
+  }
   ctx.init_standard_context(self.name)
   let product_defs : Array[@step.Ref] = []
   let shape_reps : Array[@step.Ref] = []
   for node in self.nodes {
     match node.shape {
+      ImportedStep(_) => continue
       Union(u) => {
         if u.nodes.length() == 0 {
           continue

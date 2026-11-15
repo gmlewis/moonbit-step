@@ -480,6 +480,10 @@ pub enum Shape {
   Chamfer(EdgeFeature)
   Union(BooleanUnion)
   Difference(BooleanDifference)
+  /// An exact vendor B-Rep imported from a STEP file. Its geometry is emitted
+  /// by `Design::compile` from the imported repository, not by a shape
+  /// compiler.
+  ImportedStep(ImportedStep)
 }
 
 ///|
@@ -784,6 +788,7 @@ pub fn Shape::bounding_box(
     Difference(d) => d.base.bounding_box()
     Fillet(f) => f.base.bounding_box()
     Chamfer(c) => c.base.bounding_box()
+    ImportedStep(i) => i.bounding_box()
     SweptProfile(s) => {
       // Sweep the actual profile vertices through the same frames the STEP
       // compiler uses. The old implementation expanded the path bounding box by

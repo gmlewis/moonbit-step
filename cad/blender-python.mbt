@@ -470,6 +470,10 @@ fn emit_node_python(
       abort(
         "edge fillet/chamfer is not supported by the Blender exporter; use Design::to_step_evaluated() (OCCT)",
       )
+    ImportedStep(_) =>
+      abort(
+        "imported STEP solids are not re-created by the Blender exporter; import the source STEP directly in Blender",
+      )
   }
 }
 

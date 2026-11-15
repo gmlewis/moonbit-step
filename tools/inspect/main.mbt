@@ -503,6 +503,7 @@ fn shape_kind(shape : @cad.Shape) -> String {
     Chamfer(_) => "chamfer"
     Union(_) => "union"
     Difference(_) => "difference"
+    ImportedStep(_) => "imported-step"
   }
 }
 

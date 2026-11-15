@@ -1010,6 +1010,21 @@ pub fn Repository::each(self : Repository, f : (AnyEntity) -> Unit) -> Unit {
 }
 
 ///|
+/// Repository::each_with_id visits every entity with its id in insertion
+/// order.
+///
+/// Importers use it to copy or transform an entity graph while preserving the
+/// ids that the entities' `@step.Ref` fields resolve against.
+pub fn Repository::each_with_id(
+  self : Repository,
+  f : (@step.EntityId, AnyEntity) -> Unit,
+) -> Unit {
+  for entry in self.entities {
+    f(entry.id, entry.entity)
+  }
+}
+
+///|
 pub fn Repository::get(self : Repository, id : @step.EntityId) -> AnyEntity? {
   for entry in self.entities {
     if entry.id.value == id.value {

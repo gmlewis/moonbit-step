@@ -4,6 +4,7 @@ package "gmlewis/step/cad"
 import {
   "gmlewis/fonts",
   "gmlewis/step",
+  "gmlewis/step/parse",
   "gmlewis/step/repository",
   "moonbitlang/core/debug",
 }
@@ -399,6 +400,19 @@ pub struct HexHeadWasherFace {
 pub fn HexHeadWasherFace::as_shape(Self) -> Shape
 pub fn HexHeadWasherFace::new(across_flats_mm~ : Double, head_height_mm~ : Double, face_angle_deg? : Double, shank_diameter_mm? : Double, shank_length_mm? : Double, washer_face_diameter_mm? : Double, washer_face_height_mm? : Double, tip_chamfer_mm? : Double) -> Self
 
+pub struct ImportedStep {
+  repository : @repository.Repository
+  min_pt : (Double, Double, Double)
+  max_pt : (Double, Double, Double)
+  source : String
+}
+pub fn ImportedStep::as_shape(Self) -> Shape
+pub fn ImportedStep::bounding_box(Self) -> (Double, Double, Double, Double, Double, Double)
+pub fn ImportedStep::from_repository(@repository.Repository, source? : String) -> Self
+pub fn ImportedStep::from_string(String, source? : String) -> Result[Self, @parse.StepParseErrorInfo]
+pub fn ImportedStep::source(Self) -> String
+pub fn ImportedStep::transformed(Self, Transform) -> Self
+
 pub struct Length {
   // private fields
 }
@@ -612,6 +626,7 @@ pub enum Shape {
   Chamfer(EdgeFeature)
   Union(BooleanUnion)
   Difference(BooleanDifference)
+  ImportedStep(ImportedStep)
 }
 pub fn Shape::analysis_centroid(Self) -> Result[(Double, Double, Double), AnalysisError]
 pub fn Shape::analysis_mesh(Self) -> Result[(Array[(Double, Double, Double)], Array[Array[Int32]]), AnalysisError]
@@ -718,6 +733,7 @@ pub fn StepContext::face_outer_bound(Self, @step.Ref, Bool) -> @step.Ref
 pub fn StepContext::init_standard_context(Self, String) -> Unit
 pub fn StepContext::line(Self, @step.Ref, @step.Ref) -> @step.Ref
 pub fn StepContext::new(snapping? : Double) -> Self
+pub fn StepContext::new_with_repository(@repository.Repository, snapping? : Double) -> Self
 pub fn StepContext::oriented_edge(Self, @step.Ref, Bool) -> @step.Ref
 pub fn StepContext::pcurve(Self, @step.Ref, @step.Ref) -> @step.Ref
 pub fn StepContext::surface_curve(Self, @step.Ref, Array[@step.Ref]) -> @step.Ref

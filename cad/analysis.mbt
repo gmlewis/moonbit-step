@@ -1352,6 +1352,7 @@ fn an_shape_inventory(shape : Shape) -> SurfaceInventory {
       }
       inv
     }
+    ImportedStep(_) => an_inventory(0, 0, 0, 0, 0, 0, 0, 0)
   }
 }
 
@@ -1577,6 +1578,8 @@ pub fn Shape::analysis_volume(self : Shape) -> Result[Double, AnalysisError] {
     }
     Difference(_) =>
       Err(NotAnalytic("nominal difference is not a trimmed solid"))
+    ImportedStep(_) =>
+      Err(NotAnalytic("imported STEP volume is not analyzed by the DSL"))
   }
 }
 
@@ -1667,6 +1670,8 @@ pub fn Shape::analysis_centroid(self : Shape) -> Result[Vec3, AnalysisError] {
     }
     Difference(_) =>
       Err(NotAnalytic("nominal difference is not a trimmed solid"))
+    ImportedStep(_) =>
+      Err(NotAnalytic("imported STEP centroid is not analyzed by the DSL"))
   }
 }
 
@@ -1737,6 +1742,8 @@ pub fn Shape::section_at_local(
     Fillet(_) => Err(NotAnalytic("edge fillet requires a trimming kernel"))
     Chamfer(_) => Err(NotAnalytic("edge chamfer requires a trimming kernel"))
     Union(_) => Err(NotAnalytic("union sections are reported per child"))
+    ImportedStep(_) =>
+      Err(NotAnalytic("imported STEP sections are not analyzed by the DSL"))
     Difference(_) =>
       Err(NotAnalytic("nominal difference is not a trimmed solid"))
   }
@@ -2007,6 +2014,8 @@ pub fn Shape::analysis_mesh(
     Chamfer(_) => Err(NotAnalytic("mesh requires a trimming kernel"))
     CalibrationChamferBlock(_) =>
       Err(NotAnalytic("mesh is not implemented for the calibration block"))
+    ImportedStep(_) =>
+      Err(NotAnalytic("imported STEP meshes come from the source file"))
     Difference(_) => Err(NotAnalytic("nominal difference has no trimmed mesh"))
   }
 }

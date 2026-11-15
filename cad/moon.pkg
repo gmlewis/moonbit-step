@@ -12,6 +12,7 @@ import {
   "gmlewis/step/entities/topology",
   "gmlewis/step/entities/units",
   "gmlewis/step/header",
+  "gmlewis/step/parse",
   "gmlewis/step/repository",
   "moonbitlang/core/env",
   "moonbitlang/async/fs",

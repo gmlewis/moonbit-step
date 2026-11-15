@@ -116,6 +116,42 @@ pub fn StepContext::new(snapping? : Double) -> StepContext {
 }
 
 ///|
+/// StepContext::new_with_repository seeds the context from an already parsed
+/// repository.
+///
+/// Imported entity ids are kept, so their internal references resolve. New
+/// entities are appended after the imported graph, and the deduplication
+/// caches start empty (they may add equivalent primitives, which is valid).
+pub fn StepContext::new_with_repository(
+  repo : @repository.Repository,
+  snapping? : Double,
+) -> StepContext {
+  let entities : Map[Int32, @repository.AnyEntity] = Map([])
+  repo.each_with_id(fn(id, entity) { entities.set(id.value, entity) })
+  {
+    repo,
+    length_unit_id: { value: 0, },
+    plane_angle_unit_id: { value: 0, },
+    solid_angle_unit_id: { value: 0, },
+    uncertainty_id: { value: 0, },
+    repo_ctx_id: { value: 0, },
+    snapping,
+    entities,
+    directions: Map([]),
+    vectors: Map([]),
+    cartesian_points: Map([]),
+    vertex_points: Map([]),
+    lines: Map([]),
+    edge_curves: Map([]),
+    axis2_placements: Map([]),
+    oriented_edges: Map([]),
+    edge_loops: Map([]),
+    face_bounds: Map([]),
+    advanced_faces: Map([]),
+  }
+}
+
+///|
 fn StepContext::add(
   self : StepContext,
   entity : @repository.AnyEntity,

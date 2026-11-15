@@ -1,0 +1,27 @@
+///|
+test "imported STEP seeds the output and bakes the scene placement" {
+  let source = @cad.Design::new(name="source")
+    .add(@cad.Cuboid::new(10.0, 10.0, 10.0).with_name("vendor-block"))
+    .to_step_file()
+  let imported = match @cad.ImportedStep::from_string(source, source="test") {
+    Ok(imported) => imported
+    Err(_) => fail("could not parse the generated STEP source")
+  }
+  let (sx0, sx1, sy0, sy1, sz0, sz1) = imported.bounding_box()
+  assert_true(sx0 < sx1)
+  assert_true(sy0 < sy1)
+  assert_true(sz0 < sz1)
+  // Place the imported solid at x = 10 and check the baked bbox.
+  let node = imported.as_shape().with_name("moteus-board").translate(x=10.0)
+  let placed = imported.transformed(@cad.Transform::from_node(node))
+  let (x0, x1, _, _, _, _) = placed.bounding_box()
+  assert_true((x0 - 10.0).abs() < 1.0e-9)
+  assert_true((x1 - 20.0).abs() < 1.0e-9)
+  // The design emits the imported product plus its own context entities.
+  let design = @cad.Design::new(name="imported").add(node)
+  assert_true(!design.has_errors())
+  let out = design.to_step_file()
+  assert_true(out.contains("ISO-10303-21;"))
+  assert_true(out.contains("MANIFOLD_SOLID_BREP"))
+  assert_true(out.contains("vendor-block"))
+}
