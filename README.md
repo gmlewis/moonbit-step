@@ -85,7 +85,7 @@ use `@cad.ImportedStep`: `Design::compile` seeds the output repository with the
 imported entity graph (ids and internal references intact) and bakes the scene
 node's rigid transform into the imported `CARTESIAN_POINT`/`DIRECTION` entities.
 This places the vendor B-Rep exactly; it does not trim, repair, or tessellate
-it, and one imported STEP per design is supported. Callers that need mass,
+it, and multiple imported STEP files per design are supported. Callers that need mass,
 collision, or a visual fall back to the imported bounding box.
 
 ## Parsing

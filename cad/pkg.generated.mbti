@@ -406,11 +406,16 @@ pub struct ImportedStep {
   min_pt : (Double, Double, Double)
   max_pt : (Double, Double, Double)
   source : String
+  text : String?
 }
 pub fn ImportedStep::as_shape(Self) -> Shape
 pub fn ImportedStep::bounding_box(Self) -> (Double, Double, Double, Double, Double, Double)
 pub fn ImportedStep::from_repository(@repository.Repository, source? : String) -> Self
 pub fn ImportedStep::from_string(String, source? : String) -> Result[Self, @parse.StepParseErrorInfo]
+pub fn ImportedStep::max_id(Self) -> Int32
+pub fn ImportedStep::merge(Array[Self]) -> Self
+pub fn ImportedStep::renamed(Self, String) -> Self
+pub fn ImportedStep::shifted(Self, Int32) -> Self
 pub fn ImportedStep::source(Self) -> String
 pub fn ImportedStep::transformed(Self, Transform) -> Self
 

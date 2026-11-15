@@ -264,22 +264,27 @@ fn compile_node_to_brep(
 ///|
 pub fn Design::compile(self : Design) -> @repository.Repository {
   // Imported STEP files seed the output repository so their entity ids and
-  // internal references survive. The node transform is baked into the
-  // imported points and directions; the imported product structure is emitted
-  // as-is. One imported file per design keeps the id space unambiguous.
-  let mut imported : ImportedStep? = None
+  // internal references survive. Each node's transform is baked into its own
+  // import first; the baked imports are then merged into one repository with
+  // disjoint entity id ranges (later files are re-parsed with shifted ids),
+  // so a design may carry any number of imported STEP solids. The imported
+  // product structure is emitted as-is.
+  let imports : Array[ImportedStep] = []
+  let mut shift = 0
   for node in self.nodes {
     match node.shape {
       ImportedStep(imp) => {
-        if imported is Some(_) {
-          abort(
-            "Design::compile supports one imported STEP per design; merge or split the imports.",
-          )
-        }
-        imported = Some(imp.transformed(Transform::from_node(node)))
+        let placed = imp.shifted(shift).transformed(Transform::from_node(node))
+        shift = placed.max_id() + 1
+        imports.push(placed)
       }
       _ => ()
     }
+  }
+  let imported : ImportedStep? = if imports.length() == 0 {
+    None
+  } else {
+    Some(ImportedStep::merge(imports))
   }
   let ctx = match imported {
     Some(imp) =>
