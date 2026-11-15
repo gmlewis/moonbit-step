@@ -55,6 +55,21 @@ The `cad` package follows an **intent-based architecture**. Do not revert to eag
    - Designs containing a nominal boolean carry a one-line notice in the STEP
      header; `Design::to_step_file_checked()` refuses error designs.
 
+6. **Mate connectors sit on the contact plane**:
+   - A mate connector's placement is the exact plane/point where the mating
+     parts come into contact or alignment (a bore's mouth, a shaft's tip, the
+     plane a face seats against), with zero offset and zero twist. Snapping
+     two such mates together (`snap_connectors`, or a CAD tool's snap) must
+     produce the fully seated pose with no extra rotation or offset.
+   - Do not place a mate at the far end of a feature expecting callers to add
+     offsets; callers should never need to compute angles or axial shifts.
+   - Keep genders consistent: `CylindricalShaft` = Male, `CylindricalBore` =
+     Female, `PlaneFace`/`ProfileSlot`/`Datum` = Neutral.
+   - When a vendor or boolean-cut part must appear in an assembly or export,
+     import its OCCT-evaluated solid with `BodyPart::imported_step`; the
+     evaluated file's placement is rewritten so the body's node transform is
+     applied exactly once.
+
 ## Coding convention
 
 - All source code and markdown files should end in a newline.

@@ -178,6 +178,12 @@ pub fn tire(spec : TireSpec) -> Result[@common.Component, @common.SpecError] {
     spec.rib_thickness_mm,
     spec.hub_inset_mm,
   )
+  // The owner-authored model closes the bore at the back plate with a solid
+  // plug of the bore diameter spanning the plate thickness.
+  let bore_plug = @cad.RevolvedProfile::cylinder(
+    spec.hub_bore_diameter_mm,
+    spec.inset_thickness_mm,
+  ).as_shape()
   let layers : Array[@common.ComponentLayer] = [
     {
       shape: ring,
@@ -194,6 +200,14 @@ pub fn tire(spec : TireSpec) -> Result[@common.Component, @common.SpecError] {
     {
       shape: plate.as_shape(),
       name: "inset-plate",
+      color: @cad.Rgb::grey(),
+      placement: tire_axis_placement(
+        -(spec.hub_inset_mm + spec.inset_thickness_mm),
+      ),
+    },
+    {
+      shape: bore_plug,
+      name: "bore-plug",
       color: @cad.Rgb::grey(),
       placement: tire_axis_placement(
         -(spec.hub_inset_mm + spec.inset_thickness_mm),
@@ -237,7 +251,7 @@ pub fn tire(spec : TireSpec) -> Result[@common.Component, @common.SpecError] {
   let features = @common.FeatureRecord::new(
     modeled=[
       "tire-ring", "tread", "sidewalls", "hub-tube", "hub-bore", "inset-plate", "ribs",
-      "windows",
+      "bore-plug", "windows",
     ],
     omitted=[
       @common.Omission::new(

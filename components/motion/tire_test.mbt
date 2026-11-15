@@ -25,7 +25,7 @@ test "measured tire envelope matches the owner-authored model" {
   assert_true(tire_close(y1, 88.9))
   assert_true(tire_close(z0, -88.9))
   assert_true(tire_close(z1, 88.9))
-  assert_eq(wheel.layers().length(), 9)
+  assert_eq(wheel.layers().length(), 10)
   assert_true(wheel.features().modeled.contains("inset-plate"))
   assert_true(wheel.features().omission_reason("tread-pattern") is Some(_))
 }
@@ -41,8 +41,9 @@ test "measured tire layer volumes sum to the reference volume" {
     }
     total = total + volume
   }
-  // The reference measures 512793 mm3; the analytic sum is 512540.7 mm3.
-  assert_true((total - 512793.0).abs() / 512793.0 < 0.001)
+  // The measured golden model displaces 512793.34 mm3; the analytic layer
+  // sum matches it to a fraction of a cubic millimetre.
+  assert_true((total - 512793.34).abs() / 512793.34 < 1.0e-5)
 }
 
 ///|
@@ -80,7 +81,7 @@ test "tire parameters can be overridden for a measured wheel" {
   let (x0, x1, _y0, _y1, _z0, _z1) = wheel.bounding_box()
   assert_true(tire_close(x0, -25.4))
   assert_true(tire_close(x1, 0.0))
-  assert_eq(wheel.layers().length(), 8)
+  assert_eq(wheel.layers().length(), 9)
 }
 
 ///|
