@@ -274,12 +274,23 @@ pub fn tire(spec : TireSpec) -> Result[@common.Component, @common.SpecError] {
   wheel = wheel.with_connector_unchecked(
     @common.MateConnector::new(
       "hub-bore",
-      placement=@common.Placement::translation(-spec.hub_length_mm, 0.0, 0.0),
+      placement=@common.Placement::translation(0.0, 0.0, 0.0),
       axis=(1.0, 0.0, 0.0),
       kind=@common.MateKind::CylindricalBore,
+      gender=@common.MateGender::Female,
       diameter_mm=spec.hub_bore_diameter_mm,
       depth_mm=spec.hub_length_mm,
-      description="through hub bore",
+      description="mouth of the through hub bore; snap onto the tire mount's hub-post mate to seat the wheel",
+    ),
+  )
+  wheel = wheel.with_connector_unchecked(
+    @common.MateConnector::new(
+      "mount-seat",
+      placement=@common.Placement::translation(-spec.hub_inset_mm, 0.0, 0.0),
+      axis=(1.0, 0.0, 0.0),
+      kind=@common.MateKind::PlaneFace,
+      diameter_mm=spec.hub_outer_diameter_mm,
+      description="inner face of the back plate; seats against the tire mount's rear-face mate",
     ),
   )
   wheel = wheel.with_connector_unchecked(

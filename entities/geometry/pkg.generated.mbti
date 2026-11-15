@@ -34,7 +34,11 @@ pub struct Axis2Placement3D {
   axis : @step.Ref
   ref_direction : @step.Ref
 }
+pub fn Axis2Placement3D::axis_ref(Self) -> @step.Ref
+pub fn Axis2Placement3D::location_ref(Self) -> @step.Ref
+pub fn Axis2Placement3D::name_of(Self) -> String
 pub fn Axis2Placement3D::new(String, @step.Ref, @step.Ref, @step.Ref) -> Self
+pub fn Axis2Placement3D::ref_direction_ref(Self) -> @step.Ref
 pub fn Axis2Placement3D::to_step(Self) -> String
 pub impl @step.Entity for Axis2Placement3D
 
@@ -123,6 +127,7 @@ pub struct CartesianPoint {
   name : String
   coordinates : Array[Double]
 }
+pub fn CartesianPoint::coordinates_view(Self) -> Array[Double]
 pub fn CartesianPoint::new(String, Array[Double]) -> Self
 pub fn CartesianPoint::to_step(Self) -> String
 pub impl @step.Entity for CartesianPoint
@@ -195,6 +200,7 @@ pub struct Direction {
   ratios : Array[Double]
 }
 pub fn Direction::new(String, Array[Double]) -> Self
+pub fn Direction::ratios_view(Self) -> Array[Double]
 pub fn Direction::to_step(Self) -> String
 pub impl @step.Entity for Direction
 

@@ -7,6 +7,10 @@
 /// `-total_width_mm .. 0`, the rear annulus spans `-total_width_mm ..
 /// -plate_thickness_mm`, and the front plate spans `-plate_thickness_mm .. 0`.
 /// The 6 narrow radial slots are 2 mm wide, matching the owner's tire ribs.
+/// `slot_phase_deg` is expressed in the profile frame; the cutters are rotated
+/// with `rotate_y(90deg)` before extrusion, which shifts the slots back by
+/// 90 degrees, so the as-built slots land on 0/60/120/... degrees in the
+/// output frame, matching the golden model and the tire's rib phase.
 pub(all) struct TireMountSpec {
   outer_diameter_mm : Double
   front_inner_diameter_mm : Double
@@ -265,11 +269,15 @@ pub fn tire_mount(
     color=@cad.Rgb::orange(),
     placement=@common.Placement::identity(),
   )
+  // The mate sits on the post tip (the front face of the rear ring, i.e. the
+  // inner face of the front plate). Snapping the tire's `hub-bore` mate onto
+  // this mate seats the tire with its back plate flush against the rear face
+  // and the post fully inside the bore, so no extra offset or twist is needed.
   mount_component = mount_component.with_connector_unchecked(
     @common.MateConnector::new(
       "hub-post",
       placement=@common.Placement::translation(
-        spec.front_offset_mm + rear_start,
+        spec.front_offset_mm - spec.plate_thickness_mm,
         0.0,
         0.0,
       ),
@@ -278,7 +286,7 @@ pub fn tire_mount(
       gender=@common.MateGender::Male,
       diameter_mm=spec.hub_bore_diameter_mm,
       depth_mm=spec.ring_depth_mm,
-      description="solid central post",
+      description="tip of the solid central post; snap the tire's hub-bore mate here",
     ),
   )
   mount_component = mount_component.with_connector_unchecked(

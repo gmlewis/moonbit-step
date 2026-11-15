@@ -20,3 +20,9 @@ pub impl @step.Entity for CartesianPoint with fn to_step(self) {
   let coords_str = self.coordinates.map(@step.fmt_num).join(",")
   "CARTESIAN_POINT(\{@step.step_str(self.name)},(\{coords_str}))"
 }
+
+///|
+/// CartesianPoint::coordinates_view returns the point's coordinates.
+pub fn CartesianPoint::coordinates_view(self : CartesianPoint) -> Array[Double] {
+  self.coordinates
+}

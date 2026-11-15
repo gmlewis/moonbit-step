@@ -20,3 +20,9 @@ pub impl @step.Entity for VertexPoint with fn to_step(self) {
   let geom_str = "#\{self.vertex_geometry.id.value}"
   "VERTEX_POINT(\{step_str_or_dollar(self.name)},\{geom_str})"
 }
+
+///|
+/// VertexPoint::vertex_geometry_ref returns the reference to the point entity.
+pub fn VertexPoint::vertex_geometry_ref(self : VertexPoint) -> @step.Ref {
+  self.vertex_geometry
+}

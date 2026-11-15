@@ -16,6 +16,7 @@ pub struct AdvancedBrepShapeRepresentation {
   items : Array[@step.Ref]
   context_of_items : @step.Ref
 }
+pub fn AdvancedBrepShapeRepresentation::items_view(Self) -> Array[@step.Ref]
 pub fn AdvancedBrepShapeRepresentation::new(String, Array[@step.Ref], @step.Ref) -> Self
 pub fn AdvancedBrepShapeRepresentation::to_step(Self) -> String
 pub impl @step.Entity for AdvancedBrepShapeRepresentation
@@ -115,6 +116,7 @@ pub struct CsgShapeRepresentation {
   items : Array[@step.Ref]
   context_of_items : @step.Ref
 }
+pub fn CsgShapeRepresentation::items_view(Self) -> Array[@step.Ref]
 pub fn CsgShapeRepresentation::new(String, Array[@step.Ref], @step.Ref) -> Self
 pub fn CsgShapeRepresentation::to_step(Self) -> String
 pub impl @step.Entity for CsgShapeRepresentation
@@ -394,6 +396,7 @@ pub struct ShapeRepresentation {
   items : Array[@step.Ref]
   context_of_items : @step.Ref
 }
+pub fn ShapeRepresentation::items_view(Self) -> Array[@step.Ref]
 pub fn ShapeRepresentation::new(String, Array[@step.Ref], @step.Ref) -> Self
 pub fn ShapeRepresentation::to_step(Self) -> String
 pub impl @step.Entity for ShapeRepresentation

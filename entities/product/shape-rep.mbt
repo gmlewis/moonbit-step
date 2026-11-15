@@ -23,3 +23,11 @@ pub impl @step.Entity for ShapeRepresentation with fn to_step(self) {
   let ctx_str = "#\{self.context_of_items.id.value}"
   "SHAPE_REPRESENTATION(\{step_str_or_dollar(self.name)},(\{items_str}),\{ctx_str})"
 }
+
+///|
+/// ShapeRepresentation::items_view returns the representation's item references.
+pub fn ShapeRepresentation::items_view(
+  self : ShapeRepresentation,
+) -> Array[@step.Ref] {
+  self.items
+}

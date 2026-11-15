@@ -24,3 +24,11 @@ pub impl @step.Entity for CsgShapeRepresentation with fn to_step(self) {
   let ctx_str = "#\{self.context_of_items.id.value}"
   "CSG_SHAPE_REPRESENTATION(\{step_str_or_dollar(self.name)},(\{items_str}),\{ctx_str})"
 }
+
+///|
+/// CsgShapeRepresentation::items_view returns the representation's item references.
+pub fn CsgShapeRepresentation::items_view(
+  self : CsgShapeRepresentation,
+) -> Array[@step.Ref] {
+  self.items
+}

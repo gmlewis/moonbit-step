@@ -23,3 +23,11 @@ pub impl @step.Entity for AdvancedBrepShapeRepresentation with fn to_step(self) 
   let ctx_str = "#\{self.context_of_items.id.value}"
   "ADVANCED_BREP_SHAPE_REPRESENTATION(\{@step.step_str(self.name)},(\{items_str}),\{ctx_str})"
 }
+
+///|
+/// AdvancedBrepShapeRepresentation::items_view returns the representation's item references.
+pub fn AdvancedBrepShapeRepresentation::items_view(
+  self : AdvancedBrepShapeRepresentation,
+) -> Array[@step.Ref] {
+  self.items
+}

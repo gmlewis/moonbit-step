@@ -142,6 +142,7 @@ pub struct VertexPoint {
 }
 pub fn VertexPoint::new(String, @step.Ref) -> Self
 pub fn VertexPoint::to_step(Self) -> String
+pub fn VertexPoint::vertex_geometry_ref(Self) -> @step.Ref
 pub impl @step.Entity for VertexPoint
 
 // Type aliases
