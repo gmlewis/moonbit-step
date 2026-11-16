@@ -6,6 +6,12 @@
 /// `components/testdata/golden/external/brushless-motor-360kv.step`; override any value
 /// to match a motor you measured.
 ///
+/// The large windowed endbell is the **rotor**: attach gears, pulleys, or
+/// propellers only through `rotor-output-face`, `rotor-output-hole-*`, or the
+/// `rotor-shaft-*` ends. The circular hub on the opposite side is the fixed
+/// **stator**: bolt it to the enclosure through `stator-mount-face` and
+/// `stator-mount-hole-*`.
+///
 /// ```bash
 /// moon run components/examples/brushless_motor -- -o /tmp/motor.step
 /// moon run components/examples/brushless_motor -- \

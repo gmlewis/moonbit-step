@@ -48,8 +48,8 @@ moon run components/examples/a12_motor -- \
   --slotFloor 56 --coilInner 56.4 --coilOuter 64.6 --coilWidth 4.4 \
   --plateDiameter 48 --plateWindowInner 40 --plateWindowOuter 46 \
   --plateWindowCorner 1.0 --bearingTube 20 \
-  --propDiameter 26 --propHoleCircle 20 --shaftDiameter 10 \
-  -o a12-72mm.step
+  --propDiameter 26 --propHoleCircle 20 --propScrewCircle 20 \
+  --shaftDiameter 10 -o a12-72mm.step
 
 # Parameterized tire/wheel envelope (measured 177.8 x 38.1 defaults)
 moon run components/examples/tire -- -o tire.step
@@ -414,7 +414,7 @@ use `--headless`.
 | `profiles` | Generic T-slot sections, the vendor 2020 B-slot6 A section, OpenBuilds-compatible V-Slot 2020/2040 sections, the MakerBeam 10 x 10 section, a gusseted V-Slot corner bracket, P1000-style strut channel, and a generic channel nut. |
 | `motion` | Shafts, stepped/keyed shafts, spacers and V-Slot wheel spacers (plain and eccentric), bushings, plain, set-screw, and clamp shaft collars, keys, dowel pins, standoffs, compression springs, ball bearings (envelope, shielded, and full-complement deep-groove), LM-series linear bushings, flanged linear housings, UCP-series pillow-block bearing boundaries, approximated GT2 timing pulleys, smooth idlers, V-Slot wheels, EMT tubing with end caps and split clamps, rigid couplings, helical beam couplings, flanged bearing housings, a parameterized tire/wheel envelope measured from the owner-authored `tire.step` model, and a matching tire mounting flange measured from `tire-mount.step`. |
 | `mechanisms` | Generic engineering envelopes for a barrel hinge, clevis, pin, rod end, linkage bar, linear rail and carriage, lead screw and flanged nut, equal- and unequal-pulley timing-belt loops, eccentric cam and roller follower, Oldham coupling, extension and torsion springs, snap latch, O-ring, grooved shaft, L/U/Z brackets (L with optional gusset), tapped boss, a straight-flank basic rack with a pinion-layout helper, ANSI #40 roller-chain sprockets (measured CC0 16T/24T outlines), and a CC0-matched ANSI #40 10-pitch chain segment. |
-| `motors` | NEMA 17 and NEMA 23 stepper-motor envelopes, mounting interfaces, NEMA mounting plates, a generic NEMA-to-20-series extrusion adapter, a parameterized outrunner brushless-motor envelope measured from the owner-authored 360KV model (conical 5-spoke bell, windows, rim and lip, stator hub, prop and mount holes, shaft), and a parameterized XAIRCRAFT A12 8318 100KV agricultural outrunner envelope measured from photographs (windowed spoked bell, 42 curved magnets, machined prop adapter, 36-slot stator with exact per-tooth copper frames, 8-window mount plate with M3/M4 circles, bearing tube, insulator ring, through shaft). |
+| `motors` | NEMA 17 and NEMA 23 stepper-motor envelopes, mounting interfaces, NEMA mounting plates, a generic NEMA-to-20-series extrusion adapter, a parameterized outrunner brushless-motor envelope measured from the owner-authored 360KV model (conical 5-spoke bell, windows, rim and lip, stator hub, prop and mount holes, shaft), and a parameterized XAIRCRAFT A12 8318 100KV agricultural outrunner envelope measured from the motor (windowed spoked bell, 42 curved magnets, machined prop adapter, 36-slot stator with exact per-tooth copper frames, 8-window mount plate with M3/M4 circles, bearing tube, insulator ring, through shaft). |
 | `stock` | EN 10056 angle sections, configurable flat plate blanks with analytic circular holes and obround slots, counterbored and countersunk plates, bearing-housing plates, tube-to-plate and tube-to-V-Slot adapter brackets, generic channel-to-extrusion adapters and extrusion-to-tube clamps, SC8UU-style rod/bearing blocks, and heat-set insert bosses. |
 | `gears` | Involute spur gears, a smooth single-extrusion arc-run spur presentation, external pairs, and exact-internal-involute planetary sets. |
 | `planetary` | Fully parametric herringbone planetary gearbox (sun, equally spaced planets, inward-facing ring) with every generator option as a parameter, exact line/arc extrusions when `num_elbows` is 0, and otherwise the true helical twist of each elbow as smooth ruled B-spline flanks with sharp piecewise-linear elbow creases; named mate connectors on every gear. |
@@ -494,15 +494,33 @@ Connectors are metadata: adding one, rebasing a component to a connector, or
 resolving a pair never changes exported STEP geometry, layer count, or volume.
 A geometric mate is not a structural-strength or safety claim.
 
+### Motor rotor/stator convention
+
+Both outrunner builders (`brushless_motor` and `a12_motor`) name every motor
+connector with an explicit **rotor** or **stator** role so an assembly is
+unambiguous:
+
+- **Rotor** — the large windowed **endbell**. It rotates. Attach gears,
+  pulleys, propellers, or couplings through `rotor-output-face`,
+  `rotor-output-hole-*`, or either `rotor-shaft-*` end.
+- **Stator** — the circular hub or mount plate on the opposite side, which
+  carries the fixed mounting holes. Bolt it to the enclosure, frame, or
+  gearbox housing through `stator-mount-face` and `stator-mount-hole-*`.
+
+Never attach a moving part to a `stator-*` connector, and never clamp a
+`rotor-*` connector to the enclosure. The connector descriptions repeat these
+words so they survive into the STEP connector sidecar.
+
 Every implemented family exposes at least one named connector: fasteners expose
 shaft/thread/head or bore/bearing-face frames, bearings expose bore and
 outer-seat frames, shafts expose end frames, extrusions expose four face slots
 and end datums, NEMA motors expose mounting, pilot, shaft, rear, and per-hole
-frames, the brushless outrunner envelope exposes both shaft ends, the rotating
-bell face, the fixed mount face, and its measured prop and mount hole set, the
-A12 envelope exposes both shaft ends, the rotating prop face, the fixed mount
-face, its 23 mm prop-hole circle, and its interleaved 30 mm M3 / 32 mm M4
-mounting circles, and plates expose face and per-hole frames. The mechanism kit's
+frames, the brushless outrunner envelope exposes both rotating shaft ends, the
+rotating endbell output face and its screw holes, the fixed stator mount face,
+and its mount holes, and the A12 envelope exposes both rotating shaft ends, the
+rotating endbell output face and its 23 mm hole circle, the fixed stator mount
+face, and its interleaved 30 mm M3 / 32 mm M4 mounting holes, and plates expose
+face and per-hole frames. The mechanism kit's
 clevis/pin and lead-screw/nut interfaces are exercised through
 `MatePair::resolve` in its tests, which checks kind, gender, and nominal
 diameter.
@@ -554,8 +572,8 @@ loop and how imported vendor parts are referenced through SolidCraft, is in
   electrical or performance rating are omitted. All dimensions are parameters
   so a measured motor can be matched; the defaults are not a FlyCat or any
   other manufacturer's published drawing.
-- The A12 8318 envelope is read from the owner's photographs and printed
-  dimension sheet, not a manufacturer drawing: 91 mm bell outside diameter,
+- The A12 8318 envelope uses measured motor dimensions, not a manufacturer
+  drawing: 91 mm bell outside diameter,
   33 mm overall height, 23 mm M4 prop circle, and 30 mm M3 / 32 mm M4 mount
   circles; "8318" denotes an 83 mm stator with an 18 mm stack. Every body is an
   exact line/arc extrusion or revolution (no B-spline surfaces and no

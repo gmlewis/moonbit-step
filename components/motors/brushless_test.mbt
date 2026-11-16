@@ -34,33 +34,43 @@ test "360KV brushless defaults match the owner-authored envelope" {
 }
 
 ///|
-test "360KV brushless exposes named mechanical connectors" {
+test "360KV brushless exposes explicit rotor and stator connectors" {
   let part = bl_ok(@motors.brushless_motor_360kv())
-  for name in ["shaft", "shaft-rear", "mount-face", "bell-face"] {
+  for
+    name in [
+      "rotor-shaft-bell-side", "rotor-shaft-mount-side", "stator-mount-face", "rotor-output-face",
+    ] {
     assert_true(part.connector(name) is Ok(_))
   }
   for i in 1..<=4 {
-    assert_true(part.connector("prop-hole-\{i}") is Ok(_))
-    assert_true(part.connector("mount-hole-\{i}") is Ok(_))
+    assert_true(part.connector("rotor-output-hole-\{i}") is Ok(_))
+    assert_true(part.connector("stator-mount-hole-\{i}") is Ok(_))
   }
-  let shaft = match part.connector("shaft") {
+  let shaft = match part.connector("rotor-shaft-mount-side") {
     Ok(c) => c
     Err(e) => abort(e.message())
   }
   assert_true(shaft.kind is @common.MateKind::CylindricalShaft)
   assert_true(bl_close(shaft.diameter_mm.unwrap(), 4.0))
-  let mount = match part.connector("mount-face") {
+  assert_true(shaft.description.contains("ROTATING"))
+  let mount = match part.connector("stator-mount-face") {
     Ok(c) => c
     Err(e) => abort(e.message())
   }
   assert_true(bl_close(mount.placement.trans.0, 20.0))
   assert_true(mount.kind is @common.MateKind::PlaneFace)
-  let mount_hole = match part.connector("mount-hole-1") {
+  assert_true(mount.description.contains("FIXED"))
+  let mount_hole = match part.connector("stator-mount-hole-1") {
     Ok(c) => c
     Err(e) => abort(e.message())
   }
   assert_true(bl_close(mount_hole.placement.trans.0, 20.0))
   assert_true(mount_hole.axis.0 < 0.0)
+  let output_hole = match part.connector("rotor-output-hole-1") {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  assert_true(output_hole.description.contains("ROTATING"))
 }
 
 ///|

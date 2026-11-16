@@ -2,9 +2,15 @@
 /// components/examples/a12_motor
 ///
 /// Generate a parameterized XAIRCRAFT A12 8318 100KV outrunner motor
-/// envelope. The defaults are read from the owner's photographs and the
-/// printed dimension sheet (91 mm bell, 33 mm overall height, 23 mm M4 prop
-/// circle, 30 mm M3 / 32 mm M4 mount circles, 83 mm x 18 mm stator).
+/// envelope. The defaults are the measured motor dimensions (91 mm bell,
+/// 33 mm overall height, 23 mm M4 prop circle, 30 mm M3 / 32 mm M4 mount
+/// circles, 83 mm x 18 mm stator).
+///
+/// The large windowed endbell is the **rotor**: attach gears, pulleys, or
+/// propellers only through `rotor-output-face`, `rotor-output-hole-*`, or the
+/// `rotor-shaft-*` ends. The circular mount plate with the M3/M4 holes is the
+/// fixed **stator**: bolt it to the enclosure through `stator-mount-face` and
+/// `stator-mount-hole-*`.
 ///
 /// ```bash
 /// moon run components/examples/a12_motor -- -o /tmp/a12.step

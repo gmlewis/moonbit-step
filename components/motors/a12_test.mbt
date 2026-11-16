@@ -48,56 +48,111 @@ test "A12 8318 defaults match the measured envelope" {
   assert_true(part.features().modeled.contains("bell-windows"))
   assert_true(part.features().modeled.contains("stator-windings"))
   assert_true(part.features().omission_reason("kv-and-performance") is Some(_))
+  // The adapter uses one 23 mm circle for both the propeller holes and the
+  // four countersunk adapter screws (45 degrees apart).
+  assert_true(
+    a12_close(
+      spec.prop_screw_circle_diameter_mm,
+      spec.prop_hole_circle_diameter_mm,
+    ),
+  )
 }
 
 ///|
-test "A12 exposes the prop and stator mount connector frames" {
+test "A12 exposes explicit rotor and stator connectors" {
   let part = a12_ok(@motors.a12_motor_100kv())
-  for name in ["shaft", "shaft-rear", "prop-face", "mount-face"] {
+  for
+    name in [
+      "rotor-shaft-bell-side", "rotor-shaft-mount-side", "rotor-output-face", "stator-mount-face",
+    ] {
     assert_true(part.connector(name) is Ok(_))
   }
   for i in 1..<=4 {
-    assert_true(part.connector("prop-hole-\{i}") is Ok(_))
-    assert_true(part.connector("mount-m3-\{i}") is Ok(_))
-    assert_true(part.connector("mount-m4-\{i}") is Ok(_))
+    assert_true(part.connector("rotor-output-hole-\{i}") is Ok(_))
+    assert_true(part.connector("stator-mount-hole-m3-\{i}") is Ok(_))
+    assert_true(part.connector("stator-mount-hole-m4-\{i}") is Ok(_))
   }
-  let prop_face = match part.connector("prop-face") {
+  let output_face = match part.connector("rotor-output-face") {
     Ok(c) => c
     Err(e) => abort(e.message())
   }
-  assert_true(prop_face.kind is @common.MateKind::PlaneFace)
-  assert_true(a12_close(prop_face.placement.trans.0, -4.5))
-  assert_true(a12_close(prop_face.diameter_mm.unwrap(), 29.0))
-  let mount_face = match part.connector("mount-face") {
+  assert_true(output_face.kind is @common.MateKind::PlaneFace)
+  assert_true(a12_close(output_face.placement.trans.0, -4.5))
+  assert_true(a12_close(output_face.diameter_mm.unwrap(), 29.0))
+  assert_true(output_face.description.contains("ROTATING"))
+  let mount_face = match part.connector("stator-mount-face") {
     Ok(c) => c
     Err(e) => abort(e.message())
   }
   assert_true(mount_face.kind is @common.MateKind::PlaneFace)
   assert_true(a12_close(mount_face.placement.trans.0, 28.5))
-  let m3 = match part.connector("mount-m3-1") {
+  assert_true(mount_face.description.contains("FIXED"))
+  let m3 = match part.connector("stator-mount-hole-m3-1") {
     Ok(c) => c
     Err(e) => abort(e.message())
   }
   assert_true(a12_close(m3.diameter_mm.unwrap(), 3.4))
   assert_true(a12_close(m3.placement.trans.0, 28.5))
   assert_true(m3.axis.0 > 0.0)
-  let m4 = match part.connector("mount-m4-1") {
+  assert_true(m3.description.contains("FIXED"))
+  let m4 = match part.connector("stator-mount-hole-m4-1") {
     Ok(c) => c
     Err(e) => abort(e.message())
   }
   assert_true(a12_close(m4.diameter_mm.unwrap(), 4.5))
-  let prop_hole = match part.connector("prop-hole-1") {
+  let output_hole = match part.connector("rotor-output-hole-1") {
     Ok(c) => c
     Err(e) => abort(e.message())
   }
-  assert_true(prop_hole.kind is @common.MateKind::CylindricalBore)
-  assert_true(a12_close(prop_hole.diameter_mm.unwrap(), 4.0))
-  let shaft = match part.connector("shaft") {
+  assert_true(output_hole.kind is @common.MateKind::CylindricalBore)
+  assert_true(a12_close(output_hole.diameter_mm.unwrap(), 4.0))
+  assert_true(output_hole.description.contains("ROTATING"))
+  let shaft = match part.connector("rotor-shaft-mount-side") {
     Ok(c) => c
     Err(e) => abort(e.message())
   }
   assert_true(shaft.kind is @common.MateKind::CylindricalShaft)
   assert_true(a12_close(shaft.diameter_mm.unwrap(), 12.0))
+  assert_true(shaft.description.contains("ROTATING"))
+}
+
+///|
+test "A12 stator mount holes sit on the plate spokes" {
+  let spec = @motors.a12_motor_100kv_spec()
+  let pitch = 360.0 / spec.stator_plate_window_count.to_double()
+  // Solid plate spokes are centred halfway between adjacent air openings.
+  let spoke_phase = spec.stator_plate_window_phase_deg + pitch / 2.0
+  let wrap = fn(angle : Double) -> Double {
+    let m = angle % pitch
+    if m < 0.0 {
+      m + pitch
+    } else {
+      m
+    }
+  }
+  let offsets : Array[Double] = []
+  for i in 0..<spec.mount_m3_count {
+    offsets.push(
+      wrap(
+        spec.mount_hole_phase_deg +
+        360.0 * i.to_double() / spec.mount_m3_count.to_double() -
+        spoke_phase,
+      ),
+    )
+  }
+  for i in 0..<spec.mount_m4_count {
+    offsets.push(
+      wrap(
+        spec.mount_hole_phase_deg +
+        45.0 +
+        360.0 * i.to_double() / spec.mount_m4_count.to_double() -
+        spoke_phase,
+      ),
+    )
+  }
+  for offset in offsets {
+    assert_true(offset < 1.0e-6 || pitch - offset < 1.0e-6)
+  }
 }
 
 ///|
@@ -147,6 +202,7 @@ test "A12 parameters can be overridden for a smaller motor" {
     pcb_ring_outer_diameter_mm: 46.0,
     shaft_diameter_mm: 10.0,
     prop_hole_circle_diameter_mm: 20.0,
+    prop_screw_circle_diameter_mm: 20.0,
   }
   assert_true(@motors.a12_motor_spec(spec) is Ok(_))
   let part = a12_ok(@motors.a12_motor(spec))

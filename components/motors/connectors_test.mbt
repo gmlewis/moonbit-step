@@ -79,7 +79,8 @@ test "every public motor builder family exposes a connector" {
       ok_motor(@motors.motor_to_extrusion_adapter(frame, 60.0, 50.0, 6.0, 40.0)),
       "extrusion-face",
     ),
-    (ok_motor(@motors.brushless_motor_360kv()), "mount-face"),
+    (ok_motor(@motors.brushless_motor_360kv()), "stator-mount-face"),
+    (ok_motor(@motors.a12_motor_100kv()), "rotor-output-face"),
   ]
   for entry in builders {
     let (part, expected) = entry

@@ -6,12 +6,16 @@
 /// and +X toward the fixed stator. The rotating prop adapter and hub boss
 /// extend to negative X, and the fixed mount plate is at positive X.
 ///
-/// The defaults are read from the owner-supplied photographs and the printed
-/// dimension sheet: a 91 mm bell outside diameter, a 33 mm overall height, a
-/// 23 mm M4 propeller circle, and 30 mm M3 / 32 mm M4 mount circles. The
+/// The defaults are the measured motor dimensions: a 91 mm bell outside
+/// diameter, a 33 mm overall height, a 23 mm M4 propeller circle, and 30 mm
+/// M3 / 32 mm M4 mount circles. The
 /// "8318" model code denotes a 83 mm stator lamination diameter with an 18 mm
 /// stack length. `100KV` is a catalog designation only; no KV, torque,
 /// current, efficiency, or thermal rating is implied by the geometry.
+///
+/// The large endbell is the **rotor**; the circular mount plate with the M3
+/// and M4 hole patterns is the fixed **stator** and is the only part that may
+/// be bolted to an enclosure. See `a12_motor` for the full connector roles.
 ///
 /// Every dimension is a parameter so the same builder can represent other
 /// large outrunners.
@@ -96,8 +100,8 @@ pub(all) struct A12MotorSpec {
 }
 
 ///|
-/// a12_motor_100kv_spec returns the measured defaults from the owner's A12
-/// 8318 100KV motor.
+/// a12_motor_100kv_spec returns the measured defaults for the A12 8318
+/// 100KV motor.
 pub fn a12_motor_100kv_spec() -> A12MotorSpec {
   {
     bell_outer_diameter_mm: 91.0,
@@ -109,11 +113,11 @@ pub fn a12_motor_100kv_spec() -> A12MotorSpec {
     bell_hub_boss_height_mm: 1.0,
     bell_hub_bore_diameter_mm: 28.0,
     bell_window_count: 8,
-    bell_window_inner_diameter_mm: 42.0,
-    bell_window_outer_diameter_mm: 81.0,
+    bell_window_inner_diameter_mm: 41.0,
+    bell_window_outer_diameter_mm: 83.0,
     bell_window_inner_half_angle_deg: 12.5,
     bell_window_outer_half_angle_deg: 17.5,
-    bell_window_corner_radius_mm: 2.5,
+    bell_window_corner_radius_mm: 4.2,
     bell_window_phase_deg: 22.5,
     magnet_count: 42,
     magnet_outer_diameter_mm: 88.0,
@@ -131,7 +135,7 @@ pub fn a12_motor_100kv_spec() -> A12MotorSpec {
     prop_hole_phase_deg: 0.0,
     prop_screw_count: 4,
     prop_screw_diameter_mm: 3.4,
-    prop_screw_circle_diameter_mm: 17.0,
+    prop_screw_circle_diameter_mm: 23.0,
     stator_outer_diameter_mm: 83.0,
     stator_inner_diameter_mm: 66.0,
     stator_stack_length_mm: 18.0,
@@ -151,10 +155,10 @@ pub fn a12_motor_100kv_spec() -> A12MotorSpec {
     stator_plate_start_mm: 22.8,
     stator_plate_window_count: 8,
     stator_plate_window_inner_diameter_mm: 39.0,
-    stator_plate_window_outer_diameter_mm: 59.0,
-    stator_plate_window_inner_half_angle_deg: 9.5,
-    stator_plate_window_outer_half_angle_deg: 13.5,
-    stator_plate_window_corner_radius_mm: 2.0,
+    stator_plate_window_outer_diameter_mm: 61.0,
+    stator_plate_window_inner_half_angle_deg: 10.0,
+    stator_plate_window_outer_half_angle_deg: 12.0,
+    stator_plate_window_corner_radius_mm: 3.2,
     stator_plate_window_phase_deg: 0.0,
     mount_m3_count: 4,
     mount_m3_hole_diameter_mm: 3.4,
@@ -162,7 +166,7 @@ pub fn a12_motor_100kv_spec() -> A12MotorSpec {
     mount_m4_count: 4,
     mount_m4_hole_diameter_mm: 4.5,
     mount_m4_circle_diameter_mm: 32.0,
-    mount_hole_phase_deg: 0.0,
+    mount_hole_phase_deg: 22.5,
     bearing_tube_outer_diameter_mm: 23.0,
     bearing_bore_diameter_mm: 12.6,
     pcb_ring_inner_diameter_mm: 61.0,
@@ -723,16 +727,28 @@ fn a12_stator_tooth_loop(
 ///|
 /// a12_motor builds a parameterized A12 8318 outrunner motor envelope.
 ///
-/// The rotating assembly is a stacked, boolean-free set of bodies: a spoked
-/// face plate whose windows are profile holes, an axisymmetric skirt with a
-/// rounded shoulder, a raised hub boss, one exact curved magnet per pole, and
-/// a machined prop adapter. The fixed assembly is a 36-slot stator lamination
-/// with one exact copper winding frame per tooth, an 8-window mount plate with
-/// interleaved M3 and M4 mounting circles, a bearing tube, and an insulator
-/// ring. A through shaft joins the two ends.
+/// The rotating assembly is a stacked, boolean-free set of bodies: an 8-spoke
+/// endbell face plate with eight large rounded cooling windows in its profile,
+/// an axisymmetric skirt with a rounded shoulder, a raised hub boss, one exact
+/// curved magnet per pole, and a machined prop adapter. The fixed assembly is a
+/// 36-slot stator lamination with one exact copper winding frame per tooth, an
+/// 8-window mount plate whose teardrop openings sit between eight spokes, with
+/// the interleaved M3 and M4 mount holes drilled through those spokes, a
+/// bearing tube, and an insulator ring. A through shaft joins the two ends.
 ///
 /// Every face is an analytic plane, cylinder, cone, sphere, or torus produced
 /// by exact line and circular-arc profiles; no surface is triangulated.
+///
+/// **Rotor / stator role convention (important when building an assembly):**
+///
+/// - The large windowed **endbell is the rotor**. It spins. Attach gears,
+///   pulleys, propellers, or other moving parts only through
+///   `rotor-output-face`, `rotor-output-hole-*`, or the rotating
+///   `rotor-shaft-*` ends.
+/// - The circular **mount plate with the 30 mm M3 / 32 mm M4 holes is the
+///   stator**. It must be bolted to the motor enclosure, frame, or gearbox
+///   housing through `stator-mount-face` and `stator-mount-hole-*`. Nothing
+///   that must rotate may be attached to the stator face.
 pub fn a12_motor(
   spec : A12MotorSpec,
 ) -> Result[@common.Component, @common.SpecError] {
@@ -1149,51 +1165,51 @@ pub fn a12_motor(
     name~,
     metadata=@common.Metadata::new(
       designation="XAIRCRAFT A12 8318 100KV outrunner motor envelope",
-      standard="measured from owner-supplied photographs and printed dimension sheet",
+      standard="measured motor dimensions",
       family="large agricultural outrunner brushless motor envelope",
       size="\{@cad.fmt_double(spec.bell_outer_diameter_mm, None)}x\{@cad.fmt_double(total_length, None)}",
       length_mm=total_length,
-      source="Defaults read from owner-supplied photographs of an A12 8318 100KV motor plus its printed dimension sheet (91 mm OD, 33 mm height, 23 mm M4 prop circle, 30 mm M3 / 32 mm M4 mount circles, 83 mm x 18 mm stator). All dimensions are parameters.",
+      source="Defaults are the measured A12 8318 100KV motor dimensions (91 mm OD, 33 mm height, 23 mm M4 prop circle, 30 mm M3 / 32 mm M4 mount circles, 83 mm x 18 mm stator). All dimensions are parameters.",
     ),
     description="Parameterized large outrunner brushless-motor envelope: windowed spoked bell with rounded shoulder and hub boss, discrete rotor magnets, machined prop adapter, 36-slot stator lamination with one exact copper winding frame per tooth, 8-window mount plate with M3 and M4 mounting circles, bearing tube, insulator ring, and through shaft. No electrical or performance rating is implied.",
     features~,
   ).add_layers(layers)
   let connectors : Array[@common.MateConnector] = [
     @common.MateConnector::new(
-      "shaft",
+      "rotor-shaft-bell-side",
       placement=@common.Placement::translation(shaft_front, 0.0, 0.0),
       axis=(-1.0, 0.0, 0.0),
       kind=@common.MateKind::CylindricalShaft,
       gender=@common.MateGender::Male,
       diameter_mm=spec.shaft_diameter_mm,
       depth_mm=shaft_length,
-      description="front shaft end, flush with the prop adapter",
+      description="ROTATING rotor shaft end on the endbell side; drives gears, pulleys, or couplings; never clamp it to the enclosure",
     ),
     @common.MateConnector::new(
-      "shaft-rear",
+      "rotor-shaft-mount-side",
       placement=@common.Placement::translation(shaft_rear, 0.0, 0.0),
       axis=(1.0, 0.0, 0.0),
       kind=@common.MateKind::CylindricalShaft,
       gender=@common.MateGender::Male,
       diameter_mm=spec.shaft_diameter_mm,
       depth_mm=shaft_length,
-      description="rear shaft end, flush with the stator mount plate",
+      description="ROTATING rotor shaft end on the stator mount side; drives gears, pulleys, or couplings; never clamp it to the enclosure",
     ),
     @common.MateConnector::new(
-      "prop-face",
+      "rotor-output-face",
       placement=@common.Placement::translation(adapter_front, 0.0, 0.0),
       axis=(-1.0, 0.0, 0.0),
       kind=@common.MateKind::PlaneFace,
       diameter_mm=spec.prop_adapter_diameter_mm,
-      description="rotating propeller mounting face on the prop adapter",
+      description="ROTATING rotor endbell output face; attach a propeller, gear, or pulley here, never the enclosure",
     ),
     @common.MateConnector::new(
-      "mount-face",
+      "stator-mount-face",
       placement=@common.Placement::translation(rear_face, 0.0, 0.0),
       axis=(1.0, 0.0, 0.0),
       kind=@common.MateKind::PlaneFace,
       diameter_mm=spec.stator_plate_diameter_mm,
-      description="fixed mount face on the stator plate",
+      description="FIXED stator mount face; bolt this face to the motor enclosure or frame; it never rotates",
     ),
   ]
   for connector in connectors {
@@ -1209,7 +1225,7 @@ pub fn a12_motor(
       180.0
     motor = motor.with_connector_unchecked(
       @common.MateConnector::new(
-        "prop-hole-\{i + 1}",
+        "rotor-output-hole-\{i + 1}",
         placement=@common.Placement::translation(
           adapter_front,
           prop_radius * @math.cos(angle),
@@ -1219,7 +1235,7 @@ pub fn a12_motor(
         kind=@common.MateKind::CylindricalBore,
         diameter_mm=spec.prop_hole_diameter_mm,
         depth_mm=spec.prop_adapter_thickness_mm,
-        description="propeller mounting hole on the rotating adapter",
+        description="screw hole on the ROTATING rotor output face; attach a gear, pulley, or propeller here",
       ),
     )
   }
@@ -1233,7 +1249,7 @@ pub fn a12_motor(
       180.0
     motor = motor.with_connector_unchecked(
       @common.MateConnector::new(
-        "mount-m3-\{i + 1}",
+        "stator-mount-hole-m3-\{i + 1}",
         placement=@common.Placement::translation(
           rear_face,
           m3_radius * @math.cos(angle),
@@ -1243,7 +1259,7 @@ pub fn a12_motor(
         kind=@common.MateKind::CylindricalBore,
         diameter_mm=spec.mount_m3_hole_diameter_mm,
         depth_mm=spec.stator_plate_thickness_mm,
-        description="M3 stator mounting hole on the fixed face",
+        description="M3 clearance hole in the FIXED stator mount face; bolt it to the enclosure",
       ),
     )
   }
@@ -1258,7 +1274,7 @@ pub fn a12_motor(
       180.0
     motor = motor.with_connector_unchecked(
       @common.MateConnector::new(
-        "mount-m4-\{i + 1}",
+        "stator-mount-hole-m4-\{i + 1}",
         placement=@common.Placement::translation(
           rear_face,
           m4_radius * @math.cos(angle),
@@ -1268,7 +1284,7 @@ pub fn a12_motor(
         kind=@common.MateKind::CylindricalBore,
         diameter_mm=spec.mount_m4_hole_diameter_mm,
         depth_mm=spec.stator_plate_thickness_mm,
-        description="M4 stator mounting hole on the fixed face",
+        description="M4 clearance hole in the FIXED stator mount face; bolt it to the enclosure",
       ),
     )
   }

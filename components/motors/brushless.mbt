@@ -9,6 +9,10 @@
 /// starts at `bell_rim_start`, and the fixed stator hub starts at
 /// `stator_hub_start`.
 ///
+/// The large endbell is the **rotor**; the circular stator hub on the opposite
+/// side is the fixed **stator** and is the only part that may be bolted to an
+/// enclosure. See `brushless_motor` for the full connector roles.
+///
 /// Every dimension can be overridden to match a measured motor. This is a
 /// mechanical envelope only: no KV, torque, current, efficiency, or thermal
 /// rating is implied.
@@ -354,6 +358,17 @@ fn bl_holes_at_angles(
 /// 360KV model envelope. The 5 window corner radii are recorded as an
 /// approximation (the measured model uses 2 mm rounds; this envelope uses the
 /// measured arc endpoints with sharp corner transitions).
+///
+/// **Rotor / stator role convention (important when building an assembly):**
+///
+/// - The large windowed **bell is the rotor**. It spins. Attach gears,
+///   pulleys, propellers, or other moving parts only through
+///   `rotor-output-face`, `rotor-output-hole-*`, or the rotating
+///   `rotor-shaft-*` ends.
+/// - The circular **stator hub on the opposite side is the stator**. It must
+///   be bolted to the motor enclosure, frame, or gearbox housing through
+///   `stator-mount-face` and `stator-mount-hole-*`. Nothing that must rotate
+///   may be attached to the stator face.
 pub fn brushless_motor(
   spec : BrushlessMotorSpec,
 ) -> Result[@common.Component, @common.SpecError] {
@@ -596,7 +611,7 @@ pub fn brushless_motor(
   ).add_layers(layers)
   let connectors : Array[@common.MateConnector] = [
     @common.MateConnector::new(
-      "shaft-rear",
+      "rotor-shaft-bell-side",
       placement=@common.Placement::translation(
         -spec.shaft_rear_extension_mm,
         0.0,
@@ -607,10 +622,10 @@ pub fn brushless_motor(
       gender=@common.MateGender::Male,
       diameter_mm=spec.shaft_diameter_mm,
       depth_mm=total_length,
-      description="negative-X shaft end",
+      description="ROTATING rotor shaft end on the endbell side; drives gears, pulleys, or couplings; never clamp it to the enclosure",
     ),
     @common.MateConnector::new(
-      "shaft",
+      "rotor-shaft-mount-side",
       placement=@common.Placement::translation(
         total_length - spec.shaft_rear_extension_mm,
         0.0,
@@ -621,10 +636,10 @@ pub fn brushless_motor(
       gender=@common.MateGender::Male,
       diameter_mm=spec.shaft_diameter_mm,
       depth_mm=total_length,
-      description="positive-X shaft end",
+      description="ROTATING rotor shaft end on the stator mount side; drives gears, pulleys, or couplings; never clamp it to the enclosure",
     ),
     @common.MateConnector::new(
-      "mount-face",
+      "stator-mount-face",
       placement=@common.Placement::translation(
         spec.stator_hub_start_mm + spec.stator_hub_thickness_mm,
         0.0,
@@ -633,15 +648,15 @@ pub fn brushless_motor(
       axis=(-1.0, 0.0, 0.0),
       kind=@common.MateKind::PlaneFace,
       diameter_mm=spec.stator_hub_diameter_mm,
-      description="external fixed stator mounting face",
+      description="FIXED stator mount face; bolt this face to the motor enclosure or frame; it never rotates",
     ),
     @common.MateConnector::new(
-      "bell-face",
+      "rotor-output-face",
       placement=@common.Placement::translation(0.0, 0.0, 0.0),
       axis=(-1.0, 0.0, 0.0),
       kind=@common.MateKind::PlaneFace,
       diameter_mm=spec.bell_face_outer_diameter_mm,
-      description="rotating bell face",
+      description="ROTATING rotor endbell output face; attach a propeller, gear, or pulley here, never the enclosure",
     ),
   ]
   for connector in connectors {
@@ -656,7 +671,7 @@ pub fn brushless_motor(
       180.0
     motor = motor.with_connector_unchecked(
       @common.MateConnector::new(
-        "prop-hole-\{i + 1}",
+        "rotor-output-hole-\{i + 1}",
         placement=@common.Placement::translation(
           0.0,
           prop_radius * @math.cos(angle),
@@ -666,7 +681,7 @@ pub fn brushless_motor(
         kind=@common.MateKind::CylindricalBore,
         diameter_mm=spec.prop_hole_diameter_mm,
         depth_mm=spec.bell_face_thickness_mm,
-        description="propeller mounting hole",
+        description="screw hole on the ROTATING rotor output face; attach a gear, pulley, or propeller here",
       ),
     )
   }
@@ -679,7 +694,7 @@ pub fn brushless_motor(
       180.0
     motor = motor.with_connector_unchecked(
       @common.MateConnector::new(
-        "mount-hole-\{i + 1}",
+        "stator-mount-hole-\{i + 1}",
         placement=@common.Placement::translation(
           spec.stator_hub_start_mm + spec.stator_hub_thickness_mm,
           mount_radius * @math.cos(angle),
@@ -689,7 +704,7 @@ pub fn brushless_motor(
         kind=@common.MateKind::CylindricalBore,
         diameter_mm=spec.mount_hole_diameter_mm,
         depth_mm=spec.stator_hub_thickness_mm,
-        description="stator mounting hole on the external face",
+        description="clearance hole in the FIXED stator mount face; bolt it to the enclosure",
       ),
     )
   }
