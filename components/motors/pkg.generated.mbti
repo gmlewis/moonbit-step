@@ -54,6 +54,11 @@ pub(all) struct A12MotorSpec {
   bell_window_outer_half_angle_deg : Double
   bell_window_corner_radius_mm : Double
   bell_window_phase_deg : Double
+  bell_inner_slot_count : Int32
+  bell_inner_slot_inner_diameter_mm : Double
+  bell_inner_slot_outer_diameter_mm : Double
+  bell_inner_slot_half_angle_deg : Double
+  bell_inner_slot_phase_deg : Double
   magnet_count : Int32
   magnet_outer_diameter_mm : Double
   magnet_thickness_mm : Double

@@ -36,6 +36,11 @@ pub(all) struct A12MotorSpec {
   bell_window_outer_half_angle_deg : Double
   bell_window_corner_radius_mm : Double
   bell_window_phase_deg : Double
+  bell_inner_slot_count : Int32
+  bell_inner_slot_inner_diameter_mm : Double
+  bell_inner_slot_outer_diameter_mm : Double
+  bell_inner_slot_half_angle_deg : Double
+  bell_inner_slot_phase_deg : Double
   // Rotor magnets inside the skirt
   magnet_count : Int32
   magnet_outer_diameter_mm : Double
@@ -109,16 +114,21 @@ pub fn a12_motor_100kv_spec() -> A12MotorSpec {
     bell_skirt_length_mm: 22.0,
     bell_face_thickness_mm: 3.0,
     bell_shoulder_radius_mm: 3.0,
-    bell_hub_boss_diameter_mm: 40.0,
+    bell_hub_boss_diameter_mm: 46.0,
     bell_hub_boss_height_mm: 1.0,
-    bell_hub_bore_diameter_mm: 28.0,
-    bell_window_count: 8,
+    bell_hub_bore_diameter_mm: 15.0,
+    bell_window_count: 6,
     bell_window_inner_diameter_mm: 50.0,
-    bell_window_outer_diameter_mm: 80.0,
-    bell_window_inner_half_angle_deg: 13.5,
-    bell_window_outer_half_angle_deg: 17.5,
-    bell_window_corner_radius_mm: 5.0,
-    bell_window_phase_deg: 22.5,
+    bell_window_outer_diameter_mm: 81.0,
+    bell_window_inner_half_angle_deg: 17.0,
+    bell_window_outer_half_angle_deg: 21.8,
+    bell_window_corner_radius_mm: 3.5,
+    bell_window_phase_deg: 30.0,
+    bell_inner_slot_count: 4,
+    bell_inner_slot_inner_diameter_mm: 34.0,
+    bell_inner_slot_outer_diameter_mm: 41.0,
+    bell_inner_slot_half_angle_deg: 10.5,
+    bell_inner_slot_phase_deg: 45.0,
     magnet_count: 42,
     magnet_outer_diameter_mm: 88.0,
     magnet_thickness_mm: 2.0,
@@ -144,8 +154,8 @@ pub fn a12_motor_100kv_spec() -> A12MotorSpec {
     stator_tooth_width_mm: 3.6,
     stator_slot_floor_diameter_mm: 72.0,
     stator_tooth_phase_deg: 0.0,
-    coil_radial_inner_diameter_mm: 71.0,
-    coil_radial_outer_diameter_mm: 83.6,
+    coil_radial_inner_diameter_mm: 71.4,
+    coil_radial_outer_diameter_mm: 80.2,
     coil_width_mm: 6.15,
     coil_axial_overhang_mm: 1.6,
     coil_corner_radius_mm: 1.6,
@@ -154,11 +164,11 @@ pub fn a12_motor_100kv_spec() -> A12MotorSpec {
     stator_plate_thickness_mm: 5.7,
     stator_plate_start_mm: 22.8,
     stator_plate_window_count: 8,
-    stator_plate_window_inner_diameter_mm: 38.0,
-    stator_plate_window_outer_diameter_mm: 56.0,
-    stator_plate_window_inner_half_angle_deg: 12.0,
-    stator_plate_window_outer_half_angle_deg: 15.0,
-    stator_plate_window_corner_radius_mm: 3.5,
+    stator_plate_window_inner_diameter_mm: 33.5,
+    stator_plate_window_outer_diameter_mm: 55.6,
+    stator_plate_window_inner_half_angle_deg: 8.5,
+    stator_plate_window_outer_half_angle_deg: 14.5,
+    stator_plate_window_corner_radius_mm: 2.1,
     stator_plate_window_phase_deg: 0.0,
     mount_m3_count: 4,
     mount_m3_hole_diameter_mm: 3.4,
@@ -167,10 +177,10 @@ pub fn a12_motor_100kv_spec() -> A12MotorSpec {
     mount_m4_hole_diameter_mm: 4.5,
     mount_m4_circle_diameter_mm: 32.0,
     mount_hole_phase_deg: 22.5,
-    bearing_tube_outer_diameter_mm: 23.0,
-    bearing_bore_diameter_mm: 12.6,
-    pcb_ring_inner_diameter_mm: 61.0,
-    pcb_ring_outer_diameter_mm: 68.0,
+    bearing_tube_outer_diameter_mm: 24.0,
+    bearing_bore_diameter_mm: 12.4,
+    pcb_ring_inner_diameter_mm: 65.5,
+    pcb_ring_outer_diameter_mm: 71.5,
     pcb_thickness_mm: 0.8,
     shaft_diameter_mm: 12.0,
     shaft_front_extension_mm: 0.0,
@@ -294,6 +304,36 @@ pub fn a12_motor_spec(spec : A12MotorSpec) -> Result[Unit, @common.SpecError] {
     return Err(
       @common.InvalidDimension("a12 bell windows do not fit the bell face"),
     )
+  }
+  if spec.bell_inner_slot_count < 0 {
+    return Err(
+      @common.InvalidParameter("a12 bell inner slot count cannot be negative"),
+    )
+  }
+  if spec.bell_inner_slot_count > 0 {
+    let slot_in_r = spec.bell_inner_slot_inner_diameter_mm / 2.0
+    let slot_out_r = spec.bell_inner_slot_outer_diameter_mm / 2.0
+    let slot_mid_r = (slot_in_r + slot_out_r) / 2.0
+    let slot_cap_r = (slot_out_r - slot_in_r) / 2.0
+    if slot_in_r <= spec.prop_adapter_diameter_mm / 2.0 ||
+      slot_out_r <= slot_in_r ||
+      slot_out_r >= boss_radius {
+      return Err(
+        @common.InvalidDimension(
+          "a12 bell inner slots must fit between the prop adapter and boss rim",
+        ),
+      )
+    }
+    let cap_ang_deg = slot_cap_r / slot_mid_r * 180.0 / @math.PI
+    if spec.bell_inner_slot_half_angle_deg <= 0.0 ||
+      spec.bell_inner_slot_half_angle_deg + cap_ang_deg >=
+      180.0 / spec.bell_inner_slot_count.to_double() {
+      return Err(
+        @common.InvalidParameter(
+          "a12 bell inner slots overlap each other around the hub",
+        ),
+      )
+    }
   }
   if spec.bell_window_outer_half_angle_deg <=
     spec.bell_window_inner_half_angle_deg ||
@@ -422,11 +462,30 @@ pub fn a12_motor_spec(spec : A12MotorSpec) -> Result[Unit, @common.SpecError] {
       ),
     )
   }
-  let m3_reach = spec.mount_m3_circle_diameter_mm / 2.0 +
-    spec.mount_m3_hole_diameter_mm / 2.0
-  let m4_reach = spec.mount_m4_circle_diameter_mm / 2.0 +
-    spec.mount_m4_hole_diameter_mm / 2.0
-  if m3_reach >= plate_win_inner || m4_reach >= plate_win_inner {
+  if !a12_holes_clear_windows(
+      spec.mount_m3_count,
+      spec.mount_m3_circle_diameter_mm / 2.0,
+      spec.mount_m3_hole_diameter_mm / 2.0,
+      spec.mount_hole_phase_deg,
+      spec.stator_plate_window_count,
+      plate_win_inner,
+      plate_win_outer,
+      spec.stator_plate_window_inner_half_angle_deg,
+      spec.stator_plate_window_outer_half_angle_deg,
+      spec.stator_plate_window_phase_deg,
+    ) ||
+    !a12_holes_clear_windows(
+      spec.mount_m4_count,
+      spec.mount_m4_circle_diameter_mm / 2.0,
+      spec.mount_m4_hole_diameter_mm / 2.0,
+      spec.mount_hole_phase_deg + 45.0,
+      spec.stator_plate_window_count,
+      plate_win_inner,
+      plate_win_outer,
+      spec.stator_plate_window_inner_half_angle_deg,
+      spec.stator_plate_window_outer_half_angle_deg,
+      spec.stator_plate_window_phase_deg,
+    ) {
     return Err(
       @common.InvalidDimension(
         "a12 mount holes overlap the stator plate windows",
@@ -680,12 +739,22 @@ fn a12_sector_loop(
   let outer_right = a12_polar(outer_radius, center_deg + outer_half_deg)
   let origin = (0.0, 0.0)
   let (fi_left, fo_left, n_left) = a12_side_fillets(
-    center_deg, inner_left, outer_left, inner_radius, outer_radius,
-    fillet_radius, center_deg - inner_half_deg,
+    center_deg,
+    inner_left,
+    outer_left,
+    inner_radius,
+    outer_radius,
+    fillet_radius,
+    center_deg - inner_half_deg,
   )
   let (fi_right, fo_right, n_right) = a12_side_fillets(
-    center_deg, inner_right, outer_right, inner_radius, outer_radius,
-    fillet_radius, center_deg + inner_half_deg,
+    center_deg,
+    inner_right,
+    outer_right,
+    inner_radius,
+    outer_radius,
+    fillet_radius,
+    center_deg + inner_half_deg,
   )
   let inner_left_arc = a12_arc_tangent(origin, inner_radius, fi_left)
   let inner_right_arc = a12_arc_tangent(origin, inner_radius, fi_right)
@@ -777,19 +846,135 @@ const A12_SHOE_WIDTH_RATIO : Double = 0.45
 const A12_SHOE_DEPTH_MM : Double = 1.3
 
 ///|
-/// Fork slots in the bell spokes. Each spoke splits into two prongs near the
-/// rim; the slot between them is a radial stadium (semicircular ends) centred
-/// on the spoke. `A12_FORK_SLOT_*` give the slot's inner/outer cap centres
-/// and width.
-
-///|
-const A12_FORK_SLOT_INNER_MM : Double = 26.5
-
-///|
-const A12_FORK_SLOT_OUTER_MM : Double = 38.0
-
-///|
+/// Fork slots in the bell spokes. Every alternating spoke splits into two prongs
+/// near the rim; the slot between them is a radial stadium (semicircular ends)
+/// centred on the spoke. `A12_FORK_SLOT_WIDTH_MM` gives the slot width.
 const A12_FORK_SLOT_WIDTH_MM : Double = 3.4
+
+///|
+/// a12_wrap_deg wraps an angle difference in degrees into `[-180, 180]`.
+fn a12_wrap_deg(angle_deg : Double) -> Double {
+  let mut d = angle_deg % 360.0
+  if d > 180.0 {
+    d = d - 360.0
+  }
+  if d < -180.0 {
+    d = d + 360.0
+  }
+  d
+}
+
+///|
+/// a12_holes_clear_windows verifies that every hole in a bolt circle clears
+/// every rounded-sector window in 2D (both radially and angularly on the
+/// spokes).
+fn a12_holes_clear_windows(
+  hole_count : Int32,
+  hole_circle_radius : Double,
+  hole_radius : Double,
+  hole_phase_deg : Double,
+  window_count : Int32,
+  win_r_in : Double,
+  win_r_out : Double,
+  win_alpha_in_deg : Double,
+  win_alpha_out_deg : Double,
+  win_phase_deg : Double,
+) -> Bool {
+  let a_in = win_alpha_in_deg * @math.PI / 180.0
+  let a_out = win_alpha_out_deg * @math.PI / 180.0
+  let p_in = (win_r_in * @math.cos(a_in), win_r_in * @math.sin(a_in))
+  let p_out = (win_r_out * @math.cos(a_out), win_r_out * @math.sin(a_out))
+  let sx = p_out.0 - p_in.0
+  let sy = p_out.1 - p_in.1
+  let slen_sq = sx * sx + sy * sy
+  let slen = Double::sqrt(slen_sq)
+  // Outward unit normal pointing from the window into the spoke.
+  let nx = -sy / slen
+  let ny = sx / slen
+  for hi in 0..<hole_count {
+    let h_deg = hole_phase_deg + 360.0 * hi.to_double() / hole_count.to_double()
+    for wi in 0..<window_count {
+      let w_deg = win_phase_deg +
+        360.0 * wi.to_double() / window_count.to_double()
+      let dtheta_deg = a12_wrap_deg(h_deg - w_deg).abs()
+      if dtheta_deg > 90.0 ||
+        hole_circle_radius + hole_radius <= win_r_in ||
+        hole_circle_radius - hole_radius >= win_r_out {
+        continue
+      }
+      let dtheta = dtheta_deg * @math.PI / 180.0
+      let hx = hole_circle_radius * @math.cos(dtheta)
+      let hy = hole_circle_radius * @math.sin(dtheta)
+      let vx = hx - p_in.0
+      let vy = hy - p_in.1
+      let side_dist = vx * nx + vy * ny
+      let t = (vx * sx + vy * sy) / slen_sq
+      let clearance = if t < 0.0 {
+        if dtheta <= a_in {
+          win_r_in - hole_circle_radius
+        } else {
+          Double::sqrt(vx * vx + vy * vy)
+        }
+      } else if t > 1.0 {
+        let ox = hx - p_out.0
+        let oy = hy - p_out.1
+        if dtheta <= a_out {
+          hole_circle_radius - win_r_out
+        } else {
+          Double::sqrt(ox * ox + oy * oy)
+        }
+      } else {
+        side_dist
+      }
+      if clearance < hole_radius {
+        return false
+      }
+    }
+  }
+  true
+}
+
+///|
+/// a12_arc_slot_loop returns a counter-clockwise curved annular slot with
+/// semicircular end caps centred at `center_deg`, between `inner_radius` and
+/// `outer_radius`, with cap centres spanning `+/-cap_half_deg`.
+fn a12_arc_slot_loop(
+  center_deg : Double,
+  inner_radius : Double,
+  outer_radius : Double,
+  cap_half_deg : Double,
+) -> Array[@cad.ProfileSegment] {
+  let origin = (0.0, 0.0)
+  let mid_radius = (inner_radius + outer_radius) / 2.0
+  let cap_radius = (outer_radius - inner_radius) / 2.0
+  let theta1 = center_deg - cap_half_deg
+  let theta2 = center_deg + cap_half_deg
+  let r1 = theta1 * @math.PI / 180.0
+  let r2 = theta2 * @math.PI / 180.0
+  let c1 = a12_polar(mid_radius, theta1)
+  let c2 = a12_polar(mid_radius, theta2)
+  let i1 = a12_polar(inner_radius, theta1)
+  let o1 = a12_polar(outer_radius, theta1)
+  let o2 = a12_polar(outer_radius, theta2)
+  let i2 = a12_polar(inner_radius, theta2)
+  // Backward tip of cap 1 (-tangential) and forward tip of cap 2 (+tangential).
+  let tip1 = (
+    c1.0 + cap_radius * @math.sin(r1),
+    c1.1 - cap_radius * @math.cos(r1),
+  )
+  let tip2 = (
+    c2.0 - cap_radius * @math.sin(r2),
+    c2.1 + cap_radius * @math.cos(r2),
+  )
+  [
+    @cad.SegmentArc(i1, tip1, c1),
+    @cad.SegmentArc(tip1, o1, c1),
+    @cad.SegmentArc(o1, o2, origin),
+    @cad.SegmentArc(o2, tip2, c2),
+    @cad.SegmentArc(tip2, i2, c2),
+    @cad.SegmentArc(i2, i1, origin),
+  ]
+}
 
 ///|
 /// a12_spoke_slot_loop returns a radial stadium (capsule) loop centred on
@@ -888,16 +1073,17 @@ fn a12_stator_tooth_loop(
 ///|
 /// a12_motor builds a parameterized A12 8318 outrunner motor envelope.
 ///
-/// The rotating assembly is a stacked, boolean-free set of bodies: an 8-spoke
-/// endbell face plate with eight large rounded cooling windows in its profile
-/// and a forked spoke between every pair of windows (each spoke carries a
-/// radial fork slot), an axisymmetric skirt
-/// with a rounded shoulder, a raised hub boss, one exact curved magnet per
-/// pole, and a machined prop adapter. The fixed assembly is a 36-slot stator
-/// lamination with teethed pole shoes and one exact copper winding frame per
-/// tooth, an 8-window mount plate with rounded openings between eight webs,
-/// with the interleaved M3 and M4 mount holes drilled through those spokes, a
-/// bearing tube, and an insulator ring. A through shaft joins the two ends.
+/// The rotating assembly is a stacked, boolean-free set of bodies: a 6-spoke
+/// endbell face plate with six large rounded cooling windows, three
+/// alternating forked spokes carrying radial fork slots (interleaved with
+/// three solid spokes), four curved inner hub slots through the raised hub
+/// boss, an axisymmetric skirt with a rounded shoulder, one exact curved
+/// magnet per pole, and a machined prop adapter. The fixed assembly is a
+/// 36-slot stator lamination with teethed pole shoes and one exact copper
+/// winding frame per tooth seated inside the shoes, an 8-window stepped mount
+/// plate with rounded openings reaching inward between eight webs with
+/// interleaved M3 and M4 mount holes on those spokes, a 6901Z bearing tube,
+/// and an insulator ring. A through shaft joins the two ends.
 ///
 /// Every face is an analytic plane, cylinder, cone, sphere, or torus produced
 /// by exact line and circular-arc profiles; no surface is triangulated.
@@ -936,8 +1122,9 @@ pub fn a12_motor(
       @common.Placement::rotation_y(90.0),
     )
   }
-  // Bell face: one spoked plate with the 8 cooling windows and the central
-  // bore as profile holes. No boolean is needed to open the windows.
+  // Bell face: one spoked plate with the cooling windows, alternating spoke
+  // fork slots, inner hub slots, prop clearance holes, and central bore as
+  // profile holes. No boolean is needed to open the windows.
   let win_inner_radius = spec.bell_window_inner_diameter_mm / 2.0
   let win_outer_radius = spec.bell_window_outer_diameter_mm / 2.0
   let face_holes : Array[Array[@cad.ProfileSegment]] = []
@@ -958,23 +1145,64 @@ pub fn a12_motor(
       ),
     )
   }
-  // Fork slots: one radial stadium slot per spoke, on the spoke centreline
-  // (midway between adjacent windows). The real bell spokes split into two
-  // prongs near the rim; the slot between the prongs is open through the face.
+  // Fork slots: a radial stadium slot on alternating spokes (3 of 6 spokes
+  // on the A12), derived parametrically from the window radial span.
   let fork_half_pitch = 180.0 / spec.bell_window_count.to_double()
-  for i in 0..<spec.bell_window_count {
-    let center = spec.bell_window_phase_deg +
+  let fork_width = A12_FORK_SLOT_WIDTH_MM
+  let fork_inner = win_inner_radius + fork_width / 2.0
+  let fork_outer = win_outer_radius - fork_width / 2.0
+  if fork_outer > fork_inner + 0.5 {
+    let spoke_step = if spec.bell_window_count % 2 == 0 { 2 } else { 1 }
+    let mut i = 0
+    while i < spec.bell_window_count {
+      let center = spec.bell_window_phase_deg +
+        90.0 +
+        fork_half_pitch +
+        360.0 * i.to_double() / spec.bell_window_count.to_double()
+      face_holes.push(
+        a12_spoke_slot_loop(center, fork_inner, fork_outer, fork_width),
+      )
+      i = i + spoke_step
+    }
+  }
+  // Inner hub slots (4 curved annular slots through both boss and face).
+  let inner_slot_holes : Array[Array[@cad.ProfileSegment]] = []
+  for i in 0..<spec.bell_inner_slot_count {
+    let center = spec.bell_inner_slot_phase_deg +
       90.0 +
-      fork_half_pitch +
-      360.0 * i.to_double() / spec.bell_window_count.to_double()
-    face_holes.push(
-      a12_spoke_slot_loop(
-        center,
-        A12_FORK_SLOT_INNER_MM,
-        A12_FORK_SLOT_OUTER_MM,
-        A12_FORK_SLOT_WIDTH_MM,
-      ),
+      360.0 * i.to_double() / spec.bell_inner_slot_count.to_double()
+    let loop_segs = a12_arc_slot_loop(
+      center,
+      spec.bell_inner_slot_inner_diameter_mm / 2.0,
+      spec.bell_inner_slot_outer_diameter_mm / 2.0,
+      spec.bell_inner_slot_half_angle_deg,
     )
+    inner_slot_holes.push(loop_segs)
+    face_holes.push(loop_segs)
+  }
+  // Prop mounting clearance holes pass behind the prop adapter when they clear
+  // the central bell bore and inner hub slots.
+  let prop_clear_loops : Array[Array[@cad.ProfileSegment]] = []
+  let prop_circle_r = spec.prop_hole_circle_diameter_mm / 2.0
+  let prop_hole_r = spec.prop_hole_diameter_mm / 2.0
+  let boss_radius = spec.bell_hub_boss_diameter_mm / 2.0
+  let inner_slot_r_in = if spec.bell_inner_slot_count > 0 {
+    spec.bell_inner_slot_inner_diameter_mm / 2.0
+  } else {
+    boss_radius
+  }
+  if prop_circle_r - prop_hole_r > bell_bore_radius + 0.2 &&
+    prop_circle_r + prop_hole_r < inner_slot_r_in - 0.2 {
+    for
+      hole in a12_bolt_hole_loops(
+        spec.prop_hole_count,
+        spec.prop_hole_circle_diameter_mm,
+        spec.prop_hole_diameter_mm,
+        spec.prop_hole_phase_deg + 90.0,
+      ) {
+      prop_clear_loops.push(hole)
+      face_holes.push(hole)
+    }
   }
   face_holes.push(a12_circle_loop(0.0, 0.0, bell_bore_radius))
   let bell_face_profile = @cad.ExtrudedArcProfile::new(
@@ -1014,18 +1242,24 @@ pub fn a12_motor(
       )
     Ok(_) => ()
   }
-  // Raised hub boss on the face, clear of the windows.
-  let boss_profile = @cad.RevolvedProfile::tube(
-    spec.bell_hub_boss_diameter_mm,
-    spec.bell_hub_bore_diameter_mm,
+  // Raised hub boss on the face with matching inner hub slots and bore.
+  let boss_holes : Array[Array[@cad.ProfileSegment]] = []
+  for segs in inner_slot_holes {
+    boss_holes.push(segs)
+  }
+  for segs in prop_clear_loops {
+    boss_holes.push(segs)
+  }
+  boss_holes.push(a12_circle_loop(0.0, 0.0, bell_bore_radius))
+  let boss_profile = @cad.ExtrudedArcProfile::new(
+    a12_circle_loop(0.0, 0.0, boss_radius),
     boss_height,
+    holes=boss_holes,
   )
-  match boss_profile.validate() {
-    Err(e) =>
-      return Err(
-        @common.InvalidParameter("a12 bell boss profile: \{e.message()}"),
-      )
-    Ok(_) => ()
+  if !boss_profile.validate() {
+    return Err(
+      @common.InvalidParameter("a12 bell boss did not form a valid profile"),
+    )
   }
   // Rotor magnets: one curved plate per pole, each an exact extrusion.
   let magnet_outer_radius = spec.magnet_outer_diameter_mm / 2.0
@@ -1163,15 +1397,41 @@ pub fn a12_motor(
   plate_holes.push(
     a12_circle_loop(0.0, 0.0, spec.bearing_tube_outer_diameter_mm / 2.0),
   )
+  let plate_flange_thickness = if spec.stator_plate_thickness_mm > 2.0 {
+    1.5
+  } else {
+    spec.stator_plate_thickness_mm
+  }
+  let plate_neck_thickness = spec.stator_plate_thickness_mm -
+    plate_flange_thickness
+  let plate_neck_radius = if spec.stator_plate_diameter_mm -
+    spec.stator_plate_window_outer_diameter_mm >=
+    4.0 {
+    (spec.stator_plate_diameter_mm - 4.0) / 2.0
+  } else {
+    plate_radius
+  }
   let plate_profile = @cad.ExtrudedArcProfile::new(
     a12_circle_loop(0.0, 0.0, plate_radius),
-    spec.stator_plate_thickness_mm,
+    plate_flange_thickness,
     holes=plate_holes,
   )
   if !plate_profile.validate() {
     return Err(
       @common.InvalidParameter(
         "a12 stator mount plate did not form a valid profile",
+      ),
+    )
+  }
+  let plate_neck_profile = @cad.ExtrudedArcProfile::new(
+    a12_circle_loop(0.0, 0.0, plate_neck_radius),
+    plate_neck_thickness,
+    holes=plate_holes,
+  )
+  if plate_neck_thickness > 1.0e-6 && !plate_neck_profile.validate() {
+    return Err(
+      @common.InvalidParameter(
+        "a12 stator mount plate neck did not form a valid profile",
       ),
     )
   }
@@ -1253,22 +1513,28 @@ pub fn a12_motor(
       placement: on_axis(spec.stator_stack_start_mm),
     },
     {
-      shape: plate_profile.as_shape(),
-      name: "stator-plate",
+      shape: plate_neck_profile.as_shape(),
+      name: "stator-plate-neck",
       color: @cad.Rgb::black(),
       placement: on_axis(spec.stator_plate_start_mm),
     },
     {
+      shape: plate_profile.as_shape(),
+      name: "stator-plate",
+      color: @cad.Rgb::black(),
+      placement: on_axis(spec.stator_plate_start_mm + plate_neck_thickness),
+    },
+    {
       shape: bearing_tube,
       name: "bearing-tube",
-      color: @cad.Rgb::new(0.13, 0.13, 0.13),
+      color: @cad.Rgb::new(0.74, 0.74, 0.72),
       placement: on_axis(spec.stator_plate_start_mm),
     },
     {
       shape: pcb_ring,
       name: "pcb-insulator",
       color: @cad.Rgb::new(0.1, 0.45, 0.18),
-      placement: on_axis(spec.stator_plate_start_mm - spec.pcb_thickness_mm),
+      placement: on_axis(spec.stator_stack_start_mm - spec.pcb_thickness_mm),
     },
     {
       shape: @cad.RevolvedProfile::cylinder(
@@ -1276,7 +1542,7 @@ pub fn a12_motor(
         shaft_length,
       ).as_shape(),
       name: "shaft",
-      color: @cad.Rgb::new(0.72, 0.72, 0.75),
+      color: @cad.Rgb::new(0.22, 0.22, 0.24),
       placement: on_axis(shaft_front),
     },
   ]
@@ -1317,10 +1583,11 @@ pub fn a12_motor(
   let features = @common.FeatureRecord::new(
     modeled=[
       "bell-skirt", "bell-face", "bell-windows", "rounded-window-corners", "rounded-bell-shoulder",
-      "bell-hub-boss", "bell-spoke-slots", "rotor-magnets", "prop-adapter", "prop-mount-holes",
-      "prop-adapter-screws", "stator-lamination", "stator-teeth", "stator-pole-shoes",
-      "stator-windings", "stator-mount-plate", "stator-plate-windows", "m3-mount-holes",
-      "m4-mount-holes", "bearing-tube", "pcb-insulator-ring", "through-shaft",
+      "bell-hub-boss", "bell-inner-slots", "bell-spoke-slots", "rotor-magnets", "prop-adapter",
+      "prop-mount-holes", "prop-adapter-screws", "stator-lamination", "stator-teeth",
+      "stator-pole-shoes", "stator-windings", "stator-mount-plate", "stator-plate-flange",
+      "stator-plate-windows", "m3-mount-holes", "m4-mount-holes", "bearing-tube",
+      "pcb-insulator-ring", "through-shaft",
     ],
     omitted=[
       @common.Omission::new(

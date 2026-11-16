@@ -28,14 +28,14 @@ test "A12 8318 defaults match the measured envelope" {
   assert_true(a12_close(y1, 45.5))
   assert_true(a12_close(z0, -45.5))
   assert_true(a12_close(z1, 45.5))
-  // 3 bell bodies + 42 magnets + adapter + lamination + 36 coils + plate +
-  // bearing tube + insulator + shaft.
-  assert_eq(part.layers().length(), 87)
+  // 3 bell bodies + 42 magnets + adapter + lamination + 36 coils + plate neck +
+  // plate flange + bearing tube + insulator + shaft.
+  assert_eq(part.layers().length(), 88)
   let names : Array[String] = part.layers().map(fn(layer) { layer.name })
   for
     name in [
       "bell-face", "bell-skirt", "bell-hub-boss", "prop-adapter", "stator-lamination",
-      "stator-plate", "bearing-tube", "pcb-insulator", "shaft",
+      "stator-plate-neck", "stator-plate", "bearing-tube", "pcb-insulator", "shaft",
     ] {
     assert_true(names.contains(name))
   }
@@ -233,9 +233,20 @@ test "A12 validation rejects impossible layouts" {
   assert_true(@motors.a12_motor_spec(coils_overlap) is Err(_))
   let holes_in_windows : @motors.A12MotorSpec = {
     ..@motors.a12_motor_100kv_spec(),
-    stator_plate_window_inner_diameter_mm: 30.0,
+    mount_hole_phase_deg: 0.0,
   }
   assert_true(@motors.a12_motor_spec(holes_in_windows) is Err(_))
+  let wide_windows_hit_holes : @motors.A12MotorSpec = {
+    ..@motors.a12_motor_100kv_spec(),
+    stator_plate_window_inner_half_angle_deg: 18.0,
+    stator_plate_window_outer_half_angle_deg: 20.0,
+  }
+  assert_true(@motors.a12_motor_spec(wide_windows_hit_holes) is Err(_))
+  let inner_slots_outside_boss : @motors.A12MotorSpec = {
+    ..@motors.a12_motor_100kv_spec(),
+    bell_inner_slot_outer_diameter_mm: 48.0,
+  }
+  assert_true(@motors.a12_motor_spec(inner_slots_outside_boss) is Err(_))
   let shaft_too_big : @motors.A12MotorSpec = {
     ..@motors.a12_motor_100kv_spec(),
     shaft_diameter_mm: 13.0,
