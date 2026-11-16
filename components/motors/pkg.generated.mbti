@@ -7,6 +7,14 @@ import {
 }
 
 // Values
+pub fn a12_motor(A12MotorSpec) -> Result[@common.Component, @common.SpecError]
+
+pub fn a12_motor_100kv() -> Result[@common.Component, @common.SpecError]
+
+pub fn a12_motor_100kv_spec() -> A12MotorSpec
+
+pub fn a12_motor_spec(A12MotorSpec) -> Result[Unit, @common.SpecError]
+
 pub fn brushless_motor(BrushlessMotorSpec) -> Result[@common.Component, @common.SpecError]
 
 pub fn brushless_motor_360kv() -> Result[@common.Component, @common.SpecError]
@@ -30,6 +38,80 @@ pub fn nema_stepper_motor(NemaFrame, Double, shaft_length_mm? : Double, shaft_di
 // Errors
 
 // Types and methods
+pub(all) struct A12MotorSpec {
+  bell_outer_diameter_mm : Double
+  bell_wall_thickness_mm : Double
+  bell_skirt_length_mm : Double
+  bell_face_thickness_mm : Double
+  bell_shoulder_radius_mm : Double
+  bell_hub_boss_diameter_mm : Double
+  bell_hub_boss_height_mm : Double
+  bell_hub_bore_diameter_mm : Double
+  bell_window_count : Int32
+  bell_window_inner_diameter_mm : Double
+  bell_window_outer_diameter_mm : Double
+  bell_window_inner_half_angle_deg : Double
+  bell_window_outer_half_angle_deg : Double
+  bell_window_corner_radius_mm : Double
+  bell_window_phase_deg : Double
+  magnet_count : Int32
+  magnet_outer_diameter_mm : Double
+  magnet_thickness_mm : Double
+  magnet_gap_mm : Double
+  magnet_start_mm : Double
+  magnet_length_mm : Double
+  magnet_phase_deg : Double
+  prop_adapter_diameter_mm : Double
+  prop_adapter_thickness_mm : Double
+  prop_adapter_bore_diameter_mm : Double
+  prop_hole_count : Int32
+  prop_hole_diameter_mm : Double
+  prop_hole_circle_diameter_mm : Double
+  prop_hole_phase_deg : Double
+  prop_screw_count : Int32
+  prop_screw_diameter_mm : Double
+  prop_screw_circle_diameter_mm : Double
+  stator_outer_diameter_mm : Double
+  stator_inner_diameter_mm : Double
+  stator_stack_length_mm : Double
+  stator_stack_start_mm : Double
+  stator_tooth_count : Int32
+  stator_tooth_width_mm : Double
+  stator_slot_floor_diameter_mm : Double
+  stator_tooth_phase_deg : Double
+  coil_radial_inner_diameter_mm : Double
+  coil_radial_outer_diameter_mm : Double
+  coil_width_mm : Double
+  coil_axial_overhang_mm : Double
+  coil_corner_radius_mm : Double
+  coil_inner_corner_radius_mm : Double
+  stator_plate_diameter_mm : Double
+  stator_plate_thickness_mm : Double
+  stator_plate_start_mm : Double
+  stator_plate_window_count : Int32
+  stator_plate_window_inner_diameter_mm : Double
+  stator_plate_window_outer_diameter_mm : Double
+  stator_plate_window_inner_half_angle_deg : Double
+  stator_plate_window_outer_half_angle_deg : Double
+  stator_plate_window_corner_radius_mm : Double
+  stator_plate_window_phase_deg : Double
+  mount_m3_count : Int32
+  mount_m3_hole_diameter_mm : Double
+  mount_m3_circle_diameter_mm : Double
+  mount_m4_count : Int32
+  mount_m4_hole_diameter_mm : Double
+  mount_m4_circle_diameter_mm : Double
+  mount_hole_phase_deg : Double
+  bearing_tube_outer_diameter_mm : Double
+  bearing_bore_diameter_mm : Double
+  pcb_ring_inner_diameter_mm : Double
+  pcb_ring_outer_diameter_mm : Double
+  pcb_thickness_mm : Double
+  shaft_diameter_mm : Double
+  shaft_front_extension_mm : Double
+  shaft_rear_extension_mm : Double
+}
+
 pub(all) struct BrushlessMotorSpec {
   bell_outer_diameter_mm : Double
   bell_wall_thickness_mm : Double

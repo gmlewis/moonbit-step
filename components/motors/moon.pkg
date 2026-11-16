@@ -7,6 +7,7 @@ import {
 }
 
 import {
+  "gmlewis/step/cad",
   "gmlewis/step/components/common",
   "moonbitlang/core/builtin",
 } for "test"

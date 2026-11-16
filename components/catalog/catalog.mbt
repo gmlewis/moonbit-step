@@ -317,7 +317,8 @@ pub fn linear_bearing_catalog() -> Array[CatalogEntry] {
 
 ///|
 /// motor_catalog returns the NEMA 17/23 envelopes, the NEMA-to-extrusion
-/// adapter, and the measured 360KV outrunner envelope.
+/// adapter, the measured 360KV outrunner envelope, and the measured A12 8318
+/// agricultural outrunner envelope.
 pub fn motor_catalog() -> Array[CatalogEntry] {
   let entries : Array[CatalogEntry] = []
   for designation in @motors.nema_designations() {
@@ -362,6 +363,22 @@ pub fn motor_catalog() -> Array[CatalogEntry] {
             "window_outer_diameter", "prop_hole_count", "prop_hole_circle_diameter",
             "stator_hub_diameter", "mount_hole_count", "shaft_diameter", "shaft_rear_extension",
             "shaft_front_extension",
+          ],
+          ["Detailed"],
+        ),
+      )
+    Err(_) => ()
+  }
+  match @motors.a12_motor_100kv() {
+    Ok(c) =>
+      entries.push(
+        entry_from_component(
+          c,
+          [
+            "bell_outer_diameter", "bell_wall_thickness", "bell_skirt_length", "bell_window_count",
+            "magnet_count", "magnet_outer_diameter", "stator_outer_diameter", "stator_stack_length",
+            "stator_tooth_count", "prop_hole_circle_diameter", "mount_m3_circle_diameter",
+            "mount_m4_circle_diameter", "shaft_diameter",
           ],
           ["Detailed"],
         ),

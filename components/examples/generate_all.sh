@@ -131,6 +131,7 @@ moon run components/examples/stepper_motor -- \
   --frame NEMA17 --bodyLength 40 -o "$OUT/nema17-l40.step"
 moon run components/examples/brushless_motor -- \
   -o "$OUT/brushless-motor-50x23.step"
+moon run components/examples/a12_motor -- -o "$OUT/a12-8318-motor-91x33.step"
 moon run components/examples/tire -- -o "$OUT/tire-177.8x38.1.step"
 moon run components/examples/tire_mount -- -o "$OUT/tire-mount-86.3x23.05.step"
 moon run components/examples/linear_bearing -- \

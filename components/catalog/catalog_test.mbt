@@ -148,11 +148,16 @@ test "new construction and motion catalogue families are discoverable" {
   )
 
   let motors = @catalog.motor_catalog()
-  assert_eq(motors.length(), 4)
+  assert_eq(motors.length(), 5)
   assert_true(motors.any(fn(e) { e.family == "stepper motor envelope" }))
   assert_true(motors.any(fn(e) { e.family == "motor-to-extrusion adapter" }))
   assert_true(
     motors.any(fn(e) { e.family == "brushless outrunner motor envelope" }),
+  )
+  assert_true(
+    motors.any(fn(e) {
+      e.family == "large agricultural outrunner brushless motor envelope"
+    }),
   )
   let brushless = match
     @catalog.lookup(motors, "Brushless outrunner bell 50 x 23") {
@@ -163,6 +168,13 @@ test "new construction and motion catalogue families are discoverable" {
   assert_true(
     brushless.supported_parameters.any(fn(p) { p == "shaft_diameter" }),
   )
+  let a12 = match
+    @catalog.lookup(motors, "XAIRCRAFT A12 8318 100KV outrunner motor envelope") {
+    Ok(e) => e
+    Err(err) => abort(err.message())
+  }
+  assert_true(a12.features.has_modeled("stator-windings"))
+  assert_true(a12.supported_parameters.any(fn(p) { p == "stator_tooth_count" }))
 
   let stock = @catalog.stock_catalog()
   assert_eq(stock.length(), 4)
