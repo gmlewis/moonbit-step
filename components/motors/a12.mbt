@@ -114,10 +114,10 @@ pub fn a12_motor_100kv_spec() -> A12MotorSpec {
     bell_hub_bore_diameter_mm: 28.0,
     bell_window_count: 8,
     bell_window_inner_diameter_mm: 50.0,
-    bell_window_outer_diameter_mm: 83.0,
-    bell_window_inner_half_angle_deg: 12.5,
+    bell_window_outer_diameter_mm: 80.0,
+    bell_window_inner_half_angle_deg: 13.5,
     bell_window_outer_half_angle_deg: 17.5,
-    bell_window_corner_radius_mm: 4.2,
+    bell_window_corner_radius_mm: 5.0,
     bell_window_phase_deg: 22.5,
     magnet_count: 42,
     magnet_outer_diameter_mm: 88.0,
@@ -154,11 +154,11 @@ pub fn a12_motor_100kv_spec() -> A12MotorSpec {
     stator_plate_thickness_mm: 5.7,
     stator_plate_start_mm: 22.8,
     stator_plate_window_count: 8,
-    stator_plate_window_inner_diameter_mm: 39.0,
-    stator_plate_window_outer_diameter_mm: 61.0,
-    stator_plate_window_inner_half_angle_deg: 10.0,
-    stator_plate_window_outer_half_angle_deg: 12.0,
-    stator_plate_window_corner_radius_mm: 3.2,
+    stator_plate_window_inner_diameter_mm: 38.0,
+    stator_plate_window_outer_diameter_mm: 56.0,
+    stator_plate_window_inner_half_angle_deg: 12.0,
+    stator_plate_window_outer_half_angle_deg: 15.0,
+    stator_plate_window_corner_radius_mm: 3.5,
     stator_plate_window_phase_deg: 0.0,
     mount_m3_count: 4,
     mount_m3_hole_diameter_mm: 3.4,
@@ -568,31 +568,104 @@ fn a12_bolt_hole_loops(
 }
 
 ///|
-/// a12_side_tangent returns the two tangent points of a straight side between
-/// equal-radius corner fillets. `sign` mirrors the normal to the correct side
-/// of the window.
-fn a12_side_tangent(
-  c1 : (Double, Double),
-  c2 : (Double, Double),
+/// a12_arc_tangent returns the point on the circle centred at `origin` with
+/// radius `circle_radius` in the direction of `toward`.
+fn a12_arc_tangent(
+  origin : (Double, Double),
   radius : Double,
-  sign : Double,
-) -> ((Double, Double), (Double, Double)) {
-  let dx = c2.0 - c1.0
-  let dy = c2.1 - c1.1
-  let length = Double::sqrt(dx * dx + dy * dy)
-  let nx = sign * (-dy / length)
-  let ny = sign * (dx / length)
+  toward : (Double, Double),
+) -> (Double, Double) {
+  let dx = toward.0 - origin.0
+  let dy = toward.1 - origin.1
+  let len = Double::sqrt(dx * dx + dy * dy)
+  (origin.0 + dx / len * radius, origin.1 + dy / len * radius)
+}
+
+///|
+/// a12_line_tangent returns the point at which the fillet circle touches the
+/// side line: the fillet centre stepped back along the line's inward normal.
+fn a12_line_tangent(
+  fillet_center : (Double, Double),
+  inward_normal : (Double, Double),
+  fillet_radius : Double,
+) -> (Double, Double) {
   (
-    (c1.0 + radius * nx, c1.1 + radius * ny),
-    (c2.0 + radius * nx, c2.1 + radius * ny),
+    fillet_center.0 - fillet_radius * inward_normal.0,
+    fillet_center.1 - fillet_radius * inward_normal.1,
+  )
+}
+
+///|
+/// a12_side_fillets solves one straight side of a rounded sector. The side
+/// runs from the inner arc endpoint `inner_pt` to the outer arc endpoint
+/// `outer_pt`. It returns the inner and outer fillet centres (centres of
+/// circles tangent to the side line and to their respective boundary arcs)
+/// together with the side's inward unit normal.
+fn a12_side_fillets(
+  center_deg : Double,
+  inner_pt : (Double, Double),
+  outer_pt : (Double, Double),
+  inner_radius : Double,
+  outer_radius : Double,
+  fillet_radius : Double,
+  corner_deg : Double,
+) -> ((Double, Double), (Double, Double), (Double, Double)) {
+  let dx = outer_pt.0 - inner_pt.0
+  let dy = outer_pt.1 - inner_pt.1
+  let length = Double::sqrt(dx * dx + dy * dy)
+  let tx = dx / length
+  let ty = dy / length
+  // Inward normal: perpendicular to the side, pointing at the sector axis.
+  let mid = ((inner_pt.0 + outer_pt.0) / 2.0, (inner_pt.1 + outer_pt.1) / 2.0)
+  let axis = a12_polar((inner_radius + outer_radius) / 2.0, center_deg)
+  let mut nx = -ty
+  let mut ny = tx
+  if (axis.0 - mid.0) * nx + (axis.1 - mid.1) * ny < 0.0 {
+    nx = -nx
+    ny = -ny
+  }
+  let q = nx * inner_pt.0 + ny * inner_pt.1 + fillet_radius
+  let corner = corner_deg * @math.PI / 180.0
+  let solve = fn(target_radius : Double) -> (Double, Double) {
+    let disc = target_radius * target_radius - q * q
+    let t = Double::sqrt(if disc > 0.0 { disc } else { 0.0 })
+    let c1 = (q * nx + t * tx, q * ny + t * ty)
+    let c2 = (q * nx - t * tx, q * ny - t * ty)
+    let ang_diff = fn(pt : (Double, Double)) -> Double {
+      let a = @math.atan2(pt.1, pt.0) - corner
+      let two_pi = 2.0 * @math.PI
+      let mut d = a
+      while d > @math.PI {
+        d = d - two_pi
+      }
+      while d <= -@math.PI {
+        d = d + two_pi
+      }
+      if d < 0.0 {
+        -d
+      } else {
+        d
+      }
+    }
+    if ang_diff(c1) <= ang_diff(c2) {
+      c1
+    } else {
+      c2
+    }
+  }
+  (
+    solve(inner_radius + fillet_radius),
+    solve(outer_radius - fillet_radius),
+    (nx, ny),
   )
 }
 
 ///|
 /// a12_sector_loop returns a rounded annular-sector loop: a circular inner
-/// edge, a circular outer edge, two straight sides, and a round at each
-/// corner. The fillets are tangent to both the arc and the side, so every
-/// segment of the emitted loop is an exact line or circular arc.
+/// edge, a circular outer edge, two slanted straight sides, and a circular
+/// fillet at each of the four corners, tangent to both the arc and the side.
+/// Every segment is an exact line or circular arc; the emitted loop is
+/// counter-clockwise.
 fn a12_sector_loop(
   center_deg : Double,
   inner_radius : Double,
@@ -601,48 +674,38 @@ fn a12_sector_loop(
   outer_half_deg : Double,
   fillet_radius : Double,
 ) -> Array[@cad.ProfileSegment] {
-  let inner_left_angle = center_deg - inner_half_deg
-  let inner_right_angle = center_deg + inner_half_deg
-  let outer_left_angle = center_deg - outer_half_deg
-  let outer_right_angle = center_deg + outer_half_deg
-  let inner_left = a12_polar(inner_radius, inner_left_angle)
-  let inner_right = a12_polar(inner_radius, inner_right_angle)
-  let outer_left = a12_polar(outer_radius, outer_left_angle)
-  let outer_right = a12_polar(outer_radius, outer_right_angle)
-  let inner_center_left = a12_polar(
-    inner_radius + fillet_radius,
-    inner_left_angle,
-  )
-  let inner_center_right = a12_polar(
-    inner_radius + fillet_radius,
-    inner_right_angle,
-  )
-  let outer_center_left = a12_polar(
-    outer_radius - fillet_radius,
-    outer_left_angle,
-  )
-  let outer_center_right = a12_polar(
-    outer_radius - fillet_radius,
-    outer_right_angle,
-  )
-  let (inner_side_left, outer_side_left) = a12_side_tangent(
-    inner_center_left, outer_center_left, fillet_radius, -1.0,
-  )
-  let (inner_side_right, outer_side_right) = a12_side_tangent(
-    inner_center_right, outer_center_right, fillet_radius, 1.0,
-  )
+  let inner_left = a12_polar(inner_radius, center_deg - inner_half_deg)
+  let inner_right = a12_polar(inner_radius, center_deg + inner_half_deg)
+  let outer_left = a12_polar(outer_radius, center_deg - outer_half_deg)
+  let outer_right = a12_polar(outer_radius, center_deg + outer_half_deg)
   let origin = (0.0, 0.0)
+  let (fi_left, fo_left, n_left) = a12_side_fillets(
+    center_deg, inner_left, outer_left, inner_radius, outer_radius,
+    fillet_radius, center_deg - inner_half_deg,
+  )
+  let (fi_right, fo_right, n_right) = a12_side_fillets(
+    center_deg, inner_right, outer_right, inner_radius, outer_radius,
+    fillet_radius, center_deg + inner_half_deg,
+  )
+  let inner_left_arc = a12_arc_tangent(origin, inner_radius, fi_left)
+  let inner_right_arc = a12_arc_tangent(origin, inner_radius, fi_right)
+  let outer_left_arc = a12_arc_tangent(origin, outer_radius, fo_left)
+  let outer_right_arc = a12_arc_tangent(origin, outer_radius, fo_right)
+  let inner_left_line = a12_line_tangent(fi_left, n_left, fillet_radius)
+  let outer_left_line = a12_line_tangent(fo_left, n_left, fillet_radius)
+  let inner_right_line = a12_line_tangent(fi_right, n_right, fillet_radius)
+  let outer_right_line = a12_line_tangent(fo_right, n_right, fillet_radius)
   // These points run clockwise around the window; reverse them so the emitted
   // loop is counter-clockwise like the other profiles in this package.
   let clockwise : Array[@cad.ProfileSegment] = [
-    @cad.SegmentArc(inner_left, inner_right, origin),
-    @cad.SegmentArc(inner_right, inner_side_right, inner_center_right),
-    @cad.SegmentLine(inner_side_right, outer_side_right),
-    @cad.SegmentArc(outer_side_right, outer_right, outer_center_right),
-    @cad.SegmentArc(outer_right, outer_left, origin),
-    @cad.SegmentArc(outer_left, outer_side_left, outer_center_left),
-    @cad.SegmentLine(outer_side_left, inner_side_left),
-    @cad.SegmentArc(inner_side_left, inner_left, inner_center_left),
+    @cad.SegmentArc(inner_left_arc, inner_right_arc, origin),
+    @cad.SegmentArc(inner_right_arc, inner_right_line, fi_right),
+    @cad.SegmentLine(inner_right_line, outer_right_line),
+    @cad.SegmentArc(outer_right_line, outer_right_arc, fo_right),
+    @cad.SegmentArc(outer_right_arc, outer_left_arc, origin),
+    @cad.SegmentArc(outer_left_arc, outer_left_line, fo_left),
+    @cad.SegmentLine(outer_left_line, inner_left_line),
+    @cad.SegmentArc(inner_left_line, inner_left_arc, fi_left),
   ]
   let reversed : Array[@cad.ProfileSegment] = []
   for i in 0..<clockwise.length() {
@@ -714,18 +777,61 @@ const A12_SHOE_WIDTH_RATIO : Double = 0.45
 const A12_SHOE_DEPTH_MM : Double = 1.3
 
 ///|
-/// Inner-web lightening slots in the bell face. The slot band sits between
-/// the hub boss and the window openings; `A12_WEB_SLOT_MARGIN_MM` keeps a
-/// web of material on both sides, `A12_WEB_SLOT_MIN_RADIAL_MM` is the minimum
-/// band height, and `A12_WEB_SLOT_PITCH_FRACTION` scales each slot's angular
-/// width relative to half the window pitch.
-const A12_WEB_SLOT_MARGIN_MM : Double = 0.8
+/// Fork slots in the bell spokes. Each spoke splits into two prongs near the
+/// rim; the slot between them is a radial stadium (semicircular ends) centred
+/// on the spoke. `A12_FORK_SLOT_*` give the slot's inner/outer cap centres
+/// and width.
 
 ///|
-const A12_WEB_SLOT_MIN_RADIAL_MM : Double = 2.5
+const A12_FORK_SLOT_INNER_MM : Double = 26.5
 
 ///|
-const A12_WEB_SLOT_PITCH_FRACTION : Double = 0.72
+const A12_FORK_SLOT_OUTER_MM : Double = 38.0
+
+///|
+const A12_FORK_SLOT_WIDTH_MM : Double = 3.4
+
+///|
+/// a12_spoke_slot_loop returns a radial stadium (capsule) loop centred on
+/// `center_deg`, running from `r_inner` to `r_outer` (measured to the cap
+/// centres) with the given width. The two straight sides are parallel to the
+/// radius and the ends are semicircles, each emitted as two quarter arcs so
+/// no segment is ambiguous. The loop is counter-clockwise.
+fn a12_spoke_slot_loop(
+  center_deg : Double,
+  r_inner : Double,
+  r_outer : Double,
+  width : Double,
+) -> Array[@cad.ProfileSegment] {
+  let angle = center_deg * @math.PI / 180.0
+  let ux = @math.cos(angle)
+  let uy = @math.sin(angle)
+  // Tangential unit vector (90 deg ccw from the radial direction).
+  let tx = -uy
+  let ty = ux
+  let half = width / 2.0
+  let p_inner = (ux * r_inner, uy * r_inner)
+  let p_outer = (ux * r_outer, uy * r_outer)
+  // Inner cap runs from the right side (d) around the inward tip to the left
+  // side (a); outer cap runs from the left side (b) around the outward tip
+  // to the right side (c).
+  let a = (p_inner.0 + half * tx, p_inner.1 + half * ty)
+  let b = (p_outer.0 + half * tx, p_outer.1 + half * ty)
+  let c = (p_outer.0 - half * tx, p_outer.1 - half * ty)
+  let d = (p_inner.0 - half * tx, p_inner.1 - half * ty)
+  let tip_outer = (p_outer.0 + half * ux, p_outer.1 + half * uy)
+  let tip_inner = (p_inner.0 - half * ux, p_inner.1 - half * uy)
+  // Counter-clockwise: inner cap from a around the inward tip to d, up the
+  // right side, then the outer cap from c around the outward tip to b.
+  [
+    @cad.SegmentArc(a, tip_inner, p_inner),
+    @cad.SegmentArc(tip_inner, d, p_inner),
+    @cad.SegmentLine(d, c),
+    @cad.SegmentArc(c, tip_outer, p_outer),
+    @cad.SegmentArc(tip_outer, b, p_outer),
+    @cad.SegmentLine(b, a),
+  ]
+}
 
 ///|
 /// a12_stator_tooth_loop returns the outer boundary of a 36-slot stator
@@ -784,11 +890,12 @@ fn a12_stator_tooth_loop(
 ///
 /// The rotating assembly is a stacked, boolean-free set of bodies: an 8-spoke
 /// endbell face plate with eight large rounded cooling windows in its profile
-/// and eight lightening slots in the web around the hub, an axisymmetric skirt
+/// and a forked spoke between every pair of windows (each spoke carries a
+/// radial fork slot), an axisymmetric skirt
 /// with a rounded shoulder, a raised hub boss, one exact curved magnet per
 /// pole, and a machined prop adapter. The fixed assembly is a 36-slot stator
 /// lamination with teethed pole shoes and one exact copper winding frame per
-/// tooth, an 8-window mount plate with rounded openings between eight spokes,
+/// tooth, an 8-window mount plate with rounded openings between eight webs,
 /// with the interleaved M3 and M4 mount holes drilled through those spokes, a
 /// bearing tube, and an insulator ring. A through shaft joins the two ends.
 ///
@@ -833,7 +940,6 @@ pub fn a12_motor(
   // bore as profile holes. No boolean is needed to open the windows.
   let win_inner_radius = spec.bell_window_inner_diameter_mm / 2.0
   let win_outer_radius = spec.bell_window_outer_diameter_mm / 2.0
-  let boss_radius = spec.bell_hub_boss_diameter_mm / 2.0
   let face_holes : Array[Array[@cad.ProfileSegment]] = []
   for i in 0..<spec.bell_window_count {
     // Profiles are built in XY and rotated +90 degrees about Y onto the +X
@@ -852,26 +958,23 @@ pub fn a12_motor(
       ),
     )
   }
-  // Inner web lightening slots: concentric arc slots in the annulus between
-  // the hub boss and the window openings, one per window. Each slot is a
-  // short arc segment with semicircular ends. Small bells without enough
-  // web radial room skip them.
-  let web_inner = boss_radius + A12_WEB_SLOT_MARGIN_MM
-  let web_outer = win_inner_radius - A12_WEB_SLOT_MARGIN_MM
-  if web_outer - web_inner >= A12_WEB_SLOT_MIN_RADIAL_MM {
-    let slot_fillet = (web_outer - web_inner) / 2.0 * 0.8
-    let slot_half_angle = A12_WEB_SLOT_PITCH_FRACTION *
-      (180.0 / spec.bell_window_count.to_double())
-    for i in 0..<spec.bell_window_count {
-      let center = spec.bell_window_phase_deg +
-        90.0 +
-        360.0 * i.to_double() / spec.bell_window_count.to_double()
-      face_holes.push(
-        a12_sector_loop(
-          center, web_inner, web_outer, slot_half_angle, slot_half_angle, slot_fillet,
-        ),
-      )
-    }
+  // Fork slots: one radial stadium slot per spoke, on the spoke centreline
+  // (midway between adjacent windows). The real bell spokes split into two
+  // prongs near the rim; the slot between the prongs is open through the face.
+  let fork_half_pitch = 180.0 / spec.bell_window_count.to_double()
+  for i in 0..<spec.bell_window_count {
+    let center = spec.bell_window_phase_deg +
+      90.0 +
+      fork_half_pitch +
+      360.0 * i.to_double() / spec.bell_window_count.to_double()
+    face_holes.push(
+      a12_spoke_slot_loop(
+        center,
+        A12_FORK_SLOT_INNER_MM,
+        A12_FORK_SLOT_OUTER_MM,
+        A12_FORK_SLOT_WIDTH_MM,
+      ),
+    )
   }
   face_holes.push(a12_circle_loop(0.0, 0.0, bell_bore_radius))
   let bell_face_profile = @cad.ExtrudedArcProfile::new(
@@ -1214,7 +1317,7 @@ pub fn a12_motor(
   let features = @common.FeatureRecord::new(
     modeled=[
       "bell-skirt", "bell-face", "bell-windows", "rounded-window-corners", "rounded-bell-shoulder",
-      "bell-hub-boss", "bell-web-vents", "rotor-magnets", "prop-adapter", "prop-mount-holes",
+      "bell-hub-boss", "bell-spoke-slots", "rotor-magnets", "prop-adapter", "prop-mount-holes",
       "prop-adapter-screws", "stator-lamination", "stator-teeth", "stator-pole-shoes",
       "stator-windings", "stator-mount-plate", "stator-plate-windows", "m3-mount-holes",
       "m4-mount-holes", "bearing-tube", "pcb-insulator-ring", "through-shaft",
