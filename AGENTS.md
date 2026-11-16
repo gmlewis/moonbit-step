@@ -110,8 +110,12 @@ The `cad` package follows an **intent-based architecture**. Do not revert to eag
   - **Rendering**: Uses OCCT's `DRAWEXE`. On macOS, this requires a Cocoa/OpenGL context.
     The four-view PNG is a smoke test only — never use it to judge whether a model looks
     right or matches a reference photo. Inspect geometry in SolidCraft instead (see the
-    `solidcraft-inspect` skill); agents use the headless `mcp__solidcraft__*` tools and
-    never open the GUI on the user's behalf.
+    `solidcraft-inspect` skill); agents use the headless `mcp__solidcraft__*` tools or
+    `solidcraft-cli snapshot` / `solidcraft-cli eval` directly, and never open the GUI on
+    the user's behalf. When matching photos, calibrate `px/mm` on an un-foreshortened
+    axis and overlay candidate rings/sectors on a scratch image before editing, and check
+    `.connectors.tsv` sidecars so mate connectors sit only on open mounting holes/spokes
+    (never in air gaps or screw-filled counterbores).
   - **macOS Rendering Quirk**: `DRAWEXE` must be called via a STDIN pipe (not script file or `-c`) to properly initialize the Cocoa event loop. It often falls back to `.ppm` files; the script uses `sips` to convert to `.png`.
 - Note that an agent should _NEVER_ have to call `./update.sh` as that is used
   by the package maintainer when it is known that external dependencies have been updated.

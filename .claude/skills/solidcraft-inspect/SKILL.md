@@ -20,14 +20,17 @@ Never justify keeping a wrong-looking model because "the 4-pane looks fine".
 
 ## Who drives SolidCraft
 
-- **You (the agent)**: use the headless `mcp__solidcraft__*` tools. Do not open
-  or raise the GUI, do not use `--view` or `open -a SolidCraft`, and never
-  pretend a headless render is what the user sees in their window.
+- **You (the agent)**: use the headless `mcp__solidcraft__*` tools **or**
+  `solidcraft-cli snapshot` / `solidcraft-cli eval` directly. Do not open or
+  raise the GUI, do not use `--view` or `open -a SolidCraft`, and never pretend
+  a headless render is what the user sees in their window.
 - **The user**: runs `./run-example.sh <example> --view` (or opens the STEP in
   SolidCraft) to review the part interactively. Tell them when the model is
   ready for that; they will orbit and zoom freely.
 
 ## Headless inspection recipe (agents)
+
+### Option A — via `mcp__solidcraft__*`
 
 1. Generate the STEP under an allowed root. The headless server refuses other
    paths: use the repo's ignored scratch space (`target/`, or
@@ -50,6 +53,28 @@ Never justify keeping a wrong-looking model because "the 4-pane looks fine".
    `scripts/validate_step.py` for validity. The render is for looks; the
    validators are the acceptance criteria.
 
+### Option B — via `solidcraft-cli` (when MCP tools are not wired in)
+
+`solidcraft-cli` renders shaded PNGs and inspects geometry headlessly without
+opening a window or requiring MCP bindings:
+
+```bash
+solidcraft-cli snapshot --in target/part.step --out target/left.png \
+  --view left --no-grid --no-axes --width 1024 --height 1024
+solidcraft-cli snapshot --in target/part.step --out target/right.png \
+  --view right --no-grid --no-axes --width 1024 --height 1024
+solidcraft-cli snapshot --in target/part.step --out target/front.png \
+  --view front --no-grid --no-axes --width 1024 --height 1024
+solidcraft-cli snapshot --in target/part.step --out target/rotor_iso.png \
+  --camera '{"target":[12,0,0],"yaw":-2.3,"pitch":0.4,"distance":175}' \
+  --no-grid --no-axes --width 1024 --height 1024
+solidcraft-cli eval --in target/part.step
+```
+
+Always inspect **both** opposite functional faces (e.g., `left` and `right`
+along ±X), the side silhouette (`front`), and at least one 3/4 view per side
+using `read_file` on the PNGs, then delete scratch PNGs/STEPs when done.
+
 Notes:
 
 - The GUI app and the headless server are separate processes. Your headless
@@ -66,12 +91,39 @@ Notes:
 
 ## Comparing against photos or a golden part
 
-- Crop and zoom reference photos before judging; photographs are rarely
-  orthographic, so trust **counts and topology** (number of windows, holes,
-  spokes, connector positions) over measured angles.
+- **Calibrate and overlay before editing.** Never eyeball feature counts, spoke
+  widths, or window radii from raw photos alone:
+  1. Crop and zoom every reference photo (front, rear, side, and oblique views).
+  2. Anchor pixel scale (`px/mm`) on a straight-on photo or an un-foreshortened
+     axis using known physical datums (outer OD, standard bearing OD such as
+     `6901Z` = 12 × 24 × 6 mm, or known bolt-circle diameters).
+  3. Draw concentric millimeter rings, angular protractors, and candidate
+     window/slot contours onto a scratch copy of the photo (in `target/` or
+     `/tmp/`) and view the overlay image to verify radii and angles to ~0.5 mm /
+     ~1° before writing CAD code.
+- **Verify pattern symmetry, alternation, and nested rings.** Do not assume all
+  spokes or slots are identical or single-ring: check whether spokes alternate
+  (e.g., 3 solid + 3 forked/slotted spokes on a 6-spoke rotor bell) and look for
+  concentric inner hub slots inside raised bosses in addition to outer cooling
+  windows.
+- **Check what is visible through air gaps and at perimeters.** Verify that
+  windings sit inside pole-shoe tips so stator teeth remain visible, bearing
+  rings match standard ODs and metallic finishes, insulator rings sit on the
+  correct axial side, and side silhouettes capture stepped mount flanges.
+- **Separate open mounting holes from screw-filled holes.** Only open
+  user-facing mounting holes expose `MateConnector`s. Holes already occupied by
+  retaining screws (such as prop-adapter cap screws) should visibly contain the
+  fastener solids and must **not** emit mate connectors.
+- **Check spoke-hole clearance in 2D, not 1D.** When mounting holes lie on the
+  spokes between cooling windows, they are separated *angularly* from the
+  windows. Never enforce a 1D radial inequality (`hole_outer_r < win_inner_r`)
+  that forces windows artificially outward and makes spokes overly wide; check
+  2D hole-to-sector clearance instead so air gaps can reach inward alongside the
+  spokes.
 - Fix the silhouette and the largest surfaces first, then medium features
   (windows, plates), then small ones (fasteners, slots, screws).
-- Keep changes parametric; do not hard-code measured pixel ratios.
+- Keep changes parametric; derive secondary features (such as spoke fork-slot
+  radial bounds) from the spec so scaled-down presets remain valid.
 - When the golden reference is itself wrong, keep the standard-correct model
   and record the deviation (see the `compare-golden` skill).
 
@@ -80,10 +132,12 @@ Notes:
 `./run-example.sh <example> --headless` writes `<step>.connectors.tsv` next to
 the STEP (name, origin, axis, secondary axis, kind, gender, diameter, depth).
 The GUI shows these as named joint origins. After touching connectors, check
-the sidecar: kinds are `cylindrical-shaft` (male), `cylindrical-bore` (female),
-`plane-face` (neutral); axes are outward approach directions (a bore's axis
-points out of the bore opening). All motors and sub-assemblies in this repo
-follow that convention.
+the sidecar alongside the straight-on SolidCraft renders: kinds are
+`cylindrical-shaft` (male), `cylindrical-bore` (female), `plane-face`
+(neutral); axes are outward approach directions (a bore's axis points out of
+the bore opening). Verify that hole connectors sit solidly on open mounting
+holes or spokes — never inside air gaps or screw-filled counterbores. All
+motors and sub-assemblies in this repo follow that convention.
 
 ## Acceptance checklist
 
