@@ -180,6 +180,7 @@ test "A12 parameters can be overridden for a smaller motor" {
     bell_outer_diameter_mm: 72.0,
     bell_skirt_length_mm: 18.0,
     bell_window_outer_diameter_mm: 63.0,
+    bell_window_corner_radius_mm: 2.0,
     magnet_outer_diameter_mm: 69.0,
     magnet_start_mm: 2.8,
     magnet_length_mm: 14.0,

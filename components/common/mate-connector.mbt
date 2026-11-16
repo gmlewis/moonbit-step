@@ -7,7 +7,8 @@
 pub(all) enum MateKind {
   /// Planar contact face. `axis` is the outward normal.
   PlaneFace
-  /// Round hole. `axis` points into the bore.
+  /// Round hole. `axis` points out of the bore opening along the approach
+  /// direction (same sense as the face's outward normal).
   CylindricalBore
   /// Round shaft. `axis` runs along the shaft, toward the free end.
   CylindricalShaft

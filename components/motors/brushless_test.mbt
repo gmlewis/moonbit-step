@@ -65,7 +65,7 @@ test "360KV brushless exposes explicit rotor and stator connectors" {
     Err(e) => abort(e.message())
   }
   assert_true(bl_close(mount_hole.placement.trans.0, 20.0))
-  assert_true(mount_hole.axis.0 < 0.0)
+  assert_true(mount_hole.axis.0 > 0.0)
   let output_hole = match part.connector("rotor-output-hole-1") {
     Ok(c) => c
     Err(e) => abort(e.message())

@@ -113,7 +113,7 @@ pub fn a12_motor_100kv_spec() -> A12MotorSpec {
     bell_hub_boss_height_mm: 1.0,
     bell_hub_bore_diameter_mm: 28.0,
     bell_window_count: 8,
-    bell_window_inner_diameter_mm: 41.0,
+    bell_window_inner_diameter_mm: 50.0,
     bell_window_outer_diameter_mm: 83.0,
     bell_window_inner_half_angle_deg: 12.5,
     bell_window_outer_half_angle_deg: 17.5,
@@ -335,6 +335,17 @@ pub fn a12_motor_spec(spec : A12MotorSpec) -> Result[Unit, @common.SpecError] {
   let floor_half_deg = @math.asin(half_tooth / slot_floor_radius) *
     180.0 /
     @math.PI
+  let shoe_extra = half_tooth * A12_SHOE_WIDTH_RATIO
+  let shoe_half_deg = @math.asin(
+      (half_tooth + shoe_extra) / stator_outer_radius,
+    ) *
+    180.0 /
+    @math.PI
+  if shoe_half_deg >= tooth_pitch_half {
+    return Err(
+      @common.InvalidDimension("a12 stator pole shoes close the slot openings"),
+    )
+  }
   if floor_half_deg >= tooth_pitch_half {
     return Err(
       @common.InvalidDimension(
@@ -693,9 +704,36 @@ fn a12_rounded_rect_loop(
 }
 
 ///|
+/// Stator teeth carry a pole shoe: a cap wider than the tooth neck whose
+/// overhang faces the slot floor. `A12_SHOE_WIDTH_RATIO` widens the shoe on
+/// each side relative to the half tooth width and `A12_SHOE_DEPTH_MM` is how
+/// far the shoe drops back toward the yoke.
+const A12_SHOE_WIDTH_RATIO : Double = 0.45
+
+///|
+const A12_SHOE_DEPTH_MM : Double = 1.3
+
+///|
+/// Inner-web lightening slots in the bell face. The slot band sits between
+/// the hub boss and the window openings; `A12_WEB_SLOT_MARGIN_MM` keeps a
+/// web of material on both sides, `A12_WEB_SLOT_MIN_RADIAL_MM` is the minimum
+/// band height, and `A12_WEB_SLOT_PITCH_FRACTION` scales each slot's angular
+/// width relative to half the window pitch.
+const A12_WEB_SLOT_MARGIN_MM : Double = 0.8
+
+///|
+const A12_WEB_SLOT_MIN_RADIAL_MM : Double = 2.5
+
+///|
+const A12_WEB_SLOT_PITCH_FRACTION : Double = 0.72
+
+///|
 /// a12_stator_tooth_loop returns the outer boundary of a 36-slot stator
-/// lamination: a ring yoke with radial teeth and slots that open outward.
-/// Every segment is an exact line or circular arc.
+/// lamination: a ring yoke with teethed poles and slots that open outward.
+/// Each tooth is a narrow neck topped by a wider pole shoe, so the slot
+/// openings at the air gap are narrower than the slots between the teeth,
+/// matching stamped-lamination practice. Every segment is an exact line or
+/// circular arc.
 fn a12_stator_tooth_loop(
   tooth_count : Int32,
   tip_radius : Double,
@@ -707,19 +745,36 @@ fn a12_stator_tooth_loop(
   let origin = (0.0, 0.0)
   let pitch = 360.0 / tooth_count.to_double()
   let half_width = tooth_width / 2.0
-  let tip_half = @math.asin(half_width / tip_radius) * 180.0 / @math.PI
+  let shoe_extra = half_width * A12_SHOE_WIDTH_RATIO
+  let shoe_depth = A12_SHOE_DEPTH_MM
+  let neck_radius = tip_radius - shoe_depth
+  let shoe_half = @math.asin((half_width + shoe_extra) / tip_radius) *
+    180.0 /
+    @math.PI
+  let shoe_neck_half = @math.asin((half_width + shoe_extra) / neck_radius) *
+    180.0 /
+    @math.PI
+  let neck_half = @math.asin(half_width / neck_radius) * 180.0 / @math.PI
   let floor_half = @math.asin(half_width / floor_radius) * 180.0 / @math.PI
   for i in 0..<tooth_count {
     let center = phase_deg + pitch * i.to_double()
-    let tip_left = a12_polar(tip_radius, center - tip_half)
-    let tip_right = a12_polar(tip_radius, center + tip_half)
+    let tip_left = a12_polar(tip_radius, center - shoe_half)
+    let tip_right = a12_polar(tip_radius, center + shoe_half)
+    let shoe_right = a12_polar(neck_radius, center + shoe_neck_half)
+    let neck_right = a12_polar(neck_radius, center + neck_half)
     let floor_right = a12_polar(floor_radius, center + floor_half)
     let next_floor_left = a12_polar(floor_radius, center + pitch - floor_half)
-    let next_tip_left = a12_polar(tip_radius, center + pitch - tip_half)
+    let next_neck_left = a12_polar(neck_radius, center + pitch - neck_half)
+    let next_shoe_left = a12_polar(neck_radius, center + pitch - shoe_neck_half)
+    let next_tip_left = a12_polar(tip_radius, center + pitch - shoe_half)
     segments.push(@cad.SegmentArc(tip_left, tip_right, origin))
-    segments.push(@cad.SegmentLine(tip_right, floor_right))
+    segments.push(@cad.SegmentLine(tip_right, shoe_right))
+    segments.push(@cad.SegmentArc(shoe_right, neck_right, origin))
+    segments.push(@cad.SegmentLine(neck_right, floor_right))
     segments.push(@cad.SegmentArc(floor_right, next_floor_left, origin))
-    segments.push(@cad.SegmentLine(next_floor_left, next_tip_left))
+    segments.push(@cad.SegmentLine(next_floor_left, next_neck_left))
+    segments.push(@cad.SegmentArc(next_neck_left, next_shoe_left, origin))
+    segments.push(@cad.SegmentLine(next_shoe_left, next_tip_left))
   }
   segments
 }
@@ -728,12 +783,13 @@ fn a12_stator_tooth_loop(
 /// a12_motor builds a parameterized A12 8318 outrunner motor envelope.
 ///
 /// The rotating assembly is a stacked, boolean-free set of bodies: an 8-spoke
-/// endbell face plate with eight large rounded cooling windows in its profile,
-/// an axisymmetric skirt with a rounded shoulder, a raised hub boss, one exact
-/// curved magnet per pole, and a machined prop adapter. The fixed assembly is a
-/// 36-slot stator lamination with one exact copper winding frame per tooth, an
-/// 8-window mount plate whose teardrop openings sit between eight spokes, with
-/// the interleaved M3 and M4 mount holes drilled through those spokes, a
+/// endbell face plate with eight large rounded cooling windows in its profile
+/// and eight lightening slots in the web around the hub, an axisymmetric skirt
+/// with a rounded shoulder, a raised hub boss, one exact curved magnet per
+/// pole, and a machined prop adapter. The fixed assembly is a 36-slot stator
+/// lamination with teethed pole shoes and one exact copper winding frame per
+/// tooth, an 8-window mount plate with rounded openings between eight spokes,
+/// with the interleaved M3 and M4 mount holes drilled through those spokes, a
 /// bearing tube, and an insulator ring. A through shaft joins the two ends.
 ///
 /// Every face is an analytic plane, cylinder, cone, sphere, or torus produced
@@ -777,6 +833,7 @@ pub fn a12_motor(
   // bore as profile holes. No boolean is needed to open the windows.
   let win_inner_radius = spec.bell_window_inner_diameter_mm / 2.0
   let win_outer_radius = spec.bell_window_outer_diameter_mm / 2.0
+  let boss_radius = spec.bell_hub_boss_diameter_mm / 2.0
   let face_holes : Array[Array[@cad.ProfileSegment]] = []
   for i in 0..<spec.bell_window_count {
     // Profiles are built in XY and rotated +90 degrees about Y onto the +X
@@ -794,6 +851,27 @@ pub fn a12_motor(
         spec.bell_window_corner_radius_mm,
       ),
     )
+  }
+  // Inner web lightening slots: concentric arc slots in the annulus between
+  // the hub boss and the window openings, one per window. Each slot is a
+  // short arc segment with semicircular ends. Small bells without enough
+  // web radial room skip them.
+  let web_inner = boss_radius + A12_WEB_SLOT_MARGIN_MM
+  let web_outer = win_inner_radius - A12_WEB_SLOT_MARGIN_MM
+  if web_outer - web_inner >= A12_WEB_SLOT_MIN_RADIAL_MM {
+    let slot_fillet = (web_outer - web_inner) / 2.0 * 0.8
+    let slot_half_angle = A12_WEB_SLOT_PITCH_FRACTION *
+      (180.0 / spec.bell_window_count.to_double())
+    for i in 0..<spec.bell_window_count {
+      let center = spec.bell_window_phase_deg +
+        90.0 +
+        360.0 * i.to_double() / spec.bell_window_count.to_double()
+      face_holes.push(
+        a12_sector_loop(
+          center, web_inner, web_outer, slot_half_angle, slot_half_angle, slot_fillet,
+        ),
+      )
+    }
   }
   face_holes.push(a12_circle_loop(0.0, 0.0, bell_bore_radius))
   let bell_face_profile = @cad.ExtrudedArcProfile::new(
@@ -881,7 +959,7 @@ pub fn a12_motor(
     magnet_layers.push({
       shape: magnet_profile.as_shape(),
       name: "rotor-magnet-\{i + 1}",
-      color: @cad.Rgb::grey(),
+      color: @cad.Rgb::new(0.28, 0.28, 0.3),
       placement: on_axis(spec.magnet_start_mm),
     })
   }
@@ -1062,13 +1140,13 @@ pub fn a12_motor(
     {
       shape: adapter_profile.as_shape(),
       name: "prop-adapter",
-      color: @cad.Rgb::white(),
+      color: @cad.Rgb::new(0.78, 0.78, 0.8),
       placement: on_axis(adapter_front),
     },
     {
       shape: lamination.as_shape(),
       name: "stator-lamination",
-      color: @cad.Rgb::grey(),
+      color: @cad.Rgb::new(0.62, 0.62, 0.6),
       placement: on_axis(spec.stator_stack_start_mm),
     },
     {
@@ -1080,13 +1158,13 @@ pub fn a12_motor(
     {
       shape: bearing_tube,
       name: "bearing-tube",
-      color: @cad.Rgb::grey(),
+      color: @cad.Rgb::new(0.13, 0.13, 0.13),
       placement: on_axis(spec.stator_plate_start_mm),
     },
     {
       shape: pcb_ring,
       name: "pcb-insulator",
-      color: @cad.Rgb::green(),
+      color: @cad.Rgb::new(0.1, 0.45, 0.18),
       placement: on_axis(spec.stator_plate_start_mm - spec.pcb_thickness_mm),
     },
     {
@@ -1095,7 +1173,7 @@ pub fn a12_motor(
         shaft_length,
       ).as_shape(),
       name: "shaft",
-      color: @cad.Rgb::grey(),
+      color: @cad.Rgb::new(0.72, 0.72, 0.75),
       placement: on_axis(shaft_front),
     },
   ]
@@ -1129,17 +1207,17 @@ pub fn a12_motor(
     layers.push({
       shape: coil_shape,
       name: "stator-coil-\{i + 1}",
-      color: @cad.Rgb::orange(),
+      color: @cad.Rgb::new(0.78, 0.36, 0.12),
       placement,
     })
   }
   let features = @common.FeatureRecord::new(
     modeled=[
       "bell-skirt", "bell-face", "bell-windows", "rounded-window-corners", "rounded-bell-shoulder",
-      "bell-hub-boss", "rotor-magnets", "prop-adapter", "prop-mount-holes", "prop-adapter-screws",
-      "stator-lamination", "stator-teeth", "stator-windings", "stator-mount-plate",
-      "stator-plate-windows", "m3-mount-holes", "m4-mount-holes", "bearing-tube",
-      "pcb-insulator-ring", "through-shaft",
+      "bell-hub-boss", "bell-web-vents", "rotor-magnets", "prop-adapter", "prop-mount-holes",
+      "prop-adapter-screws", "stator-lamination", "stator-teeth", "stator-pole-shoes",
+      "stator-windings", "stator-mount-plate", "stator-plate-windows", "m3-mount-holes",
+      "m4-mount-holes", "bearing-tube", "pcb-insulator-ring", "through-shaft",
     ],
     omitted=[
       @common.Omission::new(
@@ -1200,6 +1278,7 @@ pub fn a12_motor(
       placement=@common.Placement::translation(adapter_front, 0.0, 0.0),
       axis=(-1.0, 0.0, 0.0),
       kind=@common.MateKind::PlaneFace,
+      gender=@common.MateGender::Neutral,
       diameter_mm=spec.prop_adapter_diameter_mm,
       description="ROTATING rotor endbell output face; attach a propeller, gear, or pulley here, never the enclosure",
     ),
@@ -1208,6 +1287,7 @@ pub fn a12_motor(
       placement=@common.Placement::translation(rear_face, 0.0, 0.0),
       axis=(1.0, 0.0, 0.0),
       kind=@common.MateKind::PlaneFace,
+      gender=@common.MateGender::Neutral,
       diameter_mm=spec.stator_plate_diameter_mm,
       description="FIXED stator mount face; bolt this face to the motor enclosure or frame; it never rotates",
     ),
@@ -1233,6 +1313,7 @@ pub fn a12_motor(
         ),
         axis=(-1.0, 0.0, 0.0),
         kind=@common.MateKind::CylindricalBore,
+        gender=@common.MateGender::Female,
         diameter_mm=spec.prop_hole_diameter_mm,
         depth_mm=spec.prop_adapter_thickness_mm,
         description="screw hole on the ROTATING rotor output face; attach a gear, pulley, or propeller here",
@@ -1257,6 +1338,7 @@ pub fn a12_motor(
         ),
         axis=(1.0, 0.0, 0.0),
         kind=@common.MateKind::CylindricalBore,
+        gender=@common.MateGender::Female,
         diameter_mm=spec.mount_m3_hole_diameter_mm,
         depth_mm=spec.stator_plate_thickness_mm,
         description="M3 clearance hole in the FIXED stator mount face; bolt it to the enclosure",
@@ -1282,6 +1364,7 @@ pub fn a12_motor(
         ),
         axis=(1.0, 0.0, 0.0),
         kind=@common.MateKind::CylindricalBore,
+        gender=@common.MateGender::Female,
         diameter_mm=spec.mount_m4_hole_diameter_mm,
         depth_mm=spec.stator_plate_thickness_mm,
         description="M4 clearance hole in the FIXED stator mount face; bolt it to the enclosure",

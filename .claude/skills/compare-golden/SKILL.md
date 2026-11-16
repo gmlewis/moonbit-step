@@ -81,16 +81,22 @@ golden file.
    - section area/perimeter at feature planes (`measure_step_mesh.py`);
    - bidirectional surface deviation where the nominal shapes should match.
 
-4. **Look at the pair.**
+4. **Look at the pair in SolidCraft, never the four-pane PNG.**
 
    ```bash
-   ./compare-golden.sh 4              # opens both with `open -a SolidCraft`
-   ./compare-golden.sh 4 --helper     # GUI helper, --up z, no axis dialog
+   ./compare-golden.sh 4 --headless   # generate without opening anything
    ```
 
-   Use the headless `mcp__solidcraft__open`/`screenshot` tools for your own
-   inspection without disturbing the user's tabs. A visual difference is a
-   finding; the numbers are the acceptance criterion.
+   Inspect both files with the headless `mcp__solidcraft__open` /
+   `screenshot` tools (see the `solidcraft-inspect` skill): an isometric
+   three-quarter view plus a straight-on shot of each differing side,
+   `up: "z"`, absolute paths under an allowed root. `render_step.py` /
+   `--png` output is OCCT's four-view image — a smoke test only, never
+   evidence that a part looks right or matches its golden. Only open the GUI
+   (`./compare-golden.sh 4`, or `--helper` to skip the up-axis dialog) when
+   the user asks to see it; never open windows on the user's behalf.
+
+   A visual difference is a finding; the numbers are the acceptance criterion.
 
 5. **Diagnose the difference.**
 
