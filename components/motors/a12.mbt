@@ -114,7 +114,7 @@ pub fn a12_motor_100kv_spec() -> A12MotorSpec {
     bell_skirt_length_mm: 22.0,
     bell_face_thickness_mm: 3.0,
     bell_shoulder_radius_mm: 3.0,
-    bell_hub_boss_diameter_mm: 46.0,
+    bell_hub_boss_diameter_mm: 47.0,
     bell_hub_boss_height_mm: 1.0,
     bell_hub_bore_diameter_mm: 15.0,
     bell_window_count: 6,
@@ -125,9 +125,9 @@ pub fn a12_motor_100kv_spec() -> A12MotorSpec {
     bell_window_corner_radius_mm: 3.5,
     bell_window_phase_deg: 30.0,
     bell_inner_slot_count: 4,
-    bell_inner_slot_inner_diameter_mm: 34.0,
-    bell_inner_slot_outer_diameter_mm: 41.0,
-    bell_inner_slot_half_angle_deg: 10.5,
+    bell_inner_slot_inner_diameter_mm: 32.0,
+    bell_inner_slot_outer_diameter_mm: 43.0,
+    bell_inner_slot_half_angle_deg: 15.0,
     bell_inner_slot_phase_deg: 45.0,
     magnet_count: 42,
     magnet_outer_diameter_mm: 88.0,
@@ -144,7 +144,7 @@ pub fn a12_motor_100kv_spec() -> A12MotorSpec {
     prop_hole_circle_diameter_mm: 23.0,
     prop_hole_phase_deg: 0.0,
     prop_screw_count: 4,
-    prop_screw_diameter_mm: 3.4,
+    prop_screw_diameter_mm: 5.5,
     prop_screw_circle_diameter_mm: 23.0,
     stator_outer_diameter_mm: 83.0,
     stator_inner_diameter_mm: 66.0,
@@ -164,11 +164,11 @@ pub fn a12_motor_100kv_spec() -> A12MotorSpec {
     stator_plate_thickness_mm: 5.7,
     stator_plate_start_mm: 22.8,
     stator_plate_window_count: 8,
-    stator_plate_window_inner_diameter_mm: 33.5,
-    stator_plate_window_outer_diameter_mm: 55.6,
-    stator_plate_window_inner_half_angle_deg: 8.5,
-    stator_plate_window_outer_half_angle_deg: 14.5,
-    stator_plate_window_corner_radius_mm: 2.1,
+    stator_plate_window_inner_diameter_mm: 32.0,
+    stator_plate_window_outer_diameter_mm: 56.2,
+    stator_plate_window_inner_half_angle_deg: 11.5,
+    stator_plate_window_outer_half_angle_deg: 17.0,
+    stator_plate_window_corner_radius_mm: 2.5,
     stator_plate_window_phase_deg: 0.0,
     mount_m3_count: 4,
     mount_m3_hole_diameter_mm: 3.4,
@@ -1335,6 +1335,51 @@ pub fn a12_motor(
       @common.InvalidParameter("a12 prop adapter did not form a valid profile"),
     )
   }
+  // Socket-head cap screws seated inside the adapter screw counterbores.
+  let screw_r = (spec.prop_screw_diameter_mm - 0.3).max(0.8) / 2.0
+  let socket_r = screw_r * 0.48
+  let z_top = 0.2.min(spec.prop_adapter_thickness_mm * 0.15)
+  let z_bottom = spec.prop_adapter_thickness_mm
+  let z_socket = (z_top + (z_bottom - z_top) * 0.55).min(z_bottom - 0.2)
+  let screw_profile = @cad.RevolvedProfile::new([
+    @cad.RevLine((0.0, z_socket), (socket_r, z_socket)),
+    @cad.RevLine((socket_r, z_socket), (socket_r, z_top)),
+    @cad.RevLine((socket_r, z_top), (screw_r, z_top)),
+    @cad.RevLine((screw_r, z_top), (screw_r, z_bottom)),
+    @cad.RevLine((screw_r, z_bottom), (0.0, z_bottom)),
+  ])
+  match screw_profile.validate() {
+    Err(e) =>
+      return Err(
+        @common.InvalidParameter("a12 adapter screw profile: \{e.message()}"),
+      )
+    Ok(_) => ()
+  }
+  let screw_shape = screw_profile.as_shape()
+  let screw_circle_r = spec.prop_screw_circle_diameter_mm / 2.0
+  let screw_layers : Array[@common.ComponentLayer] = []
+  for i in 0..<spec.prop_screw_count {
+    let angle = (
+        spec.prop_hole_phase_deg +
+        45.0 +
+        360.0 * i.to_double() / spec.prop_screw_count.to_double()
+      ) *
+      @math.PI /
+      180.0
+    screw_layers.push({
+      shape: screw_shape,
+      name: "prop-adapter-screw-\{i + 1}",
+      color: @cad.Rgb::new(0.18, 0.18, 0.2),
+      placement: @common.Placement::compose(
+        @common.Placement::translation(
+          adapter_front,
+          screw_circle_r * @math.cos(angle),
+          screw_circle_r * @math.sin(angle),
+        ),
+        @common.Placement::rotation_y(90.0),
+      ),
+    })
+  }
   // Stator lamination: ring yoke plus radial teeth, one exact extrusion.
   let stator_outer_radius = spec.stator_outer_diameter_mm / 2.0
   let slot_floor_radius = spec.stator_slot_floor_diameter_mm / 2.0
@@ -1548,6 +1593,9 @@ pub fn a12_motor(
   ]
   for magnet_layer in magnet_layers {
     layers.push(magnet_layer)
+  }
+  for screw_layer in screw_layers {
+    layers.push(screw_layer)
   }
   for i in 0..<spec.stator_tooth_count {
     let angle_deg = spec.stator_tooth_phase_deg +

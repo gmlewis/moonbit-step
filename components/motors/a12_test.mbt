@@ -28,9 +28,9 @@ test "A12 8318 defaults match the measured envelope" {
   assert_true(a12_close(y1, 45.5))
   assert_true(a12_close(z0, -45.5))
   assert_true(a12_close(z1, 45.5))
-  // 3 bell bodies + 42 magnets + adapter + lamination + 36 coils + plate neck +
-  // plate flange + bearing tube + insulator + shaft.
-  assert_eq(part.layers().length(), 88)
+  // 3 bell bodies + 42 magnets + adapter + 4 adapter screws + lamination +
+  // 36 coils + plate neck + plate flange + bearing tube + insulator + shaft.
+  assert_eq(part.layers().length(), 92)
   let names : Array[String] = part.layers().map(fn(layer) { layer.name })
   for
     name in [
@@ -38,6 +38,9 @@ test "A12 8318 defaults match the measured envelope" {
       "stator-plate-neck", "stator-plate", "bearing-tube", "pcb-insulator", "shaft",
     ] {
     assert_true(names.contains(name))
+  }
+  for i in 1..<=4 {
+    assert_true(names.contains("prop-adapter-screw-\{i}"))
   }
   for i in 1..<=42 {
     assert_true(names.contains("rotor-magnet-\{i}"))
