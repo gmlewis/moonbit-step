@@ -30,7 +30,7 @@ async fn main {
   let spec = {
     "part": @cli.opt_string(
       short='p',
-      help="Part: tee (default), elbow, saddle, coupling, flange, adj-hinge, adj-180, adj-flange, top-rail-tee, shim, end-cap, foot, insert, strap-1, strap-2, mounting-strap, cross-over, telescoping, barrel-hinge, elbow-45, elbow-90, elbow-135, straight-180, four-way, five-way",
+      help="Part: tee (default), elbow, saddle, coupling, flange, adj-hinge, adj-180, adj-flange, top-rail-tee, shim, end-cap, foot, insert, strap-1, strap-2, mounting-strap, cross-over, telescoping, barrel-hinge, printed-hinge, clip, friction-band, elbow-45, elbow-90, elbow-135, straight-180, four-way, five-way",
     ),
     "size": @cli.opt_string(help="Native connector size: 3/4 (default) or 1"),
     "trade": @cli.opt_string(
@@ -149,6 +149,9 @@ async fn main {
     "cross-over" => @makerpipe.cross_over_clamp(trade)
     "telescoping" => @makerpipe.telescoping_clamp()
     "barrel-hinge" => @makerpipe.barrel_hinge()
+    "printed-hinge" => @makerpipe.printed_hinge(trade)
+    "clip" => @makerpipe.pipe_clip(trade)
+    "friction-band" => @makerpipe.friction_band(trade)
     "saddle" => {
       let text = args.string_opt("branches").unwrap_or("0,90")
       let angles : Array[Double] = []
@@ -170,7 +173,7 @@ async fn main {
     }
     other => {
       @cli.eprintln(
-        "error: unknown part '\{other}'; use tee, elbow, saddle, coupling, flange, adj-hinge, adj-180, adj-flange, top-rail-tee, shim, end-cap, foot, insert, strap-1, strap-2, mounting-strap, cross-over, telescoping, barrel-hinge, elbow-45, elbow-90, elbow-135, straight-180, four-way, or five-way",
+        "error: unknown part '\{other}'; use tee, elbow, saddle, coupling, flange, adj-hinge, adj-180, adj-flange, top-rail-tee, shim, end-cap, foot, insert, strap-1, strap-2, mounting-strap, cross-over, telescoping, barrel-hinge, printed-hinge, clip, friction-band, elbow-45, elbow-90, elbow-135, straight-180, four-way, or five-way",
       )
       abort("")
     }

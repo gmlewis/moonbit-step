@@ -668,3 +668,59 @@ test "table frame cut list uses the post surfaces" {
     @makerpipe.table_frame_cut_list(10.0, 600.0, 800.0, size) is Err(_),
   )
 }
+
+///|
+test "printed EMT hinge has two saddle leaves, barrels, and a pin" {
+  let part = match @makerpipe.printed_hinge("3/4") {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  assert_eq(part.layers().length(), 5)
+  for
+    name in [
+      "origin", "pipe-a", "pipe-b", "hinge-axis", "joint", "bolt-a", "bolt-b",
+    ] {
+    assert_true(mp_has_connector(part, name))
+  }
+  let a = mp_connector(part, "pipe-a")
+  assert_true(a.placement.trans.0 > 0.0)
+  let b = mp_connector(part, "pipe-b")
+  assert_true(b.placement.trans.0 < 0.0)
+  assert_true(
+    mp_close_vec(mp_connector(part, "hinge-axis").axis, (0.0, 0.0, 1.0), 1.0e-9),
+  )
+}
+
+///|
+test "printed pipe clip and friction band fit the pipe" {
+  let clip = match @makerpipe.pipe_clip("3/4") {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  assert_eq(clip.layers().length(), 1)
+  for name in ["origin", "pipe", "opening"] {
+    assert_true(mp_has_connector(clip, name))
+  }
+  assert_true(
+    mp_close(
+      mp_connector(clip, "pipe").diameter_mm.unwrap(),
+      23.4188 + 0.4,
+      1.0e-9,
+    ),
+  )
+  let band = match @makerpipe.friction_band("3/4") {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  assert_eq(band.layers().length(), 1)
+  for name in ["origin", "inner", "outer", "end-a", "end-b"] {
+    assert_true(mp_has_connector(band, name))
+  }
+  assert_true(
+    mp_close(
+      mp_connector(band, "inner").diameter_mm.unwrap(),
+      23.4188 - 0.2,
+      1.0e-9,
+    ),
+  )
+}

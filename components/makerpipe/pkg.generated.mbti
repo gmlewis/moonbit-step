@@ -37,6 +37,8 @@ pub fn flange(MakerPipeSize, base_diameter_mm? : Double, base_thickness_mm? : Do
 
 pub fn four_way(MakerPipeSize, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
+pub fn friction_band(String, width_mm? : Double, thickness_mm? : Double, interference_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
 pub fn makerpipe_size(String) -> Result[MakerPipeSize, @common.SpecError]
 
 pub fn makerpipe_trade_sizes() -> Array[String]
@@ -45,7 +47,11 @@ pub fn mounting_strap(String, width_mm? : Double, wall_mm? : Double, clearance_m
 
 pub fn one_hole_strap(String, width_mm? : Double, wall_mm? : Double, clearance_mm? : Double, tab_length_mm? : Double, tab_width_mm? : Double, tab_thickness_mm? : Double, hole_diameter_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
+pub fn pipe_clip(String, width_mm? : Double, wall_mm? : Double, clearance_mm? : Double, gap_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
 pub fn pipe_tube_shim(Double, Double, length_mm? : Double, slot_width_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn printed_hinge(String, leaf_height_mm? : Double, wall_mm? : Double, clearance_mm? : Double, pin_diameter_mm? : Double, barrel_gap_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
 pub fn rubber_foot(String, height_mm? : Double, wall_mm? : Double, floor_mm? : Double, clearance_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
