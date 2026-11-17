@@ -1,0 +1,52 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "gmlewis/step/components/makerpipe"
+
+import {
+  "gmlewis/step/cad",
+  "gmlewis/step/components/common",
+}
+
+// Values
+pub fn elbow(MakerPipeSize, Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn elbow_135(MakerPipeSize, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn elbow_45(MakerPipeSize, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn elbow_90(MakerPipeSize, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn five_way(MakerPipeSize, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn four_way(MakerPipeSize, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn makerpipe_size(String) -> Result[MakerPipeSize, @common.SpecError]
+
+pub fn makerpipe_trade_sizes() -> Array[String]
+
+pub fn saddle_connector(MakerPipeSize, Array[Double], color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn straight_180(MakerPipeSize, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn tee(MakerPipeSize, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+// Errors
+
+// Types and methods
+pub(all) struct MakerPipeSize {
+  trade_size : String
+  through_pipe_od_mm : Double
+  socket_bore_mm : Double
+  socket_outer_mm : Double
+  saddle_bore_mm : Double
+  saddle_outer_mm : Double
+  tee_branch_depth_mm : Double
+  branch_centre_to_mouth_mm : Double
+  saddle_width_mm : Double
+  run_length_mm : Double
+  wall_mm : Double
+  derived : Bool
+}
+
+// Type aliases
+
+// Traits

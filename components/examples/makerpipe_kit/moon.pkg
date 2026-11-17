@@ -1,0 +1,9 @@
+import {
+  "gmlewis/step/cli",
+  "gmlewis/step/components/makerpipe",
+  "moonbitlang/async",
+  "moonbitlang/core/builtin",
+  "moonbitlang/core/string",
+}
+
+pkgtype(kind: "executable")
