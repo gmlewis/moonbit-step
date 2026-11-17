@@ -645,3 +645,26 @@ test "barrel hinge has two 0.94 in barrels, a bearing, and a pin" {
   assert_true(mp_close(z0, 0.0, 1.0e-9))
   assert_true(mp_close(z1, 101.6, 1.0e-9))
 }
+
+///|
+test "table frame cut list uses the post surfaces" {
+  let size = match @makerpipe.makerpipe_size("3/4") {
+    Ok(s) => s
+    Err(e) => abort(e.message())
+  }
+  let items = match
+    @makerpipe.table_frame_cut_list(1000.0, 600.0, 800.0, size) {
+    Ok(items) => items
+    Err(e) => abort(e.message())
+  }
+  assert_eq(items.length(), 4)
+  assert_eq(items[0].role, "leg")
+  assert_true(mp_close(items[0].length_mm, 800.0, 1.0e-9))
+  assert_eq(items[0].count, 4)
+  assert_true(mp_close(items[1].length_mm, 1000.0 - 23.4188, 1.0e-9))
+  assert_true(mp_close(items[2].length_mm, 600.0 - 23.4188, 1.0e-9))
+  assert_eq(items[3].count, 8)
+  assert_true(
+    @makerpipe.table_frame_cut_list(10.0, 600.0, 800.0, size) is Err(_),
+  )
+}

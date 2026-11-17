@@ -382,7 +382,13 @@ moon run components/examples/makerpipe_kit -- --part shim --from 3/4 --to 1 -o s
 moon run components/examples/makerpipe_kit -- --part foot --trade 1/2 -o foot.step
 moon run components/examples/makerpipe_kit -- --part strap-1 --trade 3/4 -o strap.step
 moon run components/examples/makerpipe_kit -- --part barrel-hinge -o barrel-hinge.step
+moon run components/examples/makerpipe_frame -- --width 1000 --depth 600 --height 800 -o table-frame.step
 ```
+
+`components/examples/makerpipe_frame` builds a rectangular table frame: four
+continuous legs, four X rails, four Y rails, and eight 90 degree connectors. It
+prints a pipe cut list and connector BOM to stderr and can write either the
+flat STEP or the assembly product structure with `--mode assembly`.
 
 P1000-style strut channel uses the published 41.3 mm envelope, 2.6 mm (12
 gauge) wall, 22.2 mm front opening, and 14.3 mm back-wall holes on 47.6 mm
