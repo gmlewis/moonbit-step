@@ -48,7 +48,7 @@ pub enum AnyEntity {
   HalfSpaceSolid(@geometry.HalfSpaceSolid)
   RepresentationRelationship(@product.RepresentationRelationship)
   RepresentationRelationshipWithTransformation(
-    @product.RepresentationRelationshipWithTransformation
+    @product.RepresentationRelationshipWithTransformation,
   )
   ShapeRepresentationRelationship(@product.ShapeRepresentationRelationship)
   AdvancedBrepShapeRepresentation(@product.AdvancedBrepShapeRepresentation)
@@ -59,7 +59,7 @@ pub enum AnyEntity {
   DescriptiveRepresentationItem(@product.DescriptiveRepresentationItem)
   MeasureRepresentationItem(@product.MeasureRepresentationItem)
   ContextDependentShapeRepresentation(
-    @product.ContextDependentShapeRepresentation
+    @product.ContextDependentShapeRepresentation,
   )
   ItemDefinedTransformation(@product.ItemDefinedTransformation)
   NextAssemblyUsageOccurrence(@product.NextAssemblyUsageOccurrence)
@@ -68,7 +68,7 @@ pub enum AnyEntity {
   ProductDefinitionContext(@product.ProductDefinitionContext)
   ProductDefinitionFormation(@product.ProductDefinitionFormation)
   ProductDefinitionFormationWithSpecifiedSource(
-    @product.ProductDefinitionFormationWithSpecifiedSource
+    @product.ProductDefinitionFormationWithSpecifiedSource,
   )
   PropertyDefinition(@product.PropertyDefinition)
   PropertyDefinitionRepresentation(@product.PropertyDefinitionRepresentation)
@@ -128,12 +128,12 @@ pub enum AnyEntity {
   PresentationStyleAssignment(@presentation.PresentationStyleAssignment)
   PresentationLayerAssignment(@presentation.PresentationLayerAssignment)
   MechanicalDesignGeometricPresentationRepresentation(
-    @presentation.MechanicalDesignGeometricPresentationRepresentation
+    @presentation.MechanicalDesignGeometricPresentationRepresentation,
   )
   StyledItem(@presentation.StyledItem)
   OverRidingStyledItem(@presentation.OverRidingStyledItem)
   HiddenElementOverRidingStyledItem(
-    @presentation.HiddenElementOverRidingStyledItem
+    @presentation.HiddenElementOverRidingStyledItem,
   )
   AnnotationOccurrence(@presentation.AnnotationOccurrence)
   TextLiteral(@presentation.TextLiteral)

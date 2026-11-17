@@ -130,7 +130,7 @@ pub fn deep_groove_bearing_spec(
     let mut candidate = 3
     while candidate < DEEP_GROOVE_MAX_BALLS {
       let next = candidate + 1
-      let chord = 2.0 * pitch * @math.sin(@math.PI / Double::from_int(next))
+      let chord = 2.0 * pitch * @math.sin(@math.PI / next.to_double())
       if chord < required_chord {
         break
       }
@@ -143,7 +143,7 @@ pub fn deep_groove_bearing_spec(
       @common.InvalidParameter("deep-groove bearing needs at least three balls"),
     )
   }
-  let chord = 2.0 * pitch * @math.sin(@math.PI / Double::from_int(count))
+  let chord = 2.0 * pitch * @math.sin(@math.PI / count.to_double())
   if chord < ball_diameter {
     return Err(
       @common.InvalidParameter(
@@ -426,7 +426,7 @@ pub fn deep_groove_bearing(
   let ball = deep_groove_ball_profile(spec.ball_diameter_mm)
   let mid_z = size.width_mm / 2.0
   for i in 0..<spec.ball_count {
-    let angle = 360.0 * Double::from_int(i) / Double::from_int(spec.ball_count)
+    let angle = 360.0 * i.to_double() / spec.ball_count.to_double()
     let base = @common.Placement::translation(spec.pitch_radius_mm, 0.0, mid_z)
     // Turn the tiny polar caps (local +Z) into the radial direction, where the
     // raceway hides them; the visible band is the smooth spherical surface.

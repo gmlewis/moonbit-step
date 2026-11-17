@@ -260,7 +260,7 @@ fn arc_profile_max_radius(segs : Array[ProfileSegment]) -> Double {
         let a1 = @math.atan2(b.1 - c.1, b.0 - c.0)
         let delta = arc_signed_sweep(a1 - a0)
         for k in 0..<=32 {
-          let t = Double::from_int(k) / 32.0
+          let t = k.to_double() / 32.0
           let ang = a0 + delta * t
           take(c.0 + rho * @math.cos(ang), c.1 + rho * @math.sin(ang))
         }
@@ -294,7 +294,7 @@ fn arc_profile_min_radius(segs : Array[ProfileSegment]) -> Double {
         let a1 = @math.atan2(b.1 - c.1, b.0 - c.0)
         let delta = arc_signed_sweep(a1 - a0)
         for k in 0..<=32 {
-          let t = Double::from_int(k) / 32.0
+          let t = k.to_double() / 32.0
           let ang = a0 + delta * t
           take(c.0 + rho * @math.cos(ang), c.1 + rho * @math.sin(ang))
         }
@@ -459,7 +459,7 @@ fn arc_sample_loop(segs : Array[ProfileSegment], n : Int32) -> Array[Vec2] {
         let a1 = @math.atan2(b.1 - c.1, b.0 - c.0)
         let delta = arc_signed_sweep(a1 - a0)
         for k in 0..<n {
-          let t = Double::from_int(k) / Double::from_int(n)
+          let t = k.to_double() / n.to_double()
           let ang = a0 + delta * t
           out.push((c.0 + rho * @math.cos(ang), c.1 + rho * @math.sin(ang)))
         }
@@ -487,7 +487,7 @@ pub fn extruded_arc_mesh(
       let h : Array[Vec2] = []
       let count = 48
       for k in 0..<count {
-        let th = 2.0 * @math.PI * Double::from_int(k) / Double::from_int(count)
+        let th = 2.0 * @math.PI * k.to_double() / count.to_double()
         h.push((c.0 + rb * @math.cos(th), c.1 + rb * @math.sin(th)))
       }
       holes.push(h.rev())

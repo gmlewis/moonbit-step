@@ -573,7 +573,7 @@ pub fn Shape::bounding_box(
             let delta = rev_norm_angle(a1 - a0)
             let count = 64
             for i in 0..<=count {
-              let t = Double::from_int(i) / Double::from_int(count)
+              let t = i.to_double() / count.to_double()
               let ang = a0 + delta * t
               samples.push(
                 (c.0 + rho * @math.cos(ang), c.1 + rho * @math.sin(ang)),
@@ -696,7 +696,7 @@ pub fn Shape::bounding_box(
             let a0 = @math.atan2(a.1 - c.1, a.0 - c.0)
             let delta = arc_norm_sweep(@math.atan2(b.1 - c.1, b.0 - c.0) - a0)
             for k in 0..<=64 {
-              let t = Double::from_int(k) / 64.0
+              let t = k.to_double() / 64.0
               let ang = a0 + delta * t
               let px = c.0 + rho * @math.cos(ang)
               let py = c.1 + rho * @math.sin(ang)
@@ -717,7 +717,7 @@ pub fn Shape::bounding_box(
             // rather than relying on the uniform samples to land on them.
             for base in [0.0, @math.PI / 2.0, @math.PI, 3.0 * @math.PI / 2.0] {
               for shift in -1..<=2 {
-                let ang = base + 2.0 * @math.PI * Double::from_int(shift)
+                let ang = base + 2.0 * @math.PI * shift.to_double()
                 if ang >= a0 - CAD_ANGLE_EPS &&
                   ang <= a0 + delta + CAD_ANGLE_EPS {
                   let px = c.0 + rho * @math.cos(ang)

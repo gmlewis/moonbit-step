@@ -242,14 +242,14 @@ fn hhwf_screw_volume_centroid(h : HexHeadWasherFace) -> (Double, Double) {
   for i in 0..<(sorted.length() - 1) {
     let z0 = sorted[i]
     let z1 = sorted[i + 1]
-    let hstep = (z1 - z0) / Double::from_int(samples)
+    let hstep = (z1 - z0) / samples.to_double()
     if hstep <= CAD_DEGENERATE_EPS {
       continue
     }
     let mut span = 0.0
     let mut span_m = 0.0
     for j in 0..<=samples {
-      let z = z0 + hstep * Double::from_int(j)
+      let z = z0 + hstep * j.to_double()
       let a = hhwf_screw_area(h, z)
       let w = if j == 0 || j == samples {
         1.0
@@ -300,7 +300,7 @@ fn hhwf_screw_perimeter(h : HexHeadWasherFace, z : Double) -> Double {
   let period = @math.PI / 3.0
   let cone_r = g.rt + (g.k - z) * g.tan_alpha
   let n = 720
-  let step = 2.0 * @math.PI / Double::from_int(n)
+  let step = 2.0 * @math.PI / n.to_double()
   let cos_step = @math.cos(step)
   let rho_at = fn(theta : Double) -> Double {
     let offset = theta - period / 2.0
@@ -315,8 +315,8 @@ fn hhwf_screw_perimeter(h : HexHeadWasherFace, z : Double) -> Double {
   }
   let mut length = 0.0
   for i in 0..<n {
-    let r0 = rho_at(Double::from_int(i) * step)
-    let r1 = rho_at(Double::from_int(i + 1) * step)
+    let r0 = rho_at(i.to_double() * step)
+    let r1 = rho_at((i + 1).to_double() * step)
     length = length + Double::sqrt(r0 * r0 + r1 * r1 - 2.0 * r0 * r1 * cos_step)
   }
   length

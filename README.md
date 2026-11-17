@@ -156,11 +156,21 @@ example. Text examples use the vendored `baloo` font in
 | `scripts/` | Development validation and rendering harnesses. |
 | `tests/` | Cross-package integration tests. |
 
-Toolchain: MoonBit `moon` 0.1.20261104, `moonc` v0.10.20.
-
 ## License
 
 Apache-2.0. The measured DIN 472 free-state outline data for the
 10/14/16/18/24/28/32/40 mm sizes is derived from
 [FreeCAD-parts_library](https://github.com/sisul01/FreeCAD-parts_library) and
 remains CC BY-SA 4.0; see `components/README.md` for attribution details.
+
+## Status
+
+The code has been updated to support compiler:
+
+```bash
+$ moon version --all
+moon 0.1.20261117 (eb64713 2026-11-17) ~/.moon/bin/moon
+moonc v0.10.21+06da1ed44 (2026-11-16) ~/.moon/bin/moonc
+moonrun 0.1.20261117 (eb64713 2026-11-17) ~/.moon/bin/moonrun
+
+```

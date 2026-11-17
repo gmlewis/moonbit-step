@@ -563,7 +563,7 @@ pub fn rev_profile_polyline(
         let delta = rev_norm_angle(a1 - a0)
         let n = if arc_segments < 2 { 2 } else { arc_segments }
         for i in 0..<=n {
-          let t = Double::from_int(i) / Double::from_int(n)
+          let t = i.to_double() / n.to_double()
           let ang = a0 + delta * t
           push_unique((c.0 + rho * @math.cos(ang), c.1 + rho * @math.sin(ang)))
         }
@@ -587,7 +587,7 @@ pub fn rev_mesh(
   let k = if angular_segments < 8 { 8 } else { angular_segments }
   let verts : Array[Vec3] = []
   for j in 0..<k {
-    let theta = 2.0 * @math.PI * Double::from_int(j) / Double::from_int(k)
+    let theta = 2.0 * @math.PI * j.to_double() / k.to_double()
     let ct = @math.cos(theta)
     let st = @math.sin(theta)
     for i in 0..<m {

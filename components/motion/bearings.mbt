@@ -218,7 +218,7 @@ pub fn bearing(
   }
   let ball = @cad.RevolvedProfile::sphere(radial_gap)
   for i in 0..<roller_count {
-    let angle = 360.0 * Double::from_int(i) / Double::from_int(roller_count)
+    let angle = 360.0 * i.to_double() / roller_count.to_double()
     let base = @common.Placement::translation(mid_radius, 0.0, width / 2.0)
     let placement = @common.Placement::compose(
       @common.Placement::rotation_z(angle),

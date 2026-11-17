@@ -271,9 +271,7 @@ pub fn flanged_bearing_housing(
       ),
     )
   }
-  let chord = 2.0 *
-    circle_r *
-    @math.sin(@math.PI / Double::from_int(bolt_count))
+  let chord = 2.0 * circle_r * @math.sin(@math.PI / bolt_count.to_double())
   if bolt_count > 1 && chord < 2.0 * bolt_r {
     return Err(@common.InvalidParameter("flanged housing bolt holes overlap"))
   }
@@ -283,10 +281,7 @@ pub fn flanged_bearing_housing(
   ).as_shape()
   let bolt_loops : Array[Array[@cad.ProfileSegment]] = []
   for i in 0..<bolt_count {
-    let theta = 2.0 *
-      @math.PI *
-      Double::from_int(i) /
-      Double::from_int(bolt_count)
+    let theta = 2.0 * @math.PI * i.to_double() / bolt_count.to_double()
     bolt_loops.push(
       drive_circle_loop(
         circle_r * @math.cos(theta),
@@ -382,10 +377,7 @@ pub fn flanged_bearing_housing(
       ),
     )
   for i in 0..<bolt_count {
-    let theta = 2.0 *
-      @math.PI *
-      Double::from_int(i) /
-      Double::from_int(bolt_count)
+    let theta = 2.0 * @math.PI * i.to_double() / bolt_count.to_double()
     component = component.with_connector_unchecked(
       @common.MateConnector::new(
         "bolt-hole-\{i + 1}",

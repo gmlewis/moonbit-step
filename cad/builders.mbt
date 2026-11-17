@@ -150,11 +150,11 @@ pub fn Profile2D::polygon(
 ) -> Array[Vec2] {
   let n = if sides < 3 { 3 } else { sides }
   let radius = diameter / 2.0
-  let angle_step = 2.0 * @math.PI / Double::from_int(n)
+  let angle_step = 2.0 * @math.PI / n.to_double()
   let rotation_rad = rotation * @math.PI / 180.0
   let out = []
   for i in 0..<n {
-    let phi = Double::from_int(i) * angle_step + rotation_rad
+    let phi = i.to_double() * angle_step + rotation_rad
     out.push((radius * @math.cos(phi), radius * @math.sin(phi)))
   }
   out
@@ -436,10 +436,10 @@ pub fn Profile2D::ellipse(
   let rx = width / 2.0
   let ry = height / 2.0
   let n = if segments < 3 { 3 } else { segments }
-  let angle_step = 2.0 * @math.PI / Double::from_int(n)
+  let angle_step = 2.0 * @math.PI / n.to_double()
   let out = []
   for i in 0..<n {
-    let phi = Double::from_int(i) * angle_step
+    let phi = i.to_double() * angle_step
     out.push((rx * @math.cos(phi), ry * @math.sin(phi)))
   }
   out
@@ -452,10 +452,10 @@ pub fn Profile2D::circle(
 ) -> Array[Vec2] {
   let radius = diameter / 2.0
   let n = if segments < 3 { 3 } else { segments }
-  let angle_step = 2.0 * @math.PI / Double::from_int(n)
+  let angle_step = 2.0 * @math.PI / n.to_double()
   let out = []
   for i in 0..<n {
-    let phi = Double::from_int(i) * angle_step
+    let phi = i.to_double() * angle_step
     out.push((radius * @math.cos(phi), radius * @math.sin(phi)))
   }
   out
@@ -470,10 +470,10 @@ pub fn Profile2D::arc(
 ) -> Array[Vec2] {
   let radius = diameter / 2.0
   let n = if segments < 2 { 2 } else { segments }
-  let angle_step = (end_angle - start_angle) / Double::from_int(n)
+  let angle_step = (end_angle - start_angle) / n.to_double()
   let out = []
   for i in 0..<=n {
-    let phi = start_angle + Double::from_int(i) * angle_step
+    let phi = start_angle + i.to_double() * angle_step
     out.push((radius * @math.cos(phi), radius * @math.sin(phi)))
   }
   out

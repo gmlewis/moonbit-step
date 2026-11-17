@@ -315,7 +315,7 @@ pub fn compile_socketed_solid(
   // Socket vertices: top ring, optional mid ring, floor ring.
   let top_pts : Array[Vec3] = []
   for k in 0..<6 {
-    let ang = (g.rotation_deg + 60.0 * Double::from_int(k)) * @math.PI / 180.0
+    let ang = (g.rotation_deg + 60.0 * k.to_double()) * @math.PI / 180.0
     top_pts.push(
       xform.apply(
         (
@@ -328,7 +328,7 @@ pub fn compile_socketed_solid(
   }
   let mid_pts : Array[Vec3] = []
   for k in 0..<6 {
-    let ang = (g.rotation_deg + 60.0 * Double::from_int(k)) * @math.PI / 180.0
+    let ang = (g.rotation_deg + 60.0 * k.to_double()) * @math.PI / 180.0
     mid_pts.push(
       xform.apply(
         (
@@ -341,7 +341,7 @@ pub fn compile_socketed_solid(
   }
   let floor_pts : Array[Vec3] = []
   for k in 0..<6 {
-    let ang = (g.rotation_deg + 60.0 * Double::from_int(k)) * @math.PI / 180.0
+    let ang = (g.rotation_deg + 60.0 * k.to_double()) * @math.PI / 180.0
     floor_pts.push(
       xform.apply(
         (
@@ -519,7 +519,7 @@ pub fn socketed_solid_mesh(
   let faces : Array[Array[Int32]] = []
   // Revolve the body bands.
   for j in 0..<k {
-    let th = 2.0 * @math.PI * Double::from_int(j) / Double::from_int(k)
+    let th = 2.0 * @math.PI * j.to_double() / k.to_double()
     for i in 0..<mb {
       let (r, z) = body_pts[i]
       verts.push((r * @math.cos(th), r * @math.sin(th), z))
@@ -553,14 +553,14 @@ pub fn socketed_solid_mesh(
   }
   let top_base = verts.length()
   for j in 0..<k {
-    let th = 2.0 * @math.PI * Double::from_int(j) / Double::from_int(k)
+    let th = 2.0 * @math.PI * j.to_double() / k.to_double()
     let r = hex_radius(g.top_hex_radius, th)
     verts.push((r * @math.cos(th), r * @math.sin(th), g.top_z))
   }
   let mid_base = if g.lead > CAD_DEGENERATE_EPS {
     let b = verts.length()
     for j in 0..<k {
-      let th = 2.0 * @math.PI * Double::from_int(j) / Double::from_int(k)
+      let th = 2.0 * @math.PI * j.to_double() / k.to_double()
       let r = hex_radius(g.nominal_radius, th)
       verts.push((r * @math.cos(th), r * @math.sin(th), g.mid_z))
     }
@@ -570,7 +570,7 @@ pub fn socketed_solid_mesh(
   }
   let floor_base = verts.length()
   for j in 0..<k {
-    let th = 2.0 * @math.PI * Double::from_int(j) / Double::from_int(k)
+    let th = 2.0 * @math.PI * j.to_double() / k.to_double()
     let r = hex_radius(g.nominal_radius, th)
     verts.push((r * @math.cos(th), r * @math.sin(th), g.floor_z))
   }

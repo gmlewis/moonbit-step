@@ -152,14 +152,14 @@ fn conical_socket_volume_centroid(
   for i in 0..<(zs.length() - 1) {
     let z0 = zs[i]
     let z1 = zs[i + 1]
-    let h = (z1 - z0) / Double::from_int(samples)
+    let h = (z1 - z0) / samples.to_double()
     if h <= CAD_DEGENERATE_EPS {
       continue
     }
     let mut span = 0.0
     let mut span_m = 0.0
     for j in 0..<=samples {
-      let z = z0 + h * Double::from_int(j)
+      let z = z0 + h * j.to_double()
       let a = conical_socket_area_at(g, z)
       let w = if j == 0 || j == samples {
         1.0
@@ -198,7 +198,7 @@ fn conical_socket_void_perimeter(
   let base = g.rotation_deg * @math.PI / 180.0
   let period = @math.PI / 3.0
   let n = 1440
-  let step = 2.0 * @math.PI / Double::from_int(n)
+  let step = 2.0 * @math.PI / n.to_double()
   let rho_at = fn(theta : Double) -> Double {
     let offset = theta - base - period / 2.0
     let sector = offset - period * Double::floor(offset / period)
@@ -214,7 +214,7 @@ fn conical_socket_void_perimeter(
   let mut length = 0.0
   let cos_step = @math.cos(step)
   for i in 0..<n {
-    let t0 = Double::from_int(i) * step
+    let t0 = i.to_double() * step
     let r0 = rho_at(t0)
     let r1 = rho_at(t0 + step)
     // Exact chord length between the two polar points.
@@ -293,9 +293,7 @@ pub fn compile_conical_socketed_solid(
   )
   let flats : Array[HHPlaneRef] = []
   for i in 0..<6 {
-    let psi = (g.rotation_deg + 30.0 + 60.0 * Double::from_int(i)) *
-      @math.PI /
-      180.0
+    let psi = (g.rotation_deg + 30.0 + 60.0 * i.to_double()) * @math.PI / 180.0
     // The plane axis points into the pocket (the face's outward normal): the
     // material is outside the hexagon, so the pocket wall faces the void.
     let normal = v_norm(
@@ -310,7 +308,7 @@ pub fn compile_conical_socketed_solid(
 
   // Vertices.
   let corner_angle = fn(i : Int32) -> Double {
-    (g.rotation_deg + 60.0 * Double::from_int(i)) * @math.PI / 180.0
+    (g.rotation_deg + 60.0 * i.to_double()) * @math.PI / 180.0
   }
   let z_b = g.floor_apex + g.r_corner / g.floor_tan
   let top_pts : Array[Vec3] = []
@@ -345,7 +343,7 @@ pub fn compile_conical_socketed_solid(
     )
     let samples : Array[Vec3] = []
     for k in 0..<=12 {
-      let t = Double::from_int(k) / 12.0
+      let t = k.to_double() / 12.0
       let a = a0 + (a1 - a0) * t
       samples.push(
         xform.apply(
@@ -371,9 +369,7 @@ pub fn compile_conical_socketed_solid(
   // Top hyperbolas (rim cone trimmed by each flat).
   let hyper_top : Array[@step.Ref] = []
   for i in 0..<6 {
-    let psi = (g.rotation_deg + 30.0 + 60.0 * Double::from_int(i)) *
-      @math.PI /
-      180.0
+    let psi = (g.rotation_deg + 30.0 + 60.0 * i.to_double()) * @math.PI / 180.0
     let center = xform.apply(
       (g.d * @math.cos(psi), g.d * @math.sin(psi), g.rim_apex),
     )
@@ -392,7 +388,7 @@ pub fn compile_conical_socketed_solid(
     let samples : Array[Vec3] = []
     let a0 = corner_angle(i)
     for k in 0..<=48 {
-      let t = Double::from_int(k) / 48.0
+      let t = k.to_double() / 48.0
       let theta = a0 + @math.PI / 3.0 * t
       let r = g.d / @math.cos(theta - psi)
       let z = g.rim_apex + r / g.rim_tan
@@ -417,9 +413,7 @@ pub fn compile_conical_socketed_solid(
   // Bottom hyperbolas (drill cone trimmed by each flat).
   let hyper_bot : Array[@step.Ref] = []
   for i in 0..<6 {
-    let psi = (g.rotation_deg + 30.0 + 60.0 * Double::from_int(i)) *
-      @math.PI /
-      180.0
+    let psi = (g.rotation_deg + 30.0 + 60.0 * i.to_double()) * @math.PI / 180.0
     let center = xform.apply(
       (g.d * @math.cos(psi), g.d * @math.sin(psi), g.floor_apex),
     )
@@ -438,7 +432,7 @@ pub fn compile_conical_socketed_solid(
     let samples : Array[Vec3] = []
     let a0 = corner_angle(i)
     for k in 0..<=48 {
-      let t = Double::from_int(k) / 48.0
+      let t = k.to_double() / 48.0
       let theta = a0 + @math.PI / 3.0 * t
       let r = g.d / @math.cos(theta - psi)
       let z = g.floor_apex + r / g.floor_tan
@@ -535,9 +529,7 @@ pub fn compile_conical_socketed_solid(
   }
   // Rim cone patches (one per flat), all sharing the rim cone surface.
   for i in 0..<6 {
-    let psi = (g.rotation_deg + 30.0 + 60.0 * Double::from_int(i)) *
-      @math.PI /
-      180.0
+    let psi = (g.rotation_deg + 30.0 + 60.0 * i.to_double()) * @math.PI / 180.0
     let natural = v_norm(
       xform.apply_dir(
         (-@math.cos(psi) / g.rim_tan, -@math.sin(psi) / g.rim_tan, 1.0),

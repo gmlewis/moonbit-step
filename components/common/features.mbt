@@ -263,5 +263,5 @@ pub fn FeatureRecord::documentation(self : FeatureRecord) -> String {
 /// polyline approximation.
 pub fn chord_deviation(radius : Double, segments : Int32) -> Double {
   let n = if segments < 3 { 3 } else { segments }
-  radius * (1.0 - @math.cos(@math.PI / Double::from_int(n)))
+  radius * (1.0 - @math.cos(@math.PI / n.to_double()))
 }

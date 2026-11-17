@@ -806,7 +806,7 @@ fn an_calib_rings(block : CalibrationChamferBlock) -> Array[(Double, Double)] {
       block.fillet_segments
     }
     for i in 1..<=segs {
-      let phi = Double::from_int(i) * (@math.PI / 2.0) / Double::from_int(segs)
+      let phi = i.to_double() * (@math.PI / 2.0) / segs.to_double()
       let offset = r - r * @math.cos(phi)
       let z = h - r + r * @math.sin(phi)
       rings.push((z, offset))
@@ -1875,7 +1875,7 @@ fn an_extruded_mesh(e : ExtrudedProfile) -> (Array[Vec3], Array[Array[Int32]]) {
       let k = 32
       let base = verts.length()
       for i in 0..<k {
-        let th = 2.0 * @math.PI * Double::from_int(i) / Double::from_int(k)
+        let th = 2.0 * @math.PI * i.to_double() / k.to_double()
         let x = center.0 + rb * @math.cos(th)
         let y = center.1 + rb * @math.sin(th)
         verts.push((x, y, 0.0))
@@ -1932,11 +1932,11 @@ pub fn Shape::analysis_mesh(
       let k = 48
       let verts : Array[Vec3] = []
       for i in 0..<k {
-        let th = 2.0 * @math.PI * Double::from_int(i) / Double::from_int(k)
+        let th = 2.0 * @math.PI * i.to_double() / k.to_double()
         verts.push((r * @math.cos(th), r * @math.sin(th), 0.0))
       }
       for i in 0..<k {
-        let th = 2.0 * @math.PI * Double::from_int(i) / Double::from_int(k)
+        let th = 2.0 * @math.PI * i.to_double() / k.to_double()
         verts.push((r * @math.cos(th), r * @math.sin(th), h))
       }
       let faces : Array[Array[Int32]] = []

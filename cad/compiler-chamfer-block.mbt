@@ -23,7 +23,7 @@ pub fn compile_calibration_chamfer_block(
     rings.push((start_z, 0.0))
     let segs = if fillet_segments <= 0 { 8 } else { fillet_segments }
     for i in 1..<=segs {
-      let phi = Double::from_int(i) * (@math.PI / 2.0) / Double::from_int(segs)
+      let phi = i.to_double() * (@math.PI / 2.0) / segs.to_double()
       let offset = r - r * @math.cos(phi)
       let z = h - r + r * @math.sin(phi)
       rings.push((z, offset))

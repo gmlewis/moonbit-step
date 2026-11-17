@@ -62,7 +62,7 @@ pub fn square_nut_bounding_box(
       let mut y0 = 0.0
       let mut y1 = 0.0
       for i in 0..<4 {
-        let a = (g.rotation_deg + 90.0 * Double::from_int(i)) * @math.PI / 180.0
+        let a = (g.rotation_deg + 90.0 * i.to_double()) * @math.PI / 180.0
         let x = g.r_corner * @math.cos(a)
         let y = g.r_corner * @math.sin(a)
         if x < x0 {
@@ -129,14 +129,14 @@ fn square_nut_volume_centroid(g : SquareNutGeometry) -> (Double, Double) {
   for i in 0..<(sorted.length() - 1) {
     let z0 = sorted[i]
     let z1 = sorted[i + 1]
-    let step = (z1 - z0) / Double::from_int(samples)
+    let step = (z1 - z0) / samples.to_double()
     if step <= CAD_DEGENERATE_EPS {
       continue
     }
     let mut span = 0.0
     let mut span_m = 0.0
     for j in 0..<=samples {
-      let z = z0 + step * Double::from_int(j)
+      let z = z0 + step * j.to_double()
       let a = square_nut_area_at(g, z)
       let w = if j == 0 || j == samples {
         1.0
@@ -194,7 +194,7 @@ fn square_nut_perimeter(g : SquareNutGeometry, z : Double) -> Double {
   let base = g.rotation_deg * @math.PI / 180.0
   let cone_r = square_nut_cone_radius(g, z)
   let n = 720
-  let step = 2.0 * @math.PI / Double::from_int(n)
+  let step = 2.0 * @math.PI / n.to_double()
   let cos_step = @math.cos(step)
   let rho_at = fn(theta : Double) -> Double {
     let offset = theta - base - period / 2.0
@@ -209,8 +209,8 @@ fn square_nut_perimeter(g : SquareNutGeometry, z : Double) -> Double {
   }
   let mut length = 0.0
   for i in 0..<n {
-    let r0 = rho_at(Double::from_int(i) * step)
-    let r1 = rho_at(Double::from_int(i + 1) * step)
+    let r0 = rho_at(i.to_double() * step)
+    let r1 = rho_at((i + 1).to_double() * step)
     length = length + Double::sqrt(r0 * r0 + r1 * r1 - 2.0 * r0 * r1 * cos_step)
   }
   length + bore_per
@@ -253,13 +253,11 @@ fn square_nut_hyperbola_samples(
   i : Int32,
   corner_side : Double,
 ) -> Array[Vec3] {
-  let psi = (g.rotation_deg + 45.0 + 90.0 * Double::from_int(i)) *
-    @math.PI /
-    180.0
+  let psi = (g.rotation_deg + 45.0 + 90.0 * i.to_double()) * @math.PI / 180.0
   let n = 48
   let pts : Array[Vec3] = []
   for k in 0..<=n {
-    let t = Double::from_int(k) / Double::from_int(n)
+    let t = k.to_double() / n.to_double()
     let theta = psi + corner_side * (45.0 * @math.PI / 180.0) * t
     let r = g.rin / @math.cos(theta - psi)
     let z = g.z_t - r / g.tan_alpha
@@ -280,7 +278,7 @@ fn square_nut_bspline_curve(ctx : StepContext, pts : Array[Vec3]) -> @step.Ref {
   mults.push(2)
   let knots : Array[String] = []
   for i in 0..<n {
-    knots.push(@step.fmt_num(Double::from_int(i)))
+    knots.push(@step.fmt_num(i.to_double()))
   }
   let curve = @geometry.BSplineCurveWithKnots::new(
     "", 1, cps, ".UNSPECIFIED.", false, false, mults, knots, ".UNSPECIFIED.",
@@ -313,9 +311,7 @@ pub fn compile_square_nut(
   let top_plane = hhp_plane(ctx, xform.apply((0.0, 0.0, g.m)), up, right)
   let flats : Array[HHPlaneRef] = []
   for i in 0..<4 {
-    let psi = (g.rotation_deg + 45.0 + 90.0 * Double::from_int(i)) *
-      @math.PI /
-      180.0
+    let psi = (g.rotation_deg + 45.0 + 90.0 * i.to_double()) * @math.PI / 180.0
     let normal = v_norm(xform.apply_dir((@math.cos(psi), @math.sin(psi), 0.0)))
     let origin = xform.apply(
       (g.rin * @math.cos(psi), g.rin * @math.sin(psi), 0.0),
@@ -327,7 +323,7 @@ pub fn compile_square_nut(
   }
   let top_cones : Array[HHConeRef] = []
   for i in 0..<4 {
-    let lead = (g.rotation_deg + 90.0 * Double::from_int(i)) * @math.PI / 180.0
+    let lead = (g.rotation_deg + 90.0 * i.to_double()) * @math.PI / 180.0
     top_cones.push(
       hhp_cone(
         ctx,
@@ -341,10 +337,10 @@ pub fn compile_square_nut(
   }
 
   let corner_angle = fn(i : Int32) -> Double {
-    (g.rotation_deg + 90.0 * Double::from_int(i)) * @math.PI / 180.0
+    (g.rotation_deg + 90.0 * i.to_double()) * @math.PI / 180.0
   }
   let flat_angle = fn(i : Int32) -> Double {
-    (g.rotation_deg + 45.0 + 90.0 * Double::from_int(i)) * @math.PI / 180.0
+    (g.rotation_deg + 45.0 + 90.0 * i.to_double()) * @math.PI / 180.0
   }
   let p_top : Array[Vec3] = []
   let c_bot : Array[Vec3] = []
@@ -383,7 +379,7 @@ pub fn compile_square_nut(
     )
     let st : Array[Vec3] = []
     for k in 0..<=12 {
-      let t = Double::from_int(k) / 12.0
+      let t = k.to_double() / 12.0
       let a = a0 + (a1 - a0) * t
       st.push(xform.apply((g.rin * @math.cos(a), g.rin * @math.sin(a), g.m)))
     }
@@ -628,7 +624,7 @@ pub fn square_nut_mesh(
   let steps = 4
   let zs : Array[Double] = [0.0, g.m - g.zc]
   for k in 1..<=steps {
-    zs.push(g.m - g.zc + g.zc * Double::from_int(k) / Double::from_int(steps))
+    zs.push(g.m - g.zc + g.zc * k.to_double() / steps.to_double())
   }
   let outer_rings : Array[Array[Int32]] = []
   let inner_rings : Array[Array[Int32]] = []
@@ -637,7 +633,7 @@ pub fn square_nut_mesh(
     let outer : Array[Int32] = []
     let inner : Array[Int32] = []
     for j in 0..<seg {
-      let theta = 2.0 * @math.PI * Double::from_int(j) / Double::from_int(seg)
+      let theta = 2.0 * @math.PI * j.to_double() / seg.to_double()
       let wall = wall_at(theta)
       let r = if wall < cone { wall } else { cone }
       outer.push(verts.length())

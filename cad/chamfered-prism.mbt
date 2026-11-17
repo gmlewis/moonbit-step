@@ -702,7 +702,7 @@ fn ring_quad_centroid(pts : Array[Vec3], cycle : Array[Int32]) -> Vec3 {
     y = y + p.1
     z = z + p.2
   }
-  let d = Double::from_int(n)
+  let d = n.to_double()
   (x / d, y / d, z / d)
 }
 

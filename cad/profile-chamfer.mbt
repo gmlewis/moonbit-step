@@ -126,7 +126,7 @@ fn profile_arc_points(
   let n = if segments < 1 { 1 } else { segments }
   let out : Array[Vec2] = []
   for i in 0..<=n {
-    let t = Double::from_int(i) / Double::from_int(n)
+    let t = i.to_double() / n.to_double()
     let ang = a0 + delta * t
     out.push((center.0 + rho * @math.cos(ang), center.1 + rho * @math.sin(ang)))
   }

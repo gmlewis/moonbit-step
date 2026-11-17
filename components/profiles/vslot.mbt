@@ -133,8 +133,7 @@ pub fn VSlotProfile::custom(
     )
   }
   let cells = (height_mm / cell_pitch_mm).round().to_int()
-  if cells < 1 ||
-    (height_mm - Double::from_int(cells) * cell_pitch_mm).abs() > 1.0e-6 {
+  if cells < 1 || (height_mm - cells.to_double() * cell_pitch_mm).abs() > 1.0e-6 {
     return Err(
       @common.InvalidParameter(
         "V-Slot height must be a whole number of 20 mm cells",
@@ -245,7 +244,7 @@ fn VSlotProfile::cell_centres(self : VSlotProfile) -> Array[Double] {
   let pitch = self.cell_pitch_mm
   let start = -self.height_mm / 2.0 + pitch / 2.0
   for i in 0..<self.cells {
-    out.push(start + Double::from_int(i) * pitch)
+    out.push(start + i.to_double() * pitch)
   }
   out
 }

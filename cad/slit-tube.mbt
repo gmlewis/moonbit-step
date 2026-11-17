@@ -296,17 +296,13 @@ pub fn slit_tube_mesh(
   let outline : Array[(Double, Double)] = []
   for k in 0..<=n {
     let a = g.delta_o +
-      (2.0 * @math.PI - 2.0 * g.delta_o) *
-      Double::from_int(k) /
-      Double::from_int(n)
+      (2.0 * @math.PI - 2.0 * g.delta_o) * k.to_double() / n.to_double()
     outline.push((g.ro * @math.cos(a), g.ro * @math.sin(a)))
   }
   for k in 0..<=n {
     let a = 2.0 * @math.PI -
       g.delta_i -
-      (2.0 * @math.PI - 2.0 * g.delta_i) *
-      Double::from_int(k) /
-      Double::from_int(n)
+      (2.0 * @math.PI - 2.0 * g.delta_i) * k.to_double() / n.to_double()
     outline.push((g.ri * @math.cos(a), g.ri * @math.sin(a)))
   }
   let m = outline.length()

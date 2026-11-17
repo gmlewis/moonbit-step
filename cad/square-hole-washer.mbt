@@ -283,7 +283,7 @@ fn square_hole_mesh(
   let inner_b : Array[Vec3] = []
   let inner_t : Array[Vec3] = []
   for i in 0..<n {
-    let th = 2.0 * @math.PI * Double::from_int(i) / Double::from_int(n)
+    let th = 2.0 * @math.PI * i.to_double() / n.to_double()
     let cx = @math.cos(th)
     let sy = @math.sin(th)
     let max_abs = if cx.abs() > sy.abs() { cx.abs() } else { sy.abs() }

@@ -58,7 +58,7 @@ fn flatten_bezier_path(path : BezierPath) -> Array[Vec2] {
       points.push(p0)
     } else {
       for j in 0..<bezier_segments_per_span {
-        let t = Double::from_int(j) / Double::from_int(bezier_segments_per_span)
+        let t = j.to_double() / bezier_segments_per_span.to_double()
         points.push(cubic_bezier_point(p0, c1, c2, p3, t))
       }
     }
