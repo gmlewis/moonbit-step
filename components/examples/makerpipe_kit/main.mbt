@@ -7,18 +7,40 @@
 /// moon run components/examples/makerpipe_kit -- --part tee --size 3/4 -o /tmp/tee.step
 /// moon run components/examples/makerpipe_kit -- --part elbow --size 3/4 --angle 90 -o /tmp/e90.step
 /// moon run components/examples/makerpipe_kit -- --part saddle --size 3/4 --branches 0,90,180 -o /tmp/fourway.step
-/// moon run components/examples/makerpipe_kit -- --part five-way --size 1 -o /tmp/fiveway.step
+/// moon run components/examples/makerpipe_kit -- --part coupling --size 3/4 -o /tmp/coupling.step
+/// moon run components/examples/makerpipe_kit -- --part flange --size 3/4 -o /tmp/flange.step
+/// moon run components/examples/makerpipe_kit -- --part adj-hinge --size 3/4 --angle 30 -o /tmp/adj-hinge.step
+/// moon run components/examples/makerpipe_kit -- --part top-rail-tee -o /tmp/top-rail-tee.step
 /// ```
 async fn main {
   let spec = {
     "part": @cli.opt_string(
       short='p',
-      help="Part: tee (default), elbow, saddle, elbow-45, elbow-90, elbow-135, straight-180, four-way, five-way",
+      help="Part: tee (default), elbow, saddle, coupling, flange, adj-hinge, adj-180, adj-flange, top-rail-tee, elbow-45, elbow-90, elbow-135, straight-180, four-way, five-way",
     ),
     "size": @cli.opt_string(help="Native size: 3/4 (default) or 1"),
-    "angle": @cli.opt_double(90.0, help="Elbow included angle in degrees"),
+    "angle": @cli.opt_double(
+      90.0,
+      help="Elbow or adjustable fitting angle in degrees",
+    ),
+    "angle2": @cli.opt_double(0.0, help="Second end-clamp angle for adj-180"),
     "branches": @cli.opt_string(
       help="Comma-separated branch angles in degrees (saddle part)",
+    ),
+    "length": @cli.opt_double(
+      0.0,
+      help="Coupling length in mm (0 = 2x T socket depth)",
+    ),
+    "baseDiameter": @cli.opt_double(70.0, help="Flange base diameter in mm"),
+    "baseThickness": @cli.opt_double(5.0, help="Flange base thickness in mm"),
+    "boltCircle": @cli.opt_double(
+      54.0,
+      help="Flange mounting bolt circle in mm",
+    ),
+    "boltHole": @cli.opt_double(6.6, help="Flange mounting hole diameter in mm"),
+    "socketDepth": @cli.opt_double(
+      0.0,
+      help="Flange socket depth in mm (0 = default)",
     ),
     "out": @cli.opt_string(short='o', help="Write STEP to this path"),
     "bbox": @cli.flag(help="Print the bounding box to stderr"),
@@ -52,6 +74,33 @@ async fn main {
     "straight-180" => @makerpipe.straight_180(size)
     "four-way" => @makerpipe.four_way(size)
     "five-way" => @makerpipe.five_way(size)
+    "coupling" => @makerpipe.coupling(size, length_mm=args.double("length"))
+    "flange" =>
+      @makerpipe.flange(
+        size,
+        base_diameter_mm=args.double("baseDiameter"),
+        base_thickness_mm=args.double("baseThickness"),
+        bolt_circle_mm=args.double("boltCircle"),
+        bolt_hole_mm=args.double("boltHole"),
+        socket_depth_mm=args.double("socketDepth"),
+      )
+    "adj-hinge" => @makerpipe.adjustable_hinge(size, args.double("angle"))
+    "adj-180" =>
+      @makerpipe.adjustable_180(
+        size,
+        args.double("angle"),
+        args.double("angle2"),
+      )
+    "adj-flange" =>
+      @makerpipe.adjustable_flange(
+        size,
+        args.double("angle"),
+        base_diameter_mm=args.double("baseDiameter"),
+        base_thickness_mm=args.double("baseThickness"),
+        bolt_circle_mm=args.double("boltCircle"),
+        bolt_hole_mm=args.double("boltHole"),
+      )
+    "top-rail-tee" => @makerpipe.top_rail_tee()
     "saddle" => {
       let text = args.string_opt("branches").unwrap_or("0,90")
       let angles : Array[Double] = []
@@ -73,7 +122,7 @@ async fn main {
     }
     other => {
       @cli.eprintln(
-        "error: unknown part '\{other}'; use tee, elbow, saddle, elbow-45, elbow-90, elbow-135, straight-180, four-way, or five-way",
+        "error: unknown part '\{other}'; use tee, elbow, saddle, coupling, flange, adj-hinge, adj-180, adj-flange, top-rail-tee, elbow-45, elbow-90, elbow-135, straight-180, four-way, or five-way",
       )
       abort("")
     }

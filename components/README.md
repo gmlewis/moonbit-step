@@ -349,20 +349,29 @@ whose ring is a slit tube and whose ears are separate prisms embedded into the
 slit edges.
 
 `components/makerpipe` adds Maker Pipe-compatible structural EMT fittings for
-3/4 in and 1 in EMT. The T connector and the 45/90/135/180/4-way/5-way saddle
-family are implemented with named pipe mates (`run-a`, `run-b`, `branch-1`,
-`socket-*`, `mouth-*`, `through`, `through-bore`). The 1 in envelope is derived
-from the published 3/4 in dimension drawings and marked approximate; 1/2 in is
-not a native fitting (the shop uses a 3/4 in connector plus adapter shims).
-Geometry is a nominal layered shell: a C-sleeve run for the T, and two clamp
-rims plus full socket cups for the saddle family, so the sockets stay open
-without a boolean cut. Couplings, flanges, the adjustable-angle fittings, the
-top-rail T, and the accessory line are not implemented yet.
+3/4 in and 1 in EMT, plus the 1-3/8 in top-rail family. Implemented parts are
+the T connector, the 45/90/135/180/4-way/5-way saddle family, the structural
+coupling, the flange, the adjustable angle hinge, the adjustable 180, the
+adjustable angle flange, and the Top Rail T. Every builder carries named pipe
+mates (`run-a`, `run-b`, `branch-1`, `socket-*`, `mouth-*`, `through`,
+`through-bore`, `pivot-*`, `socket-end-*`, `rail`, `rail-bore`). The 1 in and
+top-rail envelopes are derived from the published 3/4 in dimension drawings and
+marked approximate; 1/2 in is not a native fitting (the shop uses a 3/4 in
+connector plus adapter shims). Geometry is a nominal layered shell: a C-sleeve
+run for the T, clamp rims plus full socket cups for the saddle family, one
+nominal sleeve for the coupling, and a base/boss/socket envelope for the flange
+and adjustable fittings. The accessory line (shims, straps, feet, threaded
+inserts, cross-over and telescoping clamps, barrel hinge, printed hinges and
+latches) is not implemented yet.
 
 ```bash
 moon run components/examples/makerpipe_kit -- --part tee --size 3/4 -o tee.step
 moon run components/examples/makerpipe_kit -- --part elbow --size 3/4 --angle 90 -o e90.step
 moon run components/examples/makerpipe_kit -- --part saddle --size 3/4 --branches 0,90,180 -o fourway.step
+moon run components/examples/makerpipe_kit -- --part coupling --size 3/4 -o coupling.step
+moon run components/examples/makerpipe_kit -- --part flange --size 3/4 -o flange.step
+moon run components/examples/makerpipe_kit -- --part adj-hinge --size 3/4 --angle 30 -o adj-hinge.step
+moon run components/examples/makerpipe_kit -- --part top-rail-tee -o top-rail-tee.step
 ```
 
 P1000-style strut channel uses the published 41.3 mm envelope, 2.6 mm (12
@@ -431,7 +440,7 @@ use `--headless`.
 | `profiles` | Generic T-slot sections, the vendor 2020 B-slot6 A section, OpenBuilds-compatible V-Slot 2020/2040 sections, the MakerBeam 10 x 10 section, a gusseted V-Slot corner bracket, P1000-style strut channel, and a generic channel nut. |
 | `motion` | Shafts, stepped/keyed shafts, spacers and V-Slot wheel spacers (plain and eccentric), bushings, plain, set-screw, and clamp shaft collars, keys, dowel pins, standoffs, compression springs, ball bearings (envelope, shielded, and full-complement deep-groove), LM-series linear bushings, flanged linear housings, UCP-series pillow-block bearing boundaries, approximated GT2 timing pulleys, smooth idlers, V-Slot wheels, EMT tubing with end caps and split clamps, rigid couplings, helical beam couplings, flanged bearing housings, a parameterized tire/wheel envelope measured from the owner-authored `tire.step` model, and a matching tire mounting flange measured from `tire-mount.step`. |
 | `mechanisms` | Generic engineering envelopes for a barrel hinge, clevis, pin, rod end, linkage bar, linear rail and carriage, lead screw and flanged nut, equal- and unequal-pulley timing-belt loops, eccentric cam and roller follower, Oldham coupling, extension and torsion springs, snap latch, O-ring, grooved shaft, L/U/Z brackets (L with optional gusset), tapped boss, a straight-flank basic rack with a pinion-layout helper, ANSI #40 roller-chain sprockets (measured CC0 16T/24T outlines), and a CC0-matched ANSI #40 10-pitch chain segment. |
-| `makerpipe` | Maker Pipe-compatible structural EMT fittings for 3/4 in and 1 in: T connector and the 45/90/135/180/4-way/5-way saddle family, with built-in pipe mates. Nominal layered shells; 1 in derived from the 3/4 in drawing. Couplings, flanges, adjustable-angle fittings, top-rail T, and accessories are pending. |
+| `makerpipe` | Maker Pipe-compatible structural EMT fittings for 3/4 in and 1 in, plus the 1-3/8 in top rail: T connector, 45/90/135/180/4-way/5-way saddle family, structural coupling, flange, adjustable angle hinge, adjustable 180, adjustable angle flange, and Top Rail T, each with built-in pipe mates. Nominal layered shells; 1 in and top-rail envelopes derived from the 3/4 in drawing. Accessories are pending. |
 | `motors` | NEMA 17 and NEMA 23 stepper-motor envelopes, mounting interfaces, NEMA mounting plates, a generic NEMA-to-20-series extrusion adapter, a parameterized outrunner brushless-motor envelope measured from the owner-authored 360KV model (conical 5-spoke bell, windows, rim and lip, stator hub, prop and mount holes, shaft), and a parameterized XAIRCRAFT A12 8318 100KV agricultural outrunner envelope measured from the motor (6-spoke bell with 3 alternating forked spokes and 4 inner arcing hub slots, 42 curved magnets, machined prop adapter with 4 open M4 holes and 4 screw-filled counterbores, 36-slot stator with pole shoes and exact per-tooth copper frames, stepped 8-window mount plate with narrow spokes carrying M3/M4 circles, 6901Z bearing tube, front insulator ring, through shaft). |
 | `stock` | EN 10056 angle sections, configurable flat plate blanks with analytic circular holes and obround slots, counterbored and countersunk plates, bearing-housing plates, tube-to-plate and tube-to-V-Slot adapter brackets, generic channel-to-extrusion adapters and extrusion-to-tube clamps, SC8UU-style rod/bearing blocks, and heat-set insert bosses. |
 | `gears` | Involute spur gears, a smooth single-extrusion arc-run spur presentation, external pairs, and exact-internal-involute planetary sets. |

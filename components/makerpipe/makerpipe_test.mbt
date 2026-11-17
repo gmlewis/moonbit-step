@@ -275,3 +275,190 @@ test "1 in T derives its geometry from the 3/4 in drawing" {
   let branch = mp_connector(part, "branch-1")
   assert_true(mp_close_vec(branch.placement.trans, (0.0, 14.7701, 0.0), 1.0e-4))
 }
+
+///|
+test "coupling seats two pipe ends at the centre plane" {
+  let size = match @makerpipe.makerpipe_size("3/4") {
+    Ok(s) => s
+    Err(e) => abort(e.message())
+  }
+  let part = match @makerpipe.coupling(size) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  assert_eq(part.layers().length(), 1)
+  for
+    name in [
+      "origin", "seam", "socket-a", "mouth-a", "socket-b", "mouth-b", "bolt",
+    ] {
+    assert_true(mp_has_connector(part, name))
+  }
+  let (x0, x1, y0, y1, z0, z1) = part.bounding_box()
+  assert_true(mp_close(x0, -14.478, 1.0e-6))
+  assert_true(mp_close(x1, 14.478, 1.0e-6))
+  assert_true(mp_close(y0, -14.478, 1.0e-6))
+  assert_true(mp_close(y1, 14.478, 1.0e-6))
+  assert_true(mp_close(z0, -30.988, 1.0e-6))
+  assert_true(mp_close(z1, 30.988, 1.0e-6))
+  let a = mp_connector(part, "socket-a")
+  assert_true(mp_close_vec(a.placement.trans, (0.0, 0.0, 0.0), 1.0e-9))
+  assert_true(mp_close_vec(a.axis, (0.0, 0.0, -1.0), 1.0e-9))
+  assert_true(
+    mp_close_vec(
+      a.placement.apply_dir((0.0, 0.0, 1.0)),
+      (0.0, 0.0, 1.0),
+      1.0e-9,
+    ),
+  )
+  let b = mp_connector(part, "socket-b")
+  assert_true(mp_close_vec(b.axis, (0.0, 0.0, 1.0), 1.0e-9))
+  assert_true(
+    mp_close_vec(
+      b.placement.apply_dir((0.0, 0.0, 1.0)),
+      (0.0, 0.0, -1.0),
+      1.0e-9,
+    ),
+  )
+}
+
+///|
+test "flange has a mount face, four mount holes, and a seated socket" {
+  let size = match @makerpipe.makerpipe_size("3/4") {
+    Ok(s) => s
+    Err(e) => abort(e.message())
+  }
+  let part = match @makerpipe.flange(size) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  assert_eq(part.layers().length(), 2)
+  for
+    name in [
+      "origin", "mount", "socket", "mouth", "mount-hole-1", "mount-hole-2", "mount-hole-3",
+      "mount-hole-4",
+    ] {
+    assert_true(mp_has_connector(part, name))
+  }
+  let (x0, x1, y0, y1, z0, z1) = part.bounding_box()
+  assert_true(mp_close(x0, -35.0, 1.0e-6))
+  assert_true(mp_close(x1, 35.0, 1.0e-6))
+  assert_true(mp_close(y0, -35.0, 1.0e-6))
+  assert_true(mp_close(y1, 35.0, 1.0e-6))
+  assert_true(mp_close(z0, 0.0, 1.0e-6))
+  assert_true(mp_close(z1, 35.988, 1.0e-6))
+  let socket = mp_connector(part, "socket")
+  assert_true(mp_close_vec(socket.placement.trans, (0.0, 0.0, 5.0), 1.0e-6))
+  assert_true(mp_close_vec(socket.axis, (0.0, 0.0, 1.0), 1.0e-9))
+  let hole = mp_connector(part, "mount-hole-1")
+  assert_true(mp_close(hole.placement.trans.0, 19.091883092, 1.0e-6))
+  assert_true(mp_close(hole.placement.trans.1, 19.091883092, 1.0e-6))
+}
+
+///|
+test "adjustable hinge pivots an end socket about +Y" {
+  let size = match @makerpipe.makerpipe_size("3/4") {
+    Ok(s) => s
+    Err(e) => abort(e.message())
+  }
+  let part = match @makerpipe.adjustable_hinge(size, 30.0) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  assert_eq(part.layers().length(), 3)
+  for
+    name in [
+      "origin", "through", "through-bore", "pivot-1", "socket-end-1", "mouth-end-1",
+    ] {
+    assert_true(mp_has_connector(part, name))
+  }
+  let socket = mp_connector(part, "socket-end-1")
+  assert_true(mp_close_vec(socket.placement.trans, (14.351, 0.0, 0.0), 1.0e-6))
+  assert_true(mp_close(socket.axis.0, @math.cos(@math.PI / 6.0), 1.0e-9))
+  assert_true(mp_close(socket.axis.2, 0.5, 1.0e-9))
+  let pivot = mp_connector(part, "pivot-1")
+  assert_true(mp_close_vec(pivot.axis, (0.0, 1.0, 0.0), 1.0e-9))
+  assert_true(@makerpipe.adjustable_hinge(size, 91.0) is Err(_))
+}
+
+///|
+test "adjustable 180 has two independent pivoting end sockets" {
+  let size = match @makerpipe.makerpipe_size("3/4") {
+    Ok(s) => s
+    Err(e) => abort(e.message())
+  }
+  let part = match @makerpipe.adjustable_180(size, 0.0, 0.0) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  assert_eq(part.layers().length(), 5)
+  for
+    name in [
+      "origin", "through", "through-bore", "pivot-1", "pivot-2", "socket-end-1",
+      "socket-end-2", "mouth-end-1", "mouth-end-2",
+    ] {
+    assert_true(mp_has_connector(part, name))
+  }
+  let s1 = mp_connector(part, "socket-end-1")
+  assert_true(mp_close_vec(s1.placement.trans, (14.351, 0.0, 0.0), 1.0e-6))
+  assert_true(mp_close_vec(s1.axis, (1.0, 0.0, 0.0), 1.0e-9))
+  let s2 = mp_connector(part, "socket-end-2")
+  assert_true(mp_close_vec(s2.placement.trans, (-14.351, 0.0, 0.0), 1.0e-6))
+  assert_true(mp_close_vec(s2.axis, (-1.0, 0.0, 0.0), 1.0e-9))
+  assert_true(@makerpipe.adjustable_180(size, 0.0, -91.0) is Err(_))
+}
+
+///|
+test "adjustable flange pivots one socket above a mount base" {
+  let size = match @makerpipe.makerpipe_size("3/4") {
+    Ok(s) => s
+    Err(e) => abort(e.message())
+  }
+  let part = match @makerpipe.adjustable_flange(size, 0.0) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  assert_eq(part.layers().length(), 3)
+  for
+    name in [
+      "origin", "mount", "mount-hole-1", "mount-hole-4", "pivot", "socket-end", "mouth-end",
+    ] {
+    assert_true(mp_has_connector(part, name))
+  }
+  let socket = mp_connector(part, "socket-end")
+  assert_true(mp_close_vec(socket.placement.trans, (0.0, 0.0, 18.478), 1.0e-6))
+  assert_true(mp_close_vec(socket.axis, (0.0, 0.0, 1.0), 1.0e-9))
+  let (x0, x1, y0, y1, z0, z1) = part.bounding_box()
+  assert_true(mp_close(x0, -35.0, 1.0e-6))
+  assert_true(mp_close(x1, 35.0, 1.0e-6))
+  assert_true(mp_close(y0, -35.0, 1.0e-6))
+  assert_true(mp_close(y1, 35.0, 1.0e-6))
+  assert_true(mp_close(z0, 0.0, 1.0e-6))
+  assert_true(z1 > 60.0)
+}
+
+///|
+test "top rail tee uses the 1.315 in rail envelope and alias mates" {
+  let size = @makerpipe.top_rail_size()
+  assert_eq(size.trade_size, "1-3/8")
+  assert_true(size.derived)
+  assert_true(mp_close(size.through_pipe_od_mm, 33.401, 1.0e-9))
+  assert_true(mp_close(size.socket_bore_mm, 33.861, 1.0e-9))
+  let part = match @makerpipe.top_rail_tee() {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  assert_eq(part.name(), "makerpipe-top-rail-tee")
+  assert_true(part.metadata().designation.contains("Top Rail"))
+  assert_eq(part.layers().length(), 3)
+  for
+    name in [
+      "origin", "through", "through-bore", "rail", "rail-bore", "socket-1", "mouth-1",
+      "bolt",
+    ] {
+    assert_true(mp_has_connector(part, name))
+  }
+  let socket = mp_connector(part, "socket-1")
+  assert_true(mp_close(socket.diameter_mm.unwrap(), 33.861, 1.0e-9))
+  let bore = mp_connector(part, "through-bore")
+  assert_true(mp_close(bore.diameter_mm.unwrap(), 33.601, 1.0e-9))
+}

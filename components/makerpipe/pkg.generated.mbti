@@ -7,6 +7,14 @@ import {
 }
 
 // Values
+pub fn adjustable_180(MakerPipeSize, Double, Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn adjustable_flange(MakerPipeSize, Double, base_diameter_mm? : Double, base_thickness_mm? : Double, bolt_circle_mm? : Double, bolt_hole_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn adjustable_hinge(MakerPipeSize, Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn coupling(MakerPipeSize, length_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
 pub fn elbow(MakerPipeSize, Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
 pub fn elbow_135(MakerPipeSize, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
@@ -16,6 +24,8 @@ pub fn elbow_45(MakerPipeSize, color? : @cad.Rgb) -> Result[@common.Component, @
 pub fn elbow_90(MakerPipeSize, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
 pub fn five_way(MakerPipeSize, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn flange(MakerPipeSize, base_diameter_mm? : Double, base_thickness_mm? : Double, bolt_circle_mm? : Double, bolt_hole_mm? : Double, socket_depth_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
 pub fn four_way(MakerPipeSize, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
@@ -28,6 +38,10 @@ pub fn saddle_connector(MakerPipeSize, Array[Double], color? : @cad.Rgb) -> Resu
 pub fn straight_180(MakerPipeSize, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
 pub fn tee(MakerPipeSize, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn top_rail_size() -> MakerPipeSize
+
+pub fn top_rail_tee(color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
 // Errors
 
