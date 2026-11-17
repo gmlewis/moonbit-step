@@ -792,6 +792,7 @@ pub fn full_catalog() -> Array[CatalogEntry] {
   entries.push_iter(motor_catalog().iter())
   entries.push_iter(stock_catalog().iter())
   entries.push_iter(mechanisms_catalog().iter())
+  entries.push_iter(makerpipe_catalog().iter())
   entries
 }
 

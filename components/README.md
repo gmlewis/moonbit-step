@@ -348,22 +348,27 @@ sized from the tube OD/ID, and the split clamp is a generic one-bolt collar
 whose ring is a slit tube and whose ears are separate prisms embedded into the
 slit edges.
 
-`components/makerpipe` adds Maker Pipe-compatible structural EMT fittings for
-3/4 in and 1 in EMT, plus the 1-3/8 in top-rail family. Implemented parts are
-the T connector, the 45/90/135/180/4-way/5-way saddle family, the structural
-coupling, the flange, the adjustable angle hinge, the adjustable 180, the
-adjustable angle flange, and the Top Rail T. Every builder carries named pipe
-mates (`run-a`, `run-b`, `branch-1`, `socket-*`, `mouth-*`, `through`,
-`through-bore`, `pivot-*`, `socket-end-*`, `rail`, `rail-bore`). The 1 in and
-top-rail envelopes are derived from the published 3/4 in dimension drawings and
-marked approximate; 1/2 in is not a native fitting (the shop uses a 3/4 in
-connector plus adapter shims). Geometry is a nominal layered shell: a C-sleeve
-run for the T, clamp rims plus full socket cups for the saddle family, one
-nominal sleeve for the coupling, a circular base with real mounting holes plus
-a socket for the flange, and a ring-or-solid-base plus central pin lug, outer
-straps, pin, and pivoting socket for the adjustable fittings. The accessory line (shims, straps, feet, threaded
-inserts, cross-over and telescoping clamps, barrel hinge, printed hinges and
-latches) is not implemented yet.
+`components/makerpipe` adds Maker Pipe-compatible structural EMT fittings and
+accessories for 1/2, 3/4, and 1 in EMT, plus the 1-3/8 in top-rail family.
+Implemented connectors are the T, the 45/90/135/180/4-way/5-way saddle family,
+the structural coupling, the flange, the adjustable angle hinge, the adjustable
+180, the adjustable angle flange, and the Top Rail T. Implemented accessories
+are the 1 in-3/4 in and 3/4 in-1/2 in adapter shims, the thin pipe/tube shim,
+the push-in end cap, rubber pipe feet, 1/4-20 and 3/8-16 threaded pipe inserts,
+one-hole/two-hole/mounting straps, the cross-over clamp, the 1/2 in-into-3/4 in
+telescoping clamp, and the 0.94 in barrel hinge. Every builder carries named
+pipe mates (`run-a`, `run-b`, `branch-1`, `socket-*`, `mouth-*`, `through`,
+`through-bore`, `pivot-*`, `socket-end-*`, `rail`, `rail-bore`, `pipe`,
+`mount*`, `thread`, `barrel-*`). The 1 in and top-rail envelopes are derived
+from the published 3/4 in dimension drawings and marked approximate; 1/2 in is
+not a native fitting (the shop uses a 3/4 in connector plus adapter shims).
+Geometry is a nominal layered shell: a C-sleeve run for the T, clamp rims plus
+full socket cups for the saddle family, one nominal sleeve for the coupling, a
+circular base with real mounting holes plus a socket for the flange, a
+ring-or-solid-base plus central pin lug, outer straps, pin, and pivoting socket
+for the adjustable fittings, and closed C-sleeves/cups/collars for the
+accessories. The printed hinge set, latch, clips, drilling jig, and Mini scale
+replicas are not implemented yet.
 
 ```bash
 moon run components/examples/makerpipe_kit -- --part tee --size 3/4 -o tee.step
@@ -373,6 +378,10 @@ moon run components/examples/makerpipe_kit -- --part coupling --size 3/4 -o coup
 moon run components/examples/makerpipe_kit -- --part flange --size 3/4 -o flange.step
 moon run components/examples/makerpipe_kit -- --part adj-hinge --size 3/4 --angle 30 -o adj-hinge.step
 moon run components/examples/makerpipe_kit -- --part top-rail-tee -o top-rail-tee.step
+moon run components/examples/makerpipe_kit -- --part shim --from 3/4 --to 1 -o shim.step
+moon run components/examples/makerpipe_kit -- --part foot --trade 1/2 -o foot.step
+moon run components/examples/makerpipe_kit -- --part strap-1 --trade 3/4 -o strap.step
+moon run components/examples/makerpipe_kit -- --part barrel-hinge -o barrel-hinge.step
 ```
 
 P1000-style strut channel uses the published 41.3 mm envelope, 2.6 mm (12
@@ -441,7 +450,7 @@ use `--headless`.
 | `profiles` | Generic T-slot sections, the vendor 2020 B-slot6 A section, OpenBuilds-compatible V-Slot 2020/2040 sections, the MakerBeam 10 x 10 section, a gusseted V-Slot corner bracket, P1000-style strut channel, and a generic channel nut. |
 | `motion` | Shafts, stepped/keyed shafts, spacers and V-Slot wheel spacers (plain and eccentric), bushings, plain, set-screw, and clamp shaft collars, keys, dowel pins, standoffs, compression springs, ball bearings (envelope, shielded, and full-complement deep-groove), LM-series linear bushings, flanged linear housings, UCP-series pillow-block bearing boundaries, approximated GT2 timing pulleys, smooth idlers, V-Slot wheels, EMT tubing with end caps and split clamps, rigid couplings, helical beam couplings, flanged bearing housings, a parameterized tire/wheel envelope measured from the owner-authored `tire.step` model, and a matching tire mounting flange measured from `tire-mount.step`. |
 | `mechanisms` | Generic engineering envelopes for a barrel hinge, clevis, pin, rod end, linkage bar, linear rail and carriage, lead screw and flanged nut, equal- and unequal-pulley timing-belt loops, eccentric cam and roller follower, Oldham coupling, extension and torsion springs, snap latch, O-ring, grooved shaft, L/U/Z brackets (L with optional gusset), tapped boss, a straight-flank basic rack with a pinion-layout helper, ANSI #40 roller-chain sprockets (measured CC0 16T/24T outlines), and a CC0-matched ANSI #40 10-pitch chain segment. |
-| `makerpipe` | Maker Pipe-compatible structural EMT fittings for 3/4 in and 1 in, plus the 1-3/8 in top rail: T connector, 45/90/135/180/4-way/5-way saddle family, structural coupling, flange, adjustable angle hinge, adjustable 180, adjustable angle flange, and Top Rail T, each with built-in pipe mates. Nominal layered shells; 1 in and top-rail envelopes derived from the 3/4 in drawing. Accessories are pending. |
+| `makerpipe` | Maker Pipe-compatible structural EMT fittings and accessories for 1/2, 3/4, and 1 in, plus the 1-3/8 in top rail: T connector, 45/90/135/180/4-way/5-way saddle family, structural coupling, flange, adjustable angle hinge, adjustable 180, adjustable angle flange, Top Rail T, adapter shims, end cap, rubber feet, threaded inserts, one-hole/two-hole/mounting straps, cross-over clamp, telescoping clamp, and barrel hinge, each with built-in pipe mates. Nominal layered shells; 1 in and top-rail envelopes derived from the 3/4 in drawing. |
 | `motors` | NEMA 17 and NEMA 23 stepper-motor envelopes, mounting interfaces, NEMA mounting plates, a generic NEMA-to-20-series extrusion adapter, a parameterized outrunner brushless-motor envelope measured from the owner-authored 360KV model (conical 5-spoke bell, windows, rim and lip, stator hub, prop and mount holes, shaft), and a parameterized XAIRCRAFT A12 8318 100KV agricultural outrunner envelope measured from the motor (6-spoke bell with 3 alternating forked spokes and 4 inner arcing hub slots, 42 curved magnets, machined prop adapter with 4 open M4 holes and 4 screw-filled counterbores, 36-slot stator with pole shoes and exact per-tooth copper frames, stepped 8-window mount plate with narrow spokes carrying M3/M4 circles, 6901Z bearing tube, front insulator ring, through shaft). |
 | `stock` | EN 10056 angle sections, configurable flat plate blanks with analytic circular holes and obround slots, counterbored and countersunk plates, bearing-housing plates, tube-to-plate and tube-to-V-Slot adapter brackets, generic channel-to-extrusion adapters and extrusion-to-tube clamps, SC8UU-style rod/bearing blocks, and heat-set insert bosses. |
 | `gears` | Involute spur gears, a smooth single-extrusion arc-run spur presentation, external pairs, and exact-internal-involute planetary sets. |

@@ -1,7 +1,7 @@
 ///|
 /// components/examples/makerpipe_kit
 ///
-/// Generate Maker Pipe-compatible structural EMT connectors:
+/// Generate Maker Pipe-compatible structural EMT connectors and accessories:
 ///
 /// ```bash
 /// moon run components/examples/makerpipe_kit -- --part tee --size 3/4 -o /tmp/tee.step
@@ -11,14 +11,31 @@
 /// moon run components/examples/makerpipe_kit -- --part flange --size 3/4 -o /tmp/flange.step
 /// moon run components/examples/makerpipe_kit -- --part adj-hinge --size 3/4 --angle 30 -o /tmp/adj-hinge.step
 /// moon run components/examples/makerpipe_kit -- --part top-rail-tee -o /tmp/top-rail-tee.step
+/// moon run components/examples/makerpipe_kit -- --part shim --from 3/4 --to 1 -o /tmp/shim.step
+/// moon run components/examples/makerpipe_kit -- --part foot --trade 1/2 -o /tmp/foot.step
+/// moon run components/examples/makerpipe_kit -- --part strap-1 --trade 3/4 -o /tmp/strap.step
 /// ```
+async fn required_size(name : String) -> @makerpipe.MakerPipeSize {
+  match @makerpipe.makerpipe_size(name) {
+    Ok(s) => s
+    Err(e) => {
+      @cli.eprintln("error: " + e.message())
+      abort("")
+    }
+  }
+}
+
+///|
 async fn main {
   let spec = {
     "part": @cli.opt_string(
       short='p',
-      help="Part: tee (default), elbow, saddle, coupling, flange, adj-hinge, adj-180, adj-flange, top-rail-tee, elbow-45, elbow-90, elbow-135, straight-180, four-way, five-way",
+      help="Part: tee (default), elbow, saddle, coupling, flange, adj-hinge, adj-180, adj-flange, top-rail-tee, shim, end-cap, foot, insert, strap-1, strap-2, mounting-strap, cross-over, telescoping, barrel-hinge, elbow-45, elbow-90, elbow-135, straight-180, four-way, five-way",
     ),
-    "size": @cli.opt_string(help="Native size: 3/4 (default) or 1"),
+    "size": @cli.opt_string(help="Native connector size: 3/4 (default) or 1"),
+    "trade": @cli.opt_string(
+      help="EMT trade size for accessories: 1/2, 3/4 (default), 1",
+    ),
     "angle": @cli.opt_double(
       90.0,
       help="Elbow or adjustable fitting angle in degrees",
@@ -31,6 +48,16 @@ async fn main {
       0.0,
       help="Coupling length in mm (0 = 2x T socket depth)",
     ),
+    "from": @cli.opt_string(
+      help="Shim inside pipe trade size: 1/2 or 3/4 (default 3/4)",
+    ),
+    "to": @cli.opt_string(
+      help="Shim outside connector size: 3/4 or 1 (default 1)",
+    ),
+    "thread": @cli.opt_string(
+      help="Pipe-insert thread: 1/4-20 (default) or 3/8-16",
+    ),
+    "no-lip": @cli.flag(help="Omit the threaded-insert lip"),
     "baseDiameter": @cli.opt_double(70.0, help="Flange base diameter in mm"),
     "baseThickness": @cli.opt_double(5.0, help="Flange base thickness in mm"),
     "boltCircle": @cli.opt_double(
@@ -51,49 +78,51 @@ async fn main {
   guard @cli.parse(
       spec,
       prog="components/examples/makerpipe_kit",
-      description="Generate Maker Pipe-compatible structural EMT connectors.",
+      description="Generate Maker Pipe-compatible structural EMT connectors and accessories.",
     )
     is Some(args) else {
     return
   }
   let size_name = args.string_opt("size").unwrap_or("3/4")
-  let size = match @makerpipe.makerpipe_size(size_name) {
-    Ok(s) => s
-    Err(e) => {
-      @cli.eprintln("error: " + e.message())
-      abort("")
-    }
-  }
+  let trade = args.string_opt("trade").unwrap_or(size_name)
   let part_name = args.string_opt("part").unwrap_or("tee")
   let component = match part_name {
-    "tee" => @makerpipe.tee(size)
-    "elbow" => @makerpipe.elbow(size, args.double("angle"))
-    "elbow-45" => @makerpipe.elbow_45(size)
-    "elbow-90" => @makerpipe.elbow_90(size)
-    "elbow-135" => @makerpipe.elbow_135(size)
-    "straight-180" => @makerpipe.straight_180(size)
-    "four-way" => @makerpipe.four_way(size)
-    "five-way" => @makerpipe.five_way(size)
-    "coupling" => @makerpipe.coupling(size, length_mm=args.double("length"))
+    "tee" => @makerpipe.tee(required_size(size_name))
+    "elbow" => @makerpipe.elbow(required_size(size_name), args.double("angle"))
+    "elbow-45" => @makerpipe.elbow_45(required_size(size_name))
+    "elbow-90" => @makerpipe.elbow_90(required_size(size_name))
+    "elbow-135" => @makerpipe.elbow_135(required_size(size_name))
+    "straight-180" => @makerpipe.straight_180(required_size(size_name))
+    "four-way" => @makerpipe.four_way(required_size(size_name))
+    "five-way" => @makerpipe.five_way(required_size(size_name))
+    "coupling" =>
+      @makerpipe.coupling(
+        required_size(size_name),
+        length_mm=args.double("length"),
+      )
     "flange" =>
       @makerpipe.flange(
-        size,
+        required_size(size_name),
         base_diameter_mm=args.double("baseDiameter"),
         base_thickness_mm=args.double("baseThickness"),
         bolt_circle_mm=args.double("boltCircle"),
         bolt_hole_mm=args.double("boltHole"),
         socket_depth_mm=args.double("socketDepth"),
       )
-    "adj-hinge" => @makerpipe.adjustable_hinge(size, args.double("angle"))
+    "adj-hinge" =>
+      @makerpipe.adjustable_hinge(
+        required_size(size_name),
+        args.double("angle"),
+      )
     "adj-180" =>
       @makerpipe.adjustable_180(
-        size,
+        required_size(size_name),
         args.double("angle"),
         args.double("angle2"),
       )
     "adj-flange" =>
       @makerpipe.adjustable_flange(
-        size,
+        required_size(size_name),
         args.double("angle"),
         base_diameter_mm=args.double("baseDiameter"),
         base_thickness_mm=args.double("baseThickness"),
@@ -101,6 +130,25 @@ async fn main {
         bolt_hole_mm=args.double("boltHole"),
       )
     "top-rail-tee" => @makerpipe.top_rail_tee()
+    "shim" =>
+      @makerpipe.adapter_shim(
+        args.string_opt("from").unwrap_or("3/4"),
+        args.string_opt("to").unwrap_or("1"),
+      )
+    "end-cap" => @makerpipe.end_cap(trade)
+    "foot" => @makerpipe.rubber_foot(trade)
+    "insert" =>
+      @makerpipe.threaded_insert(
+        trade,
+        args.string_opt("thread").unwrap_or("1/4-20"),
+        lip=if args.flag("no-lip") { false } else { true },
+      )
+    "strap-1" => @makerpipe.one_hole_strap(trade)
+    "strap-2" => @makerpipe.two_hole_strap(trade)
+    "mounting-strap" => @makerpipe.mounting_strap(trade)
+    "cross-over" => @makerpipe.cross_over_clamp(trade)
+    "telescoping" => @makerpipe.telescoping_clamp()
+    "barrel-hinge" => @makerpipe.barrel_hinge()
     "saddle" => {
       let text = args.string_opt("branches").unwrap_or("0,90")
       let angles : Array[Double] = []
@@ -118,11 +166,11 @@ async fn main {
           angles.push(angle)
         }
       }
-      @makerpipe.saddle_connector(size, angles)
+      @makerpipe.saddle_connector(required_size(size_name), angles)
     }
     other => {
       @cli.eprintln(
-        "error: unknown part '\{other}'; use tee, elbow, saddle, coupling, flange, adj-hinge, adj-180, adj-flange, top-rail-tee, elbow-45, elbow-90, elbow-135, straight-180, four-way, or five-way",
+        "error: unknown part '\{other}'; use tee, elbow, saddle, coupling, flange, adj-hinge, adj-180, adj-flange, top-rail-tee, shim, end-cap, foot, insert, strap-1, strap-2, mounting-strap, cross-over, telescoping, barrel-hinge, elbow-45, elbow-90, elbow-135, straight-180, four-way, or five-way",
       )
       abort("")
     }

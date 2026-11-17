@@ -7,13 +7,19 @@ import {
 }
 
 // Values
+pub fn adapter_shim(String, String, length_mm? : Double, slot_width_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
 pub fn adjustable_180(MakerPipeSize, Double, Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
 pub fn adjustable_flange(MakerPipeSize, Double, base_diameter_mm? : Double, base_thickness_mm? : Double, bolt_circle_mm? : Double, bolt_hole_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
 pub fn adjustable_hinge(MakerPipeSize, Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
+pub fn barrel_hinge(length_mm? : Double, diameter_mm? : Double, pin_diameter_mm? : Double, barrel_gap_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
 pub fn coupling(MakerPipeSize, length_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn cross_over_clamp(String, width_mm? : Double, wall_mm? : Double, clearance_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
 pub fn elbow(MakerPipeSize, Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
@@ -22,6 +28,8 @@ pub fn elbow_135(MakerPipeSize, color? : @cad.Rgb) -> Result[@common.Component, 
 pub fn elbow_45(MakerPipeSize, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
 pub fn elbow_90(MakerPipeSize, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn end_cap(String, cap_thickness_mm? : Double, plug_length_mm? : Double, plug_clearance_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
 pub fn five_way(MakerPipeSize, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
@@ -33,15 +41,29 @@ pub fn makerpipe_size(String) -> Result[MakerPipeSize, @common.SpecError]
 
 pub fn makerpipe_trade_sizes() -> Array[String]
 
+pub fn mounting_strap(String, width_mm? : Double, wall_mm? : Double, clearance_mm? : Double, tab_length_mm? : Double, tab_width_mm? : Double, tab_thickness_mm? : Double, hole_diameter_mm? : Double, bolt_diameter_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn one_hole_strap(String, width_mm? : Double, wall_mm? : Double, clearance_mm? : Double, tab_length_mm? : Double, tab_width_mm? : Double, tab_thickness_mm? : Double, hole_diameter_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn pipe_tube_shim(Double, Double, length_mm? : Double, slot_width_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn rubber_foot(String, height_mm? : Double, wall_mm? : Double, floor_mm? : Double, clearance_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
 pub fn saddle_connector(MakerPipeSize, Array[Double], color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
 pub fn straight_180(MakerPipeSize, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
 pub fn tee(MakerPipeSize, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
+pub fn telescoping_clamp(outer_trade? : String, inner_trade? : String, clearance_mm? : Double, wall_mm? : Double, lower_length_mm? : Double, upper_length_mm? : Double, knob_diameter_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn threaded_insert(String, String, lip? : Bool, length_mm? : Double, lip_thickness_mm? : Double, interference_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
 pub fn top_rail_size() -> MakerPipeSize
 
 pub fn top_rail_tee(color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn two_hole_strap(String, width_mm? : Double, wall_mm? : Double, clearance_mm? : Double, tab_length_mm? : Double, tab_width_mm? : Double, tab_thickness_mm? : Double, hole_diameter_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
 // Errors
 

@@ -465,3 +465,183 @@ test "top rail tee uses the 1.315 in rail envelope and alias mates" {
   let bore = mp_connector(part, "through-bore")
   assert_true(mp_close(bore.diameter_mm.unwrap(), 33.601, 1.0e-9))
 }
+
+///|
+test "adapter shims adapt 1 in and 1/2 in pipes to Maker Pipe sockets" {
+  let big = match @makerpipe.adapter_shim("3/4", "1") {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  assert_eq(big.layers().length(), 1)
+  for name in ["origin", "outer", "inner", "end-a", "end-b"] {
+    assert_true(mp_has_connector(big, name))
+  }
+  let outer = mp_connector(big, "outer")
+  assert_true(mp_close(outer.diameter_mm.unwrap(), 30.0002 - 0.2, 1.0e-9))
+  let inner = mp_connector(big, "inner")
+  assert_true(mp_close(inner.diameter_mm.unwrap(), 23.4188 + 0.2, 1.0e-9))
+  let small = match @makerpipe.adapter_shim("1/2", "3/4") {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  let small_outer = mp_connector(small, "outer")
+  assert_true(mp_close(small_outer.diameter_mm.unwrap(), 23.876 - 0.2, 1.0e-9))
+  let small_inner = mp_connector(small, "inner")
+  assert_true(mp_close(small_inner.diameter_mm.unwrap(), 17.9324 + 0.2, 1.0e-9))
+}
+
+///|
+test "pipe and tube shim uses explicit diameters" {
+  let part = match @makerpipe.pipe_tube_shim(25.0, 28.0, length_mm=20.0) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  assert_eq(part.layers().length(), 1)
+  assert_true(mp_close(part.bounding_box().1, 14.0, 1.0e-6))
+}
+
+///|
+test "end cap supports 1/2 in EMT even though connectors do not" {
+  let part = match @makerpipe.end_cap("1/2") {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  for name in ["origin", "cap-face", "tube-face", "plug", "plug-end"] {
+    assert_true(mp_has_connector(part, name))
+  }
+  let plug = mp_connector(part, "plug")
+  assert_true(plug.diameter_mm.unwrap() < 17.9324 - 2.0 * 1.0668)
+}
+
+///|
+test "rubber foot has a floor and a pipe seat" {
+  let part = match @makerpipe.rubber_foot("3/4") {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  assert_eq(part.layers().length(), 2)
+  for name in ["origin", "pipe-seat", "floor", "mouth"] {
+    assert_true(mp_has_connector(part, name))
+  }
+  let seat = mp_connector(part, "pipe-seat")
+  assert_true(mp_close_vec(seat.placement.trans, (0.0, 0.0, 3.0), 1.0e-9))
+  assert_true(mp_close(seat.depth_mm.unwrap(), 17.0, 1.0e-9))
+  let (x0, x1, _, _, z0, z1) = part.bounding_box()
+  assert_true(mp_close(x0, -15.2094, 1.0e-6))
+  assert_true(mp_close(x1, 15.2094, 1.0e-6))
+  assert_true(mp_close(z0, 0.0, 1.0e-9))
+  assert_true(mp_close(z1, 20.0, 1.0e-9))
+}
+
+///|
+test "threaded insert has a star body, declared thread, and optional lip" {
+  let lip = match @makerpipe.threaded_insert("3/4", "1/4-20") {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  assert_eq(lip.layers().length(), 2)
+  for name in ["origin", "thread", "outer", "seat"] {
+    assert_true(mp_has_connector(lip, name))
+  }
+  let thread = mp_connector(lip, "thread")
+  assert_eq(thread.kind, @common.MateKind::Threaded)
+  assert_true(mp_close(thread.diameter_mm.unwrap(), 6.35, 1.0e-9))
+  let plain = match @makerpipe.threaded_insert("3/4", "3/8-16", lip=false) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  assert_eq(plain.layers().length(), 1)
+  assert_false(mp_has_connector(plain, "seat"))
+  assert_true(@makerpipe.threaded_insert("3/4", "M6") is Err(_))
+}
+
+///|
+test "straps provide pipe bores, mounting tabs, and holes" {
+  let one = match @makerpipe.one_hole_strap("3/4") {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  assert_eq(one.layers().length(), 2)
+  for name in ["origin", "pipe", "mount", "mount-hole"] {
+    assert_true(mp_has_connector(one, name))
+  }
+  let two = match @makerpipe.two_hole_strap("3/4") {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  assert_eq(two.layers().length(), 3)
+  for name in ["pipe", "mount-1", "mount-2", "mount-hole-1", "mount-hole-2"] {
+    assert_true(mp_has_connector(two, name))
+  }
+  let mounting = match @makerpipe.mounting_strap("3/4") {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  assert_eq(mounting.layers().length(), 3)
+  for name in ["pipe", "mount", "mount-hole", "bolt"] {
+    assert_true(mp_has_connector(mounting, name))
+  }
+}
+
+///|
+test "cross-over clamp has two pipe bores and a bolt" {
+  let part = match @makerpipe.cross_over_clamp("3/4") {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  assert_eq(part.layers().length(), 2)
+  for name in ["origin", "pipe-a", "pipe-b", "bolt"] {
+    assert_true(mp_has_connector(part, name))
+  }
+  assert_true(
+    mp_close_vec(mp_connector(part, "pipe-a").axis, (0.0, 0.0, -1.0), 1.0e-9),
+  )
+  assert_true(
+    mp_close_vec(mp_connector(part, "pipe-b").axis, (-1.0, 0.0, 0.0), 1.0e-9),
+  )
+}
+
+///|
+test "telescoping clamp joins 1/2 in and 3/4 in pipes" {
+  let part = match @makerpipe.telescoping_clamp() {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  assert_eq(part.layers().length(), 3)
+  for name in ["origin", "outer-pipe", "inner-pipe", "knob"] {
+    assert_true(mp_has_connector(part, name))
+  }
+  assert_true(
+    mp_close_vec(
+      mp_connector(part, "inner-pipe").placement.trans,
+      (0.0, 0.0, 30.0),
+      1.0e-9,
+    ),
+  )
+  assert_true(
+    mp_close(
+      mp_connector(part, "inner-pipe").diameter_mm.unwrap(),
+      17.9324 + 1.0,
+      1.0e-9,
+    ),
+  )
+}
+
+///|
+test "barrel hinge has two 0.94 in barrels, a bearing, and a pin" {
+  let part = match @makerpipe.barrel_hinge() {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  assert_eq(part.layers().length(), 4)
+  for name in ["origin", "barrel-a", "barrel-b", "hinge-axis", "joint"] {
+    assert_true(mp_has_connector(part, name))
+  }
+  let a = mp_connector(part, "barrel-a")
+  assert_true(mp_close(a.diameter_mm.unwrap(), 23.876, 1.0e-9))
+  let b = mp_connector(part, "barrel-b")
+  assert_true(mp_close_vec(b.placement.trans, (0.0, 0.0, 101.6), 1.0e-9))
+  let (_, _, _, _, z0, z1) = part.bounding_box()
+  assert_true(mp_close(z0, 0.0, 1.0e-9))
+  assert_true(mp_close(z1, 101.6, 1.0e-9))
+}

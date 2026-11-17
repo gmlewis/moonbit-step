@@ -1,6 +1,7 @@
 import {
   "gmlewis/step/cad",
   "gmlewis/step/components/common",
+  "gmlewis/step/components/motion",
   "moonbitlang/core/builtin",
   "moonbitlang/core/math",
 }
