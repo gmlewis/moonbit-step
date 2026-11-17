@@ -1,6 +1,6 @@
 name = "gmlewis/step"
 
-version = "0.2.6"
+version = "0.2.7"
 
 import {
   "gmlewis/base64@0.16.15",
