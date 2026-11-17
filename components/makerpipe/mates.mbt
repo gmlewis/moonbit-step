@@ -59,6 +59,16 @@ fn socket_frame(seat : @cad.Vec3, axis_out : @cad.Vec3) -> @common.Placement {
 }
 
 ///|
+/// frame_x_along_xz returns a rotation about +Y that maps local +X to an axis
+/// in the XZ plane. It is used for the flat hinge straps, whose local +Y must
+/// stay the pin axis.
+fn frame_x_along_xz(axis : @cad.Vec3) -> @common.Placement {
+  let (x, _, z) = unit3(axis)
+  let angle_deg = @math.atan2(z, x) * 180.0 / @math.PI
+  @common.Placement::rotation_y(-angle_deg)
+}
+
+///|
 /// frame_x_to_y_z_to_x returns the 120 degree rotation about (1, 1, 1).
 ///
 /// It maps local +X to +Y, +Y to +Z, and +Z to +X. The T run sleeve is drawn

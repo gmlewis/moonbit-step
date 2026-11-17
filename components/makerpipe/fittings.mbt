@@ -1,4 +1,49 @@
 ///|
+/// circle_loop_at returns a counter-clockwise circle as four arcs.
+fn circle_loop_at(
+  cx : Double,
+  cy : Double,
+  radius : Double,
+) -> Array[@cad.ProfileSegment] {
+  let centre = (cx, cy)
+  [
+    @cad.SegmentArc((cx + radius, cy), (cx, cy + radius), centre),
+    @cad.SegmentArc((cx, cy + radius), (cx - radius, cy), centre),
+    @cad.SegmentArc((cx - radius, cy), (cx, cy - radius), centre),
+    @cad.SegmentArc((cx, cy - radius), (cx + radius, cy), centre),
+  ]
+}
+
+///|
+/// flange_base_shape builds the circular mounting base with a central pipe
+/// bore and four real bolt holes.
+fn flange_base_shape(
+  base_diameter_mm : Double,
+  base_thickness_mm : Double,
+  bore_diameter_mm : Double,
+  bolt_circle_mm : Double,
+  bolt_hole_mm : Double,
+) -> @cad.Shape {
+  let outer = circle_loop_at(0.0, 0.0, base_diameter_mm / 2.0)
+  let holes : Array[Array[@cad.ProfileSegment]] = []
+  if bore_diameter_mm > 0.0 {
+    holes.push(circle_loop_at(0.0, 0.0, bore_diameter_mm / 2.0))
+  }
+  let hole_radius = bolt_circle_mm / 2.0
+  for i in 0..<4 {
+    let angle = (45.0 + 90.0 * i.to_double()) * @math.PI / 180.0
+    holes.push(
+      circle_loop_at(
+        hole_radius * @math.cos(angle),
+        hole_radius * @math.sin(angle),
+        bolt_hole_mm / 2.0,
+      ),
+    )
+  }
+  @cad.ExtrudedArcProfile::new(outer, base_thickness_mm, holes~).as_shape()
+}
+
+///|
 /// fittings_feature_record builds the shared feature record for the
 /// non-branch fittings.
 fn fittings_feature_record(
@@ -237,23 +282,23 @@ pub fn flange(
     )
   }
   let embed = 0.5
-  let base = @cad.RevolvedProfile::tube(
+  let base = flange_base_shape(
     base_diameter_mm,
-    size.socket_bore_mm,
     base_thickness_mm,
-  ).as_shape()
+    size.socket_bore_mm,
+    bolt_circle_mm,
+    bolt_hole_mm,
+  )
   let socket = @cad.RevolvedProfile::tube(
     size.socket_outer_mm,
     size.socket_bore_mm,
     depth + embed,
   ).as_shape()
   let features = fittings_feature_record(
-    ["mounting-base", "central-bore", "socket-bore", "mounting-face"],
     [
-      @common.Omission::new(
-        feature="mounting-holes",
-        reason="the four mounting holes are declared by mount-hole-1..4 but are not cut into the nominal base",
-      ),
+      "mounting-base", "central-bore", "mounting-holes", "socket-bore", "mounting-face",
+    ],
+    [
       @common.Omission::new(
         feature="stamped-clamp-halves",
         reason="the two mirrored stamped pieces are represented by one nominal base and socket",
@@ -270,10 +315,10 @@ pub fn flange(
         size,
         "Maker Pipe-compatible flange connector \{size.trade_size} in EMT",
         makerpipe_source(
-          size, "Flange base diameter, thickness, bolt circle, and hole diameter are engineering defaults; socket dimensions come from the published 3/4 in drawings",
+          size, "Flange base diameter, thickness, bolt circle, and hole diameter are engineering defaults; the four mounting holes are modelled. Socket dimensions come from the published 3/4 in drawings",
         ),
       ),
-      description="Nominal Maker Pipe-compatible flange: an annular mounting base with a central pipe bore and a socket tube along +Z. The mounting holes are declared as mount mates but omitted from the nominal geometry. No pull-out or strength rating is modelled.",
+      description="Nominal Maker Pipe-compatible flange: a circular mounting base with a central pipe bore and four real mounting holes, plus a socket tube along +Z. No pull-out or strength rating is modelled.",
       features~,
     )
     .add_layer(base, name="base", color~)
@@ -347,7 +392,57 @@ fn hinge_arm_axis(angle_deg : Double, sign : Double) -> @cad.Vec3 {
 }
 
 ///|
-/// add_hinge_arm attaches a pivot boss and an end socket on one side.
+/// Hinge geometry constants. The ear is a pin lug; the straps are flat plates
+/// that sit in the socket wall so they do not block the pipe bore.
+let hinge_ear_radius_mm : Double = 8.0
+
+///|
+let hinge_ear_width_mm : Double = 6.0
+
+///|
+let hinge_strap_width_mm : Double = 2.0
+
+///|
+let hinge_strap_height_mm : Double = 10.0
+
+///|
+let hinge_socket_start_mm : Double = 12.0
+
+///|
+let hinge_lug_length_mm : Double = 18.0
+
+///|
+let hinge_pin_hole_mm : Double = 6.6
+
+///|
+let hinge_embed_mm : Double = 1.0
+
+///|
+/// hinge_strap_y returns the mid-wall offset of an arm strap.
+///
+/// The strap sits between the socket bore and the socket shell so it can join
+/// the outer wall without entering the pipe passage.
+fn hinge_strap_y(size : MakerPipeSize) -> Double {
+  (size.socket_bore_mm / 2.0 + size.socket_outer_mm / 2.0) / 2.0
+}
+
+///|
+/// hinge_name appends a suffix when one is given.
+fn hinge_name(base : String, suffix : String) -> String {
+  if suffix == "" {
+    base
+  } else {
+    "\{base}-\{suffix}"
+  }
+}
+
+///|
+/// add_hinge_arm adds the pivoting side of a hinge: two pin ears, two flat
+/// straps, and the end-clamp socket.
+///
+/// The ears are at `+/- strap_y` on the pin axis; the straps run from the ear
+/// to the socket wall. The pipe seat is `socket_start_mm` out from the pivot, so
+/// the socket cup clears the through clamp.
 fn add_hinge_arm(
   component : @common.Component,
   size : MakerPipeSize,
@@ -355,54 +450,153 @@ fn add_hinge_arm(
   pivot : @cad.Vec3,
   arm_axis : @cad.Vec3,
   arm_length_mm : Double,
-  boss_width_mm : Double,
   color : @cad.Rgb,
 ) -> @common.Component {
   let (px, py, pz) = pivot
-  let boss = @cad.RevolvedProfile::tube(
-    size.socket_outer_mm,
-    6.6,
-    boss_width_mm,
+  let strap_y = hinge_strap_y(size)
+  let cup_start = (
+    px + hinge_socket_start_mm * arm_axis.0,
+    py + hinge_socket_start_mm * arm_axis.1,
+    pz + hinge_socket_start_mm * arm_axis.2,
+  )
+  let ear = @cad.RevolvedProfile::tube(
+    2.0 * hinge_ear_radius_mm,
+    hinge_pin_hole_mm,
+    hinge_strap_width_mm,
   ).as_shape()
-  let arm = @cad.RevolvedProfile::tube(
+  let strap_start = hinge_ear_radius_mm - hinge_embed_mm
+  let strap_end = hinge_socket_start_mm + hinge_embed_mm
+  let strap_length = strap_end - strap_start
+  let strap_mid = strap_start + strap_length / 2.0
+  let strap = @cad.Cuboid::new(
+    strap_length, hinge_strap_width_mm, hinge_strap_height_mm,
+  )
+  let cup = @cad.RevolvedProfile::tube(
     size.socket_outer_mm,
     size.socket_bore_mm,
     arm_length_mm,
   ).as_shape()
-  let with_layers = component
-    .add_layer(
-      boss,
-      name="pivot-\{suffix}",
-      color~,
-      placement=tube_frame((px, py - boss_width_mm / 2.0, pz), (0.0, 1.0, 0.0)),
+  let arm_rotation = frame_x_along_xz(arm_axis)
+  let mut with_layers = component
+  let strap_offsets = [strap_y, -strap_y]
+  let strap_names = [
+    hinge_name("strap-a", suffix),
+    hinge_name("strap-b", suffix),
+  ]
+  let ear_names = [
+    hinge_name("strap-ear-a", suffix),
+    hinge_name("strap-ear-b", suffix),
+  ]
+  for i in 0..<2 {
+    let y = strap_offsets[i]
+    let center = (
+      px + strap_mid * arm_axis.0,
+      py + y + strap_mid * arm_axis.1,
+      pz + strap_mid * arm_axis.2,
     )
-    .add_layer(
-      arm,
-      name="end-socket-\{suffix}",
-      color~,
-      placement=tube_frame(pivot, arm_axis),
+    let corner = arm_rotation.apply_dir(
+      (
+        -strap_length / 2.0,
+        -hinge_strap_width_mm / 2.0,
+        -hinge_strap_height_mm / 2.0,
+      ),
     )
+    let strap_placement = @common.Placement::compose(
+      @common.Placement::translation(
+        center.0 + corner.0,
+        center.1 + corner.1,
+        center.2 + corner.2,
+      ),
+      arm_rotation,
+    )
+    with_layers = with_layers
+      .add_layer(
+        ear,
+        name=ear_names[i],
+        color~,
+        placement=tube_frame(
+          (px, py + y - hinge_strap_width_mm / 2.0, pz),
+          (0.0, 1.0, 0.0),
+        ),
+      )
+      .add_layer(strap, name=strap_names[i], color~, placement=strap_placement)
+  }
+  let with_layers = with_layers.add_layer(
+    cup,
+    name=hinge_name("end-socket", suffix),
+    color~,
+    placement=tube_frame(cup_start, arm_axis),
+  )
+  let pin_length = 2.0 * (strap_y + hinge_strap_width_mm) + 2.0
+  let with_layers = with_layers.add_layer(
+    @cad.Cylinder::new(6.0, pin_length),
+    name=hinge_name("pivot-pin", suffix),
+    color~,
+    placement=tube_frame((px, py - pin_length / 2.0, pz), (0.0, 1.0, 0.0)),
+  )
   let with_layers = add_named_socket(
     with_layers,
     size,
-    "socket-end-\{suffix}",
-    "mouth-end-\{suffix}",
-    pivot,
+    hinge_name("socket-end", suffix),
+    hinge_name("mouth-end", suffix),
+    cup_start,
     arm_axis,
     arm_length_mm,
   )
   with_layers.with_connector_unchecked(
     @common.MateConnector::new(
-      "pivot-\{suffix}",
+      hinge_name("pivot", suffix),
       placement=socket_frame(pivot, (0.0, 1.0, 0.0)),
       axis=(0.0, 1.0, 0.0),
       kind=@common.MateKind::CylindricalBore,
       gender=@common.MateGender::Female,
-      diameter_mm=6.6,
-      depth_mm=boss_width_mm,
+      diameter_mm=hinge_pin_hole_mm,
+      depth_mm=2.0 * (strap_y + hinge_strap_width_mm),
       fit=@cad.Fit::Free,
-      description="hinge-pin clearance at the pivot; axis +Y",
+      description="hinge-pin clearance through the lug and both straps; axis +Y",
     ),
+  )
+}
+
+///|
+/// add_hinge_lug adds the fixed side of a hinge: a web from the through ring
+/// to a central pin ear.
+fn add_hinge_lug(
+  component : @common.Component,
+  size : MakerPipeSize,
+  suffix : String,
+  pivot : @cad.Vec3,
+  sign : Double,
+  color : @cad.Rgb,
+) -> @common.Component {
+  let (px, _, pz) = pivot
+  let web_start = sign * (size.saddle_bore_mm / 2.0 + 1.0)
+  let web_end = px - sign * (hinge_ear_radius_mm - hinge_embed_mm)
+  let web_length = (web_end - web_start).abs()
+  let web_min_x = if web_start < web_end { web_start } else { web_end }
+  let web_height = hinge_strap_height_mm + 2.0
+  let web = @cad.Cuboid::new(web_length, hinge_ear_width_mm, web_height)
+  let ear = @cad.RevolvedProfile::tube(
+    2.0 * hinge_ear_radius_mm,
+    hinge_pin_hole_mm,
+    hinge_ear_width_mm,
+  ).as_shape()
+  component
+  .add_layer(
+    web,
+    name="lug-web-\{suffix}",
+    color~,
+    placement=@common.Placement::translation(
+      web_min_x,
+      -hinge_ear_width_mm / 2.0,
+      pz - web_height / 2.0,
+    ),
+  )
+  .add_layer(
+    ear,
+    name="lug-ear-\{suffix}",
+    color~,
+    placement=tube_frame((px, -hinge_ear_width_mm / 2.0, pz), (0.0, 1.0, 0.0)),
   )
 }
 
@@ -446,14 +640,17 @@ pub fn adjustable_hinge(
     size.saddle_bore_mm,
     size.saddle_width_mm,
   ).as_shape()
-  let pivot = (size.saddle_outer_mm / 2.0, 0.0, 0.0)
+  let pivot = (size.saddle_outer_mm / 2.0 + hinge_lug_length_mm, 0.0, 0.0)
   let arm_length = size.branch_centre_to_mouth_mm - size.socket_outer_mm / 2.0
   let features = fittings_feature_record(
-    ["through-ring", "pivot-boss", "end-socket", "socket-bore", "pivot-bore"],
+    [
+      "through-ring", "central-pin-lug", "outer-straps", "end-socket", "pivot-pin",
+      "socket-bore", "pivot-bore",
+    ],
     [
       @common.Omission::new(
         feature="four-piece-stamping",
-        reason="the two long end-clamp pieces and two puzzle-piece clamp pieces are represented by a ring, a boss, and a socket",
+        reason="the two long end-clamp pieces and two puzzle-piece clamp pieces are represented by a ring, a central lug, two outer straps, and a socket",
       ),
       @common.Omission::new(
         feature="fastener-thread",
@@ -471,10 +668,10 @@ pub fn adjustable_hinge(
       size,
       "Maker Pipe-compatible adjustable angle hinge \{size.trade_size} in EMT",
       makerpipe_source(
-        size, "Adjustable hinge arm and through ring use the published socket and saddle dimensions; pivot location is an engineering default",
+        size, "Adjustable hinge socket, through ring, lug, and straps use the published socket and saddle dimensions; pivot offset is an engineering default",
       ),
     ),
-    description="Nominal Maker Pipe-compatible adjustable angle hinge: a through-pipe ring, a pivot boss on +X, and one end-clamp socket pivoting in the XZ plane. Zero angle is horizontal, positive tilts toward +Z, and the pin runs along +Y. No stamped four-piece detail, bolt thread, or hinge rating is modelled.",
+    description="Nominal Maker Pipe-compatible adjustable angle hinge: a through-pipe ring with a central pin lug, two outer straps, and one end-clamp socket pivoting in the XZ plane. The pin runs along +Y; zero angle is horizontal and positive tilts toward +Z. No stamped four-piece detail, bolt thread, or hinge rating is modelled.",
     features~,
   ).add_layer(
     ring,
@@ -486,14 +683,14 @@ pub fn adjustable_hinge(
       -size.saddle_width_mm / 2.0,
     ),
   )
+  let with_lug = add_hinge_lug(component, size, "1", pivot, 1.0, color)
   let with_arm = add_hinge_arm(
-    component,
+    with_lug,
     size,
     "1",
     pivot,
     hinge_arm_axis(angle_deg, 1.0),
     arm_length,
-    size.saddle_width_mm,
     color,
   )
   Ok(
@@ -558,12 +755,13 @@ pub fn adjustable_180(
   ).as_shape()
   let features = fittings_feature_record(
     [
-      "through-ring", "two-pivot-bosses", "two-end-sockets", "socket-bores", "pivot-bores",
+      "through-ring", "two-pin-lugs", "four-outer-straps", "two-end-sockets", "pivot-pins",
+      "socket-bores", "pivot-bores",
     ],
     [
       @common.Omission::new(
         feature="six-piece-stamping",
-        reason="the six stamped pieces are represented by a ring, two bosses, and two sockets",
+        reason="the six stamped pieces are represented by a ring, two central lugs, four outer straps, and two sockets",
       ),
       @common.Omission::new(
         feature="fastener-thread",
@@ -581,10 +779,10 @@ pub fn adjustable_180(
       size,
       "Maker Pipe-compatible adjustable 180 connector \{size.trade_size} in EMT",
       makerpipe_source(
-        size, "Adjustable 180 arms and through ring use the published socket and saddle dimensions; pivot locations are engineering defaults",
+        size, "Adjustable 180 sockets, through ring, lugs, and straps use the published socket and saddle dimensions; pivot offsets are engineering defaults",
       ),
     ),
-    description="Nominal Maker Pipe-compatible adjustable 180 connector: a through-pipe ring and two independent pivoting end clamps on +X and -X. Zero angle is horizontal and positive tilts toward +Z. No stamped six-piece detail, bolt thread, or hinge rating is modelled.",
+    description="Nominal Maker Pipe-compatible adjustable 180 connector: a through-pipe ring with two central pin lugs and two independent pivoting end clamps on +X and -X. Outer straps straddle each lug; the pins run along +Y. Zero angle is horizontal and positive tilts toward +Z. No stamped six-piece detail, bolt thread, or hinge rating is modelled.",
     features~,
   ).add_layer(
     ring,
@@ -596,15 +794,30 @@ pub fn adjustable_180(
       -size.saddle_width_mm / 2.0,
     ),
   )
-  let pivot_x = size.saddle_outer_mm / 2.0
-  let with_arms = add_hinge_arm(
+  let pivot_x = size.saddle_outer_mm / 2.0 + hinge_lug_length_mm
+  let with_lugs = add_hinge_lug(
     component,
+    size,
+    "1",
+    (pivot_x, 0.0, 0.0),
+    1.0,
+    color,
+  )
+  let with_lugs = add_hinge_lug(
+    with_lugs,
+    size,
+    "2",
+    (-pivot_x, 0.0, 0.0),
+    -1.0,
+    color,
+  )
+  let with_arms = add_hinge_arm(
+    with_lugs,
     size,
     "1",
     (pivot_x, 0.0, 0.0),
     hinge_arm_axis(angle_1_deg, 1.0),
     arm_length,
-    size.saddle_width_mm,
     color,
   )
   let with_arms = add_hinge_arm(
@@ -614,7 +827,6 @@ pub fn adjustable_180(
     (-pivot_x, 0.0, 0.0),
     hinge_arm_axis(angle_2_deg, -1.0),
     arm_length,
-    size.saddle_width_mm,
     color,
   )
   Ok(
@@ -689,14 +901,11 @@ pub fn adjustable_flange(
       @common.InvalidParameter("adjustable flange arm length must be positive"),
     )
   }
-  let base = @cad.RevolvedProfile::tube(
-    base_diameter_mm,
-    size.socket_bore_mm,
-    base_thickness_mm,
-  ).as_shape()
-  let boss_width = size.saddle_width_mm
-  let boss_embed = 1.0
-  let pivot_z = base_thickness_mm + size.socket_outer_mm / 2.0 - boss_embed
+  let base = flange_base_shape(
+    base_diameter_mm, base_thickness_mm, 0.0, bolt_circle_mm, bolt_hole_mm,
+  )
+  let upstand_length = 6.0
+  let pivot_z = base_thickness_mm + upstand_length + hinge_ear_radius_mm
   let pivot = (0.0, 0.0, pivot_z)
   let arm_axis = (
     @math.sin(angle_deg * @math.PI / 180.0),
@@ -704,15 +913,14 @@ pub fn adjustable_flange(
     @math.cos(angle_deg * @math.PI / 180.0),
   )
   let features = fittings_feature_record(
-    ["mounting-base", "pivot-boss", "end-socket", "socket-bore", "pivot-bore"],
+    [
+      "mounting-base", "mounting-holes", "upstand", "pin-lug", "outer-straps", "end-socket",
+      "pivot-pin", "socket-bore", "pivot-bore",
+    ],
     [
       @common.Omission::new(
-        feature="mounting-holes",
-        reason="the four mounting holes are declared by mount-hole-1..4 but are not cut into the nominal base",
-      ),
-      @common.Omission::new(
         feature="four-piece-stamping",
-        reason="the stamped end-clamp and adjustable base pieces are represented by a base, a boss, and a socket",
+        reason="the stamped end-clamp and adjustable base pieces are represented by a base, an upstand, a pin lug, outer straps, and a socket",
       ),
       @common.Omission::new(
         feature="strength-rating",
@@ -726,55 +934,51 @@ pub fn adjustable_flange(
       size,
       "Maker Pipe-compatible adjustable angle flange \{size.trade_size} in EMT",
       makerpipe_source(
-        size, "Adjustable flange arm and socket use the published dimensions; base and pivot locations are engineering defaults",
+        size, "Adjustable flange socket, base, lug, and straps use the published dimensions; the four mounting holes are modelled; upstand and pivot locations are engineering defaults",
       ),
     ),
-    description="Nominal Maker Pipe-compatible adjustable flange: an annular mounting base, a pivot boss above it, and one end-clamp socket pivoting in the XZ plane. Zero is vertical and positive tilts toward +X; the pin runs along +Y. Mounting holes are declared but omitted. No stamped detail, bolt thread, or rating is modelled.",
+    description="Nominal Maker Pipe-compatible adjustable flange: a circular solid mounting base with four real mounting holes, an upstand and central pin lug, two outer straps, and one end-clamp socket pivoting in the XZ plane. The pin runs along +Y; zero is vertical and positive tilts toward +X. No stamped detail, bolt thread, or rating is modelled.",
     features~,
   ).add_layer(base, name="base", color~)
-  let with_boss = component.add_layer(
-    @cad.RevolvedProfile::tube(size.socket_outer_mm, 6.6, boss_width).as_shape(),
-    name="pivot-boss",
+  let upstand_start = base_thickness_mm - hinge_embed_mm
+  let upstand_end = pivot_z - hinge_ear_radius_mm + hinge_embed_mm
+  let upstand_height = upstand_end - upstand_start
+  let with_upstand = component.add_layer(
+    @cad.Cuboid::new(12.0, hinge_ear_width_mm, upstand_height),
+    name="upstand",
     color~,
-    placement=tube_frame((0.0, -boss_width / 2.0, pivot_z), (0.0, 1.0, 0.0)),
+    placement=@common.Placement::translation(
+      -6.0,
+      -hinge_ear_width_mm / 2.0,
+      upstand_start,
+    ),
   )
-  let with_arm = with_boss.add_layer(
+  let with_ear = with_upstand.add_layer(
     @cad.RevolvedProfile::tube(
-      size.socket_outer_mm,
-      size.socket_bore_mm,
-      arm_length,
+      2.0 * hinge_ear_radius_mm,
+      hinge_pin_hole_mm,
+      hinge_ear_width_mm,
     ).as_shape(),
-    name="end-socket",
+    name="lug-ear",
     color~,
-    placement=tube_frame(pivot, arm_axis),
+    placement=tube_frame(
+      (0.0, -hinge_ear_width_mm / 2.0, pivot_z),
+      (0.0, 1.0, 0.0),
+    ),
   )
-  let with_arm = add_named_socket(
-    with_arm, size, "socket-end", "mouth-end", pivot, arm_axis, arm_length,
+  let with_arm = add_hinge_arm(
+    with_ear, size, "", pivot, arm_axis, arm_length, color,
   )
-  let with_arm = with_arm
-    .with_connector_unchecked(
-      @common.MateConnector::new(
-        "pivot",
-        placement=socket_frame(pivot, (0.0, 1.0, 0.0)),
-        axis=(0.0, 1.0, 0.0),
-        kind=@common.MateKind::CylindricalBore,
-        gender=@common.MateGender::Female,
-        diameter_mm=6.6,
-        depth_mm=boss_width,
-        fit=@cad.Fit::Free,
-        description="hinge-pin clearance at the pivot; axis +Y",
-      ),
-    )
-    .with_connector_unchecked(
-      @common.MateConnector::new(
-        "mount",
-        placement=@common.Placement::identity(),
-        axis=(0.0, 0.0, -1.0),
-        kind=@common.MateKind::PlaneFace,
-        diameter_mm=base_diameter_mm,
-        description="flat mounting face at z = 0; outward normal is -Z",
-      ),
-    )
+  let with_arm = with_arm.with_connector_unchecked(
+    @common.MateConnector::new(
+      "mount",
+      placement=@common.Placement::identity(),
+      axis=(0.0, 0.0, -1.0),
+      kind=@common.MateKind::PlaneFace,
+      diameter_mm=base_diameter_mm,
+      description="flat mounting face at z = 0; outward normal is -Z",
+    ),
+  )
   let hole_radius = bolt_circle_mm / 2.0
   let mut with_holes = with_arm
   for i in 0..<4 {

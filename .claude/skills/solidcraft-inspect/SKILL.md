@@ -18,6 +18,31 @@ SolidCraft, which renders lit, shaded views from any angle.
 If the user asks you to "look at" or "fix how it looks", they mean SolidCraft.
 Never justify keeping a wrong-looking model because "the 4-pane looks fine".
 
+## No single-view acceptance
+
+An isometric view is for **orientation only**. It hides gaps, half-size
+offsets, detached layers, and interpenetration, and it is the worst possible
+basis for a "looks right" judgment. A four-quadrant OCCT render is even worse:
+treat it as worthless for geometry.
+
+Never accept, report, or hand off a model after one iso render. The minimum
+inspection set for any changed part is:
+
+- **Six orthographic views**: front, back, left, right, top, bottom (or the
+  functional equivalents for the part). These expose silhouette, symmetry,
+  hole spacing, and gaps.
+- **One 3/4 view from each functional side**, for context.
+- **Close-ups** of every feature you changed or that carries the function.
+- **A numeric layer-connection check**: use `measure` / `body_topology` and
+  confirm that adjacent layer bounding boxes actually overlap. A rendered gap
+  is a real gap; do not argue it away.
+- For flat plates, straps, and webs: remember that the repo's `@cad.Cuboid` is
+  **corner-anchored at the local origin**, not centered. A placement at the
+  desired center shifts the body by half its size. Verify bboxes after every
+  cuboid placement.
+
+If you cannot name the views you inspected, you have not inspected the model.
+
 ## Who drives SolidCraft
 
 - **You (the agent)**: use the headless `mcp__solidcraft__*` tools **or**
@@ -143,7 +168,11 @@ motors and sub-assemblies in this repo follow that convention.
 
 1. `scripts/validate_step.py <file.step>` passes (checkshape authoritative).
 2. SolidCraft renders show the intended silhouette, feature counts, and colors
-   from at least three angles including each functional face.
-3. The user can run `./run-example.sh <example> --view` to review interactively.
-4. You report which angles you inspected and what you changed — never "looks
+   from the full orthographic set (front/back/left/right/top/bottom or the
+   functional equivalents), a 3/4 view from each functional side, and close-ups
+   of every changed feature. A single iso render is **not** acceptance evidence.
+3. `measure` / `body_topology` confirms adjacent layers overlap; no detached
+   webs, straps, bosses, or sockets.
+4. The user can run `./run-example.sh <example> --view` to review interactively.
+5. You report which views you inspected and what you changed — never "looks
    good" without saying how you looked.

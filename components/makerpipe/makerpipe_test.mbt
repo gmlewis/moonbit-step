@@ -364,7 +364,7 @@ test "adjustable hinge pivots an end socket about +Y" {
     Ok(c) => c
     Err(e) => abort(e.message())
   }
-  assert_eq(part.layers().length(), 3)
+  assert_eq(part.layers().length(), 9)
   for
     name in [
       "origin", "through", "through-bore", "pivot-1", "socket-end-1", "mouth-end-1",
@@ -372,10 +372,13 @@ test "adjustable hinge pivots an end socket about +Y" {
     assert_true(mp_has_connector(part, name))
   }
   let socket = mp_connector(part, "socket-end-1")
-  assert_true(mp_close_vec(socket.placement.trans, (14.351, 0.0, 0.0), 1.0e-6))
+  assert_true(
+    mp_close_vec(socket.placement.trans, (42.743304845, 0.0, 6.0), 1.0e-6),
+  )
   assert_true(mp_close(socket.axis.0, @math.cos(@math.PI / 6.0), 1.0e-9))
   assert_true(mp_close(socket.axis.2, 0.5, 1.0e-9))
   let pivot = mp_connector(part, "pivot-1")
+  assert_true(mp_close_vec(pivot.placement.trans, (32.351, 0.0, 0.0), 1.0e-6))
   assert_true(mp_close_vec(pivot.axis, (0.0, 1.0, 0.0), 1.0e-9))
   assert_true(@makerpipe.adjustable_hinge(size, 91.0) is Err(_))
 }
@@ -390,7 +393,7 @@ test "adjustable 180 has two independent pivoting end sockets" {
     Ok(c) => c
     Err(e) => abort(e.message())
   }
-  assert_eq(part.layers().length(), 5)
+  assert_eq(part.layers().length(), 17)
   for
     name in [
       "origin", "through", "through-bore", "pivot-1", "pivot-2", "socket-end-1",
@@ -399,10 +402,10 @@ test "adjustable 180 has two independent pivoting end sockets" {
     assert_true(mp_has_connector(part, name))
   }
   let s1 = mp_connector(part, "socket-end-1")
-  assert_true(mp_close_vec(s1.placement.trans, (14.351, 0.0, 0.0), 1.0e-6))
+  assert_true(mp_close_vec(s1.placement.trans, (44.351, 0.0, 0.0), 1.0e-6))
   assert_true(mp_close_vec(s1.axis, (1.0, 0.0, 0.0), 1.0e-9))
   let s2 = mp_connector(part, "socket-end-2")
-  assert_true(mp_close_vec(s2.placement.trans, (-14.351, 0.0, 0.0), 1.0e-6))
+  assert_true(mp_close_vec(s2.placement.trans, (-44.351, 0.0, 0.0), 1.0e-6))
   assert_true(mp_close_vec(s2.axis, (-1.0, 0.0, 0.0), 1.0e-9))
   assert_true(@makerpipe.adjustable_180(size, 0.0, -91.0) is Err(_))
 }
@@ -417,7 +420,7 @@ test "adjustable flange pivots one socket above a mount base" {
     Ok(c) => c
     Err(e) => abort(e.message())
   }
-  assert_eq(part.layers().length(), 3)
+  assert_eq(part.layers().length(), 9)
   for
     name in [
       "origin", "mount", "mount-hole-1", "mount-hole-4", "pivot", "socket-end", "mouth-end",
@@ -425,7 +428,7 @@ test "adjustable flange pivots one socket above a mount base" {
     assert_true(mp_has_connector(part, name))
   }
   let socket = mp_connector(part, "socket-end")
-  assert_true(mp_close_vec(socket.placement.trans, (0.0, 0.0, 18.478), 1.0e-6))
+  assert_true(mp_close_vec(socket.placement.trans, (0.0, 0.0, 31.0), 1.0e-6))
   assert_true(mp_close_vec(socket.axis, (0.0, 0.0, 1.0), 1.0e-9))
   let (x0, x1, y0, y1, z0, z1) = part.bounding_box()
   assert_true(mp_close(x0, -35.0, 1.0e-6))

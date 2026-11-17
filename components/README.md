@@ -359,8 +359,9 @@ top-rail envelopes are derived from the published 3/4 in dimension drawings and
 marked approximate; 1/2 in is not a native fitting (the shop uses a 3/4 in
 connector plus adapter shims). Geometry is a nominal layered shell: a C-sleeve
 run for the T, clamp rims plus full socket cups for the saddle family, one
-nominal sleeve for the coupling, and a base/boss/socket envelope for the flange
-and adjustable fittings. The accessory line (shims, straps, feet, threaded
+nominal sleeve for the coupling, a circular base with real mounting holes plus
+a socket for the flange, and a ring-or-solid-base plus central pin lug, outer
+straps, pin, and pivoting socket for the adjustable fittings. The accessory line (shims, straps, feet, threaded
 inserts, cross-over and telescoping clamps, barrel hinge, printed hinges and
 latches) is not implemented yet.
 
