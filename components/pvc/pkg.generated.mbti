@@ -1,0 +1,80 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "gmlewis/step/components/pvc"
+
+import {
+  "gmlewis/step/cad",
+  "gmlewis/step/components/common",
+}
+
+// Values
+pub fn cap(PvcSize, detail? : @common.DetailLevel, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn corner_3way(PvcSize, detail? : @common.DetailLevel, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn coupling(PvcSize, stop_length_mm? : Double, detail? : @common.DetailLevel, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn cross(PvcSize, detail? : @common.DetailLevel, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn elbow_45(PvcSize, detail? : @common.DetailLevel, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn elbow_90(PvcSize, detail? : @common.DetailLevel, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn five_way(PvcSize, detail? : @common.DetailLevel, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn flange(PvcSize, base_diameter_mm? : Double, base_thickness_mm? : Double, bolt_circle_mm? : Double, bolt_hole_mm? : Double, detail? : @common.DetailLevel, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn four_way_tee(PvcSize, detail? : @common.DetailLevel, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn pvc_box_frame_assembly(Double, Double, Double, PvcSize, detail? : @common.DetailLevel, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn pvc_box_frame_cut_list(Double, Double, Double, PvcSize) -> Result[Array[PvcFrameItem], @common.SpecError]
+
+pub let pvc_default_bore_clearance_mm : Double
+
+pub fn pvc_default_color(PvcSchedule) -> @cad.Rgb
+
+pub fn pvc_pipe(PvcSize, Double, detail? : @common.DetailLevel, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn pvc_size(String, schedule? : PvcSchedule, bore_clearance_mm? : Double) -> Result[PvcSize, @common.SpecError]
+
+pub fn pvc_trade_sizes() -> Array[String]
+
+pub fn reducer_coupling(PvcSize, PvcSize, transition_mm? : Double, detail? : @common.DetailLevel, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn tee(PvcSize, detail? : @common.DetailLevel, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+// Errors
+
+// Types and methods
+pub(all) struct PvcFrameItem {
+  role : String
+  trade_size : String
+  length_mm : Double
+  count : Int32
+}
+
+#derive(Eq)
+pub(all) enum PvcSchedule {
+  Schedule40
+  Schedule80
+}
+pub fn PvcSchedule::label(Self) -> String
+pub fn PvcSchedule::tag(Self) -> String
+
+pub(all) struct PvcSize {
+  trade_size : String
+  schedule : PvcSchedule
+  pipe_od_mm : Double
+  pipe_wall_mm : Double
+  pipe_id_mm : Double
+  socket_bore_mm : Double
+  socket_outer_mm : Double
+  socket_depth_mm : Double
+  through_bore_mm : Double
+  center_to_seat_90_mm : Double
+  center_to_seat_45_mm : Double
+}
+
+// Type aliases
+
+// Traits

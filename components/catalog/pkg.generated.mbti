@@ -30,6 +30,8 @@ pub fn motor_catalog() -> Array[CatalogEntry]
 
 pub fn profile_catalog() -> Array[CatalogEntry]
 
+pub fn pvc_catalog() -> Array[CatalogEntry]
+
 pub fn query(Array[CatalogEntry], family? : String, standard? : String, size? : String) -> Array[CatalogEntry]
 
 pub fn stock_catalog() -> Array[CatalogEntry]

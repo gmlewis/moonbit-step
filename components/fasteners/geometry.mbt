@@ -161,7 +161,14 @@ pub fn external_thread_ridge(
     start_angle=0.0,
     clockwise~,
   )
-  Some(@cad.SweptProfile::new(path~, profile~, straight_outline=false))
+  Some(
+    @cad.SweptProfile::new(
+      path~,
+      profile~,
+      straight_outline=false,
+      smooth_sides=true,
+    ),
+  )
 }
 
 ///|
@@ -213,7 +220,14 @@ pub fn internal_thread_ridge(
     start_angle=0.0,
     clockwise~,
   )
-  Some(@cad.SweptProfile::new(path~, profile~, straight_outline=false))
+  Some(
+    @cad.SweptProfile::new(
+      path~,
+      profile~,
+      straight_outline=false,
+      smooth_sides=true,
+    ),
+  )
 }
 
 ///|

@@ -195,4 +195,10 @@ test "new construction and motion catalogue families are discoverable" {
   assert_true(stock.any(fn(e) { e.family == "flat plate blank" }))
   assert_true(stock.any(fn(e) { e.family == "channel-to-extrusion adapter" }))
   assert_true(stock.any(fn(e) { e.family == "extrusion-to-tube clamp" }))
+
+  let pvc = @catalog.pvc_catalog()
+  assert_eq(pvc.length(), 71)
+  assert_true(pvc.any(fn(e) { e.family == "PVC pipe" }))
+  assert_true(pvc.any(fn(e) { e.family == "PVC 90-degree elbow" }))
+  assert_true(pvc.any(fn(e) { e.family == "PVC 3-way corner" }))
 }
