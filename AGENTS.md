@@ -54,6 +54,12 @@ The `cad` package follows an **intent-based architecture**. Do not revert to eag
      reported as an error by `Design::diagnostics()`.
    - Designs containing a nominal boolean carry a one-line notice in the STEP
      header; `Design::to_step_file_checked()` refuses error designs.
+   - Avoid tessellation by default: use analytic STEP primitives (`Cylinder`,
+     `Cone`, `RevolvedProfile`, `ToroidalBend`, `ExtrudedArcProfile`,
+     `round_bore=`) or seamless `SweptProfile(..., smooth_sides=true,
+     smooth_profile=true)` / `smooth_helix=true` instead of polygon-sampled
+     circles, fillets, or longitudinal strips unless an EM/FEA solver explicitly
+     requires discretization.
 
 6. **Mate connectors sit on the contact plane**:
    - A mate connector's placement is the exact plane/point where the mating

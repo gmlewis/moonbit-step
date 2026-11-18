@@ -1358,3 +1358,104 @@ test "bevel non-90 shaft angles use tan(delta) hub backing and orient to hub bac
     assert_true((front_face.placement.trans.2 - expected_top).abs() < 0.01)
   }
 }
+
+///|
+test "bevel profile shift, flank arc, root fillet, and tip cone validation" {
+  let bad_shift = BevelGearParams::new(
+    module_mm=1.5,
+    teeth=20,
+    mate_teeth=20,
+    shaft_angle_deg=60.0,
+    face_width_mm=9.5,
+    profile_shift=1.5,
+    end_face=BackCone,
+  )
+  assert_true(
+    match bad_shift {
+      Ok(_) => false
+      Err(_) => true
+    },
+  )
+  let bad_arc = BevelGearParams::new(
+    module_mm=1.5,
+    teeth=20,
+    mate_teeth=20,
+    shaft_angle_deg=60.0,
+    face_width_mm=9.5,
+    flank_arc_radius_mm=-1.0,
+    end_face=BackCone,
+  )
+  assert_true(
+    match bad_arc {
+      Ok(_) => false
+      Err(_) => true
+    },
+  )
+  let bad_tip_cone_no_recess = BevelGearParams::new(
+    module_mm=1.5,
+    teeth=20,
+    mate_teeth=20,
+    shaft_angle_deg=60.0,
+    face_width_mm=9.5,
+    tip_cone_trim=true,
+    end_face=BackCone,
+  )
+  assert_true(
+    match bad_tip_cone_no_recess {
+      Ok(_) => false
+      Err(_) => true
+    },
+  )
+  let bad_tip_cone_flat = BevelGearParams::new(
+    module_mm=1.5,
+    teeth=20,
+    mate_teeth=20,
+    shaft_angle_deg=60.0,
+    face_width_mm=9.5,
+    tip_cone_trim=true,
+    end_face=Flat,
+  )
+  assert_true(
+    match bad_tip_cone_flat {
+      Ok(_) => false
+      Err(_) => true
+    },
+  )
+  // Valid 120-degree shaft angle configuration with 0.42 * m root fillet,
+  // positive profile shift, circular-arc flank, and conical tip trim.
+  let params = match
+    BevelGearParams::new(
+      module_mm=1.5,
+      teeth=20,
+      mate_teeth=20,
+      shaft_angle_deg=120.0,
+      pressure_angle_deg=11.31,
+      profile_shift=0.7304,
+      flank_arc_radius_mm=7.302,
+      face_width_mm=6.6918,
+      bore_diameter_mm=8.0,
+      dedendum_factor=0.7496,
+      root_fillet_radius_mm=0.63,
+      fillet_segments=8,
+      hub_diameter_mm=26.0,
+      hub_length_mm=13.88,
+      edge_chamfer_mm=0.4,
+      chamfer_hub_outer=false,
+      front_recess_z_mm=0.6559,
+      front_recess_radius_mm=11.1896,
+      tip_cone_trim=true,
+      tooth_phase_deg=9.0,
+      end_face=BackCone,
+    ) {
+    Ok(p) => p
+    Err(e) => abort(e.message())
+  }
+  let component = match bevel_gear(params, orient_to_reference=true) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  assert_eq(component.layers().length(), 1)
+  let features = component.features()
+  assert_true(features.has_modeled("profile-shift"))
+  assert_true(features.has_modeled("root-fillet"))
+}

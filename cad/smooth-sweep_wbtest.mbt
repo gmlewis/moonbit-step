@@ -137,3 +137,43 @@ test "sharp crease keeps a piecewise-linear corner" {
   assert_near(wavy.cps_pos[2].0, 2.0 / 3.0 + 1.0 / 6.0)
   assert_near(wavy.cps_pos[2].1, -1.0 / 6.0)
 }
+
+///|
+/// Setting smooth_profile=true on a closed circular tube produces a single
+/// seamless degree-(3, 3) B-spline side surface plus two planar end caps.
+test "smooth_profile emits single seamless bspline tube surface" {
+  let path = helix_path(
+    pos=(0.0, 0.0, 0.0),
+    size_per_turn=(10.0, 10.0, 4.0),
+    num_turns=1.0,
+    num_segs_per_turn=16,
+    start_angle=0.0,
+    clockwise=false,
+  )
+  let pts : Array[Vec3] = []
+  let n = 16
+  for i in 0..<n {
+    let a = -2.0 * @math.PI * i.to_double() / n.to_double()
+    pts.push((@math.cos(a), 0.0, @math.sin(a)))
+  }
+  let profile = SweepProfile::new(
+    pts,
+    normal_dir=(0.0, 1.0, 0.0),
+    right_dir=(1.0, 0.0, 0.0),
+  )
+  let step = Design::new(name="seamless-coil")
+    .add(
+      SweptProfile::new(
+        path~,
+        profile~,
+        straight_outline=false,
+        smooth_sides=true,
+        smooth_profile=true,
+      ).with_name("seamless-coil"),
+    )
+    .to_step_file()
+  // One closed seamless side surface plus two planar caps.
+  inspect(step.split("ADVANCED_FACE(").count() - 1, content="3")
+  inspect(step.split("B_SPLINE_SURFACE_WITH_KNOTS(").count() - 1, content="1")
+  inspect(step.split("PLANE(").count() - 1, content="2")
+}

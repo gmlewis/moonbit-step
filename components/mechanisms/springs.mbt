@@ -35,7 +35,7 @@ fn mechanism_helix_body(
     clockwise=false,
   )
   let wire_profile : Array[@cad.Vec3] = []
-  let wire_segments = 12
+  let wire_segments = 24
   for i in 0..<wire_segments {
     let angle = 2.0 * @math.PI * i.to_double() / wire_segments.to_double()
     wire_profile.push(
@@ -51,7 +51,15 @@ fn mechanism_helix_body(
     normal_dir=(0.0, 1.0, 0.0),
     right_dir=(1.0, 0.0, 0.0),
   )
-  Ok(@cad.SweptProfile::new(path~, profile~, straight_outline=false))
+  Ok(
+    @cad.SweptProfile::new(
+      path~,
+      profile~,
+      straight_outline=false,
+      smooth_sides=true,
+      smooth_profile=true,
+    ),
+  )
 }
 
 ///|

@@ -94,12 +94,14 @@ test "coupling, cap, and reducer_coupling build closed solids with internal pipe
 }
 
 ///|
-test "elbow_90 and elbow_45 build smooth swept bends with valid ports" {
+test "elbow_90 and elbow_45 build analytic toroidal bends with valid ports" {
   let s34 = unwrap_pvc_size("3/4")
   let e90 = unwrap_pvc_comp(@pvc.elbow_90(s34, detail=Detailed))
   let e45 = unwrap_pvc_comp(@pvc.elbow_45(s34, detail=Detailed))
-  assert_true(e90.to_step().contains("B_SPLINE_SURFACE_WITH_KNOTS("))
-  assert_true(e45.to_step().contains("B_SPLINE_SURFACE_WITH_KNOTS("))
+  assert_true(e90.to_step().contains("TOROIDAL_SURFACE("))
+  assert_true(e45.to_step().contains("TOROIDAL_SURFACE("))
+  assert_false(e90.to_step().contains("B_SPLINE_SURFACE_WITH_KNOTS("))
+  assert_false(e45.to_step().contains("B_SPLINE_SURFACE_WITH_KNOTS("))
   assert_true(e90.connector("socket-a") is Ok(_))
   assert_true(e90.connector("socket-b") is Ok(_))
   assert_true(e45.connector("socket-b") is Ok(_))
@@ -114,12 +116,14 @@ test "tee, cross, corner_3way, four_way_tee, five_way, and flange assemble clean
   let f4 = unwrap_pvc_comp(@pvc.four_way_tee(s34))
   let f5 = unwrap_pvc_comp(@pvc.five_way(s34))
   let fl = unwrap_pvc_comp(@pvc.flange(s34, detail=Detailed))
-  assert_eq(tee.layers().length(), 3)
-  assert_eq(cross.layers().length(), 4)
-  assert_eq(c3.layers().length(), 4)
-  assert_eq(f4.layers().length(), 5)
-  assert_eq(f5.layers().length(), 6)
+  assert_eq(tee.layers().length(), 1)
+  assert_eq(cross.layers().length(), 1)
+  assert_eq(c3.layers().length(), 1)
+  assert_eq(f4.layers().length(), 1)
+  assert_eq(f5.layers().length(), 1)
   assert_eq(fl.layers().length(), 2)
+  assert_true(tee.to_step().contains("ELLIPSE("))
+  assert_true(c3.to_step().contains("SPHERICAL_SURFACE("))
   assert_true(fl.connector("mount-hole-4") is Ok(_))
   for part in [tee, cross, c3, f4, f5, fl] {
     assert_true(part.to_step().contains("CLOSED_SHELL("))

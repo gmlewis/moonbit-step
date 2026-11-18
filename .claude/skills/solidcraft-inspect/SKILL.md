@@ -164,9 +164,19 @@ the bore opening). Verify that hole connectors sit solidly on open mounting
 holes or spokes — never inside air gaps or screw-filled counterbores. All
 motors and sub-assemblies in this repo follow that convention.
 
+## Avoid tessellation by default
+
+Every new or repaired example, component, and CAD primitive must avoid surface tessellation whenever an analytic or smooth representation exists (unless an example explicitly requires a piecewise-linear discretization for an EM/FEA solver):
+
+- **Circular cylinders, tubes, bosses, and bores**: use `@cad.Cylinder`, `@cad.Cone`, `@cad.RevolvedProfile`, or `@cad.ExtrudedProfile(..., round_bore=...)` — never approximate circles or holes as N-gon polylines.
+- **Arc bends and elbows**: use `@cad.ToroidalBend` (`TOROIDAL_SURFACE`) or `@cad.RevolvedProfile` (`Arc`) — never sweep an N-gon circle along a polyline path when the bend is circular.
+- **2D profiles with circular arcs or corner fillets**: use `@cad.ExtrudedArcProfile` with `@cad.ArcSegment::Arc(...)` — never sample corner fillets or tooth arcs into short chords with `ExtrudedProfile`.
+- **Helices, springs, and freeform circular tubes**: use `@cad.SweptProfile` with `smooth_sides=true, smooth_profile=true` (or `smooth_helix=true` for helical threads), so the tube compiles to a single seamless B-spline surface rather than longitudinal polygon strips.
+- **Visual tell in SolidCraft**: dark longitudinal wireframe stripes along curves, bends, holes, or teeth usually indicate polygonal side facets instead of analytic cylinders/tori/arcs or `smooth_profile=true`.
+
 ## Acceptance checklist
 
-1. `scripts/validate_step.py <file.step>` passes (checkshape authoritative).
+1. `scripts/validate_step.py <file.step>` passes (checkshape authoritative), and the STEP surface inventory shows analytic surfaces (`CYLINDRICAL_SURFACE`, `TOROIDAL_SURFACE`, `CONICAL_SURFACE`, `ExtrudedArcProfile`) or seamless `B_SPLINE_SURFACE_WITH_KNOTS` rather than dozens/hundreds of faceted `PLANE` or B-spline strip faces on curved features.
 2. SolidCraft renders show the intended silhouette, feature counts, and colors
    from the full orthographic set (front/back/left/right/top/bottom or the
    functional equivalents), a 3/4 view from each functional side, and close-ups

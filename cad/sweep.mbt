@@ -26,6 +26,7 @@ pub fn SweptProfile::new(
   straight_outline~ : Bool = true,
   smooth_helix~ : Bool = false,
   smooth_sides~ : Bool = false,
+  smooth_profile~ : Bool = false,
   sharp_creases~ : Array[Int32] = [],
   corner_override~ : (Array[Vec3], Array[Vec3])? = None,
 ) -> Shape {
@@ -38,6 +39,7 @@ pub fn SweptProfile::new(
     straight_outline,
     smooth_helix,
     smooth_sides,
+    smooth_profile,
     sharp_creases,
     corner_override,
   })

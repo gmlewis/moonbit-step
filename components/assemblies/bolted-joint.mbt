@@ -33,10 +33,12 @@ pub fn plate_with_hole(
       ),
     )
   }
-  let segments = 48
   let outer = @cad.Profile2D::centered_rect(width_mm, depth_mm)
-  let hole = @cad.Profile2D::circle(hole_diameter_mm, segments~).rev()
-  let body = @cad.ExtrudedProfile::new(outer, thickness_mm, holes=[hole])
+  let body = @cad.ExtrudedProfile::new(
+    outer,
+    thickness_mm,
+    round_bore=((0.0, 0.0), hole_diameter_mm),
+  )
   let face_diameter = if width_mm < depth_mm { width_mm } else { depth_mm }
   Ok(
     @common.Component::new(
@@ -45,22 +47,12 @@ pub fn plate_with_hole(
         designation="Plate \{width_mm} x \{depth_mm} x \{thickness_mm}",
         family="plate with hole",
         size="\{width_mm}x\{depth_mm}x\{thickness_mm}",
-        source="Parametric plate envelope with a central through hole; no standard table is implied.",
+        source="Parametric plate envelope with a central analytic cylindrical through hole; no standard table is implied.",
       ),
       description="Rectangular plate with a central through hole.",
       features=@common.FeatureRecord::new(
-        modeled=["body"],
-        approximated=[
-          @common.Approximation::new(
-            feature="through-hole",
-            kind=@common.ApproximationKind::PolylineArc,
-            deviation_mm=@common.chord_deviation(
-              hole_diameter_mm / 2.0,
-              segments,
-            ),
-            control="circle_segments=\{segments}",
-          ),
-        ],
+        modeled=["body", "through-hole"],
+        approximated=[],
         omitted=[
           @common.Omission::new(
             feature="edge-chamfer",

@@ -169,6 +169,18 @@ async fn main {
     "noHubChamfer": @cli.flag(
       help="Keep the outer hub back-face rim sharp when --edgeChamfer is set",
     ),
+    "profileShift": @cli.opt_double(
+      0.0,
+      help="ISO profile shift coefficient x in the back-cone equivalent plane",
+    ),
+    "flankArcRadius": @cli.opt_double(
+      0.0,
+      help="Circular-arc flank radius in the virtual back-cone plane in mm (0 = involute)",
+      min=0.0,
+    ),
+    "tipCone": @cli.flag(
+      help="Trim the tooth outer tips along a tip cone to --frontRecessRadius (requires --frontRecessRadius and --evaluated)",
+    ),
     "orient-to-reference": @cli.flag(
       help="Translate Z so the hub back face lies on z = 0",
     ),
@@ -264,6 +276,9 @@ async fn main {
         0.0
       },
       chamfer_hub_outer=!args.flag("noHubChamfer"),
+      profile_shift=args.double("profileShift"),
+      flank_arc_radius_mm=args.double("flankArcRadius"),
+      tip_cone_trim=args.flag("tipCone"),
       end_face~,
     ) {
     Ok(p) => p
@@ -282,11 +297,12 @@ async fn main {
       args.double("edgeChamfer") > 0.0 ||
       args.double("odRadius") > 0.0 ||
       args.double("frontRecessRadius") > 0.0 ||
+      args.flag("tipCone") ||
       args.flag("includeSetScrew")
     ) &&
     !args.flag("evaluated") {
     @cli.eprintln(
-      "error: a keyway, set-screw hole, edge chamfer, OD trim, front recess, or --includeSetScrew requires --evaluated",
+      "error: a keyway, set-screw hole, edge chamfer, OD trim, front recess, --tipCone, or --includeSetScrew requires --evaluated",
     )
     abort("")
   }

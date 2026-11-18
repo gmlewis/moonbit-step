@@ -205,6 +205,10 @@ pub struct SweptProfile {
   /// along the path) and planar start/end caps. The mesh, section, and
   /// mass-property analysis keep using the sampled path.
   smooth_sides : Bool
+  /// When both `smooth_sides` and `smooth_profile` are true, each closed
+  /// profile loop is emitted as one seamless periodic cubic-by-cubic B-spline
+  /// tube surface rather than one strip per polygon edge.
+  smooth_profile : Bool
   /// Path point indices where a `smooth_sides` sweep must stay sharp. The
   /// vertex curves use the one-sided chord tangent there instead of the
   /// averaged central tangent, which keeps a piecewise-linear elbow a sharp
@@ -515,6 +519,8 @@ pub enum Shape {
   Cuboid(Cuboid)
   Cylinder(Cylinder)
   RevolvedProfile(RevolvedProfile)
+  ToroidalBend(ToroidalBend)
+  PipeJunction(PipeJunction)
   ChamferedPrism(ChamferedPrism)
   SocketedSolid(SocketedSolid)
   ConicalNut(ConicalNut)
@@ -612,6 +618,8 @@ pub fn Shape::bounding_box(
       let r = c.diameter / 2.0
       (-r, r, -r, r, 0.0, c.height)
     }
+    ToroidalBend(b) => b.bounding_box()
+    PipeJunction(j) => j.bounding_box()
     RevolvedProfile(rev) => {
       let samples : Array[Vec2] = []
       for seg in rev.segments {

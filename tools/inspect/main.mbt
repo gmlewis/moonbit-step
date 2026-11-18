@@ -485,6 +485,8 @@ fn shape_kind(shape : @cad.Shape) -> String {
     Cuboid(_) => "cuboid"
     Cylinder(_) => "cylinder"
     RevolvedProfile(_) => "revolved-profile"
+    ToroidalBend(_) => "toroidal-bend"
+    PipeJunction(_) => "pipe-junction"
     ChamferedPrism(_) => "chamfered-prism"
     SocketedSolid(_) => "socketed-solid"
     ConicalNut(_) => "conical-nut"

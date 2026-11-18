@@ -10,8 +10,8 @@ pub fn compression_spring(
   length_mm : Double,
   active_coils : Int32,
   segments_per_turn~ : Int32 = 24,
-  wire_segments~ : Int32 = 12,
-  smooth~ : Bool = false,
+  wire_segments~ : Int32 = 36,
+  smooth~ : Bool = true,
   color~ : @cad.Rgb = @cad.Rgb::cyan(),
 ) -> Result[@common.Component, @common.SpecError] {
   match @common.require_positive("spring mean diameter", mean_diameter_mm) {
@@ -84,6 +84,7 @@ pub fn compression_spring(
     profile~,
     straight_outline=false,
     smooth_sides=smooth,
+    smooth_profile=smooth,
   )
   let name = "spring-\{@cad.fmt_double(mean_diameter_mm, None)}x\{@cad.fmt_double(wire_diameter_mm, None)}x\{@cad.fmt_double(length_mm, None)}"
   Ok(
@@ -160,16 +161,14 @@ pub fn standoff(
       ),
     )
   }
-  let policy = @common.DetailPolicy::for_level(detail)
-  let segments = if policy.circle_segments < 32 {
-    32
-  } else {
-    policy.circle_segments
-  }
+  let _ = detail
   let across_corners = across_flats_mm / @math.cos(@math.PI / 6.0)
   let outer = @cad.Profile2D::polygon(6, across_corners, rotation=30.0)
-  let hole = @cad.Profile2D::circle(bore_diameter_mm, segments~).rev()
-  let body = @cad.ExtrudedProfile::new(outer, length_mm, holes=[hole])
+  let body = @cad.ExtrudedProfile::new(
+    outer,
+    length_mm,
+    round_bore=((0.0, 0.0), bore_diameter_mm),
+  )
   let name = "standoff-\{@cad.fmt_double(across_flats_mm, None)}x\{@cad.fmt_double(length_mm, None)}"
   Ok(
     with_bore_and_faces(
@@ -181,20 +180,10 @@ pub fn standoff(
           length_mm~,
           source="Parametric hex tube; threads and chamfers are not modeled.",
         ),
-        description="Hexagonal standoff with a plain through bore. Threads and chamfers are not modeled.",
+        description="Hexagonal standoff with a plain analytic cylindrical through bore. Threads and chamfers are not modeled.",
         features=@common.FeatureRecord::new(
-          modeled=["hex-body"],
-          approximated=[
-            @common.Approximation::new(
-              feature="through-bore",
-              kind=@common.ApproximationKind::PolylineArc,
-              deviation_mm=@common.chord_deviation(
-                bore_diameter_mm / 2.0,
-                segments,
-              ),
-              control="circle_segments=\{segments}",
-            ),
-          ],
+          modeled=["hex-body", "through-bore"],
+          approximated=[],
           omitted=[
             @common.Omission::new(
               feature="thread",

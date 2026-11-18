@@ -1515,6 +1515,36 @@ fn an_shape_inventory(shape : Shape) -> SurfaceInventory {
       } else {
         an_inventory(0, 0, 0, 0, 0, 0, 0, 0)
       }
+    ToroidalBend(b) =>
+      if !b.validate() {
+        an_inventory(0, 0, 0, 0, 0, 0, 0, 0)
+      } else if b.inner_diameter_mm > 1.0e-9 {
+        an_inventory(2, 0, 0, 0, 2, 0, 0, 0)
+      } else {
+        an_inventory(2, 0, 0, 0, 1, 0, 0, 0)
+      }
+    PipeJunction(j) =>
+      match junction_port_mask(j.ports) {
+        None => an_inventory(0, 0, 0, 0, 0, 0, 0, 0)
+        Some(mask) =>
+          if !j.validate() {
+            an_inventory(0, 0, 0, 0, 0, 0, 0, 0)
+          } else {
+            let np = j.ports.length()
+            let mut n_sph = 0
+            for sx in [0, 1] {
+              for sy in [2, 3] {
+                for sz in [4, 5] {
+                  if !mask[sx] && !mask[sy] && !mask[sz] {
+                    n_sph = n_sph + 1
+                  }
+                }
+              }
+            }
+            let cones = if j.mouth_chamfer_mm > 0.0 { np * 8 } else { 0 }
+            an_inventory(np * 8, np * 12, cones, n_sph * 2, 0, 0, 0, 0)
+          }
+      }
     RevolvedProfile(rev) => {
       match rev.validate() {
         Err(_) => return an_inventory(0, 0, 0, 0, 0, 0, 0, 0)
@@ -1799,6 +1829,22 @@ pub fn Shape::analysis_volume(self : Shape) -> Result[Double, AnalysisError] {
         Ok(volume)
       }
     }
+    ToroidalBend(b) => {
+      let volume = b.volume()
+      if volume <= 0.0 {
+        Err(DegenerateProfile)
+      } else {
+        Ok(volume)
+      }
+    }
+    PipeJunction(j) => {
+      let volume = j.volume()
+      if volume <= 0.0 {
+        Err(DegenerateProfile)
+      } else {
+        Ok(volume)
+      }
+    }
     ChamferedPrism(p) => {
       let (volume, _c) = an_prism_volume_centroid(p)
       if volume <= 0.0 {
@@ -1956,6 +2002,18 @@ pub fn Shape::analysis_centroid(self : Shape) -> Result[Vec3, AnalysisError] {
       let (_volume, zc) = an_rev_volume_centroid(rev)
       Ok((0.0, 0.0, zc))
     }
+    ToroidalBend(b) =>
+      if !b.validate() {
+        Err(DegenerateProfile)
+      } else {
+        Ok(b.centroid())
+      }
+    PipeJunction(j) =>
+      if !j.validate() {
+        Err(DegenerateProfile)
+      } else {
+        Ok(j.centroid())
+      }
     ChamferedPrism(p) => {
       let (_volume, c) = an_prism_volume_centroid(p)
       Ok(c)
@@ -2071,6 +2129,12 @@ pub fn Shape::section_at_local(
     }
     Cylinder(c) => Cylinder::section_at(c, z)
     RevolvedProfile(rev) => rev.section_at(z)
+    ToroidalBend(_) =>
+      Err(NotAnalytic("toroidal bend section at arbitrary z is not planar"))
+    PipeJunction(_) =>
+      Err(
+        NotAnalytic("multi-port junction section at arbitrary z is not planar"),
+      )
     ChamferedPrism(p) => p.section_at(z)
     SocketedSolid(s) => an_socketed_section(s, z)
     ConicalNut(n) => an_conical_nut_section(n, z)
@@ -2339,6 +2403,18 @@ pub fn Shape::analysis_mesh(
       Ok((verts, faces))
     }
     RevolvedProfile(rev) => Ok(rev_mesh(rev))
+    ToroidalBend(b) =>
+      if !b.validate() {
+        Err(DegenerateProfile)
+      } else {
+        Ok(toroidal_bend_mesh(b))
+      }
+    PipeJunction(j) =>
+      if !j.validate() {
+        Err(DegenerateProfile)
+      } else {
+        Ok(pipe_junction_mesh(j))
+      }
     SocketedSolid(s) => Ok(socketed_solid_mesh(s))
     ConicalNut(n) => Ok(conical_nut_mesh(n))
     AcornNut(n) => Ok(acorn_nut_mesh(n))

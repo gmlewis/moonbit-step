@@ -42,6 +42,8 @@ pub fn compile_extruded_profile(StepContext, SceneNode, ExtrudedProfile, reverse
 
 pub fn compile_hex_head_pcurves(StepContext, SceneNode, HexHeadWasherFace, reverse? : Bool, parent? : Transform?) -> Array[@step.Ref]
 
+pub fn compile_pipe_junction(StepContext, SceneNode, PipeJunction, reverse? : Bool, parent? : Transform?) -> Array[@step.Ref]
+
 pub fn compile_revolved_profile(StepContext, SceneNode, RevolvedProfile, reverse? : Bool, parent? : Transform?) -> Array[@step.Ref]
 
 pub fn compile_slit_tube(StepContext, SceneNode, SlitTube, reverse? : Bool, parent? : Transform?) -> Array[@step.Ref]
@@ -53,6 +55,8 @@ pub fn compile_square_hole_washer(StepContext, SceneNode, SquareHoleWasher, reve
 pub fn compile_square_nut(StepContext, SceneNode, SquareNut, reverse? : Bool, parent? : Transform?) -> Array[@step.Ref]
 
 pub fn compile_tab_washer(StepContext, SceneNode, TabWasher, reverse? : Bool, parent? : Transform?) -> Array[@step.Ref]
+
+pub fn compile_toroidal_bend(StepContext, SceneNode, ToroidalBend, reverse? : Bool, parent? : Transform?) -> Array[@step.Ref]
 
 pub fn conical_nut_bounding_box(ConicalNut) -> (Double, Double, Double, Double, Double, Double)
 
@@ -90,6 +94,8 @@ pub fn matrix_to_euler(Matrix3x3) -> (Double, Double, Double)
 
 pub fn midpoint((Double, Double), (Double, Double)) -> (Double, Double)
 
+pub fn pipe_junction_mesh(PipeJunction, quadrant_segs? : Int32) -> (Array[(Double, Double, Double)], Array[Array[Int32]])
+
 pub fn planar_faces_of(@repository.Repository) -> Array[FaceInfo]
 
 pub fn point_on_circle(Double, Double) -> (Double, Double)
@@ -115,6 +121,8 @@ pub fn square_nut_bounding_box(SquareNut) -> (Double, Double, Double, Double, Do
 pub fn square_nut_mesh(SquareNut, angular_segments? : Int32) -> (Array[(Double, Double, Double)], Array[Array[Int32]])
 
 pub fn text_at(String, Double, Double, Double, font~ : @fonts.Font, font_size? : Double, max_width? : Double, emboss_depth? : Double, rx? : Double, ry? : Double, rz? : Double, segments? : Int32) -> Array[SceneNode]
+
+pub fn toroidal_bend_mesh(ToroidalBend, u_segments? : Int32, v_segments? : Int32) -> (Array[(Double, Double, Double)], Array[Array[Int32]])
 
 pub fn translate_pts(Array[(Double, Double)], Double, Double) -> Array[(Double, Double)]
 
@@ -477,6 +485,23 @@ pub fn Matrix3x3::equal(Self, Self) -> Bool
 pub fn Matrix3x3::not_equal(Self, Self) -> Bool
 pub fn Matrix3x3::to_repr(Self) -> @debug.Repr
 
+#derive(Eq, @debug.Debug)
+pub struct PipeJunction {
+  ports : Array[(Double, Double, Double)]
+  outer_diameter_mm : Double
+  through_bore_mm : Double
+  socket_bore_mm : Double
+  center_to_seat_mm : Double
+  socket_depth_mm : Double
+  mouth_chamfer_mm : Double
+}
+pub fn PipeJunction::bounding_box(Self) -> (Double, Double, Double, Double, Double, Double)
+pub fn PipeJunction::centroid(Self) -> (Double, Double, Double)
+pub fn PipeJunction::new(Array[(Double, Double, Double)], Double, Double, Double, Double, Double, mouth_chamfer_mm? : Double) -> Shape
+pub fn PipeJunction::validate(Self) -> Bool
+pub fn PipeJunction::volume(Self) -> Double
+pub fn PipeJunction::volume_centroid(Self) -> (Double, (Double, Double, Double))
+
 pub(all) enum PrismError {
   PrismTooFewVertices
   PrismBadLevels
@@ -640,6 +665,8 @@ pub enum Shape {
   Cuboid(Cuboid)
   Cylinder(Cylinder)
   RevolvedProfile(RevolvedProfile)
+  ToroidalBend(ToroidalBend)
+  PipeJunction(PipeJunction)
   ChamferedPrism(ChamferedPrism)
   SocketedSolid(SocketedSolid)
   ConicalNut(ConicalNut)
@@ -812,10 +839,11 @@ pub struct SweptProfile {
   straight_outline : Bool
   smooth_helix : Bool
   smooth_sides : Bool
+  smooth_profile : Bool
   sharp_creases : Array[Int32]
   corner_override : (Array[(Double, Double, Double)], Array[(Double, Double, Double)])?
 }
-pub fn SweptProfile::new(path~ : SweepPath, profile~ : SweepProfile, make_start_cap? : Bool, make_end_cap? : Bool, straight_holes? : Bool, straight_outline? : Bool, smooth_helix? : Bool, smooth_sides? : Bool, sharp_creases? : Array[Int32], corner_override? : (Array[(Double, Double, Double)], Array[(Double, Double, Double)])?) -> Shape
+pub fn SweptProfile::new(path~ : SweepPath, profile~ : SweepProfile, make_start_cap? : Bool, make_end_cap? : Bool, straight_holes? : Bool, straight_outline? : Bool, smooth_helix? : Bool, smooth_sides? : Bool, smooth_profile? : Bool, sharp_creases? : Array[Int32], corner_override? : (Array[(Double, Double, Double)], Array[(Double, Double, Double)])?) -> Shape
 
 pub struct TabWasher {
   outer_diameter_mm : Double
@@ -827,6 +855,19 @@ pub struct TabWasher {
 }
 pub fn TabWasher::as_shape(Self) -> Shape
 pub fn TabWasher::new(outer_diameter_mm~ : Double, bore_diameter_mm~ : Double, tab_width_mm~ : Double, tab_length_mm~ : Double, fillet_radius_mm~ : Double, thickness_mm~ : Double) -> Self
+
+#derive(Eq, @debug.Debug)
+pub struct ToroidalBend {
+  bend_radius_mm : Double
+  outer_diameter_mm : Double
+  inner_diameter_mm : Double
+  angle_deg : Double
+}
+pub fn ToroidalBend::bounding_box(Self) -> (Double, Double, Double, Double, Double, Double)
+pub fn ToroidalBend::centroid(Self) -> (Double, Double, Double)
+pub fn ToroidalBend::new(Double, Double, Double, inner_diameter_mm? : Double) -> Shape
+pub fn ToroidalBend::validate(Self) -> Bool
+pub fn ToroidalBend::volume(Self) -> Double
 
 pub(all) struct Transform {
   rot : Matrix3x3

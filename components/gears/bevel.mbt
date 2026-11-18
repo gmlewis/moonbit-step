@@ -123,6 +123,16 @@ pub(all) struct BevelGearParams {
   /// Whether `edge_chamfer_mm` also breaks the outer hub back-face rim (true
   /// by default; false chamfers only the bore circles).
   chamfer_hub_outer : Bool
+  /// ISO profile shift coefficient `x` in the back-cone equivalent plane
+  /// (positive widens tooth thickness at the reference circle).
+  profile_shift : Double
+  /// Circular-arc flank radius in the virtual back-cone plane in mm
+  /// (0 = standard involute flank).
+  flank_arc_radius_mm : Double
+  /// When true alongside a front recess, trims the outer tooth tips along
+  /// a conical tip cone from the back OD radius to `front_recess_radius_mm`
+  /// at the small-end tooth face instead of a cylinder.
+  tip_cone_trim : Bool
   /// Large-end construction.
   end_face : BevelEndFace
 }
@@ -166,6 +176,9 @@ pub fn BevelGearParams::new(
   tooth_phase_deg~ : Double = 0.0,
   set_screw_clearance_mm~ : Double = 0.0,
   chamfer_hub_outer~ : Bool = true,
+  profile_shift~ : Double = 0.0,
+  flank_arc_radius_mm~ : Double = 0.0,
+  tip_cone_trim~ : Bool = false,
   end_face~ : BevelEndFace = Flat,
 ) -> Result[BevelGearParams, @common.SpecError] {
   match @common.require_positive("bevel gear module", module_mm) {
@@ -218,10 +231,10 @@ pub fn BevelGearParams::new(
     Err(e) => return Err(e)
     Ok(_) => ()
   }
-  if root_fillet_radius_mm > 0.4 * module_mm {
+  if root_fillet_radius_mm > 0.44 * module_mm {
     return Err(
       @common.InvalidParameter(
-        "bevel root fillet radius must not exceed 0.4 * module",
+        "bevel root fillet radius must not exceed 0.44 * module",
       ),
     )
   }
@@ -522,6 +535,34 @@ pub fn BevelGearParams::new(
     Err(e) => return Err(e)
     Ok(_) => ()
   }
+  match
+    @common.require_in_range("bevel profile shift", profile_shift, -1.0, 1.0) {
+    Err(e) => return Err(e)
+    Ok(_) => ()
+  }
+  match
+    @common.require_non_negative("bevel flank arc radius", flank_arc_radius_mm) {
+    Err(e) => return Err(e)
+    Ok(_) => ()
+  }
+  if tip_cone_trim {
+    match end_face {
+      Flat =>
+        return Err(
+          @common.InvalidParameter(
+            "the tip cone trim is supported only with the back-cone end face",
+          ),
+        )
+      BackCone => ()
+    }
+    if !has_recess_z {
+      return Err(
+        @common.InvalidParameter(
+          "bevel tip cone trim requires front_recess_z_mm and front_recess_radius_mm",
+        ),
+      )
+    }
+  }
   let params : BevelGearParams = {
     module_mm,
     teeth,
@@ -556,6 +597,9 @@ pub fn BevelGearParams::new(
     tooth_phase_deg,
     set_screw_clearance_mm,
     chamfer_hub_outer,
+    profile_shift,
+    flank_arc_radius_mm,
+    tip_cone_trim,
     end_face,
   }
   let geom = params.geometry()
@@ -780,6 +824,57 @@ fn bevel_resample(points : Array[@cad.Vec2], count : Int32) -> Array[@cad.Vec2] 
 /// The sector runs from the root gap centreline at -phi_b, up the lower flank,
 /// across the tip, down the upper flank, to +phi_b. `phi_b` is chosen so the
 /// projected sector spans `2 * pi / teeth` of azimuth around the gear axis.
+
+///|
+/// bevel_arc_flank_points generates `ip + 1` points from `rr` to `ra` along a
+/// circular-arc tooth flank in the virtual back-cone plane passing through the
+/// pitch circle at `theta_pitch` with pressure angle `pa`.
+fn bevel_arc_flank_points(
+  rr : Double,
+  rp : Double,
+  ra : Double,
+  pa : Double,
+  theta_pitch : Double,
+  arc_radius : Double,
+  ip : Int32,
+) -> Result[Array[@cad.Vec2], @common.SpecError] {
+  let px = rp * @math.cos(-theta_pitch)
+  let py = rp * @math.sin(-theta_pitch)
+  let erx = @math.cos(-theta_pitch)
+  let ery = @math.sin(-theta_pitch)
+  let etx = -ery
+  let ety = erx
+  let cx = px + arc_radius * (-@math.sin(pa) * erx + @math.cos(pa) * etx)
+  let cy = py + arc_radius * (-@math.sin(pa) * ery + @math.cos(pa) * ety)
+  let dc = Double::sqrt(cx * cx + cy * cy)
+  if dc <= 1.0e-12 {
+    return Err(
+      @common.InvalidParameter("bevel flank arc center collapses to the origin"),
+    )
+  }
+  let pts : Array[@cad.Vec2] = []
+  for i in 0..<=ip {
+    let r = rr + (ra - rr) * i.to_double() / ip.to_double()
+    let a = (r * r - arc_radius * arc_radius + dc * dc) / (2.0 * dc)
+    let h2 = r * r - a * a
+    if h2 < -1.0e-9 {
+      return Err(
+        @common.InvalidParameter(
+          "bevel flank arc radius \{arc_radius} mm does not span root to tip",
+        ),
+      )
+    }
+    let h = Double::sqrt(if h2 > 0.0 { h2 } else { 0.0 })
+    let p1 : @cad.Vec2 = ((a * cx - h * cy) / dc, (a * cy + h * cx) / dc)
+    let p2 : @cad.Vec2 = ((a * cx + h * cy) / dc, (a * cy - h * cx) / dc)
+    let d1 = (p1.0 - px) * (p1.0 - px) + (p1.1 - py) * (p1.1 - py)
+    let d2 = (p2.0 - px) * (p2.0 - px) + (p2.1 - py) * (p2.1 - py)
+    pts.push(if d1 <= d2 { p1 } else { p2 })
+  }
+  Ok(pts)
+}
+
+///|
 fn bevel_tooth_sector(
   params : BevelGearParams,
   g : BevelGearGeometry,
@@ -802,34 +897,58 @@ fn bevel_tooth_sector(
   let ip = if params.involute_points < 2 { 2 } else { params.involute_points }
   let arcs = if params.arc_points < 2 { 2 } else { params.arc_points }
   let backlash_angle = params.backlash_mm / (2.0 * rp)
+  let shift_angle = 2.0 * params.profile_shift * @math.tan(pa) / zv
   let pitch_point = involute_xy(rb, involute_theta(rb, rp))
   let face_angle = @math.atan2(pitch_point.1, pitch_point.0)
-  let center_angle = @math.PI / (2.0 * zv) + face_angle - backlash_angle
+  let center_angle = @math.PI / (2.0 * zv) +
+    face_angle +
+    shift_angle -
+    backlash_angle
   let start_angle = involute_theta(rb, if rr > rb { rr } else { rb })
   let stop_angle = involute_theta(rb, ra)
   let d_theta = (stop_angle - start_angle) / ip.to_double()
 
   // One flank from the root to the tip, then the tip arc, then the mirrored
   // flank back to the root. This is the same construction as the spur gear.
+  let use_arc = params.flank_arc_radius_mm > 0.0
   let inv : Array[@cad.Vec2] = []
-  if rr < rb {
+  if !use_arc && rr < rb {
     inv.push(rotate_xy((rr, 0.0), -center_angle))
   }
-  let mut angle = start_angle
-  let flank_raw : Array[@cad.Vec2] = []
-  for _i in 0..<(ip + 1) {
-    flank_raw.push(rotate_xy(involute_xy(rb, angle), -center_angle))
-    angle = angle + d_theta
+  let flank_raw : Array[@cad.Vec2] = if use_arc {
+    let theta_pitch = @math.PI / (2.0 * zv) + shift_angle - backlash_angle
+    match
+      bevel_arc_flank_points(
+        rr,
+        rp,
+        ra,
+        pa,
+        theta_pitch,
+        params.flank_arc_radius_mm,
+        ip,
+      ) {
+      Ok(pts) => pts
+      Err(e) => return Err(e)
+    }
+  } else {
+    let mut angle = start_angle
+    let pts : Array[@cad.Vec2] = []
+    for _i in 0..<(ip + 1) {
+      pts.push(rotate_xy(involute_xy(rb, angle), -center_angle))
+      angle = angle + d_theta
+    }
+    pts
   }
   let flank = bevel_resample(flank_raw, ip + 1)
   if params.root_fillet_radius_mm > 0.0 {
-    let root_corner = if rr < rb {
+    let root_corner = if !use_arc && rr < rb {
       rotate_xy((rr, 0.0), -center_angle)
     } else {
       flank[0]
     }
-    let min_seg = 1.5 * params.root_fillet_radius_mm
-    let start_idx = if rr < rb { 0 } else { 1 }
+    let min_seg = (if use_arc { 1.15 } else { 1.5 }) *
+      params.root_fillet_radius_mm
+    let start_idx = if !use_arc && rr < rb { 0 } else { 1 }
     for i, pt in flank {
       if i < start_idx {
         inv.push(pt)
@@ -1217,7 +1336,7 @@ fn bevel_back_cone_data(
           ),
         )
     }
-    let snapped = if (radius_of(p) - rr_v).abs() <= root_tol {
+    let snapped = if radius_of(p) <= rr_v + root_tol {
       let theta = @math.atan2(c.1, c.0)
       let sp = (
         root_radius * @math.cos(theta),
@@ -1759,10 +1878,6 @@ fn bevel_gear_back_cone(
         feature="crown",
         reason="no lengthwise or heightwise crowning",
       ),
-      @common.Omission::new(
-        feature="profile-shift",
-        reason="no profile shift is modelled",
-      ),
       @common.Omission::new(feature="web", reason="no web is modelled"),
       @common.Omission::new(
         feature="contact-analysis",
@@ -1770,6 +1885,16 @@ fn bevel_gear_back_cone(
       ),
     ],
   )
+  if params.profile_shift != 0.0 {
+    features = features.add_modeled("profile-shift")
+  } else {
+    features = features.add_omitted(
+      @common.Omission::new(
+        feature="profile-shift",
+        reason="no profile shift is modelled",
+      ),
+    )
+  }
   if params.tip_chamfer_mm > 0.0 {
     features = features.add_modeled("tip-chamfer")
   } else {
@@ -1900,7 +2025,8 @@ fn bevel_gear_back_cone(
   }
   let hub_back = root_z - params.hub_length_mm - hub_setback
   let has_edge_chamfer = params.edge_chamfer_mm > 0.0 && (rb > 0.0 || has_hub)
-  let has_od_trim = params.od_radius_mm > 0.0
+  let has_tip_cone_trim = params.tip_cone_trim
+  let has_od_trim = params.od_radius_mm > 0.0 && !has_tip_cone_trim
   let has_front_recess = match params.front_recess_z_mm {
     Some(_) => true
     None => false
@@ -1910,6 +2036,7 @@ fn bevel_gear_back_cone(
     has_set_screw ||
     has_edge_chamfer ||
     has_od_trim ||
+    has_tip_cone_trim ||
     has_front_recess {
     // The keyway, drill, OD trim, front recess, and chamfers must trim the
     // fused body and hub; the flat writer cannot represent that, so expose one
@@ -2006,8 +2133,9 @@ fn bevel_gear_back_cone(
       Some(rz) => {
         let cot_d = 1.0 / @math.tan(delta)
         let r_floor = params.front_recess_radius_mm - (front_z - rz) * cot_d
-        let r_top = params.front_recess_radius_mm + 1.0 * cot_d
-        let z_top = front_z + 1.0
+        let ext_z = if has_tip_cone_trim { 2.0 } else { 1.0 }
+        let r_top = params.front_recess_radius_mm + ext_z * cot_d
+        let z_top = front_z + ext_z
         let profile : Array[@cad.Vec2] = if rb > 0.0 &&
           params.edge_chamfer_mm > 0.0 {
           let c = params.edge_chamfer_mm
@@ -2033,7 +2161,41 @@ fn bevel_gear_back_cone(
       }
       None => ()
     }
-    let solid = if cutters.is_empty() {
+    let stage1 = if cutters.is_empty() {
+      fused
+    } else {
+      @cad.difference(fused, cutters, name="body-trimmed")
+    }
+    let solid = if has_tip_cone_trim {
+      let r_back_tip = if params.od_radius_mm > 0.0 {
+        params.od_radius_mm
+      } else {
+        back_max
+      }
+      let z_back_tip = root_z + (r_back_tip - root_radius) * @math.tan(delta)
+      let dz_tip = z_back_tip - front_z
+      if Double::abs(dz_tip) <= 1.0e-12 {
+        return Err(
+          @common.InvalidParameter(
+            "bevel tip cone endpoints have zero axial span",
+          ),
+        )
+      }
+      let slope = (r_back_tip - params.front_recess_radius_mm) / dz_tip
+      let z0 = root_z - 1.0
+      let z1 = front_z + 1.0
+      let r0 = params.front_recess_radius_mm + (z0 - front_z) * slope
+      let r1 = params.front_recess_radius_mm + (z1 - front_z) * slope
+      let r_edge = if r0 > r1 { r0 } else { r1 }
+      let r_out = (if r_edge > back_max { r_edge } else { back_max }) + 2.0
+      let tip_cutter = @cad.RevolvedProfile::polyline(
+          [(r0, z0), (r_out, z0), (r_out, z1), (r1, z1)],
+          closed=true,
+        )
+        .as_shape()
+        .with_name("tip-cone-trim-cutter")
+      @cad.difference(stage1, [tip_cutter], name="body")
+    } else if cutters.is_empty() {
       fused
     } else {
       @cad.difference(fused, cutters, name="body")

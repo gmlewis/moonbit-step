@@ -42,6 +42,303 @@ fn smooth_sweep_curve(
 }
 
 ///|
+/// periodic_catmull_bezier_cps builds `3 * n + 1` cubic Bezier control points
+/// around a closed loop of `n` points `loop_pts` using periodic Catmull-Rom
+/// tangents so index `0` and index `3 * n` coincide at `loop_pts[0]` with C1
+/// continuity across the seam.
+fn periodic_catmull_bezier_cps(loop_pts : Array[Vec3]) -> Array[Vec3] {
+  let n = loop_pts.length()
+  let cps : Array[Vec3] = []
+  for j in 0..<n {
+    let p_prev = loop_pts[(j + n - 1) % n]
+    let p0 = loop_pts[j]
+    let p3 = loop_pts[(j + 1) % n]
+    let p_next = loop_pts[(j + 2) % n]
+    let t0 = v_scale(v_sub(p3, p_prev), 0.5)
+    let t1 = v_scale(v_sub(p_next, p0), 0.5)
+    let q1 = v_add(p0, v_scale(t0, 1.0 / 3.0))
+    let q2 = v_sub(p3, v_scale(t1, 1.0 / 3.0))
+    if j == 0 {
+      cps.push(p0)
+    }
+    cps.push(q1)
+    cps.push(q2)
+    cps.push(p3)
+  }
+  cps
+}
+
+///|
+/// clamped_catmull_bezier_cps builds `3 * (n - 1) + 1` cubic Bezier control
+/// points along an open chain of `n` points with optional sharp creases.
+fn clamped_catmull_bezier_cps(
+  pts : Array[Vec3],
+  sharp_creases : Array[Int32],
+) -> Array[Vec3] {
+  let n = pts.length()
+  let is_crease = fn(idx : Int32) -> Bool {
+    for c in sharp_creases {
+      if c == idx {
+        return true
+      }
+    }
+    false
+  }
+  let cps : Array[Vec3] = []
+  for k in 0..<(n - 1) {
+    let p0 = pts[k]
+    let p3 = pts[k + 1]
+    let t_start = if is_crease(k) {
+      v_sub(p3, p0)
+    } else if k == 0 {
+      v_sub(pts[1], pts[0])
+    } else {
+      v_scale(v_sub(pts[k + 1], pts[k - 1]), 0.5)
+    }
+    let t_end = if is_crease(k + 1) {
+      v_sub(p3, p0)
+    } else if k + 1 == n - 1 {
+      v_sub(pts[n - 1], pts[n - 2])
+    } else {
+      v_scale(v_sub(pts[k + 2], pts[k]), 0.5)
+    }
+    let q1 = v_add(p0, v_scale(t_start, 1.0 / 3.0))
+    let q2 = v_sub(p3, v_scale(t_end, 1.0 / 3.0))
+    if k == 0 {
+      cps.push(p0)
+    }
+    cps.push(q1)
+    cps.push(q2)
+    cps.push(p3)
+  }
+  cps
+}
+
+///|
+fn sweep_orthogonal_dir(n : Vec3) -> Vec3 {
+  let c = if Double::abs(n.0) < 0.9 { (1.0, 0.0, 0.0) } else { (0.0, 1.0, 0.0) }
+  v_norm(v_cross(n, c))
+}
+
+///|
+/// compile_smooth_closed_swept_profile emits one seamless degree-(3, 3) closed
+/// B-spline tube surface per profile loop and planar spline caps.
+fn compile_smooth_closed_swept_profile(
+  ctx : StepContext,
+  xform : Transform,
+  s : SweptProfile,
+  pts : Array[Vec3],
+  local_loops : Array[Array[Vec3]],
+  loop_offsets : Array[Int32],
+  num_path_pts : Int32,
+  num_prof_verts : Int32,
+  reverse : Bool,
+) -> Array[@step.Ref] {
+  let num_loops = local_loops.length()
+  let num_v_spans = num_path_pts - 1
+  let v_mults : Array[Int32] = [4]
+  for _ in 1..<num_v_spans {
+    v_mults.push(3)
+  }
+  v_mults.push(4)
+  let v_knots : Array[String] = []
+  for i in 0..<=num_v_spans {
+    v_knots.push(@step.fmt_num(i.to_double()))
+  }
+  let v_mults_text = "(" + v_mults.map(fn(m) { "\{m}" }).join(",") + ")"
+  let v_knots_text = "(" + v_knots.join(",") + ")"
+
+  let start_edges : Array[@step.Ref] = []
+  let end_edges : Array[@step.Ref] = []
+  let face_refs : Array[@step.Ref] = []
+  let t0_world = v_norm(xform.apply_dir(s.path.tangents[0]))
+  let last = num_path_pts - 1
+
+  for li in 0..<num_loops {
+    let lo = loop_offsets[li]
+    let n = local_loops[li].length()
+    // Orient loop around start tangent so (du x dv) always points outward:
+    // outer loop CCW around +t0 (+dot > 0), holes CW around +t0 (dot < 0).
+    let raw_start : Array[Vec3] = []
+    for j in 0..<n {
+      raw_start.push(pts[lo + j])
+    }
+    let poly_norm = smooth_polygon_normal(raw_start)
+    let want_pos = li == 0
+    let need_rev = if want_pos {
+      v_dot(poly_norm, t0_world) < 0.0
+    } else {
+      v_dot(poly_norm, t0_world) > 0.0
+    }
+
+    // U cubic Bezier CPs across each sampled cross section i.
+    let u_rows : Array[Array[Vec3]] = []
+    for i in 0..<num_path_pts {
+      let row_pts : Array[Vec3] = []
+      for j in 0..<n {
+        let idx = if need_rev { n - 1 - j } else { j }
+        row_pts.push(pts[i * num_prof_verts + lo + idx])
+      }
+      u_rows.push(periodic_catmull_bezier_cps(row_pts))
+    }
+    let num_u_cps = u_rows[0].length() // 3 * n + 1
+
+    // V cubic Bezier CPs along each U control column u_col = 0 ..< num_u_cps.
+    let grid_cps : Array[Array[@step.Ref]] = []
+    let seam_cps_vec : Array[Vec3] = []
+    for u_col in 0..<num_u_cps {
+      let col_in : Array[Vec3] = []
+      for i in 0..<num_path_pts {
+        col_in.push(u_rows[i][u_col])
+      }
+      let col_cps = clamped_catmull_bezier_cps(col_in, s.sharp_creases)
+      if u_col == 0 {
+        for p in col_cps {
+          seam_cps_vec.push(p)
+        }
+      }
+      grid_cps.push(col_cps.map(fn(p) { ctx.cartesian_point(p.0, p.1, p.2) }))
+    }
+
+    let u_mults : Array[Int32] = [4]
+    for _ in 1..<n {
+      u_mults.push(3)
+    }
+    u_mults.push(4)
+    let u_knots : Array[String] = []
+    for j in 0..<=n {
+      u_knots.push(@step.fmt_num(j.to_double()))
+    }
+    let u_mults_text = "(" + u_mults.map(fn(m) { "\{m}" }).join(",") + ")"
+    let u_knots_text = "(" + u_knots.join(",") + ")"
+
+    let rows_text = "(" +
+      grid_cps
+      .map(fn(row) { "(" + row.map(fn(r) { "#\{r.id.value}" }).join(",") + ")" })
+      .join(",") +
+      ")"
+    let surf_args = "('',3,3," +
+      rows_text +
+      ",.UNSPECIFIED.,.F.,.F.,.F.," +
+      u_mults_text +
+      "," +
+      v_mults_text +
+      "," +
+      u_knots_text +
+      "," +
+      v_knots_text +
+      ",.PIECEWISE_BEZIER_KNOTS.)"
+    let surf_ref = ctx.add(
+      @repository.any_entity_raw_entity(
+        @step.RawEntity::new("B_SPLINE_SURFACE_WITH_KNOTS", surf_args),
+      ),
+    )
+
+    let vp_start = ctx.vertex_point(grid_cps[0][0])
+    let vp_end = ctx.vertex_point(grid_cps[0][grid_cps[0].length() - 1])
+    let seam_curve_ref = ctx.add(
+      @repository.any_entity_b_spline_curve_with_knots(
+        @geometry.BSplineCurveWithKnots::new(
+          "",
+          3,
+          grid_cps[0],
+          ".UNSPECIFIED.",
+          false,
+          false,
+          v_mults,
+          v_knots,
+          ".PIECEWISE_BEZIER_KNOTS.",
+        ),
+      ),
+    )
+    let seam_edge = ctx.edge_curve(vp_start, vp_end, seam_curve_ref, true)
+
+    let start_cp_refs = grid_cps.map(fn(row) { row[0] })
+    let start_curve_ref = ctx.add(
+      @repository.any_entity_b_spline_curve_with_knots(
+        @geometry.BSplineCurveWithKnots::new(
+          "", 3, start_cp_refs, ".UNSPECIFIED.", false, false, u_mults, u_knots,
+          ".PIECEWISE_BEZIER_KNOTS.",
+        ),
+      ),
+    )
+    let start_edge = ctx.edge_curve(vp_start, vp_start, start_curve_ref, true)
+
+    let end_cp_refs = grid_cps.map(fn(row) { row[row.length() - 1] })
+    let end_curve_ref = ctx.add(
+      @repository.any_entity_b_spline_curve_with_knots(
+        @geometry.BSplineCurveWithKnots::new(
+          "", 3, end_cp_refs, ".UNSPECIFIED.", false, false, u_mults, u_knots, ".PIECEWISE_BEZIER_KNOTS.",
+        ),
+      ),
+    )
+    let end_edge = ctx.edge_curve(vp_end, vp_end, end_curve_ref, true)
+    start_edges.push(start_edge)
+    end_edges.push(end_edge)
+
+    let _ = seam_cps_vec
+    let loop_ref = ctx.edge_loop([
+      ctx.oriented_edge(start_edge, true),
+      ctx.oriented_edge(seam_edge, true),
+      ctx.oriented_edge(end_edge, false),
+      ctx.oriented_edge(seam_edge, false),
+    ])
+    let bound = ctx.face_outer_bound(loop_ref, true)
+    face_refs.push(ctx.advanced_face([bound], surf_ref, !reverse))
+  }
+
+  let emit_cap = fn(
+    base_pt : Vec3,
+    out_dir_local : Vec3,
+    cap_edges : Array[@step.Ref],
+    outer_sense : Bool,
+    hole_sense : Bool,
+  ) {
+    let normal = v_norm(xform.apply_dir(out_dir_local))
+    let ref_d = sweep_orthogonal_dir(normal)
+    let a2p = ctx.axis2_placement_3d(
+      ctx.cartesian_point(base_pt.0, base_pt.1, base_pt.2),
+      ctx.direction(normal.0, normal.1, normal.2),
+      ctx.direction(ref_d.0, ref_d.1, ref_d.2),
+    )
+    let plane = ctx.add(
+      @repository.any_entity_plane(@geometry.Plane::new("", a2p)),
+    )
+    let bounds : Array[@step.Ref] = [
+      ctx.face_outer_bound(
+        ctx.edge_loop([ctx.oriented_edge(cap_edges[0], outer_sense)]),
+        true,
+      ),
+    ]
+    for li in 1..<num_loops {
+      bounds.push(
+        ctx.face_bound(
+          ctx.edge_loop([ctx.oriented_edge(cap_edges[li], hole_sense)]),
+          true,
+        ),
+      )
+    }
+    face_refs.push(ctx.advanced_face(bounds, plane, !reverse))
+  }
+
+  if s.make_start_cap {
+    let t0 = s.path.tangents[0]
+    emit_cap(pts[0], (-t0.0, -t0.1, -t0.2), start_edges, false, false)
+  }
+  if s.make_end_cap {
+    let t1 = s.path.tangents[last]
+    emit_cap(
+      pts[last * num_prof_verts],
+      (t1.0, t1.1, t1.2),
+      end_edges,
+      true,
+      true,
+    )
+  }
+  face_refs
+}
+
+///|
 /// compile_smooth_swept_profile emits the sweep as smooth B-spline side
 /// surfaces and planar caps instead of planar facets.
 fn compile_smooth_swept_profile(
@@ -148,6 +445,13 @@ fn compile_smooth_swept_profile(
         xform.apply((gv.0 + p_origin.0, gv.1 + p_origin.1, gv.2 + p_origin.2)),
       )
     }
+  }
+
+  if s.smooth_profile {
+    return compile_smooth_closed_swept_profile(
+      ctx, xform, s, pts, local_loops, loop_offsets, num_path_pts, num_prof_verts,
+      reverse,
+    )
   }
 
   // Vertices and the straight cross-section edges at the two caps.

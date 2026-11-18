@@ -147,6 +147,11 @@ golden file.
 - Never copy a golden dimension that contradicts its standard.
 - Never call a layered stack a Boolean, a polygon a cylinder, or a sharp edge a
   chamfer.
+- Avoid tessellation by default: match curved/cylindrical/toroidal/helical
+  features using analytic surfaces (`Cylinder`, `Cone`, `RevolvedProfile`,
+  `ToroidalBend`, `ExtrudedArcProfile`, `round_bore=`) or seamless smooth
+  sweeps (`smooth_sides=true, smooth_profile=true` / `smooth_helix=true`)
+  rather than N-gon bores, sampled arc chords, or longitudinal strip facets.
 - No Git state-changing commands; the owner commits.
 - Keep the runtime library pure MoonBit; OCCT/CADquery/MCP are development-time
   tools.

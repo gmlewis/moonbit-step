@@ -385,6 +385,79 @@ pub fn TSlotProfile::metadata(
 }
 
 ///|
+/// side_segments_with_slot emits exact straight line segments along one T-slot
+/// face from `a` toward `b` (excluding corner vertices when `inset > 0` leaves
+/// room for analytic outer corner arcs).
+fn side_segments_with_slot(
+  ax : Double,
+  ay : Double,
+  bx : Double,
+  by : Double,
+  profile : TSlotProfile,
+  inset_mm : Double,
+) -> Array[@cad.Vec2] {
+  let dx = bx - ax
+  let dy = by - ay
+  let length = Double::sqrt(dx * dx + dy * dy)
+  let ux = dx / length
+  let uy = dy / length
+  let nx = -uy
+  let ny = ux
+  let raw = side_with_slot(ax, ay, bx, by, profile)
+  let pts : Array[@cad.Vec2] = []
+  if inset_mm > 1.0e-9 {
+    pts.push((ax + ux * inset_mm, ay + uy * inset_mm))
+    for i in 1..<raw.length() {
+      pts.push(raw[i])
+    }
+    pts.push((bx - ux * inset_mm, by - uy * inset_mm))
+  } else {
+    for p in raw {
+      pts.push(p)
+    }
+  }
+  let _ = nx
+  let _ = ny
+  pts
+}
+
+///|
+/// outline_segments builds the exact counter-clockwise line/arc boundary loop
+/// for `ExtrudedArcProfile`.
+fn TSlotProfile::outline_segments(
+  self : TSlotProfile,
+) -> Array[@cad.ProfileSegment] {
+  let hw = self.width_mm / 2.0
+  let hh = self.height_mm / 2.0
+  let r = self.corner_radius_mm
+  let sides : Array[((Double, Double), (Double, Double), (Double, Double))] = [
+    ((-hw, -hh), (hw, -hh), (hw - r, -hh + r)),
+    ((hw, -hh), (hw, hh), (hw - r, hh - r)),
+    ((hw, hh), (-hw, hh), (-hw + r, hh - r)),
+    ((-hw, hh), (-hw, -hh), (-hw + r, -hh + r)),
+  ]
+  let chains : Array[Array[@cad.Vec2]] = sides.map(fn(s) {
+    let ((ax, ay), (bx, by), _) = s
+    side_segments_with_slot(ax, ay, bx, by, self, r)
+  })
+  let segs : Array[@cad.ProfileSegment] = []
+  for si in 0..<4 {
+    let ch = chains[si]
+    for i in 0..<(ch.length() - 1) {
+      segs.push(@cad.SegmentLine(ch[i], ch[i + 1]))
+    }
+    let next_ch = chains[(si + 1) % 4]
+    if r > 1.0e-9 {
+      let (_, _, center) = sides[si]
+      segs.push(@cad.SegmentArc(ch[ch.length() - 1], next_ch[0], center))
+    } else {
+      segs.push(@cad.SegmentLine(ch[ch.length() - 1], next_ch[0]))
+    }
+  }
+  segs
+}
+
+///|
 /// extrusion builds a cut-to-length generic T-slot extrusion.
 ///
 /// The section is centred on the XY origin and the length runs along +Z from
@@ -400,29 +473,16 @@ pub fn extrusion(
   match @common.require_positive("extrusion length", length_mm) {
     Err(e) => Err(e)
     Ok(_) => {
-      let policy = @common.DetailPolicy::for_level(detail)
-      let segments = if policy.circle_segments < 24 {
-        24
-      } else {
-        policy.circle_segments
-      }
-      let outer = profile.outline()
-      let holes = profile.holes(segments~)
-      let body = @cad.ExtrudedProfile::new(outer, length_mm, holes~)
+      let _ = detail
+      let body = @cad.ExtrudedArcProfile::new(
+        profile.outline_segments(),
+        length_mm,
+        round_bore=((0.0, 0.0), profile.core_bore_diameter_mm),
+      ).as_shape()
       let name = "extrusion-\{profile.name}-\{@cad.fmt_double(length_mm, None)}"
       let mut features = @common.FeatureRecord::new(
-        modeled=["body", "t-slot-cavities"],
-        approximated=[
-          @common.Approximation::new(
-            feature="core-bore",
-            kind=@common.ApproximationKind::PolylineArc,
-            deviation_mm=@common.chord_deviation(
-              profile.core_bore_diameter_mm / 2.0,
-              segments,
-            ),
-            control="circle_segments=\{segments}",
-          ),
-        ],
+        modeled=["body", "t-slot-cavities", "core-bore"],
+        approximated=[],
         omitted=[
           @common.Omission::new(
             feature="end-caps",
@@ -431,16 +491,7 @@ pub fn extrusion(
         ],
       )
       if profile.corner_radius_mm > 0.0 {
-        features = features
-          .add_modeled("corner-radii")
-          .add_approximated(
-            @common.Approximation::new(
-              feature="corner-radius-arc",
-              kind=@common.ApproximationKind::PolylineArc,
-              deviation_mm=@common.chord_deviation(profile.corner_radius_mm, 8),
-              control="corner_segments=8",
-            ),
-          )
+        features = features.add_modeled("corner-radii")
       } else {
         features = features.add_omitted(
           @common.Omission::new(

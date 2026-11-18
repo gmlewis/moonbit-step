@@ -58,37 +58,9 @@ pub fn gt2_geometry(teeth : Int32) -> Result[GT2Geometry, @common.SpecError] {
 }
 
 ///|
-/// push_arc appends points on a circular arc, excluding the start angle when
-/// `include_start` is false.
-fn push_gt2_arc(
-  points : Array[@cad.Vec2],
-  radius : Double,
-  start : Double,
-  finish : Double,
-  segments : Int32,
-  include_start~ : Bool,
-) -> Unit {
-  let count = if segments < 1 { 1 } else { segments }
-  for k in 0..<=count {
-    if k == 0 && !include_start {
-      continue
-    }
-    let t = k.to_double() / count.to_double()
-    let angle = start + (finish - start) * t
-    points.push((radius * @math.cos(angle), radius * @math.sin(angle)))
-  }
-}
-
-///|
-/// gt2_tooth_outline builds a counter-clockwise approximated GT2 tooth profile.
-///
-/// Each tooth is a trapezoid with sampled root and tip arcs. The profile is a
-/// polygon: it is an engineering approximation for printed prototypes, not an
-/// exact licensed tooth form.
-fn gt2_tooth_outline(
-  geom : GT2Geometry,
-  arc_segments~ : Int32 = 4,
-) -> Array[@cad.Vec2] {
+/// gt2_tooth_segments builds a counter-clockwise exact line/arc loop for the
+/// GT2 pulley outer tooth profile (analytic circular root and tip arcs).
+fn gt2_tooth_segments(geom : GT2Geometry) -> Array[@cad.ProfileSegment] {
   let pitch_radius = geom.pitch_diameter_mm / 2.0
   let tip_radius = geom.outside_diameter_mm / 2.0
   let root_radius = geom.root_diameter_mm / 2.0
@@ -102,76 +74,32 @@ fn gt2_tooth_outline(
     max_half
   }
   let tip_half = if tip_half_raw < root_half { tip_half_raw } else { root_half }
-  let points : Array[@cad.Vec2] = []
+  let pt_at = fn(r : Double, a : Double) -> @cad.Vec2 {
+    (r * @math.cos(a), r * @math.sin(a))
+  }
+  let segs : Array[@cad.ProfileSegment] = []
+  let first_pt = pt_at(root_radius, -step / 2.0)
   for i in 0..<geom.teeth {
     let center = i.to_double() * step
     let start = center - step / 2.0
     let end = center + step / 2.0
-    push_gt2_arc(
-      points,
-      root_radius,
-      start,
-      center - root_half,
-      arc_segments,
-      include_start=true,
-    )
-    points.push(
-      (
-        tip_radius * @math.cos(center - tip_half),
-        tip_radius * @math.sin(center - tip_half),
-      ),
-    )
-    push_gt2_arc(
-      points,
-      tip_radius,
-      center - tip_half,
-      center + tip_half,
-      arc_segments,
-      include_start=false,
-    )
-    points.push(
-      (
-        root_radius * @math.cos(center + root_half),
-        root_radius * @math.sin(center + root_half),
-      ),
-    )
-    push_gt2_arc(
-      points,
-      root_radius,
-      center + root_half,
-      end,
-      arc_segments,
-      include_start=false,
-    )
-  }
-  // Adjacent teeth can repeat the joint point; a zero-length edge makes the
-  // extruded shell invalid, so drop consecutive duplicates.
-  let out : Array[@cad.Vec2] = []
-  for p in points {
-    let keep = if out.length() == 0 {
-      true
+    let p_start = if i == 0 { first_pt } else { pt_at(root_radius, start) }
+    let p_root_l = pt_at(root_radius, center - root_half)
+    let p_tip_l = pt_at(tip_radius, center - tip_half)
+    let p_tip_r = pt_at(tip_radius, center + tip_half)
+    let p_root_r = pt_at(root_radius, center + root_half)
+    let p_end = if i == geom.teeth - 1 {
+      first_pt
     } else {
-      let q = out[out.length() - 1]
-      (p.0 - q.0).abs() > 1.0e-12 || (p.1 - q.1).abs() > 1.0e-12
+      pt_at(root_radius, end)
     }
-    if keep {
-      out.push(p)
-    }
+    segs.push(@cad.SegmentArc(p_start, p_root_l, (0.0, 0.0)))
+    segs.push(@cad.SegmentLine(p_root_l, p_tip_l))
+    segs.push(@cad.SegmentArc(p_tip_l, p_tip_r, (0.0, 0.0)))
+    segs.push(@cad.SegmentLine(p_tip_r, p_root_r))
+    segs.push(@cad.SegmentArc(p_root_r, p_end, (0.0, 0.0)))
   }
-  // The closing point can repeat the first point at the 2*pi seam.
-  let wraps = if out.length() > 1 {
-    let first = out[0]
-    let last = out[out.length() - 1]
-    (last.0 - first.0).abs() <= 1.0e-12 && (last.1 - first.1).abs() <= 1.0e-12
-  } else {
-    false
-  }
-  let result : Array[@cad.Vec2] = []
-  let count = if wraps { out.length() - 1 } else { out.length() }
-  for i in 0..<count {
-    result.push(out[i])
-  }
-  result
+  segs
 }
 
 ///|
@@ -179,9 +107,10 @@ fn gt2_tooth_outline(
 /// optional end flanges.
 ///
 /// The pulley axis is +Z, the belt runs over `z = 0 .. belt_width_mm`, and the
-/// bore is coaxial. The tooth outline is a polygon approximation from the
-/// published 2 mm pitch, 0.254 mm pitch-line offset, 0.76 mm depth, and 1.49 mm
-/// width; it is not presented as an exact licensed GT2 profile.
+/// bore is coaxial. The tooth outline uses smooth analytic circular root and tip
+/// arcs joined by straight flanks from the published 2 mm pitch, 0.254 mm
+/// pitch-line offset, 0.76 mm depth, and 1.49 mm width; it is not presented as
+/// an exact licensed GT2 profile.
 ///
 /// Flanges are separate annular layers at the two ends. They abut the toothed
 /// body rather than being trimmed into it.
@@ -237,12 +166,12 @@ pub fn gt2_pulley(
   }
   let _ = detail
   let body_height = belt_width_mm - 2.0 * flange_t
-  let outline = gt2_tooth_outline(geom)
-  let body = @cad.ExtrudedProfile::new(
-    outline,
+  let segments = gt2_tooth_segments(geom)
+  let body = @cad.ExtrudedArcProfile::new(
+    segments,
     body_height,
     round_bore=((0.0, 0.0), bore_diameter_mm),
-  )
+  ).as_shape()
   let name = "GT2-\{teeth}T-\{@cad.fmt_double(belt_width_mm, None)}-b\{@cad.fmt_double(bore_diameter_mm, None)}"
   let mut component = @common.Component::new(
     name~,
@@ -255,7 +184,7 @@ pub fn gt2_pulley(
       material="printed or machined (label only; no strength claim)",
       source="Pitch 2.0 mm, pitch-line offset 0.254 mm, tooth depth about 0.76 mm, and tooth width about 1.49 mm. Tooth flanks are an engineering approximation, not a licensed exact GT2 profile.",
     ),
-    description="Approximated GT2 timing pulley with a central bore and optional end flanges. The tooth form is a trapezoidal polygon built from published pitch/offset/depth/width values; it is not an exact licensed profile and no load rating is implied.",
+    description="Approximated GT2 timing pulley with a central bore and optional end flanges. The tooth form uses analytic circular root and tip arcs with straight flanks built from published pitch/offset/depth/width values; it is not an exact licensed profile and no load rating is implied.",
     features=@common.FeatureRecord::new(
       modeled=["body", "central-bore", "approximate-gt2-teeth", "end-flanges"],
       approximated=[
@@ -263,7 +192,7 @@ pub fn gt2_pulley(
           feature="gt2-tooth-form",
           kind=@common.ApproximationKind::EngineeringDefault,
           deviation_mm=0.0,
-          control="trapezoidal polygon from 2.0 mm pitch, 0.254 mm offset, 0.76 mm depth, 1.49 mm width",
+          control="analytic circular root/tip arcs and straight flanks from 2.0 mm pitch, 0.254 mm offset, 0.76 mm depth, 1.49 mm width",
         ),
         @common.Approximation::new(
           feature="flange-diameter",

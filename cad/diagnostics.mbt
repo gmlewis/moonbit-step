@@ -125,6 +125,8 @@ fn collect_diagnostics(
       if c.diameter <= 0.0 || c.height <= 0.0 {
         out.push(EmptySolid(name))
       }
+    ToroidalBend(b) => if !b.validate() { out.push(EmptySolid(name)) }
+    PipeJunction(j) => if !j.validate() { out.push(EmptySolid(name)) }
     ExtrudedProfile(e) =>
       if e.height_mm == 0.0 || e.profile.outer.length() < 3 {
         out.push(EmptySolid(name))

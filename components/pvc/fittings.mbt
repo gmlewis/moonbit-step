@@ -10,12 +10,6 @@ const PVC_CAP_END_WALL_FACTOR : Double = 1.35
 const PVC_FITTING_CHAMFER_MM : Double = 0.5
 
 ///|
-const PVC_ELBOW_CIRCLE_SEGS : Int32 = 32
-
-///|
-const PVC_ELBOW_ARC_SEGS_PER_45DEG : Int32 = 12
-
-///|
 fn resolve_pvc_color(size : PvcSize, color : @cad.Rgb?) -> @cad.Rgb {
   match color {
     Some(c) => c
@@ -384,60 +378,31 @@ pub fn reducer_coupling(
 }
 
 ///|
-/// elbow_bend_shape builds the smooth swept hollow circular bend for a 45- or
-/// 90-degree PVC elbow in the XZ plane, from `(0, 0, -lay)` (tangent +Z) to
-/// `(lay * sin(alpha), 0, lay * cos(alpha))`.
+/// elbow_bend_shape builds the analytic toroidal hollow bend for a 45- or
+/// 90-degree PVC elbow in the XY plane around +Z (sweeping from `(R, 0, 0)` along
+/// `+Y`), to be placed into the XZ plane at `(0, 0, -lay_mm)`.
 fn elbow_bend_shape(
   size : PvcSize,
   angle_deg : Double,
   lay_mm : Double,
-) -> @cad.Shape {
+) -> (@cad.Shape, @common.Placement) {
   let alpha = angle_deg * @math.PI / 180.0
   let r_bend = lay_mm / @math.tan(alpha / 2.0)
-  let n_arc = if angle_deg > 60.0 {
-    PVC_ELBOW_ARC_SEGS_PER_45DEG * 2
-  } else {
-    PVC_ELBOW_ARC_SEGS_PER_45DEG
-  }
-  let points : Array[@cad.Vec3] = []
-  let normals : Array[@cad.Vec3] = []
-  let tangents : Array[@cad.Vec3] = []
-  for i in 0..<=n_arc {
-    let theta = alpha * i.to_double() / n_arc.to_double()
-    points.push(
-      (
-        r_bend * (1.0 - @math.cos(theta)),
-        0.0,
-        -lay_mm + r_bend * @math.sin(theta),
-      ),
-    )
-    tangents.push((@math.sin(theta), 0.0, @math.cos(theta)))
-    normals.push((0.0, 1.0, 0.0))
-  }
-  let r_out = elbow_bend_barrel_od(size) / 2.0
-  let r_in = size.through_bore_mm / 2.0
-  let outer : Array[@cad.Vec3] = []
-  let hole : Array[@cad.Vec3] = []
-  for k in 0..<PVC_ELBOW_CIRCLE_SEGS {
-    let a = 2.0 * @math.PI * k.to_double() / PVC_ELBOW_CIRCLE_SEGS.to_double()
-    // `m_path_to_global` uses `p_right = cross(tangent, normal)`, which maps
-    // CW local (x, y) to CCW around +tangent so smooth side faces and planar
-    // caps traverse every shared edge in opposite directions.
-    outer.push((r_out * @math.cos(a), -r_out * @math.sin(a), 0.0))
-    hole.push((r_in * @math.cos(a), r_in * @math.sin(a), 0.0))
-  }
-  let profile = @cad.SweepProfile::new(
-    outer,
-    holes=[hole],
-    normal_dir=(0.0, 0.0, 1.0),
-    right_dir=(1.0, 0.0, 0.0),
+  let bend = @cad.ToroidalBend::new(
+    r_bend,
+    elbow_bend_barrel_od(size),
+    angle_deg,
+    inner_diameter_mm=size.through_bore_mm,
   )
-  @cad.SweptProfile::new(
-    path={ points, normals, tangents, },
-    profile~,
-    straight_outline=false,
-    smooth_sides=true,
+  let placement = @common.Placement::at(
+    r_bend,
+    0.0,
+    -lay_mm,
+    rx=90.0,
+    ry=0.0,
+    rz=180.0,
   )
+  (bend, placement)
 }
 
 ///|
@@ -496,7 +461,7 @@ fn elbow_fitting(
   let c = detailed_chamfer(size, detail)
   let overlap = 0.4
   let socket_shape = pvc_elbow_collar_shape(size, overlap, c)
-  let bend = elbow_bend_shape(size, angle_deg, lay_mm)
+  let (bend, bend_placement) = elbow_bend_shape(size, angle_deg, lay_mm)
   let collar_a_pos : @cad.Vec3 = (
     seat_a.0 - overlap * axis_a.0,
     seat_a.1 - overlap * axis_a.1,
@@ -520,10 +485,10 @@ fn elbow_fitting(
         "PVC \{@cad.fmt_double(angle_deg, None)}-degree elbow",
         "center-to-seat \{@cad.fmt_double(lay_mm, None)} mm",
       ),
-      description="Smooth swept hollow \{@cad.fmt_double(angle_deg, None)}-degree PVC socket elbow in the XZ plane with socket collars at both ends.",
+      description="Analytic toroidal hollow \{@cad.fmt_double(angle_deg, None)}-degree PVC socket elbow in the XZ plane with socket collars at both ends.",
       features=pvc_fitting_features(modeled, []),
     )
-    .add_layer(bend, name="bend", color=part_color)
+    .add_layer(bend, name="bend", color=part_color, placement=bend_placement)
     .add_layer(
       socket_shape,
       name="socket-a-collar",
@@ -592,24 +557,10 @@ pub fn elbow_45(
 }
 
 ///|
-/// bored_hub_sphere builds a bored spherical junction shell centered at
-/// (0, 0, 0) with outer radius `socket_outer_mm / 2` and cylindrical bore
-/// `through_bore_mm`, closing the outer corners where perpendicular ports meet.
-fn bored_hub_sphere(size : PvcSize) -> @cad.Shape {
-  let r_out = size.socket_outer_mm / 2.0
-  let r_in = size.through_bore_mm / 2.0
-  let z_top = Double::sqrt(r_out * r_out - r_in * r_in)
-  @cad.RevolvedProfile::new([
-    @cad.RevArc((r_in, -z_top), (r_out, 0.0), (0.0, 0.0)),
-    @cad.RevArc((r_out, 0.0), (r_in, z_top), (0.0, 0.0)),
-    @cad.RevLine((r_in, z_top), (r_in, -z_top)),
-  ]).as_shape()
-}
-
-///|
 /// multi_port_fitting builds a symmetric multi-branch PVC fitting (`tee`,
-/// `cross`, `corner_3way`, `four_way_tee`, `five_way`) from one shared hub and
-/// identical stepped socket arms oriented along each port's outward unit axis.
+/// `cross`, `corner_3way`, `four_way_tee`, `five_way`) as one trimmed analytic
+/// `PipeJunction` solid with open intersecting bores, pipe-stop shoulders, and
+/// socket connectors along each port's outward unit axis.
 fn multi_port_fitting(
   size : PvcSize,
   kind_tag : String,
@@ -619,11 +570,19 @@ fn multi_port_fitting(
   ports : Array[(String, String, @cad.Vec3)],
   detail : @common.DetailLevel,
   color : @cad.Rgb?,
-  spherical_corner~ : Bool = false,
 ) -> Result[@common.Component, @common.SpecError] {
   let lay = size.center_to_seat_90_mm
   let c = detailed_chamfer(size, detail)
-  let arm_shape = pvc_socket_sleeve_shape(size, lay, c)
+  let axes = ports.map(fn(p) { unit3(p.2) })
+  let body = @cad.PipeJunction::new(
+    axes,
+    size.socket_outer_mm,
+    size.through_bore_mm,
+    size.socket_bore_mm,
+    lay,
+    size.socket_depth_mm,
+    mouth_chamfer_mm=c,
+  )
   let part_color = resolve_pvc_color(size, color)
   let modeled : Array[String] = ["junction-hub", "pipe-stops"]
   for port in ports {
@@ -641,32 +600,12 @@ fn multi_port_fitting(
       "center-to-seat \{@cad.fmt_double(lay, None)} mm",
     ),
     description~,
-    features=pvc_fitting_features(modeled, [
-      @common.Approximation::new(
-        feature="port-intersection",
-        kind=@common.ApproximationKind::EngineeringDefault,
-        deviation_mm=0.0,
-        control="each port arm is modeled from the junction center so unevaluated export stays closed-shell per arm and --evaluated fuses one unified fitting body",
-      ),
-    ]),
-  )
-  if spherical_corner {
-    comp = comp.add_layer(
-      bored_hub_sphere(size),
-      name="junction-hub",
-      color=part_color,
-    )
-  }
+    features=pvc_fitting_features(modeled, []),
+  ).add_layer(body, name="body", color=part_color)
   for port in ports {
     let (sock_name, mouth_name, raw_axis) = port
     let u = unit3(raw_axis)
     let seat = (lay * u.0, lay * u.1, lay * u.2)
-    comp = comp.add_layer(
-      arm_shape,
-      name="arm-\{sock_name}",
-      color=part_color,
-      placement=frame_z_along(u),
-    )
     comp = add_pvc_socket(
       comp,
       size,
@@ -747,7 +686,6 @@ pub fn corner_3way(
     ],
     detail,
     color,
-    spherical_corner=true,
   )
 }
 
@@ -773,7 +711,6 @@ pub fn four_way_tee(
     ],
     detail,
     color,
-    spherical_corner=true,
   )
 }
 
@@ -800,7 +737,6 @@ pub fn five_way(
     ],
     detail,
     color,
-    spherical_corner=true,
   )
 }
 

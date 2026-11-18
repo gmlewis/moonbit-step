@@ -405,6 +405,8 @@ fn compile_node_shape(
     Cylinder(c) => compile_cylinder(ctx, node, c, reverse~, parent~)
     RevolvedProfile(r) =>
       compile_revolved_profile(ctx, node, r, reverse~, parent~)
+    ToroidalBend(b) => compile_toroidal_bend(ctx, node, b, reverse~, parent~)
+    PipeJunction(j) => compile_pipe_junction(ctx, node, j, reverse~, parent~)
     ChamferedPrism(p) =>
       compile_chamfered_prism(ctx, node, p, reverse~, parent~)
     SocketedSolid(s) => compile_socketed_solid(ctx, node, s, reverse~, parent~)

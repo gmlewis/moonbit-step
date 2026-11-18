@@ -240,7 +240,8 @@ test "profile corner radius rounds the outer corners and records it" {
     Err(e) => abort(e.message())
   }
   assert_true(part.features().has_modeled("corner-radii"))
-  assert_true(part.features().has_approximated("corner-radius-arc"))
+  assert_false(part.features().has_approximated("corner-radius-arc"))
+  assert_true(part.layers()[0].shape.surface_inventory().cylinder >= 5)
   assert_true(base.with_corner_radius(6.0) is Err(_))
   assert_true(base.with_corner_radius(-1.0) is Err(_))
 }
