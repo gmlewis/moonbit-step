@@ -1,8 +1,12 @@
 import {
+  "gmlewis/step/cad",
   "gmlewis/step/cli",
+  "gmlewis/step/components/fasteners",
   "gmlewis/step/components/gears",
+  "gmlewis/step/components/standards",
   "moonbitlang/async",
   "moonbitlang/core/builtin",
+  "moonbitlang/core/math",
 }
 
 pkgtype(kind: "executable")

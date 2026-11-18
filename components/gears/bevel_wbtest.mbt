@@ -1257,3 +1257,104 @@ test "bevel OD trim and front recess validation and connectors" {
   }
   bevel_close_rel(keyway.depth_mm.unwrap(), 16.0, 1.0e-9)
 }
+
+///|
+test "bevel tooth phase rotates teeth without moving keyway or set screw" {
+  let params = match
+    BevelGearParams::new(
+      module_mm=1.0,
+      teeth=30,
+      mate_teeth=30,
+      face_width_mm=6.54,
+      bore_diameter_mm=12.0,
+      hub_diameter_mm=24.0,
+      hub_length_mm=10.0,
+      keyway_width_mm=4.0,
+      keyway_depth_mm=1.8,
+      set_screw_diameter_mm=5.0,
+      set_screw_clearance_mm=0.04,
+      tooth_phase_deg=6.0,
+      od_radius_mm=15.5303,
+      end_face=BackCone,
+    ) {
+    Ok(p) => p
+    Err(e) => abort(e.message())
+  }
+  let component = match bevel_gear(params) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  let kw = match component.connector("keyway") {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  // Keyway stays at +90 deg (+Y) despite the 6-degree tooth rotation.
+  assert_true(kw.placement.trans.0.abs() < 1.0e-9)
+  assert_true(kw.placement.trans.1 > 7.7)
+  let hole = match component.connector("set-screw-hole") {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  bevel_close_rel(hole.diameter_mm.unwrap(), 5.04, 1.0e-9)
+  let thread = match component.connector("set-screw-thread") {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  bevel_close_rel(thread.diameter_mm.unwrap(), 5.0, 1.0e-9)
+}
+
+///|
+test "bevel non-90 shaft angles use tan(delta) hub backing and orient to hub back" {
+  let cases = [
+    (45.0, 11.4132, 7.75, 25.0, 1.1737, 9.2145, 11.7375, 19.33),
+    (60.0, 9.5339, 12.6, 25.0, 1.1213, 6.9566, 11.3656, 22.3),
+    (120.0, 6.6918, 13.88, 26.0, 0.7496, 0.6559, 11.1896, 20.69),
+  ]
+  for entry in cases {
+    let (
+      shaft_deg,
+      face_w,
+      hub_len,
+      hub_dia,
+      ded_factor,
+      recess_z,
+      recess_r,
+      expected_top,
+    ) = entry
+    let params = match
+      BevelGearParams::new(
+        module_mm=1.5,
+        teeth=20,
+        mate_teeth=20,
+        shaft_angle_deg=shaft_deg,
+        face_width_mm=face_w,
+        bore_diameter_mm=8.0,
+        dedendum_factor=ded_factor,
+        hub_diameter_mm=hub_dia,
+        hub_length_mm=hub_len,
+        edge_chamfer_mm=0.4,
+        chamfer_hub_outer=false,
+        front_recess_z_mm=recess_z,
+        front_recess_radius_mm=recess_r,
+        tooth_phase_deg=9.0,
+        end_face=BackCone,
+      ) {
+      Ok(p) => p
+      Err(e) => abort(e.message())
+    }
+    let component = match bevel_gear(params, orient_to_reference=true) {
+      Ok(c) => c
+      Err(e) => abort(e.message())
+    }
+    let hub_face = match component.connector("hub-face") {
+      Ok(c) => c
+      Err(e) => abort(e.message())
+    }
+    assert_true(hub_face.placement.trans.2.abs() < 1.0e-9)
+    let front_face = match component.connector("front-face") {
+      Ok(c) => c
+      Err(e) => abort(e.message())
+    }
+    assert_true((front_face.placement.trans.2 - expected_top).abs() < 0.01)
+  }
+}

@@ -63,6 +63,18 @@ async fn main {
       help="Per-gear tooth thickness reduction at the reference circle",
       min=0.0,
     ),
+    "addendumFactor": @cli.opt_double(
+      1.0,
+      help="Addendum factor (multiplied by module)",
+      min=0.0,
+      min_exclusive=true,
+    ),
+    "dedendumFactor": @cli.opt_double(
+      1.25,
+      help="Dedendum factor (multiplied by module)",
+      min=0.0,
+      min_exclusive=true,
+    ),
     "involutePoints": @cli.opt_int(12, help="Points per involute flank"),
     "arcPoints": @cli.opt_int(8, help="Points per tip/root arc"),
     "rootFillet": @cli.opt_double(
@@ -142,6 +154,24 @@ async fn main {
       help="Inner front recess cone radius at the small-end tooth face in mm (requires --frontRecessZ and --evaluated)",
       min=0.0,
     ),
+    "toothPhase": @cli.opt_double(
+      0.0,
+      help="Angular phase offset applied to the teeth around +Z in degrees",
+    ),
+    "includeSetScrew": @cli.flag(
+      help="Place a DIN 916 cup-point set screw in the radial set-screw hole (requires --setScrew and --evaluated)",
+    ),
+    "setScrewLength": @cli.opt_double(
+      0.0,
+      help="DIN 916 set-screw length in mm (0 = auto-fit inside hub wall)",
+      min=0.0,
+    ),
+    "noHubChamfer": @cli.flag(
+      help="Keep the outer hub back-face rim sharp when --edgeChamfer is set",
+    ),
+    "orient-to-reference": @cli.flag(
+      help="Translate Z so the hub back face lies on z = 0",
+    ),
     "endFace": @cli.opt_string(
       short='e',
       help="Large end: backCone (default) or flat",
@@ -198,6 +228,8 @@ async fn main {
       face_width_mm=args.double("faceWidth"),
       bore_diameter_mm=args.double("bore"),
       backlash_mm=args.double("backlash"),
+      addendum_factor=args.double("addendumFactor"),
+      dedendum_factor=args.double("dedendumFactor"),
       involute_points=args.int("involutePoints"),
       arc_points=args.int("arcPoints"),
       root_fillet_radius_mm=args.double("rootFillet"),
@@ -225,6 +257,13 @@ async fn main {
         (None : Double?)
       },
       front_recess_radius_mm=args.double("frontRecessRadius"),
+      tooth_phase_deg=args.double("toothPhase"),
+      set_screw_clearance_mm=if args.flag("includeSetScrew") {
+        0.04
+      } else {
+        0.0
+      },
+      chamfer_hub_outer=!args.flag("noHubChamfer"),
       end_face~,
     ) {
     Ok(p) => p
@@ -233,16 +272,21 @@ async fn main {
       abort("")
     }
   }
+  if args.flag("includeSetScrew") && args.double("setScrew") <= 0.0 {
+    @cli.eprintln("error: --includeSetScrew requires --setScrew > 0")
+    abort("")
+  }
   if (
       args.double("keywayWidth") > 0.0 ||
       args.double("setScrew") > 0.0 ||
       args.double("edgeChamfer") > 0.0 ||
       args.double("odRadius") > 0.0 ||
-      args.double("frontRecessRadius") > 0.0
+      args.double("frontRecessRadius") > 0.0 ||
+      args.flag("includeSetScrew")
     ) &&
     !args.flag("evaluated") {
     @cli.eprintln(
-      "error: a keyway, set-screw hole, edge chamfer, OD trim, or front recess requires --evaluated",
+      "error: a keyway, set-screw hole, edge chamfer, OD trim, front recess, or --includeSetScrew requires --evaluated",
     )
     abort("")
   }
@@ -299,11 +343,74 @@ async fn main {
     pair.write_step(args.string_opt("out"), checked=true)
     return
   }
-  let gear = match @gears.bevel_gear(params) {
+  let mut gear = match
+    @gears.bevel_gear(
+      params,
+      orient_to_reference=args.flag("orient-to-reference"),
+    ) {
     Ok(c) => c
     Err(e) => {
       @cli.eprintln("error: " + e.message())
       abort("")
+    }
+  }
+  if args.flag("includeSetScrew") {
+    let screw_size = match
+      @standards.MetricSize::from_diameter(params.set_screw_diameter_mm) {
+      Some(size) => size
+      None => {
+        @cli.eprintln(
+          "error: --includeSetScrew requires a standard metric --setScrew diameter (e.g. 3, 4, 5, 6)",
+        )
+        abort("")
+      }
+    }
+    let hub_r = params.hub_diameter_mm / 2.0
+    let bore_r = params.bore_diameter_mm / 2.0
+    let wall = hub_r - bore_r
+    let req_len = args.double("setScrewLength")
+    let screw_len = if req_len > 0.0 {
+      req_len
+    } else if wall - 0.3 < 6.0 {
+      wall - 0.3
+    } else {
+      5.7
+    }
+    let screw = match
+      @fasteners.din916_cup_point_set_screw(
+        screw_size,
+        screw_len,
+        color=@cad.Rgb::grey(),
+      ) {
+      Ok(c) => c
+      Err(e) => {
+        @cli.eprintln("error: " + e.message())
+        abort("")
+      }
+    }
+    let hole_conn = match gear.connector("set-screw-hole") {
+      Ok(c) => c
+      Err(e) => {
+        @cli.eprintln("error: " + e.message())
+        abort("")
+      }
+    }
+    let z_s = hole_conn.placement.trans.2
+    let ang = params.set_screw_angle_deg * @math.PI / 180.0
+    let ux = @math.cos(ang)
+    let uy = @math.sin(ang)
+    let r_tip = hub_r - screw_len
+    let placed = screw
+      .rotate_x(-90.0)
+      .rotate_z(params.set_screw_angle_deg - 90.0)
+      .translate(x=r_tip * ux, y=r_tip * uy, z=z_s)
+    for idx, layer in placed.layers() {
+      gear = gear.add_layer(
+        layer.shape,
+        name="set-screw-\{idx}",
+        color=layer.color,
+        placement=layer.placement,
+      )
     }
   }
   if args.flag("bbox") {
