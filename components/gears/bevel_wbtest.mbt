@@ -798,13 +798,14 @@ test "bevel back-cone end matches the McMaster 2600N5 envelope" {
   assert_eq(inventory.cone, 20)
   assert_eq(inventory.bspline, 4 * 20)
   let step = component.to_step(checked=true)
-  // Body bore, hub outside diameter, and hub bore.
+  // Body bore (2), hub outer/bore at the back (2), the hub/backing-cone
+  // junction (1), and the backing-cone top at the root circle (2).
   assert_eq(bevel_count(step, "CYLINDRICAL_SURFACE("), 3)
-  assert_eq(bevel_count(step, "CIRCLE("), 6)
+  assert_eq(bevel_count(step, "CIRCLE("), 7)
 }
 
 ///|
-test "back-cone end rejects the root fillet and an oversized hub" {
+test "back-cone end supports the root fillet and rejects an oversized hub" {
   let filleted = match
     BevelGearParams::new(
       module_mm=2.0,
@@ -818,12 +819,12 @@ test "back-cone end rejects the root fillet and an oversized hub" {
     Ok(p) => p
     Err(e) => abort(e.message())
   }
-  assert_true(
-    match bevel_gear(filleted) {
-      Ok(_) => false
-      Err(_) => true
-    },
-  )
+  let filleted_gear = match bevel_gear(filleted) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  let step = filleted_gear.to_step(checked=true)
+  assert_true(step.contains("B_SPLINE_SURFACE_WITH_KNOTS"))
   let big_hub = match
     BevelGearParams::new(
       module_mm=2.0,
@@ -976,8 +977,12 @@ test "back-cone keyway and set-screw produce one evaluated layer" {
   let (x0, x1, _y0, _y1, z0, z1) = component.bounding_box()
   let g = params.geometry()
   bevel_close_rel(x1 - x0, 2.0 * g.standard_outer_radius_mm, 1.0e-9)
-  let (root_z, _root_radius) = bevel_back_cone_root(g)
-  bevel_close_rel(z0, root_z - params.hub_length_mm, 1.0e-9)
+  let (root_z, root_radius) = bevel_back_cone_root(g)
+  bevel_close_rel(
+    z0,
+    root_z - params.hub_length_mm - (root_radius - params.hub_diameter_mm / 2.0),
+    1.0e-9,
+  )
   bevel_close_rel(z1, g.axial_face_width_mm, 1.0e-9)
 }
 

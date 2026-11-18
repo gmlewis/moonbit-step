@@ -689,7 +689,6 @@ fn compile_bevel_gear_body_smooth(
             true,
           ),
         )
-        front_plane_edges.push(patch.front_edge)
       }
       // Tooth-end face on the analytic back cone: the three back edges
       // reversed (shared with the side strips) and the three root arcs
@@ -747,6 +746,13 @@ fn compile_bevel_gear_body_smooth(
           true,
         ),
       )
+    }
+    // The front cap loop must interleave each tooth's front edges with the
+    // following gap edge.
+    for k in 0..<num_teeth {
+      for patch in patches_per_tooth[k] {
+        front_plane_edges.push(patch.front_edge)
+      }
       front_plane_edges.push(gap_front_edges[k])
     }
   }

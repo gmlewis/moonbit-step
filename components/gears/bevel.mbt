@@ -959,17 +959,23 @@ fn bevel_back_cone_data(
   let radius_of = fn(p : @cad.Vec2) { Double::sqrt(p.0 * p.0 + p.1 * p.1) }
   let mut tooth_start = -1
   let mut tooth_end = -1
+  // The tooth is the run above the root circle. With a root fillet the exact
+  // root-circle vertex at the corner is replaced by a tangent arc, so find the
+  // first/last points above the root and take their neighbouring root-side
+  // points as the tooth limits.
+  let mut first_above = -1
+  let mut last_above = -1
   for i in 0..<s {
-    if (radius_of(sector[i]) - rr_v).abs() <= root_tol {
-      if tooth_start < 0 &&
-        i + 1 < s &&
-        radius_of(sector[i + 1]) > rr_v + root_tol {
-        tooth_start = i
+    if radius_of(sector[i]) > rr_v + root_tol {
+      if first_above < 0 {
+        first_above = i
       }
-      if i > 0 && radius_of(sector[i - 1]) > rr_v + root_tol {
-        tooth_end = i
-      }
+      last_above = i
     }
+  }
+  if first_above >= 0 && last_above >= first_above {
+    tooth_start = if first_above > 0 { first_above - 1 } else { first_above }
+    tooth_end = if last_above + 1 < s { last_above + 1 } else { last_above }
   }
   if tooth_start < 0 || tooth_end <= tooth_start {
     return Err(
@@ -1364,6 +1370,41 @@ fn bevel_set_screw_cutter(
 }
 
 ///|
+/// bevel_hub_backing_shape returns the hub as one revolved solid: a cylindrical
+/// hub of `hub_length_mm`, followed by a 45-degree conical backing out to the
+/// root circle. The axial backing length equals the radial difference between
+/// the root circle and the hub, as in the McMaster CAD goldens.
+fn bevel_hub_backing_shape(
+  params : BevelGearParams,
+  bore_radius_mm : Double,
+  root_radius_mm : Double,
+) -> @cad.Shape {
+  let hub_r = params.hub_diameter_mm / 2.0
+  let setback = root_radius_mm - hub_r
+  let top = params.hub_length_mm + setback
+  if bore_radius_mm > 0.0 {
+    @cad.RevolvedProfile::polyline(
+      [
+        (bore_radius_mm, 0.0),
+        (hub_r, 0.0),
+        (hub_r, params.hub_length_mm),
+        (root_radius_mm, top),
+        (bore_radius_mm, top),
+      ],
+      closed=true,
+    ).as_shape()
+  } else {
+    @cad.RevolvedProfile::polyline([
+      (0.0, 0.0),
+      (hub_r, 0.0),
+      (hub_r, params.hub_length_mm),
+      (root_radius_mm, top),
+      (0.0, top),
+    ]).as_shape()
+  }
+}
+
+///|
 /// bevel_gear_back_cone builds the standard back-cone-ended gear: tooth ends on
 /// the back cone, a flat annular backing plane inside the root circle, an
 /// optional bore, and an optional flat-faced hub behind the backing.
@@ -1374,13 +1415,6 @@ fn bevel_gear_back_cone(
   color~ : @cad.Rgb,
 ) -> Result[@common.Component, @common.SpecError] {
   let _ = detail
-  if params.root_fillet_radius_mm > 0.0 {
-    return Err(
-      @common.InvalidParameter(
-        "the back-cone end face does not support the root fillet; use end_face=Flat",
-      ),
-    )
-  }
   let sector = if params.tip_land_radius_mm > 0.0 {
     // Solve the virtual tip radius so the projected maximum physical radius
     // equals the requested tip-land radius.
@@ -1517,10 +1551,6 @@ fn bevel_gear_back_cone(
         feature="profile-shift",
         reason="no profile shift is modelled",
       ),
-      @common.Omission::new(
-        feature="root-fillet",
-        reason="not supported with the back-cone end face",
-      ),
       @common.Omission::new(feature="web", reason="no web is modelled"),
       @common.Omission::new(
         feature="contact-analysis",
@@ -1535,6 +1565,16 @@ fn bevel_gear_back_cone(
       @common.Omission::new(
         feature="tip-chamfer",
         reason="not modelled by this builder",
+      ),
+    )
+  }
+  if params.root_fillet_radius_mm > 0.0 {
+    features = features.add_modeled("root-fillet")
+  } else {
+    features = features.add_omitted(
+      @common.Omission::new(
+        feature="root-fillet",
+        reason="root_fillet_radius_mm is 0; the root corners are sharp",
       ),
     )
   }
@@ -1640,7 +1680,9 @@ fn bevel_gear_back_cone(
     description="External straight bevel gear with standard back-cone tooth ends and a flat root-circle backing plane. Teeth are the Tredgold back-cone equivalent involute; the exact octoid/spherical involute is not modelled. Optional bore, flat-faced hub, keyway, and radial set-screw hole.",
     features~,
   )
-  let hub_back = root_z - params.hub_length_mm
+  let hub_radius = params.hub_diameter_mm / 2.0
+  let hub_setback = if has_hub { root_radius - hub_radius } else { 0.0 }
+  let hub_back = root_z - params.hub_length_mm - hub_setback
   let has_edge_chamfer = params.edge_chamfer_mm > 0.0 && (rb > 0.0 || has_hub)
   if has_keyway || has_set_screw || has_edge_chamfer {
     // The keyway, drill, and chamfers must trim the fused body and hub; the
@@ -1665,18 +1707,7 @@ fn bevel_gear_back_cone(
     }
     let children : Array[@cad.SceneNode] = [body_solid]
     if has_hub {
-      let hub_shape = if has_bore {
-        @cad.RevolvedProfile::tube(
-          params.hub_diameter_mm,
-          params.bore_diameter_mm,
-          params.hub_length_mm,
-        ).as_shape()
-      } else {
-        @cad.RevolvedProfile::cylinder(
-          params.hub_diameter_mm,
-          params.hub_length_mm,
-        ).as_shape()
-      }
+      let hub_shape = bevel_hub_backing_shape(params, rb, root_radius)
       let hub_node = hub_shape.with_name("hub").translate(z=hub_back)
       let hub_solid = if has_edge_chamfer {
         let radii : Array[Double] = [params.hub_diameter_mm / 2.0]
@@ -1723,18 +1754,7 @@ fn bevel_gear_back_cone(
   } else {
     component = component.add_layer(shape, name="body", color~)
     if has_hub {
-      let hub_shape = if has_bore {
-        @cad.RevolvedProfile::tube(
-          params.hub_diameter_mm,
-          params.bore_diameter_mm,
-          params.hub_length_mm,
-        ).as_shape()
-      } else {
-        @cad.RevolvedProfile::cylinder(
-          params.hub_diameter_mm,
-          params.hub_length_mm,
-        ).as_shape()
-      }
+      let hub_shape = bevel_hub_backing_shape(params, rb, root_radius)
       component = component.add_layer(
         hub_shape,
         name="hub",
@@ -1764,7 +1784,9 @@ fn with_back_cone_connectors(
   let has_hub = params.hub_diameter_mm > 0.0
   let has_bore = params.bore_diameter_mm > 0.0
   let hub_back = if has_hub {
-    root_z_mm - params.hub_length_mm
+    root_z_mm -
+    params.hub_length_mm -
+    (root_radius_mm - params.hub_diameter_mm / 2.0)
   } else {
     root_z_mm
   }
