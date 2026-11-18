@@ -1459,3 +1459,104 @@ test "bevel profile shift, flank arc, root fillet, and tip cone validation" {
   assert_true(features.has_modeled("profile-shift"))
   assert_true(features.has_modeled("root-fillet"))
 }
+
+///|
+/// The conical tip trim must put the tooth tip land exactly on the face cone.
+/// The Tredgold tip arc otherwise sits inside the cone at its ends, and a
+/// boolean trim cannot add that material back, so the tooth's outer edge stops
+/// short of the gear's outer shell and the near-coincident cut leaves slivers
+/// (the 6529K59 defect).
+test "bevel tip-cone trim snaps the tip land onto the face cone" {
+  let params = match
+    BevelGearParams::new(
+      module_mm=1.5,
+      teeth=20,
+      mate_teeth=20,
+      shaft_angle_deg=120.0,
+      pressure_angle_deg=11.31,
+      profile_shift=0.7304,
+      flank_arc_radius_mm=7.302,
+      face_width_mm=6.6918,
+      bore_diameter_mm=8.0,
+      dedendum_factor=0.7496,
+      root_fillet_radius_mm=0.63,
+      fillet_segments=8,
+      hub_diameter_mm=26.0,
+      hub_length_mm=13.88,
+      edge_chamfer_mm=0.4,
+      chamfer_hub_outer=false,
+      front_recess_z_mm=0.6559,
+      front_recess_radius_mm=11.1896,
+      tip_cone_trim=true,
+      tooth_phase_deg=9.0,
+      end_face=BackCone,
+    ) {
+    Ok(p) => p
+    Err(e) => abort(e.message())
+  }
+  let g = params.geometry()
+  let sector = match bevel_tooth_sector(params, g) {
+    Ok((s, _gap, _dev)) => s
+    Err(e) => abort(e.message())
+  }
+  let (back, front, teeth, tips, _snap) = match
+    bevel_back_cone_data(g, sector, tooth_phase_deg=params.tooth_phase_deg) {
+    Ok(d) => d
+    Err(e) => abort(e.message())
+  }
+  assert_eq(tips.length(), teeth.length())
+  let (root_z, root_radius) = bevel_back_cone_root(g)
+  let delta = g.pitch_angle_deg * @math.PI / 180.0
+  let mut r_tip = 0.0
+  for p in back {
+    let r = Double::sqrt(p.0 * p.0 + p.1 * p.1)
+    if r > r_tip {
+      r_tip = r
+    }
+  }
+  let z_tip = root_z + (r_tip - root_radius) * @math.tan(delta)
+  let front_z = g.axial_face_width_mm
+  let front_radius = params.front_recess_radius_mm
+  let slope = (r_tip - front_radius) / (z_tip - front_z)
+  let cone_r = fn(z : Double) { front_radius + (z - front_z) * slope }
+  // Before the snap the tip-land back points sit inside the face cone (the
+  // Tredgold tip arc), which a boolean trim can never correct, and the front
+  // tip points sit well outside it. The tip land therefore cannot be turned
+  // into the analytic shell by trimming alone.
+  let mut worst_inside = 0.0
+  let mut worst_front_outside = 0.0
+  for (tip_start, tip_end) in tips {
+    for i in tip_start..<=tip_end {
+      let p = back[i]
+      let r = Double::sqrt(p.0 * p.0 + p.1 * p.1)
+      let d = cone_r(p.2) - r
+      if d > worst_inside {
+        worst_inside = d
+      }
+      let q = front[i]
+      let fr = Double::sqrt(q.0 * q.0 + q.1 * q.1)
+      let fd = fr - cone_r(q.2)
+      if fd > worst_front_outside {
+        worst_front_outside = fd
+      }
+    }
+  }
+  assert_true(worst_inside > 1.0e-4)
+  assert_true(worst_front_outside > 0.1)
+  bevel_snap_tip_land(back, front, tips, r_tip, z_tip, front_z, front_radius)
+  let tol = 1.0e-9
+  for (tip_start, tip_end) in tips {
+    for i in tip_start..<=tip_end {
+      let bp = back[i]
+      let br = Double::sqrt(bp.0 * bp.0 + bp.1 * bp.1)
+      bevel_close(br, r_tip, tol)
+      bevel_close(bp.2, z_tip, tol)
+      bevel_close(br, cone_r(bp.2), tol)
+      let fp = front[i]
+      let fr = Double::sqrt(fp.0 * fp.0 + fp.1 * fp.1)
+      bevel_close(fr, front_radius, tol)
+      bevel_close(fp.2, front_z, tol)
+      bevel_close(fr, cone_r(fp.2), tol)
+    }
+  }
+}

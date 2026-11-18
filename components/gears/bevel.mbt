@@ -1735,6 +1735,39 @@ fn bevel_hub_backing_shape(
 }
 
 ///|
+/// bevel_snap_tip_land moves each tooth's tip-land profile points onto the face
+/// (tip) cone: the back row onto the cone's intersection circle with the back
+/// cone, the front row onto the cone at the front plane. The tip land then
+/// coincides with the analytic outer shell. The Tredgold tip arc otherwise sits
+/// inside the cone at its corners, and a boolean trim can only remove material,
+/// so the tooth's outer edge would stop short of the shell.
+fn bevel_snap_tip_land(
+  back : Array[@cad.Vec3],
+  front : Array[@cad.Vec3],
+  tips : Array[(Int32, Int32)],
+  r_tip : Double,
+  z_tip : Double,
+  front_z : Double,
+  front_radius : Double,
+) -> Unit {
+  for tip_range in tips {
+    let (tip_start, tip_end) = tip_range
+    for i in tip_start..<=tip_end {
+      let bp = back[i]
+      let ba = @math.atan2(bp.1, bp.0)
+      back[i] = (r_tip * @math.cos(ba), r_tip * @math.sin(ba), z_tip)
+      let fp = front[i]
+      let fa = @math.atan2(fp.1, fp.0)
+      front[i] = (
+        front_radius * @math.cos(fa),
+        front_radius * @math.sin(fa),
+        front_z,
+      )
+    }
+  }
+}
+
+///|
 /// bevel_gear_back_cone builds the standard back-cone-ended gear: tooth ends on
 /// the back cone, a flat annular backing plane inside the root circle, an
 /// optional bore, and an optional flat-faced hub behind the backing.
@@ -1825,6 +1858,36 @@ fn bevel_gear_back_cone(
   let front_z = g.axial_face_width_mm
   let delta = g.pitch_angle_deg * @math.PI / 180.0
   let q = -g.pitch_radius_mm * @math.tan(delta)
+  // Crop every tooth's tip land onto the face (tip) cone. The tip cone runs
+  // through the outermost back-cone point and the front recess rim; its
+  // intersection with the back cone is the circle at (r_tip, z_tip).
+  let tip_cone_projected = params.tip_cone_trim &&
+    tips.length() == teeth.length() &&
+    tips.length() > 0
+  if tip_cone_projected {
+    let r_tip = if params.od_radius_mm > 0.0 && params.od_radius_mm < back_max {
+      params.od_radius_mm
+    } else {
+      back_max
+    }
+    let z_tip = root_z + (r_tip - root_radius) * @math.tan(delta)
+    bevel_snap_tip_land(
+      back,
+      front,
+      tips,
+      r_tip,
+      z_tip,
+      front_z,
+      params.front_recess_radius_mm,
+    )
+    front_max = 0.0
+    for p in front {
+      let r = Double::sqrt(p.0 * p.0 + p.1 * p.1)
+      if r > front_max {
+        front_max = r
+      }
+    }
+  }
   let shape = @cad.BevelGearBody::new(
     back,
     front,
@@ -1885,6 +1948,9 @@ fn bevel_gear_back_cone(
       ),
     ],
   )
+  if tip_cone_projected {
+    features = features.add_modeled("tip-cone")
+  }
   if params.profile_shift != 0.0 {
     features = features.add_modeled("profile-shift")
   } else {
@@ -2005,6 +2071,11 @@ fn bevel_gear_back_cone(
     )
   }
   let body_node = shape.with_name("body")
+  let tip_source = if tip_cone_projected {
+    " The tooth tips are cropped onto the standard face cone."
+  } else {
+    ""
+  }
   let mut component = @common.Component::new(
     name~,
     metadata=@common.Metadata::new(
@@ -2012,7 +2083,8 @@ fn bevel_gear_back_cone(
       standard="ISO 23509 bevel geometry; Tredgold back-cone equivalent spur gear; standard back-cone tooth ends",
       family="external straight bevel gear",
       size=params.designation(),
-      source="Pitch, face, and root cones follow standard straight-bevel practice. Tooth ends lie on the standard back cone; the backing plane is the coaxial root circle. The tooth sector is the back-cone equivalent spur gear projected to the pitch apex.",
+      source="Pitch, face, and root cones follow standard straight-bevel practice. Tooth ends lie on the standard back cone; the backing plane is the coaxial root circle. The tooth sector is the back-cone equivalent spur gear projected to the pitch apex." +
+        tip_source,
     ),
     description="External straight bevel gear with standard back-cone tooth ends and a flat root-circle backing plane. Teeth are the Tredgold back-cone equivalent involute; the exact octoid/spherical involute is not modelled. Optional bore, flat-faced hub, keyway, and radial set-screw hole.",
     features~,
@@ -2166,7 +2238,10 @@ fn bevel_gear_back_cone(
     } else {
       @cad.difference(fused, cutters, name="body-trimmed")
     }
-    let solid = if has_tip_cone_trim {
+    // When the tip lands were snapped onto the face cone above, the outer shell
+    // is already analytic; a boolean trim would only graze the near-coincident
+    // tip surface and leave slivers, so it is skipped.
+    let solid = if has_tip_cone_trim && !tip_cone_projected {
       let r_back_tip = if params.od_radius_mm > 0.0 {
         params.od_radius_mm
       } else {
@@ -2195,6 +2270,8 @@ fn bevel_gear_back_cone(
         .as_shape()
         .with_name("tip-cone-trim-cutter")
       @cad.difference(stage1, [tip_cutter], name="body")
+    } else if tip_cone_projected {
+      stage1
     } else if cutters.is_empty() {
       fused
     } else {
