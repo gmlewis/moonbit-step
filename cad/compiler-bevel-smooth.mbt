@@ -455,50 +455,6 @@ fn compile_bevel_gear_body_smooth(
       })
     }
     let strip_count = strips.length()
-    let start_tangent = fn(s : BevelFrontStrip) -> (Double, Double) {
-      let a = s.front_pts[0]
-      let b = s.front_pts[1]
-      let dx = b.0 - a.0
-      let dy = b.1 - a.1
-      let l = Double::sqrt(dx * dx + dy * dy)
-      if l <= 1.0e-12 {
-        (1.0, 0.0)
-      } else {
-        (dx / l, dy / l)
-      }
-    }
-    let end_tangent = fn(s : BevelFrontStrip) -> (Double, Double) {
-      let n = s.front_pts.length()
-      let a = s.front_pts[n - 2]
-      let b = s.front_pts[n - 1]
-      let dx = b.0 - a.0
-      let dy = b.1 - a.1
-      let l = Double::sqrt(dx * dx + dy * dy)
-      if l <= 1.0e-12 {
-        (1.0, 0.0)
-      } else {
-        (dx / l, dy / l)
-      }
-    }
-    // Mitered inward offset of every shared front vertex. With a CCW loop the
-    // inward normal is the left normal of the tangent.
-    let inner_junction : Array[(Double, Double)] = []
-    for j in 0..<strip_count {
-      let prev = strips[(j + strip_count - 1) % strip_count]
-      let cur = strips[j]
-      let ta = end_tangent(prev)
-      let tb = start_tangent(cur)
-      let na = (-ta.1, ta.0)
-      let nb = (-tb.1, tb.0)
-      let denom = 1.0 + na.0 * nb.0 + na.1 * nb.1
-      let (mx, my) = if Double::abs(denom) > 1.0e-9 {
-        ((na.0 + nb.0) / denom, (na.1 + nb.1) / denom)
-      } else {
-        nb
-      }
-      let p = cur.front_pts[0]
-      inner_junction.push((p.0 + chamfer * mx, p.1 + chamfer * my))
-    }
     let inner_pts : Array[Array[Vec3]] = []
     let outer_pts : Array[Array[Vec3]] = []
     for j in 0..<strip_count {
@@ -508,26 +464,11 @@ fn compile_bevel_gear_body_smooth(
       let op : Array[Vec3] = []
       for i in 0..<count {
         let p = s.front_pts[i]
-        let inner = if i == 0 {
-          let q = inner_junction[j]
-          (q.0, q.1, front_z)
-        } else if i == count - 1 {
-          let q = inner_junction[(j + 1) % strip_count]
-          (q.0, q.1, front_z)
-        } else {
-          let a = s.front_pts[i - 1]
-          let b = s.front_pts[i + 1]
-          let tx = b.0 - a.0
-          let ty = b.1 - a.1
-          let l = Double::sqrt(tx * tx + ty * ty)
-          let (nx, ny) = if l > 1.0e-12 {
-            (-ty / l, tx / l)
-          } else {
-            (0.0, 0.0)
-          }
-          (p.0 + chamfer * nx, p.1 + chamfer * ny, front_z)
-        }
-        ip.push(inner)
+        // Radial edge break: preserve every angular position so the tooth
+        // widths stay constant in the axial view, as in the goldens.
+        let r = Double::sqrt(p.0 * p.0 + p.1 * p.1)
+        let scale = if r > 1.0e-9 { (r - chamfer) / r } else { 1.0 }
+        ip.push((p.0 * scale, p.1 * scale, front_z))
         let bp = s.back_pts[i]
         let dz = front_z - bp.2
         let t = if Double::abs(dz) > 1.0e-12 { chamfer / dz } else { 0.0 }
