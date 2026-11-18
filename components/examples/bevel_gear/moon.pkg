@@ -1,6 +1,7 @@
 import {
   "gmlewis/step/cad",
   "gmlewis/step/cli",
+  "gmlewis/step/components/common",
   "gmlewis/step/components/fasteners",
   "gmlewis/step/components/gears",
   "gmlewis/step/components/standards",

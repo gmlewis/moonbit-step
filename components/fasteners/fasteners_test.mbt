@@ -1289,3 +1289,68 @@ test "detailed ISO 4762 M6x40 matches its detailed reference profile" {
   // The downloaded M6 x 40 reference is 1501.38 mm3.
   assert_true((volume - 1501.38).abs() < 0.2)
 }
+
+///|
+test "detailed DIN 916 M5 x 5.7 cup-point set screw carries conical cup and socket" {
+  let screw = match
+    @fasteners.din916_cup_point_set_screw(
+      @standards.M5,
+      5.7,
+      detail=Detailed,
+      orient_to_reference=true,
+    ) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  let (x0, x1, y0, y1, z0, z1) = screw.bounding_box()
+  assert_true(close(x0, -2.5))
+  assert_true(close(x1, 2.5))
+  assert_true(close(y0, -2.5))
+  assert_true(close(y1, 2.5))
+  assert_true(close(z0, 0.0))
+  assert_true(close(z1, 5.7))
+  let layers = screw.layers()
+  assert_true(layers.length() == 1)
+  let inv = layers[0].shape.surface_inventory()
+  assert_eq(inv.cone, 5)
+  assert_eq(inv.cylinder, 1)
+  assert_eq(inv.plane, 7)
+  let volume = match layers[0].shape.analysis_volume() {
+    Ok(v) => v
+    Err(_) => abort("detailed set screw volume unavailable")
+  }
+  assert_true(volume > 70.0 && volume < 95.0)
+}
+
+///|
+test "fully modeled DIN 916 M5 x 5.7 cup-point set screw adds helical thread" {
+  let screw = match
+    @fasteners.din916_cup_point_set_screw(
+      @standards.M5,
+      5.7,
+      detail=FullyModeled,
+    ) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  let layers = screw.layers()
+  assert_eq(layers.length(), 2)
+  assert_true(layers[0].name.contains("body"))
+  assert_true(layers[1].name.contains("helical-thread"))
+  for
+    sz in [
+      (@standards.M3, 5.0),
+      (@standards.M4, 6.0),
+      (@standards.M5, 5.7),
+      (@standards.M6, 8.0),
+    ] {
+    assert_true(
+      @fasteners.din916_cup_point_set_screw(sz.0, sz.1, detail=Detailed)
+      is Ok(_),
+    )
+    assert_true(
+      @fasteners.din916_cup_point_set_screw(sz.0, sz.1, detail=FullyModeled)
+      is Ok(_),
+    )
+  }
+}

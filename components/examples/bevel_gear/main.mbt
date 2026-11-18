@@ -380,6 +380,7 @@ async fn main {
       @fasteners.din916_cup_point_set_screw(
         screw_size,
         screw_len,
+        detail=@common.DetailLevel::FullyModeled,
         color=@cad.Rgb::grey(),
       ) {
       Ok(c) => c
