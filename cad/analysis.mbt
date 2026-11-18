@@ -915,12 +915,12 @@ fn an_calib_volume_centroid(block : CalibrationChamferBlock) -> (Double, Vec3) {
 }
 
 ///|
-/// an_extruded_props computes the exact section area, perimeter and signed
-/// first moments of an extruded profile.
-fn an_extruded_props(
-  extrusion : ExtrudedProfile,
+/// an_poly_loops_props computes the exact section area, perimeter and signed
+/// first moments of a polygonal profile (outer plus holes), without a round
+/// bore.
+fn an_poly_loops_props(
+  profile : Profile2D,
 ) -> (Double, Double, Double, Double, Double, Double, Array[SectionRing]) {
-  let profile = extrusion.profile
   let outer = force_ccw(profile.outer)
   let (outer_area, mx0, my0) = an_polygon_moments(outer)
   let mut mx = mx0
@@ -954,7 +954,30 @@ fn an_extruded_props(
     }
     have_hole = true
   }
-  match extrusion.round_bore {
+  if !have_hole {
+    inner_radius = 0.0
+  }
+  (area, perimeter, mx, my, outer_radius, inner_radius, rings)
+}
+
+///|
+/// an_profile_props adds an optional analytic round bore to the polygonal
+/// profile properties.
+fn an_profile_props(
+  profile : Profile2D,
+  round_bore : (Vec2, Double)?,
+) -> (Double, Double, Double, Double, Double, Double, Array[SectionRing]) {
+  let (area0, perimeter0, mx0, my0, outer_radius, inner_radius0, rings0) = an_poly_loops_props(
+    profile,
+  )
+  let mut area = area0
+  let mut perimeter = perimeter0
+  let mut mx = mx0
+  let mut my = my0
+  let mut inner_radius = inner_radius0
+  let mut have_hole = rings0.length() > 0
+  let rings = rings0.copy()
+  match round_bore {
     Some((center, diameter)) => {
       let rb = diameter / 2.0
       let bore_area = @math.PI * rb * rb
@@ -982,6 +1005,15 @@ fn an_extruded_props(
     inner_radius = 0.0
   }
   (area, perimeter, mx, my, outer_radius, inner_radius, rings)
+}
+
+///|
+/// an_extruded_props computes the exact section area, perimeter and signed
+/// first moments of an extruded profile.
+fn an_extruded_props(
+  extrusion : ExtrudedProfile,
+) -> (Double, Double, Double, Double, Double, Double, Array[SectionRing]) {
+  an_profile_props(extrusion.profile, extrusion.round_bore)
 }
 
 ///|
@@ -1031,6 +1063,170 @@ fn an_extruded_volume_centroid(extrusion : ExtrudedProfile) -> (Double, Vec3) {
     return (0.0, (0.0, 0.0, 0.0))
   }
   (volume, (mx / area, my / area, extrusion.height_mm / 2.0))
+}
+
+///|
+/// an_conical_scale returns the profile scale at local z. The apex lies at
+/// z = apex_distance_mm, so the large end at z = 0 has scale 1.
+fn an_conical_scale(e : ConicalExtrusion, z : Double) -> Double {
+  (e.apex_distance_mm - z) / e.apex_distance_mm
+}
+
+///|
+fn an_conical_section(
+  e : ConicalExtrusion,
+  z : Double,
+) -> Result[Section, AnalysisError] {
+  let h = e.height_mm
+  let d = e.apex_distance_mm
+  if h <= 0.0 || d <= h || e.profile.outer.length() < 3 {
+    return Err(DegenerateProfile)
+  }
+  if z < -CAD_LENGTH_EPS || z > h + CAD_LENGTH_EPS {
+    return Err(EmptySection)
+  }
+  let s = an_conical_scale(e, z)
+  let (poly_area, poly_perimeter, _mx, _my, outer_radius, inner_radius, rings0) = an_poly_loops_props(
+    e.profile,
+  )
+  let mut area = poly_area * s * s
+  let mut perimeter = poly_perimeter * s
+  let mut inner = inner_radius * s
+  let rings = rings0.map(fn(r) {
+    { inner_radius_mm: 0.0, outer_radius_mm: r.outer_radius_mm * s, }
+  })
+  match e.round_bore {
+    Some((center, diameter)) => {
+      let rb = diameter / 2.0
+      let bore_area = @math.PI * rb * rb
+      area = area - bore_area
+      perimeter = perimeter + 2.0 * @math.PI * rb
+      rings.push({ inner_radius_mm: 0.0, outer_radius_mm: rb, })
+      let dist = Double::sqrt(center.0 * center.0 + center.1 * center.1)
+      let min_bore = if dist > rb { dist - rb } else { 0.0 }
+      inner = if rings0.length() > 0 {
+        if min_bore < inner {
+          min_bore
+        } else {
+          inner
+        }
+      } else {
+        min_bore
+      }
+    }
+    None => ()
+  }
+  if area <= CAD_AREA_EPS {
+    return Err(EmptySection)
+  }
+  Ok({
+    z_mm: z,
+    area_mm2: area,
+    perimeter_mm: perimeter,
+    outer_radius_mm: outer_radius * s,
+    inner_radius_mm: inner,
+    rings,
+  })
+}
+
+///|
+fn an_conical_volume_centroid(e : ConicalExtrusion) -> (Double, Vec3) {
+  let h = e.height_mm
+  let d = e.apex_distance_mm
+  if h <= 0.0 || d <= h || e.profile.outer.length() < 3 {
+    return (0.0, (0.0, 0.0, 0.0))
+  }
+  let k = (d - h) / d
+  let (poly_area, _p, poly_mx, poly_my, _outer, _inner, _rings) = an_poly_loops_props(
+    e.profile,
+  )
+  // The polygonal part scales as s(z)^2 in area and s(z)^3 in first moment.
+  let s2_int = h * (1.0 + k + k * k) / 3.0
+  let s3_int = h * (1.0 + k) * (1.0 + k * k) / 4.0
+  let z_s2_int = h * h / 2.0 -
+    2.0 * h * h * h / (3.0 * d) +
+    h * h * h * h / (4.0 * d * d)
+  let mut volume = poly_area * s2_int
+  let mut mx = poly_mx * s3_int
+  let mut my = poly_my * s3_int
+  let mut mz = poly_area * z_s2_int
+  match e.round_bore {
+    Some((center, diameter)) => {
+      let rb = diameter / 2.0
+      let bore_area = @math.PI * rb * rb
+      volume = volume - bore_area * h
+      mx = mx - bore_area * center.0 * h
+      my = my - bore_area * center.1 * h
+      mz = mz - bore_area * h * h / 2.0
+    }
+    None => ()
+  }
+  if volume <= CAD_DEGENERATE_EPS {
+    return (0.0, (0.0, 0.0, 0.0))
+  }
+  (volume, (mx / volume, my / volume, mz / volume))
+}
+
+///|
+fn an_conical_mesh(e : ConicalExtrusion) -> (Array[Vec3], Array[Array[Int32]]) {
+  let verts : Array[Vec3] = []
+  let faces : Array[Array[Int32]] = []
+  let h = e.height_mm
+  let d = e.apex_distance_mm
+  if h <= 0.0 || d <= h {
+    return (verts, faces)
+  }
+  let k = (d - h) / d
+  let loops : Array[Array[Vec2]] = [
+    e.profile.outer,
+    ..e.profile.holes.filter(fn(hh) { hh.length() >= 3 }),
+  ]
+  for lp in loops {
+    let n = lp.length()
+    if n < 3 {
+      continue
+    }
+    let base = verts.length()
+    for p in lp {
+      verts.push((p.0, p.1, 0.0))
+    }
+    for p in lp {
+      verts.push((k * p.0, k * p.1, h))
+    }
+    for i in 0..<n {
+      let j = (i + 1) % n
+      faces.push([base + i, base + j, base + n + j, base + n + i])
+    }
+    for i in 1..<(n - 1) {
+      faces.push([base, base + i + 1, base + i])
+      faces.push([base + n, base + n + i, base + n + i + 1])
+    }
+  }
+  match e.round_bore {
+    Some((center, diameter)) => {
+      let rb = diameter / 2.0
+      let kseg = 32
+      let base = verts.length()
+      for i in 0..<kseg {
+        let th = 2.0 * @math.PI * i.to_double() / kseg.to_double()
+        let x = center.0 + rb * @math.cos(th)
+        let y = center.1 + rb * @math.sin(th)
+        verts.push((x, y, 0.0))
+        verts.push((x, y, h))
+      }
+      for i in 0..<kseg {
+        let j = (i + 1) % kseg
+        faces.push([
+          base + 2 * i,
+          base + 2 * j,
+          base + 2 * j + 1,
+          base + 2 * i + 1,
+        ])
+      }
+    }
+    None => ()
+  }
+  (verts, faces)
 }
 
 ///|
@@ -1211,6 +1407,65 @@ fn an_swept_inventory(s : SweptProfile) -> SurfaceInventory {
 }
 
 ///|
+/// an_bevel_lobe_tris counts the conical cap triangles the compiler emits.
+fn an_bevel_lobe_tris(b : BevelGearBody) -> Int32 {
+  let n = b.back.length()
+  if n < 3 || b.teeth.is_empty() {
+    return 0
+  }
+  let (start0, _) = b.teeth[0]
+  if start0 < 0 || start0 >= n {
+    return 0
+  }
+  let root_radius = Double::sqrt(
+    b.back[start0].0 * b.back[start0].0 + b.back[start0].1 * b.back[start0].1,
+  )
+  let two_pi = 2.0 * @math.PI
+  let mut count_tris = 0
+  for tooth in b.teeth {
+    let (start, end) = tooth
+    let count = end - start + 1
+    if count < 2 {
+      continue
+    }
+    let a0 = @math.atan2(b.back[start].1, b.back[start].0)
+    let a1 = @math.atan2(b.back[end].1, b.back[end].0)
+    let raw = a1 - a0
+    let mut delta = raw - two_pi * Double::floor(raw / two_pi)
+    if delta <= 1.0e-12 {
+      delta = delta + two_pi
+    }
+    let arc : Array[Vec3] = [b.back[start]]
+    for i in 1..<(count - 1) {
+      let ang = a0 + delta * i.to_double() / (count - 1).to_double()
+      arc.push(
+        (
+          root_radius * @math.cos(ang),
+          root_radius * @math.sin(ang),
+          b.root_z_mm,
+        ),
+      )
+    }
+    arc.push(b.back[end])
+    for i in 0..<(count - 1) {
+      let b0 = b.back[start + i]
+      let b1 = b.back[start + i + 1]
+      let r0 = arc[i]
+      let r1 = arc[i + 1]
+      let a1v = v_cross(v_sub(b1, b0), v_sub(r1, b0))
+      if v_dot(a1v, a1v) > 1.0e-24 {
+        count_tris = count_tris + 1
+      }
+      let a2v = v_cross(v_sub(r1, b0), v_sub(r0, b0))
+      if v_dot(a2v, a2v) > 1.0e-24 {
+        count_tris = count_tris + 1
+      }
+    }
+  }
+  count_tris
+}
+
+///|
 /// an_shape_inventory mirrors the compiler's face-emission rules.
 fn an_shape_inventory(shape : Shape) -> SurfaceInventory {
   match shape {
@@ -1307,6 +1562,46 @@ fn an_shape_inventory(shape : Shape) -> SurfaceInventory {
         None => 0
       }
       an_inventory(2 + outer_n + hole_n, cylinder, 0, 0, 0, 0, 0, 0)
+    }
+    ConicalExtrusion(e) => {
+      if e.height_mm <= 0.0 ||
+        e.apex_distance_mm <= e.height_mm ||
+        e.profile.outer.length() < 3 {
+        return an_inventory(0, 0, 0, 0, 0, 0, 0, 0)
+      }
+      let outer_n = e.profile.outer.length()
+      let mut hole_n = 0
+      for h in e.profile.holes {
+        if h.length() >= 3 {
+          hole_n = hole_n + h.length()
+        }
+      }
+      let cylinder = match e.round_bore {
+        Some((_center, diameter)) => if diameter > 0.0 { 1 } else { 0 }
+        None => 0
+      }
+      an_inventory(2 + outer_n + hole_n, cylinder, 0, 0, 0, 0, 0, 0)
+    }
+    BevelGearBody(b) => {
+      if b.back.length() < 3 ||
+        b.front.length() != b.back.length() ||
+        b.teeth.is_empty() {
+        return an_inventory(0, 0, 0, 0, 0, 0, 0, 0)
+      }
+      an_inventory(
+        2 * b.back.length() + an_bevel_lobe_tris(b) + 2,
+        if b.bore_radius_mm > 0.0 {
+          1
+        } else {
+          0
+        },
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+      )
     }
     ExtrudedArcProfile(e) => an_extruded_arc_inventory(e)
     SquareHoleWasher(w) => an_square_hole_inventory(w)
@@ -1515,6 +1810,16 @@ pub fn Shape::analysis_volume(self : Shape) -> Result[Double, AnalysisError] {
         Ok(volume)
       }
     }
+    ConicalExtrusion(e) => {
+      let (volume, _c) = an_conical_volume_centroid(e)
+      if volume <= 0.0 {
+        Err(DegenerateProfile)
+      } else {
+        Ok(volume)
+      }
+    }
+    BevelGearBody(_) =>
+      Err(NotAnalytic("back-cone bevel body requires tessellation"))
     ExtrudedArcProfile(e) => {
       let volume = e.volume()
       if volume <= 0.0 {
@@ -1618,6 +1923,12 @@ pub fn Shape::analysis_centroid(self : Shape) -> Result[Vec3, AnalysisError] {
       let (_volume, c) = an_extruded_volume_centroid(e)
       Ok(c)
     }
+    ConicalExtrusion(e) => {
+      let (_volume, c) = an_conical_volume_centroid(e)
+      Ok(c)
+    }
+    BevelGearBody(_) =>
+      Err(NotAnalytic("back-cone bevel body requires tessellation"))
     ExtrudedArcProfile(e) => Ok(e.centroid())
     SquareHoleWasher(w) => Ok((0.0, 0.0, w.thickness_mm / 2.0))
     TabWasher(w) => {
@@ -1711,6 +2022,9 @@ pub fn Shape::section_at_local(
     SlitTube(t) => an_slit_tube_section(t, z)
     CalibrationChamferBlock(b) => an_calib_section(b, z)
     ExtrudedProfile(e) => e.section_at(z)
+    ConicalExtrusion(e) => an_conical_section(e, z)
+    BevelGearBody(_) =>
+      Err(NotAnalytic("back-cone bevel body requires tessellation"))
     ExtrudedArcProfile(e) => an_extruded_arc_section(e, z)
     SquareHoleWasher(w) => an_square_hole_section(w, z)
     TabWasher(w) => an_tab_section(w, z)
@@ -1816,6 +2130,23 @@ pub fn ExtrudedProfile::section_at(
 /// ExtrudedProfile::volume returns the exact extruded volume.
 pub fn ExtrudedProfile::volume(self : ExtrudedProfile) -> Double {
   let (volume, _c) = an_extruded_volume_centroid(self)
+  volume
+}
+
+///|
+/// ConicalExtrusion::section_at returns the exact tapered section at local
+/// `z`.
+pub fn ConicalExtrusion::section_at(
+  self : ConicalExtrusion,
+  z : Double,
+) -> Result[Section, AnalysisError] {
+  an_conical_section(self, z)
+}
+
+///|
+/// ConicalExtrusion::volume returns the exact tapered volume.
+pub fn ConicalExtrusion::volume(self : ConicalExtrusion) -> Double {
+  let (volume, _c) = an_conical_volume_centroid(self)
   volume
 }
 
@@ -1963,6 +2294,16 @@ pub fn Shape::analysis_mesh(
       } else {
         Ok(an_extruded_mesh(e))
       }
+    ConicalExtrusion(e) =>
+      if e.height_mm <= 0.0 ||
+        e.apex_distance_mm <= e.height_mm ||
+        e.profile.outer.length() < 3 {
+        Err(DegenerateProfile)
+      } else {
+        Ok(an_conical_mesh(e))
+      }
+    BevelGearBody(_) =>
+      Err(NotAnalytic("back-cone bevel body requires tessellation"))
     ExtrudedArcProfile(e) =>
       if !e.validate() {
         Err(DegenerateProfile)

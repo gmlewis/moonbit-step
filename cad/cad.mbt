@@ -416,6 +416,9 @@ fn compile_node_shape(
       compile_calibration_chamfer_block(ctx, node, b, reverse~, parent~)
     ExtrudedProfile(e) =>
       compile_extruded_profile(ctx, node, e, reverse~, parent~)
+    ConicalExtrusion(e) =>
+      compile_conical_extrusion(ctx, node, e, reverse~, parent~)
+    BevelGearBody(b) => compile_bevel_gear_body(ctx, node, b, reverse~, parent~)
     ExtrudedArcProfile(e) =>
       compile_extruded_arc_profile(ctx, node, e, reverse~, parent~)
     SquareHoleWasher(w) =>

@@ -493,6 +493,8 @@ fn shape_kind(shape : @cad.Shape) -> String {
     SlitTube(_) => "slit-tube"
     CalibrationChamferBlock(_) => "calibration-chamfer-block"
     ExtrudedProfile(_) => "extruded-profile"
+    ConicalExtrusion(_) => "conical-extrusion"
+    BevelGearBody(_) => "bevel-gear-body"
     ExtrudedArcProfile(_) => "extruded-arc-profile"
     SquareHoleWasher(_) => "square-hole-washer"
     TabWasher(_) => "tab-washer"

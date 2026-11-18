@@ -26,6 +26,18 @@ moon run components/examples/extrusion_frame -- \
 moon run components/examples/gear_pair -- \
   --module 2 --teeth 20 --mateTeeth 40 -o gear-pair.step
 
+# Straight bevel gear (20 teeth meshing with 40 at a 90-degree shaft angle)
+moon run components/examples/bevel_gear -- \
+  --module 2 --teeth 20 --mateTeeth 40 --faceWidth 10 --bore 6 \
+  -o bevel-gear.step
+# A standalone bevel gear with an explicit pitch cone angle
+moon run components/examples/bevel_gear -- \
+  --module 2 --teeth 16 --pitchAngle 30 --faceWidth 8 -o bevel-standalone.step
+# The meshing bevel pair (driver + mate, phased, common pitch apex)
+moon run components/examples/bevel_gear -- \
+  --module 2 --teeth 20 --mateTeeth 40 --faceWidth 10 --backlash 0.05 --pair \
+  -o bevel-pair.step
+
 # NEMA 17 stepper-motor envelope
 moon run components/examples/stepper_motor -- \
   --frame NEMA17 --bodyLength 40 -o nema17.step
@@ -464,7 +476,7 @@ use `--headless`.
 | `makerpipe` | Maker Pipe-compatible structural EMT fittings and accessories for 1/2, 3/4, and 1 in, plus the 1-3/8 in top rail: T connector, 45/90/135/180/4-way/5-way saddle family, structural coupling, flange, adjustable angle hinge, adjustable 180, adjustable angle flange, Top Rail T, adapter shims, end cap, rubber feet, threaded inserts, one-hole/two-hole/mounting straps, cross-over clamp, telescoping clamp, barrel hinge, printed EMT hinge, printed snap clip, and friction bands, each with built-in pipe mates. Nominal layered shells; 1 in and top-rail envelopes derived from the 3/4 in drawing. |
 | `motors` | NEMA 17 and NEMA 23 stepper-motor envelopes, mounting interfaces, NEMA mounting plates, a generic NEMA-to-20-series extrusion adapter, a parameterized outrunner brushless-motor envelope measured from the owner-authored 360KV model (conical 5-spoke bell, windows, rim and lip, stator hub, prop and mount holes, shaft), and a parameterized XAIRCRAFT A12 8318 100KV agricultural outrunner envelope measured from the motor (6-spoke bell with 3 alternating forked spokes and 4 inner arcing hub slots, 42 curved magnets, machined prop adapter with 4 open M4 holes and 4 screw-filled counterbores, 36-slot stator with pole shoes and exact per-tooth copper frames, stepped 8-window mount plate with narrow spokes carrying M3/M4 circles, 6901Z bearing tube, front insulator ring, through shaft). |
 | `stock` | EN 10056 angle sections, configurable flat plate blanks with analytic circular holes and obround slots, counterbored and countersunk plates, bearing-housing plates, tube-to-plate and tube-to-V-Slot adapter brackets, generic channel-to-extrusion adapters and extrusion-to-tube clamps, SC8UU-style rod/bearing blocks, and heat-set insert bosses. |
-| `gears` | Involute spur gears, a smooth single-extrusion arc-run spur presentation, external pairs, and exact-internal-involute planetary sets. |
+| `gears` | Involute spur gears, a smooth single-extrusion arc-run spur presentation, external pairs, exact-internal-involute planetary sets, and external straight bevel gears with the Tredgold back-cone tooth sector, standard back-cone tooth ends (or an opt-in flat-back variant), an optional analytic bore, a coaxial backing/hub, an optional back-cone root fillet for the flat variant, and an optional tip chamfer. |
 | `planetary` | Fully parametric herringbone planetary gearbox (sun, equally spaced planets, inward-facing ring) with every generator option as a parameter, exact line/arc extrusions when `num_elbows` is 0, and otherwise the true helical twist of each elbow as smooth ruled B-spline flanks with sharp piecewise-linear elbow creases; named mate connectors on every gear. |
 | `assemblies` | Rigid placements, linear/circular patterns, hardware kits, extrusion frames, bolted joints, collision/contact reports, connectivity checks. |
 | `collision` | Kernel-free AABB/OBB collision and contact classification. |
@@ -816,11 +828,17 @@ loop and how imported vendor parts are referenced through SolidCraft, is in
   declared `slot_clearance`; the slot must be narrower than the hub bore so the
   inner sector arc remains continuous. No torque, misalignment, or wear rating
   is implied.
-- Sprocket/chain envelopes, bevel gears, and worm gears are recorded gaps. Their
-  exact tooth forms need a licensed, dimensioned reference or a defensible
-  standard tooth-space construction; a guessed envelope is not shipped. The rack
-  uses exact straight basic-rack flanks; the mating pinion uses the existing
-  involute spur-gear builder.
+- Spiral and hypoid bevel gears, and worm gears, are recorded gaps. Their exact
+  tooth forms need a licensed, dimensioned reference or a defensible standard
+  tooth-space construction; a guessed envelope is not shipped. **Straight bevel
+  gears are now parametric**: the tooth sector is the Tredgold back-cone
+  equivalent spur gear projected to the pitch apex, and the exact
+  octoid/spherical involute is not modelled. The default large end uses the
+  standard **back-cone tooth ends** with a flat root-circle backing plane, so
+  its outside diameter matches `d + 2 h_a cos(delta)`. The opt-in `flat` end
+  face passes through the reference plane and has a larger outside diameter,
+  recorded as `flat-back-envelope`. The rack uses exact straight basic-rack
+  flanks; the mating pinion uses the existing involute spur-gear builder.
 
 ## License
 

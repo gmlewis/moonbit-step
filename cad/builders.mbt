@@ -490,6 +490,49 @@ pub fn ExtrudedProfile::new(
 }
 
 ///|
+/// ConicalExtrusion::new returns a new Shape tapered from `outer` at z = 0
+/// toward an on-axis apex at z = `apex_distance_mm`. `apex_distance_mm` must
+/// exceed `height_mm` so the small end never collapses to a point.
+pub fn ConicalExtrusion::new(
+  outer : Array[Vec2],
+  height_mm : Double,
+  apex_distance_mm : Double,
+  holes~ : Array[Array[Vec2]] = [],
+  round_bore? : (Vec2, Double),
+) -> Shape {
+  Shape::ConicalExtrusion({
+    profile: { outer, holes, },
+    height_mm,
+    apex_distance_mm,
+    round_bore,
+  })
+}
+
+///|
+/// BevelGearBody::new returns a back-cone-ended bevel tooth solid.
+pub fn BevelGearBody::new(
+  back : Array[Vec3],
+  front : Array[Vec3],
+  teeth : Array[(Int32, Int32)],
+  root_z_mm~ : Double,
+  front_z_mm~ : Double,
+  bore_radius_mm~ : Double,
+  cone_apex_z_mm~ : Double,
+  cone_tan_half_angle~ : Double,
+) -> Shape {
+  Shape::BevelGearBody({
+    back,
+    front,
+    teeth,
+    root_z_mm,
+    front_z_mm,
+    bore_radius_mm,
+    cone_apex_z_mm,
+    cone_tan_half_angle,
+  })
+}
+
+///|
 /// union_all returns a new SceneNode representing the grouping of an array of nodes.
 ///
 /// Note that this does not currently perform a formal STEP "union" (which is a CSG

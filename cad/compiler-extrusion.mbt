@@ -186,31 +186,67 @@ fn compile_extruded_round_bore(
   diameter : Double,
   reverse~ : Bool = false,
 ) -> Array[@step.Ref] {
+  compile_round_bore_prism(
+    ctx,
+    xform,
+    outer,
+    outer,
+    holes,
+    holes,
+    0.0,
+    height_mm,
+    center,
+    diameter,
+    reverse~,
+  )
+}
+
+///|
+/// compile_round_bore_prism emits a prism whose two planar ends may carry
+/// different outer loops and polygonal holes, with one analytic circular bore
+/// from `z_b` to `z_t`. The bore radius is constant; only the outer loops taper.
+fn compile_round_bore_prism(
+  ctx : StepContext,
+  xform : Transform,
+  outer_b : Array[Vec2],
+  outer_t : Array[Vec2],
+  holes_b_pts : Array[Array[Vec2]],
+  holes_t_pts : Array[Array[Vec2]],
+  z_b : Double,
+  z_t : Double,
+  center : Vec2,
+  diameter : Double,
+  reverse~ : Bool = false,
+) -> Array[@step.Ref] {
   let rb = diameter / 2.0
-  if height_mm == 0.0 || outer.length() < 3 || rb <= 0.0 {
+  if z_b == z_t ||
+    outer_b.length() < 3 ||
+    outer_t.length() < 3 ||
+    rb <= 0.0 ||
+    holes_b_pts.length() != holes_t_pts.length() {
     return []
   }
   let pts_raw : Array[Vec3] = []
-  let ob : Array[Int32] = outer.map(fn(p) {
-    pts_raw.push((p.0, p.1, 0.0))
+  let ob : Array[Int32] = outer_b.map(fn(p) {
+    pts_raw.push((p.0, p.1, z_b))
     pts_raw.length() - 1
   })
-  let ot : Array[Int32] = outer.map(fn(p) {
-    pts_raw.push((p.0, p.1, height_mm))
+  let ot : Array[Int32] = outer_t.map(fn(p) {
+    pts_raw.push((p.0, p.1, z_t))
     pts_raw.length() - 1
   })
   let holes_b : Array[Array[Int32]] = []
   let holes_t : Array[Array[Int32]] = []
-  for h in holes {
+  for i in 0..<holes_b_pts.length() {
     holes_b.push(
-      h.map(fn(p) {
-        pts_raw.push((p.0, p.1, 0.0))
+      holes_b_pts[i].map(fn(p) {
+        pts_raw.push((p.0, p.1, z_b))
         pts_raw.length() - 1
       }),
     )
     holes_t.push(
-      h.map(fn(p) {
-        pts_raw.push((p.0, p.1, height_mm))
+      holes_t_pts[i].map(fn(p) {
+        pts_raw.push((p.0, p.1, z_t))
         pts_raw.length() - 1
       }),
     )
@@ -258,8 +294,8 @@ fn compile_extruded_round_bore(
   let down = xform.apply_dir((0.0, 0.0, -1.0))
   let dir_up = ctx.direction(up.0, up.1, up.2)
   let dir_right = ctx.direction(right.0, right.1, right.2)
-  let p_b = xform.apply((center.0, center.1, 0.0))
-  let p_t = xform.apply((center.0, center.1, height_mm))
+  let p_b = xform.apply((center.0, center.1, z_b))
+  let p_t = xform.apply((center.0, center.1, z_t))
   let cp_b = ctx.cartesian_point(p_b.0, p_b.1, p_b.2)
   let cp_t = ctx.cartesian_point(p_t.0, p_t.1, p_t.2)
   let a2p_b = ctx.axis2_placement_3d(cp_b, dir_up, dir_right)
@@ -276,8 +312,8 @@ fn compile_extruded_round_bore(
       @geometry.CylindricalSurface::new("", a2p_b, radius),
     ),
   )
-  let seam_b = xform.apply((center.0 + rb, center.1, 0.0))
-  let seam_t = xform.apply((center.0 + rb, center.1, height_mm))
+  let seam_b = xform.apply((center.0 + rb, center.1, z_b))
+  let seam_t = xform.apply((center.0 + rb, center.1, z_t))
   let cp_sb = ctx.cartesian_point(seam_b.0, seam_b.1, seam_b.2)
   let cp_st = ctx.cartesian_point(seam_t.0, seam_t.1, seam_t.2)
   let vp_sb = ctx.vertex_point(cp_sb)

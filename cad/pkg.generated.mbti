@@ -171,6 +171,18 @@ pub fn Angle::rad(Double) -> Self
 pub fn Angle::to_deg(Self) -> Double
 pub fn Angle::to_rad(Self) -> Double
 
+pub struct BevelGearBody {
+  back : Array[(Double, Double, Double)]
+  front : Array[(Double, Double, Double)]
+  teeth : Array[(Int32, Int32)]
+  root_z_mm : Double
+  front_z_mm : Double
+  bore_radius_mm : Double
+  cone_apex_z_mm : Double
+  cone_tan_half_angle : Double
+}
+pub fn BevelGearBody::new(Array[(Double, Double, Double)], Array[(Double, Double, Double)], Array[(Int32, Int32)], root_z_mm~ : Double, front_z_mm~ : Double, bore_radius_mm~ : Double, cone_apex_z_mm~ : Double, cone_tan_half_angle~ : Double) -> Shape
+
 pub struct BezierAnchor {
   position : (Double, Double)
   handle_in : (Double, Double)
@@ -217,6 +229,16 @@ pub fn ChamferedPrism::new(Array[(Double, Double)], Array[(Double, Double)], hol
 pub fn ChamferedPrism::section_at(Self, Double) -> Result[Section, AnalysisError]
 pub fn ChamferedPrism::validate(Self) -> Result[Unit, PrismError]
 pub fn ChamferedPrism::volume(Self) -> Double
+
+pub struct ConicalExtrusion {
+  profile : Profile2D
+  height_mm : Double
+  apex_distance_mm : Double
+  round_bore : ((Double, Double), Double)?
+}
+pub fn ConicalExtrusion::new(Array[(Double, Double)], Double, Double, holes? : Array[Array[(Double, Double)]], round_bore? : ((Double, Double), Double)) -> Shape
+pub fn ConicalExtrusion::section_at(Self, Double) -> Result[Section, AnalysisError]
+pub fn ConicalExtrusion::volume(Self) -> Double
 
 pub struct ConicalNut {
   across_flats_mm : Double
@@ -622,6 +644,8 @@ pub enum Shape {
   SquareNut(SquareNut)
   CalibrationChamferBlock(CalibrationChamferBlock)
   ExtrudedProfile(ExtrudedProfile)
+  ConicalExtrusion(ConicalExtrusion)
+  BevelGearBody(BevelGearBody)
   ExtrudedArcProfile(ExtrudedArcProfile)
   SquareHoleWasher(SquareHoleWasher)
   TabWasher(TabWasher)

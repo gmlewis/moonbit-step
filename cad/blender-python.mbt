@@ -195,6 +195,26 @@ fn emit_node_python(
       )
       (obj_var, next_idx)
     }
+    ConicalExtrusion(e) => {
+      let (verts, faces) = an_conical_mesh(e)
+      let face_str = "[" +
+        faces
+        .map(fn(f) { "[" + f.map(fn(i) { i.to_string() }).join(",") + "]" })
+        .join(",") +
+        "]"
+      let (obj_var, next_idx) = next_var("obj", idx)
+      builder.write_string(
+        (
+          $|    \{obj_var} = finalize_object(create_mesh_object(\{py_string(node.name)}, \{py_mm_vec3_list(verts)}, \{face_str}, collection), get_material(\{py_color(node.color)}), (\{py_mm(node.tx)}, \{py_mm(node.ty)}, \{py_mm(node.tz)}), (\{node.rx}, \{node.ry}, \{node.rz}))
+          $|
+        ),
+      )
+      (obj_var, next_idx)
+    }
+    BevelGearBody(_) =>
+      abort(
+        "back-cone bevel bodies are not supported by the Blender exporter; use the STEP export",
+      )
     ExtrudedArcProfile(e) => {
       let (verts, faces) = extruded_arc_mesh(e)
       let face_str = "[" +

@@ -195,6 +195,38 @@ pub fn gear_catalog() -> Array[CatalogEntry] {
       )
     Err(_) => ()
   }
+  match
+    @gears.BevelGearParams::new(
+      module_mm=2.0,
+      teeth=20,
+      mate_teeth=20,
+      shaft_angle_deg=90.0,
+      pressure_angle_deg=20.0,
+      face_width_mm=10.0,
+      bore_diameter_mm=15.0,
+      hub_diameter_mm=34.0,
+      hub_length_mm=14.0,
+      end_face=@gears.BevelEndFace::BackCone,
+    ) {
+    Ok(params) =>
+      match @gears.bevel_gear(params, detail=@common.Detailed) {
+        Ok(c) =>
+          entries.push(
+            entry_from_component(
+              c,
+              [
+                "module", "teeth", "mate_teeth", "shaft_angle", "pressure_angle",
+                "face_width", "bore", "backlash", "addendum_factor", "dedendum_factor",
+                "involute_points", "arc_points", "root_fillet", "fillet_segments",
+                "tip_chamfer", "hub_diameter", "hub_length", "end_face", "detail",
+              ],
+              ["Detailed"],
+            ),
+          )
+        Err(_) => ()
+      }
+    Err(_) => ()
+  }
   entries
 }
 

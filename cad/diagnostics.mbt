@@ -129,6 +129,18 @@ fn collect_diagnostics(
       if e.height_mm == 0.0 || e.profile.outer.length() < 3 {
         out.push(EmptySolid(name))
       }
+    ConicalExtrusion(e) =>
+      if e.height_mm <= 0.0 ||
+        e.apex_distance_mm <= e.height_mm ||
+        e.profile.outer.length() < 3 {
+        out.push(EmptySolid(name))
+      }
+    BevelGearBody(b) =>
+      if b.back.length() < 3 ||
+        b.front.length() != b.back.length() ||
+        b.teeth.is_empty() {
+        out.push(EmptySolid(name))
+      }
     ExtrudedBezierProfile(e) =>
       if e.height_mm == 0.0 {
         out.push(EmptySolid(name))

@@ -18,6 +18,10 @@ pub fn arc_outline_runs(Array[(Double, Double)]) -> Array[@cad.ProfileSegment]
 
 pub fn arc_outline_segments(Array[(Double, Double)]) -> Array[@cad.ProfileSegment]
 
+pub fn bevel_gear(BevelGearParams, detail? : @common.DetailLevel, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn bevel_gear_pair(BevelGearParams, BevelGearParams, detail? : @common.DetailLevel, driver_color? : @cad.Rgb, driven_color? : @cad.Rgb) -> Result[@assemblies.Assembly, @common.SpecError]
+
 pub fn external_involute_outline(Double, Int32, Double, backlash_mm? : Double, involute_points? : Int32, arc_points? : Int32) -> Array[(Double, Double)]
 
 pub fn external_involute_outline_ex(Double, Int32, Double, backlash_mm? : Double, involute_points? : Int32, arc_points? : Int32, root_fillet_radius_mm? : Double, tip_chamfer_mm? : Double, fillet_segments? : Int32) -> Result[Array[(Double, Double)], @common.SpecError]
@@ -57,6 +61,54 @@ pub fn spur_gear_envelope(SpurGearParams, color? : @cad.Rgb) -> Result[@common.C
 // Errors
 
 // Types and methods
+pub(all) enum BevelEndFace {
+  Flat
+  BackCone
+}
+
+pub(all) struct BevelGearGeometry {
+  module_mm : Double
+  teeth : Int32
+  pitch_angle_deg : Double
+  cone_distance_mm : Double
+  pitch_radius_mm : Double
+  apex_distance_mm : Double
+  addendum_mm : Double
+  standard_outer_radius_mm : Double
+  dedendum_mm : Double
+  face_cone_angle_deg : Double
+  root_cone_angle_deg : Double
+  virtual_teeth : Double
+  virtual_pitch_radius_mm : Double
+  axial_face_width_mm : Double
+  small_end_scale : Double
+}
+
+pub(all) struct BevelGearParams {
+  module_mm : Double
+  teeth : Int32
+  mate_teeth : Int32
+  shaft_angle_deg : Double
+  pitch_angle_deg : Double?
+  pressure_angle_deg : Double
+  face_width_mm : Double
+  bore_diameter_mm : Double
+  backlash_mm : Double
+  addendum_factor : Double
+  dedendum_factor : Double
+  involute_points : Int32
+  arc_points : Int32
+  root_fillet_radius_mm : Double
+  fillet_segments : Int32
+  tip_chamfer_mm : Double
+  hub_diameter_mm : Double
+  hub_length_mm : Double
+  end_face : BevelEndFace
+}
+pub fn BevelGearParams::designation(Self) -> String
+pub fn BevelGearParams::geometry(Self) -> BevelGearGeometry
+pub fn BevelGearParams::new(module_mm~ : Double, teeth~ : Int32, mate_teeth? : Int32, shaft_angle_deg? : Double, pitch_angle_deg? : Double, pressure_angle_deg? : Double, face_width_mm? : Double, bore_diameter_mm? : Double, backlash_mm? : Double, addendum_factor? : Double, dedendum_factor? : Double, involute_points? : Int32, arc_points? : Int32, root_fillet_radius_mm? : Double, fillet_segments? : Int32, tip_chamfer_mm? : Double, hub_diameter_mm? : Double, hub_length_mm? : Double, end_face? : BevelEndFace) -> Result[Self, @common.SpecError]
+
 pub(all) struct InternalRingGeometry {
   module_mm : Double
   teeth : Int32

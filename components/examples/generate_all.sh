@@ -54,6 +54,25 @@ moon run components/examples/extrusion_frame -- \
 moon run components/examples/gear_pair -- \
   --module 2 --teeth 20 --mateTeeth 40 \
   -o "$OUT/gear-pair-m2-20x40.step"
+moon run components/examples/bevel_gear -- \
+  --module 2 --teeth 20 --mateTeeth 40 --faceWidth 10 --bore 6 \
+  -o "$OUT/bevel-gear-m2-z20-d26.6.step"
+moon run components/examples/bevel_gear -- \
+  --module 2 --teeth 20 --mateTeeth 20 --faceWidth 8 --bore 6 \
+  -o "$OUT/bevel-gear-m2-z20-miter.step"
+moon run components/examples/bevel_gear -- \
+  --module 2 --teeth 16 --pitchAngle 30 --faceWidth 8 \
+  -o "$OUT/bevel-gear-m2-z16-d30-standalone.step"
+moon run components/examples/bevel_gear -- \
+  --module 2 --teeth 20 --mateTeeth 40 --faceWidth 10 --backlash 0.05 --pair \
+  -o "$OUT/bevel-gear-pair-m2-20x40.step"
+moon run components/examples/bevel_gear -- \
+  --module 2 --teeth 20 --mateTeeth 40 --faceWidth 10 --bore 6 --rootFillet 0.2 \
+  --tipChamfer 0.1 --endFace flat \
+  -o "$OUT/bevel-gear-m2-z20-filleted-flat.step"
+moon run components/examples/bevel_gear -- \
+  --module 2 --teeth 20 --mateTeeth 20 --faceWidth 10 --bore 15 \
+  --hubDiameter 34 --hubLength 14 -o "$OUT/bevel-gear-m2-z20-miter-catalog.step"
 moon run components/examples/planetary -- \
   -o "$OUT/planetary-m2-s12-p12-r36-3.step"
 moon run components/examples/motion_stack -- \

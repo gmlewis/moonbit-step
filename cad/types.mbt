@@ -116,6 +116,43 @@ pub struct ExtrudedProfile {
 }
 
 ///|
+/// ConicalExtrusion is a tapered extrusion of a planar profile toward an
+/// on-axis apex: the large end lies on the local Z = 0 plane, the small end on
+/// Z = height_mm, and the apex on the axis at Z = apex_distance_mm. Every
+/// section is the profile scaled about the apex, so every side face is a planar
+/// quad. `round_bore` is an optional analytic circular through-bore whose
+/// radius does not scale with the profile.
+pub struct ConicalExtrusion {
+  profile : Profile2D
+  height_mm : Double
+  apex_distance_mm : Double
+  round_bore : (Vec2, Double)?
+}
+
+///|
+/// BevelGearBody is a straight-bevel tooth solid whose outer end is the back
+/// cone surface rather than a flat plane. `back` and `front` are corresponding
+/// profiles: the back points lie on the back cone, the front points on a flat
+/// front plane, and each pair lies on a ray from the pitch apex. `teeth` gives
+/// the inclusive index ranges of each tooth's outer boundary in `back`/`front`;
+/// the first and last point of each range lie on the root circle.
+///
+/// The outer end is a flat backing plane inside the root circle with a circular
+/// bore exit; the tooth ends outside the root circle lie on the back cone. The
+/// bore is an analytic cylinder between the two flat faces.
+pub struct BevelGearBody {
+  back : Array[Vec3]
+  front : Array[Vec3]
+  teeth : Array[(Int32, Int32)]
+  root_z_mm : Double
+  front_z_mm : Double
+  bore_radius_mm : Double
+  /// Back-cone apex on the gear axis and tan(90 deg - pitch angle).
+  cone_apex_z_mm : Double
+  cone_tan_half_angle : Double
+}
+
+///|
 /// ProfileSegment is one boundary segment of a planar profile: a straight line
 /// or a counter-clockwise minor circular arc (sweep at most 180 degrees).
 pub(all) enum ProfileSegment {
@@ -470,6 +507,8 @@ pub enum Shape {
   SquareNut(SquareNut)
   CalibrationChamferBlock(CalibrationChamferBlock)
   ExtrudedProfile(ExtrudedProfile)
+  ConicalExtrusion(ConicalExtrusion)
+  BevelGearBody(BevelGearBody)
   ExtrudedArcProfile(ExtrudedArcProfile)
   SquareHoleWasher(SquareHoleWasher)
   TabWasher(TabWasher)
@@ -668,6 +707,64 @@ pub fn Shape::bounding_box(
         }
       }
       (x0, x1, y0, y1, 0.0, e.height_mm)
+    }
+    ConicalExtrusion(e) => {
+      // Scaling toward an on-axis apex moves every point closer to the origin,
+      // so the large end at z = 0 carries the planar extrema.
+      let mut x0 = @double.max_value
+      let mut x1 = @double.min_value
+      let mut y0 = @double.max_value
+      let mut y1 = @double.min_value
+      for pt in e.profile.outer {
+        if pt.0 < x0 {
+          x0 = pt.0
+        }
+        if pt.0 > x1 {
+          x1 = pt.0
+        }
+        if pt.1 < y0 {
+          y0 = pt.1
+        }
+        if pt.1 > y1 {
+          y1 = pt.1
+        }
+      }
+      (x0, x1, y0, y1, 0.0, e.height_mm)
+    }
+    BevelGearBody(b) => {
+      let mut x0 = @double.max_value
+      let mut x1 = @double.min_value
+      let mut y0 = @double.max_value
+      let mut y1 = @double.min_value
+      for p in b.back {
+        if p.0 < x0 {
+          x0 = p.0
+        }
+        if p.0 > x1 {
+          x1 = p.0
+        }
+        if p.1 < y0 {
+          y0 = p.1
+        }
+        if p.1 > y1 {
+          y1 = p.1
+        }
+      }
+      for p in b.front {
+        if p.0 < x0 {
+          x0 = p.0
+        }
+        if p.0 > x1 {
+          x1 = p.0
+        }
+        if p.1 < y0 {
+          y0 = p.1
+        }
+        if p.1 > y1 {
+          y1 = p.1
+        }
+      }
+      (x0, x1, y0, y1, b.root_z_mm, b.front_z_mm)
     }
     ExtrudedArcProfile(e) => {
       let mut x0 = @double.max_value

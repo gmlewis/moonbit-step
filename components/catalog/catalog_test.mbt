@@ -61,7 +61,7 @@ test "profile catalogue is explicit about the generic envelope" {
 ///|
 test "gear catalogue records modeled and omitted features" {
   let entries = @catalog.gear_catalog()
-  assert_eq(entries.length(), 2)
+  assert_eq(entries.length(), 3)
   let spur = match @catalog.lookup(entries, "Spur gear m2-z20") {
     Ok(e) => e
     Err(err) => abort(err.message())
@@ -77,6 +77,19 @@ test "gear catalogue records modeled and omitted features" {
   assert_true(ring.features.has_approximated("internal-involute-flank"))
   assert_true(
     ring.features.omission_reason("exact-involute-internal-envelope") is None,
+  )
+  let bevel = match @catalog.lookup(entries, "Bevel gear m2-z20-d45.00") {
+    Ok(e) => e
+    Err(err) => abort(err.message())
+  }
+  assert_true(bevel.features.has_modeled("straight-bevel-cones"))
+  assert_true(bevel.features.has_modeled("back-cone-end"))
+  assert_true(bevel.features.has_modeled("backing-plane"))
+  assert_true(bevel.features.has_modeled("hub"))
+  assert_true(bevel.features.has_approximated("involute-flank"))
+  assert_true(
+    bevel.features.omission_reason("exact-octoid-or-spherical-involute")
+    is Some(_),
   )
 }
 
