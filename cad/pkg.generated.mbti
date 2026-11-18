@@ -175,13 +175,16 @@ pub struct BevelGearBody {
   back : Array[(Double, Double, Double)]
   front : Array[(Double, Double, Double)]
   teeth : Array[(Int32, Int32)]
+  tips : Array[(Int32, Int32)]
   root_z_mm : Double
   front_z_mm : Double
   bore_radius_mm : Double
   cone_apex_z_mm : Double
   cone_tan_half_angle : Double
+  smooth : Bool
+  chamfer_mm : Double
 }
-pub fn BevelGearBody::new(Array[(Double, Double, Double)], Array[(Double, Double, Double)], Array[(Int32, Int32)], root_z_mm~ : Double, front_z_mm~ : Double, bore_radius_mm~ : Double, cone_apex_z_mm~ : Double, cone_tan_half_angle~ : Double) -> Shape
+pub fn BevelGearBody::new(Array[(Double, Double, Double)], Array[(Double, Double, Double)], Array[(Int32, Int32)], tips? : Array[(Int32, Int32)], root_z_mm~ : Double, front_z_mm~ : Double, bore_radius_mm~ : Double, cone_apex_z_mm~ : Double, cone_tan_half_angle~ : Double, smooth? : Bool, chamfer_mm? : Double) -> Shape
 
 pub struct BezierAnchor {
   position : (Double, Double)
@@ -335,6 +338,7 @@ pub(all) enum EdgeSelector {
   EdgesByDirection((Double, Double, Double), Double)
   EdgesPerpendicularToDirection((Double, Double, Double), Double)
   EdgesNearPoint((Double, Double, Double), Double)
+  EdgesAtRadii(Array[Double], Double?, Double)
   EdgeIndices(Array[Int32])
 }
 

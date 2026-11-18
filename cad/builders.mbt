@@ -514,21 +514,27 @@ pub fn BevelGearBody::new(
   back : Array[Vec3],
   front : Array[Vec3],
   teeth : Array[(Int32, Int32)],
+  tips~ : Array[(Int32, Int32)] = [],
   root_z_mm~ : Double,
   front_z_mm~ : Double,
   bore_radius_mm~ : Double,
   cone_apex_z_mm~ : Double,
   cone_tan_half_angle~ : Double,
+  smooth~ : Bool = false,
+  chamfer_mm~ : Double = 0.0,
 ) -> Shape {
   Shape::BevelGearBody({
     back,
     front,
     teeth,
+    tips,
     root_z_mm,
     front_z_mm,
     bore_radius_mm,
     cone_apex_z_mm,
     cone_tan_half_angle,
+    smooth,
+    chamfer_mm,
   })
 }
 

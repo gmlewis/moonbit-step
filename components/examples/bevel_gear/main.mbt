@@ -86,6 +86,48 @@ async fn main {
       help="Hub length behind the back face in mm (0 = no hub)",
       min=0.0,
     ),
+    "keywayWidth": @cli.opt_double(
+      0.0,
+      help="Bore keyway width in mm (0 = no keyway; requires --bore)",
+      min=0.0,
+    ),
+    "keywayDepth": @cli.opt_double(
+      0.0,
+      help="Bore keyway radial depth in mm (0 = no keyway)",
+      min=0.0,
+    ),
+    "keywayAngle": @cli.opt_double(
+      90.0,
+      help="Keyway angular position in the XY plane, degrees",
+    ),
+    "setScrew": @cli.opt_double(
+      0.0,
+      help="Radial set-screw hole diameter in mm (0 = no hole)",
+      min=0.0,
+    ),
+    "setScrewAngle": @cli.opt_double(
+      180.0,
+      help="Set-screw hole angular position in the XY plane, degrees",
+    ),
+    "setScrewOffset": @cli.opt_double(
+      -1.0,
+      help="Set-screw hole axial position from the hub back face in mm (-1 = mid-hub)",
+    ),
+    "edgeChamfer": @cli.opt_double(
+      0.0,
+      help="45-degree edge break on the tooth ends, bore, and hub in mm (0 = sharp)",
+      min=0.0,
+    ),
+    "endChamfer": @cli.opt_double(
+      0.0,
+      help="Explicit 45-degree chamfer band around the front tooth outline in mm (0 = sharp)",
+      min=0.0,
+    ),
+    "tipLand": @cli.opt_double(
+      0.0,
+      help="Physical outside radius of the tooth tip land in mm (0 = theoretical back-cone tip)",
+      min=0.0,
+    ),
     "endFace": @cli.opt_string(
       short='e',
       help="Large end: backCone (default) or flat",
@@ -105,6 +147,9 @@ async fn main {
     ),
     "out": @cli.opt_string(short='o', help="Write STEP to this path"),
     "bbox": @cli.flag(help="Print the bounding box to stderr"),
+    "evaluated": @cli.flag(
+      help="Fuse the layers and evaluate the final solid with OCCT",
+    ),
   }
   guard @cli.parse(
       spec,
@@ -146,6 +191,19 @@ async fn main {
       tip_chamfer_mm=args.double("tipChamfer"),
       hub_diameter_mm=args.double("hubDiameter"),
       hub_length_mm=args.double("hubLength"),
+      keyway_width_mm=args.double("keywayWidth"),
+      keyway_depth_mm=args.double("keywayDepth"),
+      keyway_angle_deg=args.double("keywayAngle"),
+      set_screw_diameter_mm=args.double("setScrew"),
+      set_screw_angle_deg=args.double("setScrewAngle"),
+      set_screw_offset_mm?=if args.double("setScrewOffset") >= 0.0 {
+        Some(args.double("setScrewOffset"))
+      } else {
+        (None : Double?)
+      },
+      edge_chamfer_mm=args.double("edgeChamfer"),
+      end_chamfer_mm=args.double("endChamfer"),
+      tip_land_radius_mm=args.double("tipLand"),
       end_face~,
     ) {
     Ok(p) => p
@@ -154,7 +212,22 @@ async fn main {
       abort("")
     }
   }
+  if (
+      args.double("keywayWidth") > 0.0 ||
+      args.double("setScrew") > 0.0 ||
+      args.double("edgeChamfer") > 0.0
+    ) &&
+    !args.flag("evaluated") {
+    @cli.eprintln(
+      "error: a keyway, set-screw hole, or edge chamfer requires --evaluated",
+    )
+    abort("")
+  }
   if args.flag("pair") {
+    if args.flag("evaluated") {
+      @cli.eprintln("error: --evaluated applies to a single gear, not a pair")
+      abort("")
+    }
     if pitch_angle > 0.0 || mate_teeth < 1 {
       @cli.eprintln("error: pair mode needs --mateTeeth and no --pitchAngle")
       abort("")
@@ -214,5 +287,9 @@ async fn main {
     let (x0, x1, y0, y1, z0, z1) = gear.bounding_box()
     @cli.eprintln("bbox: x=[\{x0}, \{x1}] y=[\{y0}, \{y1}] z=[\{z0}, \{z1}]")
   }
-  gear.write_step(args.string_opt("out"), checked=true)
+  if args.flag("evaluated") {
+    gear.write_step_evaluated(args.string_opt("out"))
+  } else {
+    gear.write_step(args.string_opt("out"), checked=true)
+  }
 }

@@ -77,6 +77,29 @@ pub(all) struct BevelGearParams {
   hub_diameter_mm : Double
   /// Hub length behind the large face (0 = no hub).
   hub_length_mm : Double
+  /// Bore keyway width (0 = no keyway); requires a bore.
+  keyway_width_mm : Double
+  /// Radial depth of the bore keyway from the bore wall (0 = no keyway).
+  keyway_depth_mm : Double
+  /// Angular position of the keyway in the XY plane, degrees.
+  keyway_angle_deg : Double
+  /// Radial set-screw hole diameter (0 = no hole); requires a hub and bore.
+  set_screw_diameter_mm : Double
+  /// Angular position of the radial set-screw hole, degrees.
+  set_screw_angle_deg : Double
+  /// Axial position of the set-screw hole, measured from the hub back face;
+  /// None places it at mid-hub.
+  set_screw_offset_mm : Double?
+  /// 45-degree edge break on the bore circles and the hub back-face rims
+  /// (0 = sharp; requires the evaluated export).
+  edge_chamfer_mm : Double
+  /// Explicit 45-degree chamfer band around the front (small-end) tooth
+  /// outline, built as geometry rather than trimmed by a kernel (0 = sharp).
+  end_chamfer_mm : Double
+  /// Physical outside radius of the tooth tip land in mm (0 = theoretical
+  /// back-cone tip). The virtual addendum is solved so the projected tip
+  /// reaches this radius, matching a landed CAD tooth.
+  tip_land_radius_mm : Double
   /// Large-end construction.
   end_face : BevelEndFace
 }
@@ -105,6 +128,15 @@ pub fn BevelGearParams::new(
   tip_chamfer_mm~ : Double = 0.0,
   hub_diameter_mm~ : Double = 0.0,
   hub_length_mm~ : Double = 0.0,
+  keyway_width_mm~ : Double = 0.0,
+  keyway_depth_mm~ : Double = 0.0,
+  keyway_angle_deg~ : Double = 90.0,
+  set_screw_diameter_mm~ : Double = 0.0,
+  set_screw_angle_deg~ : Double = 180.0,
+  set_screw_offset_mm? : Double,
+  edge_chamfer_mm~ : Double = 0.0,
+  end_chamfer_mm~ : Double = 0.0,
+  tip_land_radius_mm~ : Double = 0.0,
   end_face~ : BevelEndFace = Flat,
 ) -> Result[BevelGearParams, @common.SpecError] {
   match @common.require_positive("bevel gear module", module_mm) {
@@ -193,6 +225,152 @@ pub fn BevelGearParams::new(
       ),
     )
   }
+  match @common.require_non_negative("bevel keyway width", keyway_width_mm) {
+    Err(e) => return Err(e)
+    Ok(_) => ()
+  }
+  match @common.require_non_negative("bevel keyway depth", keyway_depth_mm) {
+    Err(e) => return Err(e)
+    Ok(_) => ()
+  }
+  if (keyway_width_mm > 0.0) != (keyway_depth_mm > 0.0) {
+    return Err(
+      @common.InvalidParameter(
+        "bevel keyway width and depth must both be positive or both zero",
+      ),
+    )
+  }
+  if keyway_width_mm > 0.0 && bore_diameter_mm <= 0.0 {
+    return Err(
+      @common.InvalidParameter("a bevel keyway requires a central bore"),
+    )
+  }
+  match
+    @common.require_non_negative(
+      "bevel set screw diameter", set_screw_diameter_mm,
+    ) {
+    Err(e) => return Err(e)
+    Ok(_) => ()
+  }
+  if set_screw_diameter_mm > 0.0 {
+    if hub_diameter_mm <= 0.0 || bore_diameter_mm <= 0.0 {
+      return Err(
+        @common.InvalidParameter(
+          "a bevel set-screw hole requires a hub and a central bore",
+        ),
+      )
+    }
+    if set_screw_diameter_mm >= hub_diameter_mm {
+      return Err(
+        @common.InvalidParameter(
+          "bevel set-screw hole must be narrower than the hub diameter",
+        ),
+      )
+    }
+    match set_screw_offset_mm {
+      Some(offset) =>
+        if offset <= 0.0 || offset >= hub_length_mm {
+          return Err(
+            @common.InvalidParameter(
+              "bevel set-screw offset must lie inside the hub length",
+            ),
+          )
+        }
+      None => ()
+    }
+    if keyway_width_mm > 0.0 {
+      let raw = (set_screw_angle_deg - keyway_angle_deg).abs()
+      let wrapped = raw - 360.0 * Double::floor(raw / 360.0)
+      let sep_deg = if wrapped > 180.0 { 360.0 - wrapped } else { wrapped }
+      let sep = sep_deg * @math.PI / 180.0
+      let bore_r = bore_diameter_mm / 2.0
+      let need = keyway_width_mm / 2.0 + set_screw_diameter_mm / 2.0
+      if need < bore_r && bore_r * @math.sin(sep) < need {
+        return Err(
+          @common.InvalidParameter(
+            "bevel set-screw hole overlaps the keyway at the bore wall",
+          ),
+        )
+      }
+    }
+  } else {
+    match set_screw_offset_mm {
+      Some(_) =>
+        return Err(
+          @common.InvalidParameter(
+            "bevel set-screw offset needs a positive set-screw diameter",
+          ),
+        )
+      None => ()
+    }
+  }
+  match @common.require_non_negative("bevel edge chamfer", edge_chamfer_mm) {
+    Err(e) => return Err(e)
+    Ok(_) => ()
+  }
+  if edge_chamfer_mm > 0.0 {
+    let broken_r = if hub_diameter_mm > 0.0 {
+      hub_diameter_mm / 2.0
+    } else {
+      bore_diameter_mm / 2.0
+    }
+    if broken_r > 0.0 && edge_chamfer_mm >= 0.5 * broken_r {
+      return Err(
+        @common.InvalidParameter(
+          "bevel edge chamfer must be below half the radius it breaks",
+        ),
+      )
+    }
+  }
+  if edge_chamfer_mm > 0.0 {
+    match end_face {
+      Flat =>
+        return Err(
+          @common.InvalidParameter(
+            "bevel edge chamfers are supported only with the back-cone end face",
+          ),
+        )
+      BackCone => ()
+    }
+  }
+  match @common.require_non_negative("bevel end chamfer", end_chamfer_mm) {
+    Err(e) => return Err(e)
+    Ok(_) => ()
+  }
+  if end_chamfer_mm >= 0.5 * module_mm {
+    return Err(
+      @common.InvalidParameter(
+        "bevel end chamfer must be below half the module",
+      ),
+    )
+  }
+  if end_chamfer_mm > 0.0 {
+    match end_face {
+      Flat =>
+        return Err(
+          @common.InvalidParameter(
+            "the explicit end chamfer is supported only with the back-cone end face",
+          ),
+        )
+      BackCone => ()
+    }
+  }
+  match
+    @common.require_non_negative("bevel tip land radius", tip_land_radius_mm) {
+    Err(e) => return Err(e)
+    Ok(_) => ()
+  }
+  if tip_land_radius_mm > 0.0 {
+    match end_face {
+      Flat =>
+        return Err(
+          @common.InvalidParameter(
+            "the tip land is supported only with the back-cone end face",
+          ),
+        )
+      BackCone => ()
+    }
+  }
   let pitch_angle = match pitch_angle_deg {
     Some(deg) => {
       if mate_teeth > 0 {
@@ -276,6 +454,15 @@ pub fn BevelGearParams::new(
     tip_chamfer_mm,
     hub_diameter_mm,
     hub_length_mm,
+    keyway_width_mm,
+    keyway_depth_mm,
+    keyway_angle_deg,
+    set_screw_diameter_mm,
+    set_screw_angle_deg,
+    set_screw_offset_mm,
+    edge_chamfer_mm,
+    end_chamfer_mm,
+    tip_land_radius_mm,
     end_face,
   }
   let geom = params.geometry()
@@ -285,6 +472,22 @@ pub fn BevelGearParams::new(
         "bevel face width \{face_width_mm} mm exceeds cone distance / 2.5 (\{geom.cone_distance_mm / BEVEL_FACE_WIDTH_FRACTION} mm)",
       ),
     )
+  }
+  if tip_land_radius_mm > 0.0 {
+    if tip_land_radius_mm >= geom.standard_outer_radius_mm {
+      return Err(
+        @common.InvalidParameter(
+          "bevel tip land radius must be below the standard outside radius",
+        ),
+      )
+    }
+    if tip_land_radius_mm <= geom.pitch_radius_mm {
+      return Err(
+        @common.InvalidParameter(
+          "bevel tip land radius must exceed the pitch radius",
+        ),
+      )
+    }
   }
   let root_radius = geom.virtual_pitch_radius_mm - geom.dedendum_mm
   if root_radius <= 0.0 {
@@ -400,6 +603,46 @@ pub fn BevelGearParams::designation(self : BevelGearParams) -> String {
 }
 
 ///|
+/// bevel_resample resamples an open polyline at `count` equally spaced arc
+/// lengths, preserving both endpoints. Uniform roll-angle involute sampling
+/// bunches points near the base circle (segments down to 0.02 mm), and those
+/// tiny segments upset stricter B-rep checkers.
+fn bevel_resample(points : Array[@cad.Vec2], count : Int32) -> Array[@cad.Vec2] {
+  let m = points.length()
+  if m < 2 || count < 2 {
+    return points
+  }
+  let cumulative : Array[Double] = [0.0]
+  for i in 1..<m {
+    let dx = points[i].0 - points[i - 1].0
+    let dy = points[i].1 - points[i - 1].1
+    cumulative.push(cumulative[i - 1] + Double::sqrt(dx * dx + dy * dy))
+  }
+  let total = cumulative[m - 1]
+  if total <= 0.0 {
+    return points
+  }
+  let out : Array[@cad.Vec2] = []
+  let mut seg = 0
+  for k in 0..<count {
+    let target = total * k.to_double() / (count - 1).to_double()
+    while seg < m - 2 && cumulative[seg + 1] < target {
+      seg = seg + 1
+    }
+    let s0 = cumulative[seg]
+    let s1 = cumulative[seg + 1]
+    let t = if s1 > s0 { (target - s0) / (s1 - s0) } else { 0.0 }
+    out.push(
+      (
+        points[seg].0 + (points[seg + 1].0 - points[seg].0) * t,
+        points[seg].1 + (points[seg + 1].1 - points[seg].1) * t,
+      ),
+    )
+  }
+  out
+}
+
+///|
 /// bevel_tooth_sector builds one tooth sector in the back-cone plane, centred
 /// on +X and spanning exactly one real pitch of root boundary.
 ///
@@ -409,13 +652,17 @@ pub fn BevelGearParams::designation(self : BevelGearParams) -> String {
 fn bevel_tooth_sector(
   params : BevelGearParams,
   g : BevelGearGeometry,
+  tip_radius_virtual? : Double,
 ) -> Result[(Array[@cad.Vec2], Int32, Double), @common.SpecError] {
   let zv = g.virtual_teeth
   let pa = params.pressure_angle_deg * @math.PI / 180.0
   let rp = g.virtual_pitch_radius_mm
   let rb = rp * @math.cos(pa)
   let rr = rp - g.dedendum_mm
-  let ra = rp + g.addendum_mm
+  let ra = match tip_radius_virtual {
+    Some(value) => value
+    None => rp + g.addendum_mm
+  }
   if rr <= 0.0 {
     return Err(
       @common.InvalidDimension("bevel virtual root radius must be positive"),
@@ -438,10 +685,12 @@ fn bevel_tooth_sector(
     inv.push(rotate_xy((rr, 0.0), -center_angle))
   }
   let mut angle = start_angle
+  let flank_raw : Array[@cad.Vec2] = []
   for _i in 0..<(ip + 1) {
-    inv.push(rotate_xy(involute_xy(rb, angle), -center_angle))
+    flank_raw.push(rotate_xy(involute_xy(rb, angle), -center_angle))
     angle = angle + d_theta
   }
+  inv.push_iter(bevel_resample(flank_raw, ip + 1).iter())
   let num = inv.length()
   let arc_tip = inv[num - 1]
   let arc_tip_angle = Double::abs(@math.atan2(arc_tip.1, arc_tip.0))
@@ -652,6 +901,32 @@ fn bevel_ray_cone(g : BevelGearGeometry, w : @cad.Vec3) -> @cad.Vec3? {
 }
 
 ///|
+/// bevel_sector_max_back_radius projects every sector point onto the back cone
+/// and returns the largest physical radius. It is used to solve for the tip
+/// land: a smaller virtual addendum gives a smaller projected tip.
+fn bevel_sector_max_back_radius(
+  g : BevelGearGeometry,
+  sector : Array[@cad.Vec2],
+) -> Double {
+  let delta = g.pitch_angle_deg * @math.PI / 180.0
+  let q = -g.pitch_radius_mm * @math.tan(delta)
+  let mut rmax = 0.0
+  for p in sector {
+    let w = (p.0 * @math.cos(delta), p.1, q + p.0 * @math.sin(delta))
+    match bevel_ray_cone(g, w) {
+      Some(c) => {
+        let r = Double::sqrt(c.0 * c.0 + c.1 * c.1)
+        if r > rmax {
+          rmax = r
+        }
+      }
+      None => ()
+    }
+  }
+  rmax
+}
+
+///|
 /// bevel_back_cone_data projects one tooth sector onto the back cone and the
 /// front plane, snaps the root points to the coaxial root circle, replicates
 /// the profiles, and returns the per-tooth index ranges.
@@ -659,7 +934,13 @@ fn bevel_back_cone_data(
   g : BevelGearGeometry,
   sector : Array[@cad.Vec2],
 ) -> Result[
-  (Array[@cad.Vec3], Array[@cad.Vec3], Array[(Int32, Int32)], Double),
+  (
+    Array[@cad.Vec3],
+    Array[@cad.Vec3],
+    Array[(Int32, Int32)],
+    Array[(Int32, Int32)],
+    Double,
+  ),
   @common.SpecError,
 ] {
   let delta = g.pitch_angle_deg * @math.PI / 180.0
@@ -697,6 +978,30 @@ fn bevel_back_cone_data(
       ),
     )
   }
+  // The tip land is the run of sector points at the sector's largest radius.
+  // Using the sector maximum instead of the theoretical addendum also covers a
+  // truncated (landed) tooth.
+  let mut ra_v = 0.0
+  for i in tooth_start..<=tooth_end {
+    let r = radius_of(sector[i])
+    if r > ra_v {
+      ra_v = r
+    }
+  }
+  let tip_tol = 1.0e-6 * (1.0 + ra_v)
+  let mut tip_start_sector = -1
+  let mut tip_end_sector = -1
+  for i in tooth_start..<=tooth_end {
+    if (radius_of(sector[i]) - ra_v).abs() <= tip_tol {
+      if tip_start_sector < 0 {
+        tip_start_sector = i
+      }
+      tip_end_sector = i
+    }
+  }
+  // A tip chamfer trims the land off the virtual addendum circle; in that case
+  // the smooth compiler falls back to a physical-radius scan.
+  let has_tip_land = tip_start_sector >= 0 && tip_end_sector > tip_start_sector
   let front_z = g.axial_face_width_mm
   let back_sector : Array[@cad.Vec3] = []
   let front_sector : Array[@cad.Vec3] = []
@@ -746,11 +1051,14 @@ fn bevel_back_cone_data(
   let back : Array[@cad.Vec3] = []
   let front : Array[@cad.Vec3] = []
   let teeth : Array[(Int32, Int32)] = []
+  let tips : Array[(Int32, Int32)] = []
   let z = g.teeth.to_double()
   for k in 0..<g.teeth {
     let angle = 2.0 * @math.PI * k.to_double() / z
     let mut start_clean = -1
     let mut end_clean = -1
+    let mut tip_start_clean = -1
+    let mut tip_end_clean = -1
     for i in 0..<s {
       if k > 0 && i == 0 {
         continue
@@ -761,13 +1069,27 @@ fn bevel_back_cone_data(
       if i == tooth_end {
         end_clean = back.length()
       }
+      if has_tip_land && i == tip_start_sector {
+        tip_start_clean = back.length()
+      }
+      if has_tip_land && i == tip_end_sector {
+        tip_end_clean = back.length()
+      }
       back.push(bevel_rotate_z(back_sector[i], angle))
       front.push(bevel_rotate_z(front_sector[i], angle))
     }
-    if start_clean < 0 || end_clean < 0 {
+    if start_clean < 0 ||
+      end_clean < 0 ||
+      (
+        has_tip_land &&
+        (tip_start_clean < 0 || tip_end_clean <= tip_start_clean)
+      ) {
       return Err(@common.InvalidParameter("bevel tooth range tracking failed"))
     }
     teeth.push((start_clean, end_clean))
+    if has_tip_land {
+      tips.push((tip_start_clean, tip_end_clean))
+    }
   }
   // The last sector's trailing gap boundary duplicates sector 0's first point.
   let last = back.length() - 1
@@ -780,7 +1102,7 @@ fn bevel_back_cone_data(
       let _ = front.pop()
     }
   }
-  Ok((back, front, teeth, snap_deviation))
+  Ok((back, front, teeth, tips, snap_deviation))
 }
 
 ///|
@@ -989,6 +1311,59 @@ pub fn bevel_gear(
 }
 
 ///|
+/// bevel_keyway_cutter returns a radial rectangular cutter that opens a
+/// parallel keyway through the bore, from `back_z_mm` to `front_z_mm`.
+fn bevel_keyway_cutter(
+  params : BevelGearParams,
+  back_z_mm : Double,
+  front_z_mm : Double,
+) -> @cad.SceneNode {
+  let bore_r = params.bore_diameter_mm / 2.0
+  let floor_r = bore_r + params.keyway_depth_mm
+  let half = params.keyway_width_mm / 2.0
+  let ang = params.keyway_angle_deg * @math.PI / 180.0
+  let ux = @math.cos(ang)
+  let uy = @math.sin(ang)
+  let vx = -uy
+  let vy = ux
+  let corner = fn(ru : Double, rv : Double) -> @cad.Vec2 {
+    (ru * ux + rv * vx, ru * uy + rv * vy)
+  }
+  let outer : Array[@cad.Vec2] = [
+    corner(0.0, half),
+    corner(0.0, -half),
+    corner(floor_r, -half),
+    corner(floor_r, half),
+  ]
+  let height = front_z_mm - back_z_mm + 2.0
+  @cad.ExtrudedProfile::new(outer, height)
+  .with_name("keyway-cutter")
+  .translate(z=back_z_mm - 1.0)
+}
+
+///|
+/// bevel_set_screw_cutter returns the radial drill that opens the set-screw
+/// hole from the hub outside diameter into the bore at axial position `z_mm`.
+fn bevel_set_screw_cutter(
+  params : BevelGearParams,
+  z_mm : Double,
+) -> @cad.SceneNode {
+  let hub_r = params.hub_diameter_mm / 2.0
+  let start_r = hub_r + 1.0
+  let length = start_r + 1.0
+  let ang = params.set_screw_angle_deg * @math.PI / 180.0
+  let ux = @math.cos(ang)
+  let uy = @math.sin(ang)
+  // A +Z cylinder rotated onto +Y and then about Z so its axis points inward
+  // along -u, starting one millimetre outside the hub and ending past the axis.
+  @cad.Cylinder::new(params.set_screw_diameter_mm, length)
+  .with_name("set-screw-hole-cutter")
+  .rotate_x(-90.0)
+  .rotate_z(params.set_screw_angle_deg + 90.0)
+  .translate(x=start_r * ux, y=start_r * uy, z=z_mm)
+}
+
+///|
 /// bevel_gear_back_cone builds the standard back-cone-ended gear: tooth ends on
 /// the back cone, a flat annular backing plane inside the root circle, an
 /// optional bore, and an optional flat-faced hub behind the backing.
@@ -1006,11 +1381,35 @@ fn bevel_gear_back_cone(
       ),
     )
   }
-  let sector = match bevel_tooth_sector(params, g) {
-    Ok((s, _gap, _dev)) => s
-    Err(e) => return Err(e)
+  let sector = if params.tip_land_radius_mm > 0.0 {
+    // Solve the virtual tip radius so the projected maximum physical radius
+    // equals the requested tip-land radius.
+    let target = params.tip_land_radius_mm
+    let mut lo = g.virtual_pitch_radius_mm
+    let mut hi = g.virtual_pitch_radius_mm + g.addendum_mm
+    for _ in 0..<48 {
+      let mid = 0.5 * (lo + hi)
+      let trial = match bevel_tooth_sector(params, g, tip_radius_virtual=mid) {
+        Ok((s, _gap, _dev)) => s
+        Err(e) => return Err(e)
+      }
+      if bevel_sector_max_back_radius(g, trial) > target {
+        hi = mid
+      } else {
+        lo = mid
+      }
+    }
+    match bevel_tooth_sector(params, g, tip_radius_virtual=lo) {
+      Ok((s, _gap, _dev)) => s
+      Err(e) => return Err(e)
+    }
+  } else {
+    match bevel_tooth_sector(params, g) {
+      Ok((s, _gap, _dev)) => s
+      Err(e) => return Err(e)
+    }
   }
-  let (back, front, teeth, snap_deviation) = match
+  let (back, front, teeth, tips, snap_deviation) = match
     bevel_back_cone_data(g, sector) {
     Ok(d) => d
     Err(e) => return Err(e)
@@ -1065,11 +1464,14 @@ fn bevel_gear_back_cone(
     back,
     front,
     teeth,
+    tips~,
     root_z_mm=root_z,
     front_z_mm=front_z,
     bore_radius_mm=rb,
     cone_apex_z_mm=q,
     cone_tan_half_angle=1.0 / @math.tan(delta),
+    smooth=true,
+    chamfer_mm=params.end_chamfer_mm,
   )
   let name = "bevel-gear-\{params.designation()}"
   let mut features = @common.FeatureRecord::new(
@@ -1119,14 +1521,6 @@ fn bevel_gear_back_cone(
         feature="root-fillet",
         reason="not supported with the back-cone end face",
       ),
-      @common.Omission::new(
-        feature="keyway",
-        reason="no keyway is modelled; represent it with an evaluated cut",
-      ),
-      @common.Omission::new(
-        feature="set-screw",
-        reason="no tapped set-screw hole is modelled",
-      ),
       @common.Omission::new(feature="web", reason="no web is modelled"),
       @common.Omission::new(
         feature="contact-analysis",
@@ -1141,6 +1535,61 @@ fn bevel_gear_back_cone(
       @common.Omission::new(
         feature="tip-chamfer",
         reason="not modelled by this builder",
+      ),
+    )
+  }
+  let has_keyway = params.keyway_width_mm > 0.0
+  let has_set_screw = params.set_screw_diameter_mm > 0.0
+  if has_keyway {
+    if rb + params.keyway_depth_mm >= front_min {
+      return Err(
+        @common.InvalidParameter(
+          "bevel keyway depth leaves no wall at the small-end root circle",
+        ),
+      )
+    }
+    features = features.add_modeled("keyway")
+  } else {
+    features = features.add_omitted(
+      @common.Omission::new(
+        feature="keyway",
+        reason="keyway_width_mm is 0; no keyway is modelled",
+      ),
+    )
+  }
+  if has_set_screw {
+    features = features.add_modeled("set-screw-hole")
+    features = features.add_omitted(
+      @common.Omission::new(
+        feature="set-screw",
+        reason="the set screw is a separate part and is declared by the set-screw-thread connector, not modelled",
+      ),
+    )
+  } else {
+    features = features.add_omitted(
+      @common.Omission::new(
+        feature="set-screw-hole",
+        reason="set_screw_diameter_mm is 0; no radial set-screw hole is modelled",
+      ),
+    )
+  }
+  if params.edge_chamfer_mm > 0.0 && (rb > 0.0 || has_hub) {
+    features = features.add_modeled("edge-chamfers")
+  } else {
+    features = features.add_omitted(
+      @common.Omission::new(
+        feature="edge-chamfers",
+        reason="edge_chamfer_mm is 0; the tooth ends, bore, and hub edges are sharp",
+      ),
+    )
+  }
+  if params.end_chamfer_mm > 0.0 {
+    features = features.add_modeled("end-chamfer")
+  } else {
+    features = features.add_omitted(
+      @common.Omission::new(
+        feature="end-chamfer",
+        reason="end_chamfer_mm is 0; the front outline is sharp",
       ),
     )
   }
@@ -1178,6 +1627,7 @@ fn bevel_gear_back_cone(
       ),
     )
   }
+  let body_node = shape.with_name("body")
   let mut component = @common.Component::new(
     name~,
     metadata=@common.Metadata::new(
@@ -1187,32 +1637,111 @@ fn bevel_gear_back_cone(
       size=params.designation(),
       source="Pitch, face, and root cones follow standard straight-bevel practice. Tooth ends lie on the standard back cone; the backing plane is the coaxial root circle. The tooth sector is the back-cone equivalent spur gear projected to the pitch apex.",
     ),
-    description="External straight bevel gear with standard back-cone tooth ends and a flat root-circle backing plane. Teeth are the Tredgold back-cone equivalent involute; the exact octoid/spherical involute is not modelled. Optional bore and flat-faced hub.",
+    description="External straight bevel gear with standard back-cone tooth ends and a flat root-circle backing plane. Teeth are the Tredgold back-cone equivalent involute; the exact octoid/spherical involute is not modelled. Optional bore, flat-faced hub, keyway, and radial set-screw hole.",
     features~,
-  ).add_layer(shape, name="body", color~)
-  if has_hub {
-    let hub_shape = if has_bore {
-      @cad.RevolvedProfile::tube(
-        params.hub_diameter_mm,
-        params.bore_diameter_mm,
-        params.hub_length_mm,
-      ).as_shape()
-    } else {
-      @cad.RevolvedProfile::cylinder(
-        params.hub_diameter_mm,
-        params.hub_length_mm,
-      ).as_shape()
-    }
-    component = component.add_layer(
-      hub_shape,
-      name="hub",
-      color~,
-      placement=@common.Placement::translation(
-        0.0,
-        0.0,
-        root_z - params.hub_length_mm,
-      ),
+  )
+  let hub_back = root_z - params.hub_length_mm
+  let has_edge_chamfer = params.edge_chamfer_mm > 0.0 && (rb > 0.0 || has_hub)
+  if has_keyway || has_set_screw || has_edge_chamfer {
+    // The keyway, drill, and chamfers must trim the fused body and hub; the
+    // flat writer cannot represent that, so expose one evaluated boolean
+    // layer. Each chamfer wraps one of the two single solids: the body bore
+    // circles and the hub back-face rims. The tooth-profile boundary is a
+    // B-spline loop that OCCT cannot chamfer reliably, so it stays sharp.
+    let body_selector = @cad.EdgeSelector::EdgesAtRadii(
+      [rb],
+      (None : Double?),
+      1.0e-3,
     )
+    let body_solid = if params.edge_chamfer_mm > 0.0 && rb > 0.0 {
+      @cad.chamfer_edges(
+        body_node,
+        params.edge_chamfer_mm,
+        selector=body_selector,
+        name="bore-chamfers",
+      )
+    } else {
+      body_node
+    }
+    let children : Array[@cad.SceneNode] = [body_solid]
+    if has_hub {
+      let hub_shape = if has_bore {
+        @cad.RevolvedProfile::tube(
+          params.hub_diameter_mm,
+          params.bore_diameter_mm,
+          params.hub_length_mm,
+        ).as_shape()
+      } else {
+        @cad.RevolvedProfile::cylinder(
+          params.hub_diameter_mm,
+          params.hub_length_mm,
+        ).as_shape()
+      }
+      let hub_node = hub_shape.with_name("hub").translate(z=hub_back)
+      let hub_solid = if has_edge_chamfer {
+        let radii : Array[Double] = [params.hub_diameter_mm / 2.0]
+        if has_bore {
+          radii.push(rb)
+        }
+        @cad.chamfer_edges(
+          hub_node,
+          params.edge_chamfer_mm,
+          selector=@cad.EdgeSelector::EdgesAtRadii(
+            radii,
+            Some(hub_back),
+            1.0e-3,
+          ),
+          name="hub-chamfers",
+        )
+      } else {
+        hub_node
+      }
+      children.push(hub_solid)
+    }
+    let fused = if children.length() == 1 {
+      children[0]
+    } else {
+      @cad.union_all(children, name="bevel-gear-body")
+    }
+    let cutters : Array[@cad.SceneNode] = []
+    if has_keyway {
+      cutters.push(bevel_keyway_cutter(params, hub_back, front_z))
+    }
+    if has_set_screw {
+      let offset = match params.set_screw_offset_mm {
+        Some(value) => value
+        None => params.hub_length_mm / 2.0
+      }
+      cutters.push(bevel_set_screw_cutter(params, hub_back + offset))
+    }
+    let solid = if cutters.is_empty() {
+      fused
+    } else {
+      @cad.difference(fused, cutters, name="body")
+    }
+    component = component.add_layer(solid.shape_intent(), name="body", color~)
+  } else {
+    component = component.add_layer(shape, name="body", color~)
+    if has_hub {
+      let hub_shape = if has_bore {
+        @cad.RevolvedProfile::tube(
+          params.hub_diameter_mm,
+          params.bore_diameter_mm,
+          params.hub_length_mm,
+        ).as_shape()
+      } else {
+        @cad.RevolvedProfile::cylinder(
+          params.hub_diameter_mm,
+          params.hub_length_mm,
+        ).as_shape()
+      }
+      component = component.add_layer(
+        hub_shape,
+        name="hub",
+        color~,
+        placement=@common.Placement::translation(0.0, 0.0, hub_back),
+      )
+    }
   }
   Ok(
     with_back_cone_connectors(
@@ -1297,7 +1826,7 @@ fn with_back_cone_connectors(
         description="outer reference circle datum",
       ),
     )
-  if has_hub {
+  let with_hub = if has_hub {
     base
     .with_connector_unchecked(
       @common.MateConnector::new(
@@ -1323,6 +1852,67 @@ fn with_back_cone_connectors(
     )
   } else {
     base
+  }
+  let bore_r = params.bore_diameter_mm / 2.0
+  let keyed = if params.keyway_width_mm > 0.0 && bore_r > 0.0 {
+    let ang = params.keyway_angle_deg * @math.PI / 180.0
+    let floor_r = bore_r + params.keyway_depth_mm
+    with_hub.with_connector_unchecked(
+      @common.MateConnector::new(
+        "keyway",
+        placement=@common.Placement::translation(
+          floor_r * @math.cos(ang),
+          floor_r * @math.sin(ang),
+          hub_back,
+        ),
+        axis=(0.0, 0.0, 1.0),
+        kind=@common.MateKind::ProfileSlot,
+        diameter_mm=params.keyway_width_mm,
+        depth_mm=front_z - hub_back,
+        description="parallel bore keyway, width given, entered from the hub end along +Z",
+      ),
+    )
+  } else {
+    with_hub
+  }
+  if params.set_screw_diameter_mm > 0.0 && has_hub {
+    let ang = params.set_screw_angle_deg * @math.PI / 180.0
+    let ux = @math.cos(ang)
+    let uy = @math.sin(ang)
+    let offset = match params.set_screw_offset_mm {
+      Some(value) => value
+      None => params.hub_length_mm / 2.0
+    }
+    let z_s = hub_back + offset
+    let hub_r = params.hub_diameter_mm / 2.0
+    let wall = hub_r - bore_r
+    keyed
+    .with_connector_unchecked(
+      @common.MateConnector::new(
+        "set-screw-hole",
+        placement=@common.Placement::translation(hub_r * ux, hub_r * uy, z_s),
+        axis=(-ux, -uy, 0.0),
+        kind=@common.MateKind::CylindricalBore,
+        gender=@common.MateGender::Female,
+        diameter_mm=params.set_screw_diameter_mm,
+        depth_mm=wall,
+        description="modelled radial set-screw hole through the hub wall",
+      ),
+    )
+    .with_connector_unchecked(
+      @common.MateConnector::new(
+        "set-screw-thread",
+        placement=@common.Placement::translation(hub_r * ux, hub_r * uy, z_s),
+        axis=(-ux, -uy, 0.0),
+        kind=@common.MateKind::Threaded,
+        gender=@common.MateGender::Female,
+        diameter_mm=params.set_screw_diameter_mm,
+        depth_mm=wall,
+        description="declared set-screw thread; threads are not modelled",
+      ),
+    )
+  } else {
+    keyed
   }
 }
 

@@ -34,7 +34,8 @@
 #                       joint origins (connectors are shown by default)
 #   --no-helper         open with `open -a` instead of the SolidCraft GUI helper
 #   --helper            open through the running SolidCraft GUI helper with
-#                       --up z (the default when the helper answers)
+#                       --up: SolidWorks Y-up goldens stand Z-up, like our
+#                       parametric exports (the default when the helper answers)
 #   --foreground        bring SolidCraft to the front after opening
 #                       (default: true for the owner's visual comparison)
 #   --no-foreground     add tabs without raising the SolidCraft window
@@ -316,6 +317,48 @@ def infer(name, detail):
         return (
             "components/examples/bearing",
             ["--bearing", m.group(1), "--detail", detail],
+        )
+    if name == "2600N5.step":
+        return (
+            "components/examples/bevel_gear",
+            [
+                "--module", "2",
+                "--teeth", "20",
+                "--mateTeeth", "20",
+                "--faceWidth", "10",
+                "--bore", "15",
+                "--hubDiameter", "34",
+                "--hubLength", "14",
+                "--keywayWidth", "5",
+                "--keywayDepth", "2.3",
+                "--setScrew", "5",
+                "--edgeChamfer", "0.375",
+                "--endChamfer", "0.375",
+                "--tipLand", "21.0607",
+                "--endFace", "backCone",
+                "--evaluated",
+            ],
+        )
+    if name == "2600N2.step":
+        return (
+            "components/examples/bevel_gear",
+            [
+                "--module", "1",
+                "--teeth", "30",
+                "--mateTeeth", "30",
+                "--faceWidth", "6",
+                "--bore", "12",
+                "--hubDiameter", "26",
+                "--hubLength", "10",
+                "--keywayWidth", "4",
+                "--keywayDepth", "2.05",
+                "--setScrew", "5",
+                "--edgeChamfer", "0.3",
+                "--endChamfer", "0.3",
+                "--tipLand", "15.5303",
+                "--endFace", "backCone",
+                "--evaluated",
+            ],
         )
     m = re.match(r"^spur_gear_m(\d+)_0_(\d+)t_bore(\d+)\.step$", name)
     if m:
@@ -857,10 +900,25 @@ def helper_available():
     return helper
 
 
-def helper_open_one(helper, path):
+def golden_up_axis(path):
+    """Return the STEP file's up axis for the SolidCraft open command.
+
+    SolidWorks STEP exports are Y up. The app keeps a file's axes with
+    `--up z`, so a Y-up golden would open lying on its back next to our Z-up
+    parametric export. Detect the SolidWorks header and stand it up.
+    """
+    try:
+        with open(path, "r", errors="ignore") as fh:
+            head = fh.read(12000)
+    except OSError:
+        return "z"
+    return "y" if ("SolidWorks" in head or "SwSTEP" in head) else "z"
+
+
+def helper_open_one(helper, path, up="z"):
     """Open one file as a GUI tab and return (component_name, error)."""
     proc = subprocess.run(
-        [sys.executable, "-I", helper, "open", path, "--up", "z"],
+        [sys.executable, "-I", helper, "open", path, "--up", up],
         capture_output=True,
         text=True,
     )
@@ -964,7 +1022,9 @@ def open_pairs_with_connectors(pairs, batch):
             # Open the golden first, then the parametric part, so the
             # parametric tab is active when its joint origins are added and
             # stays in front for the visual comparison.
-            golden_component, golden_error = helper_open_one(helper, row["path"])
+            golden_component, golden_error = helper_open_one(
+                helper, row["path"], up=golden_up_axis(row["path"])
+            )
             if golden_component is None:
                 print("  note: golden open failed: " + (golden_error or "unknown"))
                 status = 1

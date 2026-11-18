@@ -144,12 +144,22 @@ pub struct BevelGearBody {
   back : Array[Vec3]
   front : Array[Vec3]
   teeth : Array[(Int32, Int32)]
+  /// Per-tooth first and last tip-land indices into `back`/`front`. The smooth
+  /// compiler splits each tooth at these points into flank, tip, and flank
+  /// strips; the exact tip arc cannot be recovered from physical radii after
+  /// projection to the back cone.
+  tips : Array[(Int32, Int32)]
   root_z_mm : Double
   front_z_mm : Double
   bore_radius_mm : Double
   /// Back-cone apex on the gear axis and tan(90 deg - pitch angle).
   cone_apex_z_mm : Double
   cone_tan_half_angle : Double
+  /// Emit ruled B-spline side and tooth-cap surfaces instead of planar facets.
+  smooth : Bool
+  /// Explicit 45-degree front-outline chamfer distance in mm (0 = sharp).
+  /// Built as geometry, not trimmed by a kernel.
+  chamfer_mm : Double
 }
 
 ///|
@@ -256,12 +266,18 @@ pub struct ExtrudedBezierProfile {
 ///   to `dir` within `tolerance_deg`.
 /// - `EdgesNearPoint` selects edges whose bounding box is within `radius_mm`
 ///   of `point`.
+/// - `EdgesAtRadii` selects edges (circles, arcs, or closed curves) whose
+///   every sampled point lies at one of `radii` from the Z axis, optionally
+///   restricted to the plane `z_mm` (None means any plane) within
+///   `tolerance_mm`. Use it to break a specific bore or rim without touching
+///   a tooth-profile boundary.
 /// - `EdgeIndices` selects 1-based edge indices in the solid's edge order.
 pub(all) enum EdgeSelector {
   AllEdges
   EdgesByDirection(Vec3, Double)
   EdgesPerpendicularToDirection(Vec3, Double)
   EdgesNearPoint(Vec3, Double)
+  EdgesAtRadii(Array[Double], Double?, Double)
   EdgeIndices(Array[Int32])
 }
 

@@ -792,7 +792,11 @@ test "bevel back-cone end matches the McMaster 2600N5 envelope" {
   assert_false(features.has_approximated("flat-back-envelope"))
   let inventory = component.layers()[0].shape.surface_inventory()
   assert_eq(inventory.cylinder, 1)
-  assert_true(inventory.plane > 1000)
+  // Smooth back-cone body: two planar caps, one trimmed analytic back-cone
+  // face per tooth, and one B-spline side per strip plus one gap land.
+  assert_eq(inventory.plane, 2)
+  assert_eq(inventory.cone, 20)
+  assert_eq(inventory.bspline, 4 * 20)
   let step = component.to_step(checked=true)
   // Body bore, hub outside diameter, and hub bore.
   assert_eq(bevel_count(step, "CYLINDRICAL_SURFACE("), 3)
@@ -918,4 +922,217 @@ test "bevel tip chamfer rejects an oversized request" {
       Err(_) => true
     },
   )
+}
+
+///|
+test "back-cone keyway and set-screw produce one evaluated layer" {
+  let params = match
+    BevelGearParams::new(
+      module_mm=2.0,
+      teeth=20,
+      mate_teeth=20,
+      face_width_mm=10.0,
+      bore_diameter_mm=15.0,
+      hub_diameter_mm=34.0,
+      hub_length_mm=14.0,
+      keyway_width_mm=5.0,
+      keyway_depth_mm=2.3,
+      set_screw_diameter_mm=5.0,
+      edge_chamfer_mm=0.375,
+      end_face=BackCone,
+    ) {
+    Ok(p) => p
+    Err(e) => abort(e.message())
+  }
+  let component = match bevel_gear(params) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  // The cuts and chamfer force one evaluated boolean layer over the fused
+  // body and hub; the flat writer refuses it, as documented.
+  assert_eq(component.layers().length(), 1)
+  assert_true(component.features().has_modeled("keyway"))
+  assert_true(component.features().has_modeled("set-screw-hole"))
+  assert_true(component.features().has_modeled("edge-chamfers"))
+  assert_eq(component.connectors().length(), 10)
+  assert_true(
+    match component.connector("keyway") {
+      Ok(_) => true
+      Err(_) => false
+    },
+  )
+  assert_true(
+    match component.connector("set-screw-hole") {
+      Ok(_) => true
+      Err(_) => false
+    },
+  )
+  assert_true(
+    match component.connector("set-screw-thread") {
+      Ok(_) => true
+      Err(_) => false
+    },
+  )
+  let (x0, x1, _y0, _y1, z0, z1) = component.bounding_box()
+  let g = params.geometry()
+  bevel_close_rel(x1 - x0, 2.0 * g.standard_outer_radius_mm, 1.0e-9)
+  let (root_z, _root_radius) = bevel_back_cone_root(g)
+  bevel_close_rel(z0, root_z - params.hub_length_mm, 1.0e-9)
+  bevel_close_rel(z1, g.axial_face_width_mm, 1.0e-9)
+}
+
+///|
+test "bevel keyway and set-screw validation" {
+  let no_bore = BevelGearParams::new(
+    module_mm=2.0,
+    teeth=20,
+    mate_teeth=20,
+    face_width_mm=10.0,
+    keyway_width_mm=5.0,
+    keyway_depth_mm=2.3,
+    end_face=BackCone,
+  )
+  assert_true(
+    match no_bore {
+      Ok(_) => false
+      Err(_) => true
+    },
+  )
+  let overlap = BevelGearParams::new(
+    module_mm=2.0,
+    teeth=20,
+    mate_teeth=20,
+    face_width_mm=10.0,
+    bore_diameter_mm=15.0,
+    hub_diameter_mm=34.0,
+    hub_length_mm=14.0,
+    keyway_width_mm=5.0,
+    keyway_depth_mm=2.3,
+    set_screw_diameter_mm=5.0,
+    set_screw_angle_deg=270.0,
+    end_face=BackCone,
+  )
+  assert_true(
+    match overlap {
+      Ok(_) => false
+      Err(_) => true
+    },
+  )
+  let flat_chamfer = BevelGearParams::new(
+    module_mm=2.0,
+    teeth=20,
+    mate_teeth=20,
+    face_width_mm=10.0,
+    bore_diameter_mm=15.0,
+    hub_diameter_mm=34.0,
+    hub_length_mm=14.0,
+    edge_chamfer_mm=0.375,
+    end_face=Flat,
+  )
+  assert_true(
+    match flat_chamfer {
+      Ok(_) => false
+      Err(_) => true
+    },
+  )
+}
+
+///|
+test "explicit end chamfer builds a closed band" {
+  let params = match
+    BevelGearParams::new(
+      module_mm=2.0,
+      teeth=20,
+      mate_teeth=20,
+      face_width_mm=10.0,
+      bore_diameter_mm=15.0,
+      hub_diameter_mm=34.0,
+      hub_length_mm=14.0,
+      end_chamfer_mm=0.375,
+      end_face=BackCone,
+    ) {
+    Ok(p) => p
+    Err(e) => abort(e.message())
+  }
+  let component = match bevel_gear(params) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  assert_true(component.features().has_modeled("end-chamfer"))
+  let inventory = component.layers()[0].shape.surface_inventory()
+  // Three side strips plus the gap land, each with a side and a chamfer-band
+  // surface, one trimmed back-cone face per tooth, two planes, and the bore.
+  assert_eq(inventory.bspline, 8 * 20)
+  assert_eq(inventory.cone, 20)
+  assert_eq(inventory.plane, 2)
+  assert_eq(inventory.cylinder, 1)
+  let step = component.to_step(checked=true)
+  assert_true(step.contains("B_SPLINE_SURFACE_WITH_KNOTS"))
+}
+
+///|
+test "bevel end chamfer validation" {
+  let too_large = BevelGearParams::new(
+    module_mm=2.0,
+    teeth=20,
+    mate_teeth=20,
+    face_width_mm=10.0,
+    bore_diameter_mm=15.0,
+    hub_diameter_mm=34.0,
+    hub_length_mm=14.0,
+    end_chamfer_mm=1.5,
+    end_face=BackCone,
+  )
+  assert_true(
+    match too_large {
+      Ok(_) => false
+      Err(_) => true
+    },
+  )
+  let flat = BevelGearParams::new(
+    module_mm=2.0,
+    teeth=20,
+    mate_teeth=20,
+    face_width_mm=10.0,
+    bore_diameter_mm=15.0,
+    hub_diameter_mm=34.0,
+    hub_length_mm=14.0,
+    end_chamfer_mm=0.3,
+    end_face=Flat,
+  )
+  assert_true(
+    match flat {
+      Ok(_) => false
+      Err(_) => true
+    },
+  )
+}
+
+///|
+test "tip land reproduces the golden outside diameter" {
+  let land_radius = 21.0607
+  let params = match
+    BevelGearParams::new(
+      module_mm=2.0,
+      teeth=20,
+      mate_teeth=20,
+      face_width_mm=10.0,
+      bore_diameter_mm=15.0,
+      hub_diameter_mm=34.0,
+      hub_length_mm=14.0,
+      tip_land_radius_mm=land_radius,
+      end_face=BackCone,
+    ) {
+    Ok(p) => p
+    Err(e) => abort(e.message())
+  }
+  let component = match bevel_gear(params) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  let (x0, x1, _y0, _y1, _z0, _z1) = component.bounding_box()
+  // The virtual addendum is solved so the projected tip reaches the land.
+  bevel_close_rel(x1 - x0, 2.0 * land_radius, 1.0e-4)
+  let step = component.to_step(checked=true)
+  assert_true(step.contains("CONICAL_SURFACE"))
 }

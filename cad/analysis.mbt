@@ -1407,6 +1407,45 @@ fn an_swept_inventory(s : SweptProfile) -> SurfaceInventory {
 }
 
 ///|
+/// an_bevel_smooth_bsplines counts the smooth B-spline faces the smooth
+/// compiler emits: three side strips and three tooth-end cap strips per tooth
+/// (two strips when the tip is a single point), plus one gap root land.
+fn an_bevel_smooth_bsplines(b : BevelGearBody) -> Int32 {
+  let n = b.back.length()
+  let mut total = 0
+  for k, tooth in b.teeth {
+    let (start, end) = tooth
+    if start < 0 || end >= n || end <= start {
+      continue
+    }
+    let count = end - start + 1
+    let points : Array[Vec3] = []
+    for i in start..<=end {
+      points.push(b.back[i])
+    }
+    let corners = if k < b.tips.length() {
+      let (tip_start, tip_end) = b.tips[k]
+      [tip_start - start, tip_end - start]
+    } else {
+      bevel_smooth_tip_corners(points)
+    }
+    let mut segments = 1
+    let mut last = 0
+    for corner in corners {
+      if corner > last && corner < count - 1 {
+        segments = segments + 1
+        last = corner
+      }
+    }
+    // One side surface per strip plus one gap root land; with the explicit end
+    // chamfer each strip also gets a chamfer-band surface.
+    let per_strip = if b.chamfer_mm > 0.0 { 2 } else { 1 }
+    total = total + per_strip * (segments + 1)
+  }
+  total
+}
+
+///|
 /// an_bevel_lobe_tris counts the conical cap triangles the compiler emits.
 fn an_bevel_lobe_tris(b : BevelGearBody) -> Int32 {
   let n = b.back.length()
@@ -1587,6 +1626,24 @@ fn an_shape_inventory(shape : Shape) -> SurfaceInventory {
         b.front.length() != b.back.length() ||
         b.teeth.is_empty() {
         return an_inventory(0, 0, 0, 0, 0, 0, 0, 0)
+      }
+      if b.smooth {
+        // Two planar caps, one analytic bore, one trimmed back-cone face per
+        // tooth, and the side strips plus gap lands.
+        return an_inventory(
+          2,
+          if b.bore_radius_mm > 0.0 {
+            1
+          } else {
+            0
+          },
+          b.teeth.length(),
+          0,
+          0,
+          an_bevel_smooth_bsplines(b),
+          0,
+          0,
+        )
       }
       an_inventory(
         2 * b.back.length() + an_bevel_lobe_tris(b) + 2,

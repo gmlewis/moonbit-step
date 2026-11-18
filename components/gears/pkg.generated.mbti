@@ -103,11 +103,20 @@ pub(all) struct BevelGearParams {
   tip_chamfer_mm : Double
   hub_diameter_mm : Double
   hub_length_mm : Double
+  keyway_width_mm : Double
+  keyway_depth_mm : Double
+  keyway_angle_deg : Double
+  set_screw_diameter_mm : Double
+  set_screw_angle_deg : Double
+  set_screw_offset_mm : Double?
+  edge_chamfer_mm : Double
+  end_chamfer_mm : Double
+  tip_land_radius_mm : Double
   end_face : BevelEndFace
 }
 pub fn BevelGearParams::designation(Self) -> String
 pub fn BevelGearParams::geometry(Self) -> BevelGearGeometry
-pub fn BevelGearParams::new(module_mm~ : Double, teeth~ : Int32, mate_teeth? : Int32, shaft_angle_deg? : Double, pitch_angle_deg? : Double, pressure_angle_deg? : Double, face_width_mm? : Double, bore_diameter_mm? : Double, backlash_mm? : Double, addendum_factor? : Double, dedendum_factor? : Double, involute_points? : Int32, arc_points? : Int32, root_fillet_radius_mm? : Double, fillet_segments? : Int32, tip_chamfer_mm? : Double, hub_diameter_mm? : Double, hub_length_mm? : Double, end_face? : BevelEndFace) -> Result[Self, @common.SpecError]
+pub fn BevelGearParams::new(module_mm~ : Double, teeth~ : Int32, mate_teeth? : Int32, shaft_angle_deg? : Double, pitch_angle_deg? : Double, pressure_angle_deg? : Double, face_width_mm? : Double, bore_diameter_mm? : Double, backlash_mm? : Double, addendum_factor? : Double, dedendum_factor? : Double, involute_points? : Int32, arc_points? : Int32, root_fillet_radius_mm? : Double, fillet_segments? : Int32, tip_chamfer_mm? : Double, hub_diameter_mm? : Double, hub_length_mm? : Double, keyway_width_mm? : Double, keyway_depth_mm? : Double, keyway_angle_deg? : Double, set_screw_diameter_mm? : Double, set_screw_angle_deg? : Double, set_screw_offset_mm? : Double, edge_chamfer_mm? : Double, end_chamfer_mm? : Double, tip_land_radius_mm? : Double, end_face? : BevelEndFace) -> Result[Self, @common.SpecError]
 
 pub(all) struct InternalRingGeometry {
   module_mm : Double

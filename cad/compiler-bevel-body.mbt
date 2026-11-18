@@ -16,6 +16,9 @@ fn compile_bevel_gear_body(
   reverse~ : Bool = false,
   parent~ : Transform? = None,
 ) -> Array[@step.Ref] {
+  if e.smooth {
+    return compile_bevel_gear_body_smooth(ctx, node, e, reverse~, parent~)
+  }
   let xform = node_transform(node, parent)
   let n = e.back.length()
   if n < 3 ||

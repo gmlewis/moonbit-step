@@ -682,6 +682,9 @@ def ocp_multi_chamfer(
     reader.TransferRoots()
     shape = reader.OneShape()
     kind = selector.get("kind", "all")
+    radii = [float(value) for value in (selector.get("radii") or [])]
+    z_filter = selector.get("z")
+    radial_tol = float(selector.get("tol", 1.0e-3))
     direction = (
         _norm(_vec3(selector["dir"]))
         if kind in ("direction", "perpendicular")
@@ -716,6 +719,19 @@ def ocp_multi_chamfer(
                 if kind == "perpendicular"
                 else all(value >= limit for value in dirs)
             )
+        elif kind == "radii":
+            first = curve.FirstParameter()
+            last = curve.LastParameter()
+            keep = True
+            for sample in range(9):
+                p = curve.Value(first + (last - first) * sample / 8.0)
+                radius = math.hypot(p.X(), p.Y())
+                if not any(abs(radius - value) <= radial_tol for value in radii):
+                    keep = False
+                    break
+                if z_filter is not None and abs(p.Z() - float(z_filter)) > radial_tol:
+                    keep = False
+                    break
         if keep:
             selected_edges.append(edge)
         explorer.Next()
@@ -790,9 +806,30 @@ def evaluate(
                         )
                     leaf_path = tmpdir / f"leaf-{step.operand}.step"
                     payload = step.payload or {}
-                    selected = select_edges(tool, leaf_path, payload, timeout)
                     op = payload.get("op")
                     size = float(payload.get("size", 0.0))
+                    selector = payload.get("selector") or {"kind": "all"}
+                    # A radial selector depends on the actual curve geometry,
+                    # not on DRAW's bounding boxes, so it always uses the OCP
+                    # multi-edge chamfer path.
+                    if op == "chamfer" and selector.get("kind") == "radii":
+                        angle = payload.get("angle")
+                        if angle is not None and abs(float(angle) - 45.0) > 1e-6:
+                            raise CsgEvalError(
+                                "angled chamfer needs a reference face; only "
+                                "equal-distance (45 degree) chamfers are "
+                                "supported"
+                            )
+                        chamfer_path = tmpdir / f"chamfer-{step.ref}.step"
+                        ocp_multi_chamfer(
+                            leaf_path, selector, size, chamfer_path
+                        )
+                        commands.append(
+                            f'testreadstep "{_tcl_path(chamfer_path)}" '
+                            f"r{step.ref}"
+                        )
+                        continue
+                    selected = select_edges(tool, leaf_path, payload, timeout)
                     if op == "fillet":
                         if not selected:
                             raise CsgEvalError(

@@ -152,6 +152,19 @@ fn edge_selector_json(selector : EdgeSelector) -> String {
       ",\"radius\":" +
       edge_json_num(radius_mm) +
       "}"
+    EdgesAtRadii(radii, z_mm, tolerance_mm) => {
+      let z_text = match z_mm {
+        Some(z) => edge_json_num(z)
+        None => "null"
+      }
+      "{\"kind\":\"radii\",\"radii\":[" +
+      radii.map(fn(r) { edge_json_num(r) }).join(",") +
+      "],\"z\":" +
+      z_text +
+      ",\"tol\":" +
+      edge_json_num(tolerance_mm) +
+      "}"
+    }
     EdgeIndices(indices) =>
       "{\"kind\":\"indices\",\"indices\":[" +
       indices.map(fn(i) { i.to_string() }).join(",") +
