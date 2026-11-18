@@ -1141,3 +1141,119 @@ test "tip land reproduces the golden outside diameter" {
   let step = component.to_step(checked=true)
   assert_true(step.contains("CONICAL_SURFACE"))
 }
+
+///|
+test "bevel large root fillet succeeds on module 1 with default involute points" {
+  let params = match
+    BevelGearParams::new(
+      module_mm=1.0,
+      teeth=30,
+      mate_teeth=30,
+      face_width_mm=6.54,
+      bore_diameter_mm=12.0,
+      root_fillet_radius_mm=0.35,
+      tip_chamfer_mm=0.1,
+      end_face=BackCone,
+    ) {
+    Ok(p) => p
+    Err(e) => abort(e.message())
+  }
+  let component = match bevel_gear(params) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  assert_true(component.features().has_modeled("root-fillet"))
+  assert_true(component.features().has_modeled("tip-chamfer"))
+  let step = component.to_step(checked=true)
+  assert_true(step.contains("B_SPLINE_SURFACE_WITH_KNOTS"))
+}
+
+///|
+test "bevel OD trim and front recess validation and connectors" {
+  let both_od = BevelGearParams::new(
+    module_mm=1.0,
+    teeth=30,
+    mate_teeth=30,
+    face_width_mm=6.54,
+    bore_diameter_mm=12.0,
+    tip_land_radius_mm=15.5303,
+    od_radius_mm=15.5303,
+    end_face=BackCone,
+  )
+  assert_true(
+    match both_od {
+      Ok(_) => false
+      Err(_) => true
+    },
+  )
+  let one_sided_recess = BevelGearParams::new(
+    module_mm=1.0,
+    teeth=30,
+    mate_teeth=30,
+    face_width_mm=6.54,
+    bore_diameter_mm=12.0,
+    front_recess_z_mm=3.0,
+    end_face=BackCone,
+  )
+  assert_true(
+    match one_sided_recess {
+      Ok(_) => false
+      Err(_) => true
+    },
+  )
+  let small_floor = BevelGearParams::new(
+    module_mm=1.0,
+    teeth=30,
+    mate_teeth=30,
+    face_width_mm=6.54,
+    bore_diameter_mm=12.0,
+    front_recess_z_mm=1.0,
+    front_recess_radius_mm=9.0,
+    end_face=BackCone,
+  )
+  assert_true(
+    match small_floor {
+      Ok(_) => false
+      Err(_) => true
+    },
+  )
+  let params = match
+    BevelGearParams::new(
+      module_mm=1.0,
+      teeth=30,
+      mate_teeth=30,
+      face_width_mm=6.54,
+      bore_diameter_mm=12.0,
+      hub_diameter_mm=24.0,
+      hub_length_mm=10.0,
+      keyway_width_mm=4.0,
+      keyway_depth_mm=1.8,
+      set_screw_diameter_mm=5.0,
+      edge_chamfer_mm=0.3,
+      root_fillet_radius_mm=0.35,
+      tip_chamfer_mm=0.1,
+      od_radius_mm=15.5303,
+      front_recess_z_mm=3.0,
+      front_recess_radius_mm=11.1388,
+      end_face=BackCone,
+    ) {
+    Ok(p) => p
+    Err(e) => abort(e.message())
+  }
+  let component = match bevel_gear(params) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  assert_eq(component.layers().length(), 1)
+  let bore = match component.connector("bore") {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  // Bore runs from hub_back (-13.0) to front_recess_z (3.0) = 16.0 mm.
+  bevel_close_rel(bore.depth_mm.unwrap(), 16.0, 1.0e-9)
+  let keyway = match component.connector("keyway") {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  bevel_close_rel(keyway.depth_mm.unwrap(), 16.0, 1.0e-9)
+}

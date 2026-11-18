@@ -128,6 +128,20 @@ async fn main {
       help="Physical outside radius of the tooth tip land in mm (0 = theoretical back-cone tip)",
       min=0.0,
     ),
+    "odRadius": @cli.opt_double(
+      0.0,
+      help="Cylindrical OD trim radius at the large end in mm (0 = untrimmed; requires --evaluated)",
+      min=0.0,
+    ),
+    "frontRecessZ": @cli.opt_double(
+      -1.0e9,
+      help="Axial Z coordinate of the small-end recessed bore face in mm (requires --frontRecessRadius and --evaluated)",
+    ),
+    "frontRecessRadius": @cli.opt_double(
+      0.0,
+      help="Inner front recess cone radius at the small-end tooth face in mm (requires --frontRecessZ and --evaluated)",
+      min=0.0,
+    ),
     "endFace": @cli.opt_string(
       short='e',
       help="Large end: backCone (default) or flat",
@@ -204,6 +218,13 @@ async fn main {
       edge_chamfer_mm=args.double("edgeChamfer"),
       end_chamfer_mm=args.double("endChamfer"),
       tip_land_radius_mm=args.double("tipLand"),
+      od_radius_mm=args.double("odRadius"),
+      front_recess_z_mm?=if args.double("frontRecessZ") > -1.0e8 {
+        Some(args.double("frontRecessZ"))
+      } else {
+        (None : Double?)
+      },
+      front_recess_radius_mm=args.double("frontRecessRadius"),
       end_face~,
     ) {
     Ok(p) => p
@@ -215,11 +236,13 @@ async fn main {
   if (
       args.double("keywayWidth") > 0.0 ||
       args.double("setScrew") > 0.0 ||
-      args.double("edgeChamfer") > 0.0
+      args.double("edgeChamfer") > 0.0 ||
+      args.double("odRadius") > 0.0 ||
+      args.double("frontRecessRadius") > 0.0
     ) &&
     !args.flag("evaluated") {
     @cli.eprintln(
-      "error: a keyway, set-screw hole, or edge chamfer requires --evaluated",
+      "error: a keyway, set-screw hole, edge chamfer, OD trim, or front recess requires --evaluated",
     )
     abort("")
   }

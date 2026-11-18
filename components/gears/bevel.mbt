@@ -100,6 +100,18 @@ pub(all) struct BevelGearParams {
   /// back-cone tip). The virtual addendum is solved so the projected tip
   /// reaches this radius, matching a landed CAD tooth.
   tip_land_radius_mm : Double
+  /// Cylindrical outside radius trim at the large end in mm (0 = untrimmed).
+  /// Unlike `tip_land_radius_mm`, this keeps the full standard addendum along
+  /// the teeth and turns the outer large-end tips to a cylinder (requires the
+  /// back-cone end face and evaluated export).
+  od_radius_mm : Double
+  /// Axial Z coordinate of the small-end recessed bore face (None = flush
+  /// with the small-end tooth face). Requires `front_recess_radius_mm > 0`,
+  /// the back-cone end face, and evaluated export.
+  front_recess_z_mm : Double?
+  /// Radius at the small-end tooth face where the inner 90-degree-to-pitch
+  /// recess cone begins (0 = no front recess).
+  front_recess_radius_mm : Double
   /// Large-end construction.
   end_face : BevelEndFace
 }
@@ -137,6 +149,9 @@ pub fn BevelGearParams::new(
   edge_chamfer_mm~ : Double = 0.0,
   end_chamfer_mm~ : Double = 0.0,
   tip_land_radius_mm~ : Double = 0.0,
+  od_radius_mm~ : Double = 0.0,
+  front_recess_z_mm? : Double,
+  front_recess_radius_mm~ : Double = 0.0,
   end_face~ : BevelEndFace = Flat,
 ) -> Result[BevelGearParams, @common.SpecError] {
   match @common.require_positive("bevel gear module", module_mm) {
@@ -371,6 +386,57 @@ pub fn BevelGearParams::new(
       BackCone => ()
     }
   }
+  match @common.require_non_negative("bevel OD radius", od_radius_mm) {
+    Err(e) => return Err(e)
+    Ok(_) => ()
+  }
+  if od_radius_mm > 0.0 {
+    match end_face {
+      Flat =>
+        return Err(
+          @common.InvalidParameter(
+            "the cylindrical OD trim is supported only with the back-cone end face",
+          ),
+        )
+      BackCone => ()
+    }
+    if tip_land_radius_mm > 0.0 {
+      return Err(
+        @common.InvalidParameter(
+          "bevel gear takes either tip_land_radius_mm or od_radius_mm, not both",
+        ),
+      )
+    }
+  }
+  match
+    @common.require_non_negative(
+      "bevel front recess radius", front_recess_radius_mm,
+    ) {
+    Err(e) => return Err(e)
+    Ok(_) => ()
+  }
+  let has_recess_z = match front_recess_z_mm {
+    Some(_) => true
+    None => false
+  }
+  if has_recess_z != (front_recess_radius_mm > 0.0) {
+    return Err(
+      @common.InvalidParameter(
+        "bevel front_recess_z_mm and front_recess_radius_mm must both be set or both omitted/zero",
+      ),
+    )
+  }
+  if has_recess_z {
+    match end_face {
+      Flat =>
+        return Err(
+          @common.InvalidParameter(
+            "the front recess is supported only with the back-cone end face",
+          ),
+        )
+      BackCone => ()
+    }
+  }
   let pitch_angle = match pitch_angle_deg {
     Some(deg) => {
       if mate_teeth > 0 {
@@ -463,6 +529,9 @@ pub fn BevelGearParams::new(
     edge_chamfer_mm,
     end_chamfer_mm,
     tip_land_radius_mm,
+    od_radius_mm,
+    front_recess_z_mm,
+    front_recess_radius_mm,
     end_face,
   }
   let geom = params.geometry()
@@ -488,6 +557,44 @@ pub fn BevelGearParams::new(
         ),
       )
     }
+  }
+  if od_radius_mm > 0.0 {
+    if od_radius_mm >= geom.standard_outer_radius_mm {
+      return Err(
+        @common.InvalidParameter(
+          "bevel OD radius must be below the standard outside radius",
+        ),
+      )
+    }
+    if od_radius_mm <= geom.pitch_radius_mm {
+      return Err(
+        @common.InvalidParameter("bevel OD radius must exceed the pitch radius"),
+      )
+    }
+  }
+  match front_recess_z_mm {
+    Some(rz) => {
+      let (root_z, _) = bevel_back_cone_root(geom)
+      if rz <= root_z + edge_chamfer_mm || rz >= geom.axial_face_width_mm {
+        return Err(
+          @common.InvalidParameter(
+            "bevel front recess Z must lie strictly between the backing root plane and the front tooth face",
+          ),
+        )
+      }
+      let delta = geom.pitch_angle_deg * @math.PI / 180.0
+      let r_floor = front_recess_radius_mm -
+        (geom.axial_face_width_mm - rz) / @math.tan(delta)
+      let min_floor = bore_diameter_mm / 2.0 + edge_chamfer_mm
+      if r_floor <= 0.0 || r_floor <= min_floor {
+        return Err(
+          @common.InvalidParameter(
+            "bevel front recess floor radius \{r_floor} mm must exceed bore radius plus edge chamfer (\{min_floor} mm)",
+          ),
+        )
+      }
+    }
+    None => ()
   }
   let root_radius = geom.virtual_pitch_radius_mm - geom.dedendum_mm
   if root_radius <= 0.0 {
@@ -690,7 +797,31 @@ fn bevel_tooth_sector(
     flank_raw.push(rotate_xy(involute_xy(rb, angle), -center_angle))
     angle = angle + d_theta
   }
-  inv.push_iter(bevel_resample(flank_raw, ip + 1).iter())
+  let flank = bevel_resample(flank_raw, ip + 1)
+  if params.root_fillet_radius_mm > 0.0 {
+    let root_corner = if rr < rb {
+      rotate_xy((rr, 0.0), -center_angle)
+    } else {
+      flank[0]
+    }
+    let min_seg = 1.5 * params.root_fillet_radius_mm
+    let start_idx = if rr < rb { 0 } else { 1 }
+    for i, pt in flank {
+      if i < start_idx {
+        inv.push(pt)
+      } else if i == flank.length() - 1 {
+        inv.push(pt)
+      } else {
+        let dx = pt.0 - root_corner.0
+        let dy = pt.1 - root_corner.1
+        if Double::sqrt(dx * dx + dy * dy) >= min_seg {
+          inv.push(pt)
+        }
+      }
+    }
+  } else {
+    inv.push_iter(flank.iter())
+  }
   let num = inv.length()
   let arc_tip = inv[num - 1]
   let arc_tip_angle = Double::abs(@math.atan2(arc_tip.1, arc_tip.0))
@@ -768,7 +899,7 @@ fn bevel_tooth_sector(
     }
   }
   if params.tip_chamfer_mm > 0.0 {
-    let tip_radius = g.virtual_pitch_radius_mm + g.addendum_mm
+    let tip_radius = ra
     let tol = 1.0e-6 * (1.0 + tip_radius)
     let tip_pts = keep_tip_endpoints(result, tip_radius, tol)
     let indices = outline_indices_at_radius(tip_pts, tip_radius, tol)
@@ -777,7 +908,7 @@ fn bevel_tooth_sector(
         @common.InvalidParameter("bevel tip chamfer found no tip vertices"),
       )
     }
-    result = match
+    let chamfered = match
       @cad.Profile2D::chamfer_vertices(
         tip_pts,
         params.tip_chamfer_mm,
@@ -788,6 +919,43 @@ fn bevel_tooth_sector(
         return Err(
           @common.InvalidParameter("bevel tip chamfer rejected: " + e.message()),
         )
+    }
+    if arcs > 2 && indices.length() == 2 {
+      // Re-insert the circular tip-arc samples between the two chamfered tip
+      // corners so the back-cone tooth keeps a curved cylindrical/conical tip
+      // land instead of a single flat facet.
+      let mut max_r = 0.0
+      for pt in chamfered {
+        let r = outline_radius(pt)
+        if r > max_r {
+          max_r = r
+        }
+      }
+      let new_tol = 1.0e-6 * (1.0 + max_r)
+      let tip_idxs = outline_indices_at_radius(chamfered, max_r, new_tol)
+      if tip_idxs.length() == 2 && tip_idxs[1] == tip_idxs[0] + 1 {
+        let i0 = tip_idxs[0]
+        let i1 = tip_idxs[1]
+        let a_start = @math.atan2(chamfered[i0].1, chamfered[i0].0)
+        let a_end = @math.atan2(chamfered[i1].1, chamfered[i1].0)
+        let rebuilt : Array[@cad.Vec2] = []
+        for idx in 0..<=i0 {
+          rebuilt.push(chamfered[idx])
+        }
+        for k in 1..<arcs {
+          let phi = a_start +
+            (a_end - a_start) * k.to_double() / arcs.to_double()
+          rebuilt.push(rotate_xy((max_r, 0.0), phi))
+        }
+        for idx in i1..<chamfered.length() {
+          rebuilt.push(chamfered[idx])
+        }
+        result = rebuilt
+      } else {
+        result = chamfered
+      }
+    } else {
+      result = chamfered
     }
   }
   Ok((result, gap_pts, gap_deviation))
@@ -1684,18 +1852,31 @@ fn bevel_gear_back_cone(
   let hub_setback = if has_hub { root_radius - hub_radius } else { 0.0 }
   let hub_back = root_z - params.hub_length_mm - hub_setback
   let has_edge_chamfer = params.edge_chamfer_mm > 0.0 && (rb > 0.0 || has_hub)
-  if has_keyway || has_set_screw || has_edge_chamfer {
-    // The keyway, drill, and chamfers must trim the fused body and hub; the
-    // flat writer cannot represent that, so expose one evaluated boolean
-    // layer. Each chamfer wraps one of the two single solids: the body bore
-    // circles and the hub back-face rims. The tooth-profile boundary is a
-    // B-spline loop that OCCT cannot chamfer reliably, so it stays sharp.
-    let body_selector = @cad.EdgeSelector::EdgesAtRadii(
-      [rb],
-      (None : Double?),
-      1.0e-3,
-    )
-    let body_solid = if params.edge_chamfer_mm > 0.0 && rb > 0.0 {
+  let has_od_trim = params.od_radius_mm > 0.0
+  let has_front_recess = match params.front_recess_z_mm {
+    Some(_) => true
+    None => false
+  }
+  if has_keyway ||
+    has_set_screw ||
+    has_edge_chamfer ||
+    has_od_trim ||
+    has_front_recess {
+    // The keyway, drill, OD trim, front recess, and chamfers must trim the
+    // fused body and hub; the flat writer cannot represent that, so expose one
+    // evaluated boolean layer. When a front recess is present, its revolved
+    // cutter includes the front bore chamfer directly so only the hub's back
+    // face needs edge-chamfering; otherwise chamfer only the exterior bore
+    // circle(s) so the body/hub junction never acquires an internal groove.
+    let body_solid = if params.edge_chamfer_mm > 0.0 &&
+      rb > 0.0 &&
+      !has_front_recess {
+      let z_filter : Double? = if has_hub { Some(front_z) } else { None }
+      let body_selector = @cad.EdgeSelector::EdgesAtRadii(
+        [rb],
+        z_filter,
+        1.0e-3,
+      )
       @cad.chamfer_edges(
         body_node,
         params.edge_chamfer_mm,
@@ -1736,7 +1917,11 @@ fn bevel_gear_back_cone(
     }
     let cutters : Array[@cad.SceneNode] = []
     if has_keyway {
-      cutters.push(bevel_keyway_cutter(params, hub_back, front_z))
+      let keyway_top = match params.front_recess_z_mm {
+        Some(rz) => rz
+        None => front_z
+      }
+      cutters.push(bevel_keyway_cutter(params, hub_back, keyway_top))
     }
     if has_set_screw {
       let offset = match params.set_screw_offset_mm {
@@ -1744,6 +1929,49 @@ fn bevel_gear_back_cone(
         None => params.hub_length_mm / 2.0
       }
       cutters.push(bevel_set_screw_cutter(params, hub_back + offset))
+    }
+    if has_od_trim {
+      cutters.push(
+        @cad.RevolvedProfile::tube(
+          2.0 * (back_max + 2.0),
+          2.0 * params.od_radius_mm,
+          front_z - root_z + 2.0,
+        )
+        .as_shape()
+        .with_name("od-trim-cutter")
+        .translate(z=root_z - 1.0),
+      )
+    }
+    match params.front_recess_z_mm {
+      Some(rz) => {
+        let cot_d = 1.0 / @math.tan(delta)
+        let r_floor = params.front_recess_radius_mm - (front_z - rz) * cot_d
+        let r_top = params.front_recess_radius_mm + 1.0 * cot_d
+        let z_top = front_z + 1.0
+        let profile : Array[@cad.Vec2] = if rb > 0.0 &&
+          params.edge_chamfer_mm > 0.0 {
+          let c = params.edge_chamfer_mm
+          let inset = if rb > 0.5 { 0.5 } else { 0.5 * rb }
+          let r_in = rb - inset
+          let z_in = rz - c - inset
+          [
+            (0.0, z_in),
+            (r_in, z_in),
+            (rb + c, rz),
+            (r_floor, rz),
+            (r_top, z_top),
+            (0.0, z_top),
+          ]
+        } else {
+          [(0.0, rz), (r_floor, rz), (r_top, z_top), (0.0, z_top)]
+        }
+        cutters.push(
+          @cad.RevolvedProfile::polyline(profile)
+          .as_shape()
+          .with_name("front-recess-cutter"),
+        )
+      }
+      None => ()
     }
     let solid = if cutters.is_empty() {
       fused
@@ -1791,6 +2019,10 @@ fn with_back_cone_connectors(
     root_z_mm
   }
   let front_z = g.axial_face_width_mm
+  let bore_top_z = match params.front_recess_z_mm {
+    Some(rz) => rz
+    None => front_z
+  }
   let bore = if has_bore {
     component.with_connector_unchecked(
       @common.MateConnector::new(
@@ -1800,7 +2032,7 @@ fn with_back_cone_connectors(
         kind=@common.MateKind::CylindricalBore,
         gender=@common.MateGender::Female,
         diameter_mm=params.bore_diameter_mm,
-        depth_mm=front_z - hub_back,
+        depth_mm=bore_top_z - hub_back,
         description="central bore, entered from the backing/hub end",
       ),
     )
@@ -1890,7 +2122,7 @@ fn with_back_cone_connectors(
         axis=(0.0, 0.0, 1.0),
         kind=@common.MateKind::ProfileSlot,
         diameter_mm=params.keyway_width_mm,
-        depth_mm=front_z - hub_back,
+        depth_mm=bore_top_z - hub_back,
         description="parallel bore keyway, width given, entered from the hub end along +Z",
       ),
     )
