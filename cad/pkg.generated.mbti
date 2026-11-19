@@ -305,6 +305,7 @@ pub fn Design::to_blender_python(Self, segments? : Int32, keep_modifiers? : Bool
 pub fn Design::to_csg_step(Self) -> String
 pub fn Design::to_gltf(Self) -> String
 pub async fn Design::to_gltf_file(Self, String?) -> Unit
+pub fn Design::to_instanced_step_string(Self, assembly_name~ : String) -> String
 pub async fn Design::to_step_evaluated(Self, root? : String?, layers_json? : String) -> String
 pub fn Design::to_step_file(Self) -> String
 pub fn Design::to_step_file_checked(Self) -> String
