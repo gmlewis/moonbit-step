@@ -1199,3 +1199,10 @@ test "parse_repository_from_string_units_and_unit_wrappers" {
     content="true",
   )
 }
+
+///|
+test "parse accepts .U. STEP logical flags on B-spline entities" {
+  let content = "ISO-10303-21;\nDATA;\n#1=CARTESIAN_POINT('',(0.,0.,0.));\n#2=CARTESIAN_POINT('',(1.,0.,0.));\n#3=B_SPLINE_CURVE_WITH_KNOTS('',1,(#1,#2),.UNSPECIFIED.,.U.,.U.,(2,2),(0.,1.),.UNSPECIFIED.);\n#4=B_SPLINE_SURFACE_WITH_KNOTS('',1,1,((#1,#2),(#1,#2)),.UNSPECIFIED.,.U.,.U.,.U.,(2,2),(2,2),(0.,1.),(0.,1.),.UNSPECIFIED.);\nENDSEC;\nEND-ISO-10303-21;\n"
+  let repo = @parse.parse_repository_from_string(content)
+  inspect(repo.len(), content="4")
+}

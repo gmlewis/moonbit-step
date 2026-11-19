@@ -31,3 +31,12 @@ pub fn ShapeRepresentation::items_view(
 ) -> Array[@step.Ref] {
   self.items
 }
+
+///|
+/// ShapeRepresentation::with_items returns a copy with replaced item refs.
+pub fn ShapeRepresentation::with_items(
+  self : ShapeRepresentation,
+  items : Array[@step.Ref],
+) -> ShapeRepresentation {
+  { ..self, items, }
+}

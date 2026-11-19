@@ -21,6 +21,7 @@ pub fn herringbone_planetary_gearbox(
     layout.pressure_angle_deg,
     layout.sun.num_teeth,
     layout.resolution,
+    layout.tolerance_mm,
   )
   let sun_holes = hb_gear_holes(layout, layout.sun, layout.sun_hole_radius_mm)
   let sun_max_rot = @math.tan(hb_deg2rad(layout.helix_angle_sun_deg)) *
@@ -50,6 +51,7 @@ pub fn herringbone_planetary_gearbox(
     layout.pressure_angle_deg,
     layout.planet.num_teeth,
     layout.resolution,
+    layout.tolerance_mm,
   )
   let planet_holes = hb_gear_holes(
     layout,

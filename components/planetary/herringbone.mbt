@@ -250,17 +250,15 @@ pub fn herringbone_planetary_layout(
   let ring_nominal = hb_gear_dims(module_mm, pa, p.ring_teeth)
   let ring : HerringboneGearDims = {
     ..ring_nominal,
-    root_radius_mm: ring_nominal.pitch_radius_mm + module_mm,
-    outer_radius_mm: ring_nominal.pitch_radius_mm - 1.25 * module_mm,
+    root_radius_mm: ring_nominal.pitch_radius_mm + 1.25 * module_mm,
+    outer_radius_mm: ring_nominal.pitch_radius_mm - module_mm,
   }
-  let center_delta = if p.tolerance_mm > 0.0 {
-    p.tolerance_mm * 2.0
-  } else {
-    0.0
-  }
-  let center_distance = sun.pitch_radius_mm +
-    planet.pitch_radius_mm +
-    center_delta
+  // Keep mesh center distance and ring outer radius invariant across
+  // tolerance_mm; printing clearance is applied directly to the tooth flanks
+  // and tips so switching PETG (0.042 mm) vs PLA (0.25 mm) never alters the
+  // gearbox carrier orbit or housing bounding box.
+  let center_delta = 0.0
+  let center_distance = sun.pitch_radius_mm + planet.pitch_radius_mm
   let tan_beta_pitch = @math.tan(ha) *
     p.planet_teeth.to_double() /
     (p.planet_teeth + 2).to_double()
@@ -306,9 +304,7 @@ pub fn herringbone_planetary_layout(
     center_distance_mm: center_distance,
     center_delta_mm: center_delta,
     ring_outer_radius_mm: ring.pitch_radius_mm +
-    module_mm +
-    center_delta +
-    p.tolerance_mm / @math.sin(pa) +
+    1.25 * module_mm +
     p.outer_thickness_mm,
     sun_direction: 1.0,
     planet_direction: -1.0,
@@ -425,20 +421,34 @@ fn hb_gear_outline(
   pressure_angle_deg : Double,
   num_teeth : Int32,
   resolution : Int32,
+  tolerance_mm : Double,
 ) -> Array[(Double, Double)] {
   let pa = hb_deg2rad(pressure_angle_deg)
   let n = num_teeth.to_double()
   let pitch_radius = module_mm * n / 2.0
   let base_radius = pitch_radius * @math.cos(pa)
+  let tip_relief = hb_clamp(0.75 * tolerance_mm, 0.0, 0.45 * module_mm)
   let root_radius = pitch_radius - 1.25 * module_mm
-  let outer_radius = pitch_radius + module_mm
-  let backlash = 0.25 * @math.PI * @math.cos(pa) / (n * module_mm)
+  let outer_radius = pitch_radius + module_mm - tip_relief
   let pitch_point = hb_involute_xz(
     base_radius,
     hb_involute_theta(base_radius, pitch_radius),
   )
   let face_angle = @math.atan2(pitch_point.1, pitch_point.0)
-  let backlash_angle = backlash / (2.0 * pitch_radius)
+  let stop_angle = hb_involute_theta(base_radius, outer_radius)
+  let tip_point = hb_involute_xz(base_radius, stop_angle)
+  let tip_face_angle = @math.atan2(tip_point.1, tip_point.0)
+  let max_backlash = @math.PI / (2.0 * n) + face_angle - tip_face_angle - 1.0e-3
+  let raw_backlash = if tolerance_mm > 0.0 {
+    (0.5 * tolerance_mm + 0.015 * module_mm) / base_radius
+  } else {
+    0.0
+  }
+  let backlash_angle = if max_backlash > 0.0 {
+    hb_clamp(raw_backlash, 0.0, max_backlash)
+  } else {
+    0.0
+  }
   let center_angle = @math.PI / (2.0 * n) + face_angle - backlash_angle
   let start_angle = hb_involute_theta(
     base_radius,
@@ -448,7 +458,6 @@ fn hb_gear_outline(
       base_radius
     },
   )
-  let stop_angle = hb_involute_theta(base_radius, outer_radius)
   let d_theta = (stop_angle - start_angle) / HB_INVOLUTE_POINTS.to_double()
   let inv : Array[(Double, Double)] = []
   if root_radius < base_radius {
@@ -501,15 +510,28 @@ fn hb_external_boundary(
   root_radius : Double,
   outer_radius : Double,
   resolution : Int32,
+  tolerance_mm : Double,
 ) -> Array[(Double, Double)] {
   let pa = hb_deg2rad(pressure_angle_deg)
   let n = num_teeth.to_double()
   let pitch_radius = module_mm * n / 2.0
   let base_radius = pitch_radius * @math.cos(pa)
   let face_angle = @math.tan(pa) - pa
-  let backlash = 0.25 * @math.PI * @math.cos(pa) / (n * module_mm)
-  let backlash_angle = backlash / (2.0 * pitch_radius)
-  let center_angle = @math.PI / (2.0 * n) + face_angle - backlash_angle
+  // Widens the internal ring cutout tooth space by 0.5 * tolerance_mm normal
+  // to each flank so internal ring teeth thin symmetrically with the planet.
+  let nominal_center = @math.PI / (2.0 * n) + face_angle
+  let max_backlash = @math.PI / n - nominal_center - 1.0e-3
+  let raw_backlash = if tolerance_mm > 0.0 {
+    (0.5 * tolerance_mm + 0.015 * module_mm) / base_radius
+  } else {
+    0.0
+  }
+  let backlash_angle = if max_backlash > 0.0 {
+    hb_clamp(raw_backlash, 0.0, max_backlash)
+  } else {
+    0.0
+  }
+  let center_angle = nominal_center + backlash_angle
   let start_angle = hb_involute_theta(
     base_radius,
     if root_radius > base_radius {
@@ -577,19 +599,9 @@ fn hb_ring_geometry(layout : HerringbonePlanetaryLayout) -> HBRingGeometry {
   let ring_pitch = module_mm * n / 2.0
   let mate_pitch = module_mm * layout.planet.num_teeth.to_double() / 2.0
   let mate_outer = mate_pitch + module_mm
-  let nominal_center = ring_pitch - mate_pitch
-  let center = if layout.center_distance_mm <= 0.0 {
-    nominal_center
-  } else {
-    layout.center_distance_mm
-  }
-  let center_delta = if center > nominal_center {
-    center - nominal_center
-  } else {
-    0.0
-  }
-  let phantom_root = ring_pitch - module_mm
-  let phantom_tip = ring_pitch + module_mm
+  let tip_relief = hb_clamp(0.75 * layout.tolerance_mm, 0.0, 0.45 * module_mm)
+  let phantom_root = ring_pitch - module_mm + tip_relief
+  let phantom_tip = ring_pitch + 1.25 * module_mm
   let profile = hb_external_boundary(
     module_mm,
     layout.pressure_angle_deg,
@@ -597,28 +609,17 @@ fn hb_ring_geometry(layout : HerringbonePlanetaryLayout) -> HBRingGeometry {
     phantom_root,
     phantom_tip,
     layout.resolution,
+    layout.tolerance_mm,
   )
-  let profile = hb_clean_polygon(profile, 1.0e-4)
+  let inner = hb_clean_polygon(profile, 1.0e-4)
   let mut max_r = 0.0
-  for pt in profile {
+  for pt in inner {
     let r = hb_radius_of(pt)
     if r > max_r {
       max_r = r
     }
   }
-  let radial_offset = center_delta +
-    layout.tolerance_mm / @math.sin(hb_deg2rad(layout.pressure_angle_deg))
-  let offset_profile = profile.map(fn(pt) {
-    let r = hb_radius_of(pt)
-    if r > 0.0 {
-      let s = (r + radial_offset) / r
-      (pt.0 * s, pt.1 * s)
-    } else {
-      pt
-    }
-  })
-  let inner = hb_clean_polygon(offset_profile, 1.0e-4)
-  let outer_radius = max_r + radial_offset + layout.outer_thickness_mm
+  let outer_radius = max_r + layout.outer_thickness_mm
   let mate_pitch_angle = hb_two_pi / layout.planet.num_teeth.to_double()
   let ring_pitch_angle = hb_two_pi / n
   let mate_rotation = hb_deg2rad(layout.planets[0].phi_deg)

@@ -71,9 +71,7 @@ fn init {
     @repository.any_entity_b_spline_surface(parse_b_spline_surface(args))
   })
   parsers.set("B_SPLINE_SURFACE_WITH_KNOTS", fn(args) raise StepParseError {
-    @repository.any_entity_b_spline_surface_with_knots(
-      parse_b_spline_surface_with_knots(args),
-    )
+    parse_b_spline_surface_with_knots_entity(args)
   })
   parsers.set("RATIONAL_B_SPLINE_CURVE", fn(args) raise StepParseError {
     @repository.any_entity_rational_b_spline_curve(
@@ -825,6 +823,21 @@ fn parse_toroidal_surface(
 }
 
 ///|
+/// Parses a STEP BOOLEAN (`'.T.'`, `'.F.'`) or LOGICAL (`'.T.'`, `'.F.'`, `'.U.'`).
+/// External AP242 exporters (e.g. SMLib) emit `.U.` ("unknown") on spline
+/// `closed_*` and `self_intersect` flags, which maps to `false`.
+fn parse_step_bool(raw : String) -> Bool raise StepParseError {
+  let trimmed = raw.trim().to_owned()
+  if trimmed == ".T." {
+    true
+  } else if trimmed == ".F." || trimmed == ".U." {
+    false
+  } else {
+    fail_parse()
+  }
+}
+
+///|
 fn parse_b_spline_curve(
   args : String,
 ) -> @geometry.BSplineCurve raise StepParseError {
@@ -837,22 +850,8 @@ fn parse_b_spline_curve(
   let cp_ids = parse_ref_ids(parts[2])
   let control_points = cp_ids.map(fn(id) { @step.Ref::{ id, } })
   let curve_form = parts[3].trim().to_owned()
-  let closed_str = parts[4].trim().to_owned()
-  let self_i_str = parts[5].trim().to_owned()
-  let closed_curve = if closed_str == ".T." {
-    true
-  } else if closed_str == ".F." {
-    false
-  } else {
-    fail_parse()
-  }
-  let self_intersect = if self_i_str == ".T." {
-    true
-  } else if self_i_str == ".F." {
-    false
-  } else {
-    fail_parse()
-  }
+  let closed_curve = parse_step_bool(parts[4])
+  let self_intersect = parse_step_bool(parts[5])
   @geometry.BSplineCurve::new(
     name, degree, control_points, curve_form, closed_curve, self_intersect,
   )
@@ -881,22 +880,8 @@ fn parse_b_spline_curve_with_knots(
   let cp_ids = parse_ref_ids(parts[2])
   let control_points = cp_ids.map(fn(id) { @step.Ref::{ id, } })
   let curve_form = parts[3].trim().to_owned()
-  let closed_str = parts[4].trim().to_owned()
-  let self_i_str = parts[5].trim().to_owned()
-  let closed_curve = if closed_str == ".T." {
-    true
-  } else if closed_str == ".F." {
-    false
-  } else {
-    fail_parse()
-  }
-  let self_intersect = if self_i_str == ".T." {
-    true
-  } else if self_i_str == ".F." {
-    false
-  } else {
-    fail_parse()
-  }
+  let closed_curve = parse_step_bool(parts[4])
+  let self_intersect = parse_step_bool(parts[5])
   let knot_multiplicities = parse_int_list(parts[6])
   let knots = parse_literal_list(parts[7])
   let knot_spec = parts[8].trim().to_owned()
@@ -917,14 +902,7 @@ fn parse_composite_curve(
   let name = strip_quotes(parts[0])
   let seg_ids = parse_ref_ids(parts[1])
   let segments = seg_ids.map(fn(id) { @step.Ref::{ id, } })
-  let si_str = parts[2].trim().to_owned()
-  let self_intersect = if si_str == ".T." {
-    true
-  } else if si_str == ".F." {
-    false
-  } else {
-    fail_parse()
-  }
+  let self_intersect = parse_step_bool(parts[2])
   @geometry.CompositeCurve::new(name, segments, self_intersect)
 }
 
@@ -941,14 +919,7 @@ fn parse_composite_curve_segment(
     Some(t) => t
     None => fail_parse()
   }
-  let ss_str = parts[1].trim().to_owned()
-  let same_sense = if ss_str == ".T." {
-    true
-  } else if ss_str == ".F." {
-    false
-  } else {
-    fail_parse()
-  }
+  let same_sense = parse_step_bool(parts[1])
   let curve_id = parse_ref_int(parts[2])
   @geometry.CompositeCurveSegment::new(transition, same_sense, @step.Ref::{
     id: curve_id,
@@ -968,6 +939,26 @@ fn parse_rational_b_spline_curve(
 }
 
 ///|
+fn parse_b_spline_surface_parts(
+  parts : Array[String],
+  offset : Int32,
+) -> @geometry.BSplineSurface raise StepParseError {
+  let u_degree = parse_int_dec(parts[offset])
+  let v_degree = parse_int_dec(parts[offset + 1])
+  let row_parts = split_args(parts[offset + 2])
+  let control_points_list = row_parts.map(row_part => {
+    parse_ref_ids(row_part).map(fn(id) { @step.Ref::{ id, } })
+  })
+  let surface_form = parts[offset + 3].trim().to_owned()
+  let u_closed = parse_step_bool(parts[offset + 4])
+  let v_closed = parse_step_bool(parts[offset + 5])
+  let self_intersect = parse_step_bool(parts[offset + 6])
+  @geometry.BSplineSurface::new(
+    u_degree, v_degree, control_points_list, surface_form, u_closed, v_closed, self_intersect,
+  )
+}
+
+///|
 fn parse_b_spline_surface(
   args : String,
 ) -> @geometry.BSplineSurface raise StepParseError {
@@ -975,39 +966,21 @@ fn parse_b_spline_surface(
   if parts.length() != 7 {
     fail_parse()
   }
-  let u_degree = parse_int_dec(parts[0])
-  let v_degree = parse_int_dec(parts[1])
-  let row_parts = split_args(parts[2])
-  let control_points_list = row_parts.map(row_part => {
-    parse_ref_ids(row_part).map(fn(id) { @step.Ref::{ id, } })
-  })
-  let surface_form = parts[3].trim().to_owned()
-  let u_closed_str = parts[4].trim().to_owned()
-  let v_closed_str = parts[5].trim().to_owned()
-  let self_i_str = parts[6].trim().to_owned()
-  let u_closed = if u_closed_str == ".T." {
-    true
-  } else if u_closed_str == ".F." {
-    false
-  } else {
-    fail_parse()
-  }
-  let v_closed = if v_closed_str == ".T." {
-    true
-  } else if v_closed_str == ".F." {
-    false
-  } else {
-    fail_parse()
-  }
-  let self_intersect = if self_i_str == ".T." {
-    true
-  } else if self_i_str == ".F." {
-    false
-  } else {
-    fail_parse()
-  }
-  @geometry.BSplineSurface::new(
-    u_degree, v_degree, control_points_list, surface_form, u_closed, v_closed, self_intersect,
+  parse_b_spline_surface_parts(parts, 0)
+}
+
+///|
+fn parse_b_spline_surface_with_knots_parts(
+  parts : Array[String],
+  offset : Int32,
+) -> @geometry.BSplineSurfaceWithKnots {
+  let u_mults = parse_int_list(parts[offset])
+  let v_mults = parse_int_list(parts[offset + 1])
+  let u_knots = parse_literal_list(parts[offset + 2])
+  let v_knots = parse_literal_list(parts[offset + 3])
+  let knot_spec = parts[offset + 4].trim().to_owned()
+  @geometry.BSplineSurfaceWithKnots::new(
+    u_mults, v_mults, u_knots, v_knots, knot_spec,
   )
 }
 
@@ -1019,14 +992,36 @@ fn parse_b_spline_surface_with_knots(
   if parts.length() != 5 {
     fail_parse()
   }
-  let u_mults = parse_int_list(parts[0])
-  let v_mults = parse_int_list(parts[1])
-  let u_knots = parse_literal_list(parts[2])
-  let v_knots = parse_literal_list(parts[3])
-  let knot_spec = parts[4].trim().to_owned()
-  @geometry.BSplineSurfaceWithKnots::new(
-    u_mults, v_mults, u_knots, v_knots, knot_spec,
-  )
+  parse_b_spline_surface_with_knots_parts(parts, 0)
+}
+
+///|
+fn parse_b_spline_surface_with_knots_entity(
+  args : String,
+) -> @repository.AnyEntity raise StepParseError {
+  let parts = split_args(args)
+  if parts.length() == 5 {
+    @repository.any_entity_b_spline_surface_with_knots(
+      parse_b_spline_surface_with_knots_parts(parts, 0),
+    )
+  } else if parts.length() == 13 {
+    @repository.any_entity_complex_instance(
+      @context.ComplexInstance::new([
+        @context.ComplexPart::BoundedSurface,
+        @context.ComplexPart::BSplineSurf(
+          parse_b_spline_surface_parts(parts, 1),
+        ),
+        @context.ComplexPart::BSplineSurfKnots(
+          parse_b_spline_surface_with_knots_parts(parts, 8),
+        ),
+        @context.ComplexPart::GeometricRepresentationItem,
+        @context.ComplexPart::RepresentationItem(parts[0].trim().to_owned()),
+        @context.ComplexPart::Surface,
+      ]),
+    )
+  } else {
+    fail_parse()
+  }
 }
 
 ///|
@@ -1055,14 +1050,7 @@ fn parse_trimmed_curve(
   let basis_id = parse_ref_int(parts[1])
   let trim_1 = parts[2].trim().to_owned()
   let trim_2 = parts[3].trim().to_owned()
-  let sense_str = parts[4].trim().to_owned()
-  let sense = if sense_str == ".T." {
-    true
-  } else if sense_str == ".F." {
-    false
-  } else {
-    fail_parse()
-  }
+  let sense = parse_step_bool(parts[4])
   let master_rep = parts[5].trim().to_owned()
   @geometry.TrimmedCurve::new(
     name,
@@ -1102,14 +1090,7 @@ fn parse_offset_surface(
   let name = strip_quotes(parts[0])
   let basis_id = parse_ref_int(parts[1])
   let distance = parse_double(parts[2])
-  let si_str = parts[3].trim().to_owned()
-  let self_intersect = if si_str == ".T." {
-    true
-  } else if si_str == ".F." {
-    false
-  } else {
-    fail_parse()
-  }
+  let self_intersect = parse_step_bool(parts[3])
   @geometry.OffsetSurface::new(
     name,
     @step.Ref::{ id: basis_id, },
@@ -1177,22 +1158,8 @@ fn parse_rectangular_trimmed_surface(
   let u2 = parts[3].trim().to_owned()
   let v1 = parts[4].trim().to_owned()
   let v2 = parts[5].trim().to_owned()
-  let usense_str = parts[6].trim().to_owned()
-  let usense = if usense_str == ".T." {
-    true
-  } else if usense_str == ".F." {
-    false
-  } else {
-    fail_parse()
-  }
-  let vsense_str = parts[7].trim().to_owned()
-  let vsense = if vsense_str == ".T." {
-    true
-  } else if vsense_str == ".F." {
-    false
-  } else {
-    fail_parse()
-  }
+  let usense = parse_step_bool(parts[6])
+  let vsense = parse_step_bool(parts[7])
   @geometry.RectangularTrimmedSurface::new(
     name,
     @step.Ref::{ id: basis_id, },
@@ -1386,14 +1353,7 @@ fn parse_half_space_solid(
   }
   let name = strip_quotes(parts[0])
   let surf_id = parse_ref_int(parts[1])
-  let flag_str = parts[2].trim().to_owned()
-  let flag = if flag_str == ".T." {
-    true
-  } else if flag_str == ".F." {
-    false
-  } else {
-    fail_parse()
-  }
+  let flag = parse_step_bool(parts[2])
   @geometry.HalfSpaceSolid::new(name, @step.Ref::{ id: surf_id, }, flag)
 }
 
@@ -2263,14 +2223,7 @@ fn parse_face_surface(
   let bound_ids = parse_ref_ids(parts[1])
   let bounds = bound_ids.map(fn(id) { @step.Ref::{ id, } })
   let geom_id = parse_ref_int(parts[2])
-  let ss_str = parts[3].trim().to_owned()
-  let same_sense = if ss_str == ".T." {
-    true
-  } else if ss_str == ".F." {
-    false
-  } else {
-    fail_parse()
-  }
+  let same_sense = parse_step_bool(parts[3])
   @topology.FaceSurface::new(
     name,
     bounds,
@@ -2338,14 +2291,7 @@ fn parse_advanced_face(
   let bound_ids = parse_ref_ids(parts[1])
   let bounds = bound_ids.map(fn(id) { @step.Ref::{ id, } })
   let surface_id = parse_ref_int(parts[2])
-  let ss = parts[3].trim().to_owned()
-  let same_sense = if ss == ".T." {
-    true
-  } else if ss == ".F." {
-    false
-  } else {
-    fail_parse()
-  }
+  let same_sense = parse_step_bool(parts[3])
   @topology.AdvancedFace::new(
     name,
     bounds,
@@ -2364,14 +2310,7 @@ fn parse_face_outer_bound(
   }
   let name = strip_quotes(parts[0])
   let bound_id = parse_ref_int(parts[1])
-  let ori_str = parts[2].trim().to_owned()
-  let orientation = if ori_str == ".T." {
-    true
-  } else if ori_str == ".F." {
-    false
-  } else {
-    fail_parse()
-  }
+  let orientation = parse_step_bool(parts[2])
   @topology.FaceOuterBound::new(name, @step.Ref::{ id: bound_id, }, orientation)
 }
 
@@ -2383,14 +2322,7 @@ fn parse_face_bound(args : String) -> @topology.FaceBound raise StepParseError {
   }
   let name = strip_quotes(parts[0])
   let bound_id = parse_ref_int(parts[1])
-  let ori_str = parts[2].trim().to_owned()
-  let orientation = if ori_str == ".T." {
-    true
-  } else if ori_str == ".F." {
-    false
-  } else {
-    fail_parse()
-  }
+  let orientation = parse_step_bool(parts[2])
   @topology.FaceBound::new(name, @step.Ref::{ id: bound_id, }, orientation)
 }
 
@@ -2418,14 +2350,7 @@ fn parse_oriented_edge(
   let edge_start = parts[1].trim().to_owned()
   let edge_end = parts[2].trim().to_owned()
   let edge_element_id = parse_ref_int(parts[3])
-  let ori_str = parts[4].trim().to_owned()
-  let orientation = if ori_str == ".T." {
-    true
-  } else if ori_str == ".F." {
-    false
-  } else {
-    fail_parse()
-  }
+  let orientation = parse_step_bool(parts[4])
   @topology.OrientedEdge::new(
     name,
     edge_start,
@@ -2445,14 +2370,7 @@ fn parse_edge_curve(args : String) -> @topology.EdgeCurve raise StepParseError {
   let start_id = parse_ref_int(parts[1])
   let end_id = parse_ref_int(parts[2])
   let geom_id = parse_ref_int(parts[3])
-  let ss_str = parts[4].trim().to_owned()
-  let same_sense = if ss_str == ".T." {
-    true
-  } else if ss_str == ".F." {
-    false
-  } else {
-    fail_parse()
-  }
+  let same_sense = parse_step_bool(parts[4])
   @topology.EdgeCurve::new(
     name,
     @step.Ref::{ id: start_id, },

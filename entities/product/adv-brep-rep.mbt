@@ -31,3 +31,12 @@ pub fn AdvancedBrepShapeRepresentation::items_view(
 ) -> Array[@step.Ref] {
   self.items
 }
+
+///|
+/// AdvancedBrepShapeRepresentation::with_items returns a copy with replaced item refs.
+pub fn AdvancedBrepShapeRepresentation::with_items(
+  self : AdvancedBrepShapeRepresentation,
+  items : Array[@step.Ref],
+) -> AdvancedBrepShapeRepresentation {
+  { ..self, items, }
+}

@@ -32,3 +32,12 @@ pub fn CsgShapeRepresentation::items_view(
 ) -> Array[@step.Ref] {
   self.items
 }
+
+///|
+/// CsgShapeRepresentation::with_items returns a copy with replaced item refs.
+pub fn CsgShapeRepresentation::with_items(
+  self : CsgShapeRepresentation,
+  items : Array[@step.Ref],
+) -> CsgShapeRepresentation {
+  { ..self, items, }
+}

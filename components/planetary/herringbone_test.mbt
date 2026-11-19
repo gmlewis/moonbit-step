@@ -160,3 +160,53 @@ test "planetary hole type adds a bore connector" {
   let step = component.to_step()
   assert_true(step.contains("CYLINDRICAL_SURFACE("))
 }
+
+///|
+test "tolerance_mm preserves planetary center distance and outer bounding box" {
+  let make = fn(tol : Double) {
+    match
+      @planetary.HerringbonePlanetaryParams::new(
+        module_mm=1.5,
+        gear_length_mm=12.0,
+        helix_angle_deg=30.0,
+        pressure_angle_deg=20.0,
+        num_elbows=4,
+        resolution=7,
+        tolerance_mm=tol,
+        outer_thickness_mm=4.0,
+        sun_teeth=12,
+        planet_count=3,
+      ) {
+      Ok(p) => p
+      Err(e) => abort(e.message())
+    }
+  }
+  let p_petg = make(0.042)
+  let p_pla = make(0.25)
+  let l_petg = @planetary.herringbone_planetary_layout(p_petg)
+  let l_pla = @planetary.herringbone_planetary_layout(p_pla)
+  assert_true(
+    (l_petg.center_distance_mm - l_pla.center_distance_mm).abs() < 1.0e-9,
+  )
+  assert_true(
+    (l_petg.ring_outer_radius_mm - l_pla.ring_outer_radius_mm).abs() < 1.0e-9,
+  )
+  let g_petg = match @planetary.herringbone_planetary_gearbox(p_petg) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  let g_pla = match @planetary.herringbone_planetary_gearbox(p_pla) {
+    Ok(c) => c
+    Err(e) => abort(e.message())
+  }
+  let b_petg = g_petg.bounding_box()
+  let b_pla = g_pla.bounding_box()
+  assert_true((b_petg.0 - b_pla.0).abs() < 1.0e-6)
+  assert_true((b_petg.1 - b_pla.1).abs() < 1.0e-6)
+  assert_true((b_petg.2 - b_pla.2).abs() < 1.0e-6)
+  assert_true((b_petg.3 - b_pla.3).abs() < 1.0e-6)
+  assert_true((b_petg.4 - b_pla.4).abs() < 1.0e-6)
+  assert_true((b_petg.5 - b_pla.5).abs() < 1.0e-6)
+  // Different tolerances still produce distinct tooth flank/tip geometry.
+  assert_true(g_petg.to_step() != g_pla.to_step())
+}

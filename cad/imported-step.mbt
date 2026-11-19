@@ -227,10 +227,13 @@ fn sr_placement_ids(repo : @repository.Repository) -> Array[Int32] {
 ///
 /// The rigid motion is baked into the imported `CARTESIAN_POINT` and
 /// `DIRECTION` entities, exactly as before. In addition, every AXIS2_PLACEMENT_3D
-/// that is an item of a shape representation is reset to the identity, because
-/// readers apply those placements on top of the (baked) coordinates — leaving
-/// them in place would apply the motion twice. Entity ids of everything else
-/// are preserved, so every internal reference remains valid.
+/// item of a shape representation is replaced in that representation's `items`
+/// list with a fresh identity AXIS2_PLACEMENT_3D, because readers apply
+/// representation placements on top of the (baked) coordinates — leaving them
+/// non-identity would apply the motion twice, while overwriting the original
+/// placement entity in place would corrupt any face or curve that shares its
+/// entity id. Entity ids of everything else are preserved, so every internal
+/// reference remains valid.
 ///
 /// The file's own product/assembly structure, when present, is preserved
 /// verbatim; a vendor STEP that positions its part through its own
@@ -245,8 +248,9 @@ pub fn ImportedStep::transformed(
   self.repository.each_with_id(fn(id, entity) {
     let _ = baked.insert_with_id(id, transform_imported_entity(entity, xform))
   })
-  // Pass 2: reset every shape-representation placement to the identity so it
-  // does not re-apply the transform on read.
+  // Pass 2: point shape-representation placement items at fresh identity
+  // placements so readers do not re-apply the transform without mutating any
+  // shared geometry placement entities in place.
   let placement_ids = sr_placement_ids(baked)
   if placement_ids.length() == 0 {
     let _ = baked.set_header(self.repository.get_header())
@@ -261,7 +265,7 @@ pub fn ImportedStep::transformed(
     }
   })
   let mut next_id = max_id + 1
-  let replacements : Map[Int32, @repository.AnyEntity] = Map([])
+  let pid_map : Map[Int32, Int32] = Map([])
   let staged : Array[(Int32, @repository.AnyEntity)] = []
   for pid in placement_ids {
     let name = match lookup.get(pid) {
@@ -271,7 +275,8 @@ pub fn ImportedStep::transformed(
     let id_origin = next_id
     let id_z = next_id + 1
     let id_x = next_id + 2
-    next_id = next_id + 3
+    let id_ax = next_id + 3
+    next_id = next_id + 4
     staged.push(
       (
         id_origin,
@@ -296,23 +301,45 @@ pub fn ImportedStep::transformed(
         ),
       ),
     )
-    replacements.set(
-      pid,
-      @repository.any_entity_axis2_placement_3d(
-        @geometry.Axis2Placement3D::new(
-          name,
-          @step.Ref::{ id: @step.EntityId::{ value: id_origin, }, },
-          @step.Ref::{ id: @step.EntityId::{ value: id_z, }, },
-          @step.Ref::{ id: @step.EntityId::{ value: id_x, }, },
+    staged.push(
+      (
+        id_ax,
+        @repository.any_entity_axis2_placement_3d(
+          @geometry.Axis2Placement3D::new(
+            name,
+            @step.Ref::{ id: @step.EntityId::{ value: id_origin, }, },
+            @step.Ref::{ id: @step.EntityId::{ value: id_z, }, },
+            @step.Ref::{ id: @step.EntityId::{ value: id_x, }, },
+          ),
         ),
       ),
     )
+    pid_map.set(pid, id_ax)
+  }
+  let map_items = fn(items : Array[@step.Ref]) -> Array[@step.Ref] {
+    items.map(fn(item) {
+      match pid_map.get(item.id.value) {
+        Some(new_id) => @step.Ref::{ id: @step.EntityId::{ value: new_id, }, }
+        None => item
+      }
+    })
   }
   let out = @repository.new()
   baked.each_with_id(fn(id, entity) {
-    let e = match replacements.get(id.value) {
-      Some(r) => r
-      None => entity
+    let e = match entity {
+      @repository.AnyEntity::ShapeRepresentation(r) =>
+        @repository.any_entity_shape_representation(
+          r.with_items(map_items(r.items_view())),
+        )
+      @repository.AnyEntity::AdvancedBrepShapeRepresentation(r) =>
+        @repository.any_entity_advanced_brep_shape_representation(
+          r.with_items(map_items(r.items_view())),
+        )
+      @repository.AnyEntity::CsgShapeRepresentation(r) =>
+        @repository.any_entity_csg_shape_representation(
+          r.with_items(map_items(r.items_view())),
+        )
+      _ => entity
     }
     let _ = out.insert_with_id(id, e)
   })
