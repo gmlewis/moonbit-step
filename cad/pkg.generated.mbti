@@ -502,6 +502,12 @@ pub fn PipeJunction::validate(Self) -> Bool
 pub fn PipeJunction::volume(Self) -> Double
 pub fn PipeJunction::volume_centroid(Self) -> (Double, (Double, Double, Double))
 
+pub(all) enum Plane {
+  XY
+  XZ
+  YZ
+}
+
 pub(all) enum PrismError {
   PrismTooFewVertices
   PrismBadLevels
@@ -698,6 +704,28 @@ pub fn Shape::section_at_world_z(Self, Matrix3x3, (Double, Double, Double), Doub
 pub fn Shape::surface_inventory(Self) -> SurfaceInventory
 pub fn Shape::with_color(Self, Rgb) -> SceneNode
 pub fn Shape::with_name(Self, String) -> SceneNode
+
+pub(all) struct Sketch2D {
+  outer : Array[(Double, Double)]
+  holes : Array[Array[(Double, Double)]]
+}
+pub fn Sketch2D::circle(Double, segs? : Int32) -> Self
+pub fn Sketch2D::extrude_on(Self, Plane, Double, centered? : Bool) -> SceneNode
+pub fn Sketch2D::fillet_corners(Self, Double, segs? : Int32) -> Self
+pub fn Sketch2D::link_arc((Double, Double), (Double, Double), Double, Double, Double, segs? : Int32) -> Self
+pub fn Sketch2D::polygon(Array[(Double, Double)]) -> Self
+pub fn Sketch2D::rect(Double, Double) -> Self
+pub fn Sketch2D::rotate_deg(Self, Double) -> Self
+pub fn Sketch2D::rounded_rect(Double, Double, Double, arc_segs? : Int32) -> Self
+pub fn Sketch2D::slot(Double, Double, segs? : Int32) -> Self
+pub fn Sketch2D::spoked_wheel(Double, Double, Double, Int32, Double) -> Self
+pub fn Sketch2D::stadium_link((Double, Double), (Double, Double), Double, Double, segs? : Int32) -> Self
+pub fn Sketch2D::translate(Self, Double, Double) -> Self
+pub fn Sketch2D::validate_edge_margins(Self, Double) -> Array[String]
+pub fn Sketch2D::with_bolt_circle(Self, Double, Double, count~ : Int32, bcd~ : Double, hole_diam~ : Double, start_deg? : Double, segs? : Int32) -> Self
+pub fn Sketch2D::with_hole_circle(Self, Double, Double, diam~ : Double, segs? : Int32) -> Self
+pub fn Sketch2D::with_hole_polygon(Self, Array[(Double, Double)]) -> Self
+pub fn Sketch2D::with_hole_slot(Self, Double, Double, length~ : Double, width~ : Double, angle_deg? : Double, segs? : Int32) -> Self
 
 pub struct SlitTube {
   outer_diameter_mm : Double

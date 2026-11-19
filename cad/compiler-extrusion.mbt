@@ -404,18 +404,9 @@ fn compile_round_bore_prism(
 }
 
 ///|
-/// signed_area_2d returns the signed area of a polygon: positive when wound
-/// counter-clockwise in the XY plane.
+/// signed_area_2d returns the shoelace signed area of a polygon: positive when
+/// wound counter-clockwise in the XY plane. The single implementation lives in
+/// `geometry-helpers.mbt`.
 fn signed_area_2d(poly : Array[Vec2]) -> Double {
-  let n = poly.length()
-  if n < 3 {
-    return 0.0
-  }
-  let mut area = 0.0
-  for i in 0..<n {
-    let (x0, y0) = poly[i]
-    let (x1, y1) = poly[(i + 1) % n]
-    area = area + x0 * y1 - x1 * y0
-  }
-  area / 2.0
+  polygon_area_2d(poly)
 }
