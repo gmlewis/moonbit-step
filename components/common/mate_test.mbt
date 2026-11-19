@@ -517,3 +517,25 @@ test "mate pair rejects non-finite twist" {
   let b = @common.MateConnector::new("b")
   assert_true(pair.resolve(a, b) is Err(_))
 }
+
+///|
+test "mate connector carries a hole pattern" {
+  let pattern = @cad.HolePattern::bolt_circle(
+    count=4,
+    bcd_mm=40.0,
+    hole_diam_mm=4.4,
+    pilot_diam_mm=12.7,
+  )
+  let mate = @common.MateConnector::new("output_hub", hole_pattern=pattern)
+  match mate.hole_pattern {
+    Some(@cad.HolePattern::BoltCircle(count, bcd, _hole, pilot, start)) => {
+      assert_eq(count, 4)
+      assert_true(mate_close(bcd, 40.0))
+      assert_true(mate_close(pilot, 12.7))
+      assert_true(mate_close(start, 0.0))
+    }
+    _ => fail("expected a bolt-circle hole pattern")
+  }
+  let moved = mate.transformed(@common.Placement::translation(10.0, 0.0, 0.0))
+  assert_true(moved.hole_pattern is Some(_))
+}

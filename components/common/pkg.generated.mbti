@@ -202,17 +202,19 @@ pub(all) struct MateConnector {
   depth_mm : Double?
   fit : @cad.Fit
   description : String
+  hole_pattern : @cad.HolePattern?
 }
 pub fn MateConnector::documentation(Self) -> String
 pub fn MateConnector::equal(Self, Self) -> Bool
-pub fn MateConnector::from_m_rad(String, (Double, Double, Double), (Double, Double, Double), axis? : (Double, Double, Double), kind? : MateKind, gender? : MateGender, diameter_mm? : Double, depth_mm? : Double, fit? : @cad.Fit, description? : String) -> Self
-pub fn MateConnector::from_mm_deg(String, x? : Double, y? : Double, z? : Double, rx_deg? : Double, ry_deg? : Double, rz_deg? : Double, axis? : (Double, Double, Double), kind? : MateKind, gender? : MateGender, diameter_mm? : Double, depth_mm? : Double, fit? : @cad.Fit, description? : String) -> Self
-pub fn MateConnector::new(String, placement? : Placement, axis? : (Double, Double, Double), kind? : MateKind, gender? : MateGender, diameter_mm? : Double, depth_mm? : Double, fit? : @cad.Fit, description? : String) -> Self
+pub fn MateConnector::from_m_rad(String, (Double, Double, Double), (Double, Double, Double), axis? : (Double, Double, Double), kind? : MateKind, gender? : MateGender, diameter_mm? : Double, depth_mm? : Double, fit? : @cad.Fit, description? : String, hole_pattern? : @cad.HolePattern) -> Self
+pub fn MateConnector::from_mm_deg(String, x? : Double, y? : Double, z? : Double, rx_deg? : Double, ry_deg? : Double, rz_deg? : Double, axis? : (Double, Double, Double), kind? : MateKind, gender? : MateGender, diameter_mm? : Double, depth_mm? : Double, fit? : @cad.Fit, description? : String, hole_pattern? : @cad.HolePattern) -> Self
+pub fn MateConnector::new(String, placement? : Placement, axis? : (Double, Double, Double), kind? : MateKind, gender? : MateGender, diameter_mm? : Double, depth_mm? : Double, fit? : @cad.Fit, description? : String, hole_pattern? : @cad.HolePattern) -> Self
 pub fn MateConnector::not_equal(Self, Self) -> Bool
 pub fn MateConnector::to_m_rad(Self) -> ((Double, Double, Double), (Double, Double, Double))
 pub fn MateConnector::to_repr(Self) -> @debug.Repr
 pub fn MateConnector::transformed(Self, Placement) -> Self
 pub fn MateConnector::validate(Self) -> Result[Unit, MateError]
+pub fn MateConnector::with_hole_pattern(Self, @cad.HolePattern?) -> Self
 
 #derive(Eq, @debug.Debug)
 pub(all) enum MateError {

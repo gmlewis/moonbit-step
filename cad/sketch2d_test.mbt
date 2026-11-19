@@ -91,6 +91,61 @@ test "sketch2d hole modifiers add holes at the requested positions" {
 }
 
 ///|
+test "punch_mate_holes adds a bolt circle and pilot bore" {
+  let pattern = @cad.HolePattern::bolt_circle(
+    count=4,
+    bcd_mm=40.0,
+    hole_diam_mm=4.4,
+    pilot_diam_mm=12.7,
+  )
+  let punched = @cad.Sketch2D::rounded_rect(100.0, 100.0, 10.0).punch_mate_holes(
+    0.0, 0.0, pattern,
+  )
+  assert_eq(punched.holes.length(), 5)
+  let pilot = sk_hole_center(punched.holes[0])
+  assert_true(sk_close(pilot.0, 0.0))
+  assert_true(sk_close(pilot.1, 0.0))
+  for i in 1..<=4 {
+    let c = sk_hole_center(punched.holes[i])
+    let radius = (c.0 * c.0 + c.1 * c.1).sqrt()
+    assert_true(sk_close(radius, 20.0))
+  }
+}
+
+///|
+test "punch_mate_holes handles bearing seats and single bores" {
+  let base = @cad.Sketch2D::rect(100.0, 100.0)
+  let seat = base.punch_mate_holes(
+    0.0,
+    0.0,
+    @cad.HolePattern::bearing_seat(outer_diam_mm=28.575, bore_diam_mm=12.7),
+  )
+  assert_eq(seat.holes.length(), 1)
+  let seat_center = sk_hole_center(seat.holes[0])
+  assert_true(sk_close(seat_center.0, 0.0))
+  let seat_radius = sk_close(
+    (seat.holes[0][0].0 * seat.holes[0][0].0 +
+    seat.holes[0][0].1 * seat.holes[0][0].1).sqrt(),
+    28.575 / 2.0 + 0.0,
+  )
+  assert_true(seat_radius)
+
+  let bore = base.punch_mate_holes(
+    10.0,
+    0.0,
+    @cad.HolePattern::single_bore(diam_mm=12.7),
+    clearance_mm=0.2,
+  )
+  assert_eq(bore.holes.length(), 1)
+  let c = sk_hole_center(bore.holes[0])
+  assert_true(sk_close(c.0, 10.0))
+  // Clearance is diametral, so the radius grows by half of it.
+  let p = bore.holes[0][0]
+  let r = ((p.0 - 10.0) * (p.0 - 10.0) + p.1 * p.1).sqrt()
+  assert_true(sk_close(r, 12.7 / 2.0 + 0.1))
+}
+
+///|
 test "sketch2d validates hole edge margins" {
   let good = @cad.Sketch2D::rect(100.0, 100.0).with_hole_circle(
     0.0,

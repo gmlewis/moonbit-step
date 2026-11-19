@@ -136,6 +136,10 @@ pub(all) struct MateConnector {
   depth_mm : Double?
   fit : @cad.Fit
   description : String
+  /// Optional hole pattern this interface accepts (bolt circle, bearing seat,
+  /// or single bore), so a mating plate can punch it without duplicated
+  /// coordinates.
+  hole_pattern : @cad.HolePattern?
 }
 
 ///|
@@ -190,6 +194,7 @@ pub fn MateConnector::new(
   depth_mm? : Double,
   fit~ : @cad.Fit = @cad.Fit::Nominal,
   description~ : String = "",
+  hole_pattern? : @cad.HolePattern,
 ) -> MateConnector {
   {
     name,
@@ -201,6 +206,7 @@ pub fn MateConnector::new(
     depth_mm,
     fit,
     description,
+    hole_pattern,
   }
 }
 
@@ -222,6 +228,7 @@ pub fn MateConnector::from_mm_deg(
   depth_mm? : Double,
   fit~ : @cad.Fit = @cad.Fit::Nominal,
   description~ : String = "",
+  hole_pattern? : @cad.HolePattern,
 ) -> MateConnector {
   MateConnector::new(
     name,
@@ -233,6 +240,7 @@ pub fn MateConnector::from_mm_deg(
     depth_mm?,
     fit~,
     description~,
+    hole_pattern?,
   )
 }
 
@@ -250,6 +258,7 @@ pub fn MateConnector::from_m_rad(
   depth_mm? : Double,
   fit~ : @cad.Fit = @cad.Fit::Nominal,
   description~ : String = "",
+  hole_pattern? : @cad.HolePattern,
 ) -> MateConnector {
   let (x, y, z) = xyz_m
   let (roll, pitch, yaw) = rpy_rad
@@ -271,7 +280,17 @@ pub fn MateConnector::from_m_rad(
     depth_mm?,
     fit~,
     description~,
+    hole_pattern?,
   )
+}
+
+///|
+/// MateConnector::with_hole_pattern attaches (or clears) the hole pattern.
+pub fn MateConnector::with_hole_pattern(
+  self : MateConnector,
+  pattern : @cad.HolePattern?,
+) -> MateConnector {
+  { ..self, hole_pattern: pattern, }
 }
 
 ///|
@@ -406,6 +425,17 @@ pub fn MateConnector::validate(self : MateConnector) -> Result[Unit, MateError] 
         InvalidConnector("a datum is neutral, not male/female, in \{self.name}"),
       )
     _ => ()
+  }
+  match self.hole_pattern {
+    Some(pattern) =>
+      match pattern.validate() {
+        Ok(_) => ()
+        Err(message) =>
+          return Err(
+            InvalidConnector("hole pattern " + message + " in \{self.name}"),
+          )
+      }
+    None => ()
   }
   Ok(())
 }

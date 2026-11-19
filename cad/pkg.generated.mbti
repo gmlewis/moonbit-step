@@ -436,6 +436,18 @@ pub struct HexHeadWasherFace {
 pub fn HexHeadWasherFace::as_shape(Self) -> Shape
 pub fn HexHeadWasherFace::new(across_flats_mm~ : Double, head_height_mm~ : Double, face_angle_deg? : Double, shank_diameter_mm? : Double, shank_length_mm? : Double, washer_face_diameter_mm? : Double, washer_face_height_mm? : Double, tip_chamfer_mm? : Double) -> Self
 
+#derive(Eq, @debug.Debug)
+pub(all) enum HolePattern {
+  BoltCircle(Int32, Double, Double, Double, Double)
+  BearingSeat(Double, Double)
+  SingleBore(Double)
+}
+pub fn HolePattern::bearing_seat(outer_diam_mm~ : Double, bore_diam_mm~ : Double) -> Self
+pub fn HolePattern::bolt_circle(count~ : Int32, bcd_mm~ : Double, hole_diam_mm~ : Double, pilot_diam_mm? : Double, start_deg? : Double) -> Self
+pub fn HolePattern::describe(Self) -> String
+pub fn HolePattern::single_bore(diam_mm~ : Double) -> Self
+pub fn HolePattern::validate(Self) -> Result[Unit, String]
+
 pub struct ImportedStep {
   repository : @repository.Repository
   min_pt : (Double, Double, Double)
@@ -715,6 +727,7 @@ pub fn Sketch2D::extrude_on(Self, Plane, Double, centered? : Bool) -> SceneNode
 pub fn Sketch2D::fillet_corners(Self, Double, segs? : Int32) -> Self
 pub fn Sketch2D::link_arc((Double, Double), (Double, Double), Double, Double, Double, segs? : Int32) -> Self
 pub fn Sketch2D::polygon(Array[(Double, Double)]) -> Self
+pub fn Sketch2D::punch_mate_holes(Self, Double, Double, HolePattern, clearance_mm? : Double) -> Self
 pub fn Sketch2D::rect(Double, Double) -> Self
 pub fn Sketch2D::rotate_deg(Self, Double) -> Self
 pub fn Sketch2D::rounded_rect(Double, Double, Double, arc_segs? : Int32) -> Self

@@ -704,6 +704,45 @@ pub fn Sketch2D::validate_edge_margins(
 }
 
 ///|
+/// Punches a mate connector's hole pattern into this sketch at `(cx, cy)`.
+///
+/// `clearance_mm` is diametral: every hole's diameter grows by it. A bolt
+/// circle adds its optional pilot bore first, then the bolt holes; a bearing
+/// seat adds one hole of the seat diameter; a single bore adds one hole.
+pub fn Sketch2D::punch_mate_holes(
+  self : Sketch2D,
+  cx : Double,
+  cy : Double,
+  pattern : HolePattern,
+  clearance_mm~ : Double = 0.0,
+) -> Sketch2D {
+  match pattern {
+    BoltCircle(count, bcd_mm, hole_diam_mm, pilot_diam_mm, start_deg) => {
+      let mut out = self
+      if pilot_diam_mm > 0.0 {
+        out = out.with_hole_circle(cx, cy, diam=pilot_diam_mm + clearance_mm)
+      }
+      let n = if count < 1 { 1 } else { count }
+      for i in 0..<n {
+        let a = (start_deg + 360.0 * i.to_double() / n.to_double()) *
+          @math.PI /
+          180.0
+        out = out.with_hole_circle(
+          cx + bcd_mm / 2.0 * @math.cos(a),
+          cy + bcd_mm / 2.0 * @math.sin(a),
+          diam=hole_diam_mm + clearance_mm,
+        )
+      }
+      out
+    }
+    BearingSeat(outer_diam_mm, _bore_diam_mm) =>
+      self.with_hole_circle(cx, cy, diam=outer_diam_mm + clearance_mm)
+    SingleBore(diam_mm) =>
+      self.with_hole_circle(cx, cy, diam=diam_mm + clearance_mm)
+  }
+}
+
+///|
 /// Extrudes the sketch on `plane` by `thickness_mm`. With `centered=true` the
 /// solid straddles the plane; otherwise it grows along the plane's normal.
 pub fn Sketch2D::extrude_on(
