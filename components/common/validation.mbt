@@ -4,11 +4,17 @@
 ///
 /// Constructors carry a human-readable message so callers can report the exact
 /// parameter that was rejected instead of guessing which check failed.
+#derive(Eq)
 pub(all) enum SpecError {
   InvalidSize(String)
   UnsupportedLength(String)
   InvalidDimension(String)
   InvalidParameter(String)
+}
+
+///|
+pub impl Show for SpecError with fn output(self, logger) {
+  logger.write_string(self.message())
 }
 
 ///|

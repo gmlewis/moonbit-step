@@ -55,6 +55,7 @@ pub(all) struct Approximation {
 pub fn Approximation::documentation(Self) -> String
 pub fn Approximation::new(feature~ : String, kind~ : ApproximationKind, deviation_mm~ : Double, control~ : String) -> Self
 
+#derive(Eq)
 pub(all) enum ApproximationKind {
   PolylineArc
   PolygonRevolve
@@ -62,6 +63,7 @@ pub(all) enum ApproximationKind {
   EngineeringDefault
 }
 pub fn ApproximationKind::to_string(Self) -> String
+pub impl Show for ApproximationKind
 
 pub struct Component {
   // private fields
@@ -130,12 +132,16 @@ pub fn DesignFamily::variant(Self, String) -> Result[ParamSet, SpecError]
 pub fn DesignFamily::variant_names(Self) -> Array[String]
 pub fn DesignFamily::with_variant(Self, String, Array[(String, Double)]) -> Result[Self, SpecError]
 
+#derive(Eq)
 pub(all) enum DetailLevel {
   Simplified
   Detailed
   FullyModeled
 }
+pub fn DetailLevel::to_string(Self) -> String
+pub impl Show for DetailLevel
 
+#derive(Eq)
 pub(all) struct DetailPolicy {
   level : DetailLevel
   threads : ThreadRepresentation
@@ -144,7 +150,9 @@ pub(all) struct DetailPolicy {
   include_small_features : Bool
 }
 pub fn DetailPolicy::for_level(DetailLevel) -> Self
+pub fn DetailPolicy::to_string(Self) -> String
 pub fn DetailPolicy::with_threads(Self, ThreadRepresentation) -> Self
+pub impl Show for DetailPolicy
 
 pub(all) struct FeatureRecord {
   modeled : Array[String]
@@ -347,6 +355,7 @@ pub fn Placement::to_euler(Self) -> (Double, Double, Double)
 pub fn Placement::to_repr(Self) -> @debug.Repr
 pub fn Placement::translation(Double, Double, Double) -> Self
 
+#derive(Eq)
 pub(all) enum SpecError {
   InvalidSize(String)
   UnsupportedLength(String)
@@ -355,12 +364,16 @@ pub(all) enum SpecError {
 }
 pub fn SpecError::message(Self) -> String
 pub fn SpecError::to_string(Self) -> String
+pub impl Show for SpecError
 
+#derive(Eq)
 pub(all) enum ThreadRepresentation {
   None
   Cosmetic
   Helical
 }
+pub fn ThreadRepresentation::to_string(Self) -> String
+pub impl Show for ThreadRepresentation
 
 // Type aliases
 

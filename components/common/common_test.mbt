@@ -192,3 +192,40 @@ test "chord deviation matches the stated sag formula" {
   // More segments must reduce the deviation.
   assert_true(@common.chord_deviation(10.0, 128) < d)
 }
+
+///|
+test "detail enums support equality and display" {
+  assert_true(@common.DetailLevel::Detailed != @common.DetailLevel::Simplified)
+  assert_true(@common.DetailLevel::Detailed == @common.DetailLevel::Detailed)
+  assert_true(@common.DetailLevel::Detailed.to_string() == "Detailed")
+  assert_true(
+    @common.ThreadRepresentation::Helical != @common.ThreadRepresentation::None,
+  )
+  assert_true(@common.ThreadRepresentation::Helical.to_string() == "Helical")
+  let policy = @common.DetailPolicy::for_level(@common.DetailLevel::Detailed)
+  let same = @common.DetailPolicy::for_level(@common.DetailLevel::Detailed)
+  assert_true(policy == same)
+  assert_true(
+    policy != @common.DetailPolicy::for_level(@common.DetailLevel::Simplified),
+  )
+  assert_true(policy.to_string().contains("Detailed"))
+}
+
+///|
+test "feature and validation enums support equality" {
+  assert_true(
+    @common.ApproximationKind::PolylineArc !=
+    @common.ApproximationKind::SweptSpline,
+  )
+  assert_true(
+    @common.ApproximationKind::PolylineArc ==
+    @common.ApproximationKind::PolylineArc,
+  )
+  assert_true(
+    @common.SpecError::InvalidSize("a") == @common.SpecError::InvalidSize("a"),
+  )
+  assert_true(
+    @common.SpecError::InvalidSize("a") !=
+    @common.SpecError::InvalidDimension("a"),
+  )
+}

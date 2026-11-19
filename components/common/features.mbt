@@ -6,6 +6,7 @@
 /// exactly (and listed in `FeatureRecord::modeled`), approximated by one of
 /// these documented schemes, or omitted with a reason. Labelling a sharp edge
 /// as a chamfer is not an option.
+#derive(Eq)
 pub(all) enum ApproximationKind {
   /// A continuously curved feature sampled as a short polyline/arc chain.
   PolylineArc
@@ -16,6 +17,11 @@ pub(all) enum ApproximationKind {
   /// A feature whose size is an engineering default rather than a standard
   /// dimension.
   EngineeringDefault
+}
+
+///|
+pub impl Show for ApproximationKind with fn output(self, logger) {
+  logger.write_string(self.to_string())
 }
 
 ///|

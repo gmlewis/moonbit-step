@@ -5,6 +5,7 @@
 /// The level is a request, not a promise: a family documents exactly which
 /// features exist at each level. In particular, `Simplified` must never be
 /// described as having real threads.
+#derive(Eq)
 pub(all) enum DetailLevel {
   /// Lightweight assembly representation: major envelopes and bores, no
   /// cosmetic or helical thread geometry.
@@ -18,10 +19,23 @@ pub(all) enum DetailLevel {
 }
 
 ///|
+pub impl Show for DetailLevel with fn to_string(self : DetailLevel) -> String {
+  match self {
+    Simplified => "Simplified"
+    Detailed => "Detailed"
+    FullyModeled => "FullyModeled"
+  }
+}
+
+///|
+pub extend DetailLevel with Show::{to_string}
+
+///|
 /// ThreadRepresentation states exactly how a component's threads are modeled.
 ///
 /// Keeping this explicit prevents a cosmetic cylinder from being mistaken for a
 /// real helical thread in a downstream BOM or drawing.
+#derive(Eq)
 pub(all) enum ThreadRepresentation {
   /// No thread geometry: a plain cylindrical shank or bore.
   None
@@ -34,8 +48,23 @@ pub(all) enum ThreadRepresentation {
 }
 
 ///|
+pub impl Show for ThreadRepresentation with fn to_string(
+  self : ThreadRepresentation,
+) -> String {
+  match self {
+    None => "None"
+    Cosmetic => "Cosmetic"
+    Helical => "Helical"
+  }
+}
+
+///|
+pub extend ThreadRepresentation with Show::{to_string}
+
+///|
 /// DetailPolicy is the resolved interpretation of a `DetailLevel` for one
 /// component family.
+#derive(Eq)
 pub(all) struct DetailPolicy {
   level : DetailLevel
   threads : ThreadRepresentation
@@ -47,6 +76,14 @@ pub(all) struct DetailPolicy {
   /// them.
   include_small_features : Bool
 }
+
+///|
+pub impl Show for DetailPolicy with fn to_string(self : DetailPolicy) -> String {
+  "DetailPolicy(level=\{self.level}, threads=\{self.threads})"
+}
+
+///|
+pub extend DetailPolicy with Show::{to_string}
 
 ///|
 /// DetailPolicy::for_level returns the default policy for a detail level.
