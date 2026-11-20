@@ -379,6 +379,8 @@ pub fn Sketch2D::link_arc(
   )
   let left : Array[Vec2] = []
   let right : Array[Vec2] = []
+  let mut tan0 : Vec2 = (1.0, 0.0)
+  let mut tan1 : Vec2 = (1.0, 0.0)
   for i in 0..<=n {
     let t = i.to_double() / n.to_double()
     let mt = 1.0 - t
@@ -387,17 +389,36 @@ pub fn Sketch2D::link_arc(
     let tx = 2.0 * mt * (control.0 - p0.0) + 2.0 * t * (p1.0 - control.0)
     let ty = 2.0 * mt * (control.1 - p0.1) + 2.0 * t * (p1.1 - control.1)
     let tan = sk_norm((tx, ty))
+    if i == 0 {
+      tan0 = tan
+    }
+    if i == n {
+      tan1 = tan
+    }
     let perp = (-tan.1, tan.0)
     let radius = r0 + (r1 - r0) * t
     left.push((bx + perp.0 * radius, by + perp.1 * radius))
     right.push((bx - perp.0 * radius, by - perp.1 * radius))
   }
+  let cap_segs = if n / 2 < 6 { 6 } else { n / 2 }
   let loop_pts : Array[Vec2] = []
   for p in left {
     loop_pts.push(p)
   }
+  // Rounded semicircular boss around p1 (sweeping outward through +tan1)
+  let a1_start = @math.atan2(tan1.0, -tan1.1)
+  for k in 1..<cap_segs {
+    let a = a1_start - @math.PI * k.to_double() / cap_segs.to_double()
+    loop_pts.push((p1.0 + r1 * @math.cos(a), p1.1 + r1 * @math.sin(a)))
+  }
   for i in 0..<right.length() {
     loop_pts.push(right[right.length() - 1 - i])
+  }
+  // Rounded semicircular boss around p0 (sweeping outward through -tan0)
+  let a0_start = @math.atan2(-tan0.0, tan0.1)
+  for k in 1..<cap_segs {
+    let a = a0_start - @math.PI * k.to_double() / cap_segs.to_double()
+    loop_pts.push((p0.0 + r0 * @math.cos(a), p0.1 + r0 * @math.sin(a)))
   }
   { outer: sk_ensure_ccw(loop_pts), holes: [], }
 }
@@ -751,13 +772,13 @@ pub fn Sketch2D::extrude_on(
   thickness_mm : Double,
   centered~ : Bool = false,
 ) -> SceneNode {
-  let z = if centered { -thickness_mm / 2.0 } else { 0.0 }
-  let node = ExtrudedProfile::new(self.outer, thickness_mm, holes=self.holes)
-    .with_name("sketch2d")
-    .translate(z~)
+  let base = ExtrudedProfile::new(self.outer, thickness_mm, holes=self.holes).with_name(
+    "sketch2d",
+  )
+  let half = if centered { thickness_mm / 2.0 } else { 0.0 }
   match plane {
-    XY => node
-    XZ => node.rotate_x(90.0)
-    YZ => node.rotate_y(90.0)
+    XY => base.translate(z=-half)
+    XZ => base.rotate_x(90.0).translate(y=half)
+    YZ => base.rotate_y(90.0).translate(x=-half)
   }
 }

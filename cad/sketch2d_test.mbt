@@ -154,6 +154,18 @@ test "sketch2d validates hole edge margins" {
   )
   assert_eq(good.validate_edge_margins(5.0).length(), 0)
 
+  let arc_link = @cad.Sketch2D::link_arc(
+      (0.0, 0.0),
+      (120.0, 0.0),
+      22.0,
+      22.0,
+      28.0,
+      segs=18,
+    )
+    .with_hole_circle(0.0, 0.0, diam=28.575, segs=24)
+    .with_hole_circle(120.0, 0.0, diam=28.575, segs=24)
+  assert_eq(arc_link.validate_edge_margins(3.0).length(), 0)
+
   let outside = @cad.Sketch2D::rect(100.0, 100.0).with_hole_circle(
     49.0,
     0.0,
@@ -205,6 +217,26 @@ test "sketch2d extrudes on xy xz and yz planes" {
     .bounding_box()
   assert_true(sk_close(centered.4, -5.0))
   assert_true(sk_close(centered.5, 5.0))
+
+  let centered_xz = sketch
+    .extrude_on(@cad.Plane::XZ, 10.0, centered=true)
+    .bounding_box()
+  assert_true(sk_close(centered_xz.0, -50.0))
+  assert_true(sk_close(centered_xz.1, 50.0))
+  assert_true(sk_close(centered_xz.2, -5.0))
+  assert_true(sk_close(centered_xz.3, 5.0))
+  assert_true(sk_close(centered_xz.4, -20.0))
+  assert_true(sk_close(centered_xz.5, 20.0))
+
+  let centered_yz = sketch
+    .extrude_on(@cad.Plane::YZ, 10.0, centered=true)
+    .bounding_box()
+  assert_true(sk_close(centered_yz.0, -5.0))
+  assert_true(sk_close(centered_yz.1, 5.0))
+  assert_true(sk_close(centered_yz.2, -20.0))
+  assert_true(sk_close(centered_yz.3, 20.0))
+  assert_true(sk_close(centered_yz.4, -50.0))
+  assert_true(sk_close(centered_yz.5, 50.0))
 }
 
 ///|
