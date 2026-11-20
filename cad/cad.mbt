@@ -307,7 +307,15 @@ fn compile_node_to_brep(
 }
 
 ///|
-pub fn Design::compile(self : Design) -> @repository.Repository {
+/// Design::compile builds the STEP repository for the design.
+///
+/// `timestamp` overrides the FILE_NAME timestamp written into the header. It
+/// defaults to the current time; pass a fixed value for reproducible output
+/// or deterministic comparisons.
+pub fn Design::compile(
+  self : Design,
+  timestamp? : String,
+) -> @repository.Repository {
   // Imported STEP files seed the output repository so their entity ids and
   // internal references survive. Each node's transform is baked into its own
   // import first; the baked imports are then merged into one repository with
@@ -433,6 +441,7 @@ pub fn Design::compile(self : Design) -> @repository.Repository {
       self.description,
       self.documentation,
       nominal=has_nominal_boolean,
+      timestamp?,
     ),
   )
   ctx.repo
@@ -493,8 +502,11 @@ fn compile_node_shape(
 /// Booleans are nominal: `difference()`/`union_all()` concatenate faces rather
 /// than trimming or subtracting. Use `to_step_file_checked()` to refuse
 /// designs with error diagnostics.
-pub fn Design::to_step_file(self : Design) -> String {
-  self.compile().to_step_file()
+///
+/// `timestamp` overrides the FILE_NAME timestamp in the header (default: now),
+/// making the output byte-identical across runs.
+pub fn Design::to_step_file(self : Design, timestamp? : String) -> String {
+  self.compile(timestamp?).to_step_file()
 }
 
 ///|
@@ -646,8 +658,12 @@ fn default_header(
   description : String,
   documentation : String,
   nominal~ : Bool = false,
+  timestamp? : String,
 ) -> @header.HeaderSection {
-  let timestamp = now_iso_timestamp()
+  let timestamp = match timestamp {
+    Some(t) => t
+    None => now_iso_timestamp()
+  }
   let entities : Array[@header.HeaderEntity] = []
   if documentation != "" {
     entities.push(@header.HeaderEntity::Comment(documentation))

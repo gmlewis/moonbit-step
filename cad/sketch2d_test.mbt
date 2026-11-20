@@ -22,9 +22,16 @@ fn sk_winding_design(outer_cw : Bool, hole_cw : Bool) -> @cad.Design {
 
 ///|
 async test "extruded profile normalizes outer and hole winding" {
-  let canonical = sk_winding_design(false, true).to_step_file()
+  // A fixed header timestamp keeps the byte comparison independent of the
+  // wall clock (two generations can otherwise straddle a second boundary).
+  let timestamp = "2025-01-01T00:00:00"
+  let fixed = Some(timestamp)
+  let canonical = sk_winding_design(false, true).to_step_file(timestamp?=fixed)
   for variant in [(true, false), (true, true), (false, false)] {
-    assert_eq(sk_winding_design(variant.0, variant.1).to_step_file(), canonical)
+    assert_eq(
+      sk_winding_design(variant.0, variant.1).to_step_file(timestamp?=fixed),
+      canonical,
+    )
   }
   // The winding test fixture is also used by the external volume check.
   let step = @cad.Design::new(name="winding")
