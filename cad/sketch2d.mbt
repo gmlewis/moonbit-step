@@ -672,8 +672,52 @@ pub fn Sketch2D::rotate_deg(self : Sketch2D, deg : Double) -> Sketch2D {
 }
 
 ///|
+/// True when either polygon has a vertex inside the other, which catches a
+/// containment case whose edge distance alone would look positive.
+fn sk_polygons_overlap(a : Array[Vec2], b : Array[Vec2]) -> Bool {
+  for p in a {
+    if sk_point_in_polygon(p, b) {
+      return true
+    }
+  }
+  for p in b {
+    if sk_point_in_polygon(p, a) {
+      return true
+    }
+  }
+  false
+}
+
+///|
+/// Minimum point-to-edge distance between two closed polygons.
+fn sk_polygons_min_distance(a : Array[Vec2], b : Array[Vec2]) -> Double {
+  if a.length() == 0 || b.length() == 0 {
+    return 1.0e18
+  }
+  let mut best = 1.0e18
+  for p in a {
+    for j in 0..<b.length() {
+      let d = sk_point_segment_distance(p, b[j], b[(j + 1) % b.length()])
+      if d < best {
+        best = d
+      }
+    }
+  }
+  for p in b {
+    for j in 0..<a.length() {
+      let d = sk_point_segment_distance(p, a[j], a[(j + 1) % a.length()])
+      if d < best {
+        best = d
+      }
+    }
+  }
+  best
+}
+
+///|
 /// Checks that every hole lies inside the outer boundary with at least
-/// `min_margin_mm` clearance. Returns one message per problem.
+/// `min_margin_mm` clearance, and that holes are not overlapping or closer
+/// than `min_margin_mm` to each other. Returns one message per problem.
 pub fn Sketch2D::validate_edge_margins(
   self : Sketch2D,
   min_margin_mm : Double,
@@ -719,6 +763,31 @@ pub fn Sketch2D::validate_edge_margins(
         fmt_double(min_margin_mm, Some(0.01)) +
         " mm)",
       )
+    }
+  }
+  // Pairwise hole clearance: two bores that touch or crowd each other break
+  // the extrusion just as surely as a hole crossing the outer edge.
+  for i in 0..<self.holes.length() {
+    for j in (i + 1)..<self.holes.length() {
+      let overlap = sk_polygons_overlap(self.holes[i], self.holes[j])
+      let gap = if overlap {
+        0.0
+      } else {
+        sk_polygons_min_distance(self.holes[i], self.holes[j])
+      }
+      if gap < min_margin_mm {
+        messages.push(
+          "hole " +
+          (i + 1).to_string() +
+          " and hole " +
+          (j + 1).to_string() +
+          " overlap or are closer than " +
+          fmt_double(min_margin_mm, Some(0.01)) +
+          " mm (gap " +
+          fmt_double(gap, Some(0.01)) +
+          " mm)",
+        )
+      }
     }
   }
   messages

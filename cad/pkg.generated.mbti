@@ -290,6 +290,7 @@ pub fn Design::add(Self, SceneNode) -> Self
 pub fn Design::add_iter(Self, Iter[SceneNode]) -> Self
 pub fn Design::add_profile_on_face(Self, Profile2D, FaceInfo, Double, into? : Bool, offset? : Double, center? : (Double, Double), name? : String, color? : Rgb) -> Self
 pub fn Design::add_text_on_face(Self, SceneNode, String, Face, @fonts.Font, font_size? : Double, emboss_depth? : Double, offset_x? : Double, offset_y? : Double, rotation? : Double, margin? : Double, color? : Rgb, emboss? : Bool, segments? : Int32) -> Self
+pub fn Design::bounding_box(Self) -> (Double, Double, Double, Double, Double, Double)
 pub fn Design::compile(Self) -> @repository.Repository
 pub async fn Design::create_blender_file(Self, String, keep_modifiers? : Bool, segments? : Int32) -> Unit
 pub fn Design::diagnostics(Self) -> Array[Diagnostic]

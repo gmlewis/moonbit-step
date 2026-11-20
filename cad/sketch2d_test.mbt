@@ -300,3 +300,26 @@ async test "sketch2d wheel and link export watertight step files" {
   .add(yz)
   .write_step_file(Some("/tmp/sketch2d-yz.step"))
 }
+
+///|
+test "sketch2d validates hole-to-hole clearance" {
+  let overlapping = @cad.Sketch2D::rect(200.0, 200.0)
+    .with_hole_circle(0.0, 0.0, diam=20.0)
+    .with_hole_circle(5.0, 0.0, diam=20.0)
+  let messages = overlapping.validate_edge_margins(2.0)
+  assert_eq(messages.length(), 1)
+  assert_true(messages[0].contains("hole 1 and hole 2"))
+  assert_true(messages[0].contains("overlap"))
+
+  let separated = @cad.Sketch2D::rect(200.0, 200.0)
+    .with_hole_circle(0.0, 0.0, diam=10.0)
+    .with_hole_circle(40.0, 0.0, diam=10.0)
+  assert_eq(separated.validate_edge_margins(2.0).length(), 0)
+
+  let close = @cad.Sketch2D::rect(200.0, 200.0)
+    .with_hole_circle(0.0, 0.0, diam=10.0)
+    .with_hole_circle(11.0, 0.0, diam=10.0)
+  let close_messages = close.validate_edge_margins(2.0)
+  assert_eq(close_messages.length(), 1)
+  assert_true(close_messages[0].contains("closer than"))
+}

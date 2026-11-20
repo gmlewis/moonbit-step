@@ -61,6 +61,51 @@ pub fn Design::nodes(self : Design) -> Array[SceneNode] {
 }
 
 ///|
+/// Union bounding box across every node, as `(x0, x1, y0, y1, z0, z1)` in
+/// millimetres. An empty design returns all zeros.
+pub fn Design::bounding_box(
+  self : Design,
+) -> (Double, Double, Double, Double, Double, Double) {
+  let mut first = true
+  let mut x0 = 0.0
+  let mut x1 = 0.0
+  let mut y0 = 0.0
+  let mut y1 = 0.0
+  let mut z0 = 0.0
+  let mut z1 = 0.0
+  for node in self.nodes {
+    let (nx0, nx1, ny0, ny1, nz0, nz1) = node.bounding_box()
+    if first {
+      x0 = nx0
+      x1 = nx1
+      y0 = ny0
+      y1 = ny1
+      z0 = nz0
+      z1 = nz1
+      first = false
+    } else {
+      if nx0 < x0 {
+        x0 = nx0
+      }
+      if nx1 > x1 {
+        x1 = nx1
+      }
+      if ny0 < y0 {
+        y0 = ny0
+      }
+      if ny1 > y1 {
+        y1 = ny1
+      }
+      if nz0 < z0 {
+        z0 = nz0
+      }
+      if nz1 > z1 {
+        z1 = nz1
+      }
+    }
+  }
+  (x0, x1, y0, y1, z0, z1)
+}
 
 ///|
 /// add_styled_item writes one STEP presentation style for `item_ref`. It may
