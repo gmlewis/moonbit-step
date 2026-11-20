@@ -9,7 +9,7 @@ import {
   "gmlewis/gzip@0.34.19",
   "gmlewis/io@0.23.22",
   "moonbitlang/async@0.22.10",
-  "moonbitlang/x@0.5.7",
+  "moonbitlang/x@0.5.8",
 }
 
 readme = "README.md"
