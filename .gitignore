@@ -25,5 +25,6 @@ __pycache__
 /components/testdata/golden/matrix.json
 /components/testdata/golden/MATRIX.md
 
-# Keep the declared readme in the published mooncake archive.
+# Keep the declared readme and agent guide in the public repo.
 !README.md
+!AGENTS.md
