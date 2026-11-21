@@ -1,0 +1,45 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "gmlewis/step/components/worm"
+
+import {
+  "gmlewis/step/components/common",
+}
+
+// Values
+pub fn worm_gear_drive(WormGearParams, y_up? : Bool) -> Result[@common.Component, @common.SpecError]
+
+pub fn worm_gear_layout(WormGearParams) -> WormGearLayout
+
+// Errors
+
+// Types and methods
+pub(all) struct WormGearLayout {
+  params : WormGearParams
+  reduction_ratio : Double
+  wheel_pitch_radius_mm : Double
+  center_distance_mm : Double
+  axial_pitch_mm : Double
+  lead_mm : Double
+  lead_angle_deg : Double
+  is_self_locking : Bool
+  efficiency : Double
+}
+
+pub(all) struct WormGearParams {
+  module_mm : Double
+  worm_starts : Int32
+  wheel_teeth : Int32
+  worm_pitch_radius_mm : Double
+  worm_length_mm : Double
+  wheel_width_mm : Double
+  pressure_angle_deg : Double
+  friction_coeff : Double
+  worm_bore_radius_mm : Double
+  wheel_bore_radius_mm : Double
+  tolerance_mm : Double
+}
+pub fn WormGearParams::new(module_mm? : Double, worm_starts? : Int32, wheel_teeth? : Int32, worm_pitch_radius_mm? : Double, worm_length_mm? : Double, wheel_width_mm? : Double, pressure_angle_deg? : Double, friction_coeff? : Double, worm_bore_radius_mm? : Double, wheel_bore_radius_mm? : Double, tolerance_mm? : Double) -> Result[Self, @common.SpecError]
+
+// Type aliases
+
+// Traits

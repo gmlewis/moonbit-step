@@ -1,0 +1,42 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "gmlewis/step/components/differential"
+
+import {
+  "gmlewis/step/components/common",
+}
+
+// Values
+pub fn bevel_differential(BevelDifferentialParams, detail? : @common.DetailLevel) -> Result[@common.Component, @common.SpecError]
+
+pub fn bevel_differential_layout(BevelDifferentialParams) -> BevelDifferentialLayout
+
+pub fn differential_forward_kinematics(BevelDifferentialLayout, Double, Double) -> (Double, Double)
+
+pub fn differential_inverse_kinematics(BevelDifferentialLayout, Double, Double) -> (Double, Double)
+
+// Errors
+
+// Types and methods
+pub(all) struct BevelDifferentialLayout {
+  params : BevelDifferentialParams
+  input_pitch_radius_mm : Double
+  output_pitch_radius_mm : Double
+  roll_ratio : Double
+  input_apex_offset_mm : Double
+  output_apex_offset_mm : Double
+}
+
+pub(all) struct BevelDifferentialParams {
+  module_mm : Double
+  input_teeth : Int32
+  output_teeth : Int32
+  face_width_mm : Double
+  input_bore_diameter_mm : Double
+  output_bore_diameter_mm : Double
+  backlash_mm : Double
+}
+pub fn BevelDifferentialParams::new(module_mm? : Double, input_teeth? : Int32, output_teeth? : Int32, face_width_mm? : Double, input_bore_diameter_mm? : Double, output_bore_diameter_mm? : Double, backlash_mm? : Double) -> Result[Self, @common.SpecError]
+
+// Type aliases
+
+// Traits

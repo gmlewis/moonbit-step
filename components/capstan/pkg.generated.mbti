@@ -1,0 +1,42 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "gmlewis/step/components/capstan"
+
+import {
+  "gmlewis/step/components/common",
+}
+
+// Values
+pub fn capstan_drive(CapstanParams, y_up? : Bool) -> Result[@common.Component, @common.SpecError]
+
+pub fn capstan_layout(CapstanParams) -> CapstanLayout
+
+// Errors
+
+// Types and methods
+pub(all) struct CapstanLayout {
+  params : CapstanParams
+  capstan_pitch_radius_mm : Double
+  driven_pitch_radius_mm : Double
+  reduction_ratio : Double
+  signed_reduction : Double
+  center_distance_mm : Double
+  required_wraps : Int32
+  efficiency : Double
+}
+
+pub(all) struct CapstanParams {
+  capstan_radius_mm : Double
+  driven_radius_mm : Double
+  cable_diameter_mm : Double
+  drum_width_mm : Double
+  travel_deg : Double
+  clearance_mm : Double
+  capstan_bore_radius_mm : Double
+  driven_bore_radius_mm : Double
+  crossed : Bool
+}
+pub fn CapstanParams::new(capstan_radius_mm? : Double, driven_radius_mm? : Double, cable_diameter_mm? : Double, drum_width_mm? : Double, travel_deg? : Double, clearance_mm? : Double, capstan_bore_radius_mm? : Double, driven_bore_radius_mm? : Double, crossed? : Bool) -> Result[Self, @common.SpecError]
+
+// Type aliases
+
+// Traits

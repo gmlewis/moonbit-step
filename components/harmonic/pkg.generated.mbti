@@ -1,0 +1,93 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "gmlewis/step/components/harmonic"
+
+import {
+  "gmlewis/step/components/common",
+}
+
+// Values
+pub fn flat_harmonic_gearbox(FlatHarmonicParams, input_deg? : Double, y_up? : Bool) -> Result[@common.Component, @common.SpecError]
+
+pub fn flat_harmonic_layout(FlatHarmonicParams) -> FlatHarmonicLayout
+
+pub fn harmonic_circular_spline_inner_outline(HarmonicLayout) -> Array[(Double, Double)]
+
+pub fn harmonic_flexspline_outline(HarmonicLayout, wave_gen_rad? : Double, deformed? : Bool) -> Array[(Double, Double)]
+
+pub fn harmonic_gearbox(HarmonicParams, input_deg? : Double, y_up? : Bool) -> Result[@common.Component, @common.SpecError]
+
+pub fn harmonic_kinematics(HarmonicLayout, Double) -> HarmonicKinematics
+
+pub fn harmonic_layout(HarmonicParams) -> HarmonicLayout
+
+pub fn harmonic_wave_generator_outline(HarmonicLayout, wave_gen_rad? : Double, num_points? : Int32) -> Array[(Double, Double)]
+
+// Errors
+
+// Types and methods
+pub(all) struct FlatHarmonicLayout {
+  params : FlatHarmonicParams
+  base : HarmonicLayout
+  total_length_mm : Double
+  output_ring_outer_radius_mm : Double
+}
+
+pub(all) struct FlatHarmonicParams {
+  module_mm : Double
+  flexspline_teeth : Int32
+  tooth_diff : Int32
+  ring_length_mm : Double
+  ring_gap_mm : Double
+  flex_wall_mm : Double
+  pressure_angle_deg : Double
+  outer_wall_mm : Double
+  input_bore_radius_mm : Double
+  tolerance_mm : Double
+  deformed : Bool
+}
+pub fn FlatHarmonicParams::new(module_mm? : Double, flexspline_teeth? : Int32, tooth_diff? : Int32, ring_length_mm? : Double, ring_gap_mm? : Double, flex_wall_mm? : Double, pressure_angle_deg? : Double, outer_wall_mm? : Double, input_bore_radius_mm? : Double, tolerance_mm? : Double, deformed? : Bool) -> Result[Self, @common.SpecError]
+
+pub(all) struct HarmonicKinematics {
+  wave_gen_rad : Double
+  output_rad : Double
+}
+
+pub(all) struct HarmonicLayout {
+  params : HarmonicParams
+  circular_spline_teeth : Int32
+  signed_reduction : Double
+  reduction_ratio : Double
+  addendum_mm : Double
+  dedendum_mm : Double
+  flex_pitch_radius_mm : Double
+  flex_root_radius_mm : Double
+  flex_tip_radius_mm : Double
+  flex_inner_radius_mm : Double
+  circ_pitch_radius_mm : Double
+  circ_tip_radius_mm : Double
+  circ_root_radius_mm : Double
+  circ_outer_radius_mm : Double
+  radial_deflection_mm : Double
+  wave_gen_major_radius_mm : Double
+  wave_gen_minor_radius_mm : Double
+  total_length_mm : Double
+}
+
+pub(all) struct HarmonicParams {
+  module_mm : Double
+  flexspline_teeth : Int32
+  tooth_diff : Int32
+  gear_length_mm : Double
+  cup_length_mm : Double
+  flex_wall_mm : Double
+  pressure_angle_deg : Double
+  outer_wall_mm : Double
+  input_bore_radius_mm : Double
+  tolerance_mm : Double
+  deformed : Bool
+}
+pub fn HarmonicParams::new(module_mm? : Double, flexspline_teeth? : Int32, tooth_diff? : Int32, gear_length_mm? : Double, cup_length_mm? : Double, flex_wall_mm? : Double, pressure_angle_deg? : Double, outer_wall_mm? : Double, input_bore_radius_mm? : Double, tolerance_mm? : Double, deformed? : Bool) -> Result[Self, @common.SpecError]
+
+// Type aliases
+
+// Traits

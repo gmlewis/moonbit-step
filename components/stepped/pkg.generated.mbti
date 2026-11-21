@@ -1,0 +1,49 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "gmlewis/step/components/stepped"
+
+import {
+  "gmlewis/step/components/common",
+}
+
+// Values
+pub fn stepped_planetary_gearbox(SteppedPlanetaryParams, y_up? : Bool) -> Result[@common.Component, @common.SpecError]
+
+pub fn stepped_planetary_layout(SteppedPlanetaryParams) -> SteppedPlanetaryLayout
+
+// Errors
+
+// Types and methods
+pub(all) struct SteppedPlanetaryLayout {
+  params : SteppedPlanetaryParams
+  ring_teeth : Int32
+  signed_reduction : Double
+  center_distance_mm : Double
+  planet_sun_outer_radius_mm : Double
+  planet_ring_outer_radius_mm : Double
+  ring_root_radius_mm : Double
+  casing_inner_envelope_mm : Double
+  ring_outer_radius_mm : Double
+  total_length_mm : Double
+  planets : Array[(Double, Double)]
+}
+
+pub(all) struct SteppedPlanetaryParams {
+  module_mm : Double
+  sun_teeth : Int32
+  planet_sun_teeth : Int32
+  planet_ring_teeth : Int32
+  planet_count : Int32
+  tier1_length_mm : Double
+  tier2_length_mm : Double
+  tier_gap_mm : Double
+  pressure_angle_deg : Double
+  sun_bore_radius_mm : Double
+  planet_bore_radius_mm : Double
+  outer_wall_mm : Double
+  tolerance_mm : Double
+}
+pub fn SteppedPlanetaryParams::new(module_mm? : Double, sun_teeth? : Int32, planet_sun_teeth? : Int32, planet_ring_teeth? : Int32, planet_count? : Int32, tier1_length_mm? : Double, tier2_length_mm? : Double, tier_gap_mm? : Double, pressure_angle_deg? : Double, sun_bore_radius_mm? : Double, planet_bore_radius_mm? : Double, outer_wall_mm? : Double, tolerance_mm? : Double) -> Result[Self, @common.SpecError]
+
+// Type aliases
+
+// Traits

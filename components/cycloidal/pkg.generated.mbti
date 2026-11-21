@@ -1,0 +1,71 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "gmlewis/step/components/cycloidal"
+
+import {
+  "gmlewis/step/components/common",
+}
+
+// Values
+pub fn cycloidal_disk_outline(CycloidalParams, lobe_phase_rad? : Double) -> Array[(Double, Double)]
+
+pub fn cycloidal_gearbox(CycloidalParams, input_deg? : Double, y_up? : Bool) -> Result[@common.Component, @common.SpecError]
+
+pub fn cycloidal_kinematics(CycloidalLayout, Double) -> CycloidalKinematics
+
+pub fn cycloidal_layout(CycloidalParams) -> CycloidalLayout
+
+// Errors
+
+// Types and methods
+pub(all) struct CycloidalDiskPose {
+  center_x_mm : Double
+  center_y_mm : Double
+  rotation_rad : Double
+  lobe_phase_rad : Double
+}
+
+pub(all) struct CycloidalKinematics {
+  input_rad : Double
+  output_rad : Double
+  disks : Array[CycloidalDiskPose]
+}
+
+pub(all) struct CycloidalLayout {
+  params : CycloidalParams
+  ring_pin_count : Int32
+  signed_reduction : Double
+  reduction_ratio : Double
+  output_hole_radius_mm : Double
+  disk_valley_radius_mm : Double
+  disk_crest_radius_mm : Double
+  ring_inner_radius_mm : Double
+  ring_outer_radius_mm : Double
+  stack_length_mm : Double
+  disk_z_offsets_mm : Array[Double]
+  disk_phase_rad : Array[Double]
+  ring_pins : Array[(Double, Double)]
+  output_pins : Array[(Double, Double)]
+}
+
+pub(all) struct CycloidalParams {
+  num_lobes : Int32
+  pin_circle_radius_mm : Double
+  ring_pin_radius_mm : Double
+  eccentricity_mm : Double
+  num_disks : Int32
+  disk_thickness_mm : Double
+  disk_gap_mm : Double
+  output_pin_count : Int32
+  output_pin_circle_radius_mm : Double
+  output_pin_radius_mm : Double
+  input_bore_radius_mm : Double
+  eccentric_bearing_outer_radius_mm : Double
+  outer_wall_mm : Double
+  tolerance_mm : Double
+  samples_per_lobe : Int32
+}
+pub fn CycloidalParams::new(num_lobes? : Int32, pin_circle_radius_mm? : Double, ring_pin_radius_mm? : Double, eccentricity_mm? : Double, num_disks? : Int32, disk_thickness_mm? : Double, disk_gap_mm? : Double, output_pin_count? : Int32, output_pin_circle_radius_mm? : Double, output_pin_radius_mm? : Double, input_bore_radius_mm? : Double, eccentric_bearing_outer_radius_mm? : Double, outer_wall_mm? : Double, tolerance_mm? : Double, samples_per_lobe? : Int32) -> Result[Self, @common.SpecError]
+
+// Type aliases
+
+// Traits
