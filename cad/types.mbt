@@ -275,6 +275,9 @@ pub struct ExtrudedBezierProfile {
 ///   restricted to the plane `z_mm` (None means any plane) within
 ///   `tolerance_mm`. Use it to break a specific bore or rim without touching
 ///   a tooth-profile boundary.
+/// - `EdgesOnPlane` selects every edge whose sampled points lie on the plane
+///   `z = z_mm` within `tolerance_mm` (for example `EdgesOnPlane(0.0, 0.05)`
+///   for a build-plate elephant-foot chamfer).
 /// - `EdgeIndices` selects 1-based edge indices in the solid's edge order.
 pub(all) enum EdgeSelector {
   AllEdges
@@ -282,6 +285,7 @@ pub(all) enum EdgeSelector {
   EdgesPerpendicularToDirection(Vec3, Double)
   EdgesNearPoint(Vec3, Double)
   EdgesAtRadii(Array[Double], Double?, Double)
+  EdgesOnPlane(Double, Double)
   EdgeIndices(Array[Int32])
 }
 

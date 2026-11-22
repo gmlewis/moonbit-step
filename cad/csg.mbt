@@ -165,6 +165,12 @@ fn edge_selector_json(selector : EdgeSelector) -> String {
       edge_json_num(tolerance_mm) +
       "}"
     }
+    EdgesOnPlane(z_mm, tolerance_mm) =>
+      "{\"kind\":\"plane_z\",\"z\":" +
+      edge_json_num(z_mm) +
+      ",\"tol\":" +
+      edge_json_num(tolerance_mm) +
+      "}"
     EdgeIndices(indices) =>
       "{\"kind\":\"indices\",\"indices\":[" +
       indices.map(fn(i) { i.to_string() }).join(",") +

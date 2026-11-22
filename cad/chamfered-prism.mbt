@@ -436,15 +436,19 @@ pub fn compile_chamfered_prism(
       ),
     )
   }
-  // Outer side quads; the plane normal is the actual quad normal, oriented
-  // away from the axis.
+  // Outer side quads; the plane normal is computed in local prism space around
+  // the base centroid, then transformed so translation and rotation never flip
+  // face orientation.
+  let base_center = polygon_centroid_2d(base)
   for li in 0..<(nl - 1) {
     let a = rings[li]
     let b = rings[li + 1]
     for k in 0..<nc {
       let k2 = (k + 1) % nc
       let cycle = [a[k], a[k2], b[k2], b[k]]
-      let normal = prism_face_normal(pts, cycle, false)
+      let normal = xform.apply_dir(
+        prism_face_normal_local(pts_raw, cycle, base_center, false),
+      )
       face_refs.push(
         add_plane_face_oriented(
           ctx,
@@ -458,31 +462,37 @@ pub fn compile_chamfered_prism(
       )
     }
   }
-  // Hole walls; the plane normal points inward toward the axis. Consecutive
-  // hole rings are joined by ruled quads, so a tapered hole (socket lead-in)
-  // is a chain of planar ruled facets.
-  if has_hole {
-    for hi in 1..<hole_rings.length() {
-      let a = hole_rings[hi - 1]
-      let b = hole_rings[hi]
-      let nh = a.length()
-      for k in 0..<nh {
-        let k2 = (k + 1) % nh
-        let cycle = [a[k], a[k2], b[k2], b[k]]
-        let normal = prism_face_normal(pts, cycle, true)
-        face_refs.push(
-          add_plane_face_oriented(
-            ctx,
-            edges,
-            pts,
-            cp_refs,
-            cycle,
-            normal,
-            reverse~,
-          ),
-        )
+  // Hole walls; the plane normal points inward toward the hole center in local
+  // prism space. Consecutive hole rings are joined by ruled quads, so a tapered
+  // hole (socket lead-in) is a chain of planar ruled facets.
+  match prism.hole {
+    Some(h) => {
+      let hole_center = polygon_centroid_2d(h)
+      for hi in 1..<hole_rings.length() {
+        let a = hole_rings[hi - 1]
+        let b = hole_rings[hi]
+        let nh = a.length()
+        for k in 0..<nh {
+          let k2 = (k + 1) % nh
+          let cycle = [a[k], a[k2], b[k2], b[k]]
+          let normal = xform.apply_dir(
+            prism_face_normal_local(pts_raw, cycle, hole_center, true),
+          )
+          face_refs.push(
+            add_plane_face_oriented(
+              ctx,
+              edges,
+              pts,
+              cp_refs,
+              cycle,
+              normal,
+              reverse~,
+            ),
+          )
+        }
       }
     }
+    None => ()
   }
   face_refs
 }
@@ -646,13 +656,16 @@ fn compile_chamfered_prism_round_bore(
       reverse~,
     ),
   )
+  let base_center = polygon_centroid_2d(base)
   for li in 0..<(nl - 1) {
     let a = rings[li]
     let b = rings[li + 1]
     for k in 0..<nc {
       let k2 = (k + 1) % nc
       let cycle = [a[k], a[k2], b[k2], b[k]]
-      let normal = prism_face_normal(pts, cycle, false)
+      let normal = xform.apply_dir(
+        prism_face_normal_local(pts_raw, cycle, base_center, false),
+      )
       face_refs.push(
         add_plane_face_oriented(
           ctx,
@@ -670,17 +683,36 @@ fn compile_chamfered_prism_round_bore(
 }
 
 ///|
-/// prism_face_normal returns the quad's outward normal: away from the axis for
-/// an outer face, toward the axis for a hole wall.
-fn prism_face_normal(
-  pts : Array[Vec3],
+fn polygon_centroid_2d(pts : Array[Vec2]) -> Vec2 {
+  let n = pts.length()
+  if n == 0 {
+    return (0.0, 0.0)
+  }
+  let mut x = 0.0
+  let mut y = 0.0
+  for p in pts {
+    x = x + p.0
+    y = y + p.1
+  }
+  let d = n.to_double()
+  (x / d, y / d)
+}
+
+///|
+/// prism_face_normal_local returns the quad's outward normal in local prism
+/// space: away from `center_xy` for an outer face, toward `center_xy` for a
+/// hole wall. Callers transform the result with `xform.apply_dir`.
+fn prism_face_normal_local(
+  pts_raw : Array[Vec3],
   cycle : Array[Int32],
+  center_xy : Vec2,
   toward_axis : Bool,
 ) -> Vec3 {
-  let centroid = ring_quad_centroid(pts, cycle)
-  let av = cycle_area_3d(pts, cycle)
+  let centroid = ring_quad_centroid(pts_raw, cycle)
+  let av = cycle_area_3d(pts_raw, cycle)
   let mut n = v_norm(av)
-  let radial_dot = n.0 * centroid.0 + n.1 * centroid.1
+  let radial_dot = n.0 * (centroid.0 - center_xy.0) +
+    n.1 * (centroid.1 - center_xy.1)
   let want_outward = !toward_axis
   if want_outward && radial_dot < 0.0 {
     n = (-n.0, -n.1, -n.2)

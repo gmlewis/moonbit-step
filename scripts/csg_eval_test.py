@@ -198,6 +198,35 @@ class IntegrationTests(unittest.TestCase):
         self.assertIn("[PASS] occt checkshape", proc.stdout)
         self.assertIn("[PASS] occt mesh", proc.stdout)
 
+    def test_chamfer_bottom_breaks_z0_edges(self):
+        self.assertEqual(
+            self.proc.returncode, 0, self.proc.stdout + self.proc.stderr
+        )
+        chamfered = Path(self.tmp.name) / "chamfered.step"
+        proc = subprocess.run(
+            [
+                sys.executable,
+                str(SCRIPTS / "csg_eval.py"),
+                str(self.output),
+                "-o",
+                str(chamfered),
+                "--chamfer-bottom",
+                "0.35",
+            ],
+            capture_output=True,
+            text=True,
+            timeout=1800,
+        )
+        self.assertEqual(proc.returncode, 0, proc.stdout + proc.stderr)
+        self.assertIn("bottom chamfer 0.35 mm:", proc.stdout)
+        val = subprocess.run(
+            [sys.executable, str(SCRIPTS / "validate_step.py"), "--no-mesh", str(chamfered)],
+            capture_output=True,
+            text=True,
+            timeout=1800,
+        )
+        self.assertEqual(val.returncode, 0, val.stdout + val.stderr)
+
 
 if __name__ == "__main__":
     sys.exit(unittest.main())

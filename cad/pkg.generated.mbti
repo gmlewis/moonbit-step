@@ -349,6 +349,7 @@ pub(all) enum EdgeSelector {
   EdgesPerpendicularToDirection((Double, Double, Double), Double)
   EdgesNearPoint((Double, Double, Double), Double)
   EdgesAtRadii(Array[Double], Double?, Double)
+  EdgesOnPlane(Double, Double)
   EdgeIndices(Array[Int32])
 }
 

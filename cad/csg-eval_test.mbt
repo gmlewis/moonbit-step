@@ -284,6 +284,36 @@ async test "evaluated multi-edge chamfer targets perpendicular cap edges" {
 }
 
 ///|
+async test "evaluated bottom-plane chamfer only breaks z=0 edges" {
+  if !command_in_path("python3") || !draw_available() || !ocp_available() {
+    return
+  }
+  let root = repo_root()
+  let dir = @fs.tmpdir(prefix="edge-chamfer-bottom-")
+  defer @fs.rmdir(dir, recursive=true)
+  let base = @cad.Cylinder::new(10.0, 8.0).with_name("cyl")
+  let design = @cad.Design::new(name="chamfer-bottom-eval").add(
+    @cad.chamfer_edges(
+      base,
+      0.35,
+      selector=@cad.EdgeSelector::EdgesOnPlane(0.0, 0.05),
+      name="bottom-chamfer",
+    ),
+  )
+  let out = dir + "/chamfer-bottom.step"
+  design.write_step_evaluated(Some(out), root=Some(root))
+  let text = @fs.read_file(out).text()
+  // Bottom-only chamfer adds exactly one conical bevel surface (not two).
+  assert_eq(text.split("CONICAL_SURFACE(").collect().length() - 1, 1)
+  let (code, output) = run_validator([
+    root + "/scripts/validate_step.py",
+    "--no-mesh",
+    out,
+  ])
+  assert_validator_ok(code, output)
+}
+
+///|
 /// json_member returns an object member, or JSON null when absent.
 fn ev_json_member(j : @json.Json, key : String) -> @json.Json {
   match j {

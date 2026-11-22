@@ -691,6 +691,14 @@ def select_edges(
         return [
             row[0] for row in rows if _bbox_distance(point, row[1:]) <= radius
         ]
+    if kind == "plane_z":
+        z_target = float(selector.get("z", 0.0))
+        tol = float(selector.get("tol", 0.05))
+        return [
+            row[0]
+            for row in rows
+            if abs(row[3] - z_target) <= tol and abs(row[6] - z_target) <= tol
+        ]
     raise CsgEvalError(f"unsupported edge selector kind {kind!r}")
 
 
@@ -778,6 +786,16 @@ def ocp_multi_chamfer(
                     keep = False
                     break
                 if z_filter is not None and abs(p.Z() - float(z_filter)) > radial_tol:
+                    keep = False
+                    break
+        elif kind == "plane_z":
+            z_target = float(z_filter) if z_filter is not None else 0.0
+            first = curve.FirstParameter()
+            last = curve.LastParameter()
+            keep = True
+            for sample in range(9):
+                p = curve.Value(first + (last - first) * sample / 8.0)
+                if abs(p.Z() - z_target) > radial_tol:
                     keep = False
                     break
         if keep:
@@ -1010,7 +1028,10 @@ def evaluate(
                     # A radial selector depends on the actual curve geometry,
                     # not on DRAW's bounding boxes, so it always uses the OCP
                     # multi-edge chamfer path.
-                    if op == "chamfer" and selector.get("kind") == "radii":
+                    if op == "chamfer" and selector.get("kind") in (
+                        "radii",
+                        "plane_z",
+                    ):
                         angle = payload.get("angle")
                         if angle is not None and abs(float(angle) - 45.0) > 1e-6:
                             raise CsgEvalError(
@@ -1120,6 +1141,139 @@ def _tail(text: str, lines: int = 8) -> str:
     )
 
 
+def chamfer_bottom_step(
+    input_path: Path,
+    output_path: Path,
+    size: float = 0.35,
+    z_mm: float = 0.0,
+    tol_mm: float = 0.05,
+) -> tuple[int, int]:
+    """Applies a 45-degree bottom-face elephant-foot chamfer to every solid in
+    a STEP file whose edges touch ``z = z_mm`` within ``tol_mm``.
+
+    Each solid is chamfered independently so multi-body print-in-place
+    assemblies (such as planetary gear cartridges) keep separate solids. If
+    ``size`` is too large for a particular solid's smallest bottom feature,
+    smaller fallback sizes are tried before leaving that solid untouched.
+
+    Returns ``(chamfered_solids, total_solids)``.
+    """
+    if size <= 0.0:
+        if input_path.resolve() != output_path.resolve():
+            shutil.copy2(input_path, output_path)
+        return (0, 0)
+    try:
+        from OCP.BRep import BRep_Builder
+        from OCP.BRepAdaptor import BRepAdaptor_Curve
+        from OCP.BRepCheck import BRepCheck_Analyzer
+        from OCP.BRepFilletAPI import BRepFilletAPI_MakeChamfer
+        from OCP.IFSelect import IFSelect_RetDone
+        from OCP.STEPControl import (
+            STEPControl_AsIs,
+            STEPControl_Reader,
+            STEPControl_Writer,
+        )
+        from OCP.TopAbs import TopAbs_EDGE, TopAbs_SOLID
+        from OCP.TopExp import TopExp_Explorer
+        from OCP.TopoDS import TopoDS, TopoDS_Compound
+    except Exception as exc:  # noqa: BLE001
+        raise CsgEvalError(f"bottom chamfer requires OCP: {exc}") from exc
+
+    orig_text = input_path.read_text(encoding="utf-8", errors="replace")
+    reader = STEPControl_Reader()
+    if reader.ReadFile(str(input_path)) != IFSelect_RetDone:
+        raise CsgEvalError(f"cannot read STEP {input_path}")
+    reader.TransferRoots()
+    root_shape = reader.OneShape()
+
+    def bottom_edges_of(solid) -> list:
+        edges = []
+        exp = TopExp_Explorer(solid, TopAbs_EDGE)
+        while exp.More():
+            edge = TopoDS.Edge_s(exp.Current())
+            try:
+                curve = BRepAdaptor_Curve(edge)
+                first = curve.FirstParameter()
+                last = curve.LastParameter()
+                on_plane = True
+                for sample in range(5):
+                    p = curve.Value(first + (last - first) * sample / 4.0)
+                    if abs(p.Z() - z_mm) > tol_mm:
+                        on_plane = False
+                        break
+                if on_plane:
+                    edges.append(edge)
+            except Exception:  # noqa: BLE001
+                pass
+            exp.Next()
+        return edges
+
+    fallback_sizes = [size]
+    for cand in (0.25, 0.20, 0.15):
+        if cand < size - 1e-6:
+            fallback_sizes.append(cand)
+
+    def chamfer_one_solid(solid):
+        edges = bottom_edges_of(solid)
+        if not edges:
+            return solid, False
+        for d in fallback_sizes:
+            try:
+                maker = BRepFilletAPI_MakeChamfer(solid)
+                for edge in edges:
+                    maker.Add(d, edge)
+                maker.Build()
+                if maker.IsDone():
+                    res = maker.Shape()
+                    if BRepCheck_Analyzer(res).IsValid():
+                        return res, True
+            except Exception:  # noqa: BLE001
+                continue
+        return solid, False
+
+    solids = []
+    sexp = TopExp_Explorer(root_shape, TopAbs_SOLID)
+    while sexp.More():
+        solids.append(TopoDS.Solid_s(sexp.Current()))
+        sexp.Next()
+
+    if not solids:
+        if input_path.resolve() != output_path.resolve():
+            shutil.copy2(input_path, output_path)
+        return (0, 0)
+
+    out_solids = []
+    chamfered = 0
+    for solid in solids:
+        res, ok = chamfer_one_solid(solid)
+        if ok:
+            chamfered += 1
+        out_solids.append(res)
+
+    if chamfered == 0:
+        if input_path.resolve() != output_path.resolve():
+            shutil.copy2(input_path, output_path)
+        return (0, len(solids))
+
+    if len(out_solids) == 1:
+        final_shape = out_solids[0]
+    else:
+        builder = BRep_Builder()
+        comp = TopoDS_Compound()
+        builder.MakeCompound(comp)
+        for s in out_solids:
+            builder.Add(comp, s)
+        final_shape = comp
+
+    writer = STEPControl_Writer()
+    if writer.Transfer(final_shape, STEPControl_AsIs) != IFSelect_RetDone:
+        raise CsgEvalError("cannot transfer bottom-chamfered shape to STEP")
+    if not writer.Write(str(output_path)):
+        raise CsgEvalError(f"cannot write bottom-chamfered STEP {output_path}")
+    preserve_input_header(orig_text, output_path)
+    return (chamfered, len(solids))
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description="Evaluate a CSG STEP boolean tree into a flat B-Rep."
@@ -1140,6 +1294,27 @@ def main(argv: list[str] | None = None) -> int:
             "restores per-solid colours when the result is a disjoint compound"
         ),
     )
+    parser.add_argument(
+        "--chamfer-bottom",
+        type=float,
+        default=None,
+        help=(
+            "apply a 45-degree bottom-face elephant-foot chamfer (mm) to every "
+            "solid touching z=0 instead of running CSG evaluation"
+        ),
+    )
+    parser.add_argument(
+        "--chamfer-z",
+        type=float,
+        default=0.0,
+        help="Z plane (mm) for --chamfer-bottom (default: 0.0)",
+    )
+    parser.add_argument(
+        "--chamfer-tol",
+        type=float,
+        default=0.05,
+        help="Z tolerance (mm) for --chamfer-bottom (default: 0.05)",
+    )
     args = parser.parse_args(argv)
 
     if not args.input.exists():
@@ -1148,6 +1323,19 @@ def main(argv: list[str] | None = None) -> int:
     output = args.output.resolve()
     output.parent.mkdir(parents=True, exist_ok=True)
     try:
+        if args.chamfer_bottom is not None:
+            chamfered, total = chamfer_bottom_step(
+                args.input.resolve(),
+                output,
+                size=args.chamfer_bottom,
+                z_mm=args.chamfer_z,
+                tol_mm=args.chamfer_tol,
+            )
+            print(
+                f"Wrote {output} (bottom chamfer {args.chamfer_bottom:g} mm: "
+                f"{chamfered}/{total} solids)"
+            )
+            return 0
         evaluate(
             args.input.resolve(),
             output,

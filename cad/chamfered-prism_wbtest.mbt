@@ -107,3 +107,37 @@ test "hex prism with an analytic round bore has a real cylinder" {
   // Six planar hex sides plus two annular caps plus the seam line.
   assert_eq(count_sub(step, "ADVANCED_FACE("), 9)
 }
+
+///|
+test "translated and rotated chamfered prism keeps consistent edge orientations" {
+  let prism = ChamferedPrism::from_chamfer(
+    Profile2D::rect(10.0, 10.0),
+    6.0,
+    bottom_chamfer=0.35,
+    chamfer_depth=0.35,
+  )
+  let node = Shape::ChamferedPrism(prism)
+    .with_name("shifted-prism")
+    .rotate_x(90.0)
+    .translate(x=100.0, y=-50.0, z=25.0)
+  let step = Design::new(name="shifted").add(node).to_step_file()
+  // Every manifold edge in a closed shell is traversed once with .T. and once
+  // with .F.; before fixing prism_face_normal, translating away from the origin
+  // flipped side face normals and broke the .T./.F. balance.
+  let t_count = count_sub(step, ",.T.);")
+  let f_count = count_sub(step, ",.F.);")
+  // Verify balanced oriented edges on the shell (exact counts on ORIENTED_EDGE).
+  let mut oe_t = 0
+  let mut oe_f = 0
+  for line in step.split("\n") {
+    if line.contains("ORIENTED_EDGE(") {
+      if line.contains(",.T.);") {
+        oe_t = oe_t + 1
+      } else if line.contains(",.F.);") {
+        oe_f = oe_f + 1
+      }
+    }
+  }
+  assert_true(t_count > 0 && f_count > 0)
+  assert_eq(oe_t, oe_f)
+}
