@@ -15,54 +15,16 @@ from validate_step import validate_step_file  # noqa: E402
 
 # --- Configuration ---
 
+# Only examples that still have an `examples/<num>-*` directory belong here.
+# Commit 351f881 ("Clean up examples") removed the other 39 numbered examples;
+# their parameter sets are recoverable from git history. Keeping dead entries
+# made `all` silently validate 2 of 41 entries, so a registered example with
+# no directory is now a hard error in main(), never a silent skip.
 SUITE = {
-    "01": [["--edge", "10"], ["--edge", "25", "--tx", "5", "--ty", "5", "--tz", "5"]],
-    "02": [["--length", "20", "--width", "20", "--height", "5"], ["--chamferSize", "4"], ["--filletRadius", "1.5"]],
-    "03": [
-        ["--name", "gmlewis", "--emboss"],
-        ["--name", "MoonBit", "--depth", "2", "--length", "60", "--emboss"],
-        ["--name", "gmlewis"],
-    ],
-    "04": [["--id", "5", "--od", "15", "--thickness", "2"], ["--id", "10", "--od", "12", "--thickness", "0.5", "--segments", "32"]],
-    "05": [["--rows", "1", "--cols", "1", "--height", "20"], ["--rows", "2", "--cols", "1", "--text", "Gemini"]],
-    "06": [["--count", "1"], ["--count", "3", "--height", "10", "--clickHeight", "1"]],
-    "07": [["--diameter", "5", "--text", "USB"], ["--diameter", "10", "--text", "POWER", "--length", "30"]],
-    "08": [["--stepCount", "3"], ["--stepCount", "5", "--interference", "0.2", "--interferenceStep", "0.2"]],
-    "09": [["--baseWidth", "60", "--baseLength", "80"], ["--dovetailAngle", "20", "--dovetailHeight", "10"], ["--clearance", "0.5"]],
-    "10": [["--sides", "6", "--holeSides", "6"], ["--sides", "5", "--holeSides", "3", "--diameter", "25"], ["--sides", "8", "--holeSides", "4", "--holeRotation", "45", "--diameter", "40"]],
-    "11": [["--rows", "2", "--cols", "4"], ["--rows", "1", "--cols", "5", "--spacing", "8.5", "--tolerance", "0.05"], ["--rows", "3", "--cols", "3", "--spacing", "15", "--height", "25"]],
     "12": [["--nocage", "--numPairs", "2", "--wireGap", "0.5", "--vertTurns", "1"],
            ["--nocoil", "--nowires", "--nosupport"],
            []],
-    "13": [["--length", "60", "--width", "70"], ["--length", "100", "--width", "80", "--height", "15"], ["--width", "50", "--height", "12"]],
-    "14": [["--length", "100"], ["--length", "150", "--width", "50"], ["--length", "80", "--height", "12"]],
-    "15": [["--boltDiameter", "8", "--clearance", "0.1"], ["--boltDiameter", "10", "--interference", "0.1", "--clearanceStep", "0.1", "--stepCount", "3"]],
-    "16": [["--pinDiameter", "5", "--clearance", "0.05"], ["--pinDiameter", "10", "--interference", "0.1", "--clearanceStep", "0.05", "--stepCount", "4"]],
-    "17": [["--thickness", "2", "--hingeWidth", "15"], ["--width", "30", "--slotLength", "5", "--numRows", "10"]],
-    "18": [["--width", "60", "--length", "80", "--height", "30"], ["--wallThickness", "3", "--filletRadius", "10", "--bossOD", "10"]],
-    "19": [["--width", "85", "--length", "75"], ["--width", "100", "--length", "60", "--slotLength", "18"]],
-    "20": [["--standoffHeight", "6"], ["--standoffHeight", "12", "--standoffOD", "8", "--frameThickness", "5"]],
-    "21": [["--width", "54.5", "--height", "8"], ["--width", "35", "--height", "6", "--armThickness", "2"]],
-    "22": [["--rows", "2", "--cols", "2"], ["--rows", "1", "--cols", "4", "--spacing", "20", "--anchorWidth", "8"]],
-    "23": [["--innerDiameter", "8", "--panelThickness", "2"], ["--innerDiameter", "12", "--split"]],
-    "24": [["--angle", "15", "--seatDepth", "10"], ["--angle", "0", "--holeDiameter", "12", "--height", "60"]],
-    "25": [["--angles", "15,22.5,30,45"], ["--size", "80", "--angles", "36,54"]],
-    "26": [["--armLength", "250"], ["--baseDiameter", "180", "--armLength", "400", "--armWidth", "50"]],
-    "27": [["--length", "60"], ["--width", "42", "--height", "12"]],
-    "28": [["--phoneThickness", "10"], ["--viewAngle", "30", "--width", "100"]],
-    "29": [["--width", "40", "--armLength", "80"], ["--hookHeight", "40", "--thickness", "8"]],
-    "30": [["--length", "150", "--width", "50", "--height", "40"], ["--length", "300", "--width", "80", "--height", "60", "--thickness", "4"]],
-    "31": [["--rows", "1", "--cols", "5", "--labelPrefix", "P"], ["--rows", "2", "--cols", "3", "--cellSize", "40", "--magnetDiameter", "12", "--labelPrefix", "T"]],
-    "32": [["--baseLength", "100", "--armHeight", "150"], ["--axleDia", "30", "--armWidth", "40", "--armBaseThickness", "50", "--armTopThickness", "35", "--holeSpacing", "80", "--baseLength", "110"]],
-    "33": [["--bodyLength", "45", "--bodyWidth", "35"], ["--wallThickness", "2", "--filamentClearance", "0.8", "--switchWidth", "15"]],
-    "34": [["--length", "50", "--width", "25"], ["--height", "20", "--beltThickness", "2.0", "--boltDia", "5.2"]],
-    "35": [["--railWidth", "12", "--railHeight", "8"], ["--railWidth", "15", "--railHeight", "10", "--thickness", "15"]],
-    "36": [["--petals", "12"], ["--petals", "8", "--tx", "50"]],
-    "37": [["--diameter", "25.4", "--type", "cap"], ["--diameter", "25.4", "--type", "plug", "--topThickness", "5"], ["--diameter", "50", "--wall", "1.2", "--height", "20"]],
     "38": [["--numTeeth", "12"], ["--numTeeth", "13", "--planetTeeth", "11", "--numElbows", "2"]],
-    "39": [["--diameter", "10"], ["--diameter", "6", "--thickness", "3", "--pinHeight", "6", "--spacing", "15"]],
-    "40": [[], ["--hole", "12", "--length", "60", "--width", "50"]],
-    "41": [[], ["--diameter", "80", "--bolts", "8", "--bolt-circle", "30", "--thickness", "10"]],
 }
 
 # --- Utils ---
@@ -315,11 +277,10 @@ def main():
         print("Error: 'inkscape' not found in PATH. Required for rendering.")
         sys.exit(1)
 
-    targets = (
-        [num for num in sorted(SUITE) if find_example_dir(num)]
-        if args.target == "all"
-        else [args.target]
-    )
+    # Do NOT pre-filter to existing directories: that silently skipped 39 of
+    # 41 registered examples. Every SUITE entry must be processed, and
+    # main() below already fails loudly when a directory is missing.
+    targets = sorted(SUITE) if args.target == "all" else [args.target]
     bpy_output_dir = root / "bpy-out"
     if args.bpy or args.blend:
         bpy_output_dir.mkdir(parents=True, exist_ok=True)

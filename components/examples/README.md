@@ -42,6 +42,10 @@ All programs use millimetres and Z is up.
 | `belt_drive` | Two approximate GT2 pulleys plus a smooth belt envelope built from an exact declared pitch length; flat or product-structure output. |
 | `rack_pinion` | Basic rack plus an involute spur pinion as one smooth arc-run extrusion at the layout pitch-plane centre distance; static envelope, flat or product-structure output. |
 | `four_bar` | Planar four-bar linkage from `four_bar_layout` and the linkage bars, with lower/upper link planes and four dowel pins; flat or product-structure output. |
+| `adapters` | Motor-to-extrusion and channel-to-extrusion adapters, plus NEMA mounting plates. |
+| `makerpipe_frame` | MakerPipe-based rectangular frame built from named mate connectors. |
+| `makerpipe_kit` | Assorted MakerPipe fittings and accessories. |
+| `pvc` | PVC pipe, fittings, and frame envelopes. |
 
 Run `./generate_all.sh` from this directory to regenerate every fixture in
 `output/`. The `output/` directory is generated locally and Git-ignored; its

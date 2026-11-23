@@ -138,10 +138,13 @@ point), `#id` references, per-shell edge usage and orientation, `PLANE`
 planarity, OCCT `checkshape`, and watertight tessellation. OCCT is an optional
 development tool; the library itself has no native dependency.
 
-`scripts/manage_examples.py all --validate --render` validates and renders every
-example. Text examples use the vendored `baloo` font in
-`assets/fonts/baloo.json.gz` (SIL Open Font License 1.1; license in
-[assets/fonts/LICENSE-baloo.txt](assets/fonts/LICENSE-baloo.txt)).
+`scripts/manage_examples.py all --validate --render` validates and renders the
+numbered examples in `examples/` (currently 12 and 38); a registered example
+with no directory is a hard error. The parametric builders in
+`components/examples/` are covered separately by
+`components/examples/generate_all.sh`. The `load_font()` API uses the vendored
+`baloo` font in `assets/fonts/baloo.json.gz` (SIL Open Font License 1.1;
+license in [assets/fonts/LICENSE-baloo.txt](assets/fonts/LICENSE-baloo.txt)).
 
 ## Repository layout
 

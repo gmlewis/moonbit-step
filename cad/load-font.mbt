@@ -23,7 +23,7 @@ pub impl Show for LoaderError with fn output(self, logger) {
 ///
 /// `font_name` is the short font name (for example, `"baloo"`), not the full
 /// package path. For the `baloo` font from package `gmlewis/fonts-b/baloo`,
-/// use `load_font("baloo")`. The examples' `baloo` font is vendored in
+/// use `load_font("baloo")`. The `baloo` font is vendored in
 /// `assets/fonts/`, so a normal checkout needs no environment variable.
 ///
 /// Paths are checked in this order:

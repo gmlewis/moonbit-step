@@ -1,4 +1,5 @@
 name: Daily Tests
+
 on:
   schedule:
     - cron: "0 7 * * *"
@@ -15,42 +16,7 @@ permissions:
 
 jobs:
   build:
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-
-    runs-on: ${{ matrix.os }}
-    timeout-minutes: 5
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: install-ubuntu
-        if: ${{ matrix.os == 'ubuntu-latest' }}
-        run: |
-          /bin/bash -c "$(curl -fsSL https://cli.moonbitlang.com/install/unix.sh)"
-          echo "/home/runner/.moon/bin" >> $GITHUB_PATH
-
-      - name: moon version
-        run: |
-          moon version --all
-          moonrun --version
-
-      - name: moon update
-        run: moon update
-
-      - name: moon check
-        run: moon check
-
-      - name: moon info
-        run: |
-          moon info
-          git diff --exit-code
-
-      - name: moon test
-        run: |
-          moon test
-
-      - name: format diff
-        run: |
-          moon fmt
-          git diff --exit-code
+    # The build steps live in check.yml so there is only one copy to maintain.
+    uses: ./.github/workflows/check.yml
+    permissions:
+      contents: read

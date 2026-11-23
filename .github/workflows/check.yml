@@ -6,6 +6,9 @@ on:
       - master
   pull_request:
   workflow_dispatch:
+  # daily-tests.yml calls this workflow on its daily schedule, so the build
+  # steps are maintained in exactly one place.
+  workflow_call:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -21,9 +24,19 @@ jobs:
         os: [ubuntu-latest]
 
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 5
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+
+      - name: cache MoonBit toolchain and dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.moon
+            .mooncakes
+          key: ${{ runner.os }}-moon-${{ hashFiles('moon.mod') }}
+          restore-keys: |
+            ${{ runner.os }}-moon-
 
       - name: install-ubuntu
         if: ${{ matrix.os == 'ubuntu-latest' }}
@@ -51,7 +64,5 @@ jobs:
         run: |
           moon test
 
-      - name: format diff
-        run: |
-          moon fmt
-          git diff --exit-code
+      - name: format check
+        run: moon fmt --check

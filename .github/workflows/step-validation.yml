@@ -24,6 +24,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: cache MoonBit toolchain and dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.moon
+            .mooncakes
+          key: ${{ runner.os }}-moon-${{ hashFiles('moon.mod') }}
+          restore-keys: |
+            ${{ runner.os }}-moon-
+
       - name: install MoonBit
         run: |
           /bin/bash -c "$(curl -fsSL https://cli.moonbitlang.com/install/unix.sh)"
@@ -47,6 +57,16 @@ jobs:
     timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
+
+      - name: cache MoonBit toolchain and dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.moon
+            .mooncakes
+          key: ${{ runner.os }}-moon-${{ hashFiles('moon.mod') }}
+          restore-keys: |
+            ${{ runner.os }}-moon-
 
       - name: install MoonBit
         run: |

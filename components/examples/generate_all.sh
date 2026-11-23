@@ -208,6 +208,15 @@ moon run components/examples/four_bar -- --mode assembly \
   --ground 40 --crank 10 --coupler 40 --rocker 30 --crankAngle 45 \
   -o "$OUT/assembly-structure/four-bar-40-10-40-30-assembly.step"
 
+# Component examples that previously had no generator entry. Each is covered
+# by the validation loop below, just like every other generated fixture.
+moon run components/examples/makerpipe_frame -- -o "$OUT/makerpipe-frame.step"
+moon run components/examples/makerpipe_kit -- -o "$OUT/makerpipe-kit.step"
+moon run components/examples/mate_assembly -- -o "$OUT/mate-assembly.step"
+moon run components/examples/profile_extrusion -- -o "$OUT/profile-extrusion.step"
+moon run components/examples/pvc -- -o "$OUT/pvc.step"
+moon run components/examples/rivet -- -o "$OUT/rivet.step"
+
 echo "Validating generated fixtures..."
 for f in "$OUT"/*.step; do
   echo "== $(basename "$f")"

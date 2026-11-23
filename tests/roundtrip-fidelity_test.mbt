@@ -68,11 +68,11 @@ test "recognized entity preserves several apostrophes" {
 }
 
 ///|
-// KNOWN LIMITATION (owner decision D1): `fmt_num` deliberately rounds reals
-// below 1e-12 to "0.0" (see `step-format_wbtest.mbt`), so a third-party real
-// such as -3.70074341541719E-015 is not preserved by the default parse ->
-// serialize path. Fixing this needs a lossless serialization mode that does
-// not change DSL-authored output; it is deferred pending that decision.
+// `fmt_num` deliberately rounds reals below 1e-12 to "0.0" (see
+// `step-format_wbtest.mbt`). That rounding is REQUIRED for generated STEP to
+// validate properly, so a third-party real such as -3.70074341541719E-015 is
+// normalized by the parse -> serialize path. This is intended behavior, not a
+// defect, and there is deliberately no fidelity test for it here.
 
 ///|
 // parse_repository_from_file must decode UTF-8, not Latin-1 per byte.

@@ -144,10 +144,6 @@ class TopologyTests(unittest.TestCase):
         self.assertTrue(all(c.ok for c in checks), [c.detail for c in checks])
 
 
-if __name__ == "__main__":
-    sys.exit(unittest.main())
-
-
 class AssemblyDocumentTests(unittest.TestCase):
     def test_assembly_marker_detected(self):
         self.assertFalse(v.is_assembly_document(wrap("")))
