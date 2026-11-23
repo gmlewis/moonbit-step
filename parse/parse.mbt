@@ -513,13 +513,23 @@ fn parse_double(s : String) -> Double raise StepParseError {
 
 ///|
 fn strip_quotes(s : String) -> String {
-  let t = s.trim().to_owned()
-  if t.length() >= 2 &&
-    cu_at(t, 0) == Char::to_int('\'') &&
-    cu_at(t, t.length() - 1) == Char::to_int('\'') {
-    return substr(t, 1, t.length() - 1)
+  // STEP strings escape a literal apostrophe by doubling it. Unescape on the
+  // way in so `step_str` (which re-escapes) reproduces the original text.
+  // Every call site passes a STEP string literal, so fixing it here covers
+  // all typed entities at once.
+  match parse_step_string_literal_unescaped(s) {
+    Some(v) => v
+    None => {
+      // Malformed literal: keep the old best-effort behavior.
+      let t = s.trim().to_owned()
+      if t.length() >= 2 &&
+        cu_at(t, 0) == Char::to_int('\'') &&
+        cu_at(t, t.length() - 1) == Char::to_int('\'') {
+        return substr(t, 1, t.length() - 1)
+      }
+      t
+    }
   }
-  t
 }
 
 ///|
@@ -573,7 +583,11 @@ fn parse_ref_int(s : String) -> @step.EntityId raise StepParseError {
   if t.length() < 2 || cu_at(t, 0) != Char::to_int('#') {
     fail_parse()
   }
-  let v = parse_int_dec(substr(t, 1, t.length()))
+  let digits = substr(t, 1, t.length())
+  if !all_decimal_digits(digits) {
+    fail_parse()
+  }
+  let v = parse_int_dec(digits)
   @step.EntityId::{ value: v, }
 }
 
@@ -3350,23 +3364,14 @@ fn parse_header_section(header_section : String) -> @header.HeaderSection {
 }
 
 ///|
-fn bytes_ascii_to_string_preserve(ascii : Bytes) -> String {
-  let builder = StringBuilder()
-  for byte in ascii {
-    // STEP files are typically ASCII; preserve CR/LF/tab literally.
-    builder.write_char(byte.to_int().unsafe_to_char())
-  }
-  builder.to_string()
-}
-
-///|
 // Async entrypoint: read a STEP file and parse it into a Repository.
 // Uses moonbitlang/async for file I/O.
 pub async fn parse_repository_from_file(
   path : StringView,
 ) -> @repository.Repository raise Error {
-  let content_bytes = @fs.read_file(path)
-  let content = bytes_ascii_to_string_preserve(content_bytes.binary())
+  // `.text()` decodes UTF-8. Decoding byte-by-byte instead would mojibake any
+  // non-ASCII name or annotation in a third-party STEP file.
+  let content = @fs.read_file(path).text()
   parse_repository_from_string(content)
 }
 
@@ -3492,8 +3497,11 @@ pub fn parse_repository_from_string_lenient(
             parse_complex_instance(row.args),
           ) catch {
             _ =>
+              // Keep the original complex instance text. An empty name makes
+              // RawEntity::to_step emit just `row.args` (the parenthesized
+              // complex body), rather than a bogus `__COMPLEX__(...)` entity.
               @repository.any_entity_raw_entity(
-                @step.RawEntity::new(row.name, row.args),
+                @step.RawEntity::new("", row.args),
               )
           }
           repo = repo.insert_with_id(row.id, entity)

@@ -1,0 +1,10 @@
+ISO-10303-21;
+HEADER;
+FILE_DESCRIPTION(('utf8'),'2;1');
+FILE_NAME('utf8.step','2025-01-01T00:00:00',('gmlewis/step'),('gmlewis/step'),'moon','moonbit','none');
+FILE_SCHEMA(('AUTOMOTIVE_DESIGN'));
+ENDSEC;
+DATA;
+#1=CARTESIAN_POINT('café',(1.,2.,3.));
+ENDSEC;
+END-ISO-10303-21;

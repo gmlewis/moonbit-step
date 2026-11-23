@@ -10,6 +10,8 @@ __pycache__
 *.blend*
 *.step
 *.stp
+# STEP fixtures under tests/testdata are repository inputs, not generated artifacts.
+!tests/testdata/*.step
 /*.md
 /.github/*.md
 /.github/skills/**

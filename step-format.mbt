@@ -1,8 +1,19 @@
 ///|
 // STEP text helpers
 pub fn step_str(s : String) -> String {
-  let replaced = s.replace(old="'", new="''")
-  "'\{replaced}'"
+  // Escape every apostrophe by doubling it. Build the result explicitly:
+  // `String::replace` is not guaranteed to replace more than the first match,
+  // and a STEP string may contain several doubled quotes.
+  let builder = StringBuilder()
+  builder.write_char('\'')
+  for c in s {
+    if c == '\'' {
+      builder.write_char('\'')
+    }
+    builder.write_char(c)
+  }
+  builder.write_char('\'')
+  builder.to_string()
 }
 
 ///|

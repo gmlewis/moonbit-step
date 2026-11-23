@@ -129,6 +129,21 @@ fn cu_at(s : String, i : Int32) -> Int32 {
 }
 
 ///|
+fn all_decimal_digits(s : String) -> Bool {
+  let n = s.length()
+  if n == 0 {
+    return false
+  }
+  for i in 0..<n {
+    let ci = cu_at(s, i)
+    if ci < Char::to_int('0') || ci > Char::to_int('9') {
+      return false
+    }
+  }
+  true
+}
+
+///|
 fn parse_int_dec(s : String) -> Int32 {
   let t = s.trim().to_owned()
   let mut sign = 1
@@ -339,6 +354,14 @@ fn parse_row(span : StatementSpan) -> RawEntityRow raise StepParseError {
     )
   }
   let id_digits = substr(id_part, 1, id_part.length())
+  if !all_decimal_digits(id_digits) {
+    fail_parse_at(
+      "invalid entity id (expected '#<int>')",
+      span.line,
+      span.col,
+      stmt,
+    )
+  }
   let id_val = parse_int_dec(id_digits)
   let id = @step.EntityId::{ value: id_val, }
   let rhs = substr(stmt, eq_idx + 1, stmt.length()).trim().to_owned()
