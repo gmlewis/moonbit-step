@@ -160,14 +160,16 @@ def composite_views(inkscape_bin, views_dict, output_png):
         if os.path.exists(tmp_svg_path):
             os.unlink(tmp_svg_path)
 
+VIEWS = [
+    ("iso", "vviewparams -proj 1 -1 1 -up 0 0 1"),
+    ("top", "vtop"),
+    ("front", "vfront"),
+    ("side", "vleft"),
+]
+
 def render_variant(occt_bin, inkscape_bin, step_path, example_dir, idx):
     # Generate 4 separate PNGs and composite them
-    views = [
-        ("iso", "vviewparams -proj 1 -1 1 -up 0 0 1"),
-        ("top", "vtop"),
-        ("front", "vfront"),
-        ("side", "vleft")
-    ]
+    views = VIEWS
 
     temp_pngs = {}
     # Use a temp directory for the 4 views

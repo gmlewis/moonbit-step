@@ -25,14 +25,12 @@ _scripts_dir = Path(__file__).resolve().parent
 if str(_scripts_dir) not in sys.path:
     sys.path.insert(0, str(_scripts_dir))
 
-from manage_examples import composite_views, find_occt, render_view  # noqa: E402
-
-VIEWS = [
-    ("iso", "vviewparams -proj 1 -1 1 -up 0 0 1"),
-    ("top", "vtop"),
-    ("front", "vfront"),
-    ("side", "vleft"),
-]
+from manage_examples import (  # noqa: E402
+    VIEWS,
+    composite_views,
+    find_occt,
+    render_view,
+)
 
 
 def main() -> int:

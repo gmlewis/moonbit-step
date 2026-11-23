@@ -296,6 +296,145 @@ fn add_plane_face_from_loops(
 }
 
 ///|
+/// CylindricalBand is the analytic lateral band emitted by
+/// `compile_cylindrical_band`: the seam loop and its cylindrical surface, the
+/// bottom and top circular boundary edges, and (for outer walls built with
+/// `cap_planes`) the two cap planes.
+priv struct CylindricalBand {
+  bottom_edge : @step.Ref
+  top_edge : @step.Ref
+  lateral_loop : @step.Ref
+  surface : @step.Ref
+  bottom_plane : @step.Ref?
+  top_plane : @step.Ref?
+}
+
+///|
+/// compile_cylindrical_band emits the analytic cylinder band shared by the
+/// cylinder, round-bore, bevel-bore and chamfered-prism compilers.
+///
+/// `bottom_center_ref` / `top_center_ref` are CARTESIAN_POINT references on the
+/// axis and `up_ref` / `right_ref` are the transformed axis and reference
+/// directions. `seam_bottom` / `seam_top` are the world-space seam endpoints at
+/// `+X`. `inner` selects a bore wall: its circular edges run the opposite way
+/// and the surface sense is inverted relative to the axis. `cap_planes` emits a
+/// downward-facing bottom cap plane and an upward-facing top cap plane for an
+/// outer wall whose caps are separate faces.
+///
+/// Entities are created in the same order the five former call sites used, so
+/// generated STEP bytes are unchanged.
+fn compile_cylindrical_band(
+  ctx : StepContext,
+  bottom_center_ref : @step.Ref,
+  top_center_ref : @step.Ref,
+  up_ref : @step.Ref,
+  right_ref : @step.Ref,
+  radius_mm : Double,
+  seam_bottom : Vec3,
+  seam_top : Vec3,
+  down_ref~ : @step.Ref? = None,
+  inner~ : Bool = false,
+  cap_planes~ : Bool = false,
+) -> CylindricalBand {
+  let radius = @step.fmt_num(radius_mm)
+  let a2p_bottom = ctx.axis2_placement_3d(bottom_center_ref, up_ref, right_ref)
+  let a2p_top = ctx.axis2_placement_3d(top_center_ref, up_ref, right_ref)
+  let a2p_bottom_plane : @step.Ref? = if cap_planes {
+    Some(
+      ctx.axis2_placement_3d(bottom_center_ref, down_ref.unwrap(), right_ref),
+    )
+  } else {
+    None
+  }
+  let circle_bottom_ref = ctx.add(
+    @repository.any_entity_circle(@geometry.Circle::new("", a2p_bottom, radius)),
+  )
+  let circle_top_ref = ctx.add(
+    @repository.any_entity_circle(@geometry.Circle::new("", a2p_top, radius)),
+  )
+  let surface_ref = ctx.add(
+    @repository.any_entity_cylindrical_surface(
+      @geometry.CylindricalSurface::new("", a2p_bottom, radius),
+    ),
+  )
+  let bottom_plane : @step.Ref? = if cap_planes {
+    Some(
+      ctx.add(
+        @repository.any_entity_plane(
+          @geometry.Plane::new("", a2p_bottom_plane.unwrap()),
+        ),
+      ),
+    )
+  } else {
+    None
+  }
+  let top_plane : @step.Ref? = if cap_planes {
+    Some(
+      ctx.add(@repository.any_entity_plane(@geometry.Plane::new("", a2p_top))),
+    )
+  } else {
+    None
+  }
+  let cp_sb = ctx.cartesian_point(seam_bottom.0, seam_bottom.1, seam_bottom.2)
+  let cp_st = ctx.cartesian_point(seam_top.0, seam_top.1, seam_top.2)
+  let vp_sb = ctx.vertex_point(cp_sb)
+  let vp_st = ctx.vertex_point(cp_st)
+  let seam = ctx.edge_curve(
+    vp_sb,
+    vp_st,
+    ctx.line(cp_sb, ctx.vector(up_ref, 1.0)),
+    true,
+  )
+  let bottom_edge = ctx.edge_curve(vp_sb, vp_sb, circle_bottom_ref, true)
+  let top_edge = ctx.edge_curve(vp_st, vp_st, circle_top_ref, true)
+  let lateral_loop = if inner {
+    ctx.edge_loop([
+      ctx.oriented_edge(seam, true),
+      ctx.oriented_edge(top_edge, true),
+      ctx.oriented_edge(seam, false),
+      ctx.oriented_edge(bottom_edge, false),
+    ])
+  } else {
+    ctx.edge_loop([
+      ctx.oriented_edge(seam, true),
+      ctx.oriented_edge(top_edge, false),
+      ctx.oriented_edge(seam, false),
+      ctx.oriented_edge(bottom_edge, true),
+    ])
+  }
+  {
+    bottom_edge,
+    top_edge,
+    lateral_loop,
+    surface: surface_ref,
+    bottom_plane,
+    top_plane,
+  }
+}
+
+///|
+/// cylindrical_band_face attaches a band's seam loop to its cylindrical surface
+/// as an advanced face. The caller invokes it where its former inline code
+/// emitted the face, preserving entity ordering. `inner` selects a bore wall,
+/// whose surface sense is inverted relative to the axis.
+fn cylindrical_band_face(
+  ctx : StepContext,
+  band : CylindricalBand,
+  inner~ : Bool = false,
+  reverse~ : Bool = false,
+) -> @step.Ref {
+  ctx.advanced_face(
+    [ctx.face_outer_bound(band.lateral_loop, true)],
+    band.surface,
+    if inner {
+      reverse
+    } else {
+      !reverse
+    },
+  )
+}
+
+///|
 pub(all) struct EdgeInfo {
   start : Int32
   end : Int32

@@ -577,61 +577,33 @@ fn compile_chamfered_prism_round_bore(
   let up = xform.apply_dir((0.0, 0.0, 1.0))
   let right = xform.apply_dir((1.0, 0.0, 0.0))
   let down = xform.apply_dir((0.0, 0.0, -1.0))
-  let dir_up = ctx.direction(up.0, up.1, up.2)
-  let dir_right = ctx.direction(right.0, right.1, right.2)
+  let up_ref = ctx.direction(up.0, up.1, up.2)
+  let right_ref = ctx.direction(right.0, right.1, right.2)
   let p_b = xform.apply((center.0, center.1, z0))
   let p_t = xform.apply((center.0, center.1, z1))
   let cp_b = ctx.cartesian_point(p_b.0, p_b.1, p_b.2)
   let cp_t = ctx.cartesian_point(p_t.0, p_t.1, p_t.2)
-  let a2p_b = ctx.axis2_placement_3d(cp_b, dir_up, dir_right)
-  let a2p_t = ctx.axis2_placement_3d(cp_t, dir_up, dir_right)
-  let radius = @step.fmt_num(rb)
-  let circle_b = ctx.add(
-    @repository.any_entity_circle(@geometry.Circle::new("", a2p_b, radius)),
+  let band = compile_cylindrical_band(
+    ctx,
+    cp_b,
+    cp_t,
+    up_ref,
+    right_ref,
+    rb,
+    xform.apply((center.0 + rb, center.1, z0)),
+    xform.apply((center.0 + rb, center.1, z1)),
+    inner=true,
   )
-  let circle_t = ctx.add(
-    @repository.any_entity_circle(@geometry.Circle::new("", a2p_t, radius)),
-  )
-  let cylinder = ctx.add(
-    @repository.any_entity_cylindrical_surface(
-      @geometry.CylindricalSurface::new("", a2p_b, radius),
-    ),
-  )
-  let seam_b = xform.apply((center.0 + rb, center.1, z0))
-  let seam_t = xform.apply((center.0 + rb, center.1, z1))
-  let cp_sb = ctx.cartesian_point(seam_b.0, seam_b.1, seam_b.2)
-  let cp_st = ctx.cartesian_point(seam_t.0, seam_t.1, seam_t.2)
-  let vp_sb = ctx.vertex_point(cp_sb)
-  let vp_st = ctx.vertex_point(cp_st)
-  let seam = ctx.edge_curve(
-    vp_sb,
-    vp_st,
-    ctx.line(cp_sb, ctx.vector(dir_up, 1.0)),
-    true,
-  )
-  let e_b = ctx.edge_curve(vp_sb, vp_sb, circle_b, true)
-  let e_t = ctx.edge_curve(vp_st, vp_st, circle_t, true)
-  let lateral_loop = ctx.edge_loop([
-    ctx.oriented_edge(seam, true),
-    ctx.oriented_edge(e_t, true),
-    ctx.oriented_edge(seam, false),
-    ctx.oriented_edge(e_b, false),
-  ])
-  let face_refs : Array[@step.Ref] = []
   // A hole wall's natural cylinder normal points radially outward; the face
   // normal must point toward the axis, so `same_sense` is the reverse flag.
-  face_refs.push(
-    ctx.advanced_face(
-      [ctx.face_outer_bound(lateral_loop, true)],
-      cylinder,
-      reverse,
-    ),
-  )
+  let face_refs : Array[@step.Ref] = [
+    cylindrical_band_face(ctx, band, inner=true, reverse~),
+  ]
   // The lateral loop traverses the bottom circle forward (`true`) and the top
   // circle backward (`false`); each cap must traverse the same circle in the
   // opposite direction so every shared edge is used twice with opposite sense.
-  let bottom_hole = ctx.edge_loop([ctx.oriented_edge(e_b, true)])
-  let top_hole = ctx.edge_loop([ctx.oriented_edge(e_t, false)])
+  let bottom_hole = ctx.edge_loop([ctx.oriented_edge(band.bottom_edge, true)])
+  let top_hole = ctx.edge_loop([ctx.oriented_edge(band.top_edge, false)])
   face_refs.push(
     add_plane_face_with_edge_loops(
       ctx,

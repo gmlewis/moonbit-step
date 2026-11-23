@@ -710,52 +710,29 @@ fn compile_bevel_gear_body_smooth(
     let p_t = xform.apply((0.0, 0.0, e.front_z_mm))
     let cp_b = ctx.cartesian_point(p_b.0, p_b.1, p_b.2)
     let cp_t = ctx.cartesian_point(p_t.0, p_t.1, p_t.2)
-    let a2p_b = ctx.axis2_placement_3d(cp_b, dir_up, dir_right)
-    let a2p_t = ctx.axis2_placement_3d(cp_t, dir_up, dir_right)
-    let radius = @step.fmt_num(e.bore_radius_mm)
-    let circle_b = ctx.add(
-      @repository.any_entity_circle(@geometry.Circle::new("", a2p_b, radius)),
+    let band = compile_cylindrical_band(
+      ctx,
+      cp_b,
+      cp_t,
+      dir_up,
+      dir_right,
+      e.bore_radius_mm,
+      xform.apply((e.bore_radius_mm, 0.0, e.root_z_mm)),
+      xform.apply((e.bore_radius_mm, 0.0, e.front_z_mm)),
+      inner=true,
     )
-    let circle_t = ctx.add(
-      @repository.any_entity_circle(@geometry.Circle::new("", a2p_t, radius)),
-    )
-    let cylinder = ctx.add(
-      @repository.any_entity_cylindrical_surface(
-        @geometry.CylindricalSurface::new("", a2p_b, radius),
-      ),
-    )
-    let seam_b = xform.apply((e.bore_radius_mm, 0.0, e.root_z_mm))
-    let seam_t = xform.apply((e.bore_radius_mm, 0.0, e.front_z_mm))
-    let cp_sb = ctx.cartesian_point(seam_b.0, seam_b.1, seam_b.2)
-    let cp_st = ctx.cartesian_point(seam_t.0, seam_t.1, seam_t.2)
-    let vp_sb = ctx.vertex_point(cp_sb)
-    let vp_st = ctx.vertex_point(cp_st)
-    let seam = ctx.edge_curve(
-      vp_sb,
-      vp_st,
-      ctx.line(cp_sb, ctx.vector(dir_up, 1.0)),
-      true,
-    )
-    let e_b = ctx.edge_curve(vp_sb, vp_sb, circle_b, true)
-    let e_t = ctx.edge_curve(vp_st, vp_st, circle_t, true)
-    let lateral_loop = ctx.edge_loop([
-      ctx.oriented_edge(seam, true),
-      ctx.oriented_edge(e_t, true),
-      ctx.oriented_edge(seam, false),
-      ctx.oriented_edge(e_b, false),
-    ])
-    face_refs.push(
-      ctx.advanced_face(
-        [ctx.face_outer_bound(lateral_loop, true)],
-        cylinder,
-        reverse,
-      ),
-    )
+    face_refs.push(cylindrical_band_face(ctx, band, inner=true, reverse~))
     front_holes.push(
-      ctx.face_bound(ctx.edge_loop([ctx.oriented_edge(e_t, false)]), true),
+      ctx.face_bound(
+        ctx.edge_loop([ctx.oriented_edge(band.top_edge, false)]),
+        true,
+      ),
     )
     back_holes.push(
-      ctx.face_bound(ctx.edge_loop([ctx.oriented_edge(e_b, true)]), true),
+      ctx.face_bound(
+        ctx.edge_loop([ctx.oriented_edge(band.bottom_edge, true)]),
+        true,
+      ),
     )
   }
 
