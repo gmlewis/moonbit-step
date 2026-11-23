@@ -380,11 +380,7 @@ fn append_helix_connectors_and_exit_wires(
     if ni > 1 {
       let end_angle = rotations[ni - 2] -
         @math.asin(params.wire_gap / connector_radius)
-      let start_angle = if ni < ctx.npairs {
-        rotations[ni - 1] - 0.1 // temporary debugging hack
-      } else {
-        rotations[ni - 1]
-      }
+      let start_angle = rotations[ni - 1]
       red_cage_wire_support_info.push({
         inner_radius: connector_radius,
         start_angle,
@@ -483,12 +479,7 @@ fn append_helix_connectors_and_exit_wires(
       let end_angle = rotations[ni - 2] -
         @math.asin(params.wire_gap / connector_radius) +
         @math.PI
-      let start_angle = @math.PI +
-        (if ni < ctx.npairs {
-          rotations[ni - 1] - 0.1 // temporary debugging hack
-        } else {
-          rotations[ni - 1]
-        })
+      let start_angle = @math.PI + rotations[ni - 1]
       green_cage_wire_support_info.push({
         inner_radius: connector_radius,
         start_angle,
