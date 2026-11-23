@@ -540,18 +540,39 @@ pub fn Design::has_errors(self : Design) -> Bool {
 }
 
 ///|
+/// Design::first_error returns the first diagnostic that blocks a checked
+/// export, or None when the design is exportable. Shared by every exporter's
+/// `checked~` option so the rule lives in one place.
+fn Design::first_error(self : Design) -> Diagnostic? {
+  for d in self.diagnostics() {
+    if d.severity().is_error() {
+      return Some(d)
+    }
+  }
+  None
+}
+
+///|
+/// Design::abort_if_errors implements the `checked~` option for exporters that
+/// do not go through `to_step_file_checked()`.
+fn Design::abort_if_errors(self : Design) -> Unit {
+  match self.first_error() {
+    Some(d) => abort(d.message())
+    None => ()
+  }
+}
+
+///|
 /// Design::to_step_file_checked_result is the recoverable counterpart of
 /// `to_step_file_checked()`. It returns the first error diagnostic instead of
 /// terminating the process, so library callers can inspect or propagate it.
 pub fn Design::to_step_file_checked_result(
   self : Design,
 ) -> Result[String, Diagnostic] {
-  for d in self.diagnostics() {
-    if d.severity().is_error() {
-      return Err(d)
-    }
+  match self.first_error() {
+    Some(d) => Err(d)
+    None => Ok(self.to_step_file())
   }
-  Ok(self.to_step_file())
 }
 
 ///|

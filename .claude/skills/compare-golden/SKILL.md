@@ -27,8 +27,7 @@ golden file.
 
 ## Prerequisites
 
-- Work in the repository root
-  (`/Users/glenn/src/github.com/gmlewis/moonbit-17-step`).
+- Work in the repository root (the directory containing `moon.mod`).
 - The golden corpus lives in `components/testdata/golden/external/`.
 - The harness is `./compare-golden.sh` (a repo-root symlink to
   `scripts/compare-golden.sh` is normal and supported).

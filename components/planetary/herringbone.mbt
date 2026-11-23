@@ -369,30 +369,20 @@ fn hb_radius_of(pt : (Double, Double)) -> Double {
 }
 
 ///|
-fn hb_sq_dist(a : (Double, Double), b : (Double, Double)) -> Double {
-  let dx = a.0 - b.0
-  let dz = a.1 - b.1
-  dx * dx + dz * dz
-}
-
-///|
+// Shared 2D geometry lives in components/gears/involute.mbt; the local names
+// keep the XZ-plane naming used throughout this generator.
 fn hb_rotate_xz(pt : (Double, Double), theta : Double) -> (Double, Double) {
-  let c = @math.cos(theta)
-  let s = @math.sin(theta)
-  (c * pt.0 - s * pt.1, s * pt.0 + c * pt.1)
+  @gears.rotate_xy(pt, theta)
 }
 
 ///|
 fn hb_involute_xz(radius : Double, theta : Double) -> (Double, Double) {
-  let c = @math.cos(theta)
-  let s = @math.sin(theta)
-  (radius * (c + theta * s), radius * (s - theta * c))
+  @gears.involute_xy(radius, theta)
 }
 
 ///|
 fn hb_involute_theta(radius : Double, distance : Double) -> Double {
-  let x = distance / radius
-  Double::sqrt(x * x - 1.0)
+  @gears.involute_theta(radius, distance)
 }
 
 ///|
@@ -400,17 +390,7 @@ fn hb_clean_polygon(
   pts : Array[(Double, Double)],
   eps2 : Double,
 ) -> Array[(Double, Double)] {
-  let out : Array[(Double, Double)] = []
-  for pt in pts {
-    let keep = out.length() == 0 || hb_sq_dist(out[out.length() - 1], pt) > eps2
-    if keep {
-      out.push(pt)
-    }
-  }
-  while out.length() > 1 && hb_sq_dist(out[0], out[out.length() - 1]) <= eps2 {
-    let _ = out.pop()
-  }
-  out
+  @gears.clean_polygon(pts, eps2)
 }
 
 ///|

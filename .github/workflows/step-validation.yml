@@ -51,6 +51,9 @@ jobs:
       - name: validate generated STEP files (syntax and topology)
         run: python3 scripts/manage_examples.py all --validate --no-mesh
 
+      - name: validate component example STEP outputs
+        run: python3 scripts/validate_component_examples.py
+
   deep:
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest

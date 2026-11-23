@@ -40,27 +40,27 @@ pub fn involute_gear_geometry(
 }
 
 ///|
-fn rotate_xy(pt : @cad.Vec2, theta : Double) -> @cad.Vec2 {
+pub fn rotate_xy(pt : @cad.Vec2, theta : Double) -> @cad.Vec2 {
   let c = @math.cos(theta)
   let s = @math.sin(theta)
   (c * pt.0 - s * pt.1, s * pt.0 + c * pt.1)
 }
 
 ///|
-fn involute_xy(radius : Double, theta : Double) -> @cad.Vec2 {
+pub fn involute_xy(radius : Double, theta : Double) -> @cad.Vec2 {
   let c = @math.cos(theta)
   let s = @math.sin(theta)
   (radius * (c + theta * s), radius * (s - theta * c))
 }
 
 ///|
-fn involute_theta(radius : Double, distance : Double) -> Double {
+pub fn involute_theta(radius : Double, distance : Double) -> Double {
   let x = distance / radius
   Double::sqrt(x * x - 1.0)
 }
 
 ///|
-fn sq_dist(a : @cad.Vec2, b : @cad.Vec2) -> Double {
+pub fn sq_dist(a : @cad.Vec2, b : @cad.Vec2) -> Double {
   let dx = a.0 - b.0
   let dy = a.1 - b.1
   dx * dx + dy * dy
@@ -69,7 +69,7 @@ fn sq_dist(a : @cad.Vec2, b : @cad.Vec2) -> Double {
 ///|
 /// clean_polygon removes consecutive points closer than `eps2` (squared
 /// distance) and a duplicated seam point.
-fn clean_polygon(pts : Array[@cad.Vec2], eps2 : Double) -> Array[@cad.Vec2] {
+pub fn clean_polygon(pts : Array[@cad.Vec2], eps2 : Double) -> Array[@cad.Vec2] {
   let out : Array[@cad.Vec2] = []
   for pt in pts {
     let keep = out.length() == 0 || sq_dist(out[out.length() - 1], pt) > eps2

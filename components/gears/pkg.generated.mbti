@@ -22,6 +22,8 @@ pub fn bevel_gear(BevelGearParams, detail? : @common.DetailLevel, orient_to_refe
 
 pub fn bevel_gear_pair(BevelGearParams, BevelGearParams, detail? : @common.DetailLevel, driver_color? : @cad.Rgb, driven_color? : @cad.Rgb) -> Result[@assemblies.Assembly, @common.SpecError]
 
+pub fn clean_polygon(Array[(Double, Double)], Double) -> Array[(Double, Double)]
+
 pub fn external_involute_outline(Double, Int32, Double, backlash_mm? : Double, involute_points? : Int32, arc_points? : Int32) -> Array[(Double, Double)]
 
 pub fn external_involute_outline_ex(Double, Int32, Double, backlash_mm? : Double, involute_points? : Int32, arc_points? : Int32, root_fillet_radius_mm? : Double, tip_chamfer_mm? : Double, fillet_segments? : Int32) -> Result[Array[(Double, Double)], @common.SpecError]
@@ -52,11 +54,19 @@ pub fn involute_gear_geometry(Double, Int32, Double) -> InvoluteGearGeometry
 
 pub fn involute_outline_area(Array[(Double, Double)]) -> Double
 
+pub fn involute_theta(Double, Double) -> Double
+
+pub fn involute_xy(Double, Double) -> (Double, Double)
+
 pub fn planetary_gear_set(PlanetaryParams, detail? : @common.DetailLevel, smooth? : Bool) -> Result[@assemblies.Assembly, @common.SpecError]
+
+pub fn rotate_xy((Double, Double), Double) -> (Double, Double)
 
 pub fn spur_gear(SpurGearParams, detail? : @common.DetailLevel, color? : @cad.Rgb, smooth? : Bool) -> Result[@common.Component, @common.SpecError]
 
 pub fn spur_gear_envelope(SpurGearParams, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn sq_dist((Double, Double), (Double, Double)) -> Double
 
 // Errors
 

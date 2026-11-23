@@ -60,7 +60,11 @@ pub async fn Design::to_step_evaluated(
   self : Design,
   root~ : String? = None,
   layers_json? : String,
+  checked~ : Bool = false,
 ) -> String {
+  if checked {
+    self.abort_if_errors()
+  }
   let root = match root {
     Some(_) => root
     None => @env.get_env_var("MOONBIT_STEP_ROOT")
@@ -109,8 +113,9 @@ pub async fn Design::write_step_evaluated(
   self : Design,
   out_path : String?,
   root~ : String? = None,
+  checked~ : Bool = false,
 ) -> Unit {
-  let text = self.to_step_evaluated(root~) catch {
+  let text = self.to_step_evaluated(root~, checked~) catch {
     CsgEvalError(msg) => abort(msg)
     err => abort("CSG evaluation failed: \{err}")
   }

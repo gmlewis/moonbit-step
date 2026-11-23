@@ -42,6 +42,22 @@ test "checked_result returns Ok for a clean design" {
 }
 
 ///|
+test "checked option leaves clean non-flat exporters unchanged" {
+  let design = @cad.Design::new(name="checked")
+    .add(@cad.Cuboid::new(10.0, 10.0, 10.0).with_name("cube"))
+    .with_timestamp("2025-01-01T00:00:00")
+  assert_eq(
+    design.to_assembly_step(assembly_name="asm", checked=true),
+    design.to_assembly_step(assembly_name="asm"),
+  )
+  assert_eq(
+    design.to_instanced_step_string(assembly_name="asm", checked=true),
+    design.to_instanced_step_string(assembly_name="asm"),
+  )
+  assert_eq(design.to_csg_step(checked=true), design.to_csg_step())
+}
+
+///|
 test "checked_result returns the error diagnostic instead of aborting" {
   let base = @cad.Cuboid::new(20.0, 20.0, 5.0).with_name("base")
   let cutter = @cad.Cuboid::new(2.0, 2.0, 10.0).with_name("cutter")

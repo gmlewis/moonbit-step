@@ -17,6 +17,28 @@ import csg_eval as c  # noqa: E402
 HAVE_DRAW = bool(shutil.which("DRAWEXE") or shutil.which("occt-draw"))
 
 
+def ocp_available() -> bool:
+    """Probe Python OCP in a subprocess.
+
+    Importing OCP in-process can abort the interpreter when the bindings are
+    only partially installed (the scheduled deep CI job installs DRAWEXE but
+    not Python OCP). A subprocess keeps that failure isolated to a return code.
+    """
+    try:
+        probe = subprocess.run(
+            [sys.executable, "-I", "-c", "import OCP"],
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return False
+    return probe.returncode == 0
+
+
+HAVE_OCP = ocp_available()
+
+
 def wrap(data: str) -> str:
     return (
         "ISO-10303-21;\n"
@@ -133,7 +155,10 @@ class ParsingTests(unittest.TestCase):
         self.assertIn("DATA;", text)
 
 
-@unittest.skipUnless(HAVE_DRAW, "OCCT DRAWEXE/occt-draw is not installed")
+@unittest.skipUnless(
+    HAVE_DRAW and HAVE_OCP,
+    "OCCT DRAWEXE/occt-draw and the Python OCP bindings are both required",
+)
 class IntegrationTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

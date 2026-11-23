@@ -9,6 +9,8 @@ import {
 // Values
 pub fn chord_deviation(Double, Int32) -> Double
 
+pub fn circle_loop(Double, Double, Double) -> Array[@cad.ProfileSegment]
+
 pub fn dir_dot((Double, Double, Double), (Double, Double, Double)) -> Double
 
 pub fn[T] expect_ok(Result[T, SpecError]) -> T
@@ -32,6 +34,8 @@ pub fn length_mm(String, @cad.Length) -> Result[Double, SpecError]
 pub fn near(Double, Double, tol? : Double) -> Bool
 
 pub fn normalize_dir((Double, Double, Double)) -> (Double, Double, Double)
+
+pub fn polar_deg(Double, Double) -> (Double, Double)
 
 pub fn require_in_range(String, Double, Double, Double) -> Result[Unit, SpecError]
 

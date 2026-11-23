@@ -587,8 +587,7 @@ pub fn a12_motor_spec(spec : A12MotorSpec) -> Result[Unit, @common.SpecError] {
 ///|
 /// a12_polar returns a point at a radius and angle in degrees.
 fn a12_polar(radius : Double, angle_deg : Double) -> (Double, Double) {
-  let angle = angle_deg * @math.PI / 180.0
-  (radius * @math.cos(angle), radius * @math.sin(angle))
+  @common.polar_deg(radius, angle_deg)
 }
 
 ///|
@@ -598,13 +597,7 @@ fn a12_circle_loop(
   cy : Double,
   radius : Double,
 ) -> Array[@cad.ProfileSegment] {
-  let c = (cx, cy)
-  [
-    @cad.SegmentArc((cx + radius, cy), (cx, cy + radius), c),
-    @cad.SegmentArc((cx, cy + radius), (cx - radius, cy), c),
-    @cad.SegmentArc((cx - radius, cy), (cx, cy - radius), c),
-    @cad.SegmentArc((cx, cy - radius), (cx + radius, cy), c),
-  ]
+  @common.circle_loop(cx, cy, radius)
 }
 
 ///|

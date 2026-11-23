@@ -244,7 +244,10 @@ fn compile_edge_feature(
 ///
 /// The flat export is unchanged; use `to_step_file` for the portable nominal
 /// representation.
-pub fn Design::to_csg_step(self : Design) -> String {
+pub fn Design::to_csg_step(self : Design, checked~ : Bool = false) -> String {
+  if checked {
+    self.abort_if_errors()
+  }
   let ctx = StepContext::new(snapping?=self.snapping)
   ctx.init_standard_context(self.name)
   let product_defs : Array[@step.Ref] = []
@@ -298,6 +301,10 @@ pub fn Design::to_csg_step(self : Design) -> String {
 
 ///|
 /// Design::write_csg_step writes the CSG STEP document to `out_path`.
-pub async fn Design::write_csg_step(self : Design, out_path : String?) -> Unit {
-  write_text_file(self.to_csg_step(), out_path)
+pub async fn Design::write_csg_step(
+  self : Design,
+  out_path : String?,
+  checked~ : Bool = false,
+) -> Unit {
+  write_text_file(self.to_csg_step(checked~), out_path)
 }

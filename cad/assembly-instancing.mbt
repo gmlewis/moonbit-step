@@ -366,6 +366,10 @@ fn Design::to_assembly_step_impl(
 pub fn Design::to_instanced_step_string(
   self : Design,
   assembly_name~ : String,
+  checked~ : Bool = false,
 ) -> String {
+  if checked {
+    self.abort_if_errors()
+  }
   self.to_assembly_step_impl(assembly_name~, instanced=true)
 }

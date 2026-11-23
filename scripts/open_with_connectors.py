@@ -22,12 +22,28 @@ import os
 import shutil
 import subprocess
 import sys
+from pathlib import Path
 
-DEFAULT_HELPER = "~/.claude/skills/solidcraft-app/scripts/sc_mcp.py"
+ROOT = Path(__file__).resolve().parent.parent
 
 
 def helper_path() -> str:
-    return os.path.expanduser(os.environ.get("SOLIDCRAFT_HELPER", DEFAULT_HELPER))
+    """Resolve the SolidCraft GUI helper without assuming a particular home dir.
+
+    Priority: ``SOLIDCRAFT_HELPER``, a helper bundled in this repository, then
+    one on PATH. When none exists, return the repo-relative candidate so the
+    caller's diagnostic names a portable path.
+    """
+    explicit = os.environ.get("SOLIDCRAFT_HELPER")
+    if explicit:
+        return os.path.expanduser(explicit)
+    for candidate in (ROOT / "tools" / "sc_mcp.py", ROOT / "scripts" / "sc_mcp.py"):
+        if candidate.is_file():
+            return str(candidate)
+    on_path = shutil.which("sc_mcp.py")
+    if on_path:
+        return on_path
+    return str(ROOT / "tools" / "sc_mcp.py")
 
 
 def helper_available(helper: str) -> bool:
@@ -46,9 +62,9 @@ def helper_available(helper: str) -> bool:
 
 
 def open_with_helper(helper: str, step_path: str) -> tuple[str | None, str]:
-    # The GUI helper only reads files under its allowed roots (its cwd and
-    # /Users/glenn/src/github.com by default). --view writes to /tmp, so allow
-    # the STEP's own directory explicitly.
+    # The GUI helper only reads files under its allowed roots (its cwd and a
+    # configured source root). --view writes to /tmp, so allow the STEP's own
+    # directory explicitly.
     allow = os.path.dirname(os.path.abspath(step_path))
     proc = subprocess.run(
         [
@@ -159,7 +175,14 @@ def main(argv: list[str]) -> int:
         return 1
 
     helper = helper_path()
-    if helper_available(helper):
+    have_helper = helper_available(helper)
+    if not have_helper:
+        print(
+            f"note: no SolidCraft GUI helper at {helper}; set "
+            "SOLIDCRAFT_HELPER to its path to restore connector origins.",
+            file=sys.stderr,
+        )
+    if have_helper:
         component, error = open_with_helper(helper, step_path)
         if component:
             added, failed = add_connector_origins(helper, step_path, component)
