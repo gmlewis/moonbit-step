@@ -92,19 +92,15 @@ test "nested boolean is reported as an error" {
 test "diagnostics is a pure observation" {
   let base = @cad.Cuboid::new(20.0, 20.0, 5.0).with_name("base")
   let cutter = @cad.Cuboid::new(2.0, 2.0, 10.0).with_name("cutter")
-  let design = @cad.Design::new(name="pure").add(
-    @cad.difference(base, [cutter], name="cut"),
-  )
+  let design = @cad.Design::new(name="pure")
+    .add(@cad.difference(base, [cutter], name="cut"))
+    .with_timestamp("2025-01-01T00:00:00")
   let before = design.to_step_file()
   let first = design.diagnostics().map(fn(d) { d.message() })
   let second = design.diagnostics().map(fn(d) { d.message() })
   assert_eq(first, second)
   let after = design.to_step_file()
-  // Compare the DATA section only: the header carries a wall-clock timestamp,
-  // so a full-text equality check is flaky when the two exports straddle a
-  // second boundary. The DATA section is the geometry that must not change.
-  let before_data = before.split("DATA;").collect()
-  let after_data = after.split("DATA;").collect()
-  assert_eq(before_data.length(), after_data.length())
-  assert_eq(before_data[1], after_data[1])
+  // A pinned timestamp allows whole-file equality, which also guards the
+  // header against regressions.
+  assert_eq(before, after)
 }

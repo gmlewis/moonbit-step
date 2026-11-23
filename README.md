@@ -33,6 +33,13 @@ library, including the generic mechanism kit (`hinge`, `clevis`, `linkage`,
 `rail`, `carriage`, `lead-screw`, `belt`, `cam`, `oldham`, springs, and more)
 and the typed parameter/design-family API in `components/common`.
 
+For byte-reproducible files, pin the FILE_NAME timestamp on the design intent:
+`Design::new(...).with_timestamp("2025-01-01T00:00:00")`. Every STEP exporter
+(flat, assembly, instanced, CSG, and evaluated) then emits the same bytes on
+every run; without it the header carries the current time. Library callers that
+need to handle a rejected design without aborting can use
+`to_step_file_checked_result()`, which returns `Result[String, Diagnostic]`.
+
 ## Output formats
 
 | Format | How | Notes |

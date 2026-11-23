@@ -354,6 +354,7 @@ fn Design::to_assembly_step_impl(
       self.description,
       self.documentation,
       nominal=has_nominal_boolean,
+      timestamp?=self.timestamp,
     ),
   )
   ctx.repo.to_step_file()

@@ -290,6 +290,7 @@ pub fn Design::to_csg_step(self : Design) -> String {
       self.description,
       self.documentation,
       nominal=false,
+      timestamp?=self.timestamp,
     ),
   )
   ctx.repo.to_step_file()

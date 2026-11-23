@@ -285,6 +285,7 @@ pub struct Design {
   description : String
   documentation : String
   snapping : Double?
+  timestamp : String?
 }
 pub fn Design::add(Self, SceneNode) -> Self
 pub fn Design::add_iter(Self, Iter[SceneNode]) -> Self
@@ -295,7 +296,7 @@ pub fn Design::compile(Self, timestamp? : String) -> @repository.Repository
 pub async fn Design::create_blender_file(Self, String, keep_modifiers? : Bool, segments? : Int32) -> Unit
 pub fn Design::diagnostics(Self) -> Array[Diagnostic]
 pub fn Design::has_errors(Self) -> Bool
-pub fn Design::new(name? : String, description? : String, documentation? : String, snapping? : Double) -> Self
+pub fn Design::new(name? : String, description? : String, documentation? : String, snapping? : Double, timestamp? : String) -> Self
 pub fn Design::nodes(Self) -> Array[SceneNode]
 pub fn Design::planar_faces(Self) -> FaceSet
 pub fn Design::rotate_x(Self, Double) -> Self
@@ -310,9 +311,11 @@ pub fn Design::to_instanced_step_string(Self, assembly_name~ : String) -> String
 pub async fn Design::to_step_evaluated(Self, root? : String?, layers_json? : String) -> String
 pub fn Design::to_step_file(Self, timestamp? : String) -> String
 pub fn Design::to_step_file_checked(Self) -> String
+pub fn Design::to_step_file_checked_result(Self) -> Result[String, Diagnostic]
 pub fn Design::to_string(Self) -> String
 pub fn Design::translate(Self, x? : Double, y? : Double, z? : Double) -> Self
 pub fn Design::with_documentation(Self, String) -> Self
+pub fn Design::with_timestamp(Self, String) -> Self
 pub async fn Design::write_blender_python(Self, String?, segments? : Int32, keep_modifiers? : Bool) -> Unit
 pub async fn Design::write_csg_step(Self, String?) -> Unit
 pub async fn Design::write_step(Self, String?, checked? : Bool) -> Unit

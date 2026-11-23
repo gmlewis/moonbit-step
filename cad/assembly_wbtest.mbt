@@ -28,16 +28,12 @@ test "assembly emits one placement transformation per node" {
 
 ///|
 test "assembly does not change flat export" {
-  let design = tree_design()
+  // A pinned header timestamp makes the whole file comparable, so this also
+  // catches header regressions rather than only geometry changes.
+  let design = tree_design().with_timestamp("2025-01-01T00:00:00")
   let before = design.to_step_file()
   let _ = design.to_assembly_step(assembly_name="tree-asm")
   let after = design.to_step_file()
-  // Compare the DATA section only: the header carries a wall-clock timestamp,
-  // so a full-text equality check is flaky when the two exports straddle a
-  // second boundary. The DATA section is the geometry that must not change.
-  let before_data = before.split("DATA;").collect()
-  let after_data = after.split("DATA;").collect()
-  assert_eq(before_data.length(), after_data.length())
-  assert_eq(before_data[1], after_data[1])
+  assert_eq(before, after)
   assert_false(before.contains("NEXT_ASSEMBLY_USAGE_OCCURRENCE("))
 }
