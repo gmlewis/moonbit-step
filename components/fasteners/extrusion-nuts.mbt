@@ -19,9 +19,11 @@ pub(all) struct ExtrusionTNutSpec {
 /// extrusion_tnut_spec returns a T-nut envelope for a standard metric thread.
 ///
 /// Body dimensions follow the step.parts extrusion-nut envelope:
-/// M3 5.5 x 2.4, M4 7.0 x 3.2, M5 8.0 x 4.0 mm across flats and thickness.
-/// The catalogue uses the same body for slide-in, drop-in, and hammer styles;
-/// this builder therefore does not assert a style-specific retention feature.
+/// M3 5.5 x 2.4, M4 7.0 x 3.2, M5 8.0 x 4.0 mm across flats and thickness, and
+/// the larger M6 (10.0 x 5.0) and M8 (13.0 x 6.5) hex bodies for 40-series
+/// slots. The catalogue uses the same body for slide-in, drop-in, and hammer
+/// styles; this builder therefore does not assert a style-specific retention
+/// feature.
 pub fn extrusion_tnut_spec(
   thread : String,
   slot_width_mm~ : Double = 5.0,
@@ -31,10 +33,12 @@ pub fn extrusion_tnut_spec(
     "M3" => (5.5, 2.4, 3.0)
     "M4" => (7.0, 3.2, 4.0)
     "M5" => (8.0, 4.0, 5.0)
+    "M6" => (10.0, 5.0, 6.0)
+    "M8" => (13.0, 6.5, 8.0)
     other =>
       return Err(
         @common.InvalidSize(
-          "unsupported extrusion T-nut thread: \{other}; supported: M3, M4, M5",
+          "unsupported extrusion T-nut thread: \{other}; supported: M3, M4, M5, M6, M8",
         ),
       )
   }

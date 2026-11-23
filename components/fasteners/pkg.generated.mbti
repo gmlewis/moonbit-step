@@ -122,6 +122,14 @@ pub fn iso7380_screw(@standards.MetricSize, Double, detail? : @common.DetailLeve
 
 pub fn iso8752_spring_pin(@standards.MetricSize, Double, detail? : @common.DetailLevel, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
+pub fn makerstore_hex_tnut(String, slot_width_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn makerstore_hex_tnut_family() -> Result[@common.DesignFamily, @common.SpecError]
+
+pub fn makerstore_slider_tnut_family() -> Result[@common.DesignFamily, @common.SpecError]
+
+pub fn makerstore_sliding_tnut(String, slot_width_mm? : Double, detail? : @common.DetailLevel, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
 pub fn polyline_circle_approximation(String, Double, Int32) -> @common.Approximation
 
 pub fn shank_tip_chamfer_mm(Double) -> Double

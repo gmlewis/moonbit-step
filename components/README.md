@@ -446,6 +446,30 @@ OCCT's trimmed result. The set-screw shaft collar makes this evaluated result
 its primary artifact because the flat writer cannot trim its radial hole; the
 example's set screw is a second, disjoint solid in the same evaluated compound.
 
+## Maker Store USA parts
+
+A Maker Store USA reconstruction set carries real SKU, price, material, and
+source-URL provenance:
+
+- `makerstore_l_plate` / `l_plate_family()` — 20-series L plate calibrated to
+  the `PLATE-40X40L` dimensioned drawing (40 x 40 mm legs, 3 mm thick, 3 x 3
+  Ø5 holes on 10 mm centres with 10 mm margins), with a `PLATE-40X80L` preset.
+  It is a provenance preset of the single `l_bracket` grid builder, not a
+  second bracket.
+- `makerstore_hex_tnut` (`HARD-TNUT-SLIDING`, M3/M4/M5) and
+  `makerstore_sliding_tnut` (`HARD-40S-TNUT-STEEL-SLID-18`, 20 x 19.1 x 9.1 mm,
+  M4/M5/M6/M8), each with a `*_family()` thread-preset design family.
+- `makerstore_aluminum_spacer` / `makerstore_spacer_family()` (`SHIM-SPAC`,
+  OD 10 / ID 5; lengths 3, 6, 6.5, 9, 10, 20, 30, 35, and 40 mm).
+- `makerstore_corner_bracket` / `makerstore_corner_bracket_family()`
+  (`BRAC-90CAST` 20-series, `BRAC-40S-90CAST-B` 40-series; gusseted envelope).
+- `thrust_bearing` / `thrust_bearing_family()` (`BEAR-F`; F5-10M, F5-12M,
+  F6-12M, F8-16M envelopes).
+
+Every Maker Store entry appears in `makerstore_catalog()` and therefore in
+`full_catalog()`. Geometry is analytic and exact where a drawing is published;
+cast draft, thread helices, and rolling elements are declared omissions.
+
 ## Named connectors and the golden preview
 
 Every public component builder exposes at least one named `MateConnector`

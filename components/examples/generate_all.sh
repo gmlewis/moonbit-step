@@ -208,6 +208,23 @@ moon run components/examples/four_bar -- --mode assembly \
   --ground 40 --crank 10 --coupler 40 --rocker 30 --crankAngle 45 \
   -o "$OUT/assembly-structure/four-bar-40-10-40-30-assembly.step"
 
+# Maker Store USA parts (calibrated L plates and provenance presets).
+moon run components/examples/makerstore_l_plate -- \
+  -o "$OUT/makerstore-l-plate-40x40.step"
+moon run components/examples/makerstore_l_plate -- \
+  --part l40x80 -o "$OUT/makerstore-l-plate-40x80.step"
+moon run components/examples/makerstore_hardware -- \
+  --part spacer --length 10 -o "$OUT/makerstore-spacer-od10-id5x10.step"
+moon run components/examples/makerstore_hardware -- \
+  --part thrust --size F5-10M -o "$OUT/makerstore-thrust-f5-10m.step"
+moon run components/examples/makerstore_hardware -- \
+  --part tnut20 --thread M5 -o "$OUT/makerstore-tnut20-m5.step"
+moon run components/examples/makerstore_hardware -- \
+  --part tnut40 --thread M6 -o "$OUT/makerstore-tnut40-m6.step"
+moon run components/examples/makerstore_hardware -- \
+  --part bracket --leg 20 -o "$OUT/makerstore-bracket-20.step"
+moon run components/examples/makerstore_hardware -- \
+  --part bracket --leg 40 -o "$OUT/makerstore-bracket-40.step"
 # Component examples that previously had no generator entry. Each is covered
 # by the validation loop below, just like every other generated fixture.
 moon run components/examples/makerpipe_frame -- -o "$OUT/makerpipe-frame.step"

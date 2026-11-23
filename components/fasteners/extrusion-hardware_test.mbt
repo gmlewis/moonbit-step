@@ -51,9 +51,11 @@ test "extrusion T-nut M4 and M5 body sizes" {
 }
 
 ///|
-test "extrusion T-nut rejects impossible engagement" {
+test "extrusion T-nut engagement and supported threads" {
   assert_true(@fasteners.extrusion_tnut_spec("M3", slot_width_mm=6.0) is Err(_))
-  assert_true(@fasteners.extrusion_tnut_spec("M6") is Err(_))
+  // M6 and M8 hex bodies were added for 40-series slots; M10 is unsupported.
+  assert_true(@fasteners.extrusion_tnut_spec("M6") is Ok(_))
+  assert_true(@fasteners.extrusion_tnut_spec("M10") is Err(_))
 }
 
 ///|

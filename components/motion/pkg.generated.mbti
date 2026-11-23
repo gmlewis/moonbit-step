@@ -68,6 +68,10 @@ pub fn linear_bearing_designations() -> Array[String]
 
 pub fn linear_bearing_size(String) -> Result[LinearBearingSize, @common.SpecError]
 
+pub fn makerstore_aluminum_spacer(length_mm? : Double, outer_diameter_mm? : Double, inner_diameter_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn makerstore_spacer_family() -> Result[@common.DesignFamily, @common.SpecError]
+
 pub fn measured_tire() -> Result[@common.Component, @common.SpecError]
 
 pub fn measured_tire_mount() -> Result[@common.Component, @common.SpecError]
@@ -95,6 +99,14 @@ pub fn spacer(Double, Double, Double, color? : @cad.Rgb) -> Result[@common.Compo
 pub fn standoff(Double, Double, Double, detail? : @common.DetailLevel) -> Result[@common.Component, @common.SpecError]
 
 pub fn stepped_shaft(Array[ShaftSegment], color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn thrust_bearing(ThrustBearingSize, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn thrust_bearing_designations() -> Array[String]
+
+pub fn thrust_bearing_family() -> Result[@common.DesignFamily, @common.SpecError]
+
+pub fn thrust_bearing_size(String) -> Result[ThrustBearingSize, @common.SpecError]
 
 pub fn tire(TireSpec) -> Result[@common.Component, @common.SpecError]
 
@@ -241,6 +253,13 @@ pub(all) struct ShaftSegment {
   length_mm : Double
 }
 pub fn ShaftSegment::new(Double, Double) -> Result[Self, @common.SpecError]
+
+pub(all) struct ThrustBearingSize {
+  designation : String
+  bore_mm : Double
+  outer_diameter_mm : Double
+  height_mm : Double
+}
 
 pub(all) struct TireMountSpec {
   outer_diameter_mm : Double

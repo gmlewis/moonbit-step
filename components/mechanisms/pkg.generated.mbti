@@ -49,7 +49,9 @@ pub fn grooved_shaft(Double, Double, Double, Double, Double, color? : @cad.Rgb) 
 
 pub fn hinge(Double, Double, Double, Double, knuckle_diameter_mm? : Double, knuckles? : Int32, knuckle_gap_mm? : Double, hole_diameter_mm? : Double, hole_spacing_mm? : Double, pin_extension_mm? : Double, leaf_angle_deg? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
-pub fn l_bracket(Double, Double, Double, Double, Double, holes_per_leg? : Int32, edge_distance_mm? : Double, gusset_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+pub fn l_bracket(Double, Double, Double, Double, Double, holes_per_leg? : Int32, holes_per_leg_b? : Int32, holes_across? : Int32, pitch_mm? : Double, edge_distance_mm? : Double, gusset_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn l_plate_family() -> Result[@common.DesignFamily, @common.SpecError]
 
 pub fn lead_screw(Double, Double, lead_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
@@ -70,6 +72,8 @@ pub fn linkage_bar(Double, Double, Double, Double, pivot_spacing_mm? : Double, s
 pub fn linkage_bar_from_lengths(@cad.Length, @cad.Length, @cad.Length, @cad.Length, pivot_spacing? : @cad.Length, slot_length? : @cad.Length, slot_width? : @cad.Length, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
 pub fn linkage_family() -> Result[@common.DesignFamily, @common.SpecError]
+
+pub fn makerstore_l_plate(leg_a_mm? : Double, leg_b_mm? : Double, width_mm? : Double, thickness_mm? : Double, hole_diameter_mm? : Double, pitch_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
 pub fn o_ring(Double, Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 

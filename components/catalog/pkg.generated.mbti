@@ -22,6 +22,8 @@ pub fn lookup(Array[CatalogEntry], String) -> Result[CatalogEntry, CatalogError]
 
 pub fn makerpipe_catalog() -> Array[CatalogEntry]
 
+pub fn makerstore_catalog() -> Array[CatalogEntry]
+
 pub fn mechanisms_catalog() -> Array[CatalogEntry]
 
 pub fn motion_catalog() -> Array[CatalogEntry]

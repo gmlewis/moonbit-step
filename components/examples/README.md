@@ -24,6 +24,8 @@ All programs use millimetres and Z is up.
 | `extrusion_hardware` | Extrusion T-nut (M3/M4/M5) or M3 heat-set insert (short/long). |
 | `stock_primitive` | EN 10056-style angle section, flat/counterbored/countersunk plates, a bearing-housing plate, a tube-to-V-Slot bracket, the CC BY 4.0 SC8UU rod/bearing block (OCCT-evaluated), or an M3 x 4 heat-set insert boss. |
 | `vslot` | OpenBuilds-compatible V-Slot 2020/2040 profile, V-wheel, slot T-nut, joining plate, gusseted corner bracket, and plain/eccentric wheel spacers. |
+| `makerstore_l_plate` | Maker Store 20-series L plate / bracket with a centred hole grid on both legs: `l40x40` (`PLATE-40X40L`, 3×3 Ø5 on 10 mm centres) or `l40x80` (`PLATE-40X80L`). |
+| `makerstore_hardware` | One Maker Store USA part per `--part`: metric aluminum spacer (`SHIM-SPAC`, OD 10 / ID 5), thrust bearing (`BEAR-F`), 20-series hex T-nut (`HARD-TNUT-SLIDING`), 40-series sliding block T-nut (`HARD-40S-TNUT-STEEL-SLID-18`), or gusseted V-Slot corner bracket (`BRAC-90CAST` / `BRAC-40S`). |
 | `tubing` | EMT cut length, EMT end cap, EMT split clamp, plain shaft collar, or tube mount plate adapter. |
 | `makerbeam` | MakerBeam 10 x 10 mm extrusion (drawing article 100168), optional outer corner radius. |
 | `retaining_ring` | DIN 471 type A external retaining ring, A 10 to A 34. |
