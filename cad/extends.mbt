@@ -7,24 +7,14 @@
 // trait is promoted here plainly. The defaulted derivative that the `!=`
 // operator or string interpolation already covers (`Eq::not_equal`,
 // `Show::output`) is promoted as well - moonc otherwise warns about its
-// implicit promotion - but deprecated and hidden, since there is no reason to
-// call it directly.
+// implicit promotion - but deprecated and hidden, so those two blocks live in
+// `deprecated.mbt`.
 
 ///|
 pub extend LoaderError with Eq::{equal}
 
 ///|
-#deprecated("Use `!=` instead", skip_current_package=true)
-#doc(hidden)
-pub extend LoaderError with Eq::{not_equal}
-
-///|
 pub extend LoaderError with Show::{to_string}
-
-///|
-#deprecated("Use `Show::output` via the trait or `to_string` instead", skip_current_package=true)
-#doc(hidden)
-pub extend LoaderError with Show::{output}
 
 ///|
 pub extend Rgb with Debug::{to_repr}

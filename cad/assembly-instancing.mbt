@@ -9,11 +9,11 @@ priv struct InstanceGroup {
 
 ///|
 fn assembly_color_key(color : Rgb) -> String {
-  fmt_double(color.r, Some(1.0e-9)) +
+  fmt_double(color.r, Some(CAD_LENGTH_EPS)) +
   "," +
-  fmt_double(color.g, Some(1.0e-9)) +
+  fmt_double(color.g, Some(CAD_LENGTH_EPS)) +
   "," +
-  fmt_double(color.b, Some(1.0e-9))
+  fmt_double(color.b, Some(CAD_LENGTH_EPS))
 }
 
 ///|

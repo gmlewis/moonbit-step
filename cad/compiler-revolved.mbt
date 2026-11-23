@@ -49,8 +49,8 @@ pub fn compile_revolved_profile(
           center: None,
           sample: ((a.0 + b.0) / 2.0, (a.1 + b.1) / 2.0),
           normal: rev_line_normal(a, b),
-          radial: (a.1 - b.1).abs() < 1.0e-9,
-          axial: (a.0 - b.0).abs() < 1.0e-9,
+          radial: (a.1 - b.1).abs() < CAD_LENGTH_EPS,
+          axial: (a.0 - b.0).abs() < CAD_LENGTH_EPS,
         }
         info
       }
@@ -196,8 +196,8 @@ fn rev_compile_band(
 ) -> @step.Ref? {
   let ra = band.a.0
   let rb = band.b.0
-  let has_a = ra > 1.0e-9
-  let has_b = rb > 1.0e-9
+  let has_a = ra > CAD_LENGTH_EPS
+  let has_b = rb > CAD_LENGTH_EPS
   let desired_raw = xform.apply_dir((band.normal.0, 0.0, band.normal.1))
   let sample_world = xform.apply((band.sample.0, 0.0, band.sample.1))
   if band.radial {
@@ -382,7 +382,7 @@ fn rev_band_surface(
         ctx.direction(axis_dir.0, axis_dir.1, axis_dir.2),
         ctx.direction(ref_dir.0, ref_dir.1, ref_dir.2),
       )
-      if c.0.abs() < 1.0e-9 {
+      if c.0.abs() < CAD_LENGTH_EPS {
         let surface = ctx.add(
           @repository.any_entity_spherical_surface(
             @geometry.SphericalSurface::new("", a2p, @step.fmt_num(rho)),
@@ -544,7 +544,8 @@ pub fn rev_profile_polyline(
   let push_unique = fn(p : Vec2) -> Unit {
     match pts.last() {
       Some(q) =>
-        if (q.0 - p.0).abs() > 1.0e-9 || (q.1 - p.1).abs() > 1.0e-9 {
+        if (q.0 - p.0).abs() > CAD_LENGTH_EPS ||
+          (q.1 - p.1).abs() > CAD_LENGTH_EPS {
           pts.push(p)
         }
       None => pts.push(p)
@@ -602,7 +603,7 @@ pub fn rev_mesh(
     for i in 0..<(m - 1) {
       let ra = profile[i].0
       let rb = profile[i + 1].0
-      let eps = 1.0e-9
+      let eps = CAD_LENGTH_EPS
       if ra < eps && rb < eps {
         continue
       } else if ra < eps {

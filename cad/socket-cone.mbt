@@ -135,7 +135,7 @@ fn conical_socket_breakpoints(g : ConicalSocketGeometry) -> Array[Double] {
       clipped.push(z)
     }
   }
-  let sorted = an_sort_unique(clipped, 1.0e-9)
+  let sorted = an_sort_unique(clipped, CAD_LENGTH_EPS)
   sorted
 }
 

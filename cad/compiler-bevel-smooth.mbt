@@ -467,7 +467,7 @@ fn compile_bevel_gear_body_smooth(
         // Radial edge break: preserve every angular position so the tooth
         // widths stay constant in the axial view, as in the goldens.
         let r = Double::sqrt(p.0 * p.0 + p.1 * p.1)
-        let scale = if r > 1.0e-9 { (r - chamfer) / r } else { 1.0 }
+        let scale = if r > CAD_LENGTH_EPS { (r - chamfer) / r } else { 1.0 }
         ip.push((p.0 * scale, p.1 * scale, front_z))
         let bp = s.back_pts[i]
         let dz = front_z - bp.2
@@ -541,7 +541,7 @@ fn compile_bevel_gear_body_smooth(
       }
       let d = s.front_pts.length().to_double()
       let cr = Double::sqrt(sx / d * (sx / d) + sy / d * (sy / d))
-      let band_expected = if cr > 1.0e-9 {
+      let band_expected = if cr > CAD_LENGTH_EPS {
         v_norm((sx / d / cr, sy / d / cr, 1.0))
       } else {
         (0.0, 0.0, 1.0)

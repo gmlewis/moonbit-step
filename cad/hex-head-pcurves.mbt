@@ -204,7 +204,7 @@ fn hhp_all_collinear(uv : Array[(Double, Double)]) -> Bool {
   }
   for (u, v) in uv {
     let cross = (u - uv[0].0) * dv - (v - uv[0].1) * du
-    if Double::abs(cross) / len > 1.0e-9 {
+    if Double::abs(cross) / len > CAD_LENGTH_EPS {
       return false
     }
   }

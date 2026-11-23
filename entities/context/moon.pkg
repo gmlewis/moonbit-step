@@ -1,7 +1,7 @@
 import {
   "gmlewis/step",
   "gmlewis/step/entities/geometry",
-  "gmlewis/step/entities/units",
   "gmlewis/step/entities/product",
+  "gmlewis/step/entities/units",
   "moonbitlang/core/builtin",
 }

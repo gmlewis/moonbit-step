@@ -207,7 +207,7 @@ fn planar_face_info(
   let v = v_norm(v_cross(normal, u))
   let (boundary, radius) = face_loop_boundary(repo, af)
   let mut area = face_loop_area(boundary)
-  if area < 1.0e-9 {
+  if area < CAD_LENGTH_EPS {
     match radius {
       Some(r) => area = @math.PI * r * r
       None => ()

@@ -188,7 +188,7 @@ fn acorn_nut_area_at(g : AcornNutGeometry, z : Double) -> Double {
 /// acorn_nut_volume_centroid integrates the exact solid volume by Simpson.
 fn acorn_nut_volume_centroid(g : AcornNutGeometry) -> (Double, Double) {
   let zs : Array[Double] = [0.0, g.zc, g.m - g.zc, g.m, g.h - g.wall, g.h]
-  let sorted = an_sort_unique(zs, 1.0e-9)
+  let sorted = an_sort_unique(zs, CAD_LENGTH_EPS)
   let mut volume = 0.0
   let mut moment = 0.0
   let samples = 64

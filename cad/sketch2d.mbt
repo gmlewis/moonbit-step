@@ -248,7 +248,7 @@ pub fn Sketch2D::rounded_rect(
   let hh = h / 2.0
   let half_min = if hw < hh { hw } else { hh }
   let rr = if r < 0.0 { 0.0 } else if r > half_min { half_min } else { r }
-  if rr < 1.0e-9 {
+  if rr < CAD_LENGTH_EPS {
     return Sketch2D::rect(w, h)
   }
   let n = if arc_segs < 2 { 2 } else { arc_segs }
@@ -590,11 +590,11 @@ pub fn Sketch2D::fillet_corners(
       cos_theta = -1.0
     }
     let theta = @math.acos(cos_theta)
-    let mut valid = cross < -1.0e-9 &&
+    let mut valid = cross < -CAD_LENGTH_EPS &&
       theta > 1.0e-3 &&
       theta < @math.PI - 1.0e-3 &&
-      l1 > 1.0e-9 &&
-      l2 > 1.0e-9
+      l1 > CAD_LENGTH_EPS &&
+      l2 > CAD_LENGTH_EPS
     let mut t = 0.0
     if valid {
       let max_t = 0.45 * (if l1 < l2 { l1 } else { l2 })

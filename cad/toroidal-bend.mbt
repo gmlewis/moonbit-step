@@ -32,10 +32,10 @@ pub fn ToroidalBend::new(
 pub fn ToroidalBend::validate(self : ToroidalBend) -> Bool {
   let r_out = self.outer_diameter_mm / 2.0
   let r_in = self.inner_diameter_mm / 2.0
-  r_out > 1.0e-9 &&
+  r_out > CAD_LENGTH_EPS &&
   r_in >= 0.0 &&
-  r_in < r_out - 1.0e-9 &&
-  self.bend_radius_mm > r_out + 1.0e-9 &&
+  r_in < r_out - CAD_LENGTH_EPS &&
+  self.bend_radius_mm > r_out + CAD_LENGTH_EPS &&
   self.angle_deg > 1.0e-6 &&
   self.angle_deg < 360.0 - 1.0e-6
 }
@@ -151,7 +151,7 @@ pub fn toroidal_bend_mesh(
       faces.push([row0 + iv, row1 + iv, row1 + next_v, row0 + next_v])
     }
   }
-  if r_in > 1.0e-9 {
+  if r_in > CAD_LENGTH_EPS {
     let inner_base = verts.length()
     for iu in 0..<=nu {
       let u = alpha * iu.to_double() / nu.to_double()
@@ -348,7 +348,7 @@ pub fn compile_toroidal_bend(
     true,
   )
 
-  if r_in > 1.0e-9 {
+  if r_in > CAD_LENGTH_EPS {
     let (inner_face, start_in, end_in) = toroidal_bend_tube_refs(
       ctx, xform, r_bend, r_in, alpha, false, reverse,
     )

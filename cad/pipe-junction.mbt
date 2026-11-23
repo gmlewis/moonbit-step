@@ -47,7 +47,7 @@ pub fn PipeJunction::new(
 fn junction_port_slot(v : Vec3) -> (Int32, Bool)? {
   let (x, y, z) = v
   let len = Double::sqrt(x * x + y * y + z * z)
-  if len < 1.0e-9 {
+  if len < CAD_LENGTH_EPS {
     return None
   }
   let nx = x / len
@@ -416,7 +416,7 @@ pub fn PipeJunction::volume_centroid(self : PipeJunction) -> (Double, Vec3) {
     }
   }
   let vol = vol6 / 6.0
-  if vol <= 1.0e-9 {
+  if vol <= CAD_LENGTH_EPS {
     (0.0, (0.0, 0.0, 0.0))
   } else {
     let scale = 1.0 / (4.0 * vol6)
@@ -813,7 +813,7 @@ pub fn compile_pipe_junction(
         let (r0, z0, r1, z1) = band
         let dr = r1 - r0
         let dz = z1 - z0
-        let (surf, band_sense) = if dz.abs() < 1.0e-9 {
+        let (surf, band_sense) = if dz.abs() < CAD_LENGTH_EPS {
           // Planar annulus (pipe stop or mouth rim) facing +a (dz = 0, dr < 0 -> +a).
           let ow = xform.apply(pj_v_scale(a, z0))
           let nw = v_norm(xform.apply_dir(a))
@@ -827,7 +827,7 @@ pub fn compile_pipe_junction(
             @repository.any_entity_plane(@geometry.Plane::new("", a2p)),
           )
           (p, !reverse)
-        } else if dr.abs() < 1.0e-9 {
+        } else if dr.abs() < CAD_LENGTH_EPS {
           // Cylindrical socket bore (dz < 0 -> inward normal).
           (cyl_surf(pj_v_scale(a, z0), a, ref0, r0), reverse)
         } else {

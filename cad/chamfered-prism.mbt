@@ -148,8 +148,8 @@ pub fn ChamferedPrism::validate(
           }
           let z_first = self.levels[0].0
           let z_last = self.levels[self.levels.length() - 1].0
-          if (hls[0].0 - z_first).abs() > 1.0e-9 ||
-            (hls[hls.length() - 1].0 - z_last).abs() > 1.0e-9 {
+          if (hls[0].0 - z_first).abs() > CAD_LENGTH_EPS ||
+            (hls[hls.length() - 1].0 - z_last).abs() > CAD_LENGTH_EPS {
             return Err(PrismBadHole)
           }
           let mut prev_z = -1.0e300
@@ -197,7 +197,7 @@ fn chamfer_inset(profile : Array[Vec2], c : Double) -> Array[Vec2]? {
     let u1 = v2_norm(v2_sub(prev, cur))
     let u2 = v2_norm(v2_sub(next, cur))
     let theta = profile_corner_angle(u1, u2)
-    if theta <= 1.0e-9 || theta >= @math.PI - 1.0e-9 {
+    if theta <= CAD_LENGTH_EPS || theta >= @math.PI - CAD_LENGTH_EPS {
       return None
     }
     let half = theta / 2.0
@@ -231,7 +231,7 @@ fn is_convex_ccw(pts : Array[Vec2]) -> Bool {
     let a = pts[i]
     let b = pts[(i + 1) % n]
     let c = pts[(i + 2) % n]
-    if profile_vertex_cross(a, b, c) < -1.0e-9 {
+    if profile_vertex_cross(a, b, c) < -CAD_LENGTH_EPS {
       return false
     }
   }

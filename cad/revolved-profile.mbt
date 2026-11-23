@@ -414,7 +414,7 @@ fn rev_seg_end(seg : RevSegment) -> Vec2 {
 
 ///|
 fn rev_close2(a : Vec2, b : Vec2) -> Bool {
-  (a.0 - b.0).abs() < 1.0e-9 && (a.1 - b.1).abs() < 1.0e-9
+  (a.0 - b.0).abs() < CAD_LENGTH_EPS && (a.1 - b.1).abs() < CAD_LENGTH_EPS
 }
 
 ///|
@@ -431,7 +431,7 @@ pub fn RevolvedProfile::validate(
   for i in 0..<n {
     let a = rev_seg_start(segs[i])
     let b = rev_seg_end(segs[i])
-    if a.0 < -1.0e-9 || b.0 < -1.0e-9 {
+    if a.0 < -CAD_LENGTH_EPS || b.0 < -CAD_LENGTH_EPS {
       return Err(NegativeRadius(i))
     }
     if rev_close2(a, b) {
@@ -459,7 +459,7 @@ pub fn RevolvedProfile::validate(
   }
   let first = rev_seg_start(segs[0])
   let last = rev_seg_end(segs[n - 1])
-  let open_on_axis = first.0 < 1.0e-9 && last.0 < 1.0e-9
+  let open_on_axis = first.0 < CAD_LENGTH_EPS && last.0 < CAD_LENGTH_EPS
   let closed = rev_close2(first, last)
   if !(open_on_axis || closed) {
     return Err(NotClosed)

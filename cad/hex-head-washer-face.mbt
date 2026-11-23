@@ -235,7 +235,7 @@ fn hhwf_screw_volume_centroid(h : HexHeadWasherFace) -> (Double, Double) {
   if h.washer_face_diameter_mm > 0.0 && h.washer_face_height_mm > 0.0 {
     zs.push(h.washer_face_height_mm)
   }
-  let sorted = hhwf_sort_unique(zs, 1.0e-9)
+  let sorted = hhwf_sort_unique(zs, CAD_LENGTH_EPS)
   let mut volume = 0.0
   let mut moment = 0.0
   let samples = 64

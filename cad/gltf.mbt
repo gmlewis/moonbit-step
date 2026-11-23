@@ -237,7 +237,7 @@ fn clean_collinear_closed(pts : Array[Vec3]) -> Array[Vec3] {
       let lb = v_len(b)
       let collinear = la > 0.0 &&
         lb > 0.0 &&
-        v_len(v_cross(a, b)) / (la * lb) < 1.0e-9
+        v_len(v_cross(a, b)) / (la * lb) < CAD_LENGTH_EPS
       if collinear && v_dot(a, b) > 0.0 {
         changed = true
       } else {

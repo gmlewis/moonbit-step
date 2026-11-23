@@ -235,7 +235,7 @@ fn an_arc_contains(
   let ac = @math.atan2(z - c.1, r - c.0)
   let rel = rev_norm_angle(ac - a0)
   let two_pi = 2.0 * @math.PI
-  let eps = 1.0e-9
+  let eps = CAD_LENGTH_EPS
   let on = if delta >= 0.0 {
     (rel >= -eps && rel <= delta + eps) ||
     (rel <= 0.0 && rel + two_pi <= delta + eps)
@@ -252,7 +252,7 @@ fn an_arc_contains(
 /// horizontal cap bands at `z0` count as material, so a cap plane yields the
 /// closure of the solid (for example the full disc at the floor of a cup).
 fn an_rev_contains(segs : Array[RevSegment], z0 : Double, r : Double) -> Bool {
-  let eps = 1.0e-9
+  let eps = CAD_LENGTH_EPS
   // A horizontal boundary at the section plane is a cap: the closure of the
   // solid includes the whole radial interval it spans.
   for seg in segs {
@@ -331,7 +331,7 @@ fn an_rev_section(
     match seg {
       RevLine(a, b) => {
         let dz = b.1 - a.1
-        if dz.abs() < 1.0e-9 {
+        if dz.abs() < CAD_LENGTH_EPS {
           // A horizontal band is a cap: it lies in the section plane only when
           // z0 equals that plane.
           if (z0 - a.1).abs() < 1.0e-7 {
@@ -340,7 +340,7 @@ fn an_rev_section(
           }
         } else {
           let t = (z0 - a.1) / dz
-          if t >= -1.0e-9 && t <= 1.0 + 1.0e-9 {
+          if t >= -CAD_LENGTH_EPS && t <= 1.0 + CAD_LENGTH_EPS {
             radii.push(a.0 + t * (b.0 - a.0))
           }
         }
@@ -352,7 +352,7 @@ fn an_rev_section(
         if disc > 1.0e-14 {
           let dr = Double::sqrt(disc)
           for cand in [c.0 + dr, c.0 - dr] {
-            if cand >= -1.0e-9 && an_arc_contains(c, a, b, cand, z0) {
+            if cand >= -CAD_LENGTH_EPS && an_arc_contains(c, a, b, cand, z0) {
               radii.push(cand)
             }
           }
@@ -368,7 +368,7 @@ fn an_rev_section(
   while i + 1 < candidates.length() {
     let ri = candidates[i]
     let ro = candidates[i + 1]
-    if ro - ri > 1.0e-9 {
+    if ro - ri > CAD_LENGTH_EPS {
       let mid = (ri + ro) / 2.0
       if an_rev_contains(segs, z0, mid) {
         if intervals.length() > 0 {
@@ -498,7 +498,7 @@ fn an_lerp_inset(levels : Array[(Double, Double)], z : Double) -> Double? {
   if n == 0 {
     return None
   }
-  if z < levels[0].0 - 1.0e-9 || z > levels[n - 1].0 + 1.0e-9 {
+  if z < levels[0].0 - CAD_LENGTH_EPS || z > levels[n - 1].0 + CAD_LENGTH_EPS {
     return None
   }
   if n == 1 {
@@ -507,7 +507,7 @@ fn an_lerp_inset(levels : Array[(Double, Double)], z : Double) -> Double? {
   for i in 0..<(n - 1) {
     let (z0, v0) = levels[i]
     let (z1, v1) = levels[i + 1]
-    if z >= z0 - 1.0e-9 && z <= z1 + 1.0e-9 {
+    if z >= z0 - CAD_LENGTH_EPS && z <= z1 + CAD_LENGTH_EPS {
       if (z1 - z0).abs() < 1.0e-12 {
         return Some(v1)
       }
@@ -742,7 +742,7 @@ fn an_prism_breakpoints(prism : ChamferedPrism) -> Array[Double] {
       }
     None => ()
   }
-  an_sort_unique(zs, 1.0e-9)
+  an_sort_unique(zs, CAD_LENGTH_EPS)
 }
 
 ///|
@@ -1030,7 +1030,7 @@ fn an_extruded_section(
   extrusion : ExtrudedProfile,
   z : Double,
 ) -> Result[Section, AnalysisError] {
-  if z < -1.0e-9 || z > extrusion.height_mm + 1.0e-9 {
+  if z < -CAD_LENGTH_EPS || z > extrusion.height_mm + CAD_LENGTH_EPS {
     return Err(EmptySection)
   }
   if extrusion.height_mm <= 0.0 || extrusion.profile.outer.length() < 3 {
@@ -1518,7 +1518,7 @@ fn an_shape_inventory(shape : Shape) -> SurfaceInventory {
     ToroidalBend(b) =>
       if !b.validate() {
         an_inventory(0, 0, 0, 0, 0, 0, 0, 0)
-      } else if b.inner_diameter_mm > 1.0e-9 {
+      } else if b.inner_diameter_mm > CAD_LENGTH_EPS {
         an_inventory(2, 0, 0, 0, 2, 0, 0, 0)
       } else {
         an_inventory(2, 0, 0, 0, 1, 0, 0, 0)
@@ -1560,14 +1560,14 @@ fn an_shape_inventory(shape : Shape) -> SurfaceInventory {
           RevLine(a, b) => (a, b, None)
           RevArc(a, b, c) => (a, b, Some(c))
         }
-        let has_a = a.0 > 1.0e-9
-        let has_b = b.0 > 1.0e-9
+        let has_a = a.0 > CAD_LENGTH_EPS
+        let has_b = b.0 > CAD_LENGTH_EPS
         if !(has_a || has_b) {
           // A pole-to-pole band is a full sphere (or a degenerate line band
           // with no area).
           match center {
             Some(c) =>
-              if c.0.abs() < 1.0e-9 {
+              if c.0.abs() < CAD_LENGTH_EPS {
                 sp = sp + 1
               } else {
                 to = to + 1
@@ -1577,10 +1577,15 @@ fn an_shape_inventory(shape : Shape) -> SurfaceInventory {
           continue
         }
         match center {
-          Some(c) => if c.0.abs() < 1.0e-9 { sp = sp + 1 } else { to = to + 1 }
+          Some(c) =>
+            if c.0.abs() < CAD_LENGTH_EPS {
+              sp = sp + 1
+            } else {
+              to = to + 1
+            }
           None => {
-            let radial = (a.1 - b.1).abs() < 1.0e-9
-            let axial = (a.0 - b.0).abs() < 1.0e-9
+            let radial = (a.1 - b.1).abs() < CAD_LENGTH_EPS
+            let axial = (a.0 - b.0).abs() < CAD_LENGTH_EPS
             if radial {
               p = p + 1
             } else if axial {
@@ -2110,7 +2115,7 @@ pub fn Shape::section_at_local(
 ) -> Result[Section, AnalysisError] {
   match self {
     Cuboid(c) => {
-      if z < -1.0e-9 || z > c.sz + 1.0e-9 {
+      if z < -CAD_LENGTH_EPS || z > c.sz + CAD_LENGTH_EPS {
         return Err(EmptySection)
       }
       let area = c.sx * c.sy
@@ -2194,7 +2199,7 @@ pub fn Cylinder::section_at(
   if r <= 0.0 || self.height <= 0.0 {
     return Err(DegenerateProfile)
   }
-  if z < -1.0e-9 || z > self.height + 1.0e-9 {
+  if z < -CAD_LENGTH_EPS || z > self.height + CAD_LENGTH_EPS {
     return Err(EmptySection)
   }
   Ok({

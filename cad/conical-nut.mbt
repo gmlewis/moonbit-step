@@ -649,7 +649,7 @@ fn conical_nut_volume_centroid(g : ConicalNutGeometry) -> (Double, Double) {
     zs.push(g.lead)
     zs.push(g.m - g.lead)
   }
-  let sorted = an_sort_unique(zs, 1.0e-9)
+  let sorted = an_sort_unique(zs, CAD_LENGTH_EPS)
   let mut volume = 0.0
   let mut moment = 0.0
   let samples = 64

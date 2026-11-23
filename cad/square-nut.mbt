@@ -122,7 +122,7 @@ fn square_nut_area_at(g : SquareNutGeometry, z : Double) -> Double {
 /// square_nut_volume_centroid integrates the exact solid volume by Simpson.
 fn square_nut_volume_centroid(g : SquareNutGeometry) -> (Double, Double) {
   let zs : Array[Double] = [0.0, g.m - g.zc, g.m]
-  let sorted = an_sort_unique(zs, 1.0e-9)
+  let sorted = an_sort_unique(zs, CAD_LENGTH_EPS)
   let mut volume = 0.0
   let mut moment = 0.0
   let samples = 64

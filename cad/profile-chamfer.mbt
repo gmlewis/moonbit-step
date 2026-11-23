@@ -254,7 +254,7 @@ pub fn Profile2D::chamfer_vertices(
     let u1 = v2_norm(v2_sub(prev, cur))
     let u2 = v2_norm(v2_sub(next, cur))
     let theta = profile_corner_angle(u1, u2)
-    if theta <= 1.0e-9 || theta >= @math.PI - 1.0e-9 {
+    if theta <= CAD_LENGTH_EPS || theta >= @math.PI - CAD_LENGTH_EPS {
       continue
     }
     match angle_deg {
@@ -265,7 +265,7 @@ pub fn Profile2D::chamfer_vertices(
       Some(a_deg) => {
         let a = a_deg * @math.PI / 180.0
         let denom = @math.sin(theta + a)
-        if denom.abs() < 1.0e-9 {
+        if denom.abs() < CAD_LENGTH_EPS {
           return Err(FeatureTooLarge(i))
         }
         t_in[i] = distance
@@ -319,7 +319,7 @@ pub fn Profile2D::fillet_vertices(
     let u1 = v2_norm(v2_sub(prev, cur))
     let u2 = v2_norm(v2_sub(next, cur))
     let theta = profile_corner_angle(u1, u2)
-    if theta <= 1.0e-9 || theta >= @math.PI - 1.0e-9 {
+    if theta <= CAD_LENGTH_EPS || theta >= @math.PI - CAD_LENGTH_EPS {
       continue
     }
     let t = radius / @math.tan(theta / 2.0)
@@ -344,7 +344,7 @@ fn profile_build_corners(
   // Edge i -> i+1 consumes t_out[i] at its start and t_in[i+1] at its end.
   for i in 0..<n {
     let j = (i + 1) % n
-    if t_out[i] + t_in[j] > lengths[i] + 1.0e-9 {
+    if t_out[i] + t_in[j] > lengths[i] + CAD_LENGTH_EPS {
       return Err(FeatureTooLarge(i))
     }
   }

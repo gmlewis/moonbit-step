@@ -203,7 +203,7 @@ fn compile_bevel_gear_body(
         let cx = (la.0 + lb.0 + lc.0) / 3.0
         let cy = (la.1 + lb.1 + lc.1) / 3.0
         let rr = Double::sqrt(cx * cx + cy * cy)
-        let expected = if rr > 1.0e-9 {
+        let expected = if rr > CAD_LENGTH_EPS {
           xform.apply_dir((cx / rr, cy / rr, -e.cone_tan_half_angle))
         } else {
           xform.apply_dir((0.0, 0.0, -1.0))

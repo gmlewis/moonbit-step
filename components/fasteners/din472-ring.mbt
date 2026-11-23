@@ -338,8 +338,8 @@ fn din472_parametric_outline(
     let qx = xh + s - cx
     qx * qx + ytip * ytip - rin * rin
   }
-  let mut lo = ytip + 1.0e-9
-  let mut hi = ytip + rf - 1.0e-9
+  let mut lo = ytip + FASTENER_EPS
+  let mut hi = ytip + rf - FASTENER_EPS
   let mut flo = residual(lo)
   if flo * residual(hi) > 0.0 {
     return Err(
@@ -438,7 +438,7 @@ fn din472_parametric_outline(
 /// free-state outline.
 fn din472_has_measured_outline(bore_mm : Double) -> Bool {
   for size in [10.0, 12.0, 14.0, 16.0, 18.0, 20.0, 24.0, 28.0, 32.0, 40.0] {
-    if (bore_mm - size).abs() < 1.0e-9 {
+    if (bore_mm - size).abs() < FASTENER_EPS {
       return true
     }
   }
@@ -472,7 +472,7 @@ pub fn din472_outline(
   ]
   for entry in outlines {
     let (size, make) = entry
-    if (bore_mm - size).abs() < 1.0e-9 {
+    if (bore_mm - size).abs() < FASTENER_EPS {
       return Ok(make())
     }
   }
@@ -519,12 +519,12 @@ fn din472_segments(
 /// free-state outline.
 fn din472_outline_source(bore_mm : Double) -> String {
   for size in [10.0, 14.0, 16.0, 18.0, 24.0, 28.0, 32.0, 40.0] {
-    if (bore_mm - size).abs() < 1.0e-9 {
+    if (bore_mm - size).abs() < FASTENER_EPS {
       return "FreeCAD-parts_library (sisul01, commit 2141521) CC BY-SA 4.0 measured mid-plane outline, re-encoded as an original line/arc loop"
     }
   }
   for size in [12.0, 20.0] {
-    if (bore_mm - size).abs() < 1.0e-9 {
+    if (bore_mm - size).abs() < FASTENER_EPS {
       return "CC0 1.0 Innerscene measured outline, re-encoded as an original line/arc loop"
     }
   }
