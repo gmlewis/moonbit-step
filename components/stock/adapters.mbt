@@ -607,12 +607,7 @@ fn adapter_circle_loop(
   cy : Double,
   radius : Double,
 ) -> Array[@cad.ProfileSegment] {
-  [
-    @cad.SegmentArc((cx + radius, cy), (cx, cy + radius), (cx, cy)),
-    @cad.SegmentArc((cx, cy + radius), (cx - radius, cy), (cx, cy)),
-    @cad.SegmentArc((cx - radius, cy), (cx, cy - radius), (cx, cy)),
-    @cad.SegmentArc((cx, cy - radius), (cx + radius, cy), (cx, cy)),
-  ]
+  @common.circle_loop(cx, cy, radius)
 }
 
 ///|

@@ -105,11 +105,11 @@ pub fn ChamferedPrism::validate(
   let mut prev_z = -1.0e300
   for i in 0..<self.levels.length() {
     let (z, inset) = self.levels[i]
-    if z < prev_z - 1.0e-12 {
+    if z < prev_z - @step.TOL_1E12 {
       return Err(PrismBadLevels)
     }
     prev_z = z
-    if inset < -1.0e-12 {
+    if inset < -@step.TOL_1E12 {
       return Err(PrismInsetTooLarge(i))
     }
     let ring = match chamfer_inset(self.base, inset) {
@@ -156,11 +156,11 @@ pub fn ChamferedPrism::validate(
           let hccw = if polygon_area_2d(h) < 0.0 { h.rev() } else { h }
           for i in 0..<hls.length() {
             let (z, inset) = hls[i]
-            if z < prev_z - 1.0e-12 {
+            if z < prev_z - @step.TOL_1E12 {
               return Err(PrismBadHole)
             }
             prev_z = z
-            if inset < -1.0e-12 {
+            if inset < -@step.TOL_1E12 {
               return Err(PrismBadHole)
             }
             match chamfer_inset(hccw, inset) {
@@ -209,7 +209,7 @@ fn chamfer_inset(profile : Array[Vec2], c : Double) -> Array[Vec2]? {
     return None
   }
   // A valid inward offset must shrink the polygon and keep every point inside.
-  if polygon_area_2d(out) >= polygon_area_2d(ccw) - 1.0e-12 {
+  if polygon_area_2d(out) >= polygon_area_2d(ccw) - @step.TOL_1E12 {
     return None
   }
   for p in out {

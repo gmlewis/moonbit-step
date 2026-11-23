@@ -30,7 +30,7 @@ pub struct StepContext {
 ///|
 /// near_zero_double clears floating-point residue without grid-snapping.
 fn near_zero_double(v : Double) -> Double {
-  if v.abs() < 1.0e-12 {
+  if v.abs() < @step.TOL_1E12 {
     0.0
   } else {
     v

@@ -43,13 +43,7 @@ fn plate_circle_loop(
   cy : Double,
   radius : Double,
 ) -> Array[@cad.ProfileSegment] {
-  let centre = (cx, cy)
-  [
-    @cad.SegmentArc((cx + radius, cy), (cx, cy + radius), centre),
-    @cad.SegmentArc((cx, cy + radius), (cx - radius, cy), centre),
-    @cad.SegmentArc((cx - radius, cy), (cx, cy - radius), centre),
-    @cad.SegmentArc((cx, cy - radius), (cx + radius, cy), centre),
-  ]
+  @common.circle_loop(cx, cy, radius)
 }
 
 ///|

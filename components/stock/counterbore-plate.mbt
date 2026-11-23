@@ -113,7 +113,7 @@ pub fn plate_with_counterbores(
   // pattern, so require a common depth.
   for hole in holes {
     if (hole.counterbore_depth_mm - holes[0].counterbore_depth_mm).abs() >
-      1.0e-9 {
+      @step.TOL_1E9 {
       return Err(
         @common.InvalidParameter(
           "counterbored plate requires one common counterbore depth",

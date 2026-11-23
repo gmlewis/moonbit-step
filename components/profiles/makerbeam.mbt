@@ -297,8 +297,8 @@ pub fn MakerBeamProfile::outline(
     let current = pts[i]
     let prev = pts[(i + n - 1) % n]
     let next = pts[(i + 1) % n]
-    let is_outer = (current.0.abs() - half).abs() < 1.0e-9 &&
-      (current.1.abs() - half).abs() < 1.0e-9
+    let is_outer = (current.0.abs() - half).abs() < @step.TOL_1E9 &&
+      (current.1.abs() - half).abs() < @step.TOL_1E9
     let entry = if is_outer {
       makerbeam_toward(current, prev, radius)
     } else {
@@ -318,8 +318,8 @@ pub fn MakerBeamProfile::outline(
     }
     // Next vertex's entry point (or the vertex itself when it is sharp).
     let next_point = pts[(i + 1) % n]
-    let next_is_outer = (next_point.0.abs() - half).abs() < 1.0e-9 &&
-      (next_point.1.abs() - half).abs() < 1.0e-9
+    let next_is_outer = (next_point.0.abs() - half).abs() < @step.TOL_1E9 &&
+      (next_point.1.abs() - half).abs() < @step.TOL_1E9
     let next_entry = if next_is_outer {
       makerbeam_toward(next_point, current, radius)
     } else {

@@ -198,8 +198,8 @@ pub fn frame_view_svg(
   let header = 80.0
   let caption = 60.0
   let (vx0, vx1, vy0, vy1) = view_bounds(members, view)
-  let span_x = view_max(vx1 - vx0, 1.0e-9)
-  let span_y = view_max(vy1 - vy0, 1.0e-9)
+  let span_x = view_max(vx1 - vx0, @step.TOL_1E9)
+  let span_y = view_max(vy1 - vy0, @step.TOL_1E9)
   let scale = view_min(
     (canvas - 2.0 * margin) / span_x,
     (canvas - header - caption - 2.0 * margin) / span_y,
@@ -378,7 +378,7 @@ pub fn profile_section_svg(profile : @profiles.TSlotProfile) -> String {
     min_y = view_min(min_y, p.1)
     max_y = view_max(max_y, p.1)
   }
-  let span = view_max(view_max(max_x - min_x, max_y - min_y), 1.0e-9)
+  let span = view_max(view_max(max_x - min_x, max_y - min_y), @step.TOL_1E9)
   let scale = view_min(
     (draw_right - draw_left) / span,
     (draw_bottom - draw_top) / span,

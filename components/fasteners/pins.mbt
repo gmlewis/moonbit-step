@@ -12,8 +12,8 @@ pub fn iso2338_pin(
     Err(e) => return Err(e)
     Ok(s) => s
   }
-  if length_mm < dims.min_length_mm - 1.0e-9 ||
-    length_mm > dims.max_length_mm + 1.0e-9 {
+  if length_mm < dims.min_length_mm - @step.TOL_1E9 ||
+    length_mm > dims.max_length_mm + @step.TOL_1E9 {
     return Err(
       @common.SpecError::UnsupportedLength(
         "ISO 2338 \{size.designation()}: length \{length_mm} is outside \{dims.min_length_mm}..\{dims.max_length_mm}",

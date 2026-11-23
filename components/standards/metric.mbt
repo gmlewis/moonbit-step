@@ -99,7 +99,7 @@ pub fn MetricSize::fine_pitch_mm(self : MetricSize) -> Double {
 /// MetricSize::from_diameter maps a nominal diameter in millimetres to a size.
 pub fn MetricSize::from_diameter(d : Double) -> MetricSize? {
   for size in MetricSize::all() {
-    if @common.near(size.nominal_diameter_mm(), d, tol=1.0e-6) {
+    if @common.near(size.nominal_diameter_mm(), d, tol=@step.TOL_1E6) {
       return Some(size)
     }
   }

@@ -418,7 +418,10 @@ fn hb_gear_outline(
   let stop_angle = hb_involute_theta(base_radius, outer_radius)
   let tip_point = hb_involute_xz(base_radius, stop_angle)
   let tip_face_angle = @math.atan2(tip_point.1, tip_point.0)
-  let max_backlash = @math.PI / (2.0 * n) + face_angle - tip_face_angle - 1.0e-3
+  let max_backlash = @math.PI / (2.0 * n) +
+    face_angle -
+    tip_face_angle -
+    @step.TOL_1E3
   let raw_backlash = if tolerance_mm > 0.0 {
     (0.5 * tolerance_mm + 0.015 * module_mm) / base_radius
   } else {
@@ -477,7 +480,7 @@ fn hb_gear_outline(
       outline.push(hb_rotate_xz(lower_root, -j.to_double() * gap_delta))
     }
   }
-  hb_clean_polygon(outline, 1.0e-4)
+  hb_clean_polygon(outline, @step.TOL_1E4)
 }
 
 ///|
@@ -500,7 +503,7 @@ fn hb_external_boundary(
   // Widens the internal ring cutout tooth space by 0.5 * tolerance_mm normal
   // to each flank so internal ring teeth thin symmetrically with the planet.
   let nominal_center = @math.PI / (2.0 * n) + face_angle
-  let max_backlash = @math.PI / n - nominal_center - 1.0e-3
+  let max_backlash = @math.PI / n - nominal_center - @step.TOL_1E3
   let raw_backlash = if tolerance_mm > 0.0 {
     (0.5 * tolerance_mm + 0.015 * module_mm) / base_radius
   } else {
@@ -591,7 +594,7 @@ fn hb_ring_geometry(layout : HerringbonePlanetaryLayout) -> HBRingGeometry {
     layout.resolution,
     layout.tolerance_mm,
   )
-  let inner = hb_clean_polygon(profile, 1.0e-4)
+  let inner = hb_clean_polygon(profile, @step.TOL_1E4)
   let mut max_r = 0.0
   for pt in inner {
     let r = hb_radius_of(pt)

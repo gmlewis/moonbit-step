@@ -23,11 +23,11 @@ pub(all) struct TolerancePolicy {
 /// so that a nominal face-to-face joint is contact, not penetration.
 pub fn TolerancePolicy::default() -> TolerancePolicy {
   {
-    linear_mm: 1.0e-6,
-    angular_deg: 1.0e-6,
-    volume_mm3: 1.0e-6,
-    contact_mm: 1.0e-6,
-    surface_deviation_mm: 1.0e-3,
+    linear_mm: @step.TOL_1E6,
+    angular_deg: @step.TOL_1E6,
+    volume_mm3: @step.TOL_1E6,
+    contact_mm: @step.TOL_1E6,
+    surface_deviation_mm: @step.TOL_1E3,
   }
 }
 
@@ -36,11 +36,11 @@ pub fn TolerancePolicy::default() -> TolerancePolicy {
 /// tessellated references.
 pub fn TolerancePolicy::coarse() -> TolerancePolicy {
   {
-    linear_mm: 1.0e-3,
-    angular_deg: 1.0e-3,
-    volume_mm3: 1.0e-3,
-    contact_mm: 1.0e-3,
-    surface_deviation_mm: 1.0e-2,
+    linear_mm: @step.TOL_1E3,
+    angular_deg: @step.TOL_1E3,
+    volume_mm3: @step.TOL_1E3,
+    contact_mm: @step.TOL_1E3,
+    surface_deviation_mm: @step.TOL_1E2,
   }
 }
 
@@ -229,7 +229,7 @@ pub fn classify_obb_pair(
   for i in 0..<3 {
     for j in 0..<3 {
       let c = cross3(aa[i], ba[j])
-      if length3(c) > 1.0e-9 {
+      if length3(c) > @step.TOL_1E9 {
         axes_to_test.push(normalize3(c))
       }
     }
@@ -667,7 +667,7 @@ fn length3(a : @cad.Vec3) -> Double {
 ///|
 fn normalize3(a : @cad.Vec3) -> @cad.Vec3 {
   let l = length3(a)
-  if l <= 1.0e-12 {
+  if l <= @step.TOL_1E12 {
     a
   } else {
     (a.0 / l, a.1 / l, a.2 / l)

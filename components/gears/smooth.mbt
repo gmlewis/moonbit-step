@@ -23,7 +23,7 @@ pub const SMOOTH_ARC_POINTS : Int32 = 2
 /// are collinear (the caller then emits a line).
 fn arc_center_xy(a : @cad.Vec2, b : @cad.Vec2, c : @cad.Vec2) -> @cad.Vec2? {
   let d = 2.0 * (a.0 * (b.1 - c.1) + b.0 * (c.1 - a.1) + c.0 * (a.1 - b.1))
-  if d.abs() < 1.0e-12 {
+  if d.abs() < @step.TOL_1E12 {
     None
   } else {
     let aa = a.0 * a.0 + a.1 * a.1
@@ -64,7 +64,7 @@ pub fn arc_outline_runs(
     let by = b.1 - p.1
     let alen = Double::sqrt(ax * ax + ay * ay)
     let blen = Double::sqrt(bx * bx + by * by)
-    let sharp = if alen < 1.0e-12 || blen < 1.0e-12 {
+    let sharp = if alen < @step.TOL_1E12 || blen < @step.TOL_1E12 {
       true
     } else {
       (ax * bx + ay * by) / (alen * blen) < corner_cos

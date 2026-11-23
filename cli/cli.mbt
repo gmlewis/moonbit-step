@@ -689,6 +689,18 @@ pub async fn eprintln(s : String) -> Unit {
 }
 
 ///|
+/// `die` reports a fatal CLI error and exits with a non-zero status.
+///
+/// It uses the synchronous `eprintln` from `moonbitlang/core/builtin`, so it
+/// also works from synchronous helpers and closures where the async
+/// `@cli.eprintln` cannot be called. This is the synchronous spelling of the
+/// `@cli.eprintln(msg)` + `abort("")` pattern required by AGENTS.md.
+pub fn[T] die(msg : String) -> T {
+  @builtin.eprintln(msg)
+  abort("")
+}
+
+///|
 // Parse CLI args using @argparse.
 //
 // - By default, reads @env.args() and strips argv[0].

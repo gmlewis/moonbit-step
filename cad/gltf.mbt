@@ -82,7 +82,7 @@ fn MeshBuilder::add_triangle(
   wanted : Vec3,
 ) -> Unit {
   let mut n = v_cross(v_sub(b, a), v_sub(c, a))
-  if v_len(n) < 1.0e-14 {
+  if v_len(n) < @step.TOL_1E14 {
     return
   }
   let (b2, c2) = if v_len(wanted) > 0.0 && v_dot(n, wanted) < 0.0 {
@@ -107,7 +107,7 @@ fn MeshBuilder::add_triangle(
 fn MeshBuilder::finalize(self : MeshBuilder) -> (Array[Vec3], Array[Vec3]) {
   let normals = self.normals.map(fn(n) {
     let len = v_len(n)
-    if len < 1.0e-12 {
+    if len < @step.TOL_1E12 {
       (0.0, 0.0, 1.0)
     } else {
       (n.0 / len, n.1 / len, n.2 / len)
@@ -214,7 +214,7 @@ fn clean_collinear_closed(pts : Array[Vec3]) -> Array[Vec3] {
   let deduped : Array[Vec3] = []
   for p in pts {
     let dup = match deduped.last() {
-      Some(q) => v_len(v_sub(p, q)) <= 1.0e-12
+      Some(q) => v_len(v_sub(p, q)) <= @step.TOL_1E12
       None => false
     }
     if !dup {
@@ -447,7 +447,7 @@ fn sample_loop(
   for oe_ref in el.edges {
     for p in sample_oriented_edge(ctx, oe_ref) {
       let dup = match pts.last() {
-        Some(q) => v_len(v_sub(p, q)) <= 1.0e-12
+        Some(q) => v_len(v_sub(p, q)) <= @step.TOL_1E12
         None => false
       }
       if !dup {
@@ -455,7 +455,8 @@ fn sample_loop(
       }
     }
   }
-  if pts.length() > 1 && v_len(v_sub(pts[0], pts[pts.length() - 1])) <= 1.0e-12 {
+  if pts.length() > 1 &&
+    v_len(v_sub(pts[0], pts[pts.length() - 1])) <= @step.TOL_1E12 {
     let _ = pts.pop()
   }
   if orientation {
@@ -531,7 +532,7 @@ fn segment_clear(
 
 ///|
 fn point_in_tri(p : Vec2, a : Vec2, b : Vec2, c : Vec2) -> Bool {
-  let eps = 1.0e-12
+  let eps = @step.TOL_1E12
   let d1 = cross2(sub2(p, a), sub2(b, a))
   let d2 = cross2(sub2(p, b), sub2(c, b))
   let d3 = cross2(sub2(p, c), sub2(a, c))
@@ -551,7 +552,7 @@ fn is_ear(
   let a = pts[prev]
   let b = pts[cur]
   let c = pts[next]
-  if cross2(sub2(b, a), sub2(c, b)) <= 1.0e-12 {
+  if cross2(sub2(b, a), sub2(c, b)) <= @step.TOL_1E12 {
     return false
   }
   for v in poly {
@@ -792,7 +793,7 @@ fn sample_closed_curve(ctx : StepContext, curve_ref : @step.Ref) -> Array[Vec3] 
     Polyline(p) => {
       let pts = p.points.map(fn(r) { point_of(ctx, r) })
       if pts.length() > 1 &&
-        v_len(v_sub(pts[0], pts[pts.length() - 1])) <= 1.0e-12 {
+        v_len(v_sub(pts[0], pts[pts.length() - 1])) <= @step.TOL_1E12 {
         let _ = pts.pop()
       }
       pts
@@ -822,7 +823,7 @@ fn tessellate_extrusion(
   for i in 0..<n {
     let j = (i + 1) % n
     let tangent = v_sub(base[j], base[i])
-    if v_len(tangent) < 1.0e-14 {
+    if v_len(tangent) < @step.TOL_1E14 {
       continue
     }
     let wanted = v_scale(v_norm(v_cross(tangent, vec)), sign)

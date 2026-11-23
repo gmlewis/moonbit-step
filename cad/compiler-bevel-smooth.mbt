@@ -125,7 +125,7 @@ fn bevel_smooth_tip_corners(points : Array[Vec3]) -> Array[Int32] {
       rmax = r
     }
   }
-  let tol = 1.0e-6 * (1.0 + rmax)
+  let tol = @step.TOL_1E6 * (1.0 + rmax)
   let mut first = -1
   let mut last = -1
   for i, p in points {
@@ -327,7 +327,7 @@ fn compile_bevel_gear_body_smooth(
       let a1 = @math.atan2(local_pts[start + b1].1, local_pts[start + b1].0)
       let raw = a1 - a0
       let mut delta = raw - two_pi * Double::floor(raw / two_pi)
-      if delta <= 1.0e-12 {
+      if delta <= @step.TOL_1E12 {
         delta = delta + two_pi
       }
       let root_points : Array[Vec3] = []
@@ -471,7 +471,11 @@ fn compile_bevel_gear_body_smooth(
         ip.push((p.0 * scale, p.1 * scale, front_z))
         let bp = s.back_pts[i]
         let dz = front_z - bp.2
-        let t = if Double::abs(dz) > 1.0e-12 { chamfer / dz } else { 0.0 }
+        let t = if Double::abs(dz) > @step.TOL_1E12 {
+          chamfer / dz
+        } else {
+          0.0
+        }
         op.push(
           (p.0 + t * (bp.0 - p.0), p.1 + t * (bp.1 - p.1), front_z - chamfer),
         )

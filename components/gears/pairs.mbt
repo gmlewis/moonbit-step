@@ -27,13 +27,13 @@ pub fn gear_pair(
   detail~ : @common.DetailLevel = Detailed,
   smooth~ : Bool = false,
 ) -> Result[@assemblies.Assembly, @common.SpecError] {
-  if !@common.near(driver.module_mm, driven.module_mm, tol=1.0e-9) {
+  if !@common.near(driver.module_mm, driven.module_mm, tol=@step.TOL_1E9) {
     return Err(@common.InvalidParameter("gear pair requires the same module"))
   }
   if !@common.near(
       driver.pressure_angle_deg,
       driven.pressure_angle_deg,
-      tol=1.0e-9,
+      tol=@step.TOL_1E9,
     ) {
     return Err(
       @common.InvalidParameter("gear pair requires the same pressure angle"),

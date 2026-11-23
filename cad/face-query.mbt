@@ -279,7 +279,7 @@ pub fn FaceSet::to_array(self : FaceSet) -> Array[FaceInfo] {
 pub fn FaceSet::aligned_with(
   self : FaceSet,
   dir : Vec3,
-  tol~ : Double = 1.0e-6,
+  tol~ : Double = @step.TOL_1E6,
 ) -> FaceSet {
   let d = v_norm(dir)
   { faces: self.faces.filter(fn(f) { v_dot(f.normal, d) >= 1.0 - tol }), }

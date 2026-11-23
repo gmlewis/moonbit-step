@@ -63,7 +63,7 @@ fn din472_row(bore_mm : Double) -> Array[Double]? {
   ]
   for row in rows {
     let (size, values) = row
-    if (size - bore_mm).abs() < 1.0e-9 {
+    if (size - bore_mm).abs() < @step.TOL_1E9 {
       return Some(values)
     }
   }

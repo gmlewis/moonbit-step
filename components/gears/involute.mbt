@@ -161,7 +161,7 @@ pub fn external_involute_outline(
       outline.push(rotate_xy(lower_root, -j.to_double() * gap_delta))
     }
   }
-  clean_polygon(outline, 1.0e-8)
+  clean_polygon(outline, @step.TOL_1E8)
 }
 
 ///|
@@ -326,7 +326,7 @@ pub fn external_involute_outline_ex(
     )
   }
   let geom = involute_gear_geometry(module_mm, teeth, pressure_angle_deg)
-  let tol = 1.0e-6 * (1.0 + geom.outer_radius_mm)
+  let tol = @step.TOL_1E6 * (1.0 + geom.outer_radius_mm)
   let mut pts = external_involute_outline(
     module_mm,
     teeth,

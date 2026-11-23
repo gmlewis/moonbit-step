@@ -258,7 +258,7 @@ fn an_rev_contains(segs : Array[RevSegment], z0 : Double, r : Double) -> Bool {
   for seg in segs {
     match seg {
       RevLine(a, b) =>
-        if (a.1 - b.1).abs() < eps && (z0 - a.1).abs() < 1.0e-7 {
+        if (a.1 - b.1).abs() < eps && (z0 - a.1).abs() < @step.TOL_1E7 {
           let lo = if a.0 < b.0 { a.0 } else { b.0 }
           let hi = if a.0 > b.0 { a.0 } else { b.0 }
           if r >= lo - eps && r <= hi + eps {
@@ -296,7 +296,7 @@ fn an_rev_contains(segs : Array[RevSegment], z0 : Double, r : Double) -> Bool {
         let rho = rev_dist2(a, c)
         let dr = r - c.0
         let disc = rho * rho - dr * dr
-        if disc > 1.0e-14 {
+        if disc > @step.TOL_1E14 {
           let s = Double::sqrt(disc)
           for zc in [c.1 + s, c.1 - s] {
             if zc > z0 + eps && an_arc_contains(c, a, b, r, zc) {
@@ -308,7 +308,7 @@ fn an_rev_contains(segs : Array[RevSegment], z0 : Double, r : Double) -> Bool {
     }
   }
   // Two adjacent bands share a vertex on the ray; count that crossing once.
-  let unique = an_sort_unique(crossings, 1.0e-7)
+  let unique = an_sort_unique(crossings, @step.TOL_1E7)
   unique.length() % 2 == 1
 }
 
@@ -334,7 +334,7 @@ fn an_rev_section(
         if dz.abs() < CAD_LENGTH_EPS {
           // A horizontal band is a cap: it lies in the section plane only when
           // z0 equals that plane.
-          if (z0 - a.1).abs() < 1.0e-7 {
+          if (z0 - a.1).abs() < @step.TOL_1E7 {
             radii.push(a.0)
             radii.push(b.0)
           }
@@ -349,7 +349,7 @@ fn an_rev_section(
         let rho = rev_dist2(a, c)
         let dzc = z0 - c.1
         let disc = rho * rho - dzc * dzc
-        if disc > 1.0e-14 {
+        if disc > @step.TOL_1E14 {
           let dr = Double::sqrt(disc)
           for cand in [c.0 + dr, c.0 - dr] {
             if cand >= -CAD_LENGTH_EPS && an_arc_contains(c, a, b, cand, z0) {
@@ -362,7 +362,7 @@ fn an_rev_section(
       }
     }
   }
-  let candidates = an_sort_unique(radii, 1.0e-7)
+  let candidates = an_sort_unique(radii, @step.TOL_1E7)
   let intervals : Array[(Double, Double)] = []
   let mut i = 0
   while i + 1 < candidates.length() {
@@ -373,7 +373,7 @@ fn an_rev_section(
       if an_rev_contains(segs, z0, mid) {
         if intervals.length() > 0 {
           let prev = intervals[intervals.length() - 1]
-          if ri <= prev.1 + 1.0e-7 {
+          if ri <= prev.1 + @step.TOL_1E7 {
             intervals[intervals.length() - 1] = (prev.0, ro)
           } else {
             intervals.push((ri, ro))
@@ -402,7 +402,7 @@ fn an_rev_section(
       inner = ri
     }
   }
-  if rings.length() == 0 || area <= 1.0e-12 {
+  if rings.length() == 0 || area <= @step.TOL_1E12 {
     return Err(EmptySection)
   }
   if inner == 1.0e300 {
@@ -488,7 +488,7 @@ fn an_rev_volume_centroid(rev : RevolvedProfile) -> (Double, Double) {
     iz = iz + az
   }
   let volume = @math.PI * i2.abs()
-  let zc = if i2.abs() < 1.0e-12 { 0.0 } else { iz / i2 }
+  let zc = if i2.abs() < @step.TOL_1E12 { 0.0 } else { iz / i2 }
   (volume, zc)
 }
 
@@ -508,7 +508,7 @@ fn an_lerp_inset(levels : Array[(Double, Double)], z : Double) -> Double? {
     let (z0, v0) = levels[i]
     let (z1, v1) = levels[i + 1]
     if z >= z0 - CAD_LENGTH_EPS && z <= z1 + CAD_LENGTH_EPS {
-      if (z1 - z0).abs() < 1.0e-12 {
+      if (z1 - z0).abs() < @step.TOL_1E12 {
         return Some(v1)
       }
       let t = (z - z0) / (z1 - z0)
@@ -611,7 +611,7 @@ fn an_prism_section_props(
   if !have_hole {
     inner_radius = 0.0
   }
-  if area <= 1.0e-12 {
+  if area <= @step.TOL_1E12 {
     return Err(EmptySection)
   }
   Ok((area, perimeter, mx, my, outer_radius, inner_radius, rings))
@@ -784,7 +784,7 @@ fn an_prism_volume_centroid(prism : ChamferedPrism) -> (Double, Vec3) {
     my_total = my_total + dz * (my0 + 4.0 * mym + my1) / 6.0
     mz_total = mz_total + dz * (z0 * ia + dz * ita)
   }
-  if volume <= 1.0e-12 {
+  if volume <= @step.TOL_1E12 {
     return (0.0, (0.0, 0.0, 0.0))
   }
   (volume, (mx_total / volume, my_total / volume, mz_total / volume))
@@ -908,7 +908,7 @@ fn an_calib_volume_centroid(block : CalibrationChamferBlock) -> (Double, Vec3) {
     my_total = my_total + dz * (my0 + 4.0 * mym + my1) / 6.0
     mz_total = mz_total + dz * (z0 * ia + dz * ita)
   }
-  if volume <= 1.0e-12 {
+  if volume <= @step.TOL_1E12 {
     return (0.0, (0.0, 0.0, 0.0))
   }
   (volume, (mx_total / volume, my_total / volume, mz_total / volume))
@@ -1039,7 +1039,7 @@ fn an_extruded_section(
   let (area, perimeter, _mx, _my, outer, inner, rings) = an_extruded_props(
     extrusion,
   )
-  if area <= 1.0e-12 {
+  if area <= @step.TOL_1E12 {
     return Err(EmptySection)
   }
   Ok({
@@ -1059,7 +1059,7 @@ fn an_extruded_volume_centroid(extrusion : ExtrudedProfile) -> (Double, Vec3) {
   }
   let (area, _p, mx, my, _outer, _inner, _rings) = an_extruded_props(extrusion)
   let volume = area * extrusion.height_mm
-  if area <= 1.0e-12 {
+  if area <= @step.TOL_1E12 {
     return (0.0, (0.0, 0.0, 0.0))
   }
   (volume, (mx / area, my / area, extrusion.height_mm / 2.0))
@@ -1389,7 +1389,7 @@ fn an_swept_inventory(s : SweptProfile) -> SurfaceInventory {
         let p3 = pts[t2]
         let expected = v_norm(v_cross(v_sub(p1, p0), v_sub(p2, p0)))
         let off = Double::abs(v_dot(v_sub(p3, p0), expected))
-        if off <= 1.0e-6 {
+        if off <= @step.TOL_1E6 {
           planes = planes + 1
         } else {
           planes = planes + 2
@@ -1471,7 +1471,7 @@ fn an_bevel_lobe_tris(b : BevelGearBody) -> Int32 {
     let a1 = @math.atan2(b.back[end].1, b.back[end].0)
     let raw = a1 - a0
     let mut delta = raw - two_pi * Double::floor(raw / two_pi)
-    if delta <= 1.0e-12 {
+    if delta <= @step.TOL_1E12 {
       delta = delta + two_pi
     }
     let arc : Array[Vec3] = [b.back[start]]
@@ -1492,11 +1492,11 @@ fn an_bevel_lobe_tris(b : BevelGearBody) -> Int32 {
       let r0 = arc[i]
       let r1 = arc[i + 1]
       let a1v = v_cross(v_sub(b1, b0), v_sub(r1, b0))
-      if v_dot(a1v, a1v) > 1.0e-24 {
+      if v_dot(a1v, a1v) > @step.TOL_1E24 {
         count_tris = count_tris + 1
       }
       let a2v = v_cross(v_sub(r1, b0), v_sub(r0, b0))
-      if v_dot(a2v, a2v) > 1.0e-24 {
+      if v_dot(a2v, a2v) > @step.TOL_1E24 {
         count_tris = count_tris + 1
       }
     }
@@ -2093,7 +2093,7 @@ pub fn Shape::analysis_centroid(self : Shape) -> Result[Vec3, AnalysisError] {
         my = my + v * (ry + child.ty)
         mz = mz + v * (rz + child.tz)
       }
-      if volume <= 1.0e-12 {
+      if volume <= @step.TOL_1E12 {
         Err(DegenerateProfile)
       } else {
         Ok((mx / volume, my / volume, mz / volume))
@@ -2119,7 +2119,7 @@ pub fn Shape::section_at_local(
         return Err(EmptySection)
       }
       let area = c.sx * c.sy
-      if area <= 1.0e-12 {
+      if area <= @step.TOL_1E12 {
         return Err(DegenerateProfile)
       }
       let outer = Double::sqrt(c.sx * c.sx + c.sy * c.sy)
@@ -2510,9 +2510,9 @@ pub fn Shape::section_at_world_z(
   trans : Vec3,
   z : Double,
 ) -> Result[Section, AnalysisError] {
-  let z_preserved = rot.m02.abs() < 1.0e-7 &&
-    rot.m12.abs() < 1.0e-7 &&
-    (rot.m22 - 1.0).abs() < 1.0e-7
+  let z_preserved = rot.m02.abs() < @step.TOL_1E7 &&
+    rot.m12.abs() < @step.TOL_1E7 &&
+    (rot.m22 - 1.0).abs() < @step.TOL_1E7
   if !z_preserved {
     return Err(UnsupportedTransform("rotation does not map +Z to +Z"))
   }

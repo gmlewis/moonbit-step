@@ -150,7 +150,7 @@ pub fn CycloidalParams::new(
   let denom = pin_circle_radius_mm * pin_circle_radius_mm +
     eccentricity_mm * eccentricity_mm * z_ring * z_ring * z_ring -
     eccentricity_mm * pin_circle_radius_mm * z_ring * (z_ring + 1.0)
-  if denom > 1.0e-9 {
+  if denom > @step.TOL_1E9 {
     let diff = pin_circle_radius_mm - eccentricity_mm * z_ring
     let rho_valley = diff * diff * diff / denom
     if r_eff >= rho_valley * 0.98 {

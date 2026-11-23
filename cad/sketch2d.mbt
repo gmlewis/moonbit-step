@@ -52,7 +52,7 @@ fn sk_len(a : Vec2) -> Double {
 ///|
 fn sk_norm(a : Vec2) -> Vec2 {
   let l = sk_len(a)
-  if l < 1.0e-12 {
+  if l < @step.TOL_1E12 {
     (0.0, 0.0)
   } else {
     (a.0 / l, a.1 / l)
@@ -193,7 +193,7 @@ fn sk_convex_hull(points : Array[Vec2]) -> Array[Vec2] {
 fn sk_point_segment_distance(p : Vec2, a : Vec2, b : Vec2) -> Double {
   let ab = sk_sub(b, a)
   let len2 = sk_dot(ab, ab)
-  if len2 < 1.0e-18 {
+  if len2 < @step.TOL_1E18 {
     return sk_len(sk_sub(p, a))
   }
   let t = sk_dot(sk_sub(p, a), ab) / len2
@@ -365,7 +365,7 @@ pub fn Sketch2D::link_arc(
 ) -> Sketch2D {
   let d = sk_sub(p1, p0)
   let len = sk_len(d)
-  if len < 1.0e-6 {
+  if len < @step.TOL_1E6 {
     let r = if r0 > r1 { r0 } else { r1 }
     return Sketch2D::circle(r, segs~)
   }
@@ -441,7 +441,7 @@ pub fn Sketch2D::spoked_wheel(
     return { outer: sk_ensure_ccw(outer), holes: [], }
   }
   let mid = (inner + rim_inner) / 2.0
-  let spoke_angle = if mid > 1.0e-6 { spoke_w / mid } else { 0.0 }
+  let spoke_angle = if mid > @step.TOL_1E6 { spoke_w / mid } else { 0.0 }
   let pitch = 2.0 * @math.PI / n.to_double()
   let mut gap = pitch - spoke_angle
   if gap < 0.05 {
@@ -591,8 +591,8 @@ pub fn Sketch2D::fillet_corners(
     }
     let theta = @math.acos(cos_theta)
     let mut valid = cross < -CAD_LENGTH_EPS &&
-      theta > 1.0e-3 &&
-      theta < @math.PI - 1.0e-3 &&
+      theta > @step.TOL_1E3 &&
+      theta < @math.PI - @step.TOL_1E3 &&
       l1 > CAD_LENGTH_EPS &&
       l2 > CAD_LENGTH_EPS
     let mut t = 0.0
@@ -602,7 +602,7 @@ pub fn Sketch2D::fillet_corners(
       if t > max_t {
         t = max_t
       }
-      if t < 1.0e-6 {
+      if t < @step.TOL_1E6 {
         valid = false
       }
     }

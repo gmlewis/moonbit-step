@@ -441,10 +441,10 @@ pub fn RevolvedProfile::validate(
       RevArc(s, e, c) => {
         let r1 = rev_dist2(s, c)
         let r2 = rev_dist2(e, c)
-        if r1 < 1.0e-12 {
+        if r1 < @step.TOL_1E12 {
           return Err(DegenerateArc(i))
         }
-        if (r1 - r2).abs() > 1.0e-6 {
+        if (r1 - r2).abs() > @step.TOL_1E6 {
           return Err(ArcEndpointMismatch(i))
         }
       }
@@ -465,7 +465,7 @@ pub fn RevolvedProfile::validate(
     return Err(NotClosed)
   }
   // The profile must enclose a non-zero signed area.
-  if rev_profile_signed_area(segs).abs() < 1.0e-12 {
+  if rev_profile_signed_area(segs).abs() < @step.TOL_1E12 {
     return Err(DegenerateArea)
   }
   Ok(())

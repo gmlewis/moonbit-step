@@ -73,7 +73,7 @@ fn flatten_bezier_path(path : BezierPath) -> Array[Vec2] {
 /// dedupe_bezier_points drops consecutive duplicate points and the duplicated
 /// closing point of a loop. Extruding zero-length edges makes OCCT unhappy.
 fn dedupe_bezier_points(points : Array[Vec2]) -> Array[Vec2] {
-  let eps_sq = 1.0e-18
+  let eps_sq = @step.TOL_1E18
   let result : Array[Vec2] = []
   for pt in points {
     let duplicate = match result.last() {

@@ -113,7 +113,7 @@ async fn main {
         pivot_spacing_mm=length,
       ) {
       Ok(c) => c
-      Err(e) => abort(e.message())
+      Err(e) => @cli.die(e.message())
     }
   }
   let angle_of = fn(dx, dy) { @math.atan2(dy, dx) * 180.0 / @math.PI }
@@ -142,7 +142,7 @@ async fn main {
   let make_pin = fn(length) {
     match @motion.dowel_pin(pivot, length) {
       Ok(c) => c
-      Err(e) => abort(e.message())
+      Err(e) => @cli.die(e.message())
     }
   }
   let assembly = @assemblies.Assembly::new(

@@ -368,7 +368,7 @@ async fn main {
       abort("")
     }
   }
-  if shaft_diameter > bearing_size.bore_mm + 1.0e-9 {
+  if shaft_diameter > bearing_size.bore_mm + @step.TOL_1E9 {
     @cli.eprintln(
       "error: shaft diameter must not exceed the bearing bore (\{bearing_size.bore_mm} mm)",
     )

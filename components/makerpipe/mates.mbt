@@ -3,7 +3,7 @@
 fn unit3(v : @cad.Vec3) -> @cad.Vec3 {
   let (x, y, z) = v
   let len = (x * x + y * y + z * z).sqrt()
-  if len < 1.0e-12 {
+  if len < @step.TOL_1E12 {
     (0.0, 0.0, 1.0)
   } else {
     (x / len, y / len, z / len)
@@ -18,7 +18,7 @@ fn unit3(v : @cad.Vec3) -> @cad.Vec3 {
 fn frame_z_along(axis : @cad.Vec3) -> @common.Placement {
   let (x, y, z) = unit3(axis)
   let planar = (x * x + y * y).sqrt()
-  if planar < 1.0e-12 {
+  if planar < @step.TOL_1E12 {
     if z >= 0.0 {
       @common.Placement::identity()
     } else {

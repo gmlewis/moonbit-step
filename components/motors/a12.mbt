@@ -538,7 +538,7 @@ pub fn a12_motor_spec(spec : A12MotorSpec) -> Result[Unit, @common.SpecError] {
     )
   }
   if spec.stator_plate_start_mm <
-    spec.stator_stack_start_mm + spec.stator_stack_length_mm - 1.0e-6 {
+    spec.stator_stack_start_mm + spec.stator_stack_length_mm - @step.TOL_1E6 {
     return Err(
       @common.InvalidDimension(
         "a12 stator mount plate must sit behind the lamination stack",
@@ -1263,7 +1263,7 @@ pub fn a12_motor(
     magnet_mid_radius *
     @math.sin(magnet_pitch * @math.PI / 360.0)
   let magnet_width = pitch_chord - spec.magnet_gap_mm
-  if magnet_width <= 1.0e-6 {
+  if magnet_width <= @step.TOL_1E6 {
     return Err(
       @common.InvalidDimension(
         "a12 magnet gap leaves no magnet width at the magnet ring",
@@ -1466,7 +1466,7 @@ pub fn a12_motor(
     plate_neck_thickness,
     holes=plate_holes,
   )
-  if plate_neck_thickness > 1.0e-6 && !plate_neck_profile.validate() {
+  if plate_neck_thickness > @step.TOL_1E6 && !plate_neck_profile.validate() {
     return Err(
       @common.InvalidParameter(
         "a12 stator mount plate neck did not form a valid profile",

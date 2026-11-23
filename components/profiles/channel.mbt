@@ -241,7 +241,7 @@ pub fn ChannelSection::hole_positions(
     return out
   }
   let mut z = self.hole_start_mm
-  while z <= length_mm - self.hole_start_mm + 1.0e-9 {
+  while z <= length_mm - self.hole_start_mm + @step.TOL_1E9 {
     out.push(z)
     z = z + self.hole_pitch_mm
   }

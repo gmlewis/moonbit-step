@@ -118,13 +118,7 @@ fn tire_circle_loop(
   cy : Double,
   radius : Double,
 ) -> Array[@cad.ProfileSegment] {
-  let center = (cx, cy)
-  [
-    @cad.SegmentArc((cx + radius, cy), (cx, cy + radius), center),
-    @cad.SegmentArc((cx, cy + radius), (cx - radius, cy), center),
-    @cad.SegmentArc((cx - radius, cy), (cx, cy - radius), center),
-    @cad.SegmentArc((cx, cy - radius), (cx + radius, cy), center),
-  ]
+  @common.circle_loop(cx, cy, radius)
 }
 
 ///|

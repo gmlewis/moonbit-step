@@ -49,7 +49,7 @@ fn seg_crosses(a0 : Vec2, a1 : Vec2, b0 : Vec2, b1 : Vec2) -> Bool {
   let o2 = seg_orient(a0, a1, b1)
   let o3 = seg_orient(b0, b1, a0)
   let o4 = seg_orient(b0, b1, a1)
-  o1 * o2 < -1.0e-12 && o3 * o4 < -1.0e-12
+  o1 * o2 < -@step.TOL_1E12 && o3 * o4 < -@step.TOL_1E12
 }
 
 ///|
@@ -64,7 +64,8 @@ pub fn Profile2D::is_simple(pts : Array[Vec2]) -> Bool {
   for i in 0..<n {
     let a0 = pts[i]
     let a1 = pts[(i + 1) % n]
-    if (a0.0 - a1.0).abs() < 1.0e-12 && (a0.1 - a1.1).abs() < 1.0e-12 {
+    if (a0.0 - a1.0).abs() < @step.TOL_1E12 &&
+      (a0.1 - a1.1).abs() < @step.TOL_1E12 {
       return false
     }
     for j in (i + 1)..<n {
@@ -166,7 +167,7 @@ fn profile_selected_mask(
         let cur = pts[i]
         let next = pts[(i + 1) % n]
         let cross = profile_vertex_cross(prev, cur, next) * winding
-        if cross.abs() < 1.0e-12 {
+        if cross.abs() < @step.TOL_1E12 {
           continue
         }
         let convex = cross > 0.0

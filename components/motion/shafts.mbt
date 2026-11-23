@@ -335,7 +335,7 @@ pub fn filleted_stepped_shaft(
     let top = zs[i + 1]
     let has_next = i + 1 < n
     let next_r = if has_next { radii[i + 1] } else { 0.0 }
-    let step_out = has_next && next_r > r + 1.0e-9
+    let step_out = has_next && next_r > r + @step.TOL_1E9
     // A shoulder fillet is tangent to the small cylinder below the shoulder
     // and to the annular shoulder face. Its centre is (r + f, top - f); the
     // previous implementation used (next_r - f, top - f), which rounded the
@@ -344,24 +344,24 @@ pub fn filleted_stepped_shaft(
     // smaller one's.
     let can_fillet = step_out &&
       f > 0.0 &&
-      top - cur_z >= f - 1.0e-9 &&
-      next_r - r >= f - 1.0e-9
+      top - cur_z >= f - @step.TOL_1E9 &&
+      next_r - r >= f - @step.TOL_1E9
     if can_fillet {
       let fillet_start = top - f
-      if fillet_start > cur_z + 1.0e-9 {
+      if fillet_start > cur_z + @step.TOL_1E9 {
         segs.push(@cad.RevLine((r, cur_z), (r, fillet_start)))
       }
       segs.push(
         @cad.RevArc((r, fillet_start), (r + f, top), (r + f, fillet_start)),
       )
-      if next_r > r + f + 1.0e-9 {
+      if next_r > r + f + @step.TOL_1E9 {
         segs.push(@cad.RevLine((r + f, top), (next_r, top)))
       }
       filleted = filleted + 1
     } else {
       segs.push(@cad.RevLine((r, cur_z), (r, top)))
       // Skip a zero-length shoulder line for equal consecutive diameters.
-      if has_next && (next_r - r).abs() > 1.0e-9 {
+      if has_next && (next_r - r).abs() > @step.TOL_1E9 {
         segs.push(@cad.RevLine((r, top), (next_r, top)))
       }
     }

@@ -122,7 +122,7 @@ fn analyze_text(text : String, bytes : Int32) -> StepStats {
   ]
   let repo = match @parse.parse_repository_from_string_lenient_result(text) {
     Ok(repo) => repo
-    Err(info) => abort("error: " + @parse.format_step_parse_error(info))
+    Err(info) => @cli.die("error: " + @parse.format_step_parse_error(info))
   }
   repo.each(fn(entity) {
     match entity {
@@ -302,17 +302,17 @@ fn self_test() -> Unit {
     stats.line != 1 ||
     stats.circle != 1 ||
     stats.advanced_face != 0 {
-    abort("self-test failed: synthetic entity counts")
+    @cli.die("self-test failed: synthetic entity counts")
   }
   match stats.bbox {
     Some((x0, x1, _y0, y1, _z0, z1)) =>
-      if (x0 - 0.0).abs() > 1.0e-9 ||
-        (x1 - 10.0).abs() > 1.0e-9 ||
-        (y1 - 20.0).abs() > 1.0e-9 ||
-        (z1 - 30.0).abs() > 1.0e-9 {
-        abort("self-test failed: synthetic point bbox")
+      if (x0 - 0.0).abs() > @step.TOL_1E9 ||
+        (x1 - 10.0).abs() > @step.TOL_1E9 ||
+        (y1 - 20.0).abs() > @step.TOL_1E9 ||
+        (z1 - 30.0).abs() > @step.TOL_1E9 {
+        @cli.die("self-test failed: synthetic point bbox")
       }
-    None => abort("self-test failed: synthetic point bbox missing")
+    None => @cli.die("self-test failed: synthetic point bbox missing")
   }
   println("self-test: ok")
 }
@@ -337,14 +337,14 @@ async fn main {
   }
   let file = match path {
     Some(p) => p
-    None => abort("error: no STEP file given (see --help)")
+    None => @cli.die("error: no STEP file given (see --help)")
   }
   let data = @fs.read_file(file) catch {
-    _ => abort("error: cannot read " + file)
+    _ => @cli.die("error: cannot read " + file)
   }
   let bytes = data.binary().length()
   let text = data.text() catch {
-    _ => abort("error: cannot decode " + file + " as text")
+    _ => @cli.die("error: cannot decode " + file + " as text")
   }
   let stats = analyze_text(text, bytes)
   if json {

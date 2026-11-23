@@ -199,7 +199,7 @@ fn hhp_all_collinear(uv : Array[(Double, Double)]) -> Bool {
   let du = uv[n - 1].0 - uv[0].0
   let dv = uv[n - 1].1 - uv[0].1
   let len = Double::sqrt(du * du + dv * dv)
-  if len < 1.0e-12 {
+  if len < @step.TOL_1E12 {
     return false
   }
   for (u, v) in uv {

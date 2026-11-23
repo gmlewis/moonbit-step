@@ -9,13 +9,13 @@ async fn report_electrical_geometry(params : Params) -> Unit {
   // NOTE: Print only to stderr so stdout remains a clean STEP stream.
   let wire_width_mm = params.wire_width
   let area_mm2 = wire_width_mm * wire_width_mm
-  let area_m2 = area_mm2 * 1.0e-6
+  let area_m2 = area_mm2 * @step.TOL_1E6
   let total_helix_length_mm = if params.nocoil {
     0.0
   } else {
     total_bifilar_helix_centerline_length_mm(params)
   }
-  let total_helix_length_m = total_helix_length_mm * 1.0e-3
+  let total_helix_length_m = total_helix_length_mm * @step.TOL_1E3
   let rdc_est = if total_helix_length_m == 0.0 {
     0.0
   } else {

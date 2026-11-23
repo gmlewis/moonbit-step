@@ -27,7 +27,10 @@ fn normalize_branch_angles(
   let out : Array[Double] = []
   for angle in radians {
     match out.last() {
-      Some(previous) => if (angle - previous).abs() > 1.0e-6 { out.push(angle) }
+      Some(previous) =>
+        if (angle - previous).abs() > @step.TOL_1E6 {
+          out.push(angle)
+        }
       None => out.push(angle)
     }
   }
@@ -212,7 +215,7 @@ pub fn tee(
   let run_inner_r = size.socket_bore_mm / 2.0
   let pipe_r = size.through_pipe_od_mm / 2.0
   let opening = opening_half_angle(run_inner_r, run_outer_r)
-  if opening <= 1.0e-6 || opening >= @math.PI / 2.0 - 1.0e-6 {
+  if opening <= @step.TOL_1E6 || opening >= @math.PI / 2.0 - @step.TOL_1E6 {
     return Err(
       @common.InvalidParameter(
         "T run sleeve opening is degenerate for this socket bore and shell",

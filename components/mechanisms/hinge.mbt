@@ -60,7 +60,7 @@ pub fn hinge(
       ),
     )
   }
-  if knuckle_od > thickness_mm + 1.0e-9 {
+  if knuckle_od > thickness_mm + @step.TOL_1E9 {
     return Err(
       @common.InvalidDimension(
         "hinge knuckle diameter must not exceed the leaf thickness in this envelope",

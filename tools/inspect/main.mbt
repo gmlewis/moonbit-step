@@ -99,14 +99,14 @@ fn has_flag(args : Array[String], name : String) -> Bool {
 ///|
 fn num(s : String) -> Double {
   @string.parse_double(s.trim().to_owned()) catch {
-    _ => abort("error: invalid number: " + s)
+    _ => @cli.die("error: invalid number: " + s)
   }
 }
 
 ///|
 fn int_num(s : String) -> Int32 {
   @string.parse_int(s.trim().to_owned()) catch {
-    _ => abort("error: invalid integer: " + s)
+    _ => @cli.die("error: invalid integer: " + s)
   }
 }
 
@@ -154,7 +154,7 @@ fn build_fastener(args : Array[String], standard : String) -> Built {
   let size_text = get_opt(args, "size").unwrap_or("M4")
   let size = match @standards.MetricSize::parse(size_text) {
     Some(s) => s
-    None => abort("error: unsupported metric size: " + size_text)
+    None => @cli.die("error: unsupported metric size: " + size_text)
   }
   let length = match get_opt(args, "length") {
     Some(s) => num(s)
@@ -210,11 +210,11 @@ fn build_fastener(args : Array[String], standard : String) -> Built {
         Some(t) => @fcomponents.din976(size, length, detail~, threads=t)
         None => @fcomponents.din976(size, length, detail~)
       }
-    other => abort("error: unsupported standard: " + other)
+    other => @cli.die("error: unsupported standard: " + other)
   }
   match result {
     Ok(c) => Built::Comp(c)
-    Err(e) => abort("error: " + e.message())
+    Err(e) => @cli.die("error: " + e.message())
   }
 }
 
@@ -222,7 +222,7 @@ fn build_fastener(args : Array[String], standard : String) -> Built {
 fn build_bearing(args : Array[String], designation : String) -> Built {
   let size = match @motion.bearing_size(designation) {
     Ok(s) => s
-    Err(e) => abort("error: " + e.message())
+    Err(e) => @cli.die("error: " + e.message())
   }
   let detail = parse_detail(get_opt(args, "detail").unwrap_or("simplified"))
   let result = if has_flag(args, "shielded") {
@@ -236,7 +236,7 @@ fn build_bearing(args : Array[String], designation : String) -> Built {
   }
   match result {
     Ok(c) => Built::Comp(c)
-    Err(e) => abort("error: " + e.message())
+    Err(e) => @cli.die("error: " + e.message())
   }
 }
 
@@ -266,11 +266,11 @@ fn build_gear(args : Array[String]) -> Built {
       bore_diameter_mm=bore,
     ) {
     Ok(p) => p
-    Err(e) => abort("error: " + e.message())
+    Err(e) => @cli.die("error: " + e.message())
   }
   match @gears.spur_gear(params) {
     Ok(c) => Built::Comp(c)
-    Err(e) => abort("error: " + e.message())
+    Err(e) => @cli.die("error: " + e.message())
   }
 }
 
@@ -308,7 +308,7 @@ fn build_motion(args : Array[String]) -> Built {
   }
   match result {
     Ok(c) => Built::Comp(c)
-    Err(e) => abort("error: " + e.message())
+    Err(e) => @cli.die("error: " + e.message())
   }
 }
 
@@ -322,16 +322,16 @@ fn build_profile(args : Array[String], series : String) -> Built {
   if series == "2020-b-slot6-a" {
     match @profiles.b_slot6_2020_extrusion(length, detail~) {
       Ok(c) => return Built::Comp(c)
-      Err(e) => abort("error: " + e.message())
+      Err(e) => @cli.die("error: " + e.message())
     }
   }
   let profile = match profile_from_name(series) {
     Some(p) => p
-    None => abort("error: unsupported profile series: " + series)
+    None => @cli.die("error: unsupported profile series: " + series)
   }
   match @profiles.extrusion(profile, length, detail~) {
     Ok(c) => Built::Comp(c)
-    Err(e) => abort("error: " + e.message())
+    Err(e) => @cli.die("error: " + e.message())
   }
 }
 
@@ -340,7 +340,7 @@ fn build_frame(args : Array[String], spec : String) -> Built {
   let normalized = spec.replace(old="X", new="x")
   let parts = normalized.split("x").collect()
   if parts.length() != 3 {
-    abort("error: --frame expects WxDxH (for example 400x300x500)")
+    @cli.die("error: --frame expects WxDxH (for example 400x300x500)")
   }
   let width = num(parts[0].to_owned())
   let depth = num(parts[1].to_owned())
@@ -348,12 +348,12 @@ fn build_frame(args : Array[String], spec : String) -> Built {
   let series = get_opt(args, "profile").unwrap_or("2020")
   let profile = match profile_from_name(series) {
     Some(p) => p
-    None => abort("error: unsupported profile series: " + series)
+    None => @cli.die("error: unsupported profile series: " + series)
   }
   let detail = parse_detail(get_opt(args, "detail").unwrap_or("simplified"))
   match @assemblies.extrusion_frame(width, depth, height, profile, detail~) {
     Ok(a) => Built::Asm(a)
-    Err(e) => abort("error: " + e.message())
+    Err(e) => @cli.die("error: " + e.message())
   }
 }
 
@@ -384,7 +384,7 @@ fn build(args : Array[String]) -> Built {
     Some(series) => return build_profile(args, series)
     None => ()
   }
-  abort(
+  @cli.die(
     "error: no component family selected (use --standard, --bearing, --module, --shaft, --profile, or --frame; see --help)",
   )
 }
@@ -616,9 +616,9 @@ fn layer_section(
   z_world : Double,
 ) -> Result[@cad.Section, String] {
   let rot = l.placement.rot
-  let z_preserved = rot.m02.abs() < 1.0e-7 &&
-    rot.m12.abs() < 1.0e-7 &&
-    (rot.m22 - 1.0).abs() < 1.0e-7
+  let z_preserved = rot.m02.abs() < @step.TOL_1E7 &&
+    rot.m12.abs() < @step.TOL_1E7 &&
+    (rot.m22 - 1.0).abs() < @step.TOL_1E7
   if !z_preserved {
     return Err("UnsupportedTransform: " + l.name)
   }
@@ -898,7 +898,7 @@ async fn write_mesh(path : String, layers : Array[LayerInfo]) -> Unit {
     }
   }
   if verts.is_empty() {
-    abort("error: no layer produced a mesh")
+    @cli.die("error: no layer produced a mesh")
   }
   let lines : Array[String] = []
   for v in verts {
@@ -927,28 +927,28 @@ fn self_test() -> Unit {
   let shape = @cad.Cylinder::new(10.0, 10.0)
   match shape.section_at_local(5.0) {
     Ok(s) =>
-      if (s.area_mm2 - 78.53981633974483).abs() > 1.0e-6 {
-        abort("self-test failed: cylinder section area " + jnum(s.area_mm2))
+      if (s.area_mm2 - 78.53981633974483).abs() > @step.TOL_1E6 {
+        @cli.die("self-test failed: cylinder section area " + jnum(s.area_mm2))
       }
-    Err(e) => abort("self-test failed: cylinder section: " + e.message())
+    Err(e) => @cli.die("self-test failed: cylinder section: " + e.message())
   }
   match shape.analysis_volume() {
     Ok(v) =>
-      if (v - 785.3981633974483).abs() > 1.0e-6 {
-        abort("self-test failed: cylinder volume " + jnum(v))
+      if (v - 785.3981633974483).abs() > @step.TOL_1E6 {
+        @cli.die("self-test failed: cylinder volume " + jnum(v))
       }
-    Err(e) => abort("self-test failed: cylinder volume: " + e.message())
+    Err(e) => @cli.die("self-test failed: cylinder volume: " + e.message())
   }
   let inv = shape.surface_inventory()
   if inv.plane != 2 || inv.cylinder != 1 {
-    abort("self-test failed: cylinder inventory")
+    @cli.die("self-test failed: cylinder inventory")
   }
   match @fcomponents.iso4762_screw(@standards.M4, 20.0) {
     Ok(c) =>
       if c.layers().is_empty() {
-        abort("self-test failed: fastener has no layers")
+        @cli.die("self-test failed: fastener has no layers")
       }
-    Err(e) => abort("self-test failed: fastener: " + e.message())
+    Err(e) => @cli.die("self-test failed: fastener: " + e.message())
   }
   println("self-test: ok")
 }

@@ -36,8 +36,8 @@ pub fn ToroidalBend::validate(self : ToroidalBend) -> Bool {
   r_in >= 0.0 &&
   r_in < r_out - CAD_LENGTH_EPS &&
   self.bend_radius_mm > r_out + CAD_LENGTH_EPS &&
-  self.angle_deg > 1.0e-6 &&
-  self.angle_deg < 360.0 - 1.0e-6
+  self.angle_deg > @step.TOL_1E6 &&
+  self.angle_deg < 360.0 - @step.TOL_1E6
 }
 
 ///|

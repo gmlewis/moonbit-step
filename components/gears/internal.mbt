@@ -145,7 +145,7 @@ pub fn internal_involute_ring_profile(
   let rp = geom.pitch_radius_mm
   let ra = geom.tip_radius_mm
   let rf = geom.root_radius_mm
-  if !(ra > rb + 1.0e-9) {
+  if !(ra > rb + @step.TOL_1E9) {
     return Err(
       @common.InvalidParameter(
         "ring tip radius r_p - addendum*m is at or below the base circle r_p*cos(pressure angle); reduce the addendum factor or increase the tooth count",
@@ -219,7 +219,7 @@ pub fn internal_involute_ring_profile(
       outline.push(rotate_xy(sector[k], theta))
     }
   }
-  let tol = 1.0e-12 * (1.0 + rf * rf)
+  let tol = @step.TOL_1E12 * (1.0 + rf * rf)
   Ok(clean_polygon(outline, tol))
 }
 
@@ -237,7 +237,7 @@ fn internal_segments_cross(
   let o2 = (a1.0 - a0.0) * (b1.1 - a0.1) - (a1.1 - a0.1) * (b1.0 - a0.0)
   let o3 = (b1.0 - b0.0) * (a0.1 - b0.1) - (b1.1 - b0.1) * (a0.0 - b0.0)
   let o4 = (b1.0 - b0.0) * (a1.1 - b0.1) - (b1.1 - b0.1) * (a1.0 - b0.0)
-  let eps = 1.0e-12
+  let eps = @step.TOL_1E12
   o1 * o2 < -eps && o3 * o4 < -eps
 }
 

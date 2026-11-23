@@ -140,17 +140,7 @@ fn nema_circle_loop(
   cy : Double,
   radius : Double,
 ) -> Array[@cad.ProfileSegment] {
-  let p0 = (cx + radius, cy)
-  let p90 = (cx, cy + radius)
-  let p180 = (cx - radius, cy)
-  let p270 = (cx, cy - radius)
-  let center = (cx, cy)
-  [
-    @cad.SegmentArc(p0, p90, center),
-    @cad.SegmentArc(p90, p180, center),
-    @cad.SegmentArc(p180, p270, center),
-    @cad.SegmentArc(p270, p0, center),
-  ]
+  @common.circle_loop(cx, cy, radius)
 }
 
 ///|

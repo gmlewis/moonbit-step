@@ -31,7 +31,7 @@ fn sidecar_x_direction(connector : MateConnector) -> @cad.Vec3 {
   let projection = px * ax + py * ay + pz * az
   let x = (px - projection * ax, py - projection * ay, pz - projection * az)
   let length = Double::sqrt(x.0 * x.0 + x.1 * x.1 + x.2 * x.2)
-  if length > 1.0e-6 {
+  if length > @step.TOL_1E6 {
     return (x.0 / length, x.1 / length, x.2 / length)
   }
   let fallback = if ax.abs() < 0.9 {

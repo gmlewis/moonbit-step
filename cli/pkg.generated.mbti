@@ -2,6 +2,8 @@
 package "gmlewis/step/cli"
 
 // Values
+pub fn[T] die(String) -> T
+
 pub async fn eprintln(String) -> Unit
 
 pub fn flag(short? : Char, help? : String) -> Arg

@@ -133,7 +133,8 @@ pub fn VSlotProfile::custom(
     )
   }
   let cells = (height_mm / cell_pitch_mm).round().to_int()
-  if cells < 1 || (height_mm - cells.to_double() * cell_pitch_mm).abs() > 1.0e-6 {
+  if cells < 1 ||
+    (height_mm - cells.to_double() * cell_pitch_mm).abs() > @step.TOL_1E6 {
     return Err(
       @common.InvalidParameter(
         "V-Slot height must be a whole number of 20 mm cells",
@@ -419,17 +420,7 @@ fn vslot_circle_loop(
   cy : Double,
   radius : Double,
 ) -> Array[@cad.ProfileSegment] {
-  let right = (cx + radius, cy)
-  let top = (cx, cy + radius)
-  let left = (cx - radius, cy)
-  let bottom = (cx, cy - radius)
-  let centre = (cx, cy)
-  [
-    @cad.SegmentArc(right, top, centre),
-    @cad.SegmentArc(top, left, centre),
-    @cad.SegmentArc(left, bottom, centre),
-    @cad.SegmentArc(bottom, right, centre),
-  ]
+  @common.circle_loop(cx, cy, radius)
 }
 
 ///|

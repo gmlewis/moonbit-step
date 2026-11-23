@@ -116,7 +116,7 @@ fn bspline_control_points(path : BezierPath) -> Array[Vec2] {
     let dx = p3.0 - p0.0
     let dy = p3.1 - p0.1
     let straight = is_straight_span(a0, a1)
-    if straight && dx * dx + dy * dy <= 1.0e-18 {
+    if straight && dx * dx + dy * dy <= @step.TOL_1E18 {
       continue
     }
     let (c1, c2) = if straight {

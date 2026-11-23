@@ -82,7 +82,7 @@ fn pvc_socket_sleeve_shape(
   let z_seat = reach_mm
   let z_mouth = reach_mm + size.socket_depth_mm
   let pts : Array[@cad.Vec2] = [(r_in_flow, 0.0)]
-  if z_seat > 1.0e-6 {
+  if z_seat > @step.TOL_1E6 {
     pts.push((r_in_flow, z_seat))
   }
   pts.push((r_in_sock, z_seat))
@@ -746,13 +746,7 @@ fn circle_loop_at(
   cy : Double,
   radius : Double,
 ) -> Array[@cad.ProfileSegment] {
-  let centre = (cx, cy)
-  [
-    @cad.SegmentArc((cx + radius, cy), (cx, cy + radius), centre),
-    @cad.SegmentArc((cx, cy + radius), (cx - radius, cy), centre),
-    @cad.SegmentArc((cx - radius, cy), (cx, cy - radius), centre),
-    @cad.SegmentArc((cx, cy - radius), (cx + radius, cy), centre),
-  ]
+  @common.circle_loop(cx, cy, radius)
 }
 
 ///|

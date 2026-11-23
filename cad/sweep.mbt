@@ -243,7 +243,7 @@ fn compile_swept_profile(
         let p3 = pts[t2]
         let expected = v_norm(v_cross(v_sub(p1, p0), v_sub(p2, p0)))
         let off_plane = Double::abs(v_dot(v_sub(p3, p0), expected))
-        if off_plane <= 1.0e-6 {
+        if off_plane <= @step.TOL_1E6 {
           face_refs.push(
             add_plane_face_oriented(
               ctx,

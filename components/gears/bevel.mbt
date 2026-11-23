@@ -847,7 +847,7 @@ fn bevel_arc_flank_points(
   let cx = px + arc_radius * (-@math.sin(pa) * erx + @math.cos(pa) * etx)
   let cy = py + arc_radius * (-@math.sin(pa) * ery + @math.cos(pa) * ety)
   let dc = Double::sqrt(cx * cx + cy * cy)
-  if dc <= 1.0e-12 {
+  if dc <= @step.TOL_1E12 {
     return Err(
       @common.InvalidParameter("bevel flank arc center collapses to the origin"),
     )
@@ -857,7 +857,7 @@ fn bevel_arc_flank_points(
     let r = rr + (ra - rr) * i.to_double() / ip.to_double()
     let a = (r * r - arc_radius * arc_radius + dc * dc) / (2.0 * dc)
     let h2 = r * r - a * a
-    if h2 < -1.0e-9 {
+    if h2 < -@step.TOL_1E9 {
       return Err(
         @common.InvalidParameter(
           "bevel flank arc radius \{arc_radius} mm does not span root to tip",
@@ -1043,7 +1043,7 @@ fn bevel_tooth_sector(
   }
   if params.tip_chamfer_mm > 0.0 {
     let tip_radius = ra
-    let tol = 1.0e-6 * (1.0 + tip_radius)
+    let tol = @step.TOL_1E6 * (1.0 + tip_radius)
     let tip_pts = keep_tip_endpoints(result, tip_radius, tol)
     let indices = outline_indices_at_radius(tip_pts, tip_radius, tol)
     if indices.is_empty() {
@@ -1074,7 +1074,7 @@ fn bevel_tooth_sector(
           max_r = r
         }
       }
-      let new_tol = 1.0e-6 * (1.0 + max_r)
+      let new_tol = @step.TOL_1E6 * (1.0 + max_r)
       let tip_idxs = outline_indices_at_radius(chamfered, max_r, new_tol)
       if tip_idxs.length() == 2 && tip_idxs[1] == tip_idxs[0] + 1 {
         let i0 = tip_idxs[0]
@@ -1186,8 +1186,8 @@ fn bevel_ray_cone(g : BevelGearGeometry, w : @cad.Vec3) -> @cad.Vec3? {
   let bb = -2.0 * cot_d * cot_d * k * dz
   let cc = -cot_d * cot_d * k * k
   let roots : Array[Double] = []
-  if Double::abs(aa) <= 1.0e-15 {
-    if Double::abs(bb) > 1.0e-15 {
+  if Double::abs(aa) <= @step.TOL_1E15 {
+    if Double::abs(bb) > @step.TOL_1E15 {
       roots.push(-cc / bb)
     }
   } else {
@@ -1201,9 +1201,9 @@ fn bevel_ray_cone(g : BevelGearGeometry, w : @cad.Vec3) -> @cad.Vec3? {
   let mut best : @cad.Vec3? = None
   let mut best_z = -1.0e300
   for t in roots {
-    if t > 1.0e-12 {
+    if t > @step.TOL_1E12 {
       let z = d + t * dz
-      if z >= q - 1.0e-9 && z > best_z {
+      if z >= q - @step.TOL_1E9 && z > best_z {
         best_z = z
         best = Some((t * dx, t * dy, z))
       }
@@ -1267,7 +1267,7 @@ fn bevel_back_cone_data(
     )
   }
   let rr_v = g.virtual_pitch_radius_mm - g.dedendum_mm
-  let root_tol = 1.0e-6 * (1.0 + rr_v)
+  let root_tol = @step.TOL_1E6 * (1.0 + rr_v)
   let s = sector.length()
   let radius_of = fn(p : @cad.Vec2) { Double::sqrt(p.0 * p.0 + p.1 * p.1) }
   let mut tooth_start = -1
@@ -1307,7 +1307,7 @@ fn bevel_back_cone_data(
       ra_v = r
     }
   }
-  let tip_tol = 1.0e-6 * (1.0 + ra_v)
+  let tip_tol = @step.TOL_1E6 * (1.0 + ra_v)
   let mut tip_start_sector = -1
   let mut tip_end_sector = -1
   for i in tooth_start..<=tooth_end {
@@ -1355,7 +1355,7 @@ fn bevel_back_cone_data(
       c
     }
     let dz = snapped.2 - d
-    if Double::abs(dz) <= 1.0e-12 {
+    if Double::abs(dz) <= @step.TOL_1E12 {
       return Err(
         @common.InvalidParameter(
           "bevel tooth ray is parallel to the front face",
@@ -1417,7 +1417,7 @@ fn bevel_back_cone_data(
     let dx = back[0].0 - back[last].0
     let dy = back[0].1 - back[last].1
     let dz = back[0].2 - back[last].2
-    if Double::sqrt(dx * dx + dy * dy + dz * dz) <= 1.0e-9 {
+    if Double::sqrt(dx * dx + dy * dy + dz * dz) <= @step.TOL_1E9 {
       let _ = back.pop()
       let _ = front.pop()
     }
@@ -1576,7 +1576,7 @@ pub fn bevel_gear(
       @common.Omission::new(feature="hub", reason="no hub is modelled"),
     )
   }
-  if tip_radius > g.standard_outer_radius_mm + 1.0e-9 {
+  if tip_radius > g.standard_outer_radius_mm + @step.TOL_1E9 {
     features = features.add_approximated(
       @common.Approximation::new(
         feature="flat-back-envelope",
@@ -2127,7 +2127,7 @@ fn bevel_gear_back_cone(
       let body_selector = @cad.EdgeSelector::EdgesAtRadii(
         [rb],
         z_filter,
-        1.0e-3,
+        @step.TOL_1E3,
       )
       @cad.chamfer_edges(
         body_node,
@@ -2159,7 +2159,7 @@ fn bevel_gear_back_cone(
             selector=@cad.EdgeSelector::EdgesAtRadii(
               radii,
               Some(hub_back + selector_z_offset),
-              1.0e-3,
+              @step.TOL_1E3,
             ),
             name="hub-chamfers",
           )
@@ -2249,7 +2249,7 @@ fn bevel_gear_back_cone(
       }
       let z_back_tip = root_z + (r_back_tip - root_radius) * @math.tan(delta)
       let dz_tip = z_back_tip - front_z
-      if Double::abs(dz_tip) <= 1.0e-12 {
+      if Double::abs(dz_tip) <= @step.TOL_1E12 {
         return Err(
           @common.InvalidParameter(
             "bevel tip cone endpoints have zero axial span",
@@ -2492,25 +2492,37 @@ pub fn bevel_gear_pair(
   driver_color~ : @cad.Rgb = @cad.Rgb::orange(),
   driven_color~ : @cad.Rgb = @cad.Rgb::blue(),
 ) -> Result[@assemblies.Assembly, @common.SpecError] {
-  if !@common.near(driver.module_mm, driven.module_mm, tol=1.0e-9) {
+  if !@common.near(driver.module_mm, driven.module_mm, tol=@step.TOL_1E9) {
     return Err(@common.InvalidParameter("bevel pair requires the same module"))
   }
   if !@common.near(
       driver.pressure_angle_deg,
       driven.pressure_angle_deg,
-      tol=1.0e-9,
+      tol=@step.TOL_1E9,
     ) {
     return Err(
       @common.InvalidParameter("bevel pair requires the same pressure angle"),
     )
   }
-  if !@common.near(driver.shaft_angle_deg, driven.shaft_angle_deg, tol=1.0e-9) {
+  if !@common.near(
+      driver.shaft_angle_deg,
+      driven.shaft_angle_deg,
+      tol=@step.TOL_1E9,
+    ) {
     return Err(
       @common.InvalidParameter("bevel pair requires the same shaft angle"),
     )
   }
-  if !@common.near(driver.addendum_factor, driven.addendum_factor, tol=1.0e-9) ||
-    !@common.near(driver.dedendum_factor, driven.dedendum_factor, tol=1.0e-9) {
+  if !@common.near(
+      driver.addendum_factor,
+      driven.addendum_factor,
+      tol=@step.TOL_1E9,
+    ) ||
+    !@common.near(
+      driver.dedendum_factor,
+      driven.dedendum_factor,
+      tol=@step.TOL_1E9,
+    ) {
     return Err(
       @common.InvalidParameter(
         "bevel pair requires the same addendum and dedendum factors",
@@ -2522,7 +2534,7 @@ pub fn bevel_gear_pair(
   if !@common.near(
       g1.pitch_angle_deg + g2.pitch_angle_deg,
       driver.shaft_angle_deg,
-      tol=1.0e-6,
+      tol=@step.TOL_1E6,
     ) {
     return Err(
       @common.InvalidParameter(
@@ -2530,7 +2542,7 @@ pub fn bevel_gear_pair(
       ),
     )
   }
-  if !@common.near(g1.cone_distance_mm, g2.cone_distance_mm, tol=1.0e-6) {
+  if !@common.near(g1.cone_distance_mm, g2.cone_distance_mm, tol=@step.TOL_1E6) {
     return Err(@common.InvalidParameter("bevel pair cone distances differ"))
   }
   let driver_component = match bevel_gear(driver, detail~, color=driver_color) {

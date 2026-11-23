@@ -90,7 +90,7 @@ pub fn Placement::rotation_axis_angle(
 ) -> Placement {
   let (ax, ay, az) = axis
   let len = (ax * ax + ay * ay + az * az).sqrt()
-  if len < 1.0e-15 {
+  if len < @step.TOL_1E15 {
     return Placement::identity()
   }
   let ux = ax / len

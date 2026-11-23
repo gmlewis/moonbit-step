@@ -343,7 +343,7 @@ pub fn TSlotProfile::outline(self : TSlotProfile) -> Array[@cad.Vec2] {
   let indices : Array[Int32] = []
   for i, p in points {
     let r = Double::sqrt(p.0 * p.0 + p.1 * p.1)
-    if r >= corner_distance - 1.0e-6 {
+    if r >= corner_distance - @step.TOL_1E6 {
       indices.push(i)
     }
   }
@@ -405,7 +405,7 @@ fn side_segments_with_slot(
   let ny = ux
   let raw = side_with_slot(ax, ay, bx, by, profile)
   let pts : Array[@cad.Vec2] = []
-  if inset_mm > 1.0e-9 {
+  if inset_mm > @step.TOL_1E9 {
     pts.push((ax + ux * inset_mm, ay + uy * inset_mm))
     for i in 1..<raw.length() {
       pts.push(raw[i])
@@ -447,7 +447,7 @@ fn TSlotProfile::outline_segments(
       segs.push(@cad.SegmentLine(ch[i], ch[i + 1]))
     }
     let next_ch = chains[(si + 1) % 4]
-    if r > 1.0e-9 {
+    if r > @step.TOL_1E9 {
       let (_, _, center) = sides[si]
       segs.push(@cad.SegmentArc(ch[ch.length() - 1], next_ch[0], center))
     } else {

@@ -305,14 +305,14 @@ pub fn four_bar_layout(
   let d = (ddx * ddx + ddy * ddy).sqrt()
   let sum = coupler_mm + rocker_mm
   let diff = (coupler_mm - rocker_mm).abs()
-  if d > sum + 1.0e-9 || d < diff - 1.0e-9 {
+  if d > sum + @step.TOL_1E9 || d < diff - @step.TOL_1E9 {
     return Err(
       @common.InvalidParameter(
         "four-bar linkage does not close at this crank angle",
       ),
     )
   }
-  if d <= 1.0e-12 {
+  if d <= @step.TOL_1E12 {
     return Err(
       @common.InvalidParameter(
         "four-bar crank joint coincides with the ground pivot",
@@ -342,8 +342,8 @@ pub fn four_bar_layout(
     }
     total += length
   }
-  let grashof = shortest + longest <= total - shortest - longest + 1.0e-9
-  let crank_rocker = grashof && crank_mm <= shortest + 1.0e-9
+  let grashof = shortest + longest <= total - shortest - longest + @step.TOL_1E9
+  let crank_rocker = grashof && crank_mm <= shortest + @step.TOL_1E9
   Ok({
     ground_mm,
     crank_mm,

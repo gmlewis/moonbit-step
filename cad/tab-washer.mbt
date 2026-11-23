@@ -638,7 +638,7 @@ fn tw_outline(w : TabWasher, arc_samples~ : Int32 = 96) -> Array[Vec2] {
   if nn > 1 {
     let a = pts[nn - 1]
     let b = pts[0]
-    if (a.0 - b.0).abs() < 1.0e-12 && (a.1 - b.1).abs() < 1.0e-12 {
+    if (a.0 - b.0).abs() < @step.TOL_1E12 && (a.1 - b.1).abs() < @step.TOL_1E12 {
       let _ = pts.pop()
     }
   }

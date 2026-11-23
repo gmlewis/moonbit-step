@@ -137,7 +137,7 @@ pub fn plate_with_countersinks(
   }
   let depth = holes[0].countersink_depth_mm
   for hole in holes {
-    if (hole.countersink_depth_mm - depth).abs() > 1.0e-9 {
+    if (hole.countersink_depth_mm - depth).abs() > @step.TOL_1E9 {
       return Err(
         @common.InvalidParameter(
           "countersunk plate requires one common countersink depth",

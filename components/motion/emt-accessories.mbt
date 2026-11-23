@@ -162,13 +162,7 @@ fn emt_circle_loop(
   cz : Double,
   radius : Double,
 ) -> Array[@cad.ProfileSegment] {
-  let centre = (cx, cz)
-  [
-    @cad.SegmentArc((cx + radius, cz), (cx, cz + radius), centre),
-    @cad.SegmentArc((cx, cz + radius), (cx - radius, cz), centre),
-    @cad.SegmentArc((cx - radius, cz), (cx, cz - radius), centre),
-    @cad.SegmentArc((cx, cz - radius), (cx + radius, cz), centre),
-  ]
+  @common.circle_loop(cx, cz, radius)
 }
 
 ///|

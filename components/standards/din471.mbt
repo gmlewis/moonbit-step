@@ -50,7 +50,7 @@ fn din471_row(shaft_mm : Double) -> Array[Double]? {
   ]
   for row in rows {
     let (size, values) = row
-    if (size - shaft_mm).abs() < 1.0e-9 {
+    if (size - shaft_mm).abs() < @step.TOL_1E9 {
       return Some(values)
     }
   }

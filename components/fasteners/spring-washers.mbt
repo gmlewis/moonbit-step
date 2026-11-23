@@ -24,7 +24,7 @@ let din127_start_angle_deg : Double = 6.26
 ///|
 /// Maximum deviation of the cubic B-spline helix spans (24 per turn) from the
 /// ideal helix.
-let din127_bspline_deviation_mm : Double = 1.0e-4
+let din127_bspline_deviation_mm : Double = @step.TOL_1E4
 
 ///|
 /// din127_washer builds a DIN 127 B spring washer.

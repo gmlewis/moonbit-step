@@ -15,10 +15,10 @@ fn push_arc(
   a1 : Double,
 ) -> Unit {
   let sweep = a1 - a0
-  if sweep.abs() < 1.0e-9 {
+  if sweep.abs() < @step.TOL_1E9 {
     return
   }
-  if sweep.abs() <= @math.PI + 1.0e-9 {
+  if sweep.abs() <= @math.PI + @step.TOL_1E9 {
     segments.push(
       @cad.SegmentArc(circle_pt(radius, a0), circle_pt(radius, a1), (0.0, 0.0)),
     )
@@ -109,7 +109,7 @@ fn branch_material_intervals(
     let start = sorted[i] + phi
     let next = if i == n - 1 { sorted[0] + two_pi } else { sorted[i + 1] }
     let end = next - phi
-    if end - start > 1.0e-6 {
+    if end - start > @step.TOL_1E6 {
       out.push((start, end))
     }
   }

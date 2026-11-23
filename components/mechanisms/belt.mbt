@@ -278,7 +278,7 @@ pub fn belt_center_distance_for_pitch_length_unequal(
     )
   }
   let dr = (r2 - r1).abs()
-  let mut lo = dr + 1.0e-9
+  let mut lo = dr + @step.TOL_1E9
   let mut hi = if pitch_length_mm > 4.0 * dr {
     pitch_length_mm
   } else {

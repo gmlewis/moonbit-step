@@ -56,7 +56,7 @@ fn compile_bevel_gear_body(
     let a1 = @math.atan2(e.back[end].1, e.back[end].0)
     let raw = a1 - a0
     let mut delta = raw - two_pi * Double::floor(raw / two_pi)
-    if delta <= 1.0e-12 {
+    if delta <= @step.TOL_1E12 {
       delta = delta + two_pi
     }
     let arc : Array[Int32] = [start]
@@ -191,7 +191,7 @@ fn compile_bevel_gear_body(
         let pb = pts[i1]
         let pc = pts[i2]
         let area_vec = v_cross(v_sub(pb, pa), v_sub(pc, pa))
-        if v_dot(area_vec, area_vec) <= 1.0e-24 {
+        if v_dot(area_vec, area_vec) <= @step.TOL_1E24 {
           continue
         }
         add_edge(i0, i1)

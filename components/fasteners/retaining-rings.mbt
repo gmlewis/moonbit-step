@@ -363,7 +363,7 @@ pub fn din471_outline(
   ]
   for entry in outlines {
     let (size, build) = entry
-    if (size - shaft_mm).abs() < 1.0e-9 {
+    if (size - shaft_mm).abs() < @step.TOL_1E9 {
       return Ok(build())
     }
   }
@@ -388,7 +388,7 @@ fn ring_circumcentre(
   let bx = b.0
   let by = b.1
   let d = 2.0 * (ax * (my - by) + mx * (by - ay) + bx * (ay - my))
-  if d.abs() < 1.0e-12 {
+  if d.abs() < @step.TOL_1E12 {
     return Err(
       @common.SpecError::InvalidParameter(
         "degenerate retaining-ring arc: the three points are collinear",
@@ -411,17 +411,7 @@ fn ring_circle_loop(
   cy : Double,
   radius : Double,
 ) -> Array[@cad.ProfileSegment] {
-  let right = (cx + radius, cy)
-  let top = (cx, cy + radius)
-  let left = (cx - radius, cy)
-  let bottom = (cx, cy - radius)
-  let centre = (cx, cy)
-  [
-    @cad.SegmentArc(right, top, centre),
-    @cad.SegmentArc(top, left, centre),
-    @cad.SegmentArc(left, bottom, centre),
-    @cad.SegmentArc(bottom, right, centre),
-  ]
+  @common.circle_loop(cx, cy, radius)
 }
 
 ///|

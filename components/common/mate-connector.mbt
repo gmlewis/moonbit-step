@@ -165,7 +165,7 @@ pub fn fit_token(fit : @cad.Fit) -> String {
 pub fn normalize_dir(v : @cad.Vec3) -> @cad.Vec3 {
   let (x, y, z) = v
   let len = (x * x + y * y + z * z).sqrt()
-  if len < 1.0e-12 {
+  if len < @step.TOL_1E12 {
     (0.0, 0.0, 0.0)
   } else {
     (x / len, y / len, z / len)
@@ -371,10 +371,10 @@ pub fn MateConnector::validate(self : MateConnector) -> Result[Unit, MateError] 
     return Err(InvalidConnector("axis must be finite in \{self.name}"))
   }
   let len = (ax * ax + ay * ay + az * az).sqrt()
-  if len < 1.0e-12 {
+  if len < @step.TOL_1E12 {
     return Err(InvalidConnector("axis must be non-zero in \{self.name}"))
   }
-  if (len - 1.0).abs() > 1.0e-6 {
+  if (len - 1.0).abs() > @step.TOL_1E6 {
     return Err(InvalidConnector("axis must be unit length in \{self.name}"))
   }
   match self.diameter_mm {

@@ -87,7 +87,7 @@ pub fn require_in_range(
 
 ///|
 /// near compares two lengths with an absolute tolerance in millimetres.
-pub fn near(a : Double, b : Double, tol~ : Double = 1.0e-9) -> Bool {
+pub fn near(a : Double, b : Double, tol~ : Double = @step.TOL_1E9) -> Bool {
   (a - b).abs() <= tol
 }
 

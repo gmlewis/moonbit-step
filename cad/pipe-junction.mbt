@@ -53,11 +53,17 @@ fn junction_port_slot(v : Vec3) -> (Int32, Bool)? {
   let nx = x / len
   let ny = y / len
   let nz = z / len
-  if nx.abs() > 1.0 - 1.0e-6 && ny.abs() < 1.0e-6 && nz.abs() < 1.0e-6 {
+  if nx.abs() > 1.0 - @step.TOL_1E6 &&
+    ny.abs() < @step.TOL_1E6 &&
+    nz.abs() < @step.TOL_1E6 {
     Some((0, nx > 0.0))
-  } else if ny.abs() > 1.0 - 1.0e-6 && nx.abs() < 1.0e-6 && nz.abs() < 1.0e-6 {
+  } else if ny.abs() > 1.0 - @step.TOL_1E6 &&
+    nx.abs() < @step.TOL_1E6 &&
+    nz.abs() < @step.TOL_1E6 {
     Some((1, ny > 0.0))
-  } else if nz.abs() > 1.0 - 1.0e-6 && nx.abs() < 1.0e-6 && ny.abs() < 1.0e-6 {
+  } else if nz.abs() > 1.0 - @step.TOL_1E6 &&
+    nx.abs() < @step.TOL_1E6 &&
+    ny.abs() < @step.TOL_1E6 {
     Some((2, nz > 0.0))
   } else {
     None
@@ -101,15 +107,18 @@ pub fn PipeJunction::validate(self : PipeJunction) -> Bool {
   let lay = self.center_to_seat_mm
   let c = self.mouth_chamfer_mm
   let z_mouth = lay + self.socket_depth_mm
-  r_flow > 1.0e-6 &&
-  r_sock > r_flow + 1.0e-6 &&
-  r_out > r_sock + 1.0e-6 &&
-  lay > r_sock + 1.0e-6 &&
+  r_flow > @step.TOL_1E6 &&
+  r_sock > r_flow + @step.TOL_1E6 &&
+  r_out > r_sock + @step.TOL_1E6 &&
+  lay > r_sock + @step.TOL_1E6 &&
   c >= 0.0 &&
-  z_mouth - c > r_out + 1.0e-6 &&
+  z_mouth - c > r_out + @step.TOL_1E6 &&
   (
     c == 0.0 ||
-    (self.socket_depth_mm > c + 1.0e-6 && r_out - r_sock > 2.0 * c + 1.0e-6)
+    (
+      self.socket_depth_mm > c + @step.TOL_1E6 &&
+      r_out - r_sock > 2.0 * c + @step.TOL_1E6
+    )
   )
 }
 
