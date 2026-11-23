@@ -1,7 +1,6 @@
 import {
   "gmlewis/step/cli",
   "gmlewis/step/components/gears",
-  "moonbitlang/async",
   "moonbitlang/core/builtin",
 }
 

@@ -3,7 +3,6 @@ import {
   "gmlewis/step/cli",
   "gmlewis/step/components/common",
   "gmlewis/step/components/mechanisms",
-  "moonbitlang/async",
   "moonbitlang/core/builtin",
 }
 

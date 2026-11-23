@@ -9,18 +9,14 @@ set -euo pipefail
 #   2. If moon.mod's version is newer than the last published version, tag
 #      HEAD "vA.B.C", push the tag, and publish. If that tag already exists,
 #      fall through to step 3.
-#   3. Bump the PATCH version in moon.mod, refresh the sibling MoonBit
-#      dependencies with ~/tools/bin/update-moonbit-deps, commit
-#      "Bump version to A.B.C", tag "vA.B.C", push the commit and the tag,
-#      and publish.
+#   3. Bump the PATCH version in moon.mod, refresh sibling dependencies,
+#      commit "Bump version to A.B.C", tag "vA.B.C", push the commit and the
+#      tag, and publish.
 #
 # The module name and version come from moon.mod, so this file is identical
 # in every sibling repo, but each copy is independent: it only reads, tags,
 # and publishes the repo it lives in, and it is meant to be run manually in
-# one repo at a time. The single global step is
-# ~/tools/bin/update-moonbit-deps, which refreshes dependency pins across
-# ~/src/github.com/gmlewis and may therefore leave changes in sibling repos;
-# that is expected and safe (it is idempotent) and never publishes anything.
+# one repo at a time.
 
 cd "$(dirname "$0")"
 

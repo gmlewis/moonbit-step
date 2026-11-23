@@ -3,7 +3,6 @@ import {
   "gmlewis/step/components/common" @step_common,
   "gmlewis/step/components/planetary",
   "gmlewis/step/examples/common",
-  "moonbitlang/async",
   "moonbitlang/core/builtin",
   "moonbitlang/core/env",
 }

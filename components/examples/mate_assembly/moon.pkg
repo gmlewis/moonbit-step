@@ -4,7 +4,6 @@ import {
   "gmlewis/step/components/common",
   "gmlewis/step/components/fasteners",
   "gmlewis/step/components/standards",
-  "moonbitlang/async",
   "moonbitlang/core/builtin",
 }
 
