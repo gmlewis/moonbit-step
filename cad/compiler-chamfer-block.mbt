@@ -131,7 +131,7 @@ pub fn compile_calibration_chamfer_block(
     let a = ri * 4
     let b = (ri + 1) * 4
     // Use cross product of transformed edges to get correct normal for each side
-    let side_normals = [
+    let side_normals : ReadOnlyArray[_] = [
       v_norm(
         v_cross(v_sub(pts[a + 1], pts[a + 0]), v_sub(pts[b + 0], pts[a + 0])),
       ), // front

@@ -1,117 +1,94 @@
 ///|
 // Benchmarks (run via `moon bench`).
 //
-// These are *not* part of `moon test`/`./test-all.sh`; they are intended as
-// manual performance guardrails during development.
+// These are manual performance guardrails, kept out of the normal
+// `moon test` / `./test-all.sh` loop. Run with:
+//   moon bench --release --target native tests/
+//
+// The corpus is generated in-process rather than read from the tracked
+// `tests/testdata/*.step` files: `moon bench` does not support async
+// benchmarks, and the MoonBit file-I/O API is async-only. Generating the
+// STEP text keeps the benchmarks synchronous and self-contained.
 
 ///|
-// fn tokenize_len(data_section : String) -> Int {
-//   @parse.tokenize_step_data_section(data_section).length() catch {
-//     @parse.StepParseError(_) => 0
-//   }
-// }
-
-// ///|
-// fn parse_repo_len(content : String) -> Int {
-//   match @parse.parse_repository_from_string_result(content) {
-//     @parse.ParseRepositoryResult::Ok(repo) => repo.len()
-//     @parse.ParseRepositoryResult::Err(_) => 0
-//   }
-// }
-
-// ///|
-// fn parse_repo_or_fail(content : String) -> @repository.Repository raise Error {
-//   match @parse.parse_repository_from_string_result(content) {
-//     @parse.ParseRepositoryResult::Ok(repo) => repo
-//     @parse.ParseRepositoryResult::Err(info) =>
-//       fail(
-//         "benchmark fixture parse failed: " +
-//         @parse.format_step_parse_error(info),
-//       )
-//   }
-// }
-
-// ///|
-// async fn load_normalized_strings(
-//   fixture_path : StringView,
-// ) -> (String, String) raise Error {
-//   let repo = @parse.parse_repository_from_file(fixture_path) catch {
-//     @parse.StepParseError(info) =>
-//       fail(
-//         "benchmark fixture parse failed: " +
-//         @parse.format_step_parse_error(info),
-//       )
-//     _ => fail("benchmark fixture parse failed: unexpected error")
-//   }
-//   let full_file = repo.to_step_file()
-//   let data_only = repo.to_step_data_section()
-//   (full_file, data_only)
-// }
+fn bench_fixture(entity_count : Int32) -> (String, String) {
+  let body = StringBuilder()
+  for i in 1..<=entity_count {
+    body.write_string("#\{i}=CARTESIAN_POINT('p\{i}',(\{i}.0,0.0,0.0));\n")
+  }
+  let data = body.to_string()
+  let full = "ISO-10303-21;\n" +
+    "HEADER;\n" +
+    "FILE_DESCRIPTION(('bench'),'2;1');\n" +
+    "FILE_NAME('bench.step','2025-01-01T00:00:00',('gmlewis/step'),('gmlewis/step'),'moon','moonbit','none');\n" +
+    "FILE_SCHEMA(('AUTOMOTIVE_DESIGN'));\n" +
+    "ENDSEC;\n" +
+    "DATA;\n" +
+    data +
+    "ENDSEC;\n" +
+    "END-ISO-10303-21;\n"
+  (full, data)
+}
 
 ///|
-// Tokenization-only: DATA section -> RawEntityRows
-
-// test (b : @bench.T) {
-//   let (_full, data_section) = load_normalized_strings(
-//     "tests/testdata/simple-box.step",
-//   )
-//   b.bench(name="tokenize/simple-box", fn() {
-//     b.keep(tokenize_len(data_section))
-//   })
-// }
+fn tokenize_len(data_section : String) -> Int32 {
+  try @parse.tokenize_step_data_section(data_section).length() catch {
+    _ => 0
+  } noraise {
+    n => n
+  }
+}
 
 ///|
-// Parse-only: full file -> Repository
-
-// test (b : @bench.T) {
-//   let (content, _data) = load_normalized_strings(
-//     b"tests/testdata/simple-box.step",
-//   )
-//   b.bench(name="parse/simple-box", fn() { b.keep(parse_repo_len(content)) })
-// }
+fn parse_repo_len(content : String) -> Int32 {
+  match @parse.parse_repository_from_string_result(content) {
+    @parse.ParseRepositoryResult::Ok(repo) => repo.len()
+    @parse.ParseRepositoryResult::Err(_) => 0
+  }
+}
 
 ///|
-// Serialize-only: Repository -> STEP file string
-
-// test (b : @bench.T) {
-//   let (content, _data) = load_normalized_strings(
-//     b"tests/testdata/simple-box.step",
-//   )
-//   let repo = parse_repo_or_fail(content)
-//   b.bench(name="to_step_file/simple-box", fn() {
-//     let out = repo.to_step_file()
-//     b.keep(out.length())
-//   })
-// }
+test "bench tokenize/200" (b : @bench.T) {
+  let (_full, data) = bench_fixture(200)
+  b.bench(fn() { b.keep(tokenize_len(data)) })
+}
 
 ///|
-// Stress fixture variants
-
-// test (b : @bench.T) {
-//   let (_full, data_section) = load_normalized_strings(
-//     b"tests/testdata/ap242-stress.step",
-//   )
-//   b.bench(name="tokenize/ap242-stress", fn() {
-//     b.keep(tokenize_len(data_section))
-//   })
-// }
+test "bench parse/200" (b : @bench.T) {
+  let (full, _data) = bench_fixture(200)
+  b.bench(fn() { b.keep(parse_repo_len(full)) })
+}
 
 ///|
-// test (b : @bench.T) {
-//   let (content, _data) = load_normalized_strings(
-//     b"tests/testdata/ap242-stress.step",
-//   )
-//   b.bench(name="parse/ap242-stress", fn() { b.keep(parse_repo_len(content)) })
-// }
+test "bench to_step_file/200" (b : @bench.T) {
+  let (full, _data) = bench_fixture(200)
+  let repo = match @parse.parse_repository_from_string_result(full) {
+    @parse.ParseRepositoryResult::Ok(r) => r
+    @parse.ParseRepositoryResult::Err(_) =>
+      fail("benchmark fixture parse failed")
+  }
+  b.bench(fn() { b.keep(repo.to_step_file().length()) })
+}
 
 ///|
-// test (b : @bench.T) {
-//   let (content, _data) = load_normalized_strings(
-//     b"tests/testdata/ap242-stress.step",
-//   )
-//   let repo = parse_repo_or_fail(content)
-//   b.bench(name="to_step_file/ap242-stress", fn() {
-//     let out = repo.to_step_file()
-//     b.keep(out.length())
-//   })
-// }
+test "bench tokenize/2000" (b : @bench.T) {
+  let (_full, data) = bench_fixture(2000)
+  b.bench(fn() { b.keep(tokenize_len(data)) })
+}
+
+///|
+test "bench parse/2000" (b : @bench.T) {
+  let (full, _data) = bench_fixture(2000)
+  b.bench(fn() { b.keep(parse_repo_len(full)) })
+}
+
+///|
+test "bench to_step_file/2000" (b : @bench.T) {
+  let (full, _data) = bench_fixture(2000)
+  let repo = match @parse.parse_repository_from_string_result(full) {
+    @parse.ParseRepositoryResult::Ok(r) => r
+    @parse.ParseRepositoryResult::Err(_) =>
+      fail("benchmark fixture parse failed")
+  }
+  b.bench(fn() { b.keep(repo.to_step_file().length()) })
+}

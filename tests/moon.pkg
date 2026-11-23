@@ -6,4 +6,5 @@ import {
   "gmlewis/step/cli",
   "gmlewis/step/parse",
   "moonbitlang/async",
+  "moonbitlang/core/bench",
 } for "test"

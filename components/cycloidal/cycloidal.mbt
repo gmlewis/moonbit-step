@@ -545,7 +545,7 @@ pub fn cycloidal_gearbox(
     )
   }
   // Phased cycloidal disks and their eccentric input cams.
-  let disk_colors = [
+  let disk_colors : ReadOnlyArray[_] = [
     @cad.Rgb::blue(),
     @cad.Rgb::new(0.15, 0.72, 0.45),
     @cad.Rgb::new(0.75, 0.35, 0.85),

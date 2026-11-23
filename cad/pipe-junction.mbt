@@ -808,7 +808,12 @@ pub fn compile_pipe_junction(
         (0.0, 0.0, 1.0)
       }
       let w0 = v_cross(a, ref0)
-      let quad_dirs = [ref0, w0, pj_v_scale(ref0, -1.0), pj_v_scale(w0, -1.0)]
+      let quad_dirs : ReadOnlyArray[_] = [
+        ref0,
+        w0,
+        pj_v_scale(ref0, -1.0),
+        pj_v_scale(w0, -1.0),
+      ]
       for band in bands {
         let (r0, z0, r1, z1) = band
         let dr = r1 - r0

@@ -30,9 +30,11 @@ test "checked export accepts a plain cuboid" {
 
 ///|
 test "checked_result returns Ok for a clean design" {
-  let design = @cad.Design::new(name="plain").add(
-    @cad.Cuboid::new(10.0, 10.0, 10.0).with_name("cube"),
-  )
+  // Pin the header timestamp: comparing two separate exports is otherwise
+  // flaky when they straddle a second boundary (this is what broke CI).
+  let design = @cad.Design::new(name="plain")
+    .add(@cad.Cuboid::new(10.0, 10.0, 10.0).with_name("cube"))
+    .with_timestamp("2025-01-01T00:00:00")
   match design.to_step_file_checked_result() {
     Ok(text) => assert_eq(text, design.to_step_file())
     Err(_) => fail("clean design should not produce an error diagnostic")
@@ -45,9 +47,9 @@ test "checked_result returns the error diagnostic instead of aborting" {
   let cutter = @cad.Cuboid::new(2.0, 2.0, 10.0).with_name("cutter")
   let inner = @cad.difference(base, [cutter], name="inner")
   let other = @cad.Cuboid::new(3.0, 3.0, 3.0).with_name("other")
-  let design = @cad.Design::new(name="nested").add(
-    @cad.union_all([inner, other], name="outer"),
-  )
+  let design = @cad.Design::new(name="nested")
+    .add(@cad.union_all([inner, other], name="outer"))
+    .with_timestamp("2025-01-01T00:00:00")
   match design.to_step_file_checked_result() {
     Ok(_) => fail("nested boolean must be rejected")
     Err(d) => {

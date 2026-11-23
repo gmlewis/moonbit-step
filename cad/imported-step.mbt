@@ -529,7 +529,7 @@ fn rename_products_in_text(
   name : String,
   count : Int32,
 ) -> String {
-  let needle = ['P', 'R', 'O', 'D', 'U', 'C', 'T', '(']
+  let needle : ReadOnlyArray[_] = ['P', 'R', 'O', 'D', 'U', 'C', 'T', '(']
   let out = StringBuilder()
   let n = text.length()
   let mut i = 0

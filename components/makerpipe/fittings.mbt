@@ -478,12 +478,12 @@ fn add_hinge_arm(
   ).as_shape()
   let arm_rotation = frame_x_along_xz(arm_axis)
   let mut with_layers = component
-  let strap_offsets = [strap_y, -strap_y]
-  let strap_names = [
+  let strap_offsets : ReadOnlyArray[_] = [strap_y, -strap_y]
+  let strap_names : ReadOnlyArray[_] = [
     hinge_name("strap-a", suffix),
     hinge_name("strap-b", suffix),
   ]
-  let ear_names = [
+  let ear_names : ReadOnlyArray[_] = [
     hinge_name("strap-ear-a", suffix),
     hinge_name("strap-ear-b", suffix),
   ]

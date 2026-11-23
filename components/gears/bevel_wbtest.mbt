@@ -482,10 +482,13 @@ fn bevel_interference(
   driven : BevelGearParams,
 ) -> Int32 {
   let items = pair.items()
-  let placements = [items[0].placement, items[1].placement]
-  let params = [driver, driven]
-  let geoms = [driver.geometry(), driven.geometry()]
-  let outlines = [bevel_outline_for(driver), bevel_outline_for(driven)]
+  let placements : ReadOnlyArray[_] = [items[0].placement, items[1].placement]
+  let params : ReadOnlyArray[_] = [driver, driven]
+  let geoms : ReadOnlyArray[_] = [driver.geometry(), driven.geometry()]
+  let outlines : ReadOnlyArray[_] = [
+    bevel_outline_for(driver),
+    bevel_outline_for(driven),
+  ]
   let mut hits = 0
   for which in 0..<2 {
     let hg = geoms[which]

@@ -133,7 +133,7 @@ fn view_bounds(
 
 ///|
 fn palette(i : Int32) -> String {
-  let colors = [
+  let colors : ReadOnlyArray[_] = [
     "#4e79a7", "#f28e2b", "#59a14f", "#b07aa1", "#76b7b2", "#edc948", "#ff9da7",
     "#9c755f", "#86bcb6", "#d37295", "#a0cbe8", "#8cd17d",
   ]
