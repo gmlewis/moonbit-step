@@ -148,10 +148,16 @@ fn dist2(a : Vec2, b : Vec2) -> Double {
 
 ///|
 // Repository access helpers.
-fn repo_get(ctx : StepContext, r : @step.Ref) -> @repository.AnyEntity {
+fn repo_get(
+  ctx : StepContext,
+  r : @step.Ref,
+) -> @repository.AnyEntity raise ExportError {
   match ctx.entities.get(r.id.value) {
     Some(e) => e
-    None => abort("glTF exporter: dangling entity reference #\{r.id.value}")
+    None =>
+      raise ExportError(
+        "glTF exporter: dangling entity reference #\{r.id.value}",
+      )
   }
 }
 
@@ -163,30 +169,33 @@ fn parse_num(s : String) -> Double {
 }
 
 ///|
-fn point_of(ctx : StepContext, r : @step.Ref) -> Vec3 {
+fn point_of(ctx : StepContext, r : @step.Ref) -> Vec3 raise ExportError {
   match repo_get(ctx, r) {
     CartesianPoint(p) => {
       let c = p.coordinates
       (c[0], c[1], c[2])
     }
-    _ => abort("glTF exporter: expected CARTESIAN_POINT")
+    _ => raise ExportError("glTF exporter: expected CARTESIAN_POINT")
   }
 }
 
 ///|
-fn direction_of(ctx : StepContext, r : @step.Ref) -> Vec3 {
+fn direction_of(ctx : StepContext, r : @step.Ref) -> Vec3 raise ExportError {
   match repo_get(ctx, r) {
     Direction(d) => {
       let c = d.ratios
       (c[0], c[1], c[2])
     }
-    _ => abort("glTF exporter: expected DIRECTION")
+    _ => raise ExportError("glTF exporter: expected DIRECTION")
   }
 }
 
 ///|
 /// axis2_frame returns (origin, normalized axis, normalized ref direction).
-fn axis2_frame(ctx : StepContext, r : @step.Ref) -> (Vec3, Vec3, Vec3) {
+fn axis2_frame(
+  ctx : StepContext,
+  r : @step.Ref,
+) -> (Vec3, Vec3, Vec3) raise ExportError {
   match repo_get(ctx, r) {
     Axis2Placement3D(a) => {
       let o = point_of(ctx, a.location)
@@ -194,15 +203,15 @@ fn axis2_frame(ctx : StepContext, r : @step.Ref) -> (Vec3, Vec3, Vec3) {
       let x = v_norm(direction_of(ctx, a.ref_direction))
       (o, z, x)
     }
-    _ => abort("glTF exporter: expected AXIS2_PLACEMENT_3D")
+    _ => raise ExportError("glTF exporter: expected AXIS2_PLACEMENT_3D")
   }
 }
 
 ///|
-fn vertex_pos(ctx : StepContext, r : @step.Ref) -> Vec3 {
+fn vertex_pos(ctx : StepContext, r : @step.Ref) -> Vec3 raise ExportError {
   match repo_get(ctx, r) {
     VertexPoint(v) => point_of(ctx, v.vertex_geometry)
-    _ => abort("glTF exporter: expected VERTEX_POINT")
+    _ => raise ExportError("glTF exporter: expected VERTEX_POINT")
   }
 }
 
@@ -299,9 +308,9 @@ fn sample_bspline(
   b : @geometry.BSplineCurveWithKnots,
   closed~ : Bool,
   along~ : Bool,
-) -> Array[Vec3] {
+) -> Array[Vec3] raise ExportError {
   let p = b.degree
-  let pts = b.control_points.map(fn(r) { point_of(ctx, r) })
+  let pts = b.control_points.map(r => point_of(ctx, r))
   let u = expand_knots(b.knot_multiplicities, b.knots)
   let n = pts.length()
   if n < p + 1 || u.length() < n + p + 1 {
@@ -345,7 +354,7 @@ fn sample_circle(
   end_pos : Vec3,
   closed~ : Bool,
   along~ : Bool,
-) -> Array[Vec3] {
+) -> Array[Vec3] raise ExportError {
   let (o, a, x) = axis2_frame(ctx, pos_ref)
   let y = v_norm(v_cross(a, x))
   let angle = fn(p : Vec3) -> Double {
@@ -395,14 +404,17 @@ fn sample_circle(
 
 ///|
 /// sample_oriented_edge samples one oriented edge into ordered 3D points.
-fn sample_oriented_edge(ctx : StepContext, oe_ref : @step.Ref) -> Array[Vec3] {
+fn sample_oriented_edge(
+  ctx : StepContext,
+  oe_ref : @step.Ref,
+) -> Array[Vec3] raise ExportError {
   let oe = match repo_get(ctx, oe_ref) {
     OrientedEdge(o) => o
-    _ => abort("glTF exporter: expected ORIENTED_EDGE")
+    _ => raise ExportError("glTF exporter: expected ORIENTED_EDGE")
   }
   let ec = match repo_get(ctx, oe.edge_element) {
     EdgeCurve(e) => e
-    _ => abort("glTF exporter: expected EDGE_CURVE")
+    _ => raise ExportError("glTF exporter: expected EDGE_CURVE")
   }
   let start = vertex_pos(ctx, ec.edge_start)
   let end = vertex_pos(ctx, ec.edge_end)
@@ -421,14 +433,14 @@ fn sample_oriented_edge(ctx : StepContext, oe_ref : @step.Ref) -> Array[Vec3] {
     }
     BSplineCurveWithKnots(b) => sample_bspline(ctx, b, closed~, along~)
     Polyline(p) => {
-      let pts = p.points.map(fn(r) { point_of(ctx, r) })
+      let pts = p.points.map(r => point_of(ctx, r))
       if along {
         pts
       } else {
         pts.rev()
       }
     }
-    _ => abort("glTF exporter: unsupported edge curve")
+    _ => raise ExportError("glTF exporter: unsupported edge curve")
   }
 }
 
@@ -438,10 +450,10 @@ fn sample_loop(
   ctx : StepContext,
   loop_ref : @step.Ref,
   orientation : Bool,
-) -> Array[Vec3] {
+) -> Array[Vec3] raise ExportError {
   let el = match repo_get(ctx, loop_ref) {
     EdgeLoop(e) => e
-    _ => abort("glTF exporter: expected EDGE_LOOP")
+    _ => raise ExportError("glTF exporter: expected EDGE_LOOP")
   }
   let pts : Array[Vec3] = []
   for oe_ref in el.edges {
@@ -680,7 +692,7 @@ fn tessellate_plane(
   af : @topology.AdvancedFace,
   plane : @geometry.Plane,
   mb : MeshBuilder,
-) -> Unit {
+) -> Unit raise ExportError {
   let (o, surface_n, x_surf) = axis2_frame(ctx, plane.position)
   let face_n = if af.same_sense { surface_n } else { v_scale(surface_n, -1.0) }
   let u = v_norm(x_surf)
@@ -693,7 +705,7 @@ fn tessellate_plane(
     let (loop_ref, orientation, is_outer) = match repo_get(ctx, bound_ref) {
       FaceOuterBound(b) => (b.bound, b.orientation, true)
       FaceBound(b) => (b.bound, b.orientation, false)
-      _ => abort("glTF exporter: expected FACE_BOUND")
+      _ => raise ExportError("glTF exporter: expected FACE_BOUND")
     }
     let loop_pts = sample_loop(ctx, loop_ref, orientation)
     if loop_pts.length() < 3 {
@@ -728,7 +740,7 @@ fn tessellate_cylinder(
   af : @topology.AdvancedFace,
   cs : @geometry.CylindricalSurface,
   mb : MeshBuilder,
-) -> Unit {
+) -> Unit raise ExportError {
   let (o, a, x) = axis2_frame(ctx, cs.position)
   let y = v_norm(v_cross(a, x))
   let r = parse_num(cs.radius_literal)
@@ -738,7 +750,7 @@ fn tessellate_cylinder(
     let (loop_ref, orientation) = match repo_get(ctx, bound_ref) {
       FaceOuterBound(b) => (b.bound, b.orientation)
       FaceBound(b) => (b.bound, b.orientation)
-      _ => abort("glTF exporter: expected FACE_BOUND")
+      _ => raise ExportError("glTF exporter: expected FACE_BOUND")
     }
     for p in sample_loop(ctx, loop_ref, orientation) {
       let s = v_dot(v_sub(p, o), a)
@@ -774,7 +786,10 @@ fn tessellate_cylinder(
 }
 
 ///|
-fn sample_closed_curve(ctx : StepContext, curve_ref : @step.Ref) -> Array[Vec3] {
+fn sample_closed_curve(
+  ctx : StepContext,
+  curve_ref : @step.Ref,
+) -> Array[Vec3] raise ExportError {
   match repo_get(ctx, curve_ref) {
     BSplineCurveWithKnots(b) => sample_bspline(ctx, b, closed=true, along=true)
     Circle(c) => {
@@ -791,14 +806,14 @@ fn sample_closed_curve(ctx : StepContext, curve_ref : @step.Ref) -> Array[Vec3] 
       out
     }
     Polyline(p) => {
-      let pts = p.points.map(fn(r) { point_of(ctx, r) })
+      let pts = p.points.map(r => point_of(ctx, r))
       if pts.length() > 1 &&
         v_len(v_sub(pts[0], pts[pts.length() - 1])) <= @step.TOL_1E12 {
         let _ = pts.pop()
       }
       pts
     }
-    _ => abort("glTF exporter: unsupported swept curve")
+    _ => raise ExportError("glTF exporter: unsupported swept curve")
   }
 }
 
@@ -808,10 +823,10 @@ fn tessellate_extrusion(
   af : @topology.AdvancedFace,
   s : @geometry.SurfaceOfLinearExtrusion,
   mb : MeshBuilder,
-) -> Unit {
+) -> Unit raise ExportError {
   let (direction, magnitude) = match repo_get(ctx, s.extrusion_axis) {
     Vector(v) => (v_norm(direction_of(ctx, v.orientation)), v.magnitude)
-    _ => abort("glTF exporter: expected VECTOR")
+    _ => raise ExportError("glTF exporter: expected VECTOR")
   }
   let vec = v_scale(direction, magnitude)
   let base = sample_closed_curve(ctx, s.swept_curve)
@@ -841,17 +856,17 @@ fn tessellate_face(
   ctx : StepContext,
   face_ref : @step.Ref,
   mb : MeshBuilder,
-) -> Unit {
+) -> Unit raise ExportError {
   let af = match repo_get(ctx, face_ref) {
     AdvancedFace(a) => a
-    _ => abort("glTF exporter: expected ADVANCED_FACE")
+    _ => raise ExportError("glTF exporter: expected ADVANCED_FACE")
   }
   match repo_get(ctx, af.surface) {
     Plane(p) => tessellate_plane(ctx, af, p, mb)
     CylindricalSurface(c) => tessellate_cylinder(ctx, af, c, mb)
     SurfaceOfLinearExtrusion(s) => tessellate_extrusion(ctx, af, s, mb)
     _ =>
-      abort(
+      raise ExportError(
         "glTF exporter: unsupported face surface for '\{af.name}'; only PLANE, CYLINDRICAL_SURFACE, and SURFACE_OF_LINEAR_EXTRUSION are tessellated",
       )
   }
@@ -910,13 +925,14 @@ fn collect_faces_for_node(
 }
 
 ///|
-/// Design::to_gltf serializes the design as a self-contained glTF 2.0 JSON
-/// document with an embedded base64 buffer, one mesh per `SceneNode`.
+/// Design::to_gltf_build is the raising core shared by `to_gltf` and
+/// `to_gltf_checked`. It serializes the design as a self-contained glTF 2.0
+/// JSON document with an embedded base64 buffer, one mesh per `SceneNode`.
 ///
 /// Coordinates are Z-up (STEP convention). Faces that are not PLANE,
 /// CYLINDRICAL_SURFACE, or SURFACE_OF_LINEAR_EXTRUSION are rejected rather
 /// than emitted as an invalid mesh.
-pub fn Design::to_gltf(self : Design) -> String {
+fn Design::to_gltf_build(self : Design) -> String raise ExportError {
   let ctx = StepContext::new(snapping?=self.snapping)
   ctx.init_standard_context(self.name)
   let prims : Array[GltfPrim] = []
@@ -938,6 +954,28 @@ pub fn Design::to_gltf(self : Design) -> String {
     })
   }
   build_gltf(prims)
+}
+
+///|
+/// Design::to_gltf serializes the design as a self-contained glTF 2.0 JSON
+/// document with an embedded base64 buffer, one mesh per `SceneNode`.
+///
+/// Coordinates are Z-up (STEP convention). Faces that are not PLANE,
+/// CYLINDRICAL_SURFACE, or SURFACE_OF_LINEAR_EXTRUSION are rejected rather
+/// than emitted as an invalid mesh. Aborts with the exporter's message on
+/// failure; use `to_gltf_checked` to recover instead.
+pub fn Design::to_gltf(self : Design) -> String {
+  self.to_gltf_build() catch {
+    ExportError(msg) => abort(msg)
+  }
+}
+
+///|
+/// Design::to_gltf_checked is the recoverable form of `to_gltf`: it raises
+/// `ExportError` instead of aborting when the export cannot be produced, so
+/// library callers can catch it with `try`/`catch`.
+pub fn Design::to_gltf_checked(self : Design) -> String raise ExportError {
+  self.to_gltf_build()
 }
 
 ///|

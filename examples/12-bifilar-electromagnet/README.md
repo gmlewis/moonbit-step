@@ -12,7 +12,7 @@ axial direction!
 
 Onshape design: https://cad.onshape.com/documents/b8320fedf1f1ea6028755ae8/w/50dfab2e1185c97711b860a6/e/20263eabe6f1f22cc85a5a09?renderMode=0&uiState=695414a99e93423471a30e60
 
-![Bifilar Electromagnet](bifilar-electromagnet-onshape.png)
+![Bifilar Electromagnet](onshape.png)
 
 *Example 12: The Bifilar Electromagnet, an invention of mine with interesting electrical properties.*
 

@@ -434,6 +434,16 @@ pub fn ImportedStep::shifted(
   self : ImportedStep,
   delta : Int32,
 ) -> ImportedStep {
+  self.shifted_build(delta) catch {
+    ExportError(msg) => abort(msg)
+  }
+}
+
+///|
+fn ImportedStep::shifted_build(
+  self : ImportedStep,
+  delta : Int32,
+) -> ImportedStep raise ExportError {
   if delta <= 0 {
     return self
   }
@@ -446,12 +456,12 @@ pub fn ImportedStep::shifted(
         ) {
         Ok(shifted) => shifted
         Err(info) =>
-          abort(
+          raise ExportError(
             "could not re-parse shifted STEP text for '\{self.source}': \{info.message}",
           )
       }
     None =>
-      abort(
+      raise ExportError(
         "ImportedStep::shifted requires STEP source text; '\{self.source}' was not imported from a string",
       )
   }

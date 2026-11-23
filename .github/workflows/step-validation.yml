@@ -94,3 +94,6 @@ jobs:
 
       - name: validate generated STEP files (including tessellation)
         run: python3 scripts/manage_examples.py all --validate
+
+      - name: validate component example STEP outputs (including OCCT-evaluated)
+        run: python3 scripts/validate_component_examples.py

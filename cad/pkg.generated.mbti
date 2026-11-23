@@ -139,6 +139,12 @@ pub suberror CsgEvalError {
   CsgEvalError(String)
 }
 
+pub suberror ExportError {
+  ExportError(String)
+}
+pub fn ExportError::to_string(Self) -> String
+pub impl Show for ExportError
+
 #derive(Eq)
 pub suberror LoaderError {
   LoaderError(String)
@@ -306,6 +312,7 @@ pub fn Design::to_assembly_step(Self, assembly_name~ : String, checked? : Bool) 
 pub fn Design::to_blender_python(Self, segments? : Int32, keep_modifiers? : Bool) -> String
 pub fn Design::to_csg_step(Self, checked? : Bool) -> String
 pub fn Design::to_gltf(Self) -> String
+pub fn Design::to_gltf_checked(Self) -> String raise ExportError
 pub async fn Design::to_gltf_file(Self, String?) -> Unit
 pub fn Design::to_instanced_step_string(Self, assembly_name~ : String, checked? : Bool) -> String
 pub async fn Design::to_step_evaluated(Self, root? : String?, layers_json? : String, checked? : Bool) -> String

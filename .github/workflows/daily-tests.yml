@@ -7,16 +7,16 @@ on:
   # GitHub runs crons on UTC time.
   workflow_dispatch:
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
 permissions:
   contents: read
 
 jobs:
   build:
     # The build steps live in check.yml so there is only one copy to maintain.
+    # Keep this workflow free of a top-level `concurrency` group: a called
+    # workflow sees the caller's `github.workflow`, so check.yml's group would
+    # be identical and GitHub cancels the run with "a deadlock was detected for
+    # concurrency group". check.yml already cancels superseded runs.
     uses: ./.github/workflows/check.yml
     permissions:
       contents: read

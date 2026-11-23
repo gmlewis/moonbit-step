@@ -308,15 +308,19 @@ fn find_edge(
   a : Int32,
   b : Int32,
 ) -> (@step.Ref, Bool) {
-  for e in edges {
-    if e.start == a && e.end == b {
-      return (e.edge, true)
+  try {
+    for e in edges {
+      if e.start == a && e.end == b {
+        return (e.edge, true)
+      }
+      if e.start == b && e.end == a {
+        return (e.edge, false)
+      }
     }
-    if e.start == b && e.end == a {
-      return (e.edge, false)
-    }
+    raise ExportError("edge not found between points \{a} and \{b}")
+  } catch {
+    ExportError(msg) => abort(msg)
   }
-  abort("edge not found between points \{a} and \{b}")
 }
 
 ///|

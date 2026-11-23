@@ -26,10 +26,15 @@ pub async fn Design::create_blender_file(
   // that talk a structured protocol on stdout.
   let args = [temp_py_path, "--blend", out_path]
   let (code, output) = @process.collect_output_merged(script_path, args)
-  if code != 0 {
-    abort(
-      "failed to write '\{out_path}': blender exited with status \{code}:\n\{output.text()}",
-    )
+  try {
+    if code != 0 {
+      raise ExportError(
+        "failed to write '\{out_path}': blender exited with status \{code}:\n\{output.text()}",
+      )
+    }
+  } catch {
+    ExportError(msg) => abort(msg)
+    err => abort("\{err}")
   }
 }
 
@@ -139,7 +144,7 @@ fn emit_node_python(
   node : SceneNode,
   idx : Int32,
   segments~ : Int32,
-) -> (String, Int32) {
+) -> (String, Int32) raise ExportError {
   match node.shape {
     Cuboid(c) => {
       let (obj_var, next_idx) = next_var("obj", idx)
@@ -212,7 +217,7 @@ fn emit_node_python(
       (obj_var, next_idx)
     }
     BevelGearBody(_) =>
-      abort(
+      raise ExportError(
         "back-cone bevel bodies are not supported by the Blender exporter; use the STEP export",
       )
     ExtrudedArcProfile(e) => {
@@ -519,11 +524,11 @@ fn emit_node_python(
       (obj_var, final_idx)
     }
     Fillet(_) | Chamfer(_) =>
-      abort(
+      raise ExportError(
         "edge fillet/chamfer is not supported by the Blender exporter; use Design::to_step_evaluated() (OCCT)",
       )
     ImportedStep(_) =>
-      abort(
+      raise ExportError(
         "imported STEP solids are not re-created by the Blender exporter; import the source STEP directly in Blender",
       )
   }
@@ -555,7 +560,9 @@ pub fn Design::to_blender_python(
   )
   let mut obj_index = 0
   for node in self.nodes {
-    let (_, next_idx) = emit_node_python(builder, node, obj_index, segments~)
+    let (_, next_idx) = emit_node_python(builder, node, obj_index, segments~) catch {
+      ExportError(msg) => abort(msg)
+    }
     obj_index = next_idx
   }
   builder.write_string(postscript(self.name))

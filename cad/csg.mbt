@@ -56,7 +56,7 @@ fn compile_csg_operand(
   ctx : StepContext,
   node : SceneNode,
   parent : Transform?,
-) -> @step.Ref? {
+) -> @step.Ref? raise ExportError {
   match node.shape {
     Union(u) => {
       if u.nodes.length() == 0 {
@@ -77,7 +77,7 @@ fn compile_csg_operand(
       let base = match compile_csg_operand(ctx, d.base, child_parent) {
         Some(r) => r
         None =>
-          abort(
+          raise ExportError(
             "CSG difference '\{node.name}' has an empty base solid; there is nothing to subtract from",
           )
       }
@@ -208,17 +208,20 @@ fn compile_edge_feature(
   feat : EdgeFeature,
   op : String,
   parent : Transform?,
-) -> @step.Ref? {
+) -> @step.Ref? raise ExportError {
   let child_parent = Some(node_transform(node, parent))
   let base = match feat.base.shape {
     Union(_) | Difference(_) =>
-      abort(
+      raise ExportError(
         "edge feature '\{node.name}' must wrap a single solid; wrap the boolean result first",
       )
     _ =>
       match compile_csg_operand(ctx, feat.base, child_parent) {
         Some(r) => r
-        None => abort("edge feature '\{node.name}' has an empty base solid")
+        None =>
+          raise ExportError(
+            "edge feature '\{node.name}' has an empty base solid",
+          )
       }
   }
   let payload = edge_feature_payload(op, feat)
@@ -253,7 +256,10 @@ pub fn Design::to_csg_step(self : Design, checked~ : Bool = false) -> String {
   let product_defs : Array[@step.Ref] = []
   let shape_reps : Array[@step.Ref] = []
   for node in self.nodes {
-    match compile_csg_operand(ctx, node, None) {
+    match
+      (compile_csg_operand(ctx, node, None) catch {
+        ExportError(msg) => abort(msg)
+      }) {
       None => ()
       Some(root_ref) => {
         let root_is_boolean = match ctx.entities.get(root_ref.id.value) {

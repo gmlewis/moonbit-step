@@ -179,13 +179,16 @@ fn Design::to_assembly_step_impl(
   let group_breps : Array[Array[@step.Ref]] = []
   let mut shift = 0
   for group in groups {
-    let parsed = match
-      ImportedStep::from_string(group.part_step, source=group.name) {
-      Ok(imp) => imp
-      Err(info) =>
-        abort(
-          "internal: could not parse the STEP for part '\{group.name}': \{info.message}",
-        )
+    let parsed = try {
+      match ImportedStep::from_string(group.part_step, source=group.name) {
+        Ok(imp) => imp
+        Err(info) =>
+          raise ExportError(
+            "internal: could not parse the STEP for part '\{group.name}': \{info.message}",
+          )
+      }
+    } catch {
+      ExportError(msg) => abort(msg)
     }
     let shifted = parsed.shifted(shift)
     shift = shifted.max_id() + 1
