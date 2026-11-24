@@ -818,6 +818,7 @@ pub fn full_catalog() -> Array[CatalogEntry] {
   entries.push_iter(bearing_catalog().iter())
   entries.push_iter(profile_catalog().iter())
   entries.push_iter(mot_edis_catalog().iter())
+  entries.push_iter(openbuilds_catalog().iter())
   entries.push_iter(gear_catalog().iter())
   entries.push_iter(motion_catalog().iter())
   entries.push_iter(extrusion_hardware_catalog().iter())

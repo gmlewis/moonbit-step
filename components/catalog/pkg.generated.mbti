@@ -34,6 +34,8 @@ pub fn motion_catalog() -> Array[CatalogEntry]
 
 pub fn motor_catalog() -> Array[CatalogEntry]
 
+pub fn openbuilds_catalog() -> Array[CatalogEntry]
+
 pub fn profile_catalog() -> Array[CatalogEntry]
 
 pub fn pvc_catalog() -> Array[CatalogEntry]

@@ -284,6 +284,8 @@ moon run components/examples/vslot -- --part tnut -o "$OUT/vslot-tnut-m5.step"
 moon run components/examples/vslot -- \
   --part plate --length 60 --width 20 --thickness 3 -o "$OUT/vslot-joining-plate.step"
 moon run components/examples/vslot -- --part bracket -o "$OUT/vslot-corner-bracket.step"
+moon run components/examples/vslot -- \
+  --part gantry-plate -o "$OUT/openbuilds-cbeam-gantry-plate.step"
 moon run components/examples/vslot -- --part spacer -o "$OUT/vslot-spacer-10x5x6.step"
 moon run components/examples/vslot -- \
   --part eccentric -o "$OUT/vslot-eccentric-spacer.step"

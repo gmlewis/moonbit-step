@@ -23,7 +23,7 @@ All programs use millimetres and Z is up.
 | `tire_mount` | Parameterized tire mounting flange with a solid front plate, three bolt holes, rear ring, hub tube and bore, and six 2 mm radial slots; defaults measured from the owner-authored reference. |
 | `extrusion_hardware` | Extrusion T-nut (M3/M4/M5) or M3 heat-set insert (short/long). |
 | `stock_primitive` | EN 10056-style angle section, flat/counterbored/countersunk plates, a bearing-housing plate, a tube-to-V-Slot bracket, the CC BY 4.0 SC8UU rod/bearing block (OCCT-evaluated), or an M3 x 4 heat-set insert boss. |
-| `vslot` | OpenBuilds-compatible V-Slot 2020/2040 profile, V-wheel, slot T-nut, joining plate, gusseted corner bracket, and plain/eccentric wheel spacers. |
+| `vslot` | OpenBuilds-compatible V-Slot 2020/2040 profile, V-wheel, slot T-nut, joining plate, gusseted corner bracket, C-Beam gantry plate (`--part gantry-plate`), and plain/eccentric wheel spacers. |
 | `makerstore_l_plate` | Maker Store 20-series L plate / bracket with a centred hole grid on both legs: `l40x40` (`PLATE-40X40L`, 3×3 Ø5 on 10 mm centres) or `l40x80` (`PLATE-40X80L`). |
 | `makerstore_hardware` | One Maker Store USA part per `--part`: metric aluminum spacer (`SHIM-SPAC`, OD 10 / ID 5), thrust bearing (`BEAR-F`), 20-series hex T-nut (`HARD-TNUT-SLIDING`), 40-series sliding block T-nut (`HARD-40S-TNUT-STEEL-SLID-18`), or gusseted V-Slot corner bracket (`BRAC-90CAST` / `BRAC-40S`). |
 | `gobilda_kit` | goBILDA® parts: a grid plate (`--cols` × `--rows`), the 1120-series U-channel (`--part channel --holes`), the 1106-series square beam (`--part beam --beamHoles`), or the 1309 Sonic hub (`--part hub`). |

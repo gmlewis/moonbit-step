@@ -16,7 +16,7 @@ async fn main {
   let spec = {
     "part": @cli.opt_string(
       short='p',
-      help="Part: profile (default), wheel, tnut, plate, bracket, spacer, eccentric",
+      help="Part: profile (default), wheel, tnut, plate, bracket, gantry-plate, spacer, eccentric",
     ),
     "profile": @cli.opt_string(help="V-Slot section: 2020 (default) or 2040"),
     "length": @cli.opt_double(100.0, help="Extrusion length in mm", min=0.0),
@@ -78,6 +78,14 @@ async fn main {
     }
     "bracket" =>
       match @profiles.vslot_corner_bracket() {
+        Ok(c) => c
+        Err(e) => {
+          @cli.eprintln("error: " + e.message())
+          abort("")
+        }
+      }
+    "gantry-plate" =>
+      match @profiles.openbuilds_cbeam_gantry_plate() {
         Ok(c) => c
         Err(e) => {
           @cli.eprintln("error: " + e.message())
