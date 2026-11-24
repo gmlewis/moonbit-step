@@ -1,0 +1,7 @@
+import {
+  "gmlewis/step/cli",
+  "gmlewis/step/components/gobilda",
+  "moonbitlang/core/builtin",
+}
+
+pkgtype(kind: "executable")

@@ -1,0 +1,32 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "gmlewis/step/components/gobilda"
+
+import {
+  "gmlewis/step/cad",
+  "gmlewis/step/components/common",
+}
+
+// Values
+pub let gobilda_bearing_hole_mm : Double
+
+pub let gobilda_bearing_pitch_mm : Double
+
+pub let gobilda_grid_mm : Double
+
+pub fn gobilda_grid_plate(cols? : Int32, rows? : Int32, thickness_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn gobilda_grid_plate_family() -> Result[@common.DesignFamily, @common.SpecError]
+
+pub fn gobilda_grid_positions(Int32) -> Array[Double]
+
+pub let gobilda_hole_diameter_mm : Double
+
+pub let gobilda_sheet_thickness_mm : Double
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+
+// Traits

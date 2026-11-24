@@ -16,6 +16,8 @@ pub fn full_catalog() -> Array[CatalogEntry]
 
 pub fn gear_catalog() -> Array[CatalogEntry]
 
+pub fn gobilda_catalog() -> Array[CatalogEntry]
+
 pub fn linear_bearing_catalog() -> Array[CatalogEntry]
 
 pub fn lookup(Array[CatalogEntry], String) -> Result[CatalogEntry, CatalogError]

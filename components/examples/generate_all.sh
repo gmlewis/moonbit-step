@@ -225,6 +225,10 @@ moon run components/examples/makerstore_hardware -- \
   --part bracket --leg 20 -o "$OUT/makerstore-bracket-20.step"
 moon run components/examples/makerstore_hardware -- \
   --part bracket --leg 40 -o "$OUT/makerstore-bracket-40.step"
+# goBILDA grid plates (4 mm holes on the 8 mm pattern).
+moon run components/examples/gobilda_kit -- -o "$OUT/gobilda-grid-plate-5x5.step"
+moon run components/examples/gobilda_kit -- \
+  --cols 11 --rows 29 -o "$OUT/gobilda-grid-plate-11x29.step"
 # Component examples that previously had no generator entry. Each is covered
 # by the validation loop below, just like every other generated fixture.
 moon run components/examples/makerpipe_frame -- -o "$OUT/makerpipe-frame.step"
