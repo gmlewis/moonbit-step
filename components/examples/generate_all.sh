@@ -233,6 +233,11 @@ moon run components/examples/gobilda_kit -- \
   --part channel -o "$OUT/gobilda-u-channel-8-hole.step"
 moon run components/examples/gobilda_kit -- \
   --part beam -o "$OUT/gobilda-square-beam-4-hole.step"
+moon run components/examples/gobilda_kit -- \
+  --part hub -o "$OUT/gobilda-sonic-hub-32.step"
+# MotEDis 40 x 40 I-type slot-8 T-slot extrusion.
+moon run components/examples/mot_edis -- \
+  --length 100 -o "$OUT/motedis-40x40-slot8-100.step"
 # Component examples that previously had no generator entry. Each is covered
 # by the validation loop below, just like every other generated fixture.
 moon run components/examples/makerpipe_frame -- -o "$OUT/makerpipe-frame.step"

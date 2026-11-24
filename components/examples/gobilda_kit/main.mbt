@@ -20,7 +20,7 @@ async fn main {
   let spec = {
     "part": @cli.opt_string(
       short='p',
-      help="Part: plate (default), channel, or beam",
+      help="Part: plate (default), channel, beam, or hub",
     ),
     "cols": @cli.opt_int(5, help="Hole columns along X (plate)"),
     "rows": @cli.opt_int(5, help="Hole rows along Y (plate)"),
@@ -73,6 +73,14 @@ async fn main {
       }
     "beam" =>
       match @gobilda.gobilda_square_beam(holes=args.int("beamHoles")) {
+        Ok(c) => c
+        Err(e) => {
+          @cli.eprintln("error: " + e.message())
+          abort("")
+        }
+      }
+    "hub" =>
+      match @gobilda.gobilda_sonic_hub() {
         Ok(c) => c
         Err(e) => {
           @cli.eprintln("error: " + e.message())

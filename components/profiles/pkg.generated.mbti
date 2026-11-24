@@ -19,6 +19,10 @@ pub fn makerstore_corner_bracket(leg_mm? : Double, width_mm? : Double, thickness
 
 pub fn makerstore_corner_bracket_family() -> Result[@common.DesignFamily, @common.SpecError]
 
+pub fn mot_edis_profile(length_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn mot_edis_profile_family() -> Result[@common.DesignFamily, @common.SpecError]
+
 pub fn strut_channel(ChannelSection, Double, punched? : Bool, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
 pub fn vslot_corner_bracket(leg_mm? : Double, width_mm? : Double, thickness_mm? : Double, gusset_thickness_mm? : Double, slot_width_mm? : Double, slot_length_mm? : Double, slot_shift_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]

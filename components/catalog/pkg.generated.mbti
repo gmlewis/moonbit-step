@@ -28,6 +28,8 @@ pub fn makerstore_catalog() -> Array[CatalogEntry]
 
 pub fn mechanisms_catalog() -> Array[CatalogEntry]
 
+pub fn mot_edis_catalog() -> Array[CatalogEntry]
+
 pub fn motion_catalog() -> Array[CatalogEntry]
 
 pub fn motor_catalog() -> Array[CatalogEntry]

@@ -1,8 +1,8 @@
 ///|
 test "goBILDA catalogue has grid plates and U-channels" {
   let entries = @catalog.gobilda_catalog()
-  // 9 grid-plate bundle sizes + 4 U-channel lengths + 4 square-beam lengths.
-  assert_eq(entries.length(), 17)
+  // 9 grid plates + 4 U-channels + 4 square beams + 1 Sonic hub.
+  assert_eq(entries.length(), 18)
   for entry in entries {
     assert_true(entry.provenance.contains("gobilda.com"))
   }
@@ -29,4 +29,11 @@ test "goBILDA catalogue has grid plates and U-channels" {
   }
   assert_true(beam.family == "goBILDA square beam")
   assert_true(beam.features.has_modeled("crossing-x-holes"))
+  let hub = match
+    @catalog.lookup(entries, "goBILDA Sonic hub Ø32 / 7 mm hex (1309)") {
+    Ok(e) => e
+    Err(err) => abort(err.message())
+  }
+  assert_true(hub.family == "goBILDA Sonic hub")
+  assert_true(hub.features.has_modeled("hex-bore"))
 }

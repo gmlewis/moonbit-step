@@ -1,7 +1,8 @@
 ///|
 /// gobilda_catalog returns catalogue entries for the goBILDA grid plates,
-/// 1120-series U-channels, and 1106-series square beams, built from the real
-/// components so provenance and feature records cannot drift.
+/// 1120-series U-channels, 1106-series square beams, and the 1309 Sonic hub,
+/// built from the real components so provenance and feature records cannot
+/// drift.
 ///
 /// The plate sizes match the goBILDA 1116 Series Grid Plate Bundle (3x5 through
 /// 11x29); a plate named `cols x rows` is `cols * 8` by `rows * 8` mm. A channel's
@@ -44,6 +45,20 @@ pub fn gobilda_catalog() -> Array[CatalogEntry] {
         entries.push(entry_from_component(c, beam_parameters, ["Detailed"]))
       Err(_) => ()
     }
+  }
+  match @gobilda.gobilda_sonic_hub() {
+    Ok(c) =>
+      entries.push(
+        entry_from_component(
+          c,
+          [
+            "boreFlats", "bodyDiameter", "bodyWidth", "bossDiameter", "bossHeight",
+            "boltCircle", "boltDiameter",
+          ],
+          ["Detailed"],
+        ),
+      )
+    Err(_) => ()
   }
   entries
 }
