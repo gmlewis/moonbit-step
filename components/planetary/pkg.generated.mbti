@@ -2,13 +2,25 @@
 package "gmlewis/step/components/planetary"
 
 import {
+  "gmlewis/step/cad",
   "gmlewis/step/components/common",
+  "gmlewis/step/components/fasteners",
 }
 
 // Values
 pub fn herringbone_planetary_gearbox(HerringbonePlanetaryParams, y_up? : Bool) -> Result[@common.Component, @common.SpecError]
 
 pub fn herringbone_planetary_layout(HerringbonePlanetaryParams) -> HerringbonePlanetaryLayout
+
+pub fn split_ring_exploded_design(SplitRingPlanetaryParams, gap_mm? : Double, include_snap_features? : Bool) -> Result[@cad.Design, @common.SpecError]
+
+pub fn split_ring_lower_cartridge_design(SplitRingPlanetaryParams, include_snap_pins? : Bool) -> Result[@cad.Design, @common.SpecError]
+
+pub fn split_ring_planetary_gearbox(SplitRingPlanetaryParams, include_snap_features? : Bool) -> Result[@common.Component, @common.SpecError]
+
+pub fn split_ring_planetary_layout(SplitRingPlanetaryParams) -> SplitRingPlanetaryLayout
+
+pub fn split_ring_upper_cartridge_design(SplitRingPlanetaryParams, include_snap_sockets? : Bool) -> Result[@cad.Design, @common.SpecError]
 
 // Errors
 
@@ -74,6 +86,47 @@ pub(all) struct HerringbonePlanetaryParams {
   ring_teeth : Int32
 }
 pub fn HerringbonePlanetaryParams::new(module_mm~ : Double, gear_length_mm~ : Double, helix_angle_deg? : Double, pressure_angle_deg? : Double, num_elbows? : Int32, resolution? : Int32, hole_type? : String, sun_hole_type? : String, hole_radius_mm? : Double, sun_hole_radius_mm? : Double, planet_hole_radius_mm? : Double, tolerance_mm? : Double, outer_thickness_mm? : Double, sun_teeth? : Int32, planet_count? : Int32, planet_teeth? : Int32, ring_teeth? : Int32) -> Result[Self, @common.SpecError]
+
+pub(all) struct SplitRingPlanetaryLayout {
+  stage1 : HerringbonePlanetaryLayout
+  stage2 : HerringbonePlanetaryLayout
+  ratio : Double
+  outer_radius_mm : Double
+  total_length_mm : Double
+  ring1_length_mm : Double
+  snap_pin_params : @fasteners.AxialSnapPinParams
+  snap_bcd_mm : Double
+  planet_centers_xy : Array[(Double, Double)]
+  planets_identical : Bool
+}
+
+pub(all) struct SplitRingPlanetaryParams {
+  module_mm : Double
+  stage1_length_mm : Double
+  stage2_length_mm : Double
+  ring_axial_gap_mm : Double
+  helix_angle_deg : Double
+  pressure_angle_deg : Double
+  num_elbows : Int32
+  resolution : Int32
+  sun_hole_type : String
+  sun_hole_radius_mm : Double
+  tolerance_mm : Double
+  outer_thickness_mm : Double
+  sun_teeth : Int32
+  planet1_teeth : Int32
+  ring1_teeth : Int32
+  planet2_teeth : Int32
+  ring2_teeth : Int32
+  planet_count : Int32
+  snap_pins_per_planet : Int32
+  poka_yoke_snap_angles : Bool
+  snap_pin_params : @fasteners.AxialSnapPinParams?
+}
+pub fn SplitRingPlanetaryParams::default() -> Self
+pub fn SplitRingPlanetaryParams::manafish_51(module_mm? : Double, stage1_length_mm? : Double, stage2_length_mm? : Double) -> Self
+pub fn SplitRingPlanetaryParams::new(module_mm? : Double, stage1_length_mm? : Double, stage2_length_mm? : Double, ring_axial_gap_mm? : Double, helix_angle_deg? : Double, pressure_angle_deg? : Double, num_elbows? : Int32, resolution? : Int32, sun_hole_type? : String, sun_hole_radius_mm? : Double, tolerance_mm? : Double, outer_thickness_mm? : Double, sun_teeth? : Int32, planet1_teeth? : Int32, ring1_teeth? : Int32, planet2_teeth? : Int32, ring2_teeth? : Int32, planet_count? : Int32, snap_pins_per_planet? : Int32, poka_yoke_snap_angles? : Bool, snap_pin_params? : @fasteners.AxialSnapPinParams) -> Result[Self, @common.SpecError]
+pub fn SplitRingPlanetaryParams::ratio(Self) -> Double
 
 // Type aliases
 

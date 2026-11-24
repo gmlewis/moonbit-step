@@ -2,7 +2,12 @@ import {
   "gmlewis/step",
   "gmlewis/step/cad",
   "gmlewis/step/components/common",
+  "gmlewis/step/components/fasteners",
   "gmlewis/step/components/gears",
   "moonbitlang/core/builtin",
   "moonbitlang/core/math",
 }
+
+import {
+  "moonbitlang/async",
+} for "test"
