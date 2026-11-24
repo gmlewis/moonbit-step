@@ -160,6 +160,34 @@ def csg_roots(records: dict[int, Entity]) -> list[int]:
     return roots
 
 
+def standalone_solid_roots(
+    records: dict[int, Entity], csg_root_ids: list[int]
+) -> list[int]:
+    """Returns top-level non-CSG solid leaves (referenced by
+    ADVANCED_BREP_SHAPE_REPRESENTATION and not already inside a CSG tree)."""
+    used_in_csg: set[int] = set()
+    for root in csg_root_ids:
+        for step in evaluation_plan(records, root):
+            used_in_csg.add(step.ref)
+    roots: list[int] = []
+    seen: set[int] = set()
+    for eid in sorted(records):
+        entity = records[eid]
+        if entity.type != "ADVANCED_BREP_SHAPE_REPRESENTATION":
+            continue
+        for ref in _refs(entity.text):
+            target = records.get(ref)
+            if (
+                target is not None
+                and target.type in SOLID_TYPES
+                and ref not in used_in_csg
+                and ref not in seen
+            ):
+                seen.add(ref)
+                roots.append(ref)
+    return roots
+
+
 def require_single_root(records: dict[int, Entity]) -> int:
     roots = csg_roots(records)
     if not roots:
@@ -979,11 +1007,12 @@ def evaluate(
         raise CsgEvalError(
             "no CSG_SOLID found; generate the file with Design::to_csg_step()"
         )
+    all_roots = roots + standalone_solid_roots(records, roots)
     context_ref = _find_context(records)
     schema = file_schema(text)
 
     sc_out = evaluate_with_solidcraft(
-        text, records, roots, context_ref, schema, output_path, timeout, layers_path
+        text, records, all_roots, context_ref, schema, output_path, timeout, layers_path
     )
     if sc_out is not None:
         return sc_out
@@ -993,6 +1022,7 @@ def evaluate(
         raise CsgEvalError(
             "neither solidcraft-cli nor occt-draw / DRAWEXE is on PATH"
         )
+    roots = all_roots
 
     with tempfile.TemporaryDirectory(prefix="csg-eval-") as tmp:
         tmpdir = Path(tmp)

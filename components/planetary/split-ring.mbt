@@ -48,8 +48,9 @@ pub(all) struct SplitRingPlanetaryParams {
 ///|
 /// Validated constructor for `SplitRingPlanetaryParams`.
 ///
-/// Default is a compact 4-planet `-32:1` Wolfrom set:
-/// `Z_s = 12`, `Z_p1 = 16`, `Z_r1 = 44`, `Z_p2 = 20`, `Z_r2 = 48`.
+/// Default is a compact 4-planet `-18.2:1` Wolfrom set with generous
+/// planet-to-planet clearance (~5 mm between upper planets):
+/// `Z_s = 20`, `Z_p1 = 14`, `Z_r1 = 48`, `Z_p2 = 18`, `Z_r2 = 52`.
 pub fn SplitRingPlanetaryParams::new(
   module_mm~ : Double = 1.25,
   stage1_length_mm~ : Double = 10.0,
@@ -63,11 +64,11 @@ pub fn SplitRingPlanetaryParams::new(
   sun_hole_radius_mm~ : Double = 3.5,
   tolerance_mm~ : Double = 0.10,
   outer_thickness_mm~ : Double = 5.0,
-  sun_teeth~ : Int32 = 12,
-  planet1_teeth~ : Int32 = 16,
-  ring1_teeth~ : Int32 = 44,
-  planet2_teeth~ : Int32 = 20,
-  ring2_teeth~ : Int32 = 48,
+  sun_teeth~ : Int32 = 20,
+  planet1_teeth~ : Int32 = 14,
+  ring1_teeth~ : Int32 = 48,
+  planet2_teeth~ : Int32 = 18,
+  ring2_teeth~ : Int32 = 52,
   planet_count~ : Int32 = 4,
   snap_pins_per_planet~ : Int32 = 3,
   poka_yoke_snap_angles~ : Bool = true,
@@ -129,6 +130,22 @@ pub fn SplitRingPlanetaryParams::new(
     return Err(
       @common.InvalidParameter(
         "stage 1 assembly requires (sun_teeth + ring1_teeth) divisible by planet_count",
+      ),
+    )
+  }
+  // Verify adjacent planets do not collide in either stage.
+  let orbit_r = module_mm * (sun_teeth + planet1_teeth).to_double() / 2.0
+  let chord = 2.0 * orbit_r * @math.sin(@math.PI / planet_count.to_double())
+  let max_planet_teeth = if planet1_teeth > planet2_teeth {
+    planet1_teeth
+  } else {
+    planet2_teeth
+  }
+  let max_planet_od = module_mm * (max_planet_teeth.to_double() + 2.0)
+  if chord <= max_planet_od + 0.5 {
+    return Err(
+      @common.InvalidParameter(
+        "planets collide: adjacent center spacing \{@cad.fmt_double(chord, Some(0.1))} mm <= max planet OD \{@cad.fmt_double(max_planet_od, Some(0.1))} mm + 0.5 mm (use fewer planets or larger sun_teeth)",
       ),
     )
   }
@@ -500,11 +517,12 @@ fn split_ring_stage_nodes(
       .with_name("\{prefix}_planet_\{i + 1}")
       .with_color(planet_color)
     let placed = if smooth {
-      raw.rotate_z(p.phi_deg).translate(x=p.x, y=-p.z)
+      raw.rotate_z(-p.phi_deg).translate(x=p.x, y=-p.z)
     } else {
-      // Native +Y swept gear: rotate_y(-phi_deg) then rotate_x(90.0) maps to
-      // +Z gear rotated by +phi_deg around Z, at (p.x, -p.z, 0).
-      raw.rotate_y(-p.phi_deg).rotate_x(90.0).translate(x=p.x, y=-p.z)
+      // SceneNode applies Rz * Ry * Rx, so Rx(90) tips the native +Y swept
+      // gear onto +Z first, then Rz(-phi_deg) clocks its teeth around +Z —
+      // identical to Rx(90) * Ry(-phi_deg) in herringbone_planetary_gearbox.
+      raw.rotate_x(90.0).rotate_z(-p.phi_deg).translate(x=p.x, y=-p.z)
     }
     planet_nodes.push(placed)
   }

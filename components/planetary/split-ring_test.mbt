@@ -1,8 +1,8 @@
 ///|
 test "SplitRingPlanetaryParams ratios match exact Wolfrom formula" {
   let d = @planetary.SplitRingPlanetaryParams::default()
-  // 12/16-44 / 20-48 -> -32:1
-  assert_true((d.ratio() + 32.0).abs() < 1.0e-9)
+  // 20/14-48 / 18-52 -> (1 + 48/20) / (1 - (48*18)/(14*52)) = -18.2
+  assert_true((d.ratio() + 18.2).abs() < 1.0e-9)
 
   let m51 = @planetary.SplitRingPlanetaryParams::manafish_51()
   // 12/18-48 / 21-51 -> -51:1
@@ -10,18 +10,30 @@ test "SplitRingPlanetaryParams ratios match exact Wolfrom formula" {
 }
 
 ///|
-test "SplitRingPlanetaryParams rejects invalid center distance or meshing" {
-  // Mismatched center distance: 44 - 16 = 28 != 49 - 20 = 29
+test "SplitRingPlanetaryParams rejects invalid center distance, meshing, or planet collision" {
+  // Mismatched center distance: 48 - 14 = 34 != 53 - 18 = 35
   assert_true(
-    @planetary.SplitRingPlanetaryParams::new(ring2_teeth=49) is Err(_),
+    @planetary.SplitRingPlanetaryParams::new(ring2_teeth=53) is Err(_),
   )
-  // Bad stage 1 ring: 12 + 2*16 = 44 != 46
+  // Bad stage 1 ring: 20 + 2*14 = 48 != 50
   assert_true(
-    @planetary.SplitRingPlanetaryParams::new(ring1_teeth=46) is Err(_),
+    @planetary.SplitRingPlanetaryParams::new(ring1_teeth=50) is Err(_),
   )
   // Degenerate identical stages
   assert_true(
-    @planetary.SplitRingPlanetaryParams::new(planet2_teeth=16, ring2_teeth=44)
+    @planetary.SplitRingPlanetaryParams::new(planet2_teeth=14, ring2_teeth=48)
+    is Err(_),
+  )
+  // Colliding adjacent upper planets (4 planets of 20T on 17.5 mm orbit)
+  assert_true(
+    @planetary.SplitRingPlanetaryParams::new(
+      sun_teeth=12,
+      planet1_teeth=16,
+      ring1_teeth=44,
+      planet2_teeth=20,
+      ring2_teeth=48,
+      planet_count=4,
+    )
     is Err(_),
   )
 }
@@ -86,4 +98,31 @@ async test "split-ring cartridges evaluate cleanly with OCCT" {
   assert_true(lower_step.contains("MANIFOLD_SOLID_BREP"))
   let upper_step = upper.to_step_evaluated()
   assert_true(upper_step.contains("MANIFOLD_SOLID_BREP"))
+}
+
+///|
+test "split-ring planets stay upright along +Z with zero sideways Y-tilt" {
+  let params = @planetary.SplitRingPlanetaryParams::default()
+  let lower = @planetary.split_ring_lower_cartridge_design(
+    params,
+    include_snap_pins=false,
+  ).unwrap()
+  // Nodes: [sun, p1, p2, p3, p4, ring1]
+  for i in 1..<=4 {
+    let (_, _, _, _, z0, z1) = lower.nodes[i].bounding_box()
+    assert_true(z0.abs() < 0.6)
+    assert_true(
+      (z1 - (params.stage1_length_mm + params.ring_axial_gap_mm)).abs() < 0.6,
+    )
+  }
+  let upper = @planetary.split_ring_upper_cartridge_design(
+    params,
+    include_snap_sockets=false,
+  ).unwrap()
+  // Nodes: [p1, p2, p3, p4, ring2]
+  for i in 0..<4 {
+    let (_, _, _, _, z0, z1) = upper.nodes[i].bounding_box()
+    assert_true(z0.abs() < 0.1)
+    assert_true((z1 - params.stage2_length_mm).abs() < 0.1)
+  }
 }

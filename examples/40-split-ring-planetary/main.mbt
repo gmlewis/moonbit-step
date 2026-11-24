@@ -19,7 +19,7 @@
 async fn main {
   let spec = {
     "preset": @cli.opt_string(
-      help="Preset: 'default' (4-planet -32:1) or 'manafish51' (3-planet -51:1)",
+      help="Preset: 'default' (4-planet -18.2:1) or 'manafish51' (3-planet -51:1)",
     ),
     "mode": @cli.opt_string(
       help="Output mode: exploded, lower, upper, or assembled (default exploded)",
@@ -91,6 +91,10 @@ async fn main {
   }
 
   let step_text = design.to_step_evaluated() catch {
+    @cad.CsgEvalError(msg) => {
+      @cli.eprintln("error: OCCT evaluation failed: " + msg)
+      abort("")
+    }
     e => {
       @cli.eprintln("error: OCCT evaluation failed: " + e.to_string())
       abort("")

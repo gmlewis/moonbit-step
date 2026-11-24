@@ -18,6 +18,7 @@ Wrapper options:
                         joint origins (named mate connectors are shown by
                         default for every component example).
   -stl[=<path>]         Also write a binary STL (default: <step>.stl).
+  --3mf[=<path>]        Also write an OrcaSlicer-ready 3MF (default: <step>.3mf).
   --png[=<path>]        Also render a four-view PNG preview (default: <step>.png).
   -o, --out <path>      Write the STEP file to <path> (default: stdout).
   --eval[=<path>]       Evaluate booleans with OCCT and write a real, trimmed
@@ -159,7 +160,7 @@ fi
 PREFIX_ARGS=()
 while [[ $# -gt 0 ]]; do
   case "${1:-}" in
-    --view | --view=* | -stl | --stl | -stl=* | --stl=* | -png | --png | -png=* | --png=* | --nostep | --blend | --blend=* | --bpy | --bpy=* | --gltf | --gltf=* | --no-connectors | --connectors | --headless | --no-open)
+    --view | --view=* | -stl | --stl | -stl=* | --stl=* | -3mf | --3mf | -3mf=* | --3mf=* | -png | --png | -png=* | --png=* | --nostep | --blend | --blend=* | --bpy | --bpy=* | --gltf | --gltf=* | --no-connectors | --connectors | --headless | --no-open)
       PREFIX_ARGS+=("$1")
       shift
       ;;
@@ -272,6 +273,9 @@ sibling_output() {
 STL_REQUESTED=0
 STL_OUT_ARG=""
 STL_OUT=""
+THREEMF_REQUESTED=0
+THREEMF_OUT_ARG=""
+THREEMF_OUT=""
 PNG_REQUESTED=0
 PNG_OUT_ARG=""
 PNG_OUT=""
@@ -295,6 +299,13 @@ while (( i < ${#ARGS[@]} )); do
     -stl=* | --stl=*)
       STL_REQUESTED=1
       STL_OUT_ARG="${arg#*=}"
+      ;;
+    -3mf | --3mf)
+      THREEMF_REQUESTED=1
+      ;;
+    -3mf=* | --3mf=*)
+      THREEMF_REQUESTED=1
+      THREEMF_OUT_ARG="${arg#*=}"
       ;;
     -png | --png)
       PNG_REQUESTED=1
@@ -402,9 +413,9 @@ if (( HEADLESS_REQUESTED )) && (( ! VIEW_REQUESTED )) && [[ -z "$STEP_OUT" ]]; t
 fi
 
 # --- Checked derived outputs ------------------------------------------------
-if (( STL_REQUESTED || PNG_REQUESTED )); then
+if (( STL_REQUESTED || THREEMF_REQUESTED || PNG_REQUESTED )); then
   if (( NO_STEP_OUTPUT )); then
-    echo "Error: -stl and --png cannot be combined with --blend, --bpy, --gltf, or --nostep" >&2
+    echo "Error: -stl, --3mf, and --png cannot be combined with --blend, --bpy, --gltf, or --nostep" >&2
     echo "       because those options suppress the STEP output." >&2
     exit 1
   fi
@@ -414,6 +425,13 @@ if (( STL_REQUESTED || PNG_REQUESTED )); then
       STL_OUT="$STL_OUT_ARG"
     else
       STL_OUT="$(sibling_output stl)"
+    fi
+  fi
+  if (( THREEMF_REQUESTED )); then
+    if [[ -n "$THREEMF_OUT_ARG" ]]; then
+      THREEMF_OUT="$THREEMF_OUT_ARG"
+    else
+      THREEMF_OUT="$(sibling_output 3mf)"
     fi
   fi
   if (( PNG_REQUESTED )); then
@@ -431,6 +449,11 @@ if (( STL_REQUESTED || PNG_REQUESTED )); then
       echo "       Pass the STL path explicitly with -stl=<path>." >&2
       exit 1
     fi
+    if (( THREEMF_REQUESTED )) && [[ "$(normalize_path "$THREEMF_OUT")" == "$step_cmp" ]]; then
+      echo "Error: 3MF path must differ from the STEP path: $THREEMF_OUT" >&2
+      echo "       Pass the 3MF path explicitly with --3mf=<path>." >&2
+      exit 1
+    fi
     if (( PNG_REQUESTED )) && [[ "$(normalize_path "$PNG_OUT")" == "$step_cmp" ]]; then
       echo "Error: PNG path must differ from the STEP path: $PNG_OUT" >&2
       echo "       Pass the PNG path explicitly with --png=<path>." >&2
@@ -444,6 +467,10 @@ if (( STL_REQUESTED || PNG_REQUESTED )); then
   fi
   if (( STL_REQUESTED )) && [[ ! -d "$(dirname "$STL_OUT")" ]]; then
     echo "Error: STL output directory does not exist: $(dirname "$STL_OUT")" >&2
+    exit 1
+  fi
+  if (( THREEMF_REQUESTED )) && [[ ! -d "$(dirname "$THREEMF_OUT")" ]]; then
+    echo "Error: 3MF output directory does not exist: $(dirname "$THREEMF_OUT")" >&2
     exit 1
   fi
   if (( PNG_REQUESTED )) && [[ ! -d "$(dirname "$PNG_OUT")" ]]; then
@@ -577,6 +604,14 @@ if (( STL_REQUESTED )); then
   else
     echo "Wrote $STL_OUT" >&2
   fi
+fi
+
+if (( THREEMF_REQUESTED )); then
+  if ! python3 "$ROOT_DIR/scripts/step_to_3mf.py" "$STEP_OUT" "$THREEMF_OUT"; then
+    echo "Error: failed to export 3MF from $STEP_OUT." >&2
+    exit 1
+  fi
+  echo "Wrote $THREEMF_OUT" >&2
 fi
 
 if (( PNG_REQUESTED )); then

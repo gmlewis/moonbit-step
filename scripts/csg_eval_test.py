@@ -253,5 +253,26 @@ class IntegrationTests(unittest.TestCase):
         self.assertEqual(val.returncode, 0, val.stdout + val.stderr)
 
 
+class StandaloneLeafTest(unittest.TestCase):
+    def test_preserves_top_level_non_csg_solids(self):
+        doc = """
+        ISO-10303-21;
+        DATA;
+        #10=MANIFOLD_SOLID_BREP('bool_base',#11);
+        #12=MANIFOLD_SOLID_BREP('bool_tool',#13);
+        #14=BOOLEAN_RESULT('cut',.DIFFERENCE.,#10,#12);
+        #15=CSG_SOLID('cut',#14);
+        #20=MANIFOLD_SOLID_BREP('sun',#21);
+        #22=ADVANCED_BREP_SHAPE_REPRESENTATION('sun',(#20),#1);
+        ENDSEC;
+        END-ISO-10303-21;
+        """
+        records = c.parse_records(doc)
+        roots = c.csg_roots(records)
+        self.assertEqual(roots, [14])
+        extra = c.standalone_solid_roots(records, roots)
+        self.assertEqual(extra, [20])
+
+
 if __name__ == "__main__":
     sys.exit(unittest.main())
