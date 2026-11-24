@@ -533,6 +533,23 @@ pub(all) enum Plane {
   YZ
 }
 
+pub(all) struct PointPattern2D {
+  points : Array[(Double, Double)]
+}
+pub fn PointPattern2D::combine(Self, Self) -> Self
+pub fn PointPattern2D::cut_from(Self, SceneNode, SceneNode, z_mm? : Double, name? : String) -> SceneNode
+pub fn PointPattern2D::drill_holes(Self, SceneNode, Double, z0_mm? : Double, depth_mm? : Double, name? : String) -> SceneNode
+pub fn PointPattern2D::from_points(Array[(Double, Double)]) -> Self
+pub fn PointPattern2D::grid(Int32, Int32, Double, Double, center_x? : Double, center_y? : Double) -> Self
+pub fn PointPattern2D::length(Self) -> Int32
+pub fn PointPattern2D::line(Int32, Double, angle_deg? : Double, center_x? : Double, center_y? : Double) -> Self
+pub fn PointPattern2D::place(Self, SceneNode, z_mm? : Double) -> Array[SceneNode]
+pub fn PointPattern2D::rect(Double, Double, center_x? : Double, center_y? : Double) -> Self
+pub fn PointPattern2D::ring(Int32, diam_mm~ : Double, phase_deg? : Double, center_x? : Double, center_y? : Double) -> Self
+pub fn PointPattern2D::rotate_deg(Self, Double) -> Self
+pub fn PointPattern2D::translate(Self, Double, Double) -> Self
+pub fn PointPattern2D::union_onto(Self, SceneNode, SceneNode, z_mm? : Double, name? : String) -> SceneNode
+
 pub(all) enum PrismError {
   PrismTooFewVertices
   PrismBadLevels

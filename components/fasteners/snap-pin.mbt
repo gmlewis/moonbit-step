@@ -373,6 +373,16 @@ pub fn AxialSnapFit::ring(
 }
 
 ///|
+/// Creates an `AxialSnapFit` pattern from any `@cad.PointPattern2D` (`ring`,
+/// `rect`, `grid`, `line`, or custom points).
+pub fn AxialSnapFit::on_pattern(
+  params : AxialSnapPinParams,
+  pattern : @cad.PointPattern2D,
+) -> AxialSnapFit {
+  { params, positions: pattern.points.copy(), }
+}
+
+///|
 /// Creates an `AxialSnapFit` pattern at explicit `(x, y)` coordinates.
 pub fn AxialSnapFit::at_points(
   params : AxialSnapPinParams,

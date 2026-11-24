@@ -78,6 +78,8 @@ pub fn heat_set_insert_m3(String) -> Result[@common.Component, @common.SpecError
 
 pub fn heat_set_insert_m3_spec(String) -> Result[HeatSetInsertSpec, @common.SpecError]
 
+pub fn heat_set_insert_pilot_diam_mm(@standards.MetricSize) -> Double
+
 pub fn hex_head_chamfer_mm(Double, Double) -> Double
 
 pub fn hex_hole_across_flats(Double, rotation_deg? : Double) -> Array[(Double, Double)]
@@ -146,6 +148,10 @@ pub fn makerstore_slider_tnut_family() -> Result[@common.DesignFamily, @common.S
 
 pub fn makerstore_sliding_tnut(String, slot_width_mm? : Double, detail? : @common.DetailLevel, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
+pub fn metric_clearance_hole_diam_mm(@standards.MetricSize) -> Double
+
+pub fn metric_tap_drill_diam_mm(@standards.MetricSize) -> Double
+
 pub fn polyline_circle_approximation(String, Double, Int32) -> @common.Approximation
 
 pub fn shank_tip_chamfer_mm(Double) -> Double
@@ -179,6 +185,7 @@ pub fn AxialSnapFit::at_points(AxialSnapPinParams, Array[(Double, Double)]) -> S
 pub fn AxialSnapFit::attach_male_to(Self, @cad.SceneNode, z_mm? : Double, flip_z? : Bool, name? : String) -> @cad.SceneNode
 pub fn AxialSnapFit::cut_female_from(Self, @cad.SceneNode, z_mm? : Double, flip_z? : Bool, name? : String) -> @cad.SceneNode
 pub fn AxialSnapFit::join_pair(Self, @cad.SceneNode, @cad.SceneNode, base_z_mm? : Double, mating_z_mm? : Double, flip_male_z? : Bool, flip_female_z? : Bool) -> (@cad.SceneNode, @cad.SceneNode)
+pub fn AxialSnapFit::on_pattern(AxialSnapPinParams, @cad.PointPattern2D) -> Self
 pub fn AxialSnapFit::ring(AxialSnapPinParams, count? : Int32, bolt_circle_diam_mm~ : Double, phase_deg? : Double, center_x? : Double, center_y? : Double) -> Self
 
 pub(all) struct AxialSnapPinParams {
@@ -204,6 +211,17 @@ pub fn AxialSnapPinParams::new(base_radius_mm? : Double, neck_radius_mm? : Doubl
 pub fn AxialSnapPinParams::total_height_mm(Self) -> Double
 pub fn AxialSnapPinParams::void_depth_mm(Self) -> Double
 
+pub(all) struct BoltCirclePattern {
+  size : @standards.MetricSize
+  pattern : @cad.PointPattern2D
+  length_mm : Double
+}
+pub fn BoltCirclePattern::cut_clearance_holes(Self, @cad.SceneNode, z0_mm? : Double, depth_mm? : Double, counterbore_depth_mm? : Double, embed_mm? : Double, name? : String) -> @cad.SceneNode
+pub fn BoltCirclePattern::cut_tap_holes(Self, @cad.SceneNode, z0_mm? : Double, depth_mm? : Double, embed_mm? : Double, name? : String) -> @cad.SceneNode
+pub fn BoltCirclePattern::on_pattern(@standards.MetricSize, @cad.PointPattern2D, length_mm? : Double) -> Self
+pub fn BoltCirclePattern::rect(@standards.MetricSize, width_mm~ : Double, height_mm~ : Double, length_mm? : Double, center_x? : Double, center_y? : Double) -> Self
+pub fn BoltCirclePattern::ring(@standards.MetricSize, count? : Int32, bolt_circle_diam_mm~ : Double, length_mm? : Double, phase_deg? : Double, center_x? : Double, center_y? : Double) -> Self
+
 pub(all) struct Din471Outline {
   shaft_mm : Double
   thickness_mm : Double
@@ -221,6 +239,15 @@ pub(all) struct Din472Outline {
   holes : Array[(Double, Double, Double)]
 }
 
+pub(all) struct DowelPinPattern {
+  pin_diam_mm : Double
+  pattern : @cad.PointPattern2D
+  length_mm : Double
+}
+pub fn DowelPinPattern::cut_pin_holes(Self, @cad.SceneNode, z0_mm? : Double, depth_mm? : Double, clearance_mm? : Double, embed_mm? : Double, name? : String) -> @cad.SceneNode
+pub fn DowelPinPattern::on_pattern(pin_diam_mm~ : Double, @cad.PointPattern2D, length_mm? : Double) -> Self
+pub fn DowelPinPattern::ring(pin_diam_mm~ : Double, count? : Int32, bolt_circle_diam_mm~ : Double, length_mm? : Double, phase_deg? : Double, center_x? : Double, center_y? : Double) -> Self
+
 pub(all) struct ExtrusionTNutSpec {
   thread : String
   across_flats_mm : Double
@@ -228,6 +255,17 @@ pub(all) struct ExtrusionTNutSpec {
   hole_diameter_mm : Double
   slot_width_mm : Double
 }
+
+pub(all) struct HeatSetInsertPattern {
+  size : @standards.MetricSize
+  pattern : @cad.PointPattern2D
+  pilot_diam_mm : Double
+  depth_mm : Double
+}
+pub fn HeatSetInsertPattern::cut_pockets_from(Self, @cad.SceneNode, z_mm? : Double, into_negative_z? : Bool, embed_mm? : Double, name? : String) -> @cad.SceneNode
+pub fn HeatSetInsertPattern::on_pattern(@standards.MetricSize, @cad.PointPattern2D, depth_mm? : Double, pilot_diam_mm? : Double) -> Self
+pub fn HeatSetInsertPattern::rect(@standards.MetricSize, width_mm~ : Double, height_mm~ : Double, depth_mm? : Double, center_x? : Double, center_y? : Double, pilot_diam_mm? : Double) -> Self
+pub fn HeatSetInsertPattern::ring(@standards.MetricSize, count? : Int32, bolt_circle_diam_mm~ : Double, depth_mm? : Double, phase_deg? : Double, center_x? : Double, center_y? : Double, pilot_diam_mm? : Double) -> Self
 
 pub(all) struct HeatSetInsertSpec {
   thread : String
