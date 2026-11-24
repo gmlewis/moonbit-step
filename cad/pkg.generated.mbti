@@ -321,6 +321,7 @@ pub fn Design::to_gltf(Self) -> String
 pub fn Design::to_gltf_checked(Self) -> String raise ExportError
 pub async fn Design::to_gltf_file(Self, String?) -> Unit
 pub fn Design::to_instanced_step_string(Self, assembly_name~ : String, checked? : Bool) -> String
+pub fn Design::to_solidcraft_script(Self, leaves_dir? : String, include_file_new? : Bool) -> SolidCraftScript
 pub async fn Design::to_step_evaluated(Self, root? : String?, layers_json? : String, checked? : Bool) -> String
 pub fn Design::to_step_file(Self, timestamp? : String) -> String
 pub fn Design::to_step_file_checked(Self) -> String
@@ -331,6 +332,7 @@ pub fn Design::with_documentation(Self, String) -> Self
 pub fn Design::with_timestamp(Self, String) -> Self
 pub async fn Design::write_blender_python(Self, String?, segments? : Int32, keep_modifiers? : Bool) -> Unit
 pub async fn Design::write_csg_step(Self, String?, checked? : Bool) -> Unit
+pub async fn Design::write_solidcraft_script(Self, String, leaves_dir? : String, include_file_new? : Bool) -> Unit
 pub async fn Design::write_step(Self, String?, checked? : Bool) -> Unit
 pub async fn Design::write_step_evaluated(Self, String?, root? : String?, checked? : Bool) -> Unit
 pub async fn Design::write_step_file(Self, String?, checked? : Bool) -> Unit
@@ -852,6 +854,11 @@ pub fn SocketedSolid::body_segments(Self) -> Array[RevSegment]
 pub fn SocketedSolid::centroid(Self) -> (Double, Double, Double)
 pub fn SocketedSolid::new(RevolvedProfile, Double, Double, lead_in_mm? : Double, rotation_deg? : Double, conical? : Bool, rim_angle_deg? : Double, floor_angle_deg? : Double) -> Self
 pub fn SocketedSolid::volume(Self) -> Double
+
+pub(all) struct SolidCraftScript {
+  script_json : String
+  leaf_files : Array[(String, String)]
+}
 
 pub struct SquareHoleWasher {
   outer_diameter_mm : Double

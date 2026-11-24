@@ -135,10 +135,11 @@ async fn csg_command_in_path(name : String) -> Bool {
 }
 
 ///|
-/// csg_eval_available reports whether `python3`, `DRAWEXE`/`occt-draw`, and
-/// `scripts/csg_eval.py` are all available on this machine. Guard OCCT
-/// integration tests with `if !@cad.csg_eval_available() { return }` so
-/// `moon test` passes in CI runners without OpenCASCADE installed.
+/// csg_eval_available reports whether `python3`, `scripts/csg_eval.py`, and
+/// either `solidcraft-cli` (checking `~/tools/bin` first, then `$PATH`) or
+/// `DRAWEXE`/`occt-draw` are available on this machine. Guard CSG-evaluated
+/// tests with `if !@cad.csg_eval_available() { return }` so `moon test` passes
+/// in CI runners without SolidCraft or OpenCASCADE installed.
 pub async fn csg_eval_available(root~ : String? = None) -> Bool {
   let effective_root = match root {
     Some(r) => Some(r)
@@ -147,7 +148,13 @@ pub async fn csg_eval_available(root~ : String? = None) -> Bool {
   if find_csg_eval_script(effective_root) is None {
     return false
   }
-  let has_draw = csg_command_in_path("DRAWEXE") ||
+  let home_sc = match @env.get_env_var("HOME") {
+    Some(h) => @fs.exists(h + "/tools/bin/solidcraft-cli")
+    None => false
+  }
+  let has_backend = home_sc ||
+    csg_command_in_path("solidcraft-cli") ||
+    csg_command_in_path("DRAWEXE") ||
     csg_command_in_path("occt-draw")
-  has_draw && csg_command_in_path("python3")
+  has_backend && csg_command_in_path("python3")
 }

@@ -124,7 +124,10 @@ exit
     return False
 
 def find_svg_exporter():
-    """Return ('vectorcraft', path) or ('inkscape', path), preferring VectorCraft."""
+    """Return ('vectorcraft', path) or ('inkscape', path), preferring ~/tools/bin/vectorcraft-cli."""
+    home_vc = Path.home() / "tools" / "bin" / "vectorcraft-cli"
+    if home_vc.is_file() and os.access(home_vc, os.X_OK):
+        return ("vectorcraft", str(home_vc))
     vc = shutil.which("vectorcraft-cli")
     if vc:
         return ("vectorcraft", vc)

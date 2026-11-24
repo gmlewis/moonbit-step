@@ -24,10 +24,15 @@ Wrapper options:
   --eval[=<path>]       Evaluate booleans with OCCT and write a real, trimmed
                         STEP file (default: <example>.step). Requires
                         occt-draw or DRAWEXE; overrides nominal STEP output.
-  --view[=<path>]       Write the STEP to /tmp/<example>.step (or <path>) and
-                        open it in SolidCraft. With -o, opens that path instead.
-                        Cannot be combined with --blend, --bpy, --gltf, or
-                        --nostep, which suppress STEP output.
+  --view[=<path>]       Open the model in SolidCraft. For boolean examples that
+                        support --scScript (e.g. 39, 40), streams a native
+                        SolidCraft script live into the open GUI (sub-second
+                        popup, full editable feature tree); for pure STEP
+                        examples (or when =<path> / -o is given), writes STEP
+                        and opens it in SolidCraft with mate connectors.
+  --view-with-preprocess[=<path>]
+                        Force the classic pre-evaluated STEP file path
+                        (/tmp/<example>.step or <path>) and open in SolidCraft.
   --headless            Generate only; never open SolidCraft. Writes to
                         /tmp/<example>.step (or the -o path) and prints it.
                         Agents should always pass this instead of --view.
@@ -160,7 +165,7 @@ fi
 PREFIX_ARGS=()
 while [[ $# -gt 0 ]]; do
   case "${1:-}" in
-    --view | --view=* | -stl | --stl | -stl=* | --stl=* | -3mf | --3mf | -3mf=* | --3mf=* | -png | --png | -png=* | --png=* | --nostep | --blend | --blend=* | --bpy | --bpy=* | --gltf | --gltf=* | --no-connectors | --connectors | --headless | --no-open)
+    --view | --view=* | --view-with-preprocess | --view-with-preprocess=* | --live | -stl | --stl | -stl=* | --stl=* | -3mf | --3mf | -3mf=* | --3mf=* | -png | --png | -png=* | --png=* | --nostep | --blend | --blend=* | --bpy | --bpy=* | --gltf | --gltf=* | --no-connectors | --connectors | --headless | --no-open)
       PREFIX_ARGS+=("$1")
       shift
       ;;
@@ -282,8 +287,11 @@ PNG_OUT=""
 STEP_OUT=""
 EVAL_OUT=""
 VIEW_REQUESTED=0
+VIEW_PREPROCESS_REQUESTED=0
 VIEW_PATH_ARG=""
 VIEW_STEP=""
+LIVE_REQUESTED=0
+LIVE_SCRIPT=""
 HEADLESS_REQUESTED=0
 CONNECTORS_REQUESTED=1
 NO_STEP_OUTPUT=0
@@ -343,7 +351,20 @@ while (( i < ${#ARGS[@]} )); do
       ;;
     --view=*)
       VIEW_REQUESTED=1
+      VIEW_PREPROCESS_REQUESTED=1
       VIEW_PATH_ARG="${arg#*=}"
+      ;;
+    --view-with-preprocess)
+      VIEW_REQUESTED=1
+      VIEW_PREPROCESS_REQUESTED=1
+      ;;
+    --view-with-preprocess=*)
+      VIEW_REQUESTED=1
+      VIEW_PREPROCESS_REQUESTED=1
+      VIEW_PATH_ARG="${arg#*=}"
+      ;;
+    --live)
+      LIVE_REQUESTED=1
       ;;
     --no-connectors)
       CONNECTORS_REQUESTED=0
@@ -369,6 +390,16 @@ done
 # An evaluated export replaces the nominal STEP file, so derive previews from it.
 if [[ -n "$EVAL_OUT" ]]; then
   STEP_OUT="$EVAL_OUT"
+fi
+
+# Auto-promote `--view` to instant live SolidCraft streaming when the example
+# supports `--scScript` and no explicit STEP output / preprocess was requested.
+if (( VIEW_REQUESTED )) && (( ! VIEW_PREPROCESS_REQUESTED )) && (( ! HEADLESS_REQUESTED )) &&
+  (( ! STL_REQUESTED )) && (( ! THREEMF_REQUESTED )) && (( ! PNG_REQUESTED )) &&
+  [[ -z "$STEP_OUT" ]] &&
+  grep -q "scScript" "$ROOT_DIR/$EXAMPLE_PATH_REL"/*.mbt 2>/dev/null; then
+  LIVE_REQUESTED=1
+  VIEW_REQUESTED=0
 fi
 
 # --- View in SolidCraft -----------------------------------------------------
@@ -397,6 +428,13 @@ if (( VIEW_REQUESTED )); then
     echo "Error: view output directory does not exist: $(dirname "$VIEW_STEP")" >&2
     exit 1
   fi
+fi
+
+# --- Live SolidCraft streaming ----------------------------------------------
+if (( LIVE_REQUESTED )); then
+  LIVE_SCRIPT="/tmp/${EXAMPLE_NAME}.sc.json"
+  rm -rf "$LIVE_SCRIPT" "${LIVE_SCRIPT}.leaves"
+  FORWARD_ARGS+=(--scScript "$LIVE_SCRIPT")
 fi
 
 # --- Headless output --------------------------------------------------------
@@ -537,16 +575,44 @@ tcl_quote() {
   printf '"%s"' "$s"
 }
 
+find_solidcraft() {
+  if [[ -x "$HOME/tools/bin/solidcraft-cli" ]]; then
+    printf '%s' "$HOME/tools/bin/solidcraft-cli"
+    return 0
+  fi
+  command -v solidcraft-cli 2>/dev/null || true
+}
+
 step_to_stl() {
   local step_path="$1"
   local stl_path="$2"
   local deflection="${STL_DEFLECTION:-0.05}"
-  local occt log
+  local sc occt log
+
+  sc="$(find_solidcraft)"
+  if [[ -n "$sc" ]] && command -v python3 >/dev/null 2>&1; then
+    if python3 - "$sc" "$step_path" "$stl_path" <<'PY'
+import json, subprocess, sys, tempfile
+from pathlib import Path
+sc, step_p, stl_p = sys.argv[1], Path(sys.argv[2]).resolve(), Path(sys.argv[3]).resolve()
+script = [
+    {"command": "file.insert_step", "params": {"path": str(step_p), "flatten": True}},
+    {"command": "file.export_stl", "params": {"path": str(stl_p), "quality": "fine"}},
+]
+with tempfile.TemporaryDirectory() as td:
+    sp = Path(td) / "s.json"
+    sp.write_text(json.dumps(script))
+    r = subprocess.run([sc, "run", str(sp), "--validation", "off", "--quiet"], capture_output=True, text=True, timeout=180)
+    sys.exit(0 if r.returncode == 0 and stl_p.is_file() and stl_p.stat().st_size > 84 else 1)
+PY
+    then
+      return 0
+    fi
+  fi
 
   occt="$(find_occt)"
   if [[ -z "$occt" ]]; then
-    echo "Error: neither occt-draw nor DRAWEXE is on PATH." >&2
-    echo "       Install OpenCASCADE to use -stl." >&2
+    echo "Error: neither solidcraft-cli nor occt-draw/DRAWEXE found (checked ~/tools/bin and PATH)." >&2
     return 1
   fi
 
@@ -589,6 +655,17 @@ if (( HEADLESS_REQUESTED )); then
     if [[ -f "$STEP_OUT.connectors.tsv" ]]; then
       echo "Connector sidecar: $STEP_OUT.connectors.tsv"
     fi
+  fi
+fi
+
+if (( LIVE_REQUESTED )) && (( ! HEADLESS_REQUESTED )); then
+  if [[ ! -s "$LIVE_SCRIPT" ]]; then
+    echo "Error: example did not write SolidCraft script at $LIVE_SCRIPT (does it support --scScript?)." >&2
+    exit 1
+  fi
+  if ! python3 "$ROOT_DIR/scripts/run_solidcraft_live.py" "$LIVE_SCRIPT"; then
+    echo "Error: failed to stream $LIVE_SCRIPT into SolidCraft." >&2
+    exit 1
   fi
 fi
 

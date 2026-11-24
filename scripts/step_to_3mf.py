@@ -311,7 +311,12 @@ def main(argv: list[str] | None = None) -> int:
 
     args.out_path.parent.mkdir(parents=True, exist_ok=True)
 
-    sc = shutil.which("solidcraft-cli")
+    home_sc = Path.home() / "tools" / "bin" / "solidcraft-cli"
+    sc = (
+        str(home_sc)
+        if home_sc.is_file() and os.access(home_sc, os.X_OK)
+        else shutil.which("solidcraft-cli")
+    )
     if sc:
         ok, err = export_via_solidcraft(
             sc,

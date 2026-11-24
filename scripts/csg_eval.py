@@ -580,6 +580,9 @@ def write_leaf(
 def _solidcraft_tool() -> str | None:
     if os.environ.get("CSG_EVAL_BACKEND", "").lower() == "occt":
         return None
+    home_bin = Path.home() / "tools" / "bin" / "solidcraft-cli"
+    if home_bin.is_file() and os.access(home_bin, os.X_OK):
+        return str(home_bin)
     return shutil.which("solidcraft-cli")
 
 

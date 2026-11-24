@@ -43,6 +43,9 @@ async fn main {
       help="Output evaluated STEP path (default /tmp/40-split-ring-planetary.step)",
       short='o',
     ),
+    "scScript": @cli.opt_string(
+      help="Write a native SolidCraft JSON command script (sub-second, for live GUI streaming or solidcraft-cli run)",
+    ),
   }
   guard @cli.parse(
       spec,
@@ -88,6 +91,15 @@ async fn main {
       @cli.eprintln("error: invalid split-ring params: " + e.to_string())
       abort("")
     }
+  }
+
+  match args.string_opt("scScript") {
+    Some(sc_path) => {
+      design.write_solidcraft_script(sc_path)
+      println("Wrote SolidCraft script: " + sc_path)
+      return
+    }
+    None => ()
   }
 
   let step_text = design.to_step_evaluated() catch {

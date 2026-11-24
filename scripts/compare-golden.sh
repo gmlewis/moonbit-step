@@ -966,25 +966,28 @@ def activate_app(app):
 
 
 def helper_path():
-    """Resolve the SolidCraft GUI helper without assuming a user home layout.
+    """Resolve the SolidCraft GUI helper using portable ${HOME}-relative defaults.
 
-    Priority: SOLIDCRAFT_HELPER, a helper bundled in this repository, then one
-    on PATH. When none exists, return a repo-relative path so the caller's
-    diagnostic is portable instead of naming one machine's home directory.
+    Priority: SOLIDCRAFT_HELPER / SOLIDCRAFT_MCP_HELPER, a helper bundled in
+    this repository, ~/.claude/skills/solidcraft-app/scripts/sc_mcp.py, then
+    one on PATH.
     """
-    explicit = os.environ.get("SOLIDCRAFT_HELPER")
+    explicit = os.environ.get("SOLIDCRAFT_HELPER") or os.environ.get(
+        "SOLIDCRAFT_MCP_HELPER"
+    )
     if explicit:
         return os.path.expanduser(explicit)
     for candidate in (
         os.path.join(ROOT, "tools", "sc_mcp.py"),
         os.path.join(ROOT, "scripts", "sc_mcp.py"),
+        os.path.expanduser("~/.claude/skills/solidcraft-app/scripts/sc_mcp.py"),
     ):
         if os.path.isfile(candidate):
             return candidate
     on_path = shutil.which("sc_mcp.py")
     if on_path:
         return on_path
-    return os.path.join(ROOT, "tools", "sc_mcp.py")
+    return os.path.expanduser("~/.claude/skills/solidcraft-app/scripts/sc_mcp.py")
 
 
 # Why `helper_available` last said no; shown with the fallback note.

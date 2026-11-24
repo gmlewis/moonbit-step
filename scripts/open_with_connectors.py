@@ -28,22 +28,30 @@ ROOT = Path(__file__).resolve().parent.parent
 
 
 def helper_path() -> str:
-    """Resolve the SolidCraft GUI helper without assuming a particular home dir.
+    """Resolve the SolidCraft GUI helper using portable ${HOME}-relative defaults.
 
-    Priority: ``SOLIDCRAFT_HELPER``, a helper bundled in this repository, then
-    one on PATH. When none exists, return the repo-relative candidate so the
-    caller's diagnostic names a portable path.
+    Priority: ``SOLIDCRAFT_HELPER`` / ``SOLIDCRAFT_MCP_HELPER``, a helper
+    bundled in this repository, ``~/.claude/skills/solidcraft-app/scripts/sc_mcp.py``,
+    then one on PATH.
     """
-    explicit = os.environ.get("SOLIDCRAFT_HELPER")
+    explicit = os.environ.get("SOLIDCRAFT_HELPER") or os.environ.get(
+        "SOLIDCRAFT_MCP_HELPER"
+    )
     if explicit:
         return os.path.expanduser(explicit)
-    for candidate in (ROOT / "tools" / "sc_mcp.py", ROOT / "scripts" / "sc_mcp.py"):
+    for candidate in (
+        ROOT / "tools" / "sc_mcp.py",
+        ROOT / "scripts" / "sc_mcp.py",
+        Path.home() / ".claude" / "skills" / "solidcraft-app" / "scripts" / "sc_mcp.py",
+    ):
         if candidate.is_file():
             return str(candidate)
     on_path = shutil.which("sc_mcp.py")
     if on_path:
         return on_path
-    return str(ROOT / "tools" / "sc_mcp.py")
+    return str(
+        Path.home() / ".claude" / "skills" / "solidcraft-app" / "scripts" / "sc_mcp.py"
+    )
 
 
 def helper_available(helper: str) -> bool:

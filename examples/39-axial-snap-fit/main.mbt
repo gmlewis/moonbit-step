@@ -84,6 +84,9 @@ async fn main {
       help="Output evaluated STEP path (default /tmp/39-axial-snap-fit.step)",
       short='o',
     ),
+    "scScript": @cli.opt_string(
+      help="Write a native SolidCraft JSON command script (sub-second, for live GUI streaming or solidcraft-cli run)",
+    ),
   }
   guard @cli.parse(
       spec,
@@ -161,6 +164,15 @@ async fn main {
     )
     .add(male_puck.translate(x=-spacing))
     .add(female_puck.translate(x=spacing))
+
+  match args.string_opt("scScript") {
+    Some(sc_path) => {
+      design.write_solidcraft_script(sc_path)
+      println("Wrote SolidCraft script: " + sc_path)
+      return
+    }
+    None => ()
+  }
 
   let step_text = design.to_step_evaluated() catch {
     e => {
