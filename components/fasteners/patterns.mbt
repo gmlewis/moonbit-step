@@ -323,3 +323,93 @@ pub fn DowelPinPattern::cut_pin_holes(
     name?,
   )
 }
+
+///|
+/// Generates one `Female` `CylindricalBore` `@common.MateConnector` at each
+/// pocket center on `z_mm` (named `"\{prefix}_0"`, `"\{prefix}_1"`, ...),
+/// matching the exact pilot diameter and pocket depth.
+pub fn HeatSetInsertPattern::mate_connectors(
+  self : HeatSetInsertPattern,
+  prefix~ : String = "insert",
+  z_mm~ : Double = 0.0,
+  axis~ : (Double, Double, Double) = (0.0, 0.0, 1.0),
+) -> Array[@common.MateConnector] {
+  let out : Array[@common.MateConnector] = []
+  for i in 0..<self.pattern.points.length() {
+    let (x, y) = self.pattern.points[i]
+    out.push(
+      @common.MateConnector::new(
+        "\{prefix}_\{i}",
+        placement=@common.Placement::translation(x, y, z_mm),
+        axis~,
+        kind=@common.MateKind::CylindricalBore,
+        gender=@common.MateGender::Female,
+        diameter_mm=self.pilot_diam_mm,
+        depth_mm=self.depth_mm,
+        description="\{self.size.designation()} heat-set insert pocket",
+      ),
+    )
+  }
+  out
+}
+
+///|
+/// Generates one `Female` `CylindricalBore` `@common.MateConnector` at each
+/// bolt hole center on `z_mm` (named `"\{prefix}_0"`, `"\{prefix}_1"`, ...).
+pub fn BoltCirclePattern::mate_connectors(
+  self : BoltCirclePattern,
+  prefix~ : String = "bolt",
+  z_mm~ : Double = 0.0,
+  axis~ : (Double, Double, Double) = (0.0, 0.0, 1.0),
+  depth_mm~ : Double = 0.0,
+) -> Array[@common.MateConnector] {
+  let diam = metric_clearance_hole_diam_mm(self.size)
+  let out : Array[@common.MateConnector] = []
+  for i in 0..<self.pattern.points.length() {
+    let (x, y) = self.pattern.points[i]
+    out.push(
+      @common.MateConnector::new(
+        "\{prefix}_\{i}",
+        placement=@common.Placement::translation(x, y, z_mm),
+        axis~,
+        kind=@common.MateKind::CylindricalBore,
+        gender=@common.MateGender::Female,
+        diameter_mm=diam,
+        depth_mm?=if depth_mm > 0.0 { Some(depth_mm) } else { None },
+        description="\{self.size.designation()} bolt clearance hole",
+      ),
+    )
+  }
+  out
+}
+
+///|
+/// Generates one `Female` `CylindricalBore` `@common.MateConnector` at each
+/// dowel pin hole center on `z_mm` (named `"\{prefix}_0"`, `"\{prefix}_1"`, ...).
+pub fn DowelPinPattern::mate_connectors(
+  self : DowelPinPattern,
+  prefix~ : String = "dowel",
+  z_mm~ : Double = 0.0,
+  axis~ : (Double, Double, Double) = (0.0, 0.0, 1.0),
+  clearance_mm~ : Double = 0.10,
+  depth_mm~ : Double = 0.0,
+) -> Array[@common.MateConnector] {
+  let diam = self.pin_diam_mm + clearance_mm
+  let out : Array[@common.MateConnector] = []
+  for i in 0..<self.pattern.points.length() {
+    let (x, y) = self.pattern.points[i]
+    out.push(
+      @common.MateConnector::new(
+        "\{prefix}_\{i}",
+        placement=@common.Placement::translation(x, y, z_mm),
+        axis~,
+        kind=@common.MateKind::CylindricalBore,
+        gender=@common.MateGender::Female,
+        diameter_mm=diam,
+        depth_mm?=if depth_mm > 0.0 { Some(depth_mm) } else { None },
+        description="Ø\{@cad.fmt_double(self.pin_diam_mm, Some(0.1))} mm dowel pin hole",
+      ),
+    )
+  }
+  out
+}

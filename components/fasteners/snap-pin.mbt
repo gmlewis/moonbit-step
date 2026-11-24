@@ -562,3 +562,64 @@ pub fn axial_snap_pin_female_void(
     ),
   )
 }
+
+///|
+/// Generates one `Male` `CylindricalShaft` `@common.MateConnector` on the
+/// contact plane `z_mm` for every male snap-pin in this pattern.
+pub fn AxialSnapFit::male_connectors(
+  self : AxialSnapFit,
+  prefix~ : String = "snap_male",
+  z_mm~ : Double = 0.0,
+  flip_z~ : Bool = false,
+) -> Array[@common.MateConnector] {
+  let axis = if flip_z { (0.0, 0.0, -1.0) } else { (0.0, 0.0, 1.0) }
+  let out : Array[@common.MateConnector] = []
+  for i in 0..<self.positions.length() {
+    let (x, y) = self.positions[i]
+    out.push(
+      @common.MateConnector::new(
+        "\{prefix}_\{i}",
+        placement=@common.Placement::translation(x, y, z_mm),
+        axis~,
+        kind=@common.MateKind::CylindricalShaft,
+        gender=@common.MateGender::Male,
+        diameter_mm=self.params.base_radius_mm * 2.0,
+        description="Axial snap-fit male pin mating face",
+      ),
+    )
+  }
+  out
+}
+
+///|
+/// Generates one `Female` `CylindricalBore` `@common.MateConnector` on the
+/// contact plane `z_mm` for every female snap-fit socket in this pattern.
+/// Outward face normal points along `-Z` when `flip_z=false` (socket enters
+/// from the bottom face going `+Z`), so it snaps directly anti-parallel to
+/// `male_connectors(flip_z=false)`.
+pub fn AxialSnapFit::female_connectors(
+  self : AxialSnapFit,
+  prefix~ : String = "snap_female",
+  z_mm~ : Double = 0.0,
+  flip_z~ : Bool = false,
+) -> Array[@common.MateConnector] {
+  let axis = if flip_z { (0.0, 0.0, 1.0) } else { (0.0, 0.0, -1.0) }
+  let out : Array[@common.MateConnector] = []
+  for i in 0..<self.positions.length() {
+    let (x, y) = self.positions[i]
+    out.push(
+      @common.MateConnector::new(
+        "\{prefix}_\{i}",
+        placement=@common.Placement::translation(x, y, z_mm),
+        axis~,
+        kind=@common.MateKind::CylindricalBore,
+        gender=@common.MateGender::Female,
+        diameter_mm=(self.params.base_radius_mm + self.params.clearance_mm) *
+          2.0,
+        depth_mm=self.params.void_depth_mm(),
+        description="Axial snap-fit female socket mating face",
+      ),
+    )
+  }
+  out
+}
