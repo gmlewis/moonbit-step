@@ -230,11 +230,16 @@ moon run components/examples/gobilda_kit -- -o "$OUT/gobilda-grid-plate-5x5.step
 moon run components/examples/gobilda_kit -- \
   --cols 11 --rows 29 -o "$OUT/gobilda-grid-plate-11x29.step"
 moon run components/examples/gobilda_kit -- \
-  --part channel -o "$OUT/gobilda-u-channel-8-hole.step"
+  --part channel --evaluated -o "$OUT/gobilda-u-channel-8-hole.step"
 moon run components/examples/gobilda_kit -- \
-  --part beam -o "$OUT/gobilda-square-beam-4-hole.step"
+  --part beam --evaluated -o "$OUT/gobilda-square-beam-4-hole.step"
 moon run components/examples/gobilda_kit -- \
-  --part hub -o "$OUT/gobilda-sonic-hub-32.step"
+  --part hub --evaluated -o "$OUT/gobilda-sonic-hub-32.step"
+# Hiwin linear guideways (counterbored rails and tapped carriages).
+moon run components/examples/hiwin_guide -- \
+  --part rail15 --length 400 -o "$OUT/hiwin-hgr15-400.step"
+moon run components/examples/hiwin_guide -- \
+  --part block15 -o "$OUT/hiwin-hgh15ca.step"
 # MotEDis 40 x 40 I-type slot-8 T-slot extrusion.
 moon run components/examples/mot_edis -- \
   --length 100 -o "$OUT/motedis-40x40-slot8-100.step"
@@ -244,6 +249,8 @@ moon run components/examples/mot_edis -- \
   --series 30 --length 100 -o "$OUT/motedis-30x30-slot6-100.step"
 moon run components/examples/mot_edis -- \
   --part tnut --series 40 --thread M5 -o "$OUT/motedis-tnut-slot8-m5.step"
+moon run components/examples/mot_edis -- \
+  --type b --series 40 --length 200 -o "$OUT/motedis-40x40-b-type-200.step"
 # Component examples that previously had no generator entry. Each is covered
 # by the validation loop below, just like every other generated fixture.
 moon run components/examples/makerpipe_frame -- -o "$OUT/makerpipe-frame.step"

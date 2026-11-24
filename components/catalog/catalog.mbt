@@ -92,6 +92,12 @@ pub fn fastener_catalog() -> Array[CatalogEntry] {
       Err(_) => ()
     }
   }
+  for length in @fasteners.low_profile_lengths_mm {
+    match @fasteners.low_profile_screw(length_mm=length) {
+      Ok(c) => entries.push(entry_from_component(c, ["length"], ["Detailed"]))
+      Err(_) => ()
+    }
+  }
   entries
 }
 
@@ -818,6 +824,8 @@ pub fn full_catalog() -> Array[CatalogEntry] {
   entries.push_iter(bearing_catalog().iter())
   entries.push_iter(profile_catalog().iter())
   entries.push_iter(mot_edis_catalog().iter())
+  entries.push_iter(mot_edis_b_catalog().iter())
+  entries.push_iter(hiwin_catalog().iter())
   entries.push_iter(openbuilds_catalog().iter())
   entries.push_iter(gear_catalog().iter())
   entries.push_iter(motion_catalog().iter())

@@ -16,7 +16,11 @@
 async fn main {
   let spec = {
     "part": @cli.opt_string(short='p', help="Part: profile (default) or tnut"),
-    "series": @cli.opt_string(short='s', help="I-type series: 20, 30, or 40"),
+    "type": @cli.opt_string(
+      short='y',
+      help="Profile type: i (default) or b (measured B-type slot)",
+    ),
+    "series": @cli.opt_string(short='s', help="Series: 20, 30, or 40"),
     "length": @cli.opt_double(
       100.0,
       short='l',
@@ -37,6 +41,23 @@ async fn main {
     return
   }
   let series = args.string_opt("series").unwrap_or("40")
+  let profile_type = args.string_opt("type").unwrap_or("i")
+  if profile_type == "b" {
+    let component = match
+      @profiles.mot_edis_b_profile_of(series, length_mm=args.double("length")) {
+      Ok(c) => c
+      Err(e) => {
+        @cli.eprintln("error: " + e.message())
+        abort("")
+      }
+    }
+    if args.flag("bbox") {
+      let (x0, x1, y0, y1, z0, z1) = component.bounding_box()
+      @cli.eprintln("bbox: x=[\{x0}, \{x1}] y=[\{y0}, \{y1}] z=[\{z0}, \{z1}]")
+    }
+    component.write_step(args.string_opt("out"), checked=true)
+    return
+  }
   let section = match @profiles.mot_edis_section(series) {
     Ok(s) => s
     Err(e) => {

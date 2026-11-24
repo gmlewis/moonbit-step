@@ -480,25 +480,30 @@ an 8 mm grid**, 14 mm bearing holes every 24 mm, and 2.5 mm aluminium sheet.
   11 x 29 = 88 x 232 mm). Every hole is a true analytic cylinder.
 - `gobilda_grid_plate_family()` — presets for the 1116 Series Grid Plate Bundle
   sizes (3x5, 5x5, 5x7, 5x9, 5x11, 5x17, 7x7, 7x11, 11x29).
-- `gobilda_u_channel(holes~=8)` — the 1120-series U-channel: exact
+- `gobilda_u_channel(holes~=8)` — the 1120-series U-channel as one exact B-rep:
   48 x 48 x 2.5 mm section (43 mm inside), length `(holes+1)*24` mm, with the
-  base four-column 4 mm grid and 14 mm bearing seats on a 24 mm pitch. The leg
-  pattern, clocked slots, and bend radius are declared omissions.
+  **measured** base and leg patterns from the vendor STEP: the 4 mm grid, the
+  14 mm bearing seats on a 24 mm pitch, the 45-degree clocked hole pairs, the
+  short centre slots, and the long station slots. The three plates are fused by
+  the evaluated export (the flat STEP is nominal).
 - `gobilda_u_channel_family()` — presets for the published bearing-hole counts.
 - `gobilda_square_beam(holes~=4)` — the 1106-series 8 x 8 mm bar, length
-  `holes*8` mm, with a 4 mm through hole and a crossing 4 mm hole per station.
-  The crossing holes are a nominal `difference()` that the CAD kernel trims (the
-  flat STEP is nominal); the M4 end threads are declared by connectors.
+  `holes*8` mm, with a 4 mm through hole and a crossing 4 mm hole per station
+  plus the **M4 x 0.7 end tap drills (3.3 mm x 10 mm)**. The crossing holes and
+  taps are a `difference()` resolved by the evaluated export; the threads are
+  declared by connectors.
 - `gobilda_square_beam_family()` — presets for the published hole counts.
-- `gobilda_sonic_hub()` — the 1309 Sonic hub envelope: Ø32 x 8 mm body with a
-  Ø14 x 2 mm boss, a 7 mm-flat hex (8 mm REX) bore, and four Ø4 holes on a
-  16 mm square. The scalloped lightening cutouts, clamp slit, and hex corner
-  rounds are declared omissions.
+- `gobilda_sonic_hub()` — the 1309 Sonic hub as a **measured** B-rep: the
+  vendor's flat-sided flange outline, the central flexure void (a 7 mm
+  across-flats hex bore that opens into two crescent slots), the two raised boss
+  halves, four M4 tapped holes on the 16 mm square, and two tangential clamp
+  screws with 7.2 mm socket-head counterbores.
 - `gobilda_sonic_hub_family()` — validated parameter family for the hub.
 
 Source: https://www.gobilda.com/pattern and https://www.gobilda.com/grid-plates.
-goBILDA® is a trademark of its owner; geometry is reconstructed from the
-published pattern, not from vendor CAD.
+The 1120/1106/1309 sections, hole patterns, and slot shapes were measured
+clean-room from the vendor STEP files; no vendor CAD is committed. goBILDA® is a
+trademark of its owner.
 
 ## MotEDis metric T-slot
 
@@ -519,6 +524,43 @@ published pattern, not from vendor CAD.
 The datasheets dimension the opening, lip, depth, and core bore; the undercut
 width is an engineering value (20: solved to the published 182 mm²; 30: FreeCAD
 slot-6 table; 40: 916 mm² within about 1%), recorded as an approximation.
+
+### MotEDis B-type
+
+`components/profiles/mot-edis-b.mbt` adds the **B-type** metric T-slot sections
+with their stepped, edge-sloping lip:
+
+- `mot_edis_b_profile_of(series, length_mm~=100)` — 20 B (slot 6), 30 B (slot 8),
+  and 40 B (slot 10). The outer section, the central bore, and the four corner
+  cavities are the **exact measured** loops of the vendor STEP sections
+  (enclosed areas 190.981, 439.005, and 880.456 mm²). Because the T-slots are
+  part of the outer loop, the flat STEP is already one closed solid with no
+  nominal boolean.
+- `mot_edis_b_family()` — length presets.
+
+## Hiwin linear guideways
+
+`components/mechanisms/hiwin-guides.mbt` adds Hiwin HGR rails and HGH carriages:
+
+- `hiwin_hgr_rail(size~="HGR15", length_mm~=400)` — HGR15 (15 x 15 mm, P 60,
+  E 20, counterbore 7.5 x 5.3 mm, through hole 4.5 mm) and HGR20 (20 x 17.5 mm,
+  counterbore 9.5 x 8.5 mm, through hole 6 mm). Each mounting hole is a real
+  counterbore through the top layer plus a through hole in the base layer.
+- `hiwin_hgh_block(size~="HGH15CA")` — the HGH15CA (B x C 26 x 26 mm) and
+  HGH20CA (32 x 36 mm) carriage envelopes with real tapped bolt holes and a
+  real rail channel.
+- `hiwin_rail_family()`, `hiwin_block_family()` — length/size presets.
+
+The rail cross-section is the catalogue rectangle; the longitudinal raceway
+grooves and the carriage recirculation details are recorded as approximations.
+
+## Maker Store low-profile screws
+
+`components/fasteners/low-profile-screw.mbt` adds the `SCREWS-M5-LP` M5
+low-profile socket screw: an **8.9 mm** head only **1.5 mm** thick, a 3 mm hex
+socket, and an M5 x 0.8 shank envelope, with `low_profile_screw_family()`
+covering all 16 published lengths (6-65 mm). It is a genuine low-profile head,
+not a relabelled button head.
 
 ## Named connectors and the golden preview
 
@@ -552,11 +594,11 @@ use `--headless`.
 |---|---|
 | `common` | Units-aware validation, detail levels, thread representation, metadata, placement, `Component`, `MateConnector`, and `MatePair`. |
 | `standards` | Metric thread data and ISO/DIN dimension tables (ISO 4032/4035/4762/7089/709x/7380/8752/10642, DIN 471/472/557/913/916/976/1587, …). |
-| `fasteners` | Screws, bolts, nuts, washers, pins, rods, set screws, generic solid rivets, DIN 471 type A external retaining rings (A 10 to A 34), and DIN 472 internal retaining rings (all table sizes 8 to 40; measured outlines for 10, 12, 14, 16, 18, 20, 24, 28, 32, and 40 mm, parametric for the rest). |
-| `profiles` | Generic T-slot sections, the vendor 2020 B-slot6 A section, OpenBuilds-compatible V-Slot 2020/2040 sections and the C-Beam gantry plate (SKU 970), the MakerBeam 10 x 10 section, a gusseted V-Slot corner bracket, MotEDis I-type metric T-slot sections (20 slot-5, 30 slot-6, 40 slot-8; nominal difference) with a slot-8 T-nut, P1000-style strut channel, and a generic channel nut. |
+| `fasteners` | Screws, bolts, nuts, washers, pins, rods, set screws, generic solid rivets, DIN 471 type A external retaining rings (A 10 to A 34), DIN 472 internal retaining rings (all table sizes 8 to 40; measured outlines for 10, 12, 14, 16, 18, 20, 24, 28, 32, and 40 mm, parametric for the rest), and Maker Store M5 low-profile socket screws (8.9 x 1.5 mm head, 16 lengths). |
+| `profiles` | Generic T-slot sections, the vendor 2020 B-slot6 A section, OpenBuilds-compatible V-Slot 2020/2040 sections and the C-Beam gantry plate (SKU 970), the MakerBeam 10 x 10 section, a gusseted V-Slot corner bracket, MotEDis I-type metric T-slot sections (20 slot-5, 30 slot-6, 40 slot-8; nominal difference) and measured B-type sections (20/30/40) with a slot-8 T-nut, P1000-style strut channel, and a generic channel nut. |
 | `motion` | Shafts, stepped/keyed shafts, spacers and V-Slot wheel spacers (plain and eccentric), bushings, plain, set-screw, and clamp shaft collars, keys, dowel pins, standoffs, compression springs, ball bearings (envelope, shielded, and full-complement deep-groove), LM-series linear bushings, flanged linear housings, UCP-series pillow-block bearing boundaries, approximated GT2 timing pulleys, smooth idlers, V-Slot wheels, EMT tubing with end caps and split clamps, rigid couplings, helical beam couplings, flanged bearing housings, a parameterized tire/wheel envelope measured from the owner-authored `tire.step` model, and a matching tire mounting flange measured from `tire-mount.step`. |
-| `mechanisms` | Generic engineering envelopes for a barrel hinge, clevis, pin, rod end, linkage bar, linear rail and carriage, lead screw and flanged nut, equal- and unequal-pulley timing-belt loops, eccentric cam and roller follower, Oldham coupling, extension and torsion springs, snap latch, O-ring, grooved shaft, L/U/Z brackets (L with optional gusset), tapped boss, a straight-flank basic rack with a pinion-layout helper, ANSI #40 roller-chain sprockets (measured CC0 16T/24T outlines), and a CC0-matched ANSI #40 10-pitch chain segment. |
-| `gobilda` | goBILDA® grid plates (4 mm through holes on the 8 mm pattern, 2.5 mm aluminium, 1116 Series bundle sizes), the 1120-series U-channel (48 x 48 x 2.5 mm section, base 4 mm grid, 14 mm bearing seats), the 1106-series square beam (8 x 8 mm, crossing 4 mm holes as a nominal difference), and the 1309 Sonic hub (Ø32 body, hex bore, 16 mm pattern), each with a design family. |
+| `mechanisms` | Generic engineering envelopes for a barrel hinge, clevis, pin, rod end, linkage bar, linear rail and carriage, lead screw and flanged nut, equal- and unequal-pulley timing-belt loops, eccentric cam and roller follower, Oldham coupling, extension and torsion springs, snap latch, O-ring, grooved shaft, L/U/Z brackets (L with optional gusset), tapped boss, a straight-flank basic rack with a pinion-layout helper, ANSI #40 roller-chain sprockets (measured CC0 16T/24T outlines), a CC0-matched ANSI #40 10-pitch chain segment, and Hiwin HGR rails and HGH carriages with real counterbored and tapped holes. |
+| `gobilda` | goBILDA® grid plates (4 mm through holes on the 8 mm pattern, 2.5 mm aluminium, 1116 Series bundle sizes), the measured 1120-series U-channel (full base and leg patterns, clocked holes and slots), the 1106-series square beam with M4 end tap drills, and the measured 1309 Sonic hub (flexure void, boss halves, clamp screws), each with a design family. |
 | `makerpipe` | Maker Pipe-compatible structural EMT fittings and accessories for 1/2, 3/4, and 1 in, plus the 1-3/8 in top rail: T connector, 45/90/135/180/4-way/5-way saddle family, structural coupling, flange, adjustable angle hinge, adjustable 180, adjustable angle flange, Top Rail T, adapter shims, end cap, rubber feet, threaded inserts, one-hole/two-hole/mounting straps, cross-over clamp, telescoping clamp, barrel hinge, printed EMT hinge, printed snap clip, and friction bands, each with built-in pipe mates. Nominal layered shells; 1 in and top-rail envelopes derived from the 3/4 in drawing. |
 | `motors` | NEMA 17 and NEMA 23 stepper-motor envelopes, mounting interfaces, NEMA mounting plates, a generic NEMA-to-20-series extrusion adapter, a parameterized outrunner brushless-motor envelope measured from the owner-authored 360KV model (conical 5-spoke bell, windows, rim and lip, stator hub, prop and mount holes, shaft), and a parameterized XAIRCRAFT A12 8318 100KV agricultural outrunner envelope measured from the motor (6-spoke bell with 3 alternating forked spokes and 4 inner arcing hub slots, 42 curved magnets, machined prop adapter with 4 open M4 holes and 4 screw-filled counterbores, 36-slot stator with pole shoes and exact per-tooth copper frames, stepped 8-window mount plate with narrow spokes carrying M3/M4 circles, 6901Z bearing tube, front insulator ring, through shaft). |
 | `stock` | EN 10056 angle sections, configurable flat plate blanks with analytic circular holes and obround slots, counterbored and countersunk plates, bearing-housing plates, tube-to-plate and tube-to-V-Slot adapter brackets, generic channel-to-extrusion adapters and extrusion-to-tube clamps, SC8UU-style rod/bearing blocks, and heat-set insert bosses. |

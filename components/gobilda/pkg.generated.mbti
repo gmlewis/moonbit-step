@@ -11,6 +11,14 @@ pub let gobilda_bearing_hole_mm : Double
 
 pub let gobilda_bearing_pitch_mm : Double
 
+pub let gobilda_channel_height_mm : Double
+
+pub let gobilda_channel_width_mm : Double
+
+pub let gobilda_diagonal_offset_mm : Double
+
+pub let gobilda_end_tap_depth_mm : Double
+
 pub let gobilda_grid_mm : Double
 
 pub fn gobilda_grid_plate(cols? : Int32, rows? : Int32, thickness_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
@@ -21,11 +29,19 @@ pub fn gobilda_grid_positions(Int32) -> Array[Double]
 
 pub let gobilda_hole_diameter_mm : Double
 
+pub let gobilda_m4_tap_drill_mm : Double
+
 pub let gobilda_sheet_thickness_mm : Double
 
-pub fn gobilda_sonic_hub(bore_flats_mm? : Double, body_diameter_mm? : Double, body_width_mm? : Double, boss_diameter_mm? : Double, boss_height_mm? : Double, bolt_circle_mm? : Double, bolt_diameter_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+pub let gobilda_slot_cap_offset_mm : Double
+
+pub let gobilda_slot_inner_offset_mm : Double
+
+pub fn gobilda_sonic_hub(bore_flats_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
 pub fn gobilda_sonic_hub_family() -> Result[@common.DesignFamily, @common.SpecError]
+
+pub let gobilda_sqrt2 : Double
 
 pub fn gobilda_square_beam(holes? : Int32, length_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 

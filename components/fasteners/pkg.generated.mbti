@@ -122,6 +122,12 @@ pub fn iso7380_screw(@standards.MetricSize, Double, detail? : @common.DetailLeve
 
 pub fn iso8752_spring_pin(@standards.MetricSize, Double, detail? : @common.DetailLevel, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
+pub let low_profile_lengths_mm : Array[Double]
+
+pub fn low_profile_screw(length_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn low_profile_screw_family() -> Result[@common.DesignFamily, @common.SpecError]
+
 pub fn makerstore_hex_tnut(String, slot_width_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
 pub fn makerstore_hex_tnut_family() -> Result[@common.DesignFamily, @common.SpecError]

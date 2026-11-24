@@ -47,17 +47,7 @@ pub fn gobilda_catalog() -> Array[CatalogEntry] {
     }
   }
   match @gobilda.gobilda_sonic_hub() {
-    Ok(c) =>
-      entries.push(
-        entry_from_component(
-          c,
-          [
-            "boreFlats", "bodyDiameter", "bodyWidth", "bossDiameter", "bossHeight",
-            "boltCircle", "boltDiameter",
-          ],
-          ["Detailed"],
-        ),
-      )
+    Ok(c) => entries.push(entry_from_component(c, ["boreFlats"], ["Detailed"]))
     Err(_) => ()
   }
   entries

@@ -30,10 +30,10 @@ test "goBILDA catalogue has grid plates and U-channels" {
   assert_true(beam.family == "goBILDA square beam")
   assert_true(beam.features.has_modeled("crossing-x-holes"))
   let hub = match
-    @catalog.lookup(entries, "goBILDA Sonic hub Ø32 / 7 mm hex (1309)") {
+    @catalog.lookup(entries, "goBILDA 1309 Sonic hub (8 mm REX bore)") {
     Ok(e) => e
     Err(err) => abort(err.message())
   }
   assert_true(hub.family == "goBILDA Sonic hub")
-  assert_true(hub.features.has_modeled("hex-bore"))
+  assert_true(hub.features.has_modeled("measured-flexure-void-and-hex-bore"))
 }

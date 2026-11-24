@@ -49,6 +49,18 @@ pub fn grooved_shaft(Double, Double, Double, Double, Double, color? : @cad.Rgb) 
 
 pub fn hinge(Double, Double, Double, Double, knuckle_diameter_mm? : Double, knuckles? : Int32, knuckle_gap_mm? : Double, hole_diameter_mm? : Double, hole_spacing_mm? : Double, pin_extension_mm? : Double, leaf_angle_deg? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
+pub fn hiwin_block_family() -> Result[@common.DesignFamily, @common.SpecError]
+
+pub fn hiwin_block_spec(String) -> Result[HiwinBlockSpec, @common.SpecError]
+
+pub fn hiwin_hgh_block(size? : String, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn hiwin_hgr_rail(size? : String, length_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn hiwin_rail_family() -> Result[@common.DesignFamily, @common.SpecError]
+
+pub fn hiwin_rail_spec(String) -> Result[HiwinRailSpec, @common.SpecError]
+
 pub fn l_bracket(Double, Double, Double, Double, Double, holes_per_leg? : Int32, holes_per_leg_b? : Int32, holes_across? : Int32, pitch_mm? : Double, edge_distance_mm? : Double, gusset_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
 pub fn l_plate_family() -> Result[@common.DesignFamily, @common.SpecError]
@@ -144,6 +156,30 @@ pub(all) struct FourBarLayout {
   coupler_point : (Double, Double)
   grashof : Bool
   crank_rocker : Bool
+}
+
+pub(all) struct HiwinBlockSpec {
+  size : String
+  width_mm : Double
+  length_mm : Double
+  height_mm : Double
+  bolt_b_mm : Double
+  bolt_c_mm : Double
+  hole_diameter_mm : Double
+  thread_diameter_mm : Double
+  thread : String
+}
+
+pub(all) struct HiwinRailSpec {
+  size : String
+  width_mm : Double
+  height_mm : Double
+  pitch_mm : Double
+  end_margin_mm : Double
+  counterbore_diameter_mm : Double
+  counterbore_depth_mm : Double
+  hole_diameter_mm : Double
+  thread : String
 }
 
 pub(all) struct LinearRailProfile {

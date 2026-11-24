@@ -34,6 +34,9 @@ async fn main {
       min_exclusive=true,
     ),
     "out": @cli.opt_string(short='o', help="Write STEP to this path"),
+    "evaluated": @cli.flag(
+      help="Write the OCCT-evaluated single solid (the channel's fused U-section)",
+    ),
     "bbox": @cli.flag(help="Print the bounding box to stderr"),
   }
   guard @cli.parse(
@@ -96,5 +99,9 @@ async fn main {
     let (x0, x1, y0, y1, z0, z1) = component.bounding_box()
     @cli.eprintln("bbox: x=[\{x0}, \{x1}] y=[\{y0}, \{y1}] z=[\{z0}, \{z1}]")
   }
-  component.write_step(args.string_opt("out"), checked=true)
+  if args.flag("evaluated") {
+    component.write_step_evaluated(args.string_opt("out"))
+  } else {
+    component.write_step(args.string_opt("out"), checked=true)
+  }
 }

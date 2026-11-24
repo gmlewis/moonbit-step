@@ -19,6 +19,10 @@ pub fn makerstore_corner_bracket(leg_mm? : Double, width_mm? : Double, thickness
 
 pub fn makerstore_corner_bracket_family() -> Result[@common.DesignFamily, @common.SpecError]
 
+pub fn mot_edis_b_family() -> Result[@common.DesignFamily, @common.SpecError]
+
+pub fn mot_edis_b_profile_of(String, length_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
 pub fn mot_edis_profile(length_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
 pub fn mot_edis_profile_20x20(length_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]

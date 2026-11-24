@@ -18,6 +18,8 @@ pub fn gear_catalog() -> Array[CatalogEntry]
 
 pub fn gobilda_catalog() -> Array[CatalogEntry]
 
+pub fn hiwin_catalog() -> Array[CatalogEntry]
+
 pub fn linear_bearing_catalog() -> Array[CatalogEntry]
 
 pub fn lookup(Array[CatalogEntry], String) -> Result[CatalogEntry, CatalogError]
@@ -27,6 +29,8 @@ pub fn makerpipe_catalog() -> Array[CatalogEntry]
 pub fn makerstore_catalog() -> Array[CatalogEntry]
 
 pub fn mechanisms_catalog() -> Array[CatalogEntry]
+
+pub fn mot_edis_b_catalog() -> Array[CatalogEntry]
 
 pub fn mot_edis_catalog() -> Array[CatalogEntry]
 

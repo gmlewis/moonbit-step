@@ -53,7 +53,8 @@ pub fn gobilda_square_beam(
     .as_shape()
     .with_name("beam")
     .translate(z=-half)
-  // Crossing 4 mm holes through X are a nominal difference; the kernel trims.
+  // Crossing 4 mm holes through X plus the M4 end tap drills are a nominal
+  // difference; the evaluated export trims them into one solid.
   let margin = 1.0
   let cross_cutters : Array[@cad.SceneNode] = stations.map(fn(y) {
     @cad.Cylinder::new(gobilda_hole_diameter_mm, gobilda_grid_mm + 2.0 * margin)
@@ -61,18 +62,31 @@ pub fn gobilda_square_beam(
     .rotate_y(90.0)
     .translate(x=-(half + margin), y~, z=0.0)
   })
-  let body = @cad.difference(beam, cross_cutters, name="body")
+  let tap_length = gobilda_end_tap_depth_mm + margin
+  let tap_centre = gobilda_end_tap_depth_mm / 2.0 - margin / 2.0
+  let tap_a = @cad.Cylinder::new(gobilda_m4_tap_drill_mm, tap_length)
+    .with_name("end-tap-cutter")
+    .rotate_x(-90.0)
+    .translate(y=-half_len + tap_centre)
+  let tap_b = @cad.Cylinder::new(gobilda_m4_tap_drill_mm, tap_length)
+    .with_name("end-tap-cutter")
+    .rotate_x(-90.0)
+    .translate(y=half_len - tap_centre)
+  let cutters = cross_cutters.copy()
+  cutters.push(tap_a)
+  cutters.push(tap_b)
+  let body = @cad.difference(beam, cutters, name="body")
   let features = @common.FeatureRecord::new(
-    modeled=["body", "z-through-holes", "crossing-x-holes"],
+    modeled=["body", "z-through-holes", "crossing-x-holes", "end-tap-drills"],
     approximated=[],
     omitted=[
       @common.Omission::new(
         feature="cross-hole-trim",
-        reason="the crossing X holes are a nominal difference: the flat writer concatenates the cutter faces and SolidCraft or the evaluated export performs the trim",
+        reason="the crossing X holes and end tap drills are a nominal difference: the flat writer concatenates the cutter faces and SolidCraft or the evaluated export performs the trim",
       ),
       @common.Omission::new(
         feature="end-thread-helix",
-        reason="the M4 x 0.7 end threads are declared by Threaded connectors, not modelled",
+        reason="the M4 x 0.7 end threads are declared by Threaded connectors; the 3.3 mm tap drill that the thread cuts is modelled",
       ),
     ],
   )
@@ -88,7 +102,7 @@ pub fn gobilda_square_beam(
       material="aluminium, clear anodized",
       source="https://www.gobilda.com/1106-series-square-beam-4-hole-32mm-length | 8 x 8 mm bar, 4 mm holes on an 8 mm grid, M4 x 0.7 tapped ends 10 mm deep | length = holes x 8 mm",
     ),
-    description="goBILDA 1106-series square beam: an 8 x 8 mm bar with a 4 mm through hole and a crossing 4 mm hole per 8 mm station. The crossing holes are a nominal difference resolved by the CAD kernel; the end threads are declared by connectors.",
+    description="goBILDA 1106-series square beam: an 8 x 8 mm bar with a 4 mm through hole and a crossing 4 mm hole per 8 mm station, plus a 3.3 mm M4 tap drill 10 mm deep at each end. The boolean trimming is resolved by the evaluated export; the threads themselves are declared by connectors.",
     features~,
   ).add_layer(body.shape_intent(), name="body", color~)
   let mut out = component

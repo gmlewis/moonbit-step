@@ -26,8 +26,9 @@ All programs use millimetres and Z is up.
 | `vslot` | OpenBuilds-compatible V-Slot 2020/2040 profile, V-wheel, slot T-nut, joining plate, gusseted corner bracket, C-Beam gantry plate (`--part gantry-plate`), and plain/eccentric wheel spacers. |
 | `makerstore_l_plate` | Maker Store 20-series L plate / bracket with a centred hole grid on both legs: `l40x40` (`PLATE-40X40L`, 3×3 Ø5 on 10 mm centres) or `l40x80` (`PLATE-40X80L`). |
 | `makerstore_hardware` | One Maker Store USA part per `--part`: metric aluminum spacer (`SHIM-SPAC`, OD 10 / ID 5), thrust bearing (`BEAR-F`), 20-series hex T-nut (`HARD-TNUT-SLIDING`), 40-series sliding block T-nut (`HARD-40S-TNUT-STEEL-SLID-18`), or gusseted V-Slot corner bracket (`BRAC-90CAST` / `BRAC-40S`). |
-| `gobilda_kit` | goBILDA® parts: a grid plate (`--cols` × `--rows`), the 1120-series U-channel (`--part channel --holes`), the 1106-series square beam (`--part beam --beamHoles`), or the 1309 Sonic hub (`--part hub`). |
-| `mot_edis` | MotEDis I-type metric T-slot: a profile (`--series 20/30/40 --length`) or a T-nut (`--part tnut --series 40 --thread M5`). The profile's four T-slots are a nominal difference (kernel-trimmed). |
+| `gobilda_kit` | goBILDA® parts: a grid plate (`--cols` × `--rows`), the measured 1120-series U-channel (`--part channel --holes`), the 1106-series square beam with M4 end taps (`--part beam --beamHoles`), or the measured 1309 Sonic hub (`--part hub`). Use `--evaluated` for the boolean/union parts. |
+| `mot_edis` | MotEDis metric T-slot: an I-type profile (`--series 20/30/40 --length`, nominal difference) or a measured B-type profile (`--type b --series 20/30/40 --length`), or an I-type T-nut (`--part tnut --series 40 --thread M5`). |
+| `hiwin_guide` | Hiwin HGR15/HGR20 rails with real counterbored mounting holes (`--part rail15/rail20 --length`) or HGH15CA/HGH20CA carriages with real tapped bolt patterns (`--part block15/block20`); always exported as the OCCT-evaluated single solid. |
 | `tubing` | EMT cut length, EMT end cap, EMT split clamp, plain shaft collar, or tube mount plate adapter. |
 | `makerbeam` | MakerBeam 10 x 10 mm extrusion (drawing article 100168), optional outer corner radius. |
 | `retaining_ring` | DIN 471 type A external retaining ring, A 10 to A 34. |

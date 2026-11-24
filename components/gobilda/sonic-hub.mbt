@@ -1,200 +1,236 @@
 ///|
-/// gobilda_hex_loop returns a closed counter-clockwise regular-hexagon loop with
-/// the given across-flats distance, with a horizontal flat on top and bottom.
-fn gobilda_hex_loop(across_flats_mm : Double) -> Array[@cad.ProfileSegment] {
-  let inradius = across_flats_mm / 2.0
-  let circumradius = inradius / @math.cos(@math.PI / 6.0)
-  let segs : Array[@cad.ProfileSegment] = []
-  for i in 0..<6 {
-    let a0 = 2.0 * @math.PI * i.to_double() / 6.0
-    let a1 = 2.0 * @math.PI * ((i + 1) % 6).to_double() / 6.0
-    segs.push(
-      @cad.SegmentLine(
-        (circumradius * @math.cos(a0), circumradius * @math.sin(a0)),
-        (circumradius * @math.cos(a1), circumradius * @math.sin(a1)),
+/// The measured flange thickness of the goBILDA 1309 Sonic hub, in millimetres.
+let sonic_hub_flange_mm : Double = 8.0
+
+///|
+/// The measured boss height of the goBILDA 1309 Sonic hub, in millimetres.
+let sonic_hub_boss_mm : Double = 2.0
+
+///|
+/// The published 8 mm REX hex bore, across flats, in millimetres.
+let sonic_hub_bore_flats_mm : Double = 7.0
+
+///|
+/// The published 16 mm bolt-square half-span (holes at +/-8 mm), in
+/// millimetres.
+let sonic_hub_bolt_span_mm : Double = 8.0
+
+///|
+/// The M4 x 0.7 tap drill used for the four mounting holes, in millimetres.
+let sonic_hub_bolt_drill_mm : Double = gobilda_m4_tap_drill_mm
+
+///|
+/// The measured perpendicular offset of each tangential clamp screw from the
+/// hub axis, in millimetres.
+let sonic_hub_screw_offset_mm : Double = 6.409
+
+///|
+/// The clamp screw thread size (M4), in millimetres.
+let sonic_hub_screw_mm : Double = 4.0
+
+///|
+/// The measured socket-head counterbore at each clamp-screw entry, in
+/// millimetres.
+let sonic_hub_screw_cbore_mm : Double = 7.2
+
+///|
+/// The measured length of each clamp-screw counterbore, in millimetres.
+let sonic_hub_screw_cbore_len_mm : Double = 10.0
+
+///|
+/// The measured axial distance from the hub centre to each clamp-screw entry,
+/// in millimetres.
+let sonic_hub_screw_entry_mm : Double = 15.06
+
+///|
+/// gobilda_sonic_hub builds a goBILDA 1309 Sonic hub as a measured B-rep.
+///
+/// Frame: the hub axis is +Z, the flange sits on `z = 0` and the two raised boss
+/// halves end at `z = 10`. The flange outline, the central flexure void (a 7 mm
+/// across-flats hex bore with 0.75 mm corner rounds that opens into two
+/// crescent slots), and the two boss halves are the exact measured profiles of
+/// the vendor solid (`1309-0016-4008`); the section areas are 618.422,
+/// 107.414, 52.432 and 52.434 mm2 respectively.
+///
+/// The four M4 x 0.7 mounting holes on the 16 mm square are modelled as 3.3 mm
+/// tap drills with `Threaded` connectors. The two tangential clamp screws have
+/// a measured perpendicular offset of 6.409 mm, a 4 mm shank bore and a 7.2 mm
+/// socket-head counterbore, 10 mm long, at the entry end. The thread helices
+/// themselves are not modelled.
+///
+/// Source: https://www.gobilda.com/1309-series-sonic-hub-8mm-rex-bore
+/// (vendor STEP `1309-0016-4008` measured clean-room; 48 x 48 x 2.5 mm channel
+/// system, Ø32 x 10 mm hub, 8 mm REX bore with 7 mm flats).
+pub fn gobilda_sonic_hub(
+  bore_flats_mm~ : Double = sonic_hub_bore_flats_mm,
+  color~ : @cad.Rgb = @cad.Rgb::grey(),
+) -> Result[@common.Component, @common.SpecError] {
+  if (bore_flats_mm - sonic_hub_bore_flats_mm).abs() > 1.0e-9 {
+    return Err(
+      @common.InvalidDimension(
+        "the measured 1309 Sonic hub profile has a 7 mm across-flats bore",
       ),
     )
   }
-  segs
-}
-
-///|
-/// gobilda_sonic_hub builds a goBILDA 1309 Sonic hub envelope.
-///
-/// Frame: the hub axis is +Z, centred on `z = 0`. The body is Ø32 x 8 mm with a
-/// Ø14 x 2 mm boss on the +Z face; the through bore is a **7 mm across-flats
-/// hex** (the 8 mm REX® interface); four **Ø4 mm** through holes sit on a
-/// **16 mm square** pattern (at ±8, ±8 mm) through the body.
-///
-/// The hub's scalloped lightening cutouts, the radial clamp slit, and the
-/// 14 mm clamp screw are not dimensioned in the published schematic (only the
-/// outline is shown), so they are declared omissions. The hexagonal bore's
-/// 0.75 mm corner rounds are also omitted. This is a mating envelope, not a
-/// bit-exact vendor copy.
-///
-/// Source: https://www.gobilda.com/1309-series-sonic-hub-8mm-rex-bore
-/// (Ø32, 8 mm body + 2 mm step, 8 mm REX bore with 7 mm flats, 16 mm M4 pattern).
-pub fn gobilda_sonic_hub(
-  bore_flats_mm~ : Double = 7.0,
-  body_diameter_mm~ : Double = 32.0,
-  body_width_mm~ : Double = 8.0,
-  boss_diameter_mm~ : Double = 14.0,
-  boss_height_mm~ : Double = 2.0,
-  bolt_circle_mm~ : Double = 16.0,
-  bolt_diameter_mm~ : Double = 4.0,
-  color~ : @cad.Rgb = @cad.Rgb::grey(),
-) -> Result[@common.Component, @common.SpecError] {
-  let checks : Array[Result[Unit, @common.SpecError]] = [
-    @common.require_positive("Sonic hub body diameter", body_diameter_mm),
-    @common.require_positive("Sonic hub body width", body_width_mm),
-    @common.require_positive("Sonic hub boss diameter", boss_diameter_mm),
-    @common.require_positive("Sonic hub boss height", boss_height_mm),
-    @common.require_positive("Sonic hub bore flats", bore_flats_mm),
+  // Flange holes: the measured central flexure void plus four M4 tap drills.
+  let holes : Array[Array[@cad.ProfileSegment]] = [
+    hub_loop(gobilda_sonic_hub_void()),
   ]
-  for check in checks {
-    match check {
-      Err(e) => return Err(e)
-      Ok(_) => ()
+  for x in [-sonic_hub_bolt_span_mm, sonic_hub_bolt_span_mm] {
+    for y in [-sonic_hub_bolt_span_mm, sonic_hub_bolt_span_mm] {
+      holes.push(@common.circle_loop(x, y, sonic_hub_bolt_drill_mm / 2.0))
     }
   }
-  if bore_flats_mm >= boss_diameter_mm {
-    return Err(
-      @common.InvalidDimension("Sonic hub bore must fit inside the boss"),
+  let flange = @cad.ExtrudedArcProfile::new(
+      hub_loop(gobilda_sonic_hub_outer()),
+      sonic_hub_flange_mm,
+      holes~,
     )
+    .as_shape()
+    .with_name("flange")
+  // Two tangential clamp screws, symmetric under 180 degrees.
+  let u = 1.0 / 2.0.sqrt()
+  let entry_mm = sonic_hub_screw_entry_mm
+  let screw_cutters : Array[@cad.SceneNode] = []
+  for offset in [-sonic_hub_screw_offset_mm, sonic_hub_screw_offset_mm] {
+    let px = -offset * u
+    let py = offset * u
+    let entry_sign = if offset < 0.0 { 1.0 } else { -1.0 }
+    let entry_s = entry_sign * entry_mm
+    let bore = @cad.Cylinder::new(sonic_hub_screw_mm, 2.0 * entry_mm + 4.0)
+      .with_name("clamp-bore")
+      .rotate_y(90.0)
+      .rotate_z(45.0)
+      .translate(x=px, y=py, z=sonic_hub_flange_mm / 2.0)
+    let cb_s = entry_s - entry_sign * sonic_hub_screw_cbore_len_mm / 2.0
+    let counterbore = @cad.Cylinder::new(
+        sonic_hub_screw_cbore_mm, sonic_hub_screw_cbore_len_mm,
+      )
+      .with_name("clamp-counterbore")
+      .rotate_y(90.0)
+      .rotate_z(45.0)
+      .translate(x=px + cb_s * u, y=py + cb_s * u, z=sonic_hub_flange_mm / 2.0)
+    screw_cutters.push(bore)
+    screw_cutters.push(counterbore)
   }
-  let body_radius = body_diameter_mm / 2.0
-  let boss_radius = boss_diameter_mm / 2.0
-  let half_circle = bolt_circle_mm / 2.0
-  let bolt_radius = bolt_diameter_mm / 2.0
-  if (half_circle * half_circle * 2.0).sqrt() + bolt_radius > body_radius {
-    return Err(
-      @common.InvalidDimension("Sonic hub bolt holes do not fit the body"),
-    )
-  }
-  let hex = gobilda_hex_loop(bore_flats_mm)
-  let bolts : Array[(Double, Double)] = [
-    (-half_circle, -half_circle),
-    (half_circle, -half_circle),
-    (half_circle, half_circle),
-    (-half_circle, half_circle),
-  ]
-  let body_holes : Array[Array[@cad.ProfileSegment]] = [hex]
-  for bolt in bolts {
-    let (x, y) = bolt
-    body_holes.push(@common.circle_loop(x, y, bolt_radius))
-  }
-  let body = @cad.ExtrudedArcProfile::new(
-    @common.circle_loop(0.0, 0.0, body_radius),
-    body_width_mm,
-    holes=body_holes,
+  let flange_body = @cad.difference(flange, screw_cutters, name="flange-body")
+  let boss_a = @cad.ExtrudedArcProfile::new(
+    hub_loop(gobilda_sonic_hub_boss_a()),
+    sonic_hub_boss_mm,
   ).as_shape()
-  let boss = @cad.ExtrudedArcProfile::new(
-    @common.circle_loop(0.0, 0.0, boss_radius),
-    boss_height_mm,
-    holes=[hex],
+  let boss_b = @cad.ExtrudedArcProfile::new(
+    hub_loop(gobilda_sonic_hub_boss_b()),
+    sonic_hub_boss_mm,
   ).as_shape()
-  let total_height = body_width_mm + boss_height_mm
+  let boss_placement = @common.Placement::translation(
+    0.0, 0.0, sonic_hub_flange_mm,
+  )
   let features = @common.FeatureRecord::new(
-    modeled=["body", "boss", "hex-bore", "four-bolt-holes"],
+    modeled=[
+      "measured-flange-outline", "measured-flexure-void-and-hex-bore", "measured-boss-halves",
+      "m4-tap-drills", "tangential-clamp-screws",
+    ],
     approximated=[],
     omitted=[
       @common.Omission::new(
-        feature="scalloped-lightening-cutouts",
-        reason="the lightening scallops are not dimensioned in the published schematic; only the outline is shown",
-      ),
-      @common.Omission::new(
-        feature="clamp-slit-and-screw",
-        reason="the radial clamp slit and the 14 mm clamp screw are not modelled",
-      ),
-      @common.Omission::new(
-        feature="hex-corner-rounds",
-        reason="the REX bore's 0.75 mm corner rounds are omitted (sharp hex)",
+        feature="thread-helices",
+        reason="the M4 x 0.7 mounting and clamp threads are declared by Threaded connectors; their 3.3 mm tap drills and the 4 mm clamp bores are modelled",
       ),
     ],
   )
-  let name = "gobilda-sonic-hub-\{@cad.fmt_double(body_diameter_mm, None)}"
+  let name = "gobilda-sonic-hub-1309"
   let component = @common.Component::new(
       name~,
       metadata=@common.Metadata::new(
-        designation="goBILDA Sonic hub Ø\{@cad.fmt_double(body_diameter_mm, None)} / \{@cad.fmt_double(bore_flats_mm, None)} mm hex (1309)",
+        designation="goBILDA 1309 Sonic hub (8 mm REX bore)",
         standard="goBILDA 8 mm pattern",
         family="goBILDA Sonic hub",
-        size="\{@cad.fmt_double(body_diameter_mm, None)}",
-        length_mm=total_height,
+        size="1309",
         material="aluminium, clear anodized",
-        source="https://www.gobilda.com/1309-series-sonic-hub-8mm-rex-bore | SKU 1309-0016-4008 | $7.99 | Ø32 x 8 mm body, Ø14 x 2 mm boss, 7 mm flat hex bore, 4x M4 on a 16 mm pattern",
+        source="https://www.gobilda.com/1309-series-sonic-hub-8mm-rex-bore | Ø32 x 10 mm hub, 7 mm across-flats hex bore with 0.75 mm rounds, 4 x M4 on a 16 mm square, two tangential M4 clamp screws | measured from vendor STEP 1309-0016-4008",
       ),
-      description="goBILDA 1309 Sonic hub envelope: Ø32 x 8 mm body with a Ø14 x 2 mm boss, a 7 mm flat hex (8 mm REX) bore, and four Ø4 holes on a 16 mm square. Scalloped lightening cutouts, clamp slit, and corner rounds are omitted.",
+      description="goBILDA 1309 Sonic hub: measured Ø32 flange with the flexure void and hex bore, two boss halves, four M4 mounting holes on a 16 mm square, and two tangential clamp screws with 7.2 mm socket-head counterbores.",
       features~,
     )
-    .add_layer(body, name="body", color~)
-    .add_layer(
-      boss,
-      name="boss",
-      color~,
-      placement=@common.Placement::translation(0.0, 0.0, body_width_mm),
-    )
-    .translate(z=-total_height / 2.0)
-  let half = total_height / 2.0
+    .add_layer(flange_body.shape_intent(), name="flange", color~)
+    .add_layer(boss_a, name="boss-a", color~, placement=boss_placement)
+    .add_layer(boss_b, name="boss-b", color~, placement=boss_placement)
   let mut out = component
     .with_connector_unchecked(
       @common.MateConnector::new(
-        "rex-bore",
-        placement=@common.Placement::translation(0.0, 0.0, -half),
-        axis=(0.0, 0.0, 1.0),
-        kind=@common.MateKind::CylindricalBore,
-        gender=@common.MateGender::Female,
-        diameter_mm=bore_flats_mm,
-        depth_mm=total_height,
-        description="7 mm flat hex (8 mm REX) through bore",
-      ),
-    )
-    .with_connector_unchecked(
-      @common.MateConnector::new(
-        "outer-seat",
-        placement=@common.Placement::translation(0.0, 0.0, -half),
-        axis=(0.0, 0.0, 1.0),
-        kind=@common.MateKind::CylindricalShaft,
-        gender=@common.MateGender::Male,
-        diameter_mm=body_diameter_mm,
-        depth_mm=body_width_mm,
-        description="Ø32 outer boundary",
-      ),
-    )
-    .with_connector_unchecked(
-      @common.MateConnector::new(
-        "face-body",
-        placement=@common.Placement::translation(0.0, 0.0, -half),
+        "flange-face",
+        placement=@common.Placement::translation(0.0, 0.0, 0.0),
         axis=(0.0, 0.0, -1.0),
         kind=@common.MateKind::PlaneFace,
-        diameter_mm=body_diameter_mm,
-        description="flat body face, opposite the boss",
+        diameter_mm=2.0 * sonic_hub_bore_flats_mm,
+        description="flange mounting face on -Z",
       ),
     )
     .with_connector_unchecked(
       @common.MateConnector::new(
-        "face-boss",
-        placement=@common.Placement::translation(0.0, 0.0, half),
+        "boss-face",
+        placement=@common.Placement::translation(
+          0.0,
+          0.0,
+          sonic_hub_flange_mm + sonic_hub_boss_mm,
+        ),
         axis=(0.0, 0.0, 1.0),
         kind=@common.MateKind::PlaneFace,
-        diameter_mm=boss_diameter_mm,
-        description="boss face",
+        diameter_mm=2.0 * sonic_hub_bore_flats_mm,
+        description="raised boss face on +Z",
       ),
     )
-  let mut index = 0
-  for bolt in bolts {
-    let (x, y) = bolt
-    index += 1
-    out = out.with_connector_unchecked(
+    .with_connector_unchecked(
       @common.MateConnector::new(
-        "bolt-hole-\{index}",
-        placement=@common.Placement::translation(x, y, -half),
+        "rex-bore",
+        placement=@common.Placement::translation(0.0, 0.0, 0.0),
         axis=(0.0, 0.0, 1.0),
         kind=@common.MateKind::CylindricalBore,
         gender=@common.MateGender::Female,
-        diameter_mm=bolt_diameter_mm,
-        depth_mm=body_width_mm,
-        description="4 mm through hole on the 16 mm pattern",
+        diameter_mm=sonic_hub_bore_flats_mm,
+        depth_mm=sonic_hub_flange_mm + sonic_hub_boss_mm,
+        description="7 mm across-flats hex bore for an 8 mm REX shaft",
+      ),
+    )
+  let mut bolt_index = 0
+  for x in [-sonic_hub_bolt_span_mm, sonic_hub_bolt_span_mm] {
+    for y in [-sonic_hub_bolt_span_mm, sonic_hub_bolt_span_mm] {
+      bolt_index += 1
+      out = out.with_connector_unchecked(
+        @common.MateConnector::new(
+          "bolt-hole-\{bolt_index}",
+          placement=@common.Placement::translation(x, y, 0.0),
+          axis=(0.0, 0.0, 1.0),
+          kind=@common.MateKind::Threaded,
+          gender=@common.MateGender::Female,
+          diameter_mm=sonic_hub_screw_mm,
+          depth_mm=sonic_hub_flange_mm,
+          description="M4 x 0.7 tapped mounting hole on the 16 mm square",
+        ),
+      )
+    }
+  }
+  let mut screw_index = 0
+  for offset in [-sonic_hub_screw_offset_mm, sonic_hub_screw_offset_mm] {
+    screw_index += 1
+    let px = -offset * u
+    let py = offset * u
+    let entry_sign = if offset < 0.0 { 1.0 } else { -1.0 }
+    let entry_s = entry_sign * entry_mm
+    out = out.with_connector_unchecked(
+      @common.MateConnector::new(
+        "clamp-screw-\{screw_index}",
+        placement=@common.Placement::translation(
+          px + entry_s * u,
+          py + entry_s * u,
+          sonic_hub_flange_mm / 2.0,
+        ),
+        axis=(entry_sign * u, entry_sign * u, 0.0),
+        kind=@common.MateKind::Threaded,
+        gender=@common.MateGender::Female,
+        diameter_mm=sonic_hub_screw_mm,
+        depth_mm=sonic_hub_screw_cbore_len_mm,
+        description="M4 x 0.7 tangential clamp screw, entered through a 7.2 mm counterbore",
       ),
     )
   }
@@ -202,7 +238,8 @@ pub fn gobilda_sonic_hub(
 }
 
 ///|
-/// gobilda_sonic_hub_family exposes the Sonic hub as a validated design family.
+/// gobilda_sonic_hub_family exposes the measured 1309 Sonic hub as a validated
+/// design family.
 pub fn gobilda_sonic_hub_family() -> Result[
   @common.DesignFamily,
   @common.SpecError,
@@ -210,101 +247,30 @@ pub fn gobilda_sonic_hub_family() -> Result[
   let specs : Array[@common.ParamSpec] = [
     @common.ParamSpec::new(
       name="boreFlats",
-      default_mm=7.0,
-      min_mm=4.0,
-      max_mm=10.0,
-      description="hex bore across flats",
-    ),
-    @common.ParamSpec::new(
-      name="bodyDiameter",
-      default_mm=32.0,
-      min_mm=20.0,
-      max_mm=48.0,
-      description="body diameter",
-    ),
-    @common.ParamSpec::new(
-      name="bodyWidth",
-      default_mm=8.0,
-      min_mm=4.0,
-      max_mm=16.0,
-      description="body width",
-    ),
-    @common.ParamSpec::new(
-      name="bossDiameter",
-      default_mm=14.0,
-      min_mm=10.0,
-      max_mm=24.0,
-      description="boss diameter",
-    ),
-    @common.ParamSpec::new(
-      name="bossHeight",
-      default_mm=2.0,
-      min_mm=1.0,
-      max_mm=10.0,
-      description="boss height",
-    ),
-    @common.ParamSpec::new(
-      name="boltCircle",
-      default_mm=16.0,
-      min_mm=10.0,
-      max_mm=30.0,
-      description="bolt-pattern side length",
-    ),
-    @common.ParamSpec::new(
-      name="boltDiameter",
-      default_mm=4.0,
-      min_mm=2.0,
-      max_mm=6.0,
-      description="bolt-hole diameter",
+      default_mm=sonic_hub_bore_flats_mm,
+      min_mm=sonic_hub_bore_flats_mm,
+      max_mm=sonic_hub_bore_flats_mm,
+      description="hex bore across flats (fixed by the measured 1309 profile)",
     ),
   ]
   let family = match
     @common.DesignFamily::new(
       name="gobilda-sonic-hub",
       specs~,
-      description="goBILDA Sonic hub envelopes.",
+      description="goBILDA 1309 Sonic hub (8 mm REX bore) with the measured flexure profile.",
       build=fn(parameters) {
-        let bore = match parameters.get("boreFlats") {
+        let flats = match parameters.get("boreFlats") {
           Ok(v) => v
           Err(e) => return Err(e)
         }
-        let body = match parameters.get("bodyDiameter") {
-          Ok(v) => v
-          Err(e) => return Err(e)
-        }
-        let width = match parameters.get("bodyWidth") {
-          Ok(v) => v
-          Err(e) => return Err(e)
-        }
-        let boss_d = match parameters.get("bossDiameter") {
-          Ok(v) => v
-          Err(e) => return Err(e)
-        }
-        let boss_h = match parameters.get("bossHeight") {
-          Ok(v) => v
-          Err(e) => return Err(e)
-        }
-        let circle = match parameters.get("boltCircle") {
-          Ok(v) => v
-          Err(e) => return Err(e)
-        }
-        let bolt = match parameters.get("boltDiameter") {
-          Ok(v) => v
-          Err(e) => return Err(e)
-        }
-        gobilda_sonic_hub(
-          bore_flats_mm=bore,
-          body_diameter_mm=body,
-          body_width_mm=width,
-          boss_diameter_mm=boss_d,
-          boss_height_mm=boss_h,
-          bolt_circle_mm=circle,
-          bolt_diameter_mm=bolt,
-        )
+        gobilda_sonic_hub(bore_flats_mm=flats)
       },
     ) {
     Ok(f) => f
     Err(e) => return Err(e)
   }
-  family.with_variant("1309-8mm-rex", [("boreFlats", 7.0)])
+  match family.with_variant("1309-8mm-rex", []) {
+    Ok(next) => Ok(next)
+    Err(e) => Err(e)
+  }
 }

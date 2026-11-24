@@ -13,6 +13,8 @@ pub fn circle_loop(Double, Double, Double) -> Array[@cad.ProfileSegment]
 
 pub fn dir_dot((Double, Double, Double), (Double, Double, Double)) -> Double
 
+pub fn disc_pair_loop((Double, Double), (Double, Double), Double) -> Array[@cad.ProfileSegment]
+
 pub fn[T] expect_ok(Result[T, SpecError]) -> T
 
 pub fn fit_token(@cad.Fit) -> String
@@ -35,6 +37,8 @@ pub fn near(Double, Double, tol? : Double) -> Bool
 
 pub fn normalize_dir((Double, Double, Double)) -> (Double, Double, Double)
 
+pub fn obround_loop(Double, Double, Double, Double, Double, Double) -> Array[@cad.ProfileSegment]
+
 pub fn polar_deg(Double, Double) -> (Double, Double)
 
 pub fn require_in_range(String, Double, Double, Double) -> Result[Unit, SpecError]
@@ -46,6 +50,8 @@ pub fn require_positive(String, Double) -> Result[Unit, SpecError]
 pub fn rotation_matrix_deg(Double, Double, Double) -> @cad.Matrix3x3
 
 pub fn snap_connectors(MateConnector, MateConnector, offset_mm? : Double, twist_rad? : Double, flip_axis? : Bool) -> (Placement, (Double, Double, Double))
+
+pub fn translate_loops(Array[Array[@cad.ProfileSegment]], Double, Double) -> Array[Array[@cad.ProfileSegment]]
 
 // Errors
 

@@ -24,6 +24,46 @@ pub let gobilda_bearing_pitch_mm : Double = 24.0
 pub let gobilda_sheet_thickness_mm : Double = 2.5
 
 ///|
+/// The goBILDA U-channel outside width and height, in millimetres.
+pub let gobilda_channel_width_mm : Double = 48.0
+
+///|
+pub let gobilda_channel_height_mm : Double = 48.0
+
+///|
+/// sqrt(2), named so the measured 45-degree pattern offsets stay exact.
+pub let gobilda_sqrt2 : Double = 2.0.sqrt()
+
+///|
+/// The measured 45-degree "clocked" hole offset from a station, in millimetres
+/// (6*sqrt(2), i.e. a 12 mm diagonal).
+pub let gobilda_diagonal_offset_mm : Double = 6.0 * gobilda_sqrt2
+
+///|
+/// The measured inner cap centre of a long station slot, in millimetres from
+/// the centre line (8*sqrt(2)).
+pub let gobilda_slot_inner_offset_mm : Double = 8.0 * gobilda_sqrt2
+
+///|
+/// The measured half-distance between the cap centres of a short centre slot,
+/// in millimetres (12 - 8*sqrt(2), measured from the vendor STEP).
+pub let gobilda_slot_cap_offset_mm : Double = 12.0 -
+  gobilda_slot_inner_offset_mm
+
+///|
+/// Tolerance used when matching a grid row to a 24 mm bearing station.
+let gobilda_station_eps : Double = 1.0e-9
+
+///|
+/// The tap drill that precedes an M4 x 0.7 thread, in millimetres.
+pub let gobilda_m4_tap_drill_mm : Double = 3.3
+
+///|
+/// The published depth of the M4 x 0.7 end taps in structural parts, in
+/// millimetres.
+pub let gobilda_end_tap_depth_mm : Double = 10.0
+
+///|
 /// gobilda_grid_positions returns `count` hole centres centred on zero at the
 /// goBILDA 8 mm grid pitch.
 ///
