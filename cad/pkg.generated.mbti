@@ -14,6 +14,10 @@ pub fn acorn_nut_bounding_box(AcornNut) -> (Double, Double, Double, Double, Doub
 
 pub fn acorn_nut_mesh(AcornNut, angular_segments? : Int32) -> (Array[(Double, Double, Double)], Array[Array[Int32]])
 
+pub fn arc_circle_loop(Double, Double, Double) -> Array[ProfileSegment]
+
+pub fn arc_rounded_rect_loop(Double, Double, corner_radius_mm? : Double) -> Array[ProfileSegment]
+
 pub fn bolt_circle(Int32, Double, start_angle_deg? : Double) -> Array[(Double, Double)]
 
 pub fn chamfer_edges(SceneNode, Double, angle_deg? : Double, selector? : EdgeSelector, name? : String) -> SceneNode
@@ -374,6 +378,8 @@ pub fn ExtrudedArcProfile::centroid(Self) -> (Double, Double, Double)
 pub fn ExtrudedArcProfile::new(Array[ProfileSegment], Double, round_bore? : ((Double, Double), Double), holes? : Array[Array[ProfileSegment]]) -> Self
 pub fn ExtrudedArcProfile::validate(Self) -> Bool
 pub fn ExtrudedArcProfile::volume(Self) -> Double
+pub fn ExtrudedArcProfile::with_holes(Self, Array[Array[ProfileSegment]]) -> Self
+pub fn ExtrudedArcProfile::with_pattern_holes(Self, PointPattern2D, Double) -> Self
 
 pub struct ExtrudedBezierProfile {
   paths : Array[BezierPath]
@@ -533,6 +539,31 @@ pub(all) enum Plane {
   YZ
 }
 
+pub(all) struct Plate {
+  outline : PlateOutline
+  thickness_mm : Double
+  bore_diam_mm : Double
+  bottom_chamfer_mm : Double
+  top_chamfer_mm : Double
+  hole_groups : Array[(PointPattern2D, Double)]
+  name : String
+  color : Rgb
+}
+pub fn Plate::rect(width_mm~ : Double, height_mm~ : Double, thickness_mm~ : Double, corner_radius_mm? : Double, name? : String) -> Self
+pub fn Plate::round(outer_diam_mm~ : Double, thickness_mm~ : Double, name? : String) -> Self
+pub fn Plate::to_node(Self) -> SceneNode
+pub fn Plate::with_bore(Self, Double) -> Self
+pub fn Plate::with_chamfer(Self, bottom_mm? : Double, top_mm? : Double) -> Self
+pub fn Plate::with_color(Self, Rgb) -> Self
+pub fn Plate::with_hole_at(Self, Double, Double, Double) -> Self
+pub fn Plate::with_holes(Self, PointPattern2D, Double) -> Self
+pub fn Plate::with_name(Self, String) -> Self
+
+pub(all) enum PlateOutline {
+  Round(Double)
+  Rect(Double, Double, Double)
+}
+
 pub(all) struct PointPattern2D {
   points : Array[(Double, Double)]
 }
@@ -547,6 +578,7 @@ pub fn PointPattern2D::place(Self, SceneNode, z_mm? : Double) -> Array[SceneNode
 pub fn PointPattern2D::rect(Double, Double, center_x? : Double, center_y? : Double) -> Self
 pub fn PointPattern2D::ring(Int32, diam_mm~ : Double, phase_deg? : Double, center_x? : Double, center_y? : Double) -> Self
 pub fn PointPattern2D::rotate_deg(Self, Double) -> Self
+pub fn PointPattern2D::to_arc_holes(Self, Double) -> Array[Array[ProfileSegment]]
 pub fn PointPattern2D::translate(Self, Double, Double) -> Self
 pub fn PointPattern2D::union_onto(Self, SceneNode, SceneNode, z_mm? : Double, name? : String) -> SceneNode
 
@@ -678,14 +710,23 @@ pub struct SceneNode {
   rz : Double
 }
 pub fn SceneNode::bounding_box(Self) -> (Double, Double, Double, Double, Double, Double)
+pub fn SceneNode::cut_on(Self, PointPattern2D, Self, z_mm? : Double, name? : String) -> Self
+pub fn SceneNode::cut_with(Self, Self, name? : String) -> Self
+pub fn SceneNode::drill(Self, PointPattern2D, Double, z0_mm? : Double, depth_mm? : Double, name? : String) -> Self
+pub fn SceneNode::drill_center_bore(Self, Double, z0_mm? : Double, depth_mm? : Double, name? : String) -> Self
 pub fn SceneNode::repeat_at(Self, Array[(Double, Double, Double)]) -> Array[Self]
 pub fn SceneNode::rotate_x(Self, Double) -> Self
 pub fn SceneNode::rotate_y(Self, Double) -> Self
 pub fn SceneNode::rotate_z(Self, Double) -> Self
 pub fn SceneNode::shape_intent(Self) -> Shape
 pub fn SceneNode::translate(Self, x? : Double, y? : Double, z? : Double) -> Self
+pub fn SceneNode::union_on(Self, PointPattern2D, Self, z_mm? : Double, name? : String) -> Self
+pub fn SceneNode::union_with(Self, Self, name? : String) -> Self
+pub fn SceneNode::with_bottom_chamfer(Self, size_mm? : Double, z_mm? : Double, tol_mm? : Double, name? : String) -> Self
 pub fn SceneNode::with_color(Self, Rgb) -> Self
+pub fn SceneNode::with_fillet_on_plane(Self, Double, Double, tol_mm? : Double, name? : String) -> Self
 pub fn SceneNode::with_name(Self, String) -> Self
+pub fn SceneNode::with_top_chamfer(Self, Double, Double, tol_mm? : Double, name? : String) -> Self
 
 pub(all) struct Section {
   z_mm : Double
@@ -769,6 +810,7 @@ pub fn Sketch2D::with_bolt_circle(Self, Double, Double, count~ : Int32, bcd~ : D
 pub fn Sketch2D::with_hole_circle(Self, Double, Double, diam~ : Double, segs? : Int32) -> Self
 pub fn Sketch2D::with_hole_polygon(Self, Array[(Double, Double)]) -> Self
 pub fn Sketch2D::with_hole_slot(Self, Double, Double, length~ : Double, width~ : Double, angle_deg? : Double, segs? : Int32) -> Self
+pub fn Sketch2D::with_pattern_holes(Self, PointPattern2D, Double, segs? : Int32) -> Self
 
 pub struct SlitTube {
   outer_diameter_mm : Double

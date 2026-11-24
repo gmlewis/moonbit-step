@@ -232,3 +232,73 @@ pub fn PointPattern2D::drill_holes(
   let cutter = Cylinder::new(hole_diam_mm / 2.0, depth_mm).with_name("hole")
   self.cut_from(target, cutter, z_mm=z0_mm, name?)
 }
+
+///|
+/// Builds an exact analytic circular loop of 4 quarter-circle `SegmentArc`s
+/// centered at `(cx, cy)` with diameter `diam_mm`, ready for
+/// `ExtrudedArcProfile` outer contours or inner holes.
+pub fn arc_circle_loop(
+  cx : Double,
+  cy : Double,
+  diam_mm : Double,
+) -> Array[ProfileSegment] {
+  let r = diam_mm / 2.0
+  [
+    SegmentArc((cx + r, cy), (cx, cy + r), (cx, cy)),
+    SegmentArc((cx, cy + r), (cx - r, cy), (cx, cy)),
+    SegmentArc((cx - r, cy), (cx, cy - r), (cx, cy)),
+    SegmentArc((cx, cy - r), (cx + r, cy), (cx, cy)),
+  ]
+}
+
+///|
+/// Converts every `(x, y)` point in this pattern into an exact analytic
+/// circular hole loop of diameter `diam_mm` for `ExtrudedArcProfile` — zero
+/// booleans and zero `for` loops in caller code.
+pub fn PointPattern2D::to_arc_holes(
+  self : PointPattern2D,
+  diam_mm : Double,
+) -> Array[Array[ProfileSegment]] {
+  self.points.map(fn(pt) { arc_circle_loop(pt.0, pt.1, diam_mm) })
+}
+
+///|
+/// Returns a new `ExtrudedArcProfile` with `extra_holes` appended to its
+/// existing inner hole loops.
+pub fn ExtrudedArcProfile::with_holes(
+  self : ExtrudedArcProfile,
+  extra_holes : Array[Array[ProfileSegment]],
+) -> ExtrudedArcProfile {
+  let holes = self.holes.copy()
+  for h in extra_holes {
+    holes.push(h)
+  }
+  { ..self, holes, }
+}
+
+///|
+/// Appends exact analytic circular holes of diameter `diam_mm` at every point
+/// in `pattern` to this `ExtrudedArcProfile` (zero booleans).
+pub fn ExtrudedArcProfile::with_pattern_holes(
+  self : ExtrudedArcProfile,
+  pattern : PointPattern2D,
+  diam_mm : Double,
+) -> ExtrudedArcProfile {
+  self.with_holes(pattern.to_arc_holes(diam_mm))
+}
+
+///|
+/// Punches circular holes of diameter `diam_mm` at every point in `pattern`
+/// into this `Sketch2D`.
+pub fn Sketch2D::with_pattern_holes(
+  self : Sketch2D,
+  pattern : PointPattern2D,
+  diam_mm : Double,
+  segs~ : Int32 = 24,
+) -> Sketch2D {
+  let mut out = self
+  for pt in pattern.points {
+    out = out.with_hole_circle(pt.0, pt.1, diam=diam_mm, segs~)
+  }
+  out
+}
