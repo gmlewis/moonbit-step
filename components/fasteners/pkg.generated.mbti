@@ -8,6 +8,16 @@ import {
 }
 
 // Values
+pub fn axial_snap_pin_female_void(AxialSnapPinParams, name? : String, color? : @cad.Rgb) -> @common.Component
+
+pub fn axial_snap_pin_female_void_node(AxialSnapPinParams, name? : String, color? : @cad.Rgb) -> @cad.SceneNode
+
+pub fn axial_snap_pin_male(AxialSnapPinParams, name? : String, color? : @cad.Rgb) -> @common.Component
+
+pub fn axial_snap_pin_male_node(AxialSnapPinParams, name? : String, color? : @cad.Rgb) -> @cad.SceneNode
+
+pub fn axial_snap_ring_positions(Int32, Double, phase_deg? : Double) -> Array[(Double, Double)]
+
 pub fn chamfered_cylinder_ends(Double, Double, Double, Double, segments? : Int32) -> @cad.Shape
 
 pub fn circle_profile(Double, segments? : Int32) -> Array[(Double, Double)]
@@ -161,6 +171,29 @@ pub fn vslot_t_nut(SlotTNutSpec, detail? : @common.DetailLevel, color? : @cad.Rg
 // Errors
 
 // Types and methods
+pub(all) struct AxialSnapPinParams {
+  base_radius_mm : Double
+  neck_radius_mm : Double
+  neck_height_mm : Double
+  undercut_mm : Double
+  tip_radius_mm : Double
+  flare_angle_deg : Double
+  lead_in_angle_deg : Double
+  clearance_mm : Double
+  top_clearance_mm : Double
+  mouth_chamfer_mm : Double
+  num_slots : Int32
+  slot_width_mm : Double
+  slot_bottom_z_mm : Double
+  embed_mm : Double
+}
+pub fn AxialSnapPinParams::flare_height_mm(Self) -> Double
+pub fn AxialSnapPinParams::head_radius_mm(Self) -> Double
+pub fn AxialSnapPinParams::lead_in_height_mm(Self) -> Double
+pub fn AxialSnapPinParams::new(base_radius_mm? : Double, neck_radius_mm? : Double, neck_height_mm? : Double, undercut_mm? : Double, tip_radius_mm? : Double, flare_angle_deg? : Double, lead_in_angle_deg? : Double, clearance_mm? : Double, top_clearance_mm? : Double, mouth_chamfer_mm? : Double, num_slots? : Int32, slot_width_mm? : Double, slot_bottom_z_mm? : Double, embed_mm? : Double) -> Result[Self, @common.SpecError]
+pub fn AxialSnapPinParams::total_height_mm(Self) -> Double
+pub fn AxialSnapPinParams::void_depth_mm(Self) -> Double
+
 pub(all) struct Din471Outline {
   shaft_mm : Double
   thickness_mm : Double

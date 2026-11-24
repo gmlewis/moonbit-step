@@ -8,7 +8,9 @@ import {
 }
 
 import {
+  "gmlewis/step/cad",
   "gmlewis/step/components/common",
   "gmlewis/step/components/standards",
+  "moonbitlang/async",
   "moonbitlang/core/builtin",
 } for "test"
