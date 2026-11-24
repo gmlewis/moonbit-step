@@ -229,6 +229,10 @@ moon run components/examples/makerstore_hardware -- \
 moon run components/examples/gobilda_kit -- -o "$OUT/gobilda-grid-plate-5x5.step"
 moon run components/examples/gobilda_kit -- \
   --cols 11 --rows 29 -o "$OUT/gobilda-grid-plate-11x29.step"
+moon run components/examples/gobilda_kit -- \
+  --part channel -o "$OUT/gobilda-u-channel-8-hole.step"
+moon run components/examples/gobilda_kit -- \
+  --part beam -o "$OUT/gobilda-square-beam-4-hole.step"
 # Component examples that previously had no generator entry. Each is covered
 # by the validation loop below, just like every other generated fixture.
 moon run components/examples/makerpipe_frame -- -o "$OUT/makerpipe-frame.step"

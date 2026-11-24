@@ -49,6 +49,10 @@ pub(all) struct HerringbonePlanetaryParams {
   num_elbows : Int32
   resolution : Int32
   hole_type : String
+  /// Sun bore shape; defaults to `hole_type` when omitted. Setting this to
+  /// `"Hexagonal"` gives a positive-drive hex sun bore while keeping circular
+  /// bearing bores in the planets.
+  sun_hole_type : String
   hole_radius_mm : Double
   /// Sun bore radius; defaults to `hole_radius_mm` when omitted.
   sun_hole_radius_mm : Double
@@ -76,6 +80,7 @@ pub fn HerringbonePlanetaryParams::new(
   num_elbows~ : Int32 = 4,
   resolution~ : Int32 = 9,
   hole_type~ : String = "None",
+  sun_hole_type? : String,
   hole_radius_mm~ : Double = 10.0,
   sun_hole_radius_mm? : Double,
   planet_hole_radius_mm? : Double,
@@ -177,6 +182,7 @@ pub fn HerringbonePlanetaryParams::new(
     num_elbows,
     resolution,
     hole_type,
+    sun_hole_type: sun_hole_type.unwrap_or(hole_type),
     hole_radius_mm,
     sun_hole_radius_mm: resolved_sun_hole,
     planet_hole_radius_mm: resolved_planet_hole,
@@ -219,6 +225,10 @@ pub(all) struct HerringbonePlanetaryLayout {
   num_elbows : Int32
   resolution : Int32
   hole_type : String
+  /// Sun bore shape; defaults to `hole_type` when omitted. Setting this to
+  /// `"Hexagonal"` gives a positive-drive hex sun bore while keeping circular
+  /// bearing bores in the planets.
+  sun_hole_type : String
   hole_radius_mm : Double
   sun_hole_radius_mm : Double
   planet_hole_radius_mm : Double
@@ -292,6 +302,7 @@ pub fn herringbone_planetary_layout(
     num_elbows: p.num_elbows,
     resolution: p.resolution,
     hole_type: p.hole_type,
+    sun_hole_type: p.sun_hole_type,
     hole_radius_mm: p.hole_radius_mm,
     sun_hole_radius_mm: p.sun_hole_radius_mm,
     planet_hole_radius_mm: p.planet_hole_radius_mm,
@@ -628,8 +639,9 @@ fn hb_gear_holes(
   layout : HerringbonePlanetaryLayout,
   g : HerringboneGearDims,
   hole_radius_mm : Double,
+  hole_type_override? : String,
 ) -> Array[Array[(Double, Double)]] {
-  let hole_type = layout.hole_type
+  let hole_type = hole_type_override.unwrap_or(layout.hole_type)
   if hole_type == "None" {
     []
   } else if hole_type == "Circular" {

@@ -23,6 +23,14 @@ pub let gobilda_hole_diameter_mm : Double
 
 pub let gobilda_sheet_thickness_mm : Double
 
+pub fn gobilda_square_beam(holes? : Int32, length_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn gobilda_square_beam_family() -> Result[@common.DesignFamily, @common.SpecError]
+
+pub fn gobilda_u_channel(holes? : Int32, length_mm? : Double, thickness_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn gobilda_u_channel_family() -> Result[@common.DesignFamily, @common.SpecError]
+
 // Errors
 
 // Types and methods

@@ -123,8 +123,19 @@ exit
         print(f"      View FAILED: {e}")
     return False
 
-def composite_views(inkscape_bin, views_dict, output_png):
-    # Composites 4 PNGs into one using an SVG template and inkscape
+def find_svg_exporter():
+    """Return ('vectorcraft', path) or ('inkscape', path), preferring VectorCraft."""
+    vc = shutil.which("vectorcraft-cli")
+    if vc:
+        return ("vectorcraft", vc)
+    inc = shutil.which("inkscape")
+    if inc:
+        return ("inkscape", inc)
+    return None
+
+
+def composite_views(exporter_bin, views_dict, output_png):
+    # Composites 4 PNGs into one using an SVG template and VectorCraft (or Inkscape)
     template_path = Path(__file__).parent / "view_template.svg"
     if not template_path.exists():
         print(f"      SVG template not found at {template_path}")
@@ -150,7 +161,10 @@ def composite_views(inkscape_bin, views_dict, output_png):
         tmp_svg_path = tmp_svg.name
 
     try:
-        cmd = [inkscape_bin, "--export-filename=" + str(output_png), tmp_svg_path]
+        if os.path.basename(str(exporter_bin)).startswith("vectorcraft"):
+            cmd = [exporter_bin, "run", "--in", tmp_svg_path, "--export", str(output_png)]
+        else:
+            cmd = [exporter_bin, "--export-filename=" + str(output_png), tmp_svg_path]
         subprocess.run(cmd, capture_output=True, check=True)
         return True
     except Exception as e:
@@ -273,10 +287,11 @@ def main():
     args = parser.parse_args()
 
     occt_bin = find_occt()
-    inkscape_bin = shutil.which("inkscape")
+    exporter = find_svg_exporter()
+    inkscape_bin = exporter[1] if exporter else None
 
     if args.render and not inkscape_bin:
-        print("Error: 'inkscape' not found in PATH. Required for rendering.")
+        print("Error: neither 'vectorcraft-cli' nor 'inkscape' found in PATH. Required for rendering.")
         sys.exit(1)
 
     # Do NOT pre-filter to existing directories: that silently skipped 39 of

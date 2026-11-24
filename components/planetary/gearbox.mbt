@@ -23,7 +23,12 @@ pub fn herringbone_planetary_gearbox(
     layout.resolution,
     layout.tolerance_mm,
   )
-  let sun_holes = hb_gear_holes(layout, layout.sun, layout.sun_hole_radius_mm)
+  let sun_holes = hb_gear_holes(
+    layout,
+    layout.sun,
+    layout.sun_hole_radius_mm,
+    hole_type_override=layout.sun_hole_type,
+  )
   let sun_max_rot = @math.tan(hb_deg2rad(layout.helix_angle_sun_deg)) *
     (length / 2.0) /
     layout.sun.outer_radius_mm

@@ -480,6 +480,16 @@ an 8 mm grid**, 14 mm bearing holes every 24 mm, and 2.5 mm aluminium sheet.
   11 x 29 = 88 x 232 mm). Every hole is a true analytic cylinder.
 - `gobilda_grid_plate_family()` — presets for the 1116 Series Grid Plate Bundle
   sizes (3x5, 5x5, 5x7, 5x9, 5x11, 5x17, 7x7, 7x11, 11x29).
+- `gobilda_u_channel(holes~=8)` — the 1120-series U-channel: exact
+  48 x 48 x 2.5 mm section (43 mm inside), length `(holes+1)*24` mm, with the
+  base four-column 4 mm grid and 14 mm bearing seats on a 24 mm pitch. The leg
+  pattern, clocked slots, and bend radius are declared omissions.
+- `gobilda_u_channel_family()` — presets for the published bearing-hole counts.
+- `gobilda_square_beam(holes~=4)` — the 1106-series 8 x 8 mm bar, length
+  `holes*8` mm, with a 4 mm through hole and a crossing 4 mm hole per station.
+  The crossing holes are a nominal `difference()` that the CAD kernel trims (the
+  flat STEP is nominal); the M4 end threads are declared by connectors.
+- `gobilda_square_beam_family()` — presets for the published hole counts.
 
 Source: https://www.gobilda.com/pattern and https://www.gobilda.com/grid-plates.
 goBILDA® is a trademark of its owner; geometry is reconstructed from the
@@ -521,7 +531,7 @@ use `--headless`.
 | `profiles` | Generic T-slot sections, the vendor 2020 B-slot6 A section, OpenBuilds-compatible V-Slot 2020/2040 sections, the MakerBeam 10 x 10 section, a gusseted V-Slot corner bracket, P1000-style strut channel, and a generic channel nut. |
 | `motion` | Shafts, stepped/keyed shafts, spacers and V-Slot wheel spacers (plain and eccentric), bushings, plain, set-screw, and clamp shaft collars, keys, dowel pins, standoffs, compression springs, ball bearings (envelope, shielded, and full-complement deep-groove), LM-series linear bushings, flanged linear housings, UCP-series pillow-block bearing boundaries, approximated GT2 timing pulleys, smooth idlers, V-Slot wheels, EMT tubing with end caps and split clamps, rigid couplings, helical beam couplings, flanged bearing housings, a parameterized tire/wheel envelope measured from the owner-authored `tire.step` model, and a matching tire mounting flange measured from `tire-mount.step`. |
 | `mechanisms` | Generic engineering envelopes for a barrel hinge, clevis, pin, rod end, linkage bar, linear rail and carriage, lead screw and flanged nut, equal- and unequal-pulley timing-belt loops, eccentric cam and roller follower, Oldham coupling, extension and torsion springs, snap latch, O-ring, grooved shaft, L/U/Z brackets (L with optional gusset), tapped boss, a straight-flank basic rack with a pinion-layout helper, ANSI #40 roller-chain sprockets (measured CC0 16T/24T outlines), and a CC0-matched ANSI #40 10-pitch chain segment. |
-| `gobilda` | goBILDA® grid plates: 4 mm through holes on the 8 mm pattern, 2.5 mm aluminium, with the 1116 Series bundle sizes as a design family. |
+| `gobilda` | goBILDA® grid plates (4 mm through holes on the 8 mm pattern, 2.5 mm aluminium, 1116 Series bundle sizes), the 1120-series U-channel (48 x 48 x 2.5 mm section, base 4 mm grid, 14 mm bearing seats), and the 1106-series square beam (8 x 8 mm, crossing 4 mm holes as a nominal difference), each with a design family. |
 | `makerpipe` | Maker Pipe-compatible structural EMT fittings and accessories for 1/2, 3/4, and 1 in, plus the 1-3/8 in top rail: T connector, 45/90/135/180/4-way/5-way saddle family, structural coupling, flange, adjustable angle hinge, adjustable 180, adjustable angle flange, Top Rail T, adapter shims, end cap, rubber feet, threaded inserts, one-hole/two-hole/mounting straps, cross-over clamp, telescoping clamp, barrel hinge, printed EMT hinge, printed snap clip, and friction bands, each with built-in pipe mates. Nominal layered shells; 1 in and top-rail envelopes derived from the 3/4 in drawing. |
 | `motors` | NEMA 17 and NEMA 23 stepper-motor envelopes, mounting interfaces, NEMA mounting plates, a generic NEMA-to-20-series extrusion adapter, a parameterized outrunner brushless-motor envelope measured from the owner-authored 360KV model (conical 5-spoke bell, windows, rim and lip, stator hub, prop and mount holes, shaft), and a parameterized XAIRCRAFT A12 8318 100KV agricultural outrunner envelope measured from the motor (6-spoke bell with 3 alternating forked spokes and 4 inner arcing hub slots, 42 curved magnets, machined prop adapter with 4 open M4 holes and 4 screw-filled counterbores, 36-slot stator with pole shoes and exact per-tooth copper frames, stepped 8-window mount plate with narrow spokes carrying M3/M4 circles, 6901Z bearing tube, front insulator ring, through shaft). |
 | `stock` | EN 10056 angle sections, configurable flat plate blanks with analytic circular holes and obround slots, counterbored and countersunk plates, bearing-housing plates, tube-to-plate and tube-to-V-Slot adapter brackets, generic channel-to-extrusion adapters and extrusion-to-tube clamps, SC8UU-style rod/bearing blocks, and heat-set insert bosses. |

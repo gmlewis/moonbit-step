@@ -72,20 +72,20 @@ def main() -> int:
                 return 1
             views[suffix] = str(png_path)
 
-        inkscape = shutil.which("inkscape")
-        if inkscape and composite_views(inkscape, views, out_path):
+        compositor = shutil.which("vectorcraft-cli") or shutil.which("inkscape")
+        if compositor and composite_views(compositor, views, out_path):
             return 0
 
         # No compositor: still produce a useful preview.
         shutil.copyfile(views["iso"], out_path)
-        if inkscape:
+        if compositor:
             print(
                 "Note: compositing failed; wrote the isometric view only.",
                 file=sys.stderr,
             )
         else:
             print(
-                "Note: Inkscape not found; wrote the isometric view only.",
+                "Note: neither vectorcraft-cli nor Inkscape found; wrote the isometric view only.",
                 file=sys.stderr,
             )
         return 0
