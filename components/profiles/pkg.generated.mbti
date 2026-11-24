@@ -21,7 +21,17 @@ pub fn makerstore_corner_bracket_family() -> Result[@common.DesignFamily, @commo
 
 pub fn mot_edis_profile(length_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
+pub fn mot_edis_profile_20x20(length_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn mot_edis_profile_30x30(length_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
 pub fn mot_edis_profile_family() -> Result[@common.DesignFamily, @common.SpecError]
+
+pub fn mot_edis_profile_of(MotEdisSection, length_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
+
+pub fn mot_edis_section(String) -> Result[MotEdisSection, @common.SpecError]
+
+pub fn mot_edis_tnut(MotEdisSection, thread? : String, length_mm? : Double, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
 pub fn strut_channel(ChannelSection, Double, punched? : Bool, color? : @cad.Rgb) -> Result[@common.Component, @common.SpecError]
 
@@ -69,6 +79,17 @@ pub fn MakerBeamProfile::outline(Self) -> Array[@cad.ProfileSegment]
 pub fn MakerBeamProfile::section_area_mm2(Self) -> Double
 pub fn MakerBeamProfile::section_points(Self) -> Array[(Double, Double)]
 pub fn MakerBeamProfile::slot_count(Self) -> Int32
+
+pub(all) struct MotEdisSection {
+  series : String
+  size_mm : Double
+  slot_opening_mm : Double
+  lip_mm : Double
+  cavity_mm : Double
+  depth_mm : Double
+  bore_mm : Double
+  corner_mm : Double
+}
 
 pub(all) struct TSlotProfile {
   name : String

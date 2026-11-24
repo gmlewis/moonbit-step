@@ -238,6 +238,12 @@ moon run components/examples/gobilda_kit -- \
 # MotEDis 40 x 40 I-type slot-8 T-slot extrusion.
 moon run components/examples/mot_edis -- \
   --length 100 -o "$OUT/motedis-40x40-slot8-100.step"
+moon run components/examples/mot_edis -- \
+  --series 20 --length 100 -o "$OUT/motedis-20x20-slot5-100.step"
+moon run components/examples/mot_edis -- \
+  --series 30 --length 100 -o "$OUT/motedis-30x30-slot6-100.step"
+moon run components/examples/mot_edis -- \
+  --part tnut --series 40 --thread M5 -o "$OUT/motedis-tnut-slot8-m5.step"
 # Component examples that previously had no generator entry. Each is covered
 # by the validation loop below, just like every other generated fixture.
 moon run components/examples/makerpipe_frame -- -o "$OUT/makerpipe-frame.step"

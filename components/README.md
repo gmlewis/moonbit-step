@@ -500,6 +500,26 @@ Source: https://www.gobilda.com/pattern and https://www.gobilda.com/grid-plates.
 goBILDA® is a trademark of its owner; geometry is reconstructed from the
 published pattern, not from vendor CAD.
 
+## MotEDis metric T-slot
+
+`components/profiles/mot-edis.mbt` adds MotEDis I-type metric T-slot extrusions:
+
+- `mot_edis_section(series)` — the section geometry for `"20"` (slot 5), `"30"`
+  (slot 6), and `"40"` (slot 8): size, opening, lip, cavity, depth, core bore,
+  and corner radius.
+- `mot_edis_profile_of(section, length_mm~=100)` (plus the 20/30/40 convenience
+  wrappers) — a rounded-square extrusion with a core bore and four T-slots. The
+  slots are a **nominal `@cad.difference`**: the flat STEP concatenates the
+  cutter faces and the CAD kernel (SolidCraft / OCCT) trims them.
+- `mot_edis_tnut(section, thread~="M5")` — an I-type T-nut with a 3 mm flange,
+  a 4.5 mm neck, and a real tap-drill bore; the thread is declared by a
+  `Threaded` connector.
+- `mot_edis_profile_family()` — length presets for the 40-series.
+
+The datasheets dimension the opening, lip, depth, and core bore; the undercut
+width is an engineering value (20: solved to the published 182 mm²; 30: FreeCAD
+slot-6 table; 40: 916 mm² within about 1%), recorded as an approximation.
+
 ## Named connectors and the golden preview
 
 Every public component builder exposes at least one named `MateConnector`
@@ -533,7 +553,7 @@ use `--headless`.
 | `common` | Units-aware validation, detail levels, thread representation, metadata, placement, `Component`, `MateConnector`, and `MatePair`. |
 | `standards` | Metric thread data and ISO/DIN dimension tables (ISO 4032/4035/4762/7089/709x/7380/8752/10642, DIN 471/472/557/913/916/976/1587, …). |
 | `fasteners` | Screws, bolts, nuts, washers, pins, rods, set screws, generic solid rivets, DIN 471 type A external retaining rings (A 10 to A 34), and DIN 472 internal retaining rings (all table sizes 8 to 40; measured outlines for 10, 12, 14, 16, 18, 20, 24, 28, 32, and 40 mm, parametric for the rest). |
-| `profiles` | Generic T-slot sections, the vendor 2020 B-slot6 A section, OpenBuilds-compatible V-Slot 2020/2040 sections, the MakerBeam 10 x 10 section, a gusseted V-Slot corner bracket, a MotEDis 40 x 40 I-type slot-8 metric T-slot section (R4, Ø6.8 core, four 8 mm T-slots, nominal difference), P1000-style strut channel, and a generic channel nut. |
+| `profiles` | Generic T-slot sections, the vendor 2020 B-slot6 A section, OpenBuilds-compatible V-Slot 2020/2040 sections, the MakerBeam 10 x 10 section, a gusseted V-Slot corner bracket, MotEDis I-type metric T-slot sections (20 slot-5, 30 slot-6, 40 slot-8; nominal difference) with a slot-8 T-nut, P1000-style strut channel, and a generic channel nut. |
 | `motion` | Shafts, stepped/keyed shafts, spacers and V-Slot wheel spacers (plain and eccentric), bushings, plain, set-screw, and clamp shaft collars, keys, dowel pins, standoffs, compression springs, ball bearings (envelope, shielded, and full-complement deep-groove), LM-series linear bushings, flanged linear housings, UCP-series pillow-block bearing boundaries, approximated GT2 timing pulleys, smooth idlers, V-Slot wheels, EMT tubing with end caps and split clamps, rigid couplings, helical beam couplings, flanged bearing housings, a parameterized tire/wheel envelope measured from the owner-authored `tire.step` model, and a matching tire mounting flange measured from `tire-mount.step`. |
 | `mechanisms` | Generic engineering envelopes for a barrel hinge, clevis, pin, rod end, linkage bar, linear rail and carriage, lead screw and flanged nut, equal- and unequal-pulley timing-belt loops, eccentric cam and roller follower, Oldham coupling, extension and torsion springs, snap latch, O-ring, grooved shaft, L/U/Z brackets (L with optional gusset), tapped boss, a straight-flank basic rack with a pinion-layout helper, ANSI #40 roller-chain sprockets (measured CC0 16T/24T outlines), and a CC0-matched ANSI #40 10-pitch chain segment. |
 | `gobilda` | goBILDA® grid plates (4 mm through holes on the 8 mm pattern, 2.5 mm aluminium, 1116 Series bundle sizes), the 1120-series U-channel (48 x 48 x 2.5 mm section, base 4 mm grid, 14 mm bearing seats), the 1106-series square beam (8 x 8 mm, crossing 4 mm holes as a nominal difference), and the 1309 Sonic hub (Ø32 body, hex bore, 16 mm pattern), each with a design family. |
