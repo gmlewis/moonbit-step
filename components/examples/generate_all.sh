@@ -442,3 +442,8 @@ for status in "$main_status" "$wide_status" "$small_status" "$rounded_status"; d
     exit "$status"
   fi
 done
+# REV DUO 15 mm extrusion and 45 mm U-channel (measured sections).
+moon run components/examples/rev_duo -- \
+  --part extrusion15 --length 120 -o "$OUT/rev-15mm-120.step"
+moon run components/examples/rev_duo -- \
+  --part uchannel45 --length 440 -o "$OUT/rev-45mm-440.step"

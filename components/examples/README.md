@@ -29,6 +29,7 @@ All programs use millimetres and Z is up.
 | `gobilda_kit` | goBILDA® parts: a grid plate (`--cols` × `--rows`), the measured 1120-series U-channel (`--part channel --holes`), the 1106-series square beam with M4 end taps (`--part beam --beamHoles`), or the measured 1309 Sonic hub (`--part hub`). Use `--evaluated` for the boolean/union parts. |
 | `mot_edis` | MotEDis metric T-slot: an I-type profile (`--series 20/30/40 --length`, nominal difference) or a measured B-type profile (`--type b --series 20/30/40 --length`), or an I-type T-nut (`--part tnut --series 40 --thread M5`). |
 | `hiwin_guide` | Hiwin HGR15/HGR20 rails with real counterbored mounting holes (`--part rail15/rail20 --length`) or HGH15CA/HGH20CA carriages with real tapped bolt patterns (`--part block15/block20`); always exported as the OCCT-evaluated single solid. |
+| `rev_duo` | REV DUO parts with measured sections: the 15 x 15 mm extrusion (`--part extrusion15 --length`, exact section plus Ø2.5 bore) or the 45 x 45 mm U-channel (`--part uchannel45 --length`, measured section; the drilled motion pattern is not modelled). |
 | `tubing` | EMT cut length, EMT end cap, EMT split clamp, plain shaft collar, or tube mount plate adapter. |
 | `makerbeam` | MakerBeam 10 x 10 mm extrusion (drawing article 100168), optional outer corner radius. |
 | `retaining_ring` | DIN 471 type A external retaining ring, A 10 to A 34. |

@@ -538,6 +538,23 @@ with their stepped, edge-sloping lip:
   nominal boolean.
 - `mot_edis_b_family()` — length presets.
 
+## REV DUO
+
+`components/profiles/rev-15mm.mbt` and `rev-45mm-channel.mbt` add the REV DUO
+structural extrusions with **measured** sections:
+
+- `rev_15mm_extrusion(length_mm~=120)` — the 15 x 15 mm extrusion with its four
+  5.7 mm face slots and the central Ø2.5 through bore (measured outer area
+  95.701 mm²). The published 5 x 2.54 mm M3-tappable end holes are declared by
+  `Threaded` connectors, because the vendor extrusion STEP is prismatic.
+- `rev_45mm_uchannel(length_mm~=440)` — the 45 x 45 mm U-channel with 2.5 mm
+  side walls, a 6 mm back wall with a T-slot on both faces, and the measured
+  corner breaks (section area 339.855 mm²). The dense **Extended Motion
+  Pattern** of Ø3.2 and Ø9 holes is not modelled; it is recorded as an
+  omission in the feature record and `devnotes/`.
+- `rev_15mm_family()`, `rev_45mm_family()` — the published length presets
+  (120/225/420/1000 mm and 24-1000 mm).
+
 ## Hiwin linear guideways
 
 `components/mechanisms/hiwin-guides.mbt` adds Hiwin HGR rails and HGH carriages:
@@ -595,7 +612,7 @@ use `--headless`.
 | `common` | Units-aware validation, detail levels, thread representation, metadata, placement, `Component`, `MateConnector`, and `MatePair`. |
 | `standards` | Metric thread data and ISO/DIN dimension tables (ISO 4032/4035/4762/7089/709x/7380/8752/10642, DIN 471/472/557/913/916/976/1587, …). |
 | `fasteners` | Screws, bolts, nuts, washers, pins, rods, set screws, generic solid rivets, DIN 471 type A external retaining rings (A 10 to A 34), DIN 472 internal retaining rings (all table sizes 8 to 40; measured outlines for 10, 12, 14, 16, 18, 20, 24, 28, 32, and 40 mm, parametric for the rest), and Maker Store M5 low-profile socket screws (8.9 x 1.5 mm head, 16 lengths). |
-| `profiles` | Generic T-slot sections, the vendor 2020 B-slot6 A section, OpenBuilds-compatible V-Slot 2020/2040 sections and the C-Beam gantry plate (SKU 970), the MakerBeam 10 x 10 section, a gusseted V-Slot corner bracket, MotEDis I-type metric T-slot sections (20 slot-5, 30 slot-6, 40 slot-8; nominal difference) and measured B-type sections (20/30/40) with a slot-8 T-nut, P1000-style strut channel, and a generic channel nut. |
+| `profiles` | Generic T-slot sections, the vendor 2020 B-slot6 A section, OpenBuilds-compatible V-Slot 2020/2040 sections and the C-Beam gantry plate (SKU 970), the MakerBeam 10 x 10 section, a gusseted V-Slot corner bracket, MotEDis I-type metric T-slot sections (20 slot-5, 30 slot-6, 40 slot-8; nominal difference) and measured B-type sections (20/30/40) with a slot-8 T-nut, P1000-style strut channel, a generic channel nut, and REV DUO 15 mm extrusion and 45 mm U-channel with measured sections. |
 | `motion` | Shafts, stepped/keyed shafts, spacers and V-Slot wheel spacers (plain and eccentric), bushings, plain, set-screw, and clamp shaft collars, keys, dowel pins, standoffs, compression springs, ball bearings (envelope, shielded, and full-complement deep-groove), LM-series linear bushings, flanged linear housings, UCP-series pillow-block bearing boundaries, approximated GT2 timing pulleys, smooth idlers, V-Slot wheels, EMT tubing with end caps and split clamps, rigid couplings, helical beam couplings, flanged bearing housings, a parameterized tire/wheel envelope measured from the owner-authored `tire.step` model, and a matching tire mounting flange measured from `tire-mount.step`. |
 | `mechanisms` | Generic engineering envelopes for a barrel hinge, clevis, pin, rod end, linkage bar, linear rail and carriage, lead screw and flanged nut, equal- and unequal-pulley timing-belt loops, eccentric cam and roller follower, Oldham coupling, extension and torsion springs, snap latch, O-ring, grooved shaft, L/U/Z brackets (L with optional gusset), tapped boss, a straight-flank basic rack with a pinion-layout helper, ANSI #40 roller-chain sprockets (measured CC0 16T/24T outlines), a CC0-matched ANSI #40 10-pitch chain segment, and Hiwin HGR rails and HGH carriages with real counterbored and tapped holes. |
 | `gobilda` | goBILDA® grid plates (4 mm through holes on the 8 mm pattern, 2.5 mm aluminium, 1116 Series bundle sizes), the measured 1120-series U-channel (full base and leg patterns, clocked holes and slots), the 1106-series square beam with M4 end tap drills, and the measured 1309 Sonic hub (flexure void, boss halves, clamp screws), each with a design family. |

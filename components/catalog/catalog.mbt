@@ -825,6 +825,7 @@ pub fn full_catalog() -> Array[CatalogEntry] {
   entries.push_iter(profile_catalog().iter())
   entries.push_iter(mot_edis_catalog().iter())
   entries.push_iter(mot_edis_b_catalog().iter())
+  entries.push_iter(rev_catalog().iter())
   entries.push_iter(hiwin_catalog().iter())
   entries.push_iter(openbuilds_catalog().iter())
   entries.push_iter(gear_catalog().iter())
