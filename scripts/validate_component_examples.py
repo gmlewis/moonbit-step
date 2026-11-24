@@ -40,6 +40,7 @@ STACK_FRAME = re.compile(r"^\s{4}(?:at |\.\.\.$)")
 OCCT_ONLY_EXAMPLES = frozenset(
     {
         "clamp_shaft_collar",
+        "hiwin_guide",
         "set_screw_collar",
         "tire_mount",
     }
