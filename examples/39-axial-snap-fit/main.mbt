@@ -119,7 +119,6 @@ async fn main {
     }
   }
 
-  let positions = @fasteners.axial_snap_ring_positions(count, bcd / 2.0)
   let spacing = puck_diam / 2.0 + 4.0
 
   // Helper to build a test puck with a 0.35 mm bottom elephant-foot chamfer.
@@ -143,50 +142,25 @@ async fn main {
     body.as_shape().with_name(label).with_color(color)
   }
 
-  // Left puck: base puck + N positive cross-slotted male snap-pins on top face.
-  let male_parts : Array[@cad.SceneNode] = [
-    make_puck_blank("male_puck_base", @cad.Rgb::orange()),
-  ]
-  for i in 0..<positions.length() {
-    let (px, py) = positions[i]
-    let pin = @fasteners.axial_snap_pin_male_node(
-      params,
-      name="snap_pin_male_\{i}",
-      color=@cad.Rgb::orange(),
-    ).translate(x=px, y=py, z=puck_h)
-    male_parts.push(pin)
-  }
-  let male_puck = @cad.union_all(male_parts, name="snap_fit_male_puck")
-    .with_color(@cad.Rgb::orange())
-    .translate(x=-spacing)
-
-  // Right puck: mating puck with N subtractive female 45-deg undercut sockets
-  // entering from z = 0 (bed face) so it prints 100% support-free.
-  let female_base = make_puck_blank("female_puck_base", @cad.Rgb::blue())
-  let female_voids : Array[@cad.SceneNode] = []
-  for i in 0..<positions.length() {
-    let (px, py) = positions[i]
-    let v = @fasteners.axial_snap_pin_female_void_node(
-      params,
-      name="snap_void_female_\{i}",
-      color=@cad.Rgb::blue(),
-    ).translate(x=px, y=py, z=0.0)
-    female_voids.push(v)
-  }
-  let female_puck = @cad.difference(
-      female_base,
-      female_voids,
-      name="snap_fit_female_puck",
-    )
-    .with_color(@cad.Rgb::blue())
-    .translate(x=spacing)
+  // Define the snap-fit ring once and apply both halves with zero for-loops!
+  let snap = @fasteners.AxialSnapFit::ring(
+    params,
+    count~,
+    bolt_circle_diam_mm=bcd,
+  )
+  let (male_puck, female_puck) = snap.join_pair(
+    make_puck_blank("snap_fit_male_puck", @cad.Rgb::orange()),
+    make_puck_blank("snap_fit_female_puck", @cad.Rgb::blue()),
+    base_z_mm=puck_h,
+    mating_z_mm=0.0,
+  )
 
   let design = @cad.Design::new(
       name="39-axial-snap-fit",
       description="Support-free 45-deg revolved axial snap-fit test pair",
     )
-    .add(male_puck)
-    .add(female_puck)
+    .add(male_puck.translate(x=-spacing))
+    .add(female_puck.translate(x=spacing))
 
   let step_text = design.to_step_evaluated() catch {
     e => {

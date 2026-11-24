@@ -171,6 +171,16 @@ pub fn vslot_t_nut(SlotTNutSpec, detail? : @common.DetailLevel, color? : @cad.Rg
 // Errors
 
 // Types and methods
+pub(all) struct AxialSnapFit {
+  params : AxialSnapPinParams
+  positions : Array[(Double, Double)]
+}
+pub fn AxialSnapFit::at_points(AxialSnapPinParams, Array[(Double, Double)]) -> Self
+pub fn AxialSnapFit::attach_male_to(Self, @cad.SceneNode, z_mm? : Double, flip_z? : Bool, name? : String) -> @cad.SceneNode
+pub fn AxialSnapFit::cut_female_from(Self, @cad.SceneNode, z_mm? : Double, flip_z? : Bool, name? : String) -> @cad.SceneNode
+pub fn AxialSnapFit::join_pair(Self, @cad.SceneNode, @cad.SceneNode, base_z_mm? : Double, mating_z_mm? : Double, flip_male_z? : Bool, flip_female_z? : Bool) -> (@cad.SceneNode, @cad.SceneNode)
+pub fn AxialSnapFit::ring(AxialSnapPinParams, count? : Int32, bolt_circle_diam_mm~ : Double, phase_deg? : Double, center_x? : Double, center_y? : Double) -> Self
+
 pub(all) struct AxialSnapPinParams {
   base_radius_mm : Double
   neck_radius_mm : Double

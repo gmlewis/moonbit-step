@@ -331,6 +331,126 @@ pub fn axial_snap_pin_female_void_node(
 }
 
 ///|
+/// A reusable pattern of axial snap-fit connectors sharing one `AxialSnapPinParams`
+/// and one set of `(x, y)` coordinates, so the male pins and female sockets are
+/// guaranteed to stay 100% aligned with zero `for` loops at the call site.
+///
+/// Example:
+/// ```moonbit nocheck
+/// let snap = @fasteners.AxialSnapFit::ring(
+///   params,
+///   count=4,
+///   bolt_circle_diam_mm=24.0,
+/// )
+///
+/// let gear_a = snap.attach_male_to(gear_a_blank, z_mm=8.0)
+///
+/// let gear_b = snap.cut_female_from(gear_b_blank, z_mm=0.0)
+/// ```
+pub(all) struct AxialSnapFit {
+  params : AxialSnapPinParams
+  positions : Array[(Double, Double)]
+}
+
+///|
+/// Creates an `AxialSnapFit` pattern of `count` evenly spaced connectors on a
+/// bolt circle of diameter `bolt_circle_diam_mm` centered at `(center_x, center_y)`.
+pub fn AxialSnapFit::ring(
+  params : AxialSnapPinParams,
+  count~ : Int32 = 3,
+  bolt_circle_diam_mm~ : Double,
+  phase_deg~ : Double = 0.0,
+  center_x~ : Double = 0.0,
+  center_y~ : Double = 0.0,
+) -> AxialSnapFit {
+  let raw = axial_snap_ring_positions(
+    count,
+    bolt_circle_diam_mm / 2.0,
+    phase_deg~,
+  )
+  let positions = raw.map(fn(pt) { (pt.0 + center_x, pt.1 + center_y) })
+  { params, positions, }
+}
+
+///|
+/// Creates an `AxialSnapFit` pattern at explicit `(x, y)` coordinates.
+pub fn AxialSnapFit::at_points(
+  params : AxialSnapPinParams,
+  positions : Array[(Double, Double)],
+) -> AxialSnapFit {
+  { params, positions, }
+}
+
+///|
+/// Unions all positive male snap-pins in this pattern onto `base` at mating
+/// plane `z_mm`. Set `flip_z=true` to point the pins along `-Z` instead of `+Z`.
+pub fn AxialSnapFit::attach_male_to(
+  self : AxialSnapFit,
+  base : @cad.SceneNode,
+  z_mm~ : Double = 0.0,
+  flip_z~ : Bool = false,
+  name? : String,
+) -> @cad.SceneNode {
+  let out_name = name.unwrap_or(base.name)
+  let parts : Array[@cad.SceneNode] = [base]
+  for i in 0..<self.positions.length() {
+    let (px, py) = self.positions[i]
+    let raw_pin = axial_snap_pin_male_node(
+      self.params,
+      name="\{out_name}_snap_male_\{i}",
+      color=base.color,
+    )
+    let oriented = if flip_z { raw_pin.rotate_x(180.0) } else { raw_pin }
+    parts.push(oriented.translate(x=px, y=py, z=z_mm))
+  }
+  @cad.union_all(parts, name=out_name).with_color(base.color)
+}
+
+///|
+/// Subtracts all matching female 45-degree undercut sockets in this pattern
+/// from `target` at mating plane `z_mm`. Set `flip_z=true` when the sockets
+/// enter from a top face going downward (`-Z`).
+pub fn AxialSnapFit::cut_female_from(
+  self : AxialSnapFit,
+  target : @cad.SceneNode,
+  z_mm~ : Double = 0.0,
+  flip_z~ : Bool = false,
+  name? : String,
+) -> @cad.SceneNode {
+  let out_name = name.unwrap_or(target.name)
+  let voids : Array[@cad.SceneNode] = []
+  for i in 0..<self.positions.length() {
+    let (px, py) = self.positions[i]
+    let raw_void = axial_snap_pin_female_void_node(
+      self.params,
+      name="\{out_name}_snap_void_\{i}",
+      color=target.color,
+    )
+    let oriented = if flip_z { raw_void.rotate_x(180.0) } else { raw_void }
+    voids.push(oriented.translate(x=px, y=py, z=z_mm))
+  }
+  @cad.difference(target, voids, name=out_name).with_color(target.color)
+}
+
+///|
+/// Convenience method that applies both halves of the snap-fit pattern to a
+/// `(base, mating)` pair in one call, returning `(male_part, female_part)`.
+pub fn AxialSnapFit::join_pair(
+  self : AxialSnapFit,
+  base : @cad.SceneNode,
+  mating : @cad.SceneNode,
+  base_z_mm~ : Double = 0.0,
+  mating_z_mm~ : Double = 0.0,
+  flip_male_z~ : Bool = false,
+  flip_female_z~ : Bool = false,
+) -> (@cad.SceneNode, @cad.SceneNode) {
+  (
+    self.attach_male_to(base, z_mm=base_z_mm, flip_z=flip_male_z),
+    self.cut_female_from(mating, z_mm=mating_z_mm, flip_z=flip_female_z),
+  )
+}
+
+///|
 /// Builds the positive male axial snap-pin as a reusable `@common.Component`
 /// with `"mating_face"` (`z = 0`) and `"tip"` (`z = total_height_mm`) mate
 /// connectors.

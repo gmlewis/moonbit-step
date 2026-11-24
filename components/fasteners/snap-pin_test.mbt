@@ -57,3 +57,24 @@ async test "axial_snap_pin male and female evaluate cleanly with OCCT" {
   assert_true(female_step.contains("ISO-10303-21;"))
   assert_true(female_step.contains("MANIFOLD_SOLID_BREP"))
 }
+
+///|
+async test "AxialSnapFit::join_pair builds matched male/female pair with zero loops" {
+  let p = @fasteners.AxialSnapPinParams::new().unwrap()
+  let snap = @fasteners.AxialSnapFit::ring(p, count=3, bolt_circle_diam_mm=20.0)
+  assert_eq(snap.positions.length(), 3)
+  let base = @cad.Cylinder::new(16.0, 7.0).with_name("base_gear")
+  let mating = @cad.Cylinder::new(16.0, 7.0).with_name("mating_gear")
+  let (male_gear, female_gear) = snap.join_pair(
+    base,
+    mating,
+    base_z_mm=7.0,
+    mating_z_mm=0.0,
+  )
+  let step = @cad.Design::new(name="snap-pair-test")
+    .add(male_gear.translate(x=-20.0))
+    .add(female_gear.translate(x=20.0))
+    .to_step_evaluated()
+  assert_true(step.contains("ISO-10303-21;"))
+  assert_true(step.contains("MANIFOLD_SOLID_BREP"))
+}
