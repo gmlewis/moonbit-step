@@ -53,7 +53,7 @@ pub fn WormGearParams::new(
   friction_coeff~ : Double = 0.15,
   worm_bore_radius_mm~ : Double = 4.0,
   wheel_bore_radius_mm~ : Double = 6.35,
-  tolerance_mm~ : Double = 0.15,
+  tolerance_mm~ : Double = 0.1,
 ) -> Result[WormGearParams, @common.SpecError] {
   if module_mm <= 0.0 {
     return Err(@common.InvalidParameter("module_mm must be positive"))

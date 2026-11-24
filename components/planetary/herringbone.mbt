@@ -79,7 +79,7 @@ pub fn HerringbonePlanetaryParams::new(
   hole_radius_mm~ : Double = 10.0,
   sun_hole_radius_mm? : Double,
   planet_hole_radius_mm? : Double,
-  tolerance_mm~ : Double = 0.25,
+  tolerance_mm~ : Double = 0.1,
   outer_thickness_mm~ : Double = 10.0,
   sun_teeth~ : Int32 = 12,
   planet_count~ : Int32 = 3,

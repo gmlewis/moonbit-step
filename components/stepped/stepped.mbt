@@ -67,7 +67,7 @@ pub fn SteppedPlanetaryParams::new(
   sun_bore_radius_mm~ : Double = 4.1,
   planet_bore_radius_mm~ : Double = 3.5,
   outer_wall_mm~ : Double = 6.0,
-  tolerance_mm~ : Double = 0.15,
+  tolerance_mm~ : Double = 0.1,
 ) -> Result[SteppedPlanetaryParams, @common.SpecError] {
   if module_mm <= 0.0 {
     return Err(@common.InvalidParameter("module_mm must be positive"))
