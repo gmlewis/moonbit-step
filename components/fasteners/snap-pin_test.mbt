@@ -43,16 +43,18 @@ async test "axial_snap_pin male and female evaluate cleanly with OCCT" {
   let male_design = @cad.Design::new(name="snap-male-test").add(
     @fasteners.axial_snap_pin_male_node(p),
   )
-  let male_step = male_design.to_step_evaluated()
-  assert_true(male_step.contains("ISO-10303-21;"))
-  assert_true(male_step.contains("MANIFOLD_SOLID_BREP"))
-
-  // Subtract female void from a mating gear disk and verify OCCT boolean succeeds.
   let disk = @cad.Cylinder::new(10.0, 8.0).with_name("mating_disk")
   let void_node = @fasteners.axial_snap_pin_female_void_node(p)
   let female_design = @cad.Design::new(name="snap-female-test").add(
     @cad.difference(disk, [void_node], name="mating_disk_with_socket"),
   )
+  if !@cad.csg_eval_available() {
+    return
+  }
+  let male_step = male_design.to_step_evaluated()
+  assert_true(male_step.contains("ISO-10303-21;"))
+  assert_true(male_step.contains("MANIFOLD_SOLID_BREP"))
+
   let female_step = female_design.to_step_evaluated()
   assert_true(female_step.contains("ISO-10303-21;"))
   assert_true(female_step.contains("MANIFOLD_SOLID_BREP"))
@@ -71,6 +73,9 @@ async test "AxialSnapFit::join_pair builds matched male/female pair with zero lo
     base_z_mm=7.0,
     mating_z_mm=0.0,
   )
+  if !@cad.csg_eval_available() {
+    return
+  }
   let step = @cad.Design::new(name="snap-pair-test")
     .add(male_gear.translate(x=-20.0))
     .add(female_gear.translate(x=20.0))

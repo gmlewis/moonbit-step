@@ -105,6 +105,9 @@ The `cad` package follows an **intent-based architecture**. Do not revert to eag
 
 - `moon fmt` is used to format your code properly.
 - `./test-all.sh`: Blazing fast unit tests and format checks. Run this frequently.
+- **CI has no OpenCASCADE (`DRAWEXE`/`occt-draw`) in `check.yml` or `step-validation.yml` (`fast` job)**:
+  - Every `async test` that calls `Design::to_step_evaluated` or `Component::to_step_evaluated` MUST guard the OCCT call with `if !@cad.csg_eval_available() { return }` (and `ocp_available()` for edge-feature chamfers/fillets), keeping non-OCCT assertions above the guard so they still run in CI.
+  - Before pushing, verify both locally and without OCCT on `PATH`: `PATH="$HOME/.moon/bin:/usr/bin:/bin" moon test` plus `moon info` and `moon fmt --check`.
 - `scripts/validate_step.py <file.step>`: STEP syntax/reference checks, per-shell
   edge topology and orientation, PLANE planarity, OCCT checkshape, and
   watertight tessellation (`--no-mesh` skips tessellation; `--gmsh` adds a

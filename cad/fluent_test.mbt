@@ -76,6 +76,9 @@ async test "Plate::round with bottom chamfer and holes evaluates via OCCT" {
     .with_chamfer(bottom_mm=0.35)
     .with_holes(holes, 3.4)
     .to_node()
+  if !@cad.csg_eval_available() {
+    return
+  }
   let step = @cad.Design::new(name="chamfered_plate")
     .add(node)
     .to_step_evaluated()
@@ -94,6 +97,9 @@ async test "SceneNode fluent drill and union_with pipeline evaluates via OCCT" {
     .drill_center_bore(6.0, depth_mm=14.0)
     .drill(bolts, 3.4, depth_mm=8.0)
   assert_eq(part.name, "flange")
+  if !(@cad.csg_eval_available() && ocp_available()) {
+    return
+  }
   let step = @cad.Design::new(name="fluent_part").add(part).to_step_evaluated()
   assert_true(step.contains("MANIFOLD_SOLID_BREP"))
 }

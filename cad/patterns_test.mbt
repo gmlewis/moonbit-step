@@ -36,6 +36,9 @@ async test "PointPattern2D::drill_holes evaluates cleanly with OCCT" {
   let plate = @cad.Cylinder::new(25.0, 6.0).with_name("plate")
   let pat = @cad.PointPattern2D::ring(4, diam_mm=30.0)
   let drilled = pat.drill_holes(plate, 4.4, z0_mm=-0.5, depth_mm=7.0)
+  if !@cad.csg_eval_available() {
+    return
+  }
   let step = @cad.Design::new(name="pattern-drill-test")
     .add(drilled)
     .to_step_evaluated()

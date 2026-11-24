@@ -121,3 +121,33 @@ pub async fn Design::write_step_evaluated(
   }
   write_text_file(text, out_path)
 }
+
+///|
+async fn csg_command_in_path(name : String) -> Bool {
+  let path = @env.get_env_var("PATH").unwrap_or("")
+  for dir in path.split(":").collect() {
+    let dir = dir.to_owned()
+    if !dir.is_empty() && @fs.exists(dir + "/" + name) {
+      return true
+    }
+  }
+  false
+}
+
+///|
+/// csg_eval_available reports whether `python3`, `DRAWEXE`/`occt-draw`, and
+/// `scripts/csg_eval.py` are all available on this machine. Guard OCCT
+/// integration tests with `if !@cad.csg_eval_available() { return }` so
+/// `moon test` passes in CI runners without OpenCASCADE installed.
+pub async fn csg_eval_available(root~ : String? = None) -> Bool {
+  let effective_root = match root {
+    Some(r) => Some(r)
+    None => @env.get_env_var("MOONBIT_STEP_ROOT")
+  }
+  if find_csg_eval_script(effective_root) is None {
+    return false
+  }
+  let has_draw = csg_command_in_path("DRAWEXE") ||
+    csg_command_in_path("occt-draw")
+  has_draw && csg_command_in_path("python3")
+}

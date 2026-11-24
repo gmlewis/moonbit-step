@@ -66,6 +66,8 @@ pub fn conical_nut_bounding_box(ConicalNut) -> (Double, Double, Double, Double, 
 
 pub fn conical_nut_mesh(ConicalNut, angular_segments? : Int32) -> (Array[(Double, Double, Double)], Array[Array[Int32]])
 
+pub async fn csg_eval_available(root? : String?) -> Bool
+
 pub fn csg_eval_script_path(String?) -> String
 
 pub fn cut_on_face(SceneNode, Profile2D, FaceInfo, Double, name? : String, overshoot? : Double, center? : (Double, Double), color? : Rgb) -> SceneNode

@@ -57,6 +57,9 @@ async test "HeatSetInsertPattern, BoltCirclePattern, and DowelPinPattern evaluat
   )
   let final_part = dowels.cut_pin_holes(with_bolts, z0_mm=0.0, depth_mm=10.0)
 
+  if !@cad.csg_eval_available() {
+    return
+  }
   let step = @cad.Design::new(name="fastener-patterns-test")
     .add(final_part)
     .to_step_evaluated()
