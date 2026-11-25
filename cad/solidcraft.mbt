@@ -139,10 +139,32 @@ priv struct ScEmitter {
 }
 
 ///|
+fn sc_sanitize_ident(s : String) -> String {
+  let buf = StringBuilder()
+  for ch in s {
+    if (ch >= 'a' && ch <= 'z') ||
+      (ch >= 'A' && ch <= 'Z') ||
+      (ch >= '0' && ch <= '9') ||
+      ch == '_' ||
+      ch == '-' {
+      buf.write_char(ch)
+    } else {
+      buf.write_char('_')
+    }
+  }
+  let res = buf.to_string()
+  if res.is_empty() {
+    "body"
+  } else {
+    res
+  }
+}
+
+///|
 fn ScEmitter::fresh_name(self : ScEmitter, hint : String) -> String {
   let id = self.next_id
   self.next_id = id + 1
-  let clean = if hint.is_empty() { "body" } else { hint }
+  let clean = sc_sanitize_ident(hint)
   "\{clean}_\{id}"
 }
 
@@ -454,7 +476,9 @@ pub async fn Design::write_solidcraft_script(
   let ldir = leaves_dir.unwrap_or(script_path + ".leaves")
   let built = self.to_solidcraft_script(leaves_dir=ldir, include_file_new~)
   if !built.leaf_files.is_empty() {
-    @fs.mkdir(ldir, permission=0o755, recursive=true)
+    if !@fs.exists(ldir) {
+      @fs.mkdir(ldir, permission=0o755, recursive=true)
+    }
     for pair in built.leaf_files {
       write_text_file(pair.1, Some(pair.0))
     }

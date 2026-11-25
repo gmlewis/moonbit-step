@@ -220,6 +220,27 @@ def collect_allow_paths(script_path: Path, commands: list[dict]) -> list[str]:
     return dirs
 
 
+def _create_empty_sc_file(cli: str, title: str) -> Path | None:
+    """Create a fresh, uniquely named empty `.sc` design in /tmp so `doc.open`
+    opens a brand-new tab in SolidCraft without disturbing existing tabs."""
+    safe = "".join(c if (c.isalnum() or c in "-_") else "_" for c in title).strip("_") or "design"
+    stamp = int(time.time() * 1000) % 1000000
+    sc_path = Path(tempfile.gettempdir()) / f"{safe}-{stamp}.sc"
+    script = [{"command": "file.save_as", "params": {"path": str(sc_path)}}]
+    with tempfile.TemporaryDirectory(prefix="sc-empty-") as td:
+        sp = Path(td) / "new.json"
+        sp.write_text(json.dumps(script), encoding="utf-8")
+        proc = subprocess.run(
+            [cli, "run", str(sp), "--validation", "off", "--quiet"],
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+        if proc.returncode == 0 and sc_path.is_file():
+            return sc_path
+    return None
+
+
 def run_live(cli: str, script_path: Path, commands: list[dict]) -> int:
     port = discover_control_port()
     if port is None:
@@ -238,8 +259,26 @@ def run_live(cli: str, script_path: Path, commands: list[dict]) -> int:
         return 1
 
     activate_solidcraft_gui()
-    allow = collect_allow_paths(script_path, commands)
-    total = len(commands)
+
+    # Replace leading `file.new` (which wipes the active tab!) with `doc.open`
+    # on a fresh empty `.sc` file so every `--view` run opens a brand-new tab.
+    stream_cmds = list(commands)
+    title = script_path.stem
+    if stream_cmds and stream_cmds[0].get("command") == "file.new":
+        title = (stream_cmds[0].get("params") or {}).get("name") or title
+        stream_cmds = stream_cmds[1:]
+    fresh_sc = _create_empty_sc_file(cli, title)
+    if fresh_sc is not None:
+        stream_cmds.insert(
+            0, {"command": "doc.open", "params": {"path": str(fresh_sc)}}
+        )
+    else:
+        stream_cmds.insert(
+            0, {"command": "file.new", "params": {"name": title}}
+        )
+
+    allow = collect_allow_paths(script_path, stream_cmds)
+    total = len(stream_cmds)
     print(
         f"Streaming {total} commands live into SolidCraft (port {port})...",
         file=sys.stderr,
@@ -260,7 +299,7 @@ def run_live(cli: str, script_path: Path, commands: list[dict]) -> int:
         except Exception:
             prev_validation = None
 
-        for idx, step in enumerate(commands, 1):
+        for idx, step in enumerate(stream_cmds, 1):
             cmd = step["command"]
             params = step.get("params") or {}
             label = (

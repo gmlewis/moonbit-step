@@ -1,0 +1,7 @@
+import {
+  "gmlewis/step/cad",
+  "gmlewis/step/cli",
+  "gmlewis/step/components/capstan",
+}
+
+pkgtype(kind: "executable")
