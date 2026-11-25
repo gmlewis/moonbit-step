@@ -1,0 +1,42 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "gmlewis/step/components/sensors"
+
+import {
+  "gmlewis/step/components/common",
+}
+
+// Values
+pub fn bmi270_layout(Bmi270Params) -> Bmi270Layout
+
+pub fn sparkfun_bmi270(Bmi270Params) -> Result[@common.Component, @common.SpecError]
+
+// Errors
+
+// Types and methods
+pub(all) enum Bmi270FormFactor {
+  Qwiic1x1
+  QwiicMicro
+}
+
+pub(all) struct Bmi270Layout {
+  width_mm : Double
+  height_mm : Double
+  pcb_thickness_mm : Double
+  total_height_mm : Double
+  mounting_holes_xy : Array[(Double, Double)]
+  imu_center_xy : (Double, Double)
+}
+
+pub(all) struct Bmi270Params {
+  form_factor : Bmi270FormFactor
+  pcb_thickness_mm : Double
+  mounting_hole_diam_mm : Double
+  include_qwiic_connectors : Bool
+  include_pth_holes : Bool
+}
+pub fn Bmi270Params::qwiic_1x1(pcb_thickness_mm? : Double, mounting_hole_diam_mm? : Double, include_qwiic_connectors? : Bool, include_pth_holes? : Bool) -> Result[Self, @common.SpecError]
+pub fn Bmi270Params::qwiic_micro(pcb_thickness_mm? : Double, mounting_hole_diam_mm? : Double, include_qwiic_connectors? : Bool) -> Result[Self, @common.SpecError]
+
+// Type aliases
+
+// Traits

@@ -1,0 +1,6 @@
+import {
+  "gmlewis/step/cli",
+  "gmlewis/step/components/sensors",
+}
+
+pkgtype(kind: "executable")
