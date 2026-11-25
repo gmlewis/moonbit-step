@@ -80,7 +80,7 @@ async fn main {
       help="Number of teeth on the ring gear (0 means sun + 2*planet)",
     ),
     "tolerance": @cli.opt_double(
-      0.1,
+      @step_common.DEFAULT_GEAR_TOLERANCE_MM,
       short='T',
       help="Target minimum 3D-printer clearance between meshing flanks (mm)",
     ),

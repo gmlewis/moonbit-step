@@ -62,7 +62,7 @@ pub fn SplitRingPlanetaryParams::new(
   resolution~ : Int32 = 5,
   sun_hole_type~ : String = "Hexagonal",
   sun_hole_radius_mm~ : Double = 3.5,
-  tolerance_mm~ : Double = 0.10,
+  tolerance_mm~ : Double = @common.DEFAULT_GEAR_TOLERANCE_MM,
   outer_thickness_mm~ : Double = 5.0,
   sun_teeth~ : Int32 = 20,
   planet1_teeth~ : Int32 = 14,

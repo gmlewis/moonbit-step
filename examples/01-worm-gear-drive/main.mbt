@@ -45,8 +45,8 @@ async fn main {
       min=0.0,
     ),
     "tolerance": @cli.opt_double(
-      0.10,
-      help="Radial backlash/clearance in mm (default 0.10)",
+      @common.DEFAULT_GEAR_TOLERANCE_MM,
+      help="Radial backlash/clearance in mm",
       min=0.0,
     ),
     "out": @cli.opt_string(

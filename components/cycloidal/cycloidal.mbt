@@ -72,7 +72,7 @@ pub fn CycloidalParams::new(
   input_bore_radius_mm~ : Double = 4.1,
   eccentric_bearing_outer_radius_mm~ : Double = 11.0,
   outer_wall_mm~ : Double = 6.0,
-  tolerance_mm~ : Double = 0.1,
+  tolerance_mm~ : Double = @common.DEFAULT_GEAR_TOLERANCE_MM,
   samples_per_lobe~ : Int32 = 16,
 ) -> Result[CycloidalParams, @common.SpecError] {
   if num_lobes < 3 {

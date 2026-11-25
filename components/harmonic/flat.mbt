@@ -38,7 +38,7 @@ pub fn FlatHarmonicParams::new(
   pressure_angle_deg~ : Double = 20.0,
   outer_wall_mm~ : Double = 6.0,
   input_bore_radius_mm~ : Double = 4.1,
-  tolerance_mm~ : Double = 0.1,
+  tolerance_mm~ : Double = @common.DEFAULT_GEAR_TOLERANCE_MM,
   deformed~ : Bool = true,
 ) -> Result[FlatHarmonicParams, @common.SpecError] {
   // Reuse HarmonicParams validation by checking with an equivalent cup length.
