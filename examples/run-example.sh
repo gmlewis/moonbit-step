@@ -22,7 +22,13 @@ Wrapper options:
   -stl [<path>]          Also write a binary STL (default: <step>.stl).
   --3mf [<path>]         Also write an OrcaSlicer-ready 3MF (default: <step>.3mf).
   --png [<path>]         Also render a four-view PNG preview (default: <step>.png).
-  -o, --out <path>       Write the STEP file to <path> (default: stdout).
+  -o, --out <path>       Write the output named by <path>'s extension:
+                        .step/.stp (or none) = STEP file (the default, stdout
+                        when no path is given), .stl = binary STL, .3mf =
+                        OrcaSlicer 3MF, .png = four-view preview, and
+                        .gltf/.blend/.py = that format instead of STEP.
+  --step <path>          Explicit STEP path; refuses a path whose extension
+                        names another kind (= -o <path> for STEP).
   --eval [<path>]        Evaluate booleans with OCCT and write a real, trimmed
                         STEP file (default: <example>.step). Requires
                         occt-draw or DRAWEXE; overrides nominal STEP output.
@@ -47,6 +53,14 @@ start with "-", and, before the example name, only when it has that option's
 file extension (.3mf, .stl, .png, .step/.stp, .blend, .py, .gltf), so
 `./examples/run-example.sh --view 12` still reads 12 as the example number.
 
+-o/--out picks the output kind from the file extension, so `-o coil.stl`
+writes an STL and `-o scene.gltf` asks the example for glTF. `--step` is the
+explicit STEP spelling and rejects another kind's extension. It may be
+repeated for different kinds (`-o part.step -o part.stl -o part.3mf`), but
+naming one kind twice with different paths is an error. A STEP or derived
+output cannot be combined with .gltf/.blend/.py, because an example writes one
+output format per run.
+
 Output formats for quick previewing:
   STEP (.step, .stp)     Default. Exact B-Rep; opens in CAD viewers and slicers.
   STL  (.stl)            Triangulated mesh for slicers/printers. Tessellated by
@@ -66,6 +80,10 @@ Output formats for quick previewing:
 Examples:
   ./examples/run-example.sh --list
   ./examples/run-example.sh 12 -o coil.step
+  ./examples/run-example.sh 12 --step coil.step   # explicit STEP spelling
+  ./examples/run-example.sh 12 -o coil.stl        # STL, chosen by extension
+  ./examples/run-example.sh 12 --out coil.3mf     # 3MF, chosen by extension
+  ./examples/run-example.sh 12 -o coil.gltf       # glTF, chosen by extension
   ./examples/run-example.sh 12 -o coil.step -stl
   ./examples/run-example.sh 12 -o coil.step --png preview.png
   ./examples/run-example.sh 12 --numPairs 6 -o coil.step
@@ -198,7 +216,7 @@ normalize_path() {
 # unchanged (example options take space-separated values too).
 wrapper_value_exts() {
   case "$1" in
-    -o | --out) printf '*' ;;
+    -o | --out | --step) printf '*' ;;
     -eval | --eval | --view | --view-with-preprocess) printf 'step stp' ;;
     -stl | --stl) printf 'stl' ;;
     -3mf | --3mf) printf '3mf' ;;
@@ -231,6 +249,122 @@ takes_next_value() {
   return 1
 }
 
+# path_ext PATH prints PATH's lower-case extension without the dot (empty when
+# there is none). Only the final path component counts.
+path_ext() {
+  local base="${1##*/}"
+  case "$base" in
+    *.*) printf '%s' "${base##*.}" | tr '[:upper:]' '[:lower:]' ;;
+    *) return 0 ;;
+  esac
+}
+
+# repeat_or_fail LABEL CURRENT NEW reports an error when NEW names a different
+# path for an output kind that already has one (CURRENT), returns 1 when it is
+# the same path (a harmless repeat), and 0 when the kind has no path yet.
+repeat_or_fail() {
+  local label="$1" current="$2" new="$3"
+  [[ -n "$current" ]] || return 0
+  if [[ "$(normalize_path "$current")" == "$(normalize_path "$new")" ]]; then
+    return 1
+  fi
+  echo "Error: $label output already requested as $current (got $new)." >&2
+  echo "       Give each output kind at most one path." >&2
+  exit 2
+}
+
+# note_native KIND PATH records an example-native output (gltf, blend, or py)
+# and reports conflicts, since an example writes one output format per run.
+# Returns 0 when PATH is new (forward it) and 1 when it repeats one already
+# recorded.
+note_native() {
+  local kind="$1" path="$2"
+  if [[ -n "$STEP_OUT" ]]; then
+    echo "Error: $path asks for .$kind, but STEP output is already requested ($STEP_OUT)." >&2
+    echo "       An example writes one output format per run." >&2
+    exit 2
+  fi
+  if [[ -n "$NATIVE_OUT_KIND" && "$NATIVE_OUT_KIND" != "$kind" ]]; then
+    echo "Error: cannot combine .$NATIVE_OUT_KIND and .$kind outputs." >&2
+    echo "       An example writes one output format per run." >&2
+    exit 2
+  fi
+  if repeat_or_fail ".$kind" "$NATIVE_OUT_ARG" "$path"; then
+    NATIVE_OUT_KIND="$kind"
+    NATIVE_OUT_ARG="$path"
+    NO_STEP_OUTPUT=1
+    return 0
+  fi
+  return 1
+}
+
+# route_output OPTION PATH FORCE_STEP sends an -o/--out/--step path to the
+# output kind named by its extension: .step/.stp (or no extension) writes STEP,
+# .stl/.3mf/.png derive that file from the STEP, and .gltf/.blend/.py ask the
+# example for that format instead of STEP. FORCE_STEP is 1 for --step, which
+# rejects a path whose extension names another kind. Repeating a kind with a
+# different path is an error; different kinds combine.
+route_output() {
+  local opt="$1" path="$2" force="$3" ext
+  path="$(expand_tilde "$path")"
+  ext="$(path_ext "$path")"
+  if (( force )); then
+    case "$ext" in
+      stl | 3mf | png | gltf | blend | py)
+        echo "Error: $opt wants a STEP file, but $path ends in .$ext." >&2
+        echo "       Use -o $path to let the extension choose the output." >&2
+        exit 2
+        ;;
+    esac
+  fi
+  case "$ext" in
+    stl)
+      if repeat_or_fail STL "$STL_OUT_ARG" "$path"; then
+        STL_REQUESTED=1
+        STL_OUT_ARG="$path"
+      fi
+      ;;
+    3mf)
+      if repeat_or_fail 3MF "$THREEMF_OUT_ARG" "$path"; then
+        THREEMF_REQUESTED=1
+        THREEMF_OUT_ARG="$path"
+      fi
+      ;;
+    png)
+      if repeat_or_fail PNG "$PNG_OUT_ARG" "$path"; then
+        PNG_REQUESTED=1
+        PNG_OUT_ARG="$path"
+      fi
+      ;;
+    gltf | blend | py)
+      # The example writes these instead of STEP; one format per run.
+      NO_STEP_OUTPUT=1
+      if note_native "$ext" "$path"; then
+        case "$ext" in
+          gltf) FORWARD_ARGS+=(--gltf "$path") ;;
+          blend) FORWARD_ARGS+=(--blend "$path") ;;
+          py) FORWARD_ARGS+=(--bpy "$path") ;;
+        esac
+      fi
+      ;;
+    *)
+      if [[ -n "$NATIVE_OUT_KIND" ]]; then
+        echo "Error: cannot write STEP to $path together with a .$NATIVE_OUT_KIND output." >&2
+        echo "       An example writes one output format per run." >&2
+        exit 2
+      fi
+      if (( NO_STEP_OUTPUT )); then
+        echo "Error: cannot write STEP to $path; another option suppresses STEP output." >&2
+        exit 2
+      fi
+      if repeat_or_fail STEP "$STEP_OUT" "$path"; then
+        STEP_OUT="$path"
+        FORWARD_ARGS+=(-o "$path")
+      fi
+      ;;
+  esac
+}
+
 STL_REQUESTED=0
 STL_OUT_ARG=""
 STL_OUT=""
@@ -242,6 +376,8 @@ PNG_OUT_ARG=""
 PNG_OUT=""
 STEP_OUT=""
 EVAL_OUT=""
+NATIVE_OUT_KIND=""
+NATIVE_OUT_ARG=""
 VIEW_REQUESTED=0
 VIEW_PREPROCESS_REQUESTED=0
 VIEW_PATH_ARG=""
@@ -284,28 +420,40 @@ while (( i < ${#ARGS[@]} )); do
     -stl | --stl)
       STL_REQUESTED=1
       if [[ -n "$value" ]]; then
-        STL_OUT_ARG="$(expand_tilde "$value")"
+        value="$(expand_tilde "$value")"
+        if repeat_or_fail STL "$STL_OUT_ARG" "$value"; then
+          STL_OUT_ARG="$value"
+        fi
       fi
       ;;
     -3mf | --3mf)
       THREEMF_REQUESTED=1
       if [[ -n "$value" ]]; then
-        THREEMF_OUT_ARG="$(expand_tilde "$value")"
+        value="$(expand_tilde "$value")"
+        if repeat_or_fail 3MF "$THREEMF_OUT_ARG" "$value"; then
+          THREEMF_OUT_ARG="$value"
+        fi
       fi
       ;;
     -png | --png)
       PNG_REQUESTED=1
       if [[ -n "$value" ]]; then
-        PNG_OUT_ARG="$(expand_tilde "$value")"
+        value="$(expand_tilde "$value")"
+        if repeat_or_fail PNG "$PNG_OUT_ARG" "$value"; then
+          PNG_OUT_ARG="$value"
+        fi
       fi
       ;;
-    -o | --out)
+    -o | --out | --step)
       if [[ -z "$value" ]]; then
         echo "Error: $opt needs a path, e.g. $opt out.step." >&2
         exit 2
       fi
-      STEP_OUT="$(expand_tilde "$value")"
-      FORWARD_ARGS+=(-o "$STEP_OUT")
+      if [[ "$opt" == "--step" ]]; then
+        route_output "$opt" "$value" 1
+      else
+        route_output "$opt" "$value" 0
+      fi
       ;;
     -eval | --eval)
       EVAL_OUT="$value"
@@ -341,13 +489,26 @@ while (( i < ${#ARGS[@]} )); do
     --headless | --no-open)
       HEADLESS_REQUESTED=1
       ;;
-    --blend | --bpy | --gltf | --nostep)
+    --blend | --bpy | --gltf)
       # The example handles these itself; they only mean no STEP is written.
       NO_STEP_OUTPUT=1
-      FORWARD_ARGS+=("$opt")
+      case "$opt" in
+        --gltf) native_kind=gltf ;;
+        --blend) native_kind=blend ;;
+        --bpy) native_kind=py ;;
+      esac
       if [[ -n "$value" ]]; then
-        FORWARD_ARGS+=("$value")
+        value="$(expand_tilde "$value")"
+        if note_native "$native_kind" "$value"; then
+          FORWARD_ARGS+=("$opt" "$value")
+        fi
+      else
+        FORWARD_ARGS+=("$opt")
       fi
+      ;;
+    --nostep)
+      NO_STEP_OUTPUT=1
+      FORWARD_ARGS+=(--nostep)
       ;;
     *)
       FORWARD_ARGS+=("$arg")
@@ -358,6 +519,13 @@ done
 if [[ -z "$EXAMPLE_ARG" ]]; then
   echo "Error: example name or number is missing." >&2
   usage >&2
+  exit 2
+fi
+
+# An example writes one output format per run, so a STEP path cannot ride along
+# with an option that replaces STEP.
+if (( NO_STEP_OUTPUT )) && [[ -n "$STEP_OUT" ]]; then
+  echo "Error: cannot write STEP to $STEP_OUT together with --blend, --bpy, --gltf, or --nostep." >&2
   exit 2
 fi
 

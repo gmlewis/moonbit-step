@@ -49,7 +49,9 @@ need to handle a rejected design without aborting can use
 | PNG | `./examples/run-example.sh 12 -o coil.step --png preview.png` | Four views; needs OCCT, macOS `sips`, and optionally Inkscape. |
 
 Every option that takes a path accepts it as the next argument (`--3mf out.3mf`)
-or after `=` (`--3mf=out.3mf`).
+or after `=` (`--3mf=out.3mf`). `-o`/`--out` chooses the output kind from the
+file extension (`-o coil.stl`, `-o coil.3mf`, `-o scene.gltf`), and `--step` is
+the explicit STEP spelling; repeat `-o` to write several outputs in one run.
 
 The Blender and glTF backends are available through the CAD API; see
 [`examples/README.md`](examples/README.md) for the runnable example.
