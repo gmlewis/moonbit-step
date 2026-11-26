@@ -249,9 +249,22 @@ fi
 # The resolved folder name (e.g. "12-bifilar-electromagnet"), used for default file names.
 EXAMPLE_NAME="$(basename "$EXAMPLE_PATH_REL")"
 
-# Strip a leading "./" so a user-provided path and a derived path compare equal.
-normalize_path() {
+# Expand a leading "~" / "~/" (shells do not tilde-expand after "=" in flags
+# like `--3mf=~/Downloads/foo.3mf`) and strip a leading "./".
+expand_tilde() {
   local p="$1"
+  if [[ "$p" == "~" ]]; then
+    printf '%s' "$HOME"
+  elif [[ "$p" == "~/"* ]]; then
+    printf '%s' "$HOME/${p#\~/}"
+  else
+    printf '%s' "$p"
+  fi
+}
+
+normalize_path() {
+  local p
+  p="$(expand_tilde "$1")"
   while [[ "$p" == ./* ]]; do p="${p#./}"; done
   printf '%s' "$p"
 }
@@ -308,33 +321,33 @@ while (( i < ${#ARGS[@]} )); do
       ;;
     -stl=* | --stl=*)
       STL_REQUESTED=1
-      STL_OUT_ARG="${arg#*=}"
+      STL_OUT_ARG="$(expand_tilde "${arg#*=}")"
       ;;
     -3mf | --3mf)
       THREEMF_REQUESTED=1
       ;;
     -3mf=* | --3mf=*)
       THREEMF_REQUESTED=1
-      THREEMF_OUT_ARG="${arg#*=}"
+      THREEMF_OUT_ARG="$(expand_tilde "${arg#*=}")"
       ;;
     -png | --png)
       PNG_REQUESTED=1
       ;;
     -png=* | --png=*)
       PNG_REQUESTED=1
-      PNG_OUT_ARG="${arg#*=}"
+      PNG_OUT_ARG="$(expand_tilde "${arg#*=}")"
       ;;
     -o | --out)
       FORWARD_ARGS+=("$arg")
       if (( i + 1 < ${#ARGS[@]} )); then
-        STEP_OUT="${ARGS[$((i + 1))]}"
+        STEP_OUT="$(expand_tilde "${ARGS[$((i + 1))]}")"
         FORWARD_ARGS+=("$STEP_OUT")
         i=$((i + 1))
       fi
       ;;
     -o=* | --out=*)
-      STEP_OUT="${arg#*=}"
-      FORWARD_ARGS+=("$arg")
+      STEP_OUT="$(expand_tilde "${arg#*=}")"
+      FORWARD_ARGS+=("${arg%%=*}=$STEP_OUT")
       ;;
     -eval | --eval)
       FORWARD_ARGS+=("$arg")
