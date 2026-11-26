@@ -7,7 +7,7 @@ import {
 }
 
 // Values
-pub const DEFAULT_GEAR_TOLERANCE_MM : Double = 0.1
+pub const DEFAULT_GEAR_TOLERANCE_MM : Double = 0.075
 
 pub fn chord_deviation(Double, Int32) -> Double
 

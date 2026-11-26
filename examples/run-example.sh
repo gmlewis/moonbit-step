@@ -19,26 +19,33 @@ Wrapper options:
   --no-connectors        Do not write connector sidecars or add SolidCraft
                         joint origins (named mate connectors are shown by
                         default for every component example).
-  -stl[=<path>]         Also write a binary STL (default: <step>.stl).
-  --3mf[=<path>]        Also write an OrcaSlicer-ready 3MF (default: <step>.3mf).
-  --png[=<path>]        Also render a four-view PNG preview (default: <step>.png).
-  -o, --out <path>      Write the STEP file to <path> (default: stdout).
-  --eval[=<path>]       Evaluate booleans with OCCT and write a real, trimmed
+  -stl [<path>]          Also write a binary STL (default: <step>.stl).
+  --3mf [<path>]         Also write an OrcaSlicer-ready 3MF (default: <step>.3mf).
+  --png [<path>]         Also render a four-view PNG preview (default: <step>.png).
+  -o, --out <path>       Write the STEP file to <path> (default: stdout).
+  --eval [<path>]        Evaluate booleans with OCCT and write a real, trimmed
                         STEP file (default: <example>.step). Requires
                         occt-draw or DRAWEXE; overrides nominal STEP output.
-  --view[=<path>]       Open the model in SolidCraft. For boolean examples that
+  --view [<path>]        Open the model in SolidCraft. For boolean examples that
                         support --scScript (e.g. 39, 40), streams a native
                         SolidCraft script live into the open GUI (sub-second
                         popup, full editable feature tree); for pure STEP
-                        examples (or when =<path> / -o is given), writes STEP
+                        examples (or when a path / -o is given), writes STEP
                         and opens it in SolidCraft with mate connectors.
-  --view-with-preprocess[=<path>]
+  --view-with-preprocess [<path>]
                         Force the classic pre-evaluated STEP file path
                         (/tmp/<example>.step or <path>) and open in SolidCraft.
   --headless            Generate only; never open SolidCraft. Writes to
                         /tmp/<example>.step (or the -o path) and prints it.
                         Agents should always pass this instead of --view.
   --                     Optional separator (ignored).
+
+Every option that takes a path accepts it either as the next argument
+(`--3mf out.3mf`) or inline after "=" (`--3mf=out.3mf`); both forms are
+equivalent. A following argument is used as the path only when it does not
+start with "-", and, before the example name, only when it has that option's
+file extension (.3mf, .stl, .png, .step/.stp, .blend, .py, .gltf), so
+`./examples/run-example.sh --view 12` still reads 12 as the example number.
 
 Output formats for quick previewing:
   STEP (.step, .stp)     Default. Exact B-Rep; opens in CAD viewers and slicers.
@@ -60,10 +67,12 @@ Examples:
   ./examples/run-example.sh --list
   ./examples/run-example.sh 12 -o coil.step
   ./examples/run-example.sh 12 -o coil.step -stl
-  ./examples/run-example.sh 12 -o coil.step --png=preview.png
+  ./examples/run-example.sh 12 -o coil.step --png preview.png
   ./examples/run-example.sh 12 --numPairs 6 -o coil.step
+  ./examples/run-example.sh 38 --3mf out.3mf
+  ./examples/run-example.sh --3mf out.3mf 38   # same; options may come first
   ./examples/run-example.sh --view 12          # write /tmp/12-*.step and open it
-  ./examples/run-example.sh 12 -- --help       # example-specific options
+  ./examples/run-example.sh 12 --help          # example-specific options
   ./examples/run-example.sh 12 > coil.step     # STEP to stdout
   ./examples/run-example.sh components/vslot --part wheel --view
   ./examples/run-example.sh clamp_shaft_collar --view
@@ -73,7 +82,7 @@ Examples:
 Notes:
   - Options other than the wrapper options above are forwarded to the example.
   - --blend, --bpy, --gltf, and --nostep suppress STEP output, so they cannot
-    be combined with -stl or --png.
+    be combined with -stl, --3mf, or --png.
   - -stl and --png may be used together; both derive from the same STEP file.
   - STL/PNG previews need OCCT ('occt-draw' or 'DRAWEXE') on PATH.
 EOF
@@ -161,48 +170,195 @@ if [[ $# -lt 1 ]]; then
   exit 2
 fi
 
-# Wrapper options may precede the example (`./run-example.sh --view 2`).
-# Collect a leading run of wrapper options, then take the first remaining
-# argument as the example and forward the collected options after it.
-PREFIX_ARGS=()
-while [[ $# -gt 0 ]]; do
-  case "${1:-}" in
-    --view | --view=* | --view-with-preprocess | --view-with-preprocess=* | --live | -stl | --stl | -stl=* | --stl=* | -3mf | --3mf | -3mf=* | --3mf=* | -png | --png | -png=* | --png=* | --nostep | --blend | --blend=* | --bpy | --bpy=* | --gltf | --gltf=* | --no-connectors | --connectors | --headless | --no-open)
-      PREFIX_ARGS+=("$1")
-      shift
-      ;;
-    -o | --out | -eval | --eval)
-      PREFIX_ARGS+=("$1")
-      if [[ $# -ge 2 ]]; then
-        PREFIX_ARGS+=("$2")
-        shift 2
-      else
-        shift
+# Expand a leading "~" / "~/" (shells do not tilde-expand after "=" in flags
+# like `--3mf=~/Downloads/foo.3mf`) and strip a leading "./".
+expand_tilde() {
+  local p="$1"
+  if [[ "$p" == "~" ]]; then
+    printf '%s' "$HOME"
+  elif [[ "$p" == "~/"* ]]; then
+    printf '%s' "$HOME/${p#\~/}"
+  else
+    printf '%s' "$p"
+  fi
+}
+
+normalize_path() {
+  local p
+  p="$(expand_tilde "$1")"
+  while [[ "$p" == ./* ]]; do p="${p#./}"; done
+  printf '%s' "$p"
+}
+
+# --- Argument parsing -------------------------------------------------------
+# Wrapper options may come before or after the example, and every option that
+# takes a path accepts it either inline ("--3mf=out.3mf") or as the next
+# argument ("--3mf out.3mf"). An option given without a value keeps its
+# default. Everything the wrapper does not own is forwarded to the example
+# unchanged (example options take space-separated values too).
+wrapper_value_exts() {
+  case "$1" in
+    -o | --out) printf '*' ;;
+    -eval | --eval | --view | --view-with-preprocess) printf 'step stp' ;;
+    -stl | --stl) printf 'stl' ;;
+    -3mf | --3mf) printf '3mf' ;;
+    -png | --png) printf 'png' ;;
+    --blend) printf 'blend' ;;
+    --bpy) printf 'py' ;;
+    --gltf) printf 'gltf' ;;
+    *) printf '' ;;
+  esac
+}
+
+# takes_next_value OPTION TOKEN EXAMPLE_KNOWN succeeds when TOKEN is OPTION's
+# space-separated value. Value-less and unknown options never take one, so the
+# next option, the example name, or a forwarded argument stays where it is.
+takes_next_value() {
+  local opt="$1" token="${2:-}" example_known="${3:-0}" exts tok_ext ext
+  [[ -n "$token" && "$token" != -* ]] || return 1
+  exts="$(wrapper_value_exts "$opt")"
+  [[ -n "$exts" ]] || return 1
+  [[ "$exts" == "*" ]] && return 0
+  # Once the example is known this option cannot be confused with it, so any
+  # bare token is its value. Before that, require the option's own file
+  # extension so `--view 12` and `--3mf 38` keep reading the example number.
+  (( example_known )) && return 0
+  [[ "$token" == *.* ]] || return 1
+  tok_ext="$(printf '%s' "${token##*.}" | tr '[:upper:]' '[:lower:]')"
+  for ext in $exts; do
+    [[ "$tok_ext" == "$ext" ]] && return 0
+  done
+  return 1
+}
+
+STL_REQUESTED=0
+STL_OUT_ARG=""
+STL_OUT=""
+THREEMF_REQUESTED=0
+THREEMF_OUT_ARG=""
+THREEMF_OUT=""
+PNG_REQUESTED=0
+PNG_OUT_ARG=""
+PNG_OUT=""
+STEP_OUT=""
+EVAL_OUT=""
+VIEW_REQUESTED=0
+VIEW_PREPROCESS_REQUESTED=0
+VIEW_PATH_ARG=""
+VIEW_STEP=""
+LIVE_REQUESTED=0
+LIVE_SCRIPT=""
+HEADLESS_REQUESTED=0
+CONNECTORS_REQUESTED=1
+NO_STEP_OUTPUT=0
+EXAMPLE_ARG=""
+FORWARD_ARGS=()
+
+ARGS=("$@")
+i=0
+while (( i < ${#ARGS[@]} )); do
+  arg="${ARGS[$i]}"
+  i=$((i + 1))
+  opt="$arg"
+  value=""
+  inline=0
+  if [[ "$arg" == -* && "$arg" == *=* ]]; then
+    opt="${arg%%=*}"
+    value="${arg#*=}"
+    inline=1
+  fi
+  # "--" is a documented no-op separator; never forward it.
+  [[ "$opt" == "--" ]] && continue
+  # The first bare token names the example.
+  if [[ -z "$EXAMPLE_ARG" && "$opt" != -* ]]; then
+    EXAMPLE_ARG="$arg"
+    continue
+  fi
+  example_known=0
+  if [[ -n "$EXAMPLE_ARG" ]]; then example_known=1; fi
+  if (( ! inline )) && takes_next_value "$opt" "${ARGS[$i]:-}" "$example_known"; then
+    value="${ARGS[$i]}"
+    i=$((i + 1))
+  fi
+  case "$opt" in
+    -stl | --stl)
+      STL_REQUESTED=1
+      if [[ -n "$value" ]]; then
+        STL_OUT_ARG="$(expand_tilde "$value")"
       fi
       ;;
-    -o=* | --out=* | -eval=* | --eval=*)
-      PREFIX_ARGS+=("$1")
-      shift
+    -3mf | --3mf)
+      THREEMF_REQUESTED=1
+      if [[ -n "$value" ]]; then
+        THREEMF_OUT_ARG="$(expand_tilde "$value")"
+      fi
       ;;
-    *) break ;;
+    -png | --png)
+      PNG_REQUESTED=1
+      if [[ -n "$value" ]]; then
+        PNG_OUT_ARG="$(expand_tilde "$value")"
+      fi
+      ;;
+    -o | --out)
+      if [[ -z "$value" ]]; then
+        echo "Error: $opt needs a path, e.g. $opt out.step." >&2
+        exit 2
+      fi
+      STEP_OUT="$(expand_tilde "$value")"
+      FORWARD_ARGS+=(-o "$STEP_OUT")
+      ;;
+    -eval | --eval)
+      EVAL_OUT="$value"
+      # Examples register eval as a long option only.
+      if [[ -n "$value" ]]; then
+        FORWARD_ARGS+=(--eval "$value")
+      else
+        FORWARD_ARGS+=(--eval)
+      fi
+      ;;
+    --view)
+      VIEW_REQUESTED=1
+      if (( inline )) || [[ -n "$value" ]]; then
+        # An explicit path means the classic pre-evaluated STEP route.
+        VIEW_PREPROCESS_REQUESTED=1
+        VIEW_PATH_ARG="$value"
+      fi
+      ;;
+    --view-with-preprocess)
+      VIEW_REQUESTED=1
+      VIEW_PREPROCESS_REQUESTED=1
+      VIEW_PATH_ARG="$value"
+      ;;
+    --live)
+      LIVE_REQUESTED=1
+      ;;
+    --no-connectors)
+      CONNECTORS_REQUESTED=0
+      ;;
+    --connectors)
+      CONNECTORS_REQUESTED=1
+      ;;
+    --headless | --no-open)
+      HEADLESS_REQUESTED=1
+      ;;
+    --blend | --bpy | --gltf | --nostep)
+      # The example handles these itself; they only mean no STEP is written.
+      NO_STEP_OUTPUT=1
+      FORWARD_ARGS+=("$opt")
+      if [[ -n "$value" ]]; then
+        FORWARD_ARGS+=("$value")
+      fi
+      ;;
+    *)
+      FORWARD_ARGS+=("$arg")
+      ;;
   esac
 done
-if [[ $# -lt 1 ]]; then
+
+if [[ -z "$EXAMPLE_ARG" ]]; then
   echo "Error: example name or number is missing." >&2
   usage >&2
   exit 2
-fi
-
-EXAMPLE_ARG="$1"
-shift
-
-# Users sometimes include an extra "--" out of habit (because `moon run` uses it).
-# This wrapper already inserts "--" before forwarded args, so strip one if present.
-if [[ $# -gt 0 && "${1:-}" == "--" ]]; then
-  shift
-fi
-if [[ ${#PREFIX_ARGS[@]} -gt 0 ]]; then
-  set -- "${PREFIX_ARGS[@]}" "$@"
 fi
 
 # Allow users to pass a bare folder name ("12-bifilar-electromagnet") or a path
@@ -249,26 +405,6 @@ fi
 # The resolved folder name (e.g. "12-bifilar-electromagnet"), used for default file names.
 EXAMPLE_NAME="$(basename "$EXAMPLE_PATH_REL")"
 
-# Expand a leading "~" / "~/" (shells do not tilde-expand after "=" in flags
-# like `--3mf=~/Downloads/foo.3mf`) and strip a leading "./".
-expand_tilde() {
-  local p="$1"
-  if [[ "$p" == "~" ]]; then
-    printf '%s' "$HOME"
-  elif [[ "$p" == "~/"* ]]; then
-    printf '%s' "$HOME/${p#\~/}"
-  else
-    printf '%s' "$p"
-  fi
-}
-
-normalize_path() {
-  local p
-  p="$(expand_tilde "$1")"
-  while [[ "$p" == ./* ]]; do p="${p#./}"; done
-  printf '%s' "$p"
-}
-
 # Derive "<step basename>.<ext>" next to the STEP output, or fall back to the
 # example name in the current directory.
 sibling_output() {
@@ -285,122 +421,6 @@ sibling_output() {
     printf '%s.%s' "$EXAMPLE_NAME" "$ext"
   fi
 }
-
-# --- Forwarded arguments ----------------------------------------------------
-# `-stl`, `--png`, and `-h`/`--help` are handled by this wrapper; every other
-# argument is forwarded to the example. `-o`/`--out` is picked out only to
-# locate the generated STEP file.
-STL_REQUESTED=0
-STL_OUT_ARG=""
-STL_OUT=""
-THREEMF_REQUESTED=0
-THREEMF_OUT_ARG=""
-THREEMF_OUT=""
-PNG_REQUESTED=0
-PNG_OUT_ARG=""
-PNG_OUT=""
-STEP_OUT=""
-EVAL_OUT=""
-VIEW_REQUESTED=0
-VIEW_PREPROCESS_REQUESTED=0
-VIEW_PATH_ARG=""
-VIEW_STEP=""
-LIVE_REQUESTED=0
-LIVE_SCRIPT=""
-HEADLESS_REQUESTED=0
-CONNECTORS_REQUESTED=1
-NO_STEP_OUTPUT=0
-FORWARD_ARGS=()
-ARGS=("$@")
-i=0
-while (( i < ${#ARGS[@]} )); do
-  arg="${ARGS[$i]}"
-  case "$arg" in
-    -stl | --stl)
-      STL_REQUESTED=1
-      ;;
-    -stl=* | --stl=*)
-      STL_REQUESTED=1
-      STL_OUT_ARG="$(expand_tilde "${arg#*=}")"
-      ;;
-    -3mf | --3mf)
-      THREEMF_REQUESTED=1
-      ;;
-    -3mf=* | --3mf=*)
-      THREEMF_REQUESTED=1
-      THREEMF_OUT_ARG="$(expand_tilde "${arg#*=}")"
-      ;;
-    -png | --png)
-      PNG_REQUESTED=1
-      ;;
-    -png=* | --png=*)
-      PNG_REQUESTED=1
-      PNG_OUT_ARG="$(expand_tilde "${arg#*=}")"
-      ;;
-    -o | --out)
-      FORWARD_ARGS+=("$arg")
-      if (( i + 1 < ${#ARGS[@]} )); then
-        STEP_OUT="$(expand_tilde "${ARGS[$((i + 1))]}")"
-        FORWARD_ARGS+=("$STEP_OUT")
-        i=$((i + 1))
-      fi
-      ;;
-    -o=* | --out=*)
-      STEP_OUT="$(expand_tilde "${arg#*=}")"
-      FORWARD_ARGS+=("${arg%%=*}=$STEP_OUT")
-      ;;
-    -eval | --eval)
-      FORWARD_ARGS+=("$arg")
-      if (( i + 1 < ${#ARGS[@]} )); then
-        EVAL_OUT="${ARGS[$((i + 1))]}"
-        FORWARD_ARGS+=("$EVAL_OUT")
-        i=$((i + 1))
-      fi
-      ;;
-    -eval=* | --eval=*)
-      EVAL_OUT="${arg#*=}"
-      FORWARD_ARGS+=("$arg")
-      ;;
-    --view)
-      VIEW_REQUESTED=1
-      ;;
-    --view=*)
-      VIEW_REQUESTED=1
-      VIEW_PREPROCESS_REQUESTED=1
-      VIEW_PATH_ARG="${arg#*=}"
-      ;;
-    --view-with-preprocess)
-      VIEW_REQUESTED=1
-      VIEW_PREPROCESS_REQUESTED=1
-      ;;
-    --view-with-preprocess=*)
-      VIEW_REQUESTED=1
-      VIEW_PREPROCESS_REQUESTED=1
-      VIEW_PATH_ARG="${arg#*=}"
-      ;;
-    --live)
-      LIVE_REQUESTED=1
-      ;;
-    --no-connectors)
-      CONNECTORS_REQUESTED=0
-      ;;
-    --connectors)
-      CONNECTORS_REQUESTED=1
-      ;;
-    --headless | --no-open)
-      HEADLESS_REQUESTED=1
-      ;;
-    --blend | --blend=* | --bpy | --bpy=* | --gltf | --gltf=* | --nostep)
-      # These options make the example skip STEP output entirely.
-      NO_STEP_OUTPUT=1
-      FORWARD_ARGS+=("$arg")
-      ;;
-    *)
-      FORWARD_ARGS+=("$arg")
-      ;;
-  esac
-  i=$((i + 1))
-done
 
 # An evaluated export replaces the nominal STEP file, so derive previews from it.
 if [[ -n "$EVAL_OUT" ]]; then
@@ -425,7 +445,7 @@ if (( VIEW_REQUESTED )); then
     exit 1
   fi
   if [[ -n "$VIEW_PATH_ARG" ]] && [[ -n "$STEP_OUT" ]]; then
-    echo "Error: use either --view=<path> or -o <path>, not both." >&2
+    echo "Error: use either --view <path> or -o <path>, not both." >&2
     exit 1
   fi
   if [[ -n "$VIEW_PATH_ARG" ]]; then
@@ -499,17 +519,17 @@ if (( STL_REQUESTED || THREEMF_REQUESTED || PNG_REQUESTED )); then
   if [[ -n "$STEP_OUT" ]]; then
     if (( STL_REQUESTED )) && [[ "$(normalize_path "$STL_OUT")" == "$step_cmp" ]]; then
       echo "Error: STL path must differ from the STEP path: $STL_OUT" >&2
-      echo "       Pass the STL path explicitly with -stl=<path>." >&2
+      echo "       Pass the STL path explicitly with -stl <path>." >&2
       exit 1
     fi
     if (( THREEMF_REQUESTED )) && [[ "$(normalize_path "$THREEMF_OUT")" == "$step_cmp" ]]; then
       echo "Error: 3MF path must differ from the STEP path: $THREEMF_OUT" >&2
-      echo "       Pass the 3MF path explicitly with --3mf=<path>." >&2
+      echo "       Pass the 3MF path explicitly with --3mf <path>." >&2
       exit 1
     fi
     if (( PNG_REQUESTED )) && [[ "$(normalize_path "$PNG_OUT")" == "$step_cmp" ]]; then
       echo "Error: PNG path must differ from the STEP path: $PNG_OUT" >&2
-      echo "       Pass the PNG path explicitly with --png=<path>." >&2
+      echo "       Pass the PNG path explicitly with --png <path>." >&2
       exit 1
     fi
   fi

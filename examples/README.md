@@ -20,10 +20,14 @@ Run an example with `./run-example.sh <number|name> [args...]`. Add
 ```sh
 ./run-example.sh --list                      # top-level and component examples
 ./run-example.sh 12 -o coil.step -stl        # writes coil.step and coil.stl
-./run-example.sh 12 -stl=coil.stl            # names the STL explicitly
+./run-example.sh 12 -o coil.step -stl coil.stl  # names the STL explicitly
+./run-example.sh 38 -o gears.step --3mf gears.3mf  # names the 3MF explicitly
 ./run-example.sh --view 12                   # writes /tmp/12-*.step and opens it
 ./run-example.sh --headless bearing          # generate only; prints the STEP path
 ```
+
+Options that take a path accept it as the next argument or after `=`
+(`-stl coil.stl` and `-stl=coil.stl` are the same).
 
 `--view` opens and raises SolidCraft. Agents must use `--headless` instead: it
 generates to `/tmp/<example>.step` (or the `-o` path), prints the STEP and

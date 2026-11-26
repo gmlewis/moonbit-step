@@ -46,7 +46,10 @@ need to handle a rejected design without aborting can use
 |---|---|---|
 | STEP | `./examples/run-example.sh 12 -o coil.step` | Exact B-Rep; opens in any CAD viewer or slicer. |
 | STL | `./examples/run-example.sh 12 -o coil.step -stl` | OCCT tessellation; `STL_DEFLECTION=<mm>` (default 0.05). |
-| PNG | `./examples/run-example.sh 12 -o coil.step --png=preview.png` | Four views; needs OCCT, macOS `sips`, and optionally Inkscape. |
+| PNG | `./examples/run-example.sh 12 -o coil.step --png preview.png` | Four views; needs OCCT, macOS `sips`, and optionally Inkscape. |
+
+Every option that takes a path accepts it as the next argument (`--3mf out.3mf`)
+or after `=` (`--3mf=out.3mf`).
 
 The Blender and glTF backends are available through the CAD API; see
 [`examples/README.md`](examples/README.md) for the runnable example.
