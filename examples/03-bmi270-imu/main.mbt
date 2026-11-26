@@ -58,5 +58,7 @@ async fn main {
     None => ()
   }
 
-  comp.write_step(args.string_opt("out"))
+  comp
+  .to_design(documentation=args.documentation())
+  .write_step(args.string_opt("out"))
 }

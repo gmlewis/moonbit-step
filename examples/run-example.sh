@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+ORIG_CMD="./run-example.sh $*"
+
 usage() {
   cat <<'EOF'
 run-example.sh — run an example and optionally export a mesh or preview image.
@@ -684,7 +686,7 @@ if (( STL_REQUESTED )); then
 fi
 
 if (( THREEMF_REQUESTED )); then
-  if ! python3 "$ROOT_DIR/scripts/step_to_3mf.py" "$STEP_OUT" "$THREEMF_OUT"; then
+  if ! "$ROOT_DIR/scripts/step_to_3mf.py" "$STEP_OUT" "$THREEMF_OUT" --command "$ORIG_CMD" --repo-dir "$ROOT_DIR"; then
     echo "Error: failed to export 3MF from $STEP_OUT." >&2
     exit 1
   fi

@@ -86,7 +86,7 @@ async fn main {
     @planetary.split_ring_exploded_design(params, gap_mm~)
   }
   let design = match design_res {
-    Ok(d) => d
+    Ok(d) => d.with_documentation(args.documentation())
     Err(e) => {
       @cli.eprintln("error: invalid split-ring params: " + e.to_string())
       abort("")
