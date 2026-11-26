@@ -32,6 +32,7 @@ import tempfile
 import xml.etree.ElementTree as ET
 import zipfile
 from pathlib import Path
+from xml.sax.saxutils import escape as xml_escape
 
 MODEL_NS = "http://schemas.microsoft.com/3dmanufacturing/core/2015/02"
 RELS_NS = "http://schemas.openxmlformats.org/package/2006/relationships"
@@ -293,14 +294,175 @@ def _ensure_json_content_type(ct_bytes: bytes) -> bytes:
     return ct_bytes
 
 
+_RE_MODEL_OPEN = re.compile(rb"<model\b[^>]*>")
+_RE_RESOURCES_OPEN = re.compile(rb"<resources\b[^>]*>")
+_RE_OBJECT_ID = re.compile(rb'<object\b[^>]*\bid="(\d+)"')
+_RE_BUILD_BLOCK = re.compile(rb"<build\b[^>]*>(.*?)</build>", flags=re.DOTALL)
+_RE_ITEM_TAG = re.compile(rb"<item\b([^>]*)/?>")
+_RE_ATTR = re.compile(rb'(\w+)="([^"]*)"')
+
+
+def _build_metadata_entries(
+    prov: dict[str, object], fallback_title: str
+) -> list[tuple[str, str]]:
+    """Build ordered (name, value) pairs for 3MF `<metadata>` tags."""
+    desc_parts: list[str] = []
+    if prov.get("component"):
+        desc_parts.append(f"Component: {prov['component']}")
+    if prov.get("command"):
+        desc_parts.append(f"Command: {prov['command']}")
+    if prov.get("wrapper_command"):
+        desc_parts.append(f"Wrapper: {prov['wrapper_command']}")
+    git_info = prov.get("git")
+    if isinstance(git_info, dict) and git_info.get("short_commit"):
+        dirty = " (dirty)" if git_info.get("dirty") else ""
+        desc_parts.append(f"Git: {git_info['short_commit']}{dirty}")
+
+    mesh_export = prov.get("mesh_export")
+    export_tool = (
+        mesh_export.get("tool", "step_to_3mf.py")
+        if isinstance(mesh_export, dict)
+        else "step_to_3mf.py"
+    )
+
+    entries: list[tuple[str, str]] = [
+        (
+            "Title",
+            str(prov.get("component") or prov.get("source_step") or fallback_title),
+        ),
+        ("Application", f"gmlewis/step / {export_tool}"),
+        ("CreationDate", str(prov.get("created_utc", ""))),
+    ]
+    if desc_parts:
+        entries.append(("Description", " | ".join(desc_parts)))
+    if prov.get("command"):
+        entries.append(("MoonBit:Command", str(prov["command"])))
+    if prov.get("wrapper_command"):
+        entries.append(("MoonBit:WrapperCommand", str(prov["wrapper_command"])))
+    if prov.get("repository"):
+        entries.append(("MoonBit:Repository", str(prov["repository"])))
+    if prov.get("example"):
+        entries.append(("MoonBit:Example", str(prov["example"])))
+    if prov.get("component"):
+        entries.append(("MoonBit:Component", str(prov["component"])))
+    if isinstance(prov.get("parameters"), dict) and prov["parameters"]:
+        entries.append(
+            ("MoonBit:Parameters", json.dumps(prov["parameters"], sort_keys=True))
+        )
+    if isinstance(git_info, dict) and git_info.get("commit"):
+        dirty = " (dirty)" if git_info.get("dirty") else ""
+        entries.append(("MoonBit:GitCommit", f"{git_info['commit']}{dirty}"))
+    if prov.get("source_step_sha256"):
+        entries.append(("MoonBit:SourceStepSHA256", str(prov["source_step_sha256"])))
+    return [(k, v) for k, v in entries if v]
+
+
+def _splice_3dmodel_xml(
+    data: bytes, prov: dict[str, object], assembly_name: str
+) -> bytes:
+    """Surgically inject `<metadata>` tags at the top and wrap multi-body
+    `<build><item>` entries at the bottom without DOM-parsing huge meshes."""
+    m_model = _RE_MODEL_OPEN.search(data, 0, min(len(data), 16384))
+    if m_model is None:
+        return data
+
+    # 1. Splice `<metadata>` tags in the tiny header region before `<resources>`.
+    m_res = _RE_RESOURCES_OPEN.search(data, m_model.end(), min(len(data), 65536))
+    header_end = m_res.start() if m_res is not None else m_model.end()
+    header_slice = data[m_model.end() : header_end]
+
+    entries = _build_metadata_entries(prov, assembly_name)
+    managed_names = {k for k, _ in entries}
+
+    # Strip any pre-existing tags we are replacing (e.g. Application=SolidCraft).
+    def _strip_managed(match: re.Match[bytes]) -> bytes:
+        name = match.group(1).decode("utf-8", errors="replace")
+        return b"" if name in managed_names else match.group(0)
+
+    cleaned_header = re.sub(
+        rb'\s*<metadata\b[^>]*\bname="([^"]*)"[^>]*>.*?</metadata>',
+        _strip_managed,
+        header_slice,
+        flags=re.DOTALL,
+    )
+    meta_xml = "".join(
+        f'\n  <metadata name="{xml_escape(k)}">{xml_escape(v)}</metadata>'
+        for k, v in entries
+    ).encode("utf-8")
+
+    prefix = data[: m_model.end()] + meta_xml + cleaned_header
+
+    # 2. Check the tail for multi-body `<build><item>` wrapping.
+    body_and_tail = data[header_end:]
+    tail_scan_start = max(0, len(body_and_tail) - 131072)
+    m_build = _RE_BUILD_BLOCK.search(body_and_tail, tail_scan_start)
+    if m_build is None:
+        return prefix + body_and_tail
+
+    items: list[dict[str, str]] = []
+    for im in _RE_ITEM_TAG.finditer(m_build.group(1)):
+        attrs = {
+            am.group(1).decode("utf-8"): am.group(2).decode("utf-8")
+            for am in _RE_ATTR.finditer(im.group(1))
+        }
+        if "objectid" in attrs:
+            items.append(attrs)
+
+    if len(items) <= 1:
+        return prefix + body_and_tail
+
+    res_close = body_and_tail.rfind(b"</resources>", tail_scan_start, m_build.start())
+    if res_close == -1:
+        res_close = body_and_tail.rfind(b"</resources>", 0, m_build.start())
+    if res_close == -1:
+        return prefix + body_and_tail
+
+    max_id = 0
+    for om in _RE_OBJECT_ID.finditer(body_and_tail):
+        oid = int(om.group(1))
+        if oid > max_id:
+            max_id = oid
+    assembly_id = str(max_id + 1)
+
+    comp_lines = []
+    for it in items:
+        extra = (
+            f' transform="{xml_escape(it["transform"])}"'
+            if "transform" in it
+            else ""
+        )
+        comp_lines.append(
+            f'      <component objectid="{xml_escape(it["objectid"])}"{extra}/>'
+        )
+    asm_xml = (
+        f'\n  <object id="{assembly_id}" type="model" name="{xml_escape(assembly_name)}">\n'
+        "    <components>\n"
+        + "\n".join(comp_lines)
+        + "\n    </components>\n  </object>\n"
+    ).encode("utf-8")
+    new_build = f'<build>\n    <item objectid="{assembly_id}"/>\n  </build>'.encode(
+        "utf-8"
+    )
+
+    return (
+        prefix
+        + body_and_tail[:res_close]
+        + asm_xml
+        + body_and_tail[res_close : m_build.start()]
+        + new_build
+        + body_and_tail[m_build.end() :]
+    )
+
+
 def postprocess_3mf(three_mf_path: Path, prov: dict[str, object]) -> None:
     """Embed 3MF `<metadata>` tags, `Metadata/provenance.json`, and wrap
     multi-body assemblies into a single pre-assembled object."""
-    ET.register_namespace("", MODEL_NS)
     tmp_path = three_mf_path.with_suffix(".3mf.tmp")
     with (
         zipfile.ZipFile(three_mf_path, "r") as zin,
-        zipfile.ZipFile(tmp_path, "w", compression=zipfile.ZIP_DEFLATED) as zout,
+        zipfile.ZipFile(
+            tmp_path, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=1
+        ) as zout,
     ):
         for item in zin.infolist():
             if item.filename == PROVENANCE_MEMBER:
@@ -309,86 +471,7 @@ def postprocess_3mf(three_mf_path: Path, prov: dict[str, object]) -> None:
             if item.filename == "[Content_Types].xml":
                 data = _ensure_json_content_type(data)
             elif item.filename.lower() == "3d/3dmodel.model":
-                try:
-                    root = ET.fromstring(data)
-                    ns = (
-                        root.tag.split("}")[0][1:]
-                        if root.tag.startswith("{")
-                        else MODEL_NS
-                    )
-                    ET.register_namespace("", ns)
-
-                    def set_meta(name: str, value: str) -> None:
-                        if not value:
-                            return
-                        tag = f"{{{ns}}}metadata"
-                        for existing in root.findall(tag):
-                            if existing.attrib.get("name") == name:
-                                existing.text = value
-                                return
-                        el = ET.Element(tag, {"name": name})
-                        el.text = value
-                        root.insert(0, el)
-
-                    desc_parts: list[str] = []
-                    if prov.get("component"):
-                        desc_parts.append(f"Component: {prov['component']}")
-                    if prov.get("command"):
-                        desc_parts.append(f"Command: {prov['command']}")
-                    if prov.get("wrapper_command"):
-                        desc_parts.append(f"Wrapper: {prov['wrapper_command']}")
-                    git_info = prov.get("git")
-                    if isinstance(git_info, dict) and git_info.get("short_commit"):
-                        dirty = " (dirty)" if git_info.get("dirty") else ""
-                        desc_parts.append(f"Git: {git_info['short_commit']}{dirty}")
-
-                    mesh_export = prov.get("mesh_export")
-                    export_tool = (
-                        mesh_export.get("tool", "step_to_3mf.py")
-                        if isinstance(mesh_export, dict)
-                        else "step_to_3mf.py"
-                    )
-
-                    # Insert in reverse visual priority so Title/Application/CreationDate sit at top.
-                    if prov.get("source_step_sha256"):
-                        set_meta("MoonBit:SourceStepSHA256", str(prov["source_step_sha256"]))
-                    if isinstance(git_info, dict) and git_info.get("commit"):
-                        dirty = " (dirty)" if git_info.get("dirty") else ""
-                        set_meta("MoonBit:GitCommit", f"{git_info['commit']}{dirty}")
-                    if isinstance(prov.get("parameters"), dict) and prov["parameters"]:
-                        set_meta(
-                            "MoonBit:Parameters",
-                            json.dumps(prov["parameters"], sort_keys=True),
-                        )
-                    if prov.get("component"):
-                        set_meta("MoonBit:Component", str(prov["component"]))
-                    if prov.get("example"):
-                        set_meta("MoonBit:Example", str(prov["example"]))
-                    if prov.get("repository"):
-                        set_meta("MoonBit:Repository", str(prov["repository"]))
-                    if prov.get("wrapper_command"):
-                        set_meta("MoonBit:WrapperCommand", str(prov["wrapper_command"]))
-                    if prov.get("command"):
-                        set_meta("MoonBit:Command", str(prov["command"]))
-                    if desc_parts:
-                        set_meta("Description", " | ".join(desc_parts))
-                    set_meta("CreationDate", str(prov.get("created_utc", "")))
-                    set_meta("Application", f"gmlewis/step / {export_tool}")
-                    set_meta(
-                        "Title",
-                        str(
-                            prov.get("component")
-                            or prov.get("source_step")
-                            or three_mf_path.stem
-                        ),
-                    )
-
-                    _wrap_multibody_assembly(root, ns, three_mf_path.stem)
-                    data = ET.tostring(
-                        root, encoding="utf-8", xml_declaration=True
-                    )
-                except ET.ParseError:
-                    pass
+                data = _splice_3dmodel_xml(data, prov, three_mf_path.stem)
             zout.writestr(item, data)
         zout.writestr(
             PROVENANCE_MEMBER,
