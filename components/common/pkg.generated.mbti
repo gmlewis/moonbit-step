@@ -315,6 +315,18 @@ pub fn Metadata::new(designation~ : String, standard? : String, family? : String
 pub fn Metadata::summary(Self) -> String
 pub fn Metadata::with_material(Self, String) -> Self
 
+#derive(Eq)
+pub(all) enum MfgProcess {
+  Nominal
+  Fdm
+  Sls
+  Cnc
+}
+pub fn MfgProcess::needs_fdm_teardrops(Self) -> Bool
+pub fn MfgProcess::parse(String) -> Self?
+pub fn MfgProcess::to_string(Self) -> String
+pub impl Show for MfgProcess
+
 pub(all) struct Omission {
   feature : String
   reason : String

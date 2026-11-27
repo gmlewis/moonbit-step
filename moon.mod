@@ -1,12 +1,12 @@
 name = "gmlewis/step"
 
-version = "0.2.20"
+version = "0.2.21"
 
 import {
   "gmlewis/base64@0.16.15",
-  "gmlewis/flate@0.36.20",
-  "gmlewis/fonts@0.19.24",
-  "gmlewis/gzip@0.34.20",
+  "gmlewis/flate@0.37.0",
+  "gmlewis/fonts@0.20.0",
+  "gmlewis/gzip@0.34.21",
   "gmlewis/io@0.23.22",
   "moonbitlang/async@0.22.11",
   "moonbitlang/x@0.5.9",
