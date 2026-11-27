@@ -8,7 +8,7 @@ import {
   "gmlewis/fonts@0.19.24",
   "gmlewis/gzip@0.34.20",
   "gmlewis/io@0.23.22",
-  "moonbitlang/async@0.22.10",
+  "moonbitlang/async@0.22.11",
   "moonbitlang/x@0.5.9",
 }
 
