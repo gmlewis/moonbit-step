@@ -611,36 +611,122 @@ def binary_stl_to_3mf(stl_path: Path, out_path: Path, model_name: str) -> int:
         if idxs[0] != idxs[1] and idxs[1] != idxs[2] and idxs[2] != idxs[0]:
             tris.append((idxs[0], idxs[1], idxs[2]))
 
+    # Separate disconnected triangle shells into distinct 3MF `<object>` meshes
+    # wrapped in a composite `<components>` assembly (matching solidcraft-cli).
+    # Keeping each gear/body in its own `<object>` prevents OrcaSlicer's
+    # single-mesh polygon slicer from XOR-cancelling adjacent tight-clearance
+    # bodies when chordal mesh facets nearly touch.
+    parent = list(range(len(verts)))
+
+    def _find(x: int) -> int:
+        while parent[x] != x:
+            parent[x] = parent[parent[x]]
+            x = parent[x]
+        return x
+
+    for v1, v2, v3 in tris:
+        r1, r2, r3 = _find(v1), _find(v2), _find(v3)
+        if r1 != r2:
+            parent[r2] = r1
+        if r1 != r3:
+            parent[r3] = r1
+
+    shells_map: dict[int, list[tuple[int, int, int]]] = {}
+    for tri in tris:
+        shells_map.setdefault(_find(tri[0]), []).append(tri)
+    shells = sorted(shells_map.values(), key=len, reverse=True)
+
     lines = [
         '<?xml version="1.0" encoding="UTF-8"?>',
         f'<model unit="millimeter" xml:lang="en-US" xmlns="{MODEL_NS}">',
         "  <resources>",
-        f'    <object id="1" type="model" name="{model_name}">',
-        "      <mesh>",
-        "        <vertices>",
     ]
-    for x, y, z in verts:
-        lines.append(f'          <vertex x="{x:g}" y="{y:g}" z="{z:g}"/>')
-    lines.append("        </vertices>")
-    lines.append("        <triangles>")
-    for v1, v2, v3 in tris:
-        lines.append(f'          <triangle v1="{v1}" v2="{v2}" v3="{v3}"/>')
-    lines.extend(
-        [
-            "        </triangles>",
-            "      </mesh>",
-            "    </object>",
-            "  </resources>",
-            "  <build>",
-            '    <item objectid="1"/>',
-            "  </build>",
-            "</model>",
-            "",
-        ]
-    )
+    if len(shells) <= 1:
+        lines.append(f'    <object id="1" type="model" name="{xml_escape(model_name)}">')
+        lines.append("      <mesh>")
+        lines.append("        <vertices>")
+        for x, y, z in verts:
+            lines.append(f'          <vertex x="{x:g}" y="{y:g}" z="{z:g}"/>')
+        lines.append("        </vertices>")
+        lines.append("        <triangles>")
+        for v1, v2, v3 in tris:
+            lines.append(f'          <triangle v1="{v1}" v2="{v2}" v3="{v3}"/>')
+        lines.extend(
+            [
+                "        </triangles>",
+                "      </mesh>",
+                "    </object>",
+                "  </resources>",
+                "  <build>",
+                '    <item objectid="1"/>',
+                "  </build>",
+                "</model>",
+                "",
+            ]
+        )
+    else:
+        part_ids: list[int] = []
+        for idx, shell_tris in enumerate(shells, start=1):
+            oid = idx
+            part_ids.append(oid)
+            local_map: dict[int, int] = {}
+            local_verts: list[tuple[float, float, float]] = []
+            local_tris: list[tuple[int, int, int]] = []
+            for a, b, c in shell_tris:
+                la = local_map.get(a)
+                if la is None:
+                    la = len(local_verts)
+                    local_map[a] = la
+                    local_verts.append(verts[a])
+                lb = local_map.get(b)
+                if lb is None:
+                    lb = len(local_verts)
+                    local_map[b] = lb
+                    local_verts.append(verts[b])
+                lc = local_map.get(c)
+                if lc is None:
+                    lc = len(local_verts)
+                    local_map[c] = lc
+                    local_verts.append(verts[c])
+                local_tris.append((la, lb, lc))
+            lines.append(
+                f'    <object id="{oid}" type="model" name="{xml_escape(model_name)}_part_{idx}">'
+            )
+            lines.append("      <mesh>")
+            lines.append("        <vertices>")
+            for x, y, z in local_verts:
+                lines.append(f'          <vertex x="{x:g}" y="{y:g}" z="{z:g}"/>')
+            lines.append("        </vertices>")
+            lines.append("        <triangles>")
+            for v1, v2, v3 in local_tris:
+                lines.append(f'          <triangle v1="{v1}" v2="{v2}" v3="{v3}"/>')
+            lines.append("        </triangles>")
+            lines.append("      </mesh>")
+            lines.append("    </object>")
+        asm_id = len(shells) + 1
+        lines.append(
+            f'    <object id="{asm_id}" type="model" name="{xml_escape(model_name)}">'
+        )
+        lines.append("      <components>")
+        for pid in part_ids:
+            lines.append(f'        <component objectid="{pid}"/>')
+        lines.extend(
+            [
+                "      </components>",
+                "    </object>",
+                "  </resources>",
+                "  <build>",
+                f'    <item objectid="{asm_id}"/>',
+                "  </build>",
+                "</model>",
+                "",
+            ]
+        )
     model_xml = "\n".join(lines).encode("utf-8")
 
-    with zipfile.ZipFile(out_path, "w", compression=zipfile.ZIP_DEFLATED) as zf:
+    with zipfile.ZipFile(
+        out_path, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=1
+    ) as zf:
         zf.writestr("[Content_Types].xml", CONTENT_TYPES_XML)
         zf.writestr("_rels/.rels", RELS_XML)
         zf.writestr("3D/3dmodel.model", model_xml)
@@ -665,7 +751,7 @@ def export_via_occt(
         tcl = (
             "pload ALL\n"
             f"testreadstep {_tcl_quote(str(step_path.resolve()))} a\n"
-            f"incmesh a {deflection:g}\n"
+            f"incmesh a {deflection:g} -parallel\n"
             f"writestl a {_tcl_quote(str(stl_path))}\n"
             "exit\n"
         )
@@ -726,8 +812,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument(
         "--deflection",
         type=float,
-        default=float(os.environ.get("STL_DEFLECTION", "0.05")),
-        help="OCCT fallback tessellation deflection in mm (default: 0.05)",
+        default=float(os.environ.get("STL_DEFLECTION", "0.015")),
+        help="OCCT fallback tessellation deflection in mm (default: 0.015)",
     )
     parser.add_argument(
         "--lay-flat",
@@ -739,6 +825,16 @@ def main(argv: list[str] | None = None) -> int:
         type=float,
         default=180.0,
         help="Subprocess timeout in seconds (default: 180)",
+    )
+    parser.add_argument(
+        "--backend",
+        choices=("auto", "solidcraft", "occt"),
+        default=os.environ.get("THREEMF_BACKEND", "auto"),
+        help=(
+            "Tessellation backend: auto (default: SolidCraft for <15 MB STEP "
+            "files with 45s cap, parallel OCCT directly for >=15 MB STEP files), "
+            "solidcraft, or occt"
+        ),
     )
     args = parser.parse_args(argv)
 
@@ -760,22 +856,35 @@ def main(argv: list[str] | None = None) -> int:
         if home_sc.is_file() and os.access(home_sc, os.X_OK)
         else shutil.which("solidcraft-cli")
     )
-    if sc:
+    occt = shutil.which("occt-draw") or shutil.which("DRAWEXE")
+    step_size = args.step_path.stat().st_size
+    auto_prefer_occt = (
+        args.backend == "auto" and occt is not None and step_size >= 15 * 1024 * 1024
+    )
+
+    if sc and args.backend != "occt" and not auto_prefer_occt:
+        sc_timeout = (
+            min(args.timeout, 45.0)
+            if (args.backend == "auto" and occt is not None)
+            else args.timeout
+        )
         ok, err = export_via_solidcraft(
             sc,
             args.step_path,
             args.out_path,
             args.quality,
             args.lay_flat,
-            args.timeout,
+            sc_timeout,
             wrapper_command=args.command,
             repo_dir=args.repo_dir,
         )
         if ok:
             return 0
+        if args.backend == "solidcraft":
+            print(f"Error: {err}", file=sys.stderr)
+            return 1
         print(f"note: {err}; falling back to OCCT", file=sys.stderr)
 
-    occt = shutil.which("occt-draw") or shutil.which("DRAWEXE")
     if not occt:
         print(
             "Error: neither solidcraft-cli nor occt-draw/DRAWEXE is on PATH.",
