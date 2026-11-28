@@ -139,14 +139,46 @@ def _collect_leaf_instances(doc: TDocStd_Document) -> list[dict[str, Any]]:
     return leaves
 
 
-def _tessellate_doc(doc: TDocStd_Document, lin_deflection: float, ang_deflection: float) -> None:
+def _auto_tessellation(shapes: list) -> tuple[float, float]:
+    """Choose scale-aware (lin_deflection_mm, ang_deflection_rad) so small parts
+    like bearings and fasteners render silky smooth without bloating huge assemblies."""
+    box = Bnd_Box()
+    for shape in shapes:
+        BRepBndLib.Add_s(shape, box)
+    if box.IsVoid():
+        return (0.05, 0.15)
+    xmin, ymin, zmin, xmax, ymax, zmax = box.Get()
+    diag = math.sqrt((xmax - xmin) ** 2 + (ymax - ymin) ** 2 + (zmax - zmin) ** 2)
+    lin = max(0.01, min(0.25, diag * 0.0006))
+    if diag <= 80.0:
+        ang = 0.12  # ~6.9 deg (~52 segments/circle) for bearings, screws, small gears
+    elif diag <= 250.0:
+        ang = 0.18  # ~10.3 deg (~35 segments/circle) for medium parts & assemblies
+    else:
+        ang = 0.25  # ~14.3 deg (~25 segments/circle) for large assemblies
+    return (lin, ang)
+
+
+def _tessellate_doc(
+    doc: TDocStd_Document,
+    lin_deflection: float | None,
+    ang_deflection: float | None,
+) -> None:
     shape_tool = XCAFDoc_DocumentTool.ShapeTool_s(doc.Main())
     roots = TDF_LabelSequence()
     shape_tool.GetFreeShapes(roots)
+    shapes = []
     for idx in range(1, roots.Length() + 1):
         shape = shape_tool.GetShape_s(roots.Value(idx))
         if shape is not None and not shape.IsNull():
-            BRepMesh_IncrementalMesh(shape, lin_deflection, False, ang_deflection, True)
+            shapes.append(shape)
+    if not shapes:
+        return
+    auto_lin, auto_ang = _auto_tessellation(shapes)
+    lin = auto_lin if lin_deflection is None else lin_deflection
+    ang = auto_ang if ang_deflection is None else ang_deflection
+    for shape in shapes:
+        BRepMesh_IncrementalMesh(shape, lin, False, ang, True)
 
 
 def _read_glb_json(glb_path: Path) -> dict[str, Any]:
@@ -288,8 +320,8 @@ def export_step_to_glb(
     out_glb: Path,
     exploded_step: Path | None = None,
     explode_json: Path | None = None,
-    lin_deflection: float = 0.35,
-    ang_deflection: float = 0.5,
+    lin_deflection: float | None = None,
+    ang_deflection: float | None = None,
 ) -> tuple[int, int]:
     """Export `assembly_step` to `out_glb` (and optional `explode_json`).
     Returns (glb_bytes, part_count)."""
@@ -322,8 +354,8 @@ def main(argv: list[str]) -> int:
     parser.add_argument("-o", "--out", help="Output .glb path (default: <dir>/assembly.glb)")
     parser.add_argument("--exploded", help="Optional exploded.step path (default: <dir>/exploded.step if present)")
     parser.add_argument("--explode-json", help="Output explode.json path (default: <dir>/explode.json)")
-    parser.add_argument("--lin-deflection", type=float, default=0.35, help="Linear tessellation deflection in mm (default: 0.35)")
-    parser.add_argument("--ang-deflection", type=float, default=0.5, help="Angular tessellation deflection in radians (default: 0.5)")
+    parser.add_argument("--lin-deflection", type=float, default=None, help="Linear tessellation deflection in mm (default: auto by part size)")
+    parser.add_argument("--ang-deflection", type=float, default=None, help="Angular tessellation deflection in radians (default: auto by part size)")
     args = parser.parse_args(argv)
 
     inp = Path(args.input)
