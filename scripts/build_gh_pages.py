@@ -239,10 +239,11 @@ pre.cmd {
 .model-panel:fullscreen canvas, .model-panel:-webkit-full-screen canvas { width: 100vw; height: 100vh; }
 .model-panel .model-fallback { display: block; width: 100%; height: auto; }
 .model-hint {
-  position: absolute; left: 0.75rem; bottom: 0.65rem;
-  padding: 0.25rem 0.6rem; border: 1px solid var(--border); border-radius: 999px;
-  background: color-mix(in srgb, var(--bg) 82%, transparent);
-  color: var(--muted); font-size: 0.8rem; pointer-events: none;
+  position: absolute; left: 0.75rem; top: 0.75rem;
+  padding: 0.28rem 0.68rem; border: 1px solid var(--border); border-radius: 999px;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  color: var(--fg); font-size: 0.8rem; font-weight: 500; pointer-events: none; z-index: 5;
 }
 .viewer-toolbar {
   position: absolute; top: 0.75rem; right: 0.75rem;
@@ -282,7 +283,7 @@ pre.cmd {
 }
 .viewer-context-item:hover { background: color-mix(in srgb, var(--accent) 22%, transparent); }
 .viewer-focus-badge {
-  position: absolute; left: 0.75rem; top: 0.75rem;
+  position: absolute; left: 0.75rem; top: 2.95rem;
   display: inline-flex; align-items: center; gap: 0.45rem; max-width: 55%;
   padding: 0.32rem 0.6rem 0.32rem 0.75rem; border: 1px solid var(--accent); border-radius: 999px;
   background: color-mix(in srgb, var(--bg) 90%, var(--accent) 10%);
