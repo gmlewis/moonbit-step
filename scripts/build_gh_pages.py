@@ -319,6 +319,57 @@ def find_solidcraft() -> str | None:
     return shutil.which("solidcraft-cli")
 
 
+def _extract_full_desc(ex_dir: Path, slug: str, fallback: str) -> str:
+    """Read the full first prose paragraph from README.md or main.mbt doc comments
+    so multi-line wrapped descriptions are never truncated mid-sentence."""
+    readme = ex_dir / "README.md"
+    if readme.is_file():
+        para: list[str] = []
+        for raw in readme.read_text(encoding="utf-8").splitlines():
+            ln = raw.strip()
+            if not ln:
+                if para:
+                    break
+                continue
+            if ln.startswith(("#", "```", "|", "![", "---")):
+                if para:
+                    break
+                continue
+            para.append(ln)
+        if para:
+            return " ".join(para)
+    mbt_files = [ex_dir / "main.mbt"] if (ex_dir / "main.mbt").is_file() else sorted(
+        p for p in ex_dir.glob("*.mbt") if not p.name.endswith("_test.mbt")
+    )
+    for mbt in mbt_files:
+        para = []
+        for raw in mbt.read_text(encoding="utf-8").splitlines()[:40]:
+            s = raw.strip()
+            if s.startswith("///|"):
+                if para:
+                    break
+                continue
+            if s.startswith("///"):
+                body = s[3:].strip()
+                if not body:
+                    if para:
+                        break
+                    continue
+                if not para and (body == slug or body.startswith(slug + " ") or body.startswith("#")):
+                    continue
+                para.append(body)
+            elif para:
+                break
+        if para:
+            return " ".join(para)
+    return fallback
+
+
+def _format_inline_code(text: str) -> str:
+    escaped = html.escape(text)
+    return re.sub(r"`([^`]+)`", r"<code>\1</code>", escaped)
+
+
 def discover_all_examples(repo_root: Path, include_components: bool) -> list[dict[str, str]]:
     """Parse `./run-example.sh --list` to discover every top-level & component example."""
     proc = subprocess.run(
@@ -344,13 +395,14 @@ def discover_all_examples(repo_root: Path, include_components: bool) -> list[dic
             if m:
                 num, name, desc = m.group(1), m.group(2), m.group(3).strip()
                 dir_name = f"{num}-{name}"
+                full_desc = _extract_full_desc(repo_root / "examples" / dir_name, dir_name, desc)
                 items.append({
                     "kind": "examples",
                     "cli_arg": dir_name,
                     "slug": dir_name,
                     "rel_url": f"examples/{dir_name}/",
                     "title": name.replace("-", " ").replace("_", " ").title(),
-                    "desc": desc,
+                    "desc": full_desc,
                     "cmd": f"./run-example.sh {num} --view",
                     "src_path": f"examples/{dir_name}",
                 })
@@ -428,7 +480,7 @@ def render_detail_page(
     <a href="{html.escape(repo_url)}/tree/master/{html.escape(item["src_path"])}" target="_blank" rel="noopener">View Source on GitHub ↗</a>
   </nav>
   <h1>{html.escape(item["title"])}</h1>
-  <p class="desc">{html.escape(item["desc"])}</p>
+  <p class="desc">{_format_inline_code(item["desc"])}</p>
   <pre class="cmd">{html.escape(item["cmd"])}</pre>
   <div class="model-panel" id="model-panel">
     {fallback_img}
