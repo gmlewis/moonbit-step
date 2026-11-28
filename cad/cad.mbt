@@ -506,10 +506,21 @@ fn compile_node_shape(
       abort(
         "edge feature '\{node.name}' requires an evaluated kernel: the flat STEP writer cannot trim edges. Export with Design::to_step_evaluated() (OCCT) or the Blender backend.",
       )
-    Difference(_) => []
-    _ =>
-      // This should not be reached for Union shapes as they are expanded in Design::compile
-      []
+    Union(u) => {
+      let xf = Some(node_transform(node, parent))
+      let faces : Array[@step.Ref] = []
+      for child in u.nodes {
+        faces.push_iter(
+          compile_node_shape(ctx, child, reverse~, parent=xf).iter(),
+        )
+      }
+      faces
+    }
+    Difference(d) => {
+      let xf = Some(node_transform(node, parent))
+      compile_node_shape(ctx, d.base, reverse~, parent=xf)
+    }
+    _ => []
   }
 }
 
