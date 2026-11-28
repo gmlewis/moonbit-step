@@ -43,7 +43,7 @@ function humanizePartName(raw) {
     .replaceAll("/", " · ");
 }
 
-async function loadModel(loader) {
+async function loadModel(loader, onProgress) {
   const embeddedGlb = document.getElementById("embedded-assembly-glb");
   if (embeddedGlb && embeddedGlb.textContent.trim()) {
     const buf = base64ToArrayBuffer(embeddedGlb.textContent.trim());
@@ -51,7 +51,7 @@ async function loadModel(loader) {
     return { scene: gltf.scene, isOcctGlb: true };
   }
   try {
-    const gltf = await loader.loadAsync("assembly.glb");
+    const gltf = await loader.loadAsync("assembly.glb", onProgress);
     return { scene: gltf.scene, isOcctGlb: true };
   } catch (_) {
     // Fall back to legacy glTF JSON.
@@ -61,7 +61,7 @@ async function loadModel(loader) {
     const gltf = await loader.parseAsync(embeddedGltf.textContent, "");
     return { scene: gltf.scene, isOcctGlb: false };
   }
-  const gltf = await loader.loadAsync("assembly.gltf");
+  const gltf = await loader.loadAsync("assembly.gltf", onProgress);
   return { scene: gltf.scene, isOcctGlb: false };
 }
 
@@ -189,9 +189,17 @@ async function init() {
   controls.dampingFactor = 0.08;
 
   const loader = new GLTFLoader();
+  showHint("Loading interactive 3D model…");
+  const onProgress = (ev) => {
+    if (ev && ev.lengthComputable && ev.total > 0) {
+      const pct = Math.min(99, Math.round((ev.loaded / ev.total) * 100));
+      const mb = (ev.total / (1024 * 1024)).toFixed(1);
+      showHint(`Loading interactive 3D model… ${pct}% (${mb} MB)`);
+    }
+  };
   let loaded;
   try {
-    loaded = await loadModel(loader);
+    loaded = await loadModel(loader, onProgress);
   } catch (error) {
     showHint("3D model unavailable (serve this folder over http); showing the isometric render.");
     return;
