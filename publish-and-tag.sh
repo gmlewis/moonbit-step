@@ -152,6 +152,10 @@ if [[ -n "$published_version" ]] &&
     moon publish
     refresh_registry
     note "Published $module@$local_version with tag v$local_version"
+    if [[ "${SKIP_PAGES:-0}" != "1" && -x ./publish-gh-pages.sh ]]; then
+      note "Publishing GitHub Pages (./publish-gh-pages.sh) ..."
+      ./publish-gh-pages.sh
+    fi
     exit 0
   fi
 fi
@@ -184,3 +188,7 @@ note "Publishing $module@$new_version ..."
 moon publish
 refresh_registry
 note "Published $module@$new_version with tag v$new_version"
+if [[ "${SKIP_PAGES:-0}" != "1" && -x ./publish-gh-pages.sh ]]; then
+  note "Publishing GitHub Pages (./publish-gh-pages.sh) ..."
+  ./publish-gh-pages.sh
+fi

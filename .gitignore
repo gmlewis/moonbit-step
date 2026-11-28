@@ -30,3 +30,5 @@ __pycache__
 # Keep the declared readme and agent guide in the public repo.
 !README.md
 !AGENTS.md
+
+_site/
