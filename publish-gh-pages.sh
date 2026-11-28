@@ -17,6 +17,7 @@ note() { echo "==> $*"; }
 
 LOCAL_ONLY=0
 SKIP_COMPONENTS=0
+STYLE_ONLY=0
 ONLY=""
 
 usage() {
@@ -28,6 +29,7 @@ Usage:
 
 Options:
   --local-only, --no-push  Build `_site/` locally without pushing to GitHub
+  --style-only             Refresh HTML/CSS/JS only (no model/STEP/GLB rebuilds)
   --only LIST              Comma-separated example/component names (e.g. 38,bearing)
   --skip-components        Build only top-level `examples/` (skip `components/`)
   -h, --help               Show this help and exit
@@ -39,6 +41,7 @@ while [[ $# -gt 0 ]]; do
     -h | --help) usage; exit 0 ;;
     --local-only | --no-push) LOCAL_ONLY=1; shift ;;
     --skip-components) SKIP_COMPONENTS=1; shift ;;
+    --style-only) STYLE_ONLY=1; shift ;;
     --only) ONLY="${2:-}"; shift 2 ;;
     --only=*) ONLY="${1#*=}"; shift ;;
     *) die "unknown option: $1" ;;
@@ -52,6 +55,9 @@ done
 BUILD_ARGS=(--out _site)
 if (( SKIP_COMPONENTS )); then
   BUILD_ARGS+=(--skip-components)
+fi
+if (( STYLE_ONLY )); then
+  BUILD_ARGS+=(--style-only)
 fi
 if [[ -n "$ONLY" ]]; then
   BUILD_ARGS+=(--only "$ONLY")

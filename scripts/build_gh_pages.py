@@ -532,6 +532,7 @@ def main() -> int:
     parser.add_argument("--out", default="_site", help="Output directory (default: _site)")
     parser.add_argument("--only", default="", help="Comma-separated example/component names or numbers (e.g. 38,bearing)")
     parser.add_argument("--skip-components", action="store_true", help="Only build top-level examples/")
+    parser.add_argument("--style-only", action="store_true", help="Refresh HTML/CSS/JS only without rebuilding any models")
     parser.add_argument("--repo-url", default="https://github.com/gmlewis/moonbit-step", help="GitHub repository URL")
     args = parser.parse_args()
 
@@ -553,17 +554,36 @@ def main() -> int:
             print(f"error: no examples matched --only {args.only}", file=sys.stderr)
             return 2
 
-    if site_dir.exists() and not only_tokens:
+    if args.style_only:
+        if not site_dir.exists():
+            print(f"error: --style-only requires an existing {site_dir} directory", file=sys.stderr)
+            return 2
+    elif site_dir.exists() and not only_tokens:
         shutil.rmtree(site_dir)
     site_dir.mkdir(parents=True, exist_ok=True)
 
-    sc = find_solidcraft()
+    sc = None if args.style_only else find_solidcraft()
     module_name, version = read_module_info(repo_root)
     cards: list[dict[str, str]] = []
 
     for it in items:
-        print(f"==> Building {it['rel_url']} ...")
         page_dir = site_dir / it["kind"] / it["slug"]
+        if args.style_only:
+            if not page_dir.is_dir() or not (page_dir / "assembly.glb").is_file():
+                continue
+            has_thumb = (page_dir / "preview.png").is_file()
+            render_detail_page(repo_root, it, page_dir, args.repo_url, has_thumb)
+            cards.append({
+                "kind": it["kind"],
+                "slug": it["slug"],
+                "tag": f"{it['kind']}/{it['slug']}",
+                "title": it["title"],
+                "desc": it["desc"],
+                "href": it["rel_url"],
+                "thumb": f"{it['rel_url']}preview.png" if has_thumb else "",
+            })
+            continue
+        print(f"==> Building {it['rel_url']} ...")
         page_dir.mkdir(parents=True, exist_ok=True)
         tmp_step = Path("/tmp") / f"gh-pages-step-{it['slug']}.step"
         try:
