@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>planetary — Planetary</title>
+  <style>:root {
+  --bg: #ffffff;
+  --fg: #1f2328;
+  --muted: #59636e;
+  --border: #d0d7de;
+  --accent: #0969da;
+  --code-bg: #f6f8fa;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0d1117;
+    --fg: #e6edf3;
+    --muted: #8b949e;
+    --border: #30363d;
+    --accent: #58a6ff;
+    --code-bg: #161b22;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 1.75rem 1.5rem 3.5rem;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  line-height: 1.6;
+}
+nav.gh-pages-nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.7rem;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.9rem;
+}
+nav.gh-pages-nav a { color: var(--accent); text-decoration: none; font-weight: 600; }
+nav.gh-pages-nav a:hover { text-decoration: underline; }
+h1 { margin: 0 0 0.4rem; font-size: 1.9rem; font-weight: 700; }
+p.desc { margin: 0 0 1rem; color: var(--muted); font-size: 1rem; }
+pre.cmd {
+  margin: 0 0 1.25rem;
+  padding: 0.7rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--code-bg);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.88rem;
+  overflow-x: auto;
+}
+.model-panel {
+  position: relative;
+  margin: 1rem 0 1.5rem;
+  min-height: 540px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 35%, rgba(100, 145, 210, 0.22), var(--bg) 72%);
+}
+.model-panel [hidden] { display: none !important; }
+.model-panel canvas { display: block; width: 100%; height: 540px; touch-action: none; }
+.model-panel:fullscreen, .model-panel:-webkit-full-screen {
+  width: 100vw; height: 100vh; margin: 0; border: 0; border-radius: 0;
+  background: radial-gradient(circle at 50% 35%, #1e293b, #0b0f17 75%);
+}
+.model-panel:fullscreen canvas, .model-panel:-webkit-full-screen canvas { width: 100vw; height: 100vh; }
+.model-panel .model-fallback { display: block; width: 100%; height: auto; }
+.model-hint {
+  position: absolute; left: 0.75rem; top: 0.75rem;
+  padding: 0.28rem 0.68rem; border: 1px solid var(--border); border-radius: 999px;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  color: var(--fg); font-size: 0.8rem; font-weight: 500; pointer-events: none; z-index: 5;
+}
+.viewer-toolbar {
+  position: absolute; top: 0.75rem; right: 0.75rem;
+  display: flex; flex-wrap: wrap; align-items: center; gap: 0.45rem;
+  padding: 0.4rem 0.55rem; border: 1px solid var(--border); border-radius: 10px;
+  background: color-mix(in srgb, var(--bg) 84%, transparent);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 5;
+}
+.viewer-btn {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  padding: 0.32rem 0.68rem; border: 1px solid var(--border); border-radius: 7px;
+  background: color-mix(in srgb, var(--bg) 70%, var(--fg) 6%);
+  color: var(--fg); font: inherit; font-size: 0.82rem; font-weight: 550; cursor: pointer;
+}
+.viewer-btn:hover { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 16%, var(--bg)); }
+.viewer-btn.is-active { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 24%, var(--bg)); }
+.viewer-part-tooltip {
+  position: absolute; right: 0.75rem; bottom: 0.65rem;
+  padding: 0.28rem 0.68rem; border: 1px solid var(--accent); border-radius: 999px;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  color: var(--fg); font-size: 0.8rem; font-weight: 550; pointer-events: none; z-index: 5;
+}
+.viewer-context-menu {
+  position: absolute; min-width: 210px; max-width: 320px; padding: 0.35rem;
+  border: 1px solid var(--border); border-radius: 9px;
+  background: color-mix(in srgb, var(--bg) 94%, #000 6%);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.42); z-index: 20;
+}
+.viewer-context-header {
+  padding: 0.3rem 0.55rem 0.4rem; margin-bottom: 0.25rem;
+  border-bottom: 1px solid var(--border); color: var(--muted); font-size: 0.76rem; font-weight: 600;
+}
+.viewer-context-item {
+  display: flex; align-items: center; gap: 0.45rem; width: 100%;
+  padding: 0.42rem 0.55rem; border: 0; border-radius: 6px;
+  background: transparent; color: var(--fg); font: inherit; font-size: 0.84rem; text-align: left; cursor: pointer;
+}
+.viewer-context-item:hover { background: color-mix(in srgb, var(--accent) 22%, transparent); }
+.viewer-focus-badge {
+  position: absolute; left: 0.75rem; top: 2.95rem;
+  display: inline-flex; align-items: center; gap: 0.45rem; max-width: 55%;
+  padding: 0.32rem 0.6rem 0.32rem 0.75rem; border: 1px solid var(--accent); border-radius: 999px;
+  background: color-mix(in srgb, var(--bg) 90%, var(--accent) 10%);
+  color: var(--fg); font-size: 0.8rem; font-weight: 600; z-index: 6;
+}
+.viewer-focus-clear {
+  border: 0; border-radius: 999px; padding: 0.1rem 0.45rem;
+  background: color-mix(in srgb, var(--accent) 22%, transparent); color: var(--fg); cursor: pointer;
+}
+.viewer-toast {
+  position: absolute; left: 50%; bottom: 0.75rem; transform: translateX(-50%);
+  padding: 0.35rem 0.85rem; border: 1px solid var(--accent); border-radius: 999px;
+  background: color-mix(in srgb, var(--bg) 92%, transparent);
+  color: var(--fg); font-size: 0.82rem; font-weight: 550; pointer-events: none; z-index: 25;
+}
+</style>
+</head>
+<body>
+  <nav class="gh-pages-nav">
+    <a href="../../">← All Examples</a>
+    <a href="https://github.com/gmlewis/moonbit-step/tree/master/components" target="_blank" rel="noopener">View Source on GitHub ↗</a>
+  </nav>
+  <h1>Planetary</h1>
+  <p class="desc">Sun + equally spaced planets + exact internal involute ring, extruded as one exact line/arc solid (smooth cylindrical tooth walls).</p>
+  <pre class="cmd">./run-example.sh planetary --view</pre>
+  <div class="model-panel" id="model-panel">
+    <img class="model-fallback" src="preview.png" alt="Planetary">
+    <canvas hidden aria-label="Interactive 3D model view"></canvas>
+    <div class="model-hint" hidden></div>
+  </div>
+  <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+  <script type="module" src="viewer.js"></script>
+</body>
+</html>

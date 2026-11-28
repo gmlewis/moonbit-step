@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>gmlewis/step — Interactive STEP Catalog</title>
+  <style>:root {
+  --bg: #f6f8fa;
+  --surface: #ffffff;
+  --fg: #1f2328;
+  --muted: #59636e;
+  --border: #d0d7de;
+  --accent: #0969da;
+  --shadow: 0 2px 10px rgba(31, 35, 40, 0.06);
+  --shadow-hover: 0 10px 28px rgba(9, 105, 218, 0.14);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --fg: #e6edf3;
+    --muted: #8b949e;
+    --border: #30363d;
+    --accent: #58a6ff;
+    --shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
+    --shadow-hover: 0 12px 30px rgba(88, 166, 255, 0.18);
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  line-height: 1.55;
+}
+header.hero {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 1.25rem;
+}
+.hero-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.hero h1 { margin: 0; font-size: 2.1rem; font-weight: 700; letter-spacing: -0.02em; }
+.hero-links { display: flex; gap: 0.75rem; align-items: center; }
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.32rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--fg);
+  font-size: 0.85rem;
+  font-weight: 550;
+  text-decoration: none;
+}
+.pill:hover { border-color: var(--accent); color: var(--accent); }
+.hero p.subtitle { margin: 0.55rem 0 1.2rem; color: var(--muted); max-width: 760px; font-size: 1.02rem; }
+.search-bar {
+  width: 100%;
+  max-width: 440px;
+  padding: 0.55rem 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  background: var(--surface);
+  color: var(--fg);
+  font: inherit;
+  font-size: 0.95rem;
+}
+.search-bar:focus { outline: 2px solid var(--accent); border-color: var(--accent); }
+main { max-width: 1240px; margin: 0 auto; padding: 0.5rem 1.5rem 4rem; }
+h2.section-heading {
+  margin: 2rem 0 1rem;
+  font-size: 1.35rem;
+  font-weight: 650;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid var(--border);
+}
+h2.section-heading:first-of-type { margin-top: 0.75rem; }
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.15rem;
+}
+.card {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--surface);
+  color: inherit;
+  text-decoration: none;
+  box-shadow: var(--shadow);
+  transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+}
+.card:hover { transform: translateY(-3px); border-color: var(--accent); box-shadow: var(--shadow-hover); }
+.thumb-wrap {
+  aspect-ratio: 4 / 3;
+  background: radial-gradient(circle at 50% 45%, rgba(100, 145, 210, 0.14), transparent 75%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-bottom: 1px solid var(--border);
+}
+.thumb-wrap img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.thumb-placeholder { color: var(--muted); font-size: 0.88rem; }
+.card-body { padding: 0.9rem 1rem 1rem; display: flex; flex-direction: column; gap: 0.3rem; flex: 1; }
+.card-tag {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.76rem;
+  color: var(--accent);
+  font-weight: 600;
+}
+.card-title { margin: 0; font-size: 1.04rem; font-weight: 650; }
+.card-desc {
+  margin: 0;
+  font-size: 0.86rem;
+  color: var(--muted);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+footer {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 1.5rem;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 0.85rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+footer a { color: var(--accent); text-decoration: none; }
+footer a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+  <header class="hero">
+    <div class="hero-top">
+      <h1>gmlewis/step</h1>
+      <div class="hero-links">
+        <span class="pill">v0.2.23</span>
+        <a class="pill" href="https://github.com/gmlewis/moonbit-step" target="_blank" rel="noopener">GitHub Repo ↗</a>
+      </div>
+    </div>
+    <p class="subtitle">
+      Interactive 3D STEP geometry catalog generated from MoonBit source code.
+      Click any card below to inspect the detailed 3D model in full screen.
+    </p>
+    <input type="search" id="filter" class="search-bar" placeholder="Filter 54 examples & components…" aria-label="Filter examples">
+  </header>
+  <main id="catalog-main">
+    <h2 class="section-heading">Examples (7)</h2>
+<div class="grid"><a class="card" href="examples/01-worm-gear-drive/" data-search="01-worm-gear-drive worm gear drive parametric 90-degree right-angle worm gear drive (`components/worm`): an orthogonal helical worm shaft meshing with an involute worm wheel, reporting exact reduction ratio, lead angle, self-locking status, and sliding-mesh efficiency.">
+  <div class="thumb-wrap"><img src="examples/01-worm-gear-drive/preview.png" alt="Worm Gear Drive" loading="lazy"></div>
+  <div class="card-body">
+    <div class="card-tag">examples/01-worm-gear-drive</div>
+    <h3 class="card-title">Worm Gear Drive</h3>
+    <p class="card-desc">Parametric 90-degree right-angle worm gear drive (`components/worm`): an orthogonal helical worm shaft meshing with an involute worm wheel, reporting exact reduction ratio, lead angle, self-locking status, and sliding-mesh efficiency.</p>
+  </div>
+</a>
+<a class="card" href="examples/02-capstan-drive/" data-search="02-capstan-drive capstan drive parametric zero-backlash capstan / cable drive (`components/capstan`): a small input capstan drum driving a larger output drum or compact arc sector via tensioned tangent cable strands.">
+  <div class="thumb-wrap"><img src="examples/02-capstan-drive/preview.png" alt="Capstan Drive" loading="lazy"></div>
+  <div class="card-body">
+    <div class="card-tag">examples/02-capstan-drive</div>
+    <h3 class="card-title">Capstan Drive</h3>
+    <p class="card-desc">Parametric zero-backlash capstan / cable drive (`components/capstan`): a small input capstan drum driving a larger output drum or compact arc sector via tensioned tangent cable strands.</p>
+  </div>
+</a>
+<a class="card" href="examples/03-bmi270-imu/" data-search="03-bmi270-imu bmi270 imu sparkfun 6dof imu breakout — bmi270 (qwiic) (`sen-22397` 1&quot;x1&quot; and `sen-22398` qwiic micro) with exact analytic mounting holes, qwiic jst-sh connectors, bmi270 lga-14 package, and contact-plane mate connectors.">
+  <div class="thumb-wrap"><img src="examples/03-bmi270-imu/preview.png" alt="Bmi270 Imu" loading="lazy"></div>
+  <div class="card-body">
+    <div class="card-tag">examples/03-bmi270-imu</div>
+    <h3 class="card-title">Bmi270 Imu</h3>
+    <p class="card-desc">SparkFun 6DoF IMU Breakout — BMI270 (Qwiic) (`SEN-22397` 1&quot;x1&quot; and `SEN-22398` Qwiic Micro) with exact analytic mounting holes, Qwiic JST-SH connectors, BMI270 LGA-14 package, and contact-plane mate connectors.</p>
+  </div>
+</a>
+<a class="card" href="examples/12-bifilar-electromagnet/" data-search="12-bifilar-electromagnet bifilar electromagnet here&#x27;s a youtube video describing the process of how i came up with this model:">
+  <div class="thumb-wrap"><img src="examples/12-bifilar-electromagnet/preview.png" alt="Bifilar Electromagnet" loading="lazy"></div>
+  <div class="card-body">
+    <div class="card-tag">examples/12-bifilar-electromagnet</div>
+    <h3 class="card-title">Bifilar Electromagnet</h3>
+    <p class="card-desc">Here&#x27;s a YouTube video describing the process of how I came up with this model:</p>
+  </div>
+</a>
+<a class="card" href="examples/38-planetary-gearbox/" data-search="38-planetary-gearbox planetary gearbox this folder contains a **working example** that generates a step model for a print-in-place herringbone planetary gearbox: a sun gear, three orbiting planet gears, and an enclosing inward-facing ring gear.">
+  <div class="thumb-wrap"><img src="examples/38-planetary-gearbox/preview.png" alt="Planetary Gearbox" loading="lazy"></div>
+  <div class="card-body">
+    <div class="card-tag">examples/38-planetary-gearbox</div>
+    <h3 class="card-title">Planetary Gearbox</h3>
+    <p class="card-desc">This folder contains a **working example** that generates a STEP model for a print-in-place herringbone planetary gearbox: a sun gear, three orbiting planet gears, and an enclosing inward-facing ring gear.</p>
+  </div>
+</a>
+<a class="card" href="examples/39-axial-snap-fit/" data-search="39-axial-snap-fit axial snap fit print-ready test pair demonstrating `@fasteners.axialsnappinparams`: two concentric ø32 x 7 mm test pucks (simulating two stacked gears with an 8 mm center bore) joined by n support-free 45-degree revolved split snap-fit connectors.">
+  <div class="thumb-wrap"><img src="examples/39-axial-snap-fit/preview.png" alt="Axial Snap Fit" loading="lazy"></div>
+  <div class="card-body">
+    <div class="card-tag">examples/39-axial-snap-fit</div>
+    <h3 class="card-title">Axial Snap Fit</h3>
+    <p class="card-desc">Print-ready test pair demonstrating `@fasteners.AxialSnapPinParams`: two concentric Ø32 x 7 mm test pucks (simulating two stacked gears with an 8 mm center bore) joined by N support-free 45-degree revolved split snap-fit connectors.</p>
+  </div>
+</a>
+<a class="card" href="examples/40-split-ring-planetary/" data-search="40-split-ring-planetary split ring planetary print-in-place, two-cartridge, 4-elbow herringbone split-ring compound planetary (wolfrom) gearbox with integrated 45-degree revolved axial snap-fit planet couplers.">
+  <div class="thumb-wrap"><img src="examples/40-split-ring-planetary/preview.png" alt="Split Ring Planetary" loading="lazy"></div>
+  <div class="card-body">
+    <div class="card-tag">examples/40-split-ring-planetary</div>
+    <h3 class="card-title">Split Ring Planetary</h3>
+    <p class="card-desc">Print-in-place, two-cartridge, 4-elbow herringbone split-ring compound planetary (Wolfrom) gearbox with integrated 45-degree revolved axial snap-fit planet couplers.</p>
+  </div>
+</a></div><h2 class="section-heading">Component Library (47)</h2>
+<div class="grid"><a class="card" href="components/a12_motor/" data-search="a12_motor a12 motor parameterized xaircraft a12 8318 outrunner motor envelope: 6-spoke bell with 3 alternating forked spokes and 4 inner hub slots, 42 curved rotor magnets, machined prop adapter, 36-slot stator with pole shoes and copper frames, stepped 8-window mount plate with interleaved m3/m4 circles on the spokes, 6901z bearing tube, insulator ring, and through shaft; defaults measured from the motor (91 mm bell, 33 mm height, 23/30/32 mm bolt circles, 83 x 18 mm stator).">
+  <div class="thumb-wrap"><img src="components/a12_motor/preview.png" alt="A12 Motor" loading="lazy"></div>
+  <div class="card-body">
+    <div class="card-tag">components/a12_motor</div>
+    <h3 class="card-title">A12 Motor</h3>
+    <p class="card-desc">Parameterized XAIRCRAFT A12 8318 outrunner motor envelope: 6-spoke bell with 3 alternating forked spokes and 4 inner hub slots, 42 curved rotor magnets, machined prop adapter, 36-slot stator with pole shoes and copper frames, stepped 8-window mount plate with interleaved M3/M4 circles on the spokes, 6901Z bearing tube, insulator ring, and through shaft; defaults measured from the motor (91 mm bell, 33 mm height, 23/30/32 mm bolt circles, 83 x 18 mm stator).</p>
+  </div>
+</a>
+<a class="card" href="components/adapters/" data-search="adapters adapters motor-to-extrusion and channel-to-extrusion adapters, plus nema mounting plates.">
+  <div class="thumb-wrap"><img src="components/adapters/preview.png" alt="Adapters" loading="lazy"></div>
+  <div class="card-body">
+    <div class="card-tag">components/adapters</div>
+    <h3 class="card-title">Adapters</h3>
+    <p class="card-desc">Motor-to-extrusion and channel-to-extrusion adapters, plus NEMA mounting plates.</p>
+  </div>
+</a>
+<a class="card" href="components/bearing/" data-search="bearing bearing a deep-groove full-complement ball bearing (grooved rings with retaining shoulders, a full ring of watertight balls, rim and shoulder chamfers), the golden envelope (`--representation envelope`), or the single-solid shielded envelope.">
+  <div class="thumb-wrap"><img src="components/bearing/preview.png" alt="Bearing" loading="lazy"></div>
+  <div class="card-body">
+    <div class="card-tag">components/bearing</div>
+    <h3 class="card-title">Bearing</h3>
+    <p class="card-desc">A deep-groove full-complement ball bearing (grooved rings with retaining shoulders, a full ring of watertight balls, rim and shoulder chamfers), the golden envelope (`--representation envelope`), or the single-solid shielded envelope.</p>
+  </div>
+</a>
+<a class="card" href="components/belt_drive/" data-search="belt_drive belt drive two approximate gt2 pulleys plus a smooth belt envelope built from an exact declared pitch length; flat or product-structure output.">
+  <div class="thumb-wrap"><img src="components/belt_drive/preview.png" alt="Belt Drive" loading="lazy"></div>
+  <div class="card-body">
+    <div class="card-tag">components/belt_drive</div>
+    <h3 class="card-title">Belt Drive</h3>
+    <p class="card-desc">Two approximate GT2 pulleys plus a smooth belt envelope built from an exact declared pitch length; flat or product-structure output.</p>
+  </div>
+</a>
+<a class="card" href="components/bevel_gear/" data-search="bevel_gear bevel gear external straight bevel gear from a mate tooth count and shaft angle (or an explicit pitch angle): tredgold back-cone tooth sector with standard back-cone tooth ends (`--endface backcone`, default; `flat` for the larger flat-back variant), optional analytic bore, optional back-cone root fillet (`--rootfillet`, flat end only), optional tip chamfer (`--tipchamfer`, both end faces), and an optional backing/hub (`--hubdiameter`/`--hublength`). `--pair` writes the driver and mate in the meshing pose. static geometry; the exact octoid/spherical involute is not modelled.">
+  <div class="thumb-wrap"><img src="components/bevel_gear/preview.png" alt="Bevel Gear" loading="lazy"></div>
+  <div class="card-body">
+    <div class="card-tag">components/bevel_gear</div>
+    <h3 class="card-title">Bevel Gear</h3>
+    <p class="card-desc">External straight bevel gear from a mate tooth count and shaft angle (or an explicit pitch angle): Tredgold back-cone tooth sector with standard back-cone tooth ends (`--endFace backCone`, default; `flat` for the larger flat-back variant), optional analytic bore, optional back-cone root fillet (`--rootFillet`, flat end only), optional tip chamfer (`--tipChamfer`, both end faces), and an optional backing/hub (`--hubDiameter`/`--hubLength`). `--pair` writes the driver and mate in the meshing pose. Static geometry; the exact octoid/spherical involute is not modelled.</p>
+  </div>
+</a>
+<a class="card" href="components/bolted_joint/" data-search="bolted_joint bolted joint two plates clamped by a screw, washer, and nut.">
+  <div class="thumb-wrap"><img src="components/bolted_joint/preview.png" alt="Bolted Joint" loading="lazy"></div>
+  <div class="card-body">
+    <div class="card-tag">components/bolted_joint</div>
+    <h3 class="card-title">Bolted Joint</h3>
+    <p class="card-desc">Two plates clamped by a screw, washer, and nut.</p>
+  </div>
+</a>
+<a class="card" href="components/brushless_motor/" data-search="brushless_motor brushless motor parameterized outrunner brushless-motor envelope with a conical 5-spoke bell, windows, rim and lip, stator hub, prop and mount holes, and a through shaft; defaults measured from the owner-authored 360kv model.">
+  <div class="thumb-wrap"><img src="components/brushless_motor/preview.png" alt="Brushless Motor" loading="lazy"></div>
+  <div class="card-body">
+    <div class="card-tag">components/brushless_motor</div>
+    <h3 class="card-title">Brushless Motor</h3>
+    <p class="card-desc">Parameterized outrunner brushless-motor envelope with a conical 5-spoke bell, windows, rim and lip, stator hub, prop and mount holes, and a through shaft; defaults measured from the owner-authored 360KV model.</p>
+  </div>
+</a>
+<a class="card" href="components/clamp_shaft_collar/" data-search="clamp_shaft_collar clamp shaft collar one-piece clamp shaft collar with a real slit, clamp-screw clearance passage, and iso 4762 head counterbore, plus an iso 4762 clamp-screw envelope, exported as an occt-evaluated compound.">
+  <div class="thumb-wrap"><img src="components/clamp_shaft_collar/preview.png" alt="Clamp Shaft Collar" loading="lazy"></div>
+  <div class="card-body">
+    <div class="card-tag">components/clamp_shaft_collar</div>
+    <h3 class="card-title">Clamp Shaft Collar</h3>
+    <p class="card-desc">One-piece clamp shaft collar with a real slit, clamp-screw clearance passage, and ISO 4762 head counterbore, plus an ISO 4762 clamp-screw envelope, exported as an OCCT-evaluated compound.</p>
+  </div>
+</a>
+<a class="card" href="components/din472_ring/" data-search="din472_ring din472 ring din 472 internal retaining ring (verified bore table 8 to 40; encoded outlines for 10, 12, 14, 16, 18, 20, 24, 28, 32, and 40 mm; the eight freecad-derived sizes carry real evaluated 45° edge chamfers).">
+  <div class="thumb-wrap"><img src="components/din472_ring/preview.png" alt="Din472 Ring" loading="lazy"></div>
+  <div class="card-body">
+    <div class="card-tag">components/din472_ring</div>
+    <h3 class="card-title">Din472 Ring</h3>
+    <p class="card-desc">DIN 472 internal retaining ring (verified bore table 8 to 40; encoded outlines for 10, 12, 14, 16, 18, 20, 24, 28, 32, and 40 mm; the eight FreeCAD-derived sizes carry real evaluated 45° edge chamfers).</p>
+  </div>
+</a>
+<a class="card" href="components/extrusion_frame/" data-search="extrusion_frame extrusion frame generic t-slot rectangular frame with optional svg views.">
+  <div class="thumb-wrap"><img src="components/extrusion_frame/preview.png" alt="Extrusion Frame" loading="lazy"></div>
+  <div class="card-body">
+    <div class="card-tag">components/extrusion_frame</div>
+    <h3 class="card-title">Extrusion Frame</h3>
+    <p class="card-desc">Generic T-slot rectangular frame with optional SVG views.</p>
+  </div>
+</a>
+<a class="card" href="components/extrusion_hardware/" data-search="extrusion_hardware extrusion hardware extrusion t-nut (m3/m4/m5) or m3 heat-set insert (short/long).">
+  <div class="thumb-wrap"><img src="components/extrusion_hardware/preview.png" alt="Extrusion Hardware" loading="lazy"></div>
+  <div class="card-body">
+    <div class="card-tag">components/extrusion_hardware</div>
+    <h3 class="card-title">Extrusion Hardware</h3>
+    <p class="card-desc">Extrusion T-nut (M3/M4/M5) or M3 heat-set insert (short/long).</p>
+  </div>
+</a>
+<a class="card" href="components/fasteners/" data-search="fasteners fasteners one metric fastener (`--standard iso4762`, `din916`, …), or the built-in m3/m4/m5 catalog.">
+  <div class="thumb-wrap"><img src="components/fasteners/preview.png" alt="Fasteners" loading="lazy"></div>
+  <div class="card-body">
+    <div class="card-tag">components/fasteners</div>
+    <h3 class="card-title">Fasteners</h3>
+    <p class="card-desc">One metric fastener (`--standard iso4762`, `din916`, …), or the built-in M3/M4/M5 catalog.</p>
+  </div>
+</a>
+<a class="card" href="components/filleted_shaft/" data-search="filleted_shaft filleted shaft single-solid stepped shaft with toroidal shoulder fillets.">
+  <div class="thumb-wrap"><img src="components/filleted_shaft/preview.png" alt="Filleted Shaft" loading="lazy"></div>
+  <div class="card-body">
+    <div class="card-tag">components/filleted_shaft</div>
+    <h3 class="card-title">Filleted Shaft</h3>
+    <p class="card-desc">Single-solid stepped shaft with toroidal shoulder fillets.</p>
+  </div>
+</a>
+<a class="card" href="components/four_bar/" data-search="four_bar four bar planar four-bar linkage from `four_bar_layout` and the linkage bars, with lower/upper link planes and four dowel pins; flat or product-structure output.">
+  <div class="thumb-wrap"><img src="components/four_bar/preview.png" alt="Four Bar" loading="lazy"></div>
+  <div class="card-body">
+    <div class="card-tag">components/four_bar</div>
+    <h3 class="card-title">Four Bar</h3>
+    <p class="card-desc">Planar four-bar linkage from `four_bar_layout` and the linkage bars, with lower/upper link planes and four dowel pins; flat or product-structure output.</p>
+  </div>
+</a>
+<a class="card" href="components/gear_pair/" data-search="gear_pair gear pair two involute spur gears with centre distance and phase; smooth arc-run extrusions by default, `--detailed` for the faceted involute pair.">
+  <div class="thumb-wrap"><img src="components/gear_pair/preview.png" alt="Gear Pair" loading="lazy"></div>
+  <div class="card-body">
+    <div class="card-tag">components/gear_pair</div>
+    <h3 class="card-title">Gear Pair</h3>
+    <p class="card-desc">Two involute spur gears with centre distance and phase; smooth arc-run extrusions by default, `--detailed` for the faceted involute pair.</p>
+  </div>
+</a>
+<a class="card" href="components/gobilda_kit/" data-search="gobilda_kit gobilda kit gobilda® parts: a grid plate (`--cols` × `--rows`), the measured 1120-series u-channel (`--part channel --holes`), the 1106-series square beam with m4 end taps (`--part beam --beamholes`), or the measured 1309 sonic hub (`--part hub`). use `--evaluated` for the boolean/union parts.">
+  <div class="thumb-wrap"><img src="components/gobilda_kit/preview.png" alt="Gobilda Kit" loading="lazy"></div>
+  <div class="card-body">
+    <div class="card-tag">components/gobilda_kit</div>
+    <h3 class="card-title">Gobilda Kit</h3>
+    <p class="card-desc">goBILDA® parts: a grid plate (`--cols` × `--rows`), the measured 1120-series U-channel (`--part channel --holes`), the 1106-series square beam with M4 end taps (`--part beam --beamHoles`), or the measured 1309 Sonic hub (`--part hub`). Use `--evaluated` for the boolean/union parts.</p>
+  </div>
+</a>
+<a class="card" href="components/hardware_kit/" data-search="hardware_kit hardware kit iso 4762 screw + iso 7089 washer + iso 4032 nut.">
+  <div class="thumb-wrap"><img src="components/hardware_kit/preview.png" alt="Hardware Kit" loading="lazy"></div>
+  <div class="card-body">
+    <div class="card-tag">components/hardware_kit</div>
+    <h3 class="card-title">Hardware Kit</h3>
+    <p class="card-desc">ISO 4762 screw + ISO 7089 washer + ISO 4032 nut.</p>
+  </div>
+</a>
+<a class="card" href="components/hiwin_guide/" data-search="hiwin_guide hiwin guide hiwin hgr15/hgr20 rails with real counterbored mounting holes (`--part rail15/rail20 --length`) or hgh15ca/hgh20ca carriages with real tapped bolt patterns (`--part block15/block20`); always exported as the occt-evaluated single solid.">
+  <div class="thumb-wrap"><img src="components/hiwin_guide/preview.png" alt="Hiwin Guide" loading="lazy"></div>
+  <div class="card-body">
+    <div class="card-tag">components/hiwin_guide</div>
+    <h3 class="card-title">Hiwin Guide</h3>
+    <p class="card-desc">Hiwin HGR15/HGR20 rails with real counterbored mounting holes (`--part rail15/rail20 --length`) or HGH15CA/HGH20CA carriages with real tapped bolt patterns (`--part block15/block20`); always exported as the OCCT-evaluated single solid.</p>
+  </div>
+</a>
+<a class="card" href="components/keyed_shaft/" data-search="keyed_shaft keyed shaft shaft with a real rectangular keyway plus the matching key.">
+  <div class="thumb-wrap"><img src="components/keyed_shaft/preview.png" alt="Keyed Shaft" loading="lazy"></div>
+  <div class="card-body">
+    <div class="card-tag">components/keyed_shaft</div>
+    <h3 class="card-title">Keyed Shaft</h3>
+    <p class="card-desc">Shaft with a real rectangular keyway plus the matching key.</p>
+  </div>
+</a>
+<a class="card" href="components/linear_bearing/" data-search="linear_bearing linear bearing lm-series linear bushing envelope or flanged round housing.">
+  <div class="thumb-wrap"><img src="components/linear_bearing/preview.png" alt="Linear Bearing" loading="lazy"></div>
+  <div class="card-body">
+    <div class="card-tag">components/linear_bearing</div>
+    <h3 class="card-title">Linear Bearing</h3>
+    <p class="card-desc">LM-series linear bushing envelope or flanged round housing.</p>
+  </div>
+</a>
+<a class="card" href="components/makerbeam/" data-search="makerbeam makerbeam makerbeam 10 x 10 mm extrusion (drawing article 100168), optional outer corner radius.">
+  <div class="thumb-wrap"><img src="components/makerbeam/preview.png" alt="Makerbeam" loading="lazy"></div>
+  <div class="card-body">
+    <div class="card-tag">components/makerbeam</div>
+    <h3 class="card-title">Makerbeam</h3>
+    <p class="card-desc">MakerBeam 10 x 10 mm extrusion (drawing article 100168), optional outer corner radius.</p>
+  </div>
+</a>
+<a class="card" href="components/makerpipe_frame/" data-search="makerpipe_frame makerpipe frame makerpipe-based rectangular frame built from named mate connectors.">
+  <div class="thumb-wrap"><img src="components/makerpipe_frame/preview.png" alt="Makerpipe Frame" loading="lazy"></div>
+  <div class="card-body">
+    <div class="card-tag">components/makerpipe_frame</div>
+    <h3 class="card-title">Makerpipe Frame</h3>
+    <p class="card-desc">MakerPipe-based rectangular frame built from named mate connectors.</p>
+  </div>
+</a>
+<a class="card" href="components/makerpipe_kit/" data-search="makerpipe_kit makerpipe kit assorted makerpipe fittings and accessories.">
+  <div class="thumb-wrap"><img src="components/makerpipe_kit/preview.png" alt="Makerpipe Kit" loading="lazy"></div>
+  <div class="card-body">
+    <div class="card-tag">components/makerpipe_kit</div>
+    <h3 class="card-title">Makerpipe Kit</h3>
+    <p class="card-desc">Assorted MakerPipe fittings and accessories.</p>
+  </div>
+</a>
+<a class="card" href="components/makerstore_hardware/" data-search="makerstore_hardware makerstore hardware one maker store usa part per `--part`: metric aluminum spacer (`shim-spac`, od 10 / id 5), thrust bearing (`bear-f`), 20-series hex t-nut (`hard-tnut-sliding`), 40-series sliding block t-nut (`hard-40s-tnut-steel-slid-18`), or gusseted v-slot corner bracket (`brac-90cast` / `brac-40s`).">
+  <div class="thumb-wrap"><img src="components/makerstore_hardware/preview.png" alt="Makerstore Hardware" loading="lazy"></div>
+  <div class="card-body">
+    <div class="card-tag">components/makerstore_hardware</div>
+    <h3 class="card-title">Makerstore Hardware</h3>
+    <p class="card-desc">One Maker Store USA part per `--part`: metric aluminum spacer (`SHIM-SPAC`, OD 10 / ID 5), thrust bearing (`BEAR-F`), 20-series hex T-nut (`HARD-TNUT-SLIDING`), 40-series sliding block T-nut (`HARD-40S-TNUT-STEEL-SLID-18`), or gusseted V-Slot corner bracket (`BRAC-90CAST` / `BRAC-40S`).</p>
+  </div>
+</a>
+<a class="card" href="components/makerstore_l_plate/" data-search="makerstore_l_plate makerstore l plate maker store 20-series l plate / bracket with a centred hole grid on both legs: `l40x40` (`plate-40x40l`, 3×3 ø5 on 10 mm centres) or `l40x80` (`plate-40x80l`).">
+  <div class="thumb-wrap"><img src="components/makerstore_l_plate/preview.png" alt="Makerstore L Plate" loading="lazy"></div>
+  <div class="card-body">
+    <div class="card-tag">components/makerstore_l_plate</div>
+    <h3 class="card-title">Makerstore L Plate</h3>
+    <p class="card-desc">Maker Store 20-series L plate / bracket with a centred hole grid on both legs: `l40x40` (`PLATE-40X40L`, 3×3 Ø5 on 10 mm centres) or `l40x80` (`PLATE-40X80L`).</p>
+  </div>
+</a>
+<a class="card" href="components/mate_assembly/" data-search="mate_assembly mate assembly a screw placed in a nut by named `mateconnector`/`matepair` records.">
+  <div class="thumb-wrap"><img src="components/mate_assembly/preview.png" alt="Mate Assembly" loading="lazy"></div>
+  <div class="card-body">
+    <div class="card-tag">components/mate_assembly</div>
+    <h3 class="card-title">Mate Assembly</h3>
+    <p class="card-desc">A screw placed in a nut by named `MateConnector`/`MatePair` records.</p>
+  </div>
+</a>
+<a class="card" href="components/mechanism_assembly/" data-search="mechanism_assembly mechanism assembly clevis + rod end + pin assembled by a named `matepair` between `eye-seat` and `eye-bore`; checks connectivity and writes either the flat step or the product/occurrence structure.">
+  <div class="thumb-wrap"><img src="components/mechanism_assembly/preview.png" alt="Mechanism Assembly" loading="lazy"></div>
+  <div class="card-body">
+    <div class="card-tag">components/mechanism_assembly</div>
+    <h3 class="card-title">Mechanism Assembly</h3>
+    <p class="card-desc">Clevis + rod end + pin assembled by a named `MatePair` between `eye-seat` and `eye-bore`; checks connectivity and writes either the flat STEP or the product/occurrence structure.</p>
+  </div>
+</a>
+<a class="card" href="components/mechanism_design/" data-search="mechanism_design mechanism design design-from-scratch linkage built with the typed `paramspec`/`paramset`/`designfamily` api and the `@cad` primitive dsl, with `compact`/`long` variants, a base plate, and pivot pins.">
+  <div class="thumb-wrap"><img src="components/mechanism_design/preview.png" alt="Mechanism Design" loading="lazy"></div>
+  <div class="card-body">
+    <div class="card-tag">components/mechanism_design</div>
+    <h3 class="card-title">Mechanism Design</h3>
+    <p class="card-desc">Design-from-scratch linkage built with the typed `ParamSpec`/`ParamSet`/`DesignFamily` API and the `@cad` primitive DSL, with `compact`/`long` variants, a base plate, and pivot pins.</p>
+  </div>
+</a>
+<a class="card" href="components/mechanism_kit/" data-search="mechanism_kit mechanism kit one generic mechanism/structural envelope per `--part`: hinge, clevis, pin, rod-end, linkage, rail, carriage, lead-screw, lead-nut, belt, belt-unequal, cam, roller, oldham, extension-spring, torsion-spring, snap, o-ring, grooved-shaft, bracket, u-bracket, z-bracket, boss, rack, sprocket, or chain-segment. `--evaluated` fuses layers into one occt-trimmed manifold.">
+  <div class="thumb-wrap"><img src="components/mechanism_kit/preview.png" alt="Mechanism Kit" loading="lazy"></div>
+  <div class="card-body">
+    <div class="card-tag">components/mechanism_kit</div>
+    <h3 class="card-title">Mechanism Kit</h3>
+    <p class="card-desc">One generic mechanism/structural envelope per `--part`: hinge, clevis, pin, rod-end, linkage, rail, carriage, lead-screw, lead-nut, belt, belt-unequal, cam, roller, oldham, extension-spring, torsion-spring, snap, o-ring, grooved-shaft, bracket, u-bracket, z-bracket, boss, rack, sprocket, or chain-segment. `--evaluated` fuses layers into one OCCT-trimmed manifold.</p>
+  </div>
+</a>
+<a class="card" href="components/mot_edis/" data-search="mot_edis mot edis motedis metric t-slot: an i-type profile (`--series 20/30/40 --length`, nominal difference) or a measured b-type profile (`--type b --series 20/30/40 --length`), or an i-type t-nut (`--part tnut --series 40 --thread m5`).">
+  <div class="thumb-wrap"><img src="components/mot_edis/preview.png" alt="Mot Edis" loading="lazy"></div>
+  <div class="card-body">
+    <div class="card-tag">components/mot_edis</div>
+    <h3 class="card-title">Mot Edis</h3>
+    <p class="card-desc">MotEDis metric T-slot: an I-type profile (`--series 20/30/40 --length`, nominal difference) or a measured B-type profile (`--type b --series 20/30/40 --length`), or an I-type T-nut (`--part tnut --series 40 --thread M5`).</p>
+  </div>
+</a>
+<a class="card" href="components/motion_stack/" data-search="motion_stack motion stack shaft + two full-complement deep-groove bearings + spacer (all analytic surfaces), a rigid sleeve coupling, a flanged bearing housing, a ucp204/ucp205 pillow-block assembly, a 5-to-8 mm helical beam coupling (`--detail envelope` for the pillow-block boundary), or a smooth flanged idler (`--part idler`).">
+  <div class="thumb-wrap"><img src="components/motion_stack/preview.png" alt="Motion Stack" loading="lazy"></div>
+  <div class="card-body">
+    <div class="card-tag">components/motion_stack</div>
+    <h3 class="card-title">Motion Stack</h3>
+    <p class="card-desc">Shaft + two full-complement deep-groove bearings + spacer (all analytic surfaces), a rigid sleeve coupling, a flanged bearing housing, a UCP204/UCP205 pillow-block assembly, a 5-to-8 mm helical beam coupling (`--detail envelope` for the pillow-block boundary), or a smooth flanged idler (`--part idler`).</p>
+  </div>
+</a>
+<a class="card" href="components/planetary/" data-search="planetary planetary sun + equally spaced planets + exact internal involute ring, extruded as one exact line/arc solid (smooth cylindrical tooth walls).">
+  <div class="thumb-wrap"><img src="components/planetary/preview.png" alt="Planetary" loading="lazy"></div>
+  <div class="card-body">
+    <div class="card-tag">components/planetary</div>
+    <h3 class="card-title">Planetary</h3>
+    <p class="card-desc">Sun + equally spaced planets + exact internal involute ring, extruded as one exact line/arc solid (smooth cylindrical tooth walls).</p>
+  </div>
+</a>
+<a class="card" href="components/profile_extrusion/" data-search="profile_extrusion profile extrusion one extrusion profile section (`2020-b-slot6-a`), p1000-style strut channel, or a generic channel nut.">
+  <div class="thumb-wrap"><img src="components/profile_extrusion/preview.png" alt="Profile Extrusion" loading="lazy"></div>
+  <div class="card-body">
+    <div class="card-tag">components/profile_extrusion</div>
+    <h3 class="card-title">Profile Extrusion</h3>
+    <p class="card-desc">One extrusion profile section (`2020-b-slot6-a`), P1000-style strut channel, or a generic channel nut.</p>
+  </div>
+</a>
+<a class="card" href="components/pvc/" data-search="pvc pvc pvc pipe, fittings, and frame envelopes.">
+  <div class="thumb-wrap"><img src="components/pvc/preview.png" alt="Pvc" loading="lazy"></div>
+  <div class="card-body">
+    <div class="card-tag">components/pvc</div>
+    <h3 class="card-title">Pvc</h3>
+    <p class="card-desc">PVC pipe, fittings, and frame envelopes.</p>
+  </div>
+</a>
+<a class="card" href="components/rack_pinion/" data-search="rack_pinion rack pinion basic rack plus an involute spur pinion as one smooth arc-run extrusion at the layout pitch-plane centre distance; static envelope, flat or product-structure output.">
+  <div class="thumb-wrap"><img src="components/rack_pinion/preview.png" alt="Rack Pinion" loading="lazy"></div>
+  <div class="card-body">
+    <div class="card-tag">components/rack_pinion</div>
+    <h3 class="card-title">Rack Pinion</h3>
+    <p class="card-desc">Basic rack plus an involute spur pinion as one smooth arc-run extrusion at the layout pitch-plane centre distance; static envelope, flat or product-structure output.</p>
+  </div>
+</a>
+<a class="card" href="components/retaining_ring/" data-search="retaining_ring retaining ring din 471 type a external retaining ring, a 10 to a 34.">
+  <div class="thumb-wrap"><img src="components/retaining_ring/preview.png" alt="Retaining Ring" loading="lazy"></div>
+  <div class="card-body">
+    <div class="card-tag">components/retaining_ring</div>
+    <h3 class="card-title">Retaining Ring</h3>
+    <p class="card-desc">DIN 471 type A external retaining ring, A 10 to A 34.</p>
+  </div>
+</a>
+<a class="card" href="components/rev_duo/" data-search="rev_duo rev duo rev duo parts with measured sections: the 15 x 15 mm extrusion (`--part extrusion15 --length`, exact section plus ø2.5 bore) or the 45 x 45 mm u-channel (`--part uchannel45 --length`, measured section; the drilled motion pattern is not modelled).">
+  <div class="thumb-wrap"><img src="components/rev_duo/preview.png" alt="Rev Duo" loading="lazy"></div>
+  <div class="card-body">
+    <div class="card-tag">components/rev_duo</div>
+    <h3 class="card-title">Rev Duo</h3>
+    <p class="card-desc">REV DUO parts with measured sections: the 15 x 15 mm extrusion (`--part extrusion15 --length`, exact section plus Ø2.5 bore) or the 45 x 45 mm U-channel (`--part uchannel45 --length`, measured section; the drilled motion pattern is not modelled).</p>
+  </div>
+</a>
+<a class="card" href="components/revolution/" data-search="revolution revolution analytic solids of revolution (cylinder, cone, sphere, torus, ring, dome, frustum).">
+  <div class="thumb-wrap"><img src="components/revolution/preview.png" alt="Revolution" loading="lazy"></div>
+  <div class="card-body">
+    <div class="card-tag">components/revolution</div>
+    <h3 class="card-title">Revolution</h3>
+    <p class="card-desc">Analytic solids of revolution (cylinder, cone, sphere, torus, ring, dome, frustum).</p>
+  </div>
+</a>
+<a class="card" href="components/rivet/" data-search="rivet rivet generic solid rivet (flat cylindrical head plus straight shank).">
+  <div class="thumb-wrap"><img src="components/rivet/preview.png" alt="Rivet" loading="lazy"></div>
+  <div class="card-body">
+    <div class="card-tag">components/rivet</div>
+    <h3 class="card-title">Rivet</h3>
+    <p class="card-desc">Generic solid rivet (flat cylindrical head plus straight shank).</p>
+  </div>
+</a>
+<a class="card" href="components/set_screw_collar/" data-search="set_screw_collar set screw collar set-screw shaft collar with a real trimmed radial hole and a din 916 set-screw envelope, exported as one occt-evaluated compound.">
+  <div class="thumb-wrap"><img src="components/set_screw_collar/preview.png" alt="Set Screw Collar" loading="lazy"></div>
+  <div class="card-body">
+    <div class="card-tag">components/set_screw_collar</div>
+    <h3 class="card-title">Set Screw Collar</h3>
+    <p class="card-desc">Set-screw shaft collar with a real trimmed radial hole and a DIN 916 set-screw envelope, exported as one OCCT-evaluated compound.</p>
+  </div>
+</a>
+<a class="card" href="components/spring/" data-search="spring spring simplified helical compression spring; smooth b-spline side surfaces and a 36-segment wire by default, `--detailed` for the faceted 12-gon sweep.">
+  <div class="thumb-wrap"><img src="components/spring/preview.png" alt="Spring" loading="lazy"></div>
+  <div class="card-body">
+    <div class="card-tag">components/spring</div>
+    <h3 class="card-title">Spring</h3>
+    <p class="card-desc">Simplified helical compression spring; smooth B-spline side surfaces and a 36-segment wire by default, `--detailed` for the faceted 12-gon sweep.</p>
+  </div>
+</a>
+<a class="card" href="components/stepper_motor/" data-search="stepper_motor stepper motor nema 17/23 stepper-motor envelope with mounting holes, pilot, and shaft.">
+  <div class="thumb-wrap"><img src="components/stepper_motor/preview.png" alt="Stepper Motor" loading="lazy"></div>
+  <div class="card-body">
+    <div class="card-tag">components/stepper_motor</div>
+    <h3 class="card-title">Stepper Motor</h3>
+    <p class="card-desc">NEMA 17/23 stepper-motor envelope with mounting holes, pilot, and shaft.</p>
+  </div>
+</a>
+<a class="card" href="components/stock_primitive/" data-search="stock_primitive stock primitive en 10056-style angle section, flat/counterbored/countersunk plates, a bearing-housing plate, a tube-to-v-slot bracket, the cc by 4.0 sc8uu rod/bearing block (occt-evaluated), or an m3 x 4 heat-set insert boss.">
+  <div class="thumb-wrap"><img src="components/stock_primitive/preview.png" alt="Stock Primitive" loading="lazy"></div>
+  <div class="card-body">
+    <div class="card-tag">components/stock_primitive</div>
+    <h3 class="card-title">Stock Primitive</h3>
+    <p class="card-desc">EN 10056-style angle section, flat/counterbored/countersunk plates, a bearing-housing plate, a tube-to-V-Slot bracket, the CC BY 4.0 SC8UU rod/bearing block (OCCT-evaluated), or an M3 x 4 heat-set insert boss.</p>
+  </div>
+</a>
+<a class="card" href="components/tire_mount/" data-search="tire_mount tire mount parameterized tire mounting flange with a solid front plate, three bolt holes, rear ring, hub tube and bore, and six 2 mm radial slots; defaults measured from the owner-authored reference.">
+  <div class="thumb-wrap"><img src="components/tire_mount/preview.png" alt="Tire Mount" loading="lazy"></div>
+  <div class="card-body">
+    <div class="card-tag">components/tire_mount</div>
+    <h3 class="card-title">Tire Mount</h3>
+    <p class="card-desc">Parameterized tire mounting flange with a solid front plate, three bolt holes, rear ring, hub tube and bore, and six 2 mm radial slots; defaults measured from the owner-authored reference.</p>
+  </div>
+</a>
+<a class="card" href="components/tire/" data-search="tire tire parameterized wheel/tire envelope with a smooth tire ring, hub tube and bore, 2 mm inset back plate, and straight radial ribs (6 by default); defaults measured from the owner-authored reference.">
+  <div class="thumb-wrap"><img src="components/tire/preview.png" alt="Tire" loading="lazy"></div>
+  <div class="card-body">
+    <div class="card-tag">components/tire</div>
+    <h3 class="card-title">Tire</h3>
+    <p class="card-desc">Parameterized wheel/tire envelope with a smooth tire ring, hub tube and bore, 2 mm inset back plate, and straight radial ribs (6 by default); defaults measured from the owner-authored reference.</p>
+  </div>
+</a>
+<a class="card" href="components/tubing/" data-search="tubing tubing emt cut length, emt end cap, emt split clamp, plain shaft collar, or tube mount plate adapter.">
+  <div class="thumb-wrap"><img src="components/tubing/preview.png" alt="Tubing" loading="lazy"></div>
+  <div class="card-body">
+    <div class="card-tag">components/tubing</div>
+    <h3 class="card-title">Tubing</h3>
+    <p class="card-desc">EMT cut length, EMT end cap, EMT split clamp, plain shaft collar, or tube mount plate adapter.</p>
+  </div>
+</a>
+<a class="card" href="components/vslot/" data-search="vslot vslot openbuilds-compatible v-slot 2020/2040 profile, v-wheel, slot t-nut, joining plate, gusseted corner bracket, c-beam gantry plate (`--part gantry-plate`), and plain/eccentric wheel spacers.">
+  <div class="thumb-wrap"><img src="components/vslot/preview.png" alt="Vslot" loading="lazy"></div>
+  <div class="card-body">
+    <div class="card-tag">components/vslot</div>
+    <h3 class="card-title">Vslot</h3>
+    <p class="card-desc">OpenBuilds-compatible V-Slot 2020/2040 profile, V-wheel, slot T-nut, joining plate, gusseted corner bracket, C-Beam gantry plate (`--part gantry-plate`), and plain/eccentric wheel spacers.</p>
+  </div>
+</a></div>
+  </main>
+  <footer>
+    <span>Generated locally by <code>./publish-gh-pages.sh</code> (54 models)</span>
+    <a href="https://github.com/gmlewis/moonbit-step" target="_blank" rel="noopener">https://github.com/gmlewis/moonbit-step</a>
+  </footer>
+  <script>
+    const input = document.getElementById("filter");
+    const cards = Array.from(document.querySelectorAll("#catalog-main .card"));
+    input.addEventListener("input", () => {
+      const q = input.value.trim().toLowerCase();
+      for (const c of cards) {
+        const hay = c.getAttribute("data-search") || "";
+        c.style.display = !q || hay.includes(q) ? "" : "none";
+      }
+    });
+  </script>
+</body>
+</html>
