@@ -33,6 +33,7 @@ from typing import Any
 from OCP.Bnd import Bnd_Box
 from OCP.BRepBndLib import BRepBndLib
 from OCP.BRepMesh import BRepMesh_IncrementalMesh
+from OCP.BRepTools import BRepTools
 from OCP.IFSelect import IFSelect_RetDone
 from OCP.Message import Message_ProgressRange
 from OCP.Quantity import Quantity_Color, Quantity_TOC_RGB
@@ -163,7 +164,8 @@ def _tessellate_doc(
     doc: TDocStd_Document,
     lin_deflection: float | None,
     ang_deflection: float | None,
-) -> None:
+    clean: bool = False,
+) -> tuple[float, float]:
     shape_tool = XCAFDoc_DocumentTool.ShapeTool_s(doc.Main())
     roots = TDF_LabelSequence()
     shape_tool.GetFreeShapes(roots)
@@ -173,12 +175,15 @@ def _tessellate_doc(
         if shape is not None and not shape.IsNull():
             shapes.append(shape)
     if not shapes:
-        return
+        return (0.05, 0.15)
     auto_lin, auto_ang = _auto_tessellation(shapes)
     lin = auto_lin if lin_deflection is None else lin_deflection
     ang = auto_ang if ang_deflection is None else ang_deflection
     for shape in shapes:
+        if clean:
+            BRepTools.Clean_s(shape)
         BRepMesh_IncrementalMesh(shape, lin, False, ang, True)
+    return (lin, ang)
 
 
 def _read_glb_json(glb_path: Path) -> dict[str, Any]:
@@ -203,6 +208,17 @@ def _build_explode_metadata(
     Raises ValueError if assembly.step and exploded.step have mismatched part
     counts or unmatched names (e.g. built with different --detail levels) or
     if sub-parts of a rigid bearing diverge in their explode displacement."""
+    # Filter out synthetic dashed explode trace-line solids that are only
+    # emitted in exploded.step (when trace_lines=true).
+    exp_leaves = [
+        leaf
+        for leaf in exp_leaves
+        if not (
+            leaf["name"].startswith("trace_")
+            or leaf["name"].startswith("explode_trace_")
+        )
+    ]
+
     if len(asm_leaves) != len(exp_leaves):
         raise ValueError(
             f"assembly.step ({len(asm_leaves)} parts) and exploded.step "
@@ -315,6 +331,16 @@ def _build_explode_metadata(
     }
 
 
+def _write_glb(asm_doc: TDocStd_Document, assembly_step: Path, out_glb: Path) -> int:
+    out_glb.parent.mkdir(parents=True, exist_ok=True)
+    writer = RWGltf_CafWriter(TCollection_AsciiString(str(out_glb)), True)
+    file_info = TColStd_IndexedDataMapOfStringString()
+    ok = writer.Perform(asm_doc, file_info, Message_ProgressRange())
+    if not ok or not out_glb.exists():
+        raise RuntimeError(f"RWGltf_CafWriter failed for {assembly_step}")
+    return out_glb.stat().st_size
+
+
 def export_step_to_glb(
     assembly_step: Path,
     out_glb: Path,
@@ -322,18 +348,32 @@ def export_step_to_glb(
     explode_json: Path | None = None,
     lin_deflection: float | None = None,
     ang_deflection: float | None = None,
+    max_mb: float = 30.0,
 ) -> tuple[int, int]:
     """Export `assembly_step` to `out_glb` (and optional `explode_json`).
+    When `lin_deflection`/`ang_deflection` are auto and `max_mb > 0`, oversized
+    GLBs are automatically re-tessellated slightly coarser so they stay well
+    below GitHub's 50 MB warning and load fast in browsers.
     Returns (glb_bytes, part_count)."""
     asm_doc = _read_step_doc(assembly_step)
-    _tessellate_doc(asm_doc, lin_deflection, ang_deflection)
+    base_lin, base_ang = _tessellate_doc(asm_doc, lin_deflection, ang_deflection)
+    size = _write_glb(asm_doc, assembly_step, out_glb)
 
-    out_glb.parent.mkdir(parents=True, exist_ok=True)
-    writer = RWGltf_CafWriter(TCollection_AsciiString(str(out_glb)), True)
-    file_info = TColStd_IndexedDataMapOfStringString()
-    ok = writer.Perform(asm_doc, file_info, Message_ProgressRange())
-    if not ok or not out_glb.exists():
-        raise RuntimeError(f"RWGltf_CafWriter failed for {assembly_step}")
+    max_bytes = int(max_mb * 1024 * 1024) if max_mb > 0 else 0
+    if max_bytes and lin_deflection is None and ang_deflection is None and size > max_bytes:
+        orig_mb = size / (1024 * 1024)
+        for lin_mult, ang_mult in ((2.2, 1.6), (4.5, 2.4), (8.0, 3.2)):
+            lin = base_lin * lin_mult
+            ang = min(0.85, base_ang * ang_mult)
+            _tessellate_doc(asm_doc, lin, ang, clean=True)
+            size = _write_glb(asm_doc, assembly_step, out_glb)
+            if size <= max_bytes:
+                break
+        print(
+            f"  note: re-tessellated {out_glb.name} to stay under {max_mb:.0f} MiB "
+            f"({orig_mb:.1f} MiB -> {size / (1024 * 1024):.1f} MiB)",
+            file=sys.stderr,
+        )
 
     part_count = 0
     if exploded_step is not None and exploded_step.exists() and explode_json is not None:
@@ -356,6 +396,7 @@ def main(argv: list[str]) -> int:
     parser.add_argument("--explode-json", help="Output explode.json path (default: <dir>/explode.json)")
     parser.add_argument("--lin-deflection", type=float, default=None, help="Linear tessellation deflection in mm (default: auto by part size)")
     parser.add_argument("--ang-deflection", type=float, default=None, help="Angular tessellation deflection in radians (default: auto by part size)")
+    parser.add_argument("--max-mb", type=float, default=30.0, help="Target max GLB size in MiB for auto tessellation (0 disables; default: 30)")
     args = parser.parse_args(argv)
 
     inp = Path(args.input)
@@ -381,6 +422,7 @@ def main(argv: list[str]) -> int:
         explode_json=exp_json,
         lin_deflection=args.lin_deflection,
         ang_deflection=args.ang_deflection,
+        max_mb=args.max_mb,
     )
     print(f"  {out_glb} ({size / 1024:.1f} KiB, {parts} animated parts)")
     return 0
